@@ -25,3 +25,9 @@ Durable memory for the Agent Smith US portfolio agent. Smith reads these files a
 - **Quality auditor (monthly)**: PAT-vs-OCF, share dilution, leverage, customer concentration, going-concern flags.
 
 All JSON state files carry `"schema_version": 1`. Deleting `state.json` resets Smith's memory but not your policy, ledger, proposals, or journal.
+
+## KILL SWITCH (how to stop everything, fast)
+1. **Scheduled runs**: sidebar → Scheduled → disable `agent-smith-daily-us`, `agent-smith-weekly-us`, `operator-daily-india`, `operator-weekly-india`, and delete any pending `smith-rebound-primer-YYYY-MM-DD` one-shot.
+2. **A run in flight**: it stops when its session ends; if one died mid-flight, delete the stale `.running` lockfile in this directory so the next run isn't blocked.
+3. **Bad state after a misbehaving run**: this directory is a git repo (since 2026-07-18, one commit per run) — `git log --oneline` to find the last good snapshot, `git checkout <hash> -- .` to restore it.
+4. **Nothing here ever places trades** — stopping the agents stops analysis only; no positions or orders are affected.
