@@ -1,0 +1,37 @@
+{
+  "fetched_ts": "2026-07-16T11:14:00Z",
+  "usdinr": 96.335,
+  "us10y": 4.545,
+  "us10y_change": -0.04,
+  "vix": 16.01,
+  "vix_change_pct": 2.1698,
+  "dxy": 100.573,
+  "spx": 7572.4,
+  "spx_change_pct": 0.3819,
+  "ndx": 26269.227,
+  "ndx_change_pct": 0.6214,
+  "es_f": 7599.0,
+  "es_f_change_pct": -0.2068,
+  "nq_f": 29484.75,
+  "nq_f_change_pct": -0.7022,
+  "intl_session": {
+    "nikkei": {"price": 66835.54, "change_pct": -2.7868},
+    "kospi": {"price": 6820.6, "change_pct": -6.3672, "note": "sharp KOSPI selloff continues, EWY-relevant"},
+    "taiwan": {"price": 45624.98, "change_pct": -0.0145},
+    "stoxx50": {"price": 6240.72, "change_pct": -0.3968}
+  },
+  "adr_home_listings": {
+    "ASML.AS": {"price_eur": 1562.2, "change_pct": 0.8262},
+    "STMPA.PA": {"price_eur": 56.95, "change_pct": -3.2773},
+    "2330.TW": {"price_twd": 2470.0, "change_pct": 1.2295, "note": "TSM earnings today 2026-07-16, home listing up"}
+  },
+  "market_session": "pre-open",
+  "gate_classification": "AMBIGUOUS",
+  "gate_rationale": "VIX change +2.17% (between STABILIZING <=2% and ESCALATING >=5% thresholds) with both ES/NQ futures negative but neither <=-0.5%/-0.75% jointly with VIX>=5% -- ambiguous middle ground, not calm enough for STABILIZING, not hot enough for ESCALATING",
+  "heat_check": {
+    "hot": false,
+    "rule": "VIX>=20 OR VIX_chg>=8% OR ES<=-0.5% OR NQ<=-0.75%",
+    "values_checked": {"vix": 16.01, "vix_chg_pct": 2.17, "es_chg_pct": -0.207, "nq_chg_pct": -0.702},
+    "verdict": "calm, no primer scheduled"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "confirmed": false,
+  "as_of": "2026-07-12",
+  "cluster_targets": {
+    "AI Semis/Fabs": {"target_pct": 30, "band_pct": [25, 35], "actual_pct": 27.62},
+    "AI Memory/Storage": {"target_pct": 20, "band_pct": [15, 25], "actual_pct": 21.48},
+    "AI Networking/Optics": {"target_pct": 20, "band_pct": [15, 25], "actual_pct": 20.80},
+    "AI Power/Cooling/DC Infra": {"target_pct": 15, "band_pct": [10, 20], "actual_pct": 14.45},
+    "Compute/Hyperscaler OEM": {"target_pct": 5, "band_pct": [0, 10], "actual_pct": 4.15},
+    "Diversified/Regional ETF": {"target_pct": 5, "band_pct": [0, 10], "actual_pct": 3.97},
+    "Enterprise Software": {"target_pct": 0, "band_pct": [0, 5], "actual_pct": 1.74}
+  },
+  "ai_capex_clusters": ["AI Semis/Fabs", "AI Memory/Storage", "AI Networking/Optics", "AI Power/Cooling/DC Infra", "Compute/Hyperscaler OEM", "Compute/Hyperscaler"],
+  "max_single_position_pct": 12,
+  "cash_band_pct": [3, 15],
+  "max_ai_capex_factor_pct": 90,
+  "ai_capex_factor_flag_threshold_pct": 60,
+  "drawdown_warn_pct": 15,
+  "drawdown_risk_off_pct": 25,
+  "prefer_ltcg": true,
+  "ltcg_boundary_months": 24,
+  "notes": [
+    "max_single_position_pct set to a conventional 12% default; MU already sits at 12.71% on day one — see breach in strategist output.",
+    "max_ai_capex_factor_pct set to 90% (today's 88.5% rounded up) per bootstrap convention, but this ceiling sits 30 points above the 60% sane-diversification threshold this draft also carries. Reconsider this number specifically during confirmation rather than accepting the rounding.",
+    "Cash band [3,15]% is a default, not derived from this book; 12.45% actual sits comfortably inside it but near the top.",
+    "Drawdown thresholds are defaults (no drawdown history exists yet): warn -15%, risk-off -25% from peak.",
+    "LTCG per-lot purchase dates are unavailable — prefer_ltcg is set true on principle but cannot yet be applied name-by-name. Sourcing lot dates is the top data-quality priority for the next run."
+  ]
+}

@@ -1,0 +1,3 @@
+{
+  "_readme": "Per-lot purchase records for LTCG tracking (Indian 24-month foreign-equity boundary). Schema: {\"TICKER\": [{\"qty\": 0, \"date\": \"YYYY-MM-DD\", \"price_usd\": 0}]}. This file is empty because INDmoney's holdings feed does not expose per-lot purchase dates -- seed it manually from your INDmoney order history / contract notes, or let the orchestrator append a lot when it detects a new qty increase and you confirm it's a fresh buy (see known_gaps G1 in state.json). Until seeded, LTCG flags stay unavailable and are cited by that gap ID rather than re-explained every run."
+}
