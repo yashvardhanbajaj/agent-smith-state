@@ -177,6 +177,29 @@
   .db.pos{ color:var(--good); }
   .db.neg{ color:var(--bad); }
   .db.flat{ color:var(--ink-faint); font-weight:400; }
+
+  /* ---- interactivity ---- */
+  .navbar{ position:sticky; top:0; z-index:50; display:flex; align-items:center; flex-wrap:wrap; gap:6px; padding:10px 0; margin:0 -28px 8px; padding-left:28px; padding-right:28px; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom:1px solid var(--line-soft); }
+  .navbar .navlink{ font-family:var(--mono); font-size:11px; color:var(--ink-dim); background:var(--bg-panel); border:1px solid var(--line); border-radius:100px; padding:4px 10px; cursor:pointer; white-space:nowrap; }
+  .navbar .navlink:hover{ color:var(--ink); border-color:var(--accent); }
+  .navbar input{ font-family:var(--mono); font-size:12px; color:var(--ink); background:var(--bg-panel); border:1px solid var(--line); border-radius:7px; padding:5px 10px; width:150px; margin-left:auto; }
+  .navbar input:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .navbar input::placeholder{ color:var(--ink-faint); }
+
+  .section-title{ cursor:pointer; user-select:none; }
+  .section-title::before{ content:"▾"; font-family:var(--mono); font-size:12px; color:var(--ink-faint); transition: transform 0.15s ease; }
+  .section-title.collapsed::before{ transform: rotate(-90deg); }
+  .section-hidden{ display:none !important; }
+
+  .group-row{ cursor:pointer; user-select:none; }
+  .group-row td::after{ content:" ▾"; font-size:9px; color:var(--ink-faint); }
+  .group-row.collapsed td::after{ content:" ▸"; }
+
+  td.ticker, .holdbar-row .tk, .chip b{ cursor:pointer; }
+  body.filtering .dimmed{ opacity:0.25; }
+  .tk-hit{ background: var(--accent-soft) !important; border-radius:4px; box-shadow: 0 0 0 2px var(--accent-soft); }
+  .filter-note{ font-family:var(--mono); font-size:11px; color:var(--accent); padding:4px 10px; display:none; }
+  body.filtering .filter-note{ display:inline; }
 </style>
 
 <div class="wrap">
@@ -189,6 +212,11 @@
       <div>As of <b>2026-07-18 13:41 IST</b> — Saturday, reviewing Friday 2026-07-17's ACTUAL CLOSE (markets closed)</div>
       <div>USD/INR <b>96.28</b> · run #12 (deep) · 10Y 4.541% · VIX 18.77 (+12.2%) · DXY 100.755 · Fed 3.63% HAWKISH</div>
     </div>
+  </div>
+
+  <div class="navbar" id="navbar">
+    <span class="filter-note" id="filterNote"></span>
+    <input type="text" id="tickerSearch" placeholder="filter ticker… (Esc clears)" aria-label="Filter by ticker">
   </div>
 
   <div class="card" style="border-color: var(--warn); margin-bottom: 20px;">
@@ -600,3 +628,127 @@
 
   <div class="footer-line">AGENT SMITH · US BOOK · INDMONEY SOURCE OF TRUTH · DEEP REVIEW 2026-07-18 13:41 IST</div>
 </div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---- 1. sticky nav: build jump links from section titles ---- */
+  var navbar = document.getElementById("navbar");
+  var searchBox = document.getElementById("tickerSearch");
+  var filterNote = document.getElementById("filterNote");
+  var titles = Array.prototype.slice.call(document.querySelectorAll(".section-title"));
+  var shortNames = {
+    "Market Temperature & Session Read": "Market",
+    "Proposals": "Proposals",
+    "Can Buy / Should Trim / Hold": "Buy/Trim/Hold",
+    "Signal Buckets & Peer-Relative Strength": "Signals",
+    "Thesis Map": "Thesis",
+    "Factor Concentration": "Factor",
+    "Diversifier Bench": "Diversifiers",
+    "Cluster Headroom": "Clusters"
+  };
+  titles.forEach(function(t, i){
+    t.id = "sec-" + i;
+    var full = (t.childNodes[0] && t.childNodes[0].textContent || t.textContent).trim();
+    var label = shortNames[full] || full.split(" ").slice(0, 2).join(" ");
+    var btn = document.createElement("button");
+    btn.className = "navlink";
+    btn.type = "button";
+    btn.textContent = label;
+    btn.addEventListener("click", function(){
+      expandSection(t);
+      t.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    navbar.insertBefore(btn, filterNote);
+  });
+
+  /* ---- 2. collapsible sections: title toggles everything up to the next title ---- */
+  function sectionBody(t){
+    var nodes = [], n = t.nextElementSibling;
+    while (n && !n.classList.contains("section-title") && !n.classList.contains("footer-line")) {
+      nodes.push(n); n = n.nextElementSibling;
+    }
+    return nodes;
+  }
+  function expandSection(t){
+    t.classList.remove("collapsed");
+    sectionBody(t).forEach(function(n){ n.classList.remove("section-hidden"); });
+  }
+  titles.forEach(function(t){
+    t.addEventListener("click", function(){
+      var collapse = !t.classList.contains("collapsed");
+      t.classList.toggle("collapsed", collapse);
+      sectionBody(t).forEach(function(n){ n.classList.toggle("section-hidden", collapse); });
+    });
+  });
+
+  /* ---- 3. collapsible cluster groups in the thesis map ---- */
+  document.querySelectorAll(".group-row").forEach(function(g){
+    g.addEventListener("click", function(){
+      var collapse = !g.classList.contains("collapsed");
+      g.classList.toggle("collapsed", collapse);
+      var n = g.nextElementSibling;
+      while (n && !n.classList.contains("group-row")) {
+        n.classList.toggle("section-hidden", collapse);
+        n = n.nextElementSibling;
+      }
+    });
+  });
+
+  /* ---- 4. ticker filter: click any ticker or type in the box ---- */
+  var TICKER_RE = /^[A-Z]{1,5}$/;
+  function tickerOf(el){
+    var txt = (el.textContent || "").trim().split(/[\s(—·]/)[0];
+    return TICKER_RE.test(txt) ? txt : null;
+  }
+  /* filterable units: (element-to-dim, ticker) pairs */
+  var units = [];
+  document.querySelectorAll("tr").forEach(function(tr){
+    var td = tr.querySelector("td.ticker");
+    if (td) { var tk = tickerOf(td); if (tk) units.push([tr, tk, td]); }
+  });
+  document.querySelectorAll(".holdbar-row").forEach(function(row){
+    var tkEl = row.querySelector(".tk");
+    var tk = tkEl && tickerOf(tkEl);
+    if (!tk) return;
+    units.push([row, tk, tkEl]);
+    var tags = row.nextElementSibling;
+    if (tags && tags.classList.contains("holdbar-tags")) units.push([tags, tk, null]);
+  });
+  document.querySelectorAll(".chip").forEach(function(chip){
+    var b = chip.querySelector("b");
+    var tk = b && tickerOf(b);
+    if (tk) units.push([chip, tk, chip]);
+  });
+
+  var activeFilter = null;
+  function applyFilter(tk){
+    activeFilter = tk;
+    document.body.classList.toggle("filtering", !!tk);
+    filterNote.textContent = tk ? tk + " — click ticker again or press Esc to clear" : "";
+    units.forEach(function(u){
+      var match = tk && u[1] === tk;
+      u[0].classList.toggle("dimmed", !!tk && !match);
+      if (u[2]) u[2].classList.toggle("tk-hit", !!match);
+    });
+  }
+  document.addEventListener("click", function(e){
+    var el = e.target.closest("td.ticker, .holdbar-row .tk, .chip b");
+    if (!el) return;
+    var tk = tickerOf(el);
+    if (!tk) return;
+    applyFilter(activeFilter === tk ? null : tk);
+    if (searchBox) searchBox.value = activeFilter || "";
+  });
+  if (searchBox) {
+    searchBox.addEventListener("input", function(){
+      var v = searchBox.value.trim().toUpperCase();
+      applyFilter(TICKER_RE.test(v) ? v : null);
+    });
+  }
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape") { applyFilter(null); if (searchBox) searchBox.value = ""; }
+  });
+})();
+</script>
