@@ -170,10 +170,10 @@
     "2026-07-18 DEEP weekly review (Saturday, reviewing Friday 07-17's actual close): CQQQ fully exited (Diversified/Regional ETF cluster now 0.0% of book). GOOG re-entered (0->2sh) one day after its 07-17 exit -- neither move has an agreed explanation across agents; flagged as an open question, no trade proposed. Real qty increases: SNDK +1sh (now largest position), GLW +4sh, CLS +2sh, VRT +2sh, CIEN +0.39sh, IREN +10sh, META +1sh (script false-flagged as a stock split, corrected -- known_gaps G6). STM trimmed -5sh (matches the strategist's own 07-17 proposal, confirmed executed not a stop-loss).",
     "FIRST-EVER genuine AI-capex FACTOR CAP BREACH confirmed at the highest level yet: 99.278% vs 90% cap -- essentially the entire book is one factor bet. Cash is effectively zero (0.052% vs [3,15]% band, $23 wallet). SNDK (now largest position, 12.352%) breaches the 12% single-position cap AND is a severe peer-laggard (-38% vs SMH) despite a thesis flip to strengthening. AI Power/Cooling/DC Infra has collapsed to 3.581% (vs 15% target) -- GEV is dust, VRT the sole survivor.",
     "Value reconciliation gap (G3) hit its worst reading yet: networth_snapshot's US_STOCK total ($38,531) vs the bottom-up sum of holdings ($44,850) diverged by 16.4%. Confirmed the bottom-up sum is authoritative (INDmoney's own holding_percent field is computed against it, verified by back-solving) -- used as this run's headline value, a deviation from the literal HARD RULE justified by G3's severity.",
-    "Gate ESCALATING Friday (VIX +12.2% to 18.77, ES -1.06%, NQ -1.55%). Scout's session read: this was an ASIA/SEMIS-CONCENTRATED shock (Korea -6.37% -- second severe week running, Taiwan -6.47%, TSM's home listing -7.29% -- the largest ADR-lead move ever tracked), NOT a broad global panic (Euro Stoxx only -0.84%, US futures comparatively mild). High Monday gap-down risk flagged on TSM and EWY specifically.",
+    "Gate ESCALATING Friday (VIX +12.2% to 18.77, ES -1.06%, NQ -1.55%). Local Asian indices fell sharply (Korea -6.37% -- second severe week running, Taiwan -6.47%), NOT a broad global panic (Euro Stoxx only -0.84%, US futures comparatively mild). CORRECTED post-publish (user-caught, see known_gaps G13): the original briefing wrongly framed this as 'pending Monday gap risk' on TSM/EWY -- Asian/European exchanges close before the US session opens same-day, so Friday's US closes already reflect it, just dampened: TSM -2.77% (not -7.29%), EWY -0.50%, ASML -2.09%, STM -1.13%. No pending gap exists from this channel.",
     "smith-macro dispatched for the first time: Fed funds 3.63%, stance HAWKISH (dots raised to 3.8%, no cuts priced), next FOMC 2026-07-29. Regime call: risk-off, AI-supply-chain-specific stress layered on a hawkish Fed. fomc_cache seeded.",
     "CONFIRMED fresh insider activity via real Form-4 filings: CIEN -- CEO + 3 execs cluster-sold shares dated 7/15, filed 7/17, immediately before Friday's selloff. This reversed a stale 07-14 'Deploy CIEN' proposal into a trim candidate.",
-    "Strategist proposed a coordinated, funding-constrained set given near-zero cash: trim SNDK ~$1,500 (sizing/risk, not thesis -- funds VRT $600 + cash rebuild $900) and trim CIEN ~$500 (insider-driven -- funds META $500). Only 2 of rebound's 5 stage-in picks got funded; TSM/GLW/AVGO deferred (TSM specifically on Monday gap-down risk). Did a stale-proposal pass on all 23 open proposals.json entries -- ~18 closed as overtaken by events, STM trim marked fulfilled.",
+    "Strategist proposed a coordinated, funding-constrained set given near-zero cash: trim SNDK ~$1,500 (sizing/risk, not thesis -- funds VRT $600 + cash rebuild $900) and trim CIEN ~$500 (insider-driven -- funds META $500). Only 2 of rebound's 5 stage-in picks got funded; TSM/GLW/AVGO deferred, primarily on lack of a funding path (the TSM-specific 'Monday gap risk' co-rationale was later corrected as a timing error -- see known_gaps G13). Did a stale-proposal pass on all 23 open proposals.json entries -- ~18 closed as overtaken by events, STM trim marked fulfilled.",
     "Policy revision recommended (edit, not re-bootstrap): add a 'Compute/Hyperscaler' cluster target (10%, band [5,15]) for the now-7.945%-of-book ORCL/IREN/GOOG/META cluster that policy.json never tracked. Applied this run since the draft is unconfirmed (editing an unconfirmed draft doesn't require user sign-off, per HARD RULES)."
   ],
   "open_flags": [
@@ -229,7 +229,7 @@
     },
     {
       "ticker": "EWY",
-      "flag": "SECOND severe KOSPI crash this week (-6.37% Fri) but EWY itself moved only -0.5% -- unresolved pricing disconnect, recheck Monday.",
+      "flag": "SECOND severe KOSPI crash this week (-6.37% Fri local index) but EWY's US close moved only -0.5% -- already the fully-priced Friday reaction (not a pending move, see G13), likely dampened cross-listing transmission given EWY's large-cap Samsung/SK Hynix tilt vs the broader KOSPI; the Korea-thesis watch stays open, the 'gap' framing does not.",
       "opened": "2026-07-13"
     },
     {
@@ -654,6 +654,12 @@
       "description": "GOOG earnings date conflict: smith-macro reported 2026-07-22 with confidence (source not detailed beyond 'research'); smith-watchlist independently reported ~2026-07-30 as an unconfirmed yfinance-cadence-estimate (GOOG was under the 3%-weight threshold for a WebFetch escalation). Neither agent saw the other's number this run (parallel dispatch). Not resolved by the orchestrator -- both retained in earnings_calendar, flag persists until a run explicitly reconciles them.",
       "opened": "2026-07-18",
       "owner": "orchestrator/smith-watchlist (WebFetch confirmation next run regardless of weight threshold, given the conflict)"
+    },
+    {
+      "id": "G13",
+      "description": "SESSION-TIMING ERROR (user-caught 2026-07-18, post-publish): the orchestrator treated overseas home-listing/local-index moves (Taiwan exchange -7.29% for TSM's 2330.TW listing, KOSPI -6.37% for EWY's underlying, ASML.AS -3.84%, STMPA.PA -3.91%) as leading indicators implying a 'pending Monday gap' on the corresponding US-listed securities. This is backwards: Asian exchanges (Taiwan, Korea) and European exchanges (Amsterdam, Paris) close well before the US session opens on the same calendar day, so any Friday move in those markets is ALREADY available information by the time the US session trades -- the US close (verified via direct yfinance quotes: TSM -2.77%, EWY -0.50%, ASML -2.09%, STM -1.13%) is the fully-priced reaction, not a preview of something still to come. The correct framing: cross-listed securities and country ETFs often show markedly DAMPENED reactions vs their home market/index (differing investor base, index/circuit-breaker effects, local-vs-global fundamental weighting) -- that dampening is itself worth noting, but never as 'pending' risk. NEVER again frame a same-day overseas session move as a future US-session risk; always pull the US ticker's own live quote directly (get_stock_price) before making any gap/timing claim, rather than inferring it from a foreign listing.",
+      "opened": "2026-07-18",
+      "owner": "orchestrator"
     }
   ],
   "sentiment": {
@@ -698,7 +704,7 @@
     "Betas still unavailable despite retry: SNDK, DRAM (ETF/thin-history, known_gaps G5). IREN and ARM betas discarded this run for exceeding the 0-3.5 plausibility band (4.28 and 3.77 respectively) -- flagged for manual review, not cached.",
     "smith_math.py's known_gaps G6/G8/G9 (false-positive stock-split detection, invisible full-exits, invisible new-entries) all re-encountered this run -- manually corrected by the orchestrator (CQQQ exit, GOOG new entry, META false-split) rather than fixed at the script level. Still open engineering items.",
     "Policy revision applied this run (G11): added a 'Compute/Hyperscaler' cluster target (10%, band [5,15]) to policy.json's cluster_targets -- the draft is still unconfirmed and the user may want a fuller re-look given how much the book has changed since 07-12.",
-    "EWY's -0.5% Friday move vs KOSPI's -6.37% crash is an unresolved pricing disconnect -- recheck Monday.",
+    "EWY's -0.5% Friday move vs KOSPI's -6.37% local-index crash is the fully-priced US close, not a pending move -- see known_gaps G13.",
     "smith-rebound flagged CQQQ's exit may reflect genuine Asia/Hormuz-linked regional risk rather than idiosyncratic weakness (same theme as EWY) -- its classifier fell back to an SPX/NDX proxy since no in-book cluster peer survived the exit."
   ],
   "peer_map": {
