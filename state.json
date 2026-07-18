@@ -6,57 +6,48 @@
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
   "last_run_dir": "runs/2026-07-18-1341/",
   "us": {
-    "value_usd": 44849.74,
+    "value_usd": 38879.56,
     "count": 29,
     "top3": [
-      {
-        "ticker": "SNDK",
-        "weight_pct": 12.352
-      },
-      {
-        "ticker": "GLW",
-        "weight_pct": 8.077
-      },
-      {
-        "ticker": "DRAM",
-        "weight_pct": 7.111
-      }
+      {"ticker": "SNDK", "weight_pct": 10.482},
+      {"ticker": "GLW", "weight_pct": 7.556},
+      {"ticker": "DRAM", "weight_pct": 6.78}
     ],
-    "pnl_pct": -7.607,
+    "pnl_pct": null,
     "wallet_usd": 23.28,
-    "peak_value_usd": 44849.74,
+    "peak_value_usd": 38879.56,
     "beta": 1.477,
-    "value_usd_note": "authoritative value is the bottom-up sum of holdings, not networth_snapshot's US_STOCK total ($38,531) -- see known_gaps G3, now 16.4% divergent, its worst reading yet"
+    "value_usd_note": "CORRECTED 2026-07-18 (user-caught, live-price cross-check): value_usd is now computed from LIVE yfinance quotes x qty for every holding, verified to match the user's own reported figure ($38,879.56) to the cent. The prior 'bottom-up sum of INDmoney's per-position unit_price' figure ($44,849.74) was WRONG -- INDmoney's per-position price feed was stale for most names (SNDK +36%, GLW +23%, DRAM +21%, MU +16%, EWY +13%, TSM +9% overstated vs live prices), and the earlier justification for trusting it (weight_pct sums to 100% against that total) was a logical error -- that self-consistency is tautological (weight = row/sum-of-rows by definition) and proves nothing about price freshness. See known_gaps G3 (reversed) and G14 (new)."
   },
   "holdings": [
-    {"ticker": "SNDK", "qty": 3.008131251, "weight_pct": 12.352},
-    {"ticker": "GLW", "qty": 19, "weight_pct": 8.077},
-    {"ticker": "DRAM", "qty": 50, "weight_pct": 7.111},
-    {"ticker": "TSM", "qty": 6, "weight_pct": 5.793},
-    {"ticker": "NVDA", "qty": 12, "weight_pct": 5.377},
-    {"ticker": "MU", "qty": 2.000365376, "weight_pct": 4.383},
-    {"ticker": "EWY", "qty": 10, "weight_pct": 4.082},
-    {"ticker": "ASML", "qty": 1.000001151, "weight_pct": 3.987},
-    {"ticker": "CLS", "qty": 5.003266352, "weight_pct": 3.922},
-    {"ticker": "LRCX", "qty": 5, "weight_pct": 3.902},
-    {"ticker": "VRT", "qty": 5, "weight_pct": 3.579},
-    {"ticker": "MRVL", "qty": 7, "weight_pct": 3.763},
-    {"ticker": "CIEN", "qty": 3.388528082, "weight_pct": 3.462},
-    {"ticker": "NBIS", "qty": 6, "weight_pct": 2.866},
-    {"ticker": "AMAT", "qty": 2.0091785, "weight_pct": 2.613},
-    {"ticker": "QCOM", "qty": 6.000761904, "weight_pct": 2.534},
-    {"ticker": "AMD", "qty": 2, "weight_pct": 2.416},
-    {"ticker": "TER", "qty": 3.002730188, "weight_pct": 2.407},
-    {"ticker": "IREN", "qty": 25, "weight_pct": 2.305},
-    {"ticker": "COHR", "qty": 3, "weight_pct": 2.169},
-    {"ticker": "META", "qty": 2, "weight_pct": 2.791},
-    {"ticker": "AVGO", "qty": 2, "weight_pct": 1.773},
-    {"ticker": "LITE", "qty": 1, "weight_pct": 1.736},
-    {"ticker": "GOOG", "qty": 2, "weight_pct": 1.574},
-    {"ticker": "ARM", "qty": 2, "weight_pct": 1.449},
-    {"ticker": "ORCL", "qty": 4, "weight_pct": 1.275},
-    {"ticker": "STM", "qty": 10, "weight_pct": 1.578},
-    {"ticker": "NOW", "qty": 3, "weight_pct": 0.722},
+    {"ticker": "SNDK", "qty": 3.008131251, "weight_pct": 10.482},
+    {"ticker": "GLW", "qty": 19, "weight_pct": 7.556},
+    {"ticker": "DRAM", "qty": 50, "weight_pct": 6.78},
+    {"ticker": "NVDA", "qty": 12, "weight_pct": 6.26},
+    {"ticker": "TSM", "qty": 6, "weight_pct": 6.148},
+    {"ticker": "ASML", "qty": 1.000001151, "weight_pct": 4.495},
+    {"ticker": "MU", "qty": 2.000365376, "weight_pct": 4.368},
+    {"ticker": "EWY", "qty": 10, "weight_pct": 4.181},
+    {"ticker": "LRCX", "qty": 5, "weight_pct": 4.029},
+    {"ticker": "CLS", "qty": 5.003266352, "weight_pct": 3.878},
+    {"ticker": "VRT", "qty": 5, "weight_pct": 3.724},
+    {"ticker": "MRVL", "qty": 7, "weight_pct": 3.397},
+    {"ticker": "META", "qty": 2, "weight_pct": 3.323},
+    {"ticker": "CIEN", "qty": 3.388528082, "weight_pct": 3.263},
+    {"ticker": "NBIS", "qty": 6, "weight_pct": 2.742},
+    {"ticker": "AMAT", "qty": 2.0091785, "weight_pct": 2.737},
+    {"ticker": "QCOM", "qty": 6.000761904, "weight_pct": 2.651},
+    {"ticker": "AMD", "qty": 2, "weight_pct": 2.55},
+    {"ticker": "TER", "qty": 3.002730188, "weight_pct": 2.49},
+    {"ticker": "IREN", "qty": 25, "weight_pct": 2.162},
+    {"ticker": "COHR", "qty": 3, "weight_pct": 2.142},
+    {"ticker": "AVGO", "qty": 2, "weight_pct": 1.908},
+    {"ticker": "LITE", "qty": 1, "weight_pct": 1.885},
+    {"ticker": "GOOG", "qty": 2, "weight_pct": 1.78},
+    {"ticker": "STM", "qty": 10, "weight_pct": 1.596},
+    {"ticker": "ARM", "qty": 2, "weight_pct": 1.374},
+    {"ticker": "ORCL", "qty": 4, "weight_pct": 1.301},
+    {"ticker": "NOW", "qty": 3, "weight_pct": 0.797},
     {"ticker": "GEV", "qty": 0.000781934, "weight_pct": 0.002}
   ],
   "news_watermark": "2026-07-18",
@@ -85,7 +76,7 @@
     "TSM": "Foundry monopoly manufacturing leading-edge AI chips | strengthening",
     "CQQQ": "Thematic ETF, China tech/internet diversification | EXITED 2026-07-18 (full exit, -5.07% Friday vs cluster/SPX proxy median -1.21% -- rebound's classifier read IDIO_WEAK but flagged this may actually be Asia/Hormuz-linked regional risk given the same-day EWY/KOSPI stress, not company/ETF-specific weakness; Diversified/Regional ETF cluster is now 0.0% of the book)",
     "MU": "Memory (DRAM/HBM), real re-buy after dust period (0.0004->2.0sh), AI/HBM demand | strengthening (re-opened 2026-07-14)",
-    "SNDK": "AI NAND/enterprise-SSD supercycle bet -- flipped to strengthening 2026-07-17 on real news (Meta flash-storage supply deal), but now the LARGEST position (12.35%, breaches 12% single-position cap) and a SEVERE peer-laggard (-38% vs SMH's -15.7%) despite the good news; third qty-flip in 48h; any trim is a sizing/risk call, not a thesis downgrade | strengthening (watch on size/instability)",
+    "SNDK": "AI NAND/enterprise-SSD supercycle bet -- flipped to strengthening 2026-07-17 on real news (Meta flash-storage supply deal), and remains the LARGEST position at a CORRECTED 10.48% weight (does NOT breach the 12% cap -- the earlier 12.352% figure used a stale INDmoney price, see known_gaps G14) but is still a SEVERE peer-laggard (-38% vs SMH's -15.7%) despite the good news; third qty-flip in 48h. Any trim would need to stand on the peer-laggard/instability rationale alone now, not a cap-breach forcing function | strengthening (watch on instability)",
     "AMAT": "Semicap deposition/etch equipment for AI chip fabs | strengthening",
     "NBIS": "Emerging AI-cloud/neocloud GPU-as-a-service infrastructure | watch",
     "AIA": "Regional ETF, broad Asia-50 large caps diversification | intact",
@@ -168,8 +159,8 @@
   },
   "changes": [
     "2026-07-18 DEEP weekly review (Saturday, reviewing Friday 07-17's actual close): CQQQ fully exited (Diversified/Regional ETF cluster now 0.0% of book). GOOG re-entered (0->2sh) one day after its 07-17 exit -- neither move has an agreed explanation across agents; flagged as an open question, no trade proposed. Real qty increases: SNDK +1sh (now largest position), GLW +4sh, CLS +2sh, VRT +2sh, CIEN +0.39sh, IREN +10sh, META +1sh (script false-flagged as a stock split, corrected -- known_gaps G6). STM trimmed -5sh (matches the strategist's own 07-17 proposal, confirmed executed not a stop-loss).",
-    "FIRST-EVER genuine AI-capex FACTOR CAP BREACH confirmed at the highest level yet: 99.278% vs 90% cap -- essentially the entire book is one factor bet. Cash is effectively zero (0.052% vs [3,15]% band, $23 wallet). SNDK (now largest position, 12.352%) breaches the 12% single-position cap AND is a severe peer-laggard (-38% vs SMH) despite a thesis flip to strengthening. AI Power/Cooling/DC Infra has collapsed to 3.581% (vs 15% target) -- GEV is dust, VRT the sole survivor.",
-    "Value reconciliation gap (G3) hit its worst reading yet: networth_snapshot's US_STOCK total ($38,531) vs the bottom-up sum of holdings ($44,850) diverged by 16.4%. Confirmed the bottom-up sum is authoritative (INDmoney's own holding_percent field is computed against it, verified by back-solving) -- used as this run's headline value, a deviation from the literal HARD RULE justified by G3's severity.",
+    "FIRST-EVER genuine AI-capex FACTOR CAP BREACH confirmed at the highest level yet: ~99.2% vs 90% cap -- essentially the entire book is one factor bet (holds under the live-price recompute below). Cash is effectively zero (~0.06% vs [3,15]% band, $23 wallet). AI Power/Cooling/DC Infra has collapsed to ~3.7% (vs 15% target) -- GEV is dust, VRT the sole survivor. CORRECTED same-day (user-caught): SNDK's weight was originally misreported at 12.352% (a false single-position cap breach) due to a stale INDmoney price; the true live-price weight is 10.482%, no cap breach. SNDK remains the largest position and a severe peer-laggard (-38% vs SMH) despite a thesis flip to strengthening -- that concern stands independently of the (retracted) cap-breach claim.",
+    "CORRECTION (same day, user-caught): the value-reconciliation gap (G3) was initially resolved in favor of the bottom-up sum ($44,850) over networth_snapshot ($38,531), reasoning that INDmoney's holding_percent field validated it -- that reasoning was WRONG (tautological). A direct live-price cross-check on all 29 holdings (yfinance) gives $38,879.56, matching the user's own reported figure exactly and confirming networth_snapshot was closer to right all along. Root cause: INDmoney's per-position unit_price field is stale for several names (SNDK +36%, GLW +23%, DRAM +21% overstated vs live). G3 marked resolved, G14 opened with the standing procedural fix (always value from live quotes, never from INDmoney's per-row price).",
     "Gate ESCALATING Friday (VIX +12.2% to 18.77, ES -1.06%, NQ -1.55%). Local Asian indices fell sharply (Korea -6.37% -- second severe week running, Taiwan -6.47%), NOT a broad global panic (Euro Stoxx only -0.84%, US futures comparatively mild). CORRECTED post-publish (user-caught, see known_gaps G13): the original briefing wrongly framed this as 'pending Monday gap risk' on TSM/EWY -- Asian/European exchanges close before the US session opens same-day, so Friday's US closes already reflect it, just dampened: TSM -2.77% (not -7.29%), EWY -0.50%, ASML -2.09%, STM -1.13%. No pending gap exists from this channel.",
     "smith-macro dispatched for the first time: Fed funds 3.63%, stance HAWKISH (dots raised to 3.8%, no cuts priced), next FOMC 2026-07-29. Regime call: risk-off, AI-supply-chain-specific stress layered on a hawkish Fed. fomc_cache seeded.",
     "CONFIRMED fresh insider activity via real Form-4 filings: CIEN -- CEO + 3 execs cluster-sold shares dated 7/15, filed 7/17, immediately before Friday's selloff. This reversed a stale 07-14 'Deploy CIEN' proposal into a trim candidate.",
@@ -184,7 +175,7 @@
     },
     {
       "ticker": "SNDK",
-      "flag": "Now the LARGEST position (12.352%), breaches the 12% single-position cap, and is a SEVERE peer-laggard (-38% vs SMH) despite thesis flipping to strengthening on real news (Meta flash-storage deal). Strategist proposed a ~$1,500 trim -- sizing/risk call, explicitly not a thesis downgrade.",
+      "flag": "Largest position at a CORRECTED 10.48% (does NOT breach the 12% cap -- retracted, see G14), and still a SEVERE peer-laggard (-38% vs SMH) despite thesis flipping to strengthening on real news (Meta flash-storage deal). The strategist's ~$1,500 trim proposal was originally justified partly by the (now-retracted) cap breach -- needs re-evaluation on the peer-laggard/instability rationale alone.",
       "opened": "2026-07-14"
     },
     {
@@ -234,12 +225,12 @@
     },
     {
       "ticker": "PORTFOLIO",
-      "flag": "AI-capex combined factor CONFIRMED BREACHED at its highest level yet: 99.278% vs 90% cap -- essentially the entire book is one factor bet",
+      "flag": "AI-capex combined factor CONFIRMED BREACHED at its highest level yet: ~99.2% vs 90% cap (recomputed with live prices, corrected from the earlier 99.278% -- conclusion holds) -- essentially the entire book is one factor bet",
       "opened": "2026-07-18"
     },
     {
       "ticker": "PORTFOLIO",
-      "flag": "cash breach severe -- 0.052% vs [3,15]% band, $23 wallet, worse than any prior run",
+      "flag": "cash breach severe -- ~0.06% vs [3,15]% band, $23 wallet, worse than any prior run",
       "opened": "2026-07-18"
     },
     {
@@ -249,7 +240,7 @@
     },
     {
       "ticker": "PORTFOLIO",
-      "flag": "value-discrepancy gap (G3) hit its worst reading yet this run: 16.4% (snapshot vs bottom-up holdings sum) -- bottom-up used as authoritative, confirmed correct by back-solving INDmoney's own holding_percent field",
+      "flag": "value-discrepancy gap (G3) RESOLVED same-day: root cause was stale per-position pricing in INDmoney's networth_holdings feed, not the aggregate snapshot. True value confirmed at $38,879.56 via live-price cross-check, exact match to the user's own reported figure. See G14 for the standing fix.",
       "opened": "2026-07-17"
     },
     {
@@ -597,9 +588,15 @@
     },
     {
       "id": "G3",
-      "description": "holdings-array sum vs networth_snapshot total reconciliation gap: 0.6% (07-13) -> 3.15% (07-15) -> 6.5% (07-16, widening). On 07-16 the gap was wide enough that using snapshot as authoritative made weights sum to 106.5%, failing the sanity gate -- orchestrator used bottom-up holdings-sum as authoritative instead for that run. Needs investigation: is INDmoney's snapshot lagging live per-position prices, or is per-position data including something the snapshot excludes? 2026-07-17: gap spiked to ~12% (fast-moving pre-open selloff, INR snapshot lag) -- monitor next run for normalization.",
+      "description": "holdings-array sum vs networth_snapshot total reconciliation gap, tracked 07-13 through 07-18 (0.6% -> 3.15% -> 6.5% -> 12% -> 16.4%, monotonically widening). RESOLVED 2026-07-18 (user-caught, confirmed via direct yfinance cross-check on all 29 positions): the ROOT CAUSE is that INDmoney's per-position price feed (the 'unit_price' field in networth_holdings, used to compute each row's market_value_inr) is stale/overstated for many names -- SNDK +36%, GLW +23%, DRAM +21%, MU +16%, EWY +13%, TSM +9% vs live prices, while NVDA/ASML were nearly accurate. The 07-18 run's conclusion that the BOTTOM-UP SUM was authoritative (reasoning: INDmoney's own weight_pct field is self-consistent with it) was WRONG -- that self-consistency is tautological (weight = row/sum-of-rows by construction) and says nothing about whether the underlying per-row prices are fresh. The correct approach, confirmed exact to the cent against the user's own reported figure: fetch a LIVE quote (yfinance get_stock_price) for every held ticker and compute value = qty x live_price directly, rather than trusting either INDmoney total. See G14 for the standing procedural fix.",
       "opened": "2026-07-13",
-      "owner": "orchestrator"
+      "owner": "orchestrator (resolved 2026-07-18, see G14 for the ongoing procedure)"
+    },
+    {
+      "id": "G14",
+      "description": "PROCEDURAL FIX from G3's resolution: INDmoney's networth_holdings per-position 'unit_price' field cannot be trusted for portfolio valuation -- it silently goes stale for some tickers (worse for lower-volume/more volatile names like SNDK/DRAM) while staying accurate for others (NVDA/ASML), with no way to tell which from the API response alone. GOING FORWARD: every run must compute value_usd and all weight_pct figures from qty x a LIVE yfinance quote (get_stock_price, batched) for every held ticker -- never from INDmoney's per-row market_value_inr, and never justify trusting an aggregate by checking self-consistency with a derived weight field (that check is always tautological, not a freshness proof). INDmoney's networth_holdings is still useful for qty (share counts) and invested_amount (cost basis), just not for current per-share pricing.",
+      "opened": "2026-07-18",
+      "owner": "orchestrator -- update SKILL.md's PREFETCH step and smith_math.py's cmd_book to require live-price valuation, not INDmoney's market_value_inr"
     },
     {
       "id": "G4",
@@ -699,7 +696,7 @@
     "NEM_watchlist": {"price_usd": null, "target_usd": null, "upside_pct": 32.79, "thesis": "Watchlist agent's independent read: target-gap setup", "status": "new", "clean_diversifier": true}
   },
   "data_quality": [
-    "Value reconciliation gap (G3) hit its worst reading yet: 16.4% (networth_snapshot $38,531 vs bottom-up holdings-sum $44,850). Bottom-up used as authoritative -- confirmed correct by back-solving INDmoney's own holding_percent field against it.",
+    "Value reconciliation gap (G3) RESOLVED same-day (user-caught): true value is $38,879.56 (live-price cross-check, exact match to user's reported figure), NOT the $44,849.74 bottom-up-sum figure this run originally used. Root cause was stale INDmoney per-position pricing, not a snapshot lag. See G14.",
     "GOOG earnings date conflict unresolved (G12): macro says 07-22, watchlist says ~07-30 (unconfirmed). Both retained.",
     "Betas still unavailable despite retry: SNDK, DRAM (ETF/thin-history, known_gaps G5). IREN and ARM betas discarded this run for exceeding the 0-3.5 plausibility band (4.28 and 3.77 respectively) -- flagged for manual review, not cached.",
     "smith_math.py's known_gaps G6/G8/G9 (false-positive stock-split detection, invisible full-exits, invisible new-entries) all re-encountered this run -- manually corrected by the orchestrator (CQQQ exit, GOOG new entry, META false-split) rather than fixed at the script level. Still open engineering items.",

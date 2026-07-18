@@ -128,34 +128,35 @@
     </div>
   </div>
 
-  <div class="card" style="border-color: var(--bad); margin-bottom: 20px;">
-    <h2 style="color: var(--bad);">This Week's Headline: AI-Capex Factor Genuinely Breached at 99.3% — Cash Near-Zero</h2>
+  <div class="card" style="border-color: var(--warn); margin-bottom: 20px;">
+    <h2 style="color: var(--warn);">CORRECTION (user-caught, same day): Book Value Was Overstated ~15% — SNDK Does NOT Breach the Cap</h2>
     <div class="value-sub" style="font-size:13px; line-height:1.6;">
-      The most extreme concentration reading this book has ever produced. <b>AI-capex combined factor is confirmed at 99.278%</b> against a 90% policy cap — essentially the entire portfolio is one factor bet — now that a ticker-mapping issue from last week is fully resolved and every cluster is correctly counted. Cash is <b>$23 on a $44,850 book (0.05%)</b>, the most severe cash breach yet. <b>SNDK is now the largest position (12.35%)</b>, itself breaching the single-position cap, and — despite a thesis flip to strengthening on real news — is a severe peer-laggard (-38% vs its own sector ETF). <b>AI Power/Cooling/DC Infra has collapsed to 3.6%</b> against a 15% target; GEV is pure dust and VRT is the cluster's only survivor.
-      Friday's close was a sharp <b>Asia/semis-concentrated</b> selloff in the LOCAL indices — Korea and Taiwan's own markets fell hard (KOSPI -6.37%, a second severe week; Taiwan's exchange -6.47%). <b>Correction after publishing:</b> this briefing originally implied that move was still pending for the US-listed names ("Monday gap risk" on TSM/EWY) — that was a timing error on the orchestrator's part. Asian and European exchanges close well before the US session opens the same calendar day, so Friday's US closes for TSM (-2.77%), EWY (-0.50%), ASML (-2.09%), and STM (-1.13%) <i>already reflect</i> that overseas session, just with markedly dampened magnitude — there is no pending gap. <b>CIEN</b> saw a confirmed insider cluster-sale right before the selloff. <b>CQQQ was fully exited</b> and <b>GOOG was re-entered</b> one day after being exited — neither move has an agreed explanation across this system's own analysts, a genuine open question for the user. This run also marks the first-ever dispatch of the macro desk and the drawdown-day rebound triage, both new capabilities.
+      This dashboard originally reported $44,849.74 using a "bottom-up sum" of INDmoney's per-position prices, reasoned to be authoritative because it matched INDmoney's own weight_pct field — that reasoning was <b>wrong</b> (tautological: weight = row/sum-of-rows by definition, which proves nothing about whether the underlying prices are fresh). A direct live-price cross-check on all 29 holdings gives <b>$38,879.56</b>, matching the user's own reported figure exactly. Root cause: INDmoney's per-position price feed was stale for several names — <b>SNDK overstated by 36%</b>, GLW by 23%, DRAM by 21%, MU by 16%, EWY by 13%, TSM by 9% — while NVDA/ASML were nearly accurate. This is now known_gaps G14; every future run must value from live quotes, never INDmoney's per-row price.
+      <br><br>
+      This corrects a real conclusion: <b>SNDK's true weight is 10.48%, not 12.35% — it does NOT breach the 12% single-position cap.</b> The broader picture mostly holds on recompute: AI-capex combined factor is ~99.2% (was reported 99.278%, corrected but the breach stands), cash is still ~0.06% (severe breach), AI Power/Cooling/DC Infra is still collapsed to ~3.7%. SNDK remains the largest position and a severe peer-laggard (-38% vs SMH) independent of the retracted cap-breach claim.
     </div>
   </div>
 
   <div class="grid-top">
     <div class="card">
-      <h2>Book Value <span class="sub">bottom-up sum, authoritative — see reconciliation note</span></h2>
-      <div class="value-big">$44,849.74</div>
-      <div class="value-sub">+$4,977.41 vs the 07-17 run — decomposed as +$27.93 FX, +$4,952.95 real net buying, -$3.47 residual market move (Friday's selloff was almost entirely offset by flow this run). networth_snapshot's US_STOCK total reads $38,531 — a 16.4% gap, this book's worst reconciliation reading yet; the bottom-up sum is used here because INDmoney's own per-position weight field is computed against it.</div>
+      <h2>Book Value <span class="sub">live-price recompute — verified exact match to user's reported figure</span></h2>
+      <div class="value-big">$38,879.56</div>
+      <div class="value-sub">Total book incl. wallet: $38,902.84. Computed as qty × live yfinance quote for every holding, not from INDmoney's per-position price (which was stale, see the correction above). This is now the reset baseline for peak/drawdown tracking under the corrected methodology.</div>
       <div class="value-row">
         <div class="stat">Positions<b>29</b></div>
         <div class="stat">Wallet cash<b>$23.28</b></div>
-        <div class="stat">Cash % of book<b>0.05%</b></div>
+        <div class="stat">Cash % of book<b>0.06%</b></div>
         <div class="stat">Est. beta<b>1.477</b></div>
-        <div class="stat">Drawdown<b>0.0% (new peak)</b></div>
+        <div class="stat">Drawdown<b>0.0% (new baseline)</b></div>
       </div>
     </div>
     <div class="card">
       <h2>Risk Status</h2>
       <div class="stack">
         <div class="kv"><span class="k">Risk-off check</span><span class="pill warn">"Normal" (0% drawdown) — lagging, don't read as safe</span></div>
-        <div class="kv"><span class="k">Single-position cap</span><span class="pill bad">SNDK BREACH — 12.35% vs 12%</span></div>
-        <div class="kv"><span class="k">Cash band</span><span class="pill bad">SEVERE BREACH — 0.05% vs [3,15]%</span></div>
-        <div class="kv"><span class="k">AI-capex factor exposure</span><span class="pill bad">BREACHED — 99.28% vs 90% cap</span></div>
+        <div class="kv"><span class="k">Single-position cap</span><span class="pill good">No breach — SNDK 10.48% (corrected)</span></div>
+        <div class="kv"><span class="k">Cash band</span><span class="pill bad">SEVERE BREACH — 0.06% vs [3,15]%</span></div>
+        <div class="kv"><span class="k">AI-capex factor exposure</span><span class="pill bad">BREACHED — ~99.2% vs 90% cap</span></div>
         <div class="kv"><span class="k">Fresh insider risk</span><span class="pill bad">CIEN — CEO+3 execs sold pre-selloff</span></div>
         <div class="kv"><span class="k">Policy status</span><span class="pill neutral">draft, revised today, still unconfirmed</span></div>
       </div>
@@ -203,48 +204,48 @@
     </div>
   </div>
 
-  <div class="section-title">Cluster Headroom <span class="n">policy revised this run — Compute/Hyperscaler now tracked</span></div>
+  <div class="section-title">Cluster Headroom <span class="n">recomputed with live prices — SNDK breach retracted</span></div>
   <div class="card">
     <div class="stack">
       <div class="drift-row breach">
         <div class="name">AI-capex combined factor<span class="w">7 clusters, effectively the whole book</span></div>
         <div class="bar-track"><div class="bar-fill" style="width:100%"></div><div class="bar-target" style="left:90%"></div></div>
-        <div class="delta">99.28% / 90%</div>
+        <div class="delta">99.20% / 90%</div>
       </div>
-      <div class="drift-row breach">
-        <div class="name">SNDK — single position<span class="w">largest holding, new breach</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:100%"></div><div class="bar-target" style="left:97.1%"></div></div>
-        <div class="delta">12.35% / 12%</div>
+      <div class="drift-row">
+        <div class="name">SNDK — single position<span class="w">largest holding, NO breach (corrected)</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:87.4%"></div><div class="bar-target" style="left:100%"></div></div>
+        <div class="delta">10.48% / 12%</div>
       </div>
       <div class="drift-row">
         <div class="name">AI Semis / Fabs<span class="w">NVDA ASML LRCX AMAT TER STM QCOM TSM ARM AMD</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:91.6%"></div><div class="bar-target" style="left:85.7%"></div></div>
-        <div class="delta">32.06% / 30% (band 25-35, in band)</div>
+        <div class="bar-track"><div class="bar-fill" style="width:98.1%"></div><div class="bar-target" style="left:85.7%"></div></div>
+        <div class="delta">34.33% / 30% (band 25-35, in band, near ceiling)</div>
       </div>
       <div class="drift-row breach">
         <div class="name">AI Memory / Storage<span class="w">SNDK DRAM MU EWY</span></div>
         <div class="bar-track"><div class="bar-fill" style="width:100%"></div><div class="bar-target" style="left:80%"></div></div>
-        <div class="delta">27.93% / 20% (band 15-25)</div>
+        <div class="delta">25.81% / 20% (band 15-25, barely over)</div>
       </div>
       <div class="drift-row">
         <div class="name">AI Networking / Optics<span class="w">GLW CLS MRVL CIEN AVGO LITE COHR</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:99.9%"></div><div class="bar-target" style="left:80%"></div></div>
-        <div class="delta">20.98% / 20% (band 15-25, in band)</div>
+        <div class="bar-track"><div class="bar-fill" style="width:80.6%"></div><div class="bar-target" style="left:80%"></div></div>
+        <div class="delta">20.15% / 20% (band 15-25, in band)</div>
       </div>
       <div class="drift-row breach">
         <div class="name">AI Power / Cooling / DC Infra<span class="w">VRT, GEV (dust)</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:23.9%"></div><div class="bar-target" style="left:75%"></div></div>
-        <div class="delta">3.58% / 15% (band 10-20, -11.4pt under floor)</div>
+        <div class="bar-track"><div class="bar-fill" style="width:18.6%"></div><div class="bar-target" style="left:75%"></div></div>
+        <div class="delta">3.73% / 15% (band 10-20, -6.3pt under floor)</div>
       </div>
       <div class="drift-row">
-        <div class="name">Compute / Hyperscaler OEM<span class="w">NBIS</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:100%"></div><div class="bar-target" style="left:50%"></div></div>
-        <div class="delta">6.79% / 5% (band 0-10, in band)</div>
+        <div class="name">Compute / Hyperscaler OEM<span class="w">NBIS CLS</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:66.2%"></div><div class="bar-target" style="left:50%"></div></div>
+        <div class="delta">6.62% / 5% (band 0-10, in band)</div>
       </div>
       <div class="drift-row">
-        <div class="name">Compute / Hyperscaler <span class="w">ORCL META GOOG IREN — NEWLY TRACKED this run</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:79.5%"></div><div class="bar-target" style="left:66.7%"></div></div>
-        <div class="delta">7.95% / 10% (band 5-15, in band)</div>
+        <div class="name">Compute / Hyperscaler <span class="w">ORCL META GOOG IREN</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:57.1%"></div><div class="bar-target" style="left:66.7%"></div></div>
+        <div class="delta">8.57% / 10% (band 5-15, in band)</div>
       </div>
       <div class="drift-row">
         <div class="name">Diversified / Regional ETF<span class="w">— CQQQ fully exited this run</span></div>
@@ -253,56 +254,56 @@
       </div>
       <div class="drift-row">
         <div class="name">Enterprise Software<span class="w">NOW</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:14.4%"></div><div class="bar-target" style="left:0%"></div></div>
-        <div class="delta">0.72% / 0-5% band (in band)</div>
+        <div class="bar-track"><div class="bar-fill" style="width:16.0%"></div><div class="bar-target" style="left:0%"></div></div>
+        <div class="delta">0.80% / 0-5% band (in band)</div>
       </div>
       <div class="drift-row breach">
         <div class="name">Cash<span class="w">wallet as % of total book</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:1.7%"></div><div class="bar-target" style="left:15%"></div></div>
-        <div class="delta">0.05% / 3% floor ($1,322 under)</div>
+        <div class="bar-track"><div class="bar-fill" style="width:2.0%"></div><div class="bar-target" style="left:100%"></div></div>
+        <div class="delta">0.06% / 3% floor ($1,144 under)</div>
       </div>
     </div>
-    <div class="caveat">Policy revised this run: added the "Compute/Hyperscaler" cluster target (10%, band [5,15]) that had been missing since the cluster was first introduced — 7.95% of the book was completely untracked by drift analysis until now. Draft still unconfirmed; the whole thing is now stale relative to the book's actual composition (28→29 holdings, heavy turnover since 07-12) and would benefit from a fuller re-look.</div>
+    <div class="caveat">Recomputed with live prices (see the correction banner above): SNDK's single-position breach is retracted, no longer a live breach. AI Memory/Storage is only barely over its band now (25.81% vs a 25% ceiling), not the more severe 27.93% originally reported. All other conclusions (AI-capex factor breach, cash severe breach, AI Power/Cooling collapse) hold under the corrected numbers. Policy still unconfirmed and stale relative to the book's actual composition.</div>
   </div>
 
-  <div class="section-title">Position Headroom <span class="n">29 positions — room to the 12% single-position cap</span></div>
+  <div class="section-title">Position Headroom <span class="n">29 positions — recomputed with live prices, room to the 12% cap</span></div>
   <div class="card table-wrap">
     <table>
       <thead><tr><th>Ticker</th><th class="num">Weight</th><th class="num">Value</th><th class="num">Room to 12%</th><th>Headroom bar</th></tr></thead>
       <tbody>
-<tr><td class="ticker">SNDK</td><td class="num">12.35%</td><td class="num">$5,540</td><td class="num" style="color:var(--bad);">-$158 (BREACH)</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:100%; background:var(--bad);"></div></div></td></tr>
-<tr><td class="ticker">GLW</td><td class="num">8.08%</td><td class="num">$3,623</td><td class="num">$1,759</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:67.3%; background:var(--warn);"></div></div></td></tr>
-<tr><td class="ticker">DRAM</td><td class="num">7.11%</td><td class="num">$3,189</td><td class="num">$2,193</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:59.3%;"></div></div></td></tr>
-<tr><td class="ticker">TSM</td><td class="num">5.79%</td><td class="num">$2,598</td><td class="num">$2,784</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:48.3%;"></div></div></td></tr>
-<tr><td class="ticker">NVDA</td><td class="num">5.38%</td><td class="num">$2,412</td><td class="num">$2,970</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:44.8%;"></div></div></td></tr>
-<tr><td class="ticker">MU</td><td class="num">4.38%</td><td class="num">$1,966</td><td class="num">$3,416</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:36.5%;"></div></div></td></tr>
-<tr><td class="ticker">EWY</td><td class="num">4.08%</td><td class="num">$1,831</td><td class="num">$3,551</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:34.0%;"></div></div></td></tr>
-<tr><td class="ticker">ASML</td><td class="num">3.99%</td><td class="num">$1,788</td><td class="num">$3,594</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:33.2%;"></div></div></td></tr>
-<tr><td class="ticker">CLS</td><td class="num">3.92%</td><td class="num">$1,759</td><td class="num">$3,623</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:32.7%;"></div></div></td></tr>
-<tr><td class="ticker">LRCX</td><td class="num">3.90%</td><td class="num">$1,750</td><td class="num">$3,632</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:32.5%;"></div></div></td></tr>
-<tr><td class="ticker">MRVL</td><td class="num">3.76%</td><td class="num">$1,688</td><td class="num">$3,694</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:31.4%;"></div></div></td></tr>
-<tr><td class="ticker">VRT</td><td class="num">3.58%</td><td class="num">$1,605</td><td class="num">$3,777</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:29.8%;"></div></div></td></tr>
-<tr><td class="ticker">CIEN</td><td class="num">3.46%</td><td class="num">$1,553</td><td class="num">$3,829</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:28.9%;"></div></div></td></tr>
-<tr><td class="ticker">NBIS</td><td class="num">2.87%</td><td class="num">$1,285</td><td class="num">$4,097</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:23.9%;"></div></div></td></tr>
-<tr><td class="ticker">META</td><td class="num">2.79%</td><td class="num">$1,252</td><td class="num">$4,130</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:23.3%;"></div></div></td></tr>
-<tr><td class="ticker">AMAT</td><td class="num">2.61%</td><td class="num">$1,172</td><td class="num">$4,210</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:21.8%;"></div></div></td></tr>
-<tr><td class="ticker">QCOM</td><td class="num">2.53%</td><td class="num">$1,136</td><td class="num">$4,245</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:21.1%;"></div></div></td></tr>
-<tr><td class="ticker">AMD</td><td class="num">2.42%</td><td class="num">$1,084</td><td class="num">$4,298</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:20.1%;"></div></div></td></tr>
-<tr><td class="ticker">TER</td><td class="num">2.41%</td><td class="num">$1,080</td><td class="num">$4,302</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:20.1%;"></div></div></td></tr>
-<tr><td class="ticker">IREN</td><td class="num">2.31%</td><td class="num">$1,034</td><td class="num">$4,348</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:19.2%;"></div></div></td></tr>
-<tr><td class="ticker">COHR</td><td class="num">2.17%</td><td class="num">$973</td><td class="num">$4,409</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:18.1%;"></div></div></td></tr>
-<tr><td class="ticker">AVGO</td><td class="num">1.77%</td><td class="num">$795</td><td class="num">$4,587</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:14.8%;"></div></div></td></tr>
-<tr><td class="ticker">LITE</td><td class="num">1.74%</td><td class="num">$779</td><td class="num">$4,603</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:14.5%;"></div></div></td></tr>
-<tr><td class="ticker">STM</td><td class="num">1.58%</td><td class="num">$708</td><td class="num">$4,674</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:13.2%;"></div></div></td></tr>
-<tr><td class="ticker">GOOG</td><td class="num">1.57%</td><td class="num">$706</td><td class="num">$4,676</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:13.1%;"></div></div></td></tr>
-<tr><td class="ticker">ARM</td><td class="num">1.45%</td><td class="num">$650</td><td class="num">$4,732</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:12.1%;"></div></div></td></tr>
-<tr><td class="ticker">ORCL</td><td class="num">1.28%</td><td class="num">$572</td><td class="num">$4,810</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:10.6%;"></div></div></td></tr>
-<tr><td class="ticker">NOW</td><td class="num">0.72%</td><td class="num">$324</td><td class="num">$5,058</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:6.0%;"></div></div></td></tr>
-<tr><td class="ticker">GEV</td><td class="num">0.00%</td><td class="num">$1</td><td class="num">$5,381</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:0.0%;"></div></div></td></tr>
+<tr><td class="ticker">SNDK</td><td class="num">10.48%</td><td class="num">$4,075</td><td class="num">$590</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:87.4%; background:var(--warn);"></div></div></td></tr>
+<tr><td class="ticker">GLW</td><td class="num">7.56%</td><td class="num">$2,938</td><td class="num">$1,728</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:63.0%;"></div></div></td></tr>
+<tr><td class="ticker">DRAM</td><td class="num">6.78%</td><td class="num">$2,636</td><td class="num">$2,030</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:56.5%;"></div></div></td></tr>
+<tr><td class="ticker">NVDA</td><td class="num">6.26%</td><td class="num">$2,434</td><td class="num">$2,232</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:52.2%;"></div></div></td></tr>
+<tr><td class="ticker">TSM</td><td class="num">6.15%</td><td class="num">$2,390</td><td class="num">$2,275</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:51.2%;"></div></div></td></tr>
+<tr><td class="ticker">ASML</td><td class="num">4.49%</td><td class="num">$1,748</td><td class="num">$2,918</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:37.5%;"></div></div></td></tr>
+<tr><td class="ticker">MU</td><td class="num">4.37%</td><td class="num">$1,698</td><td class="num">$2,967</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:36.4%;"></div></div></td></tr>
+<tr><td class="ticker">EWY</td><td class="num">4.18%</td><td class="num">$1,625</td><td class="num">$3,040</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:34.8%;"></div></div></td></tr>
+<tr><td class="ticker">LRCX</td><td class="num">4.03%</td><td class="num">$1,566</td><td class="num">$3,099</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:33.6%;"></div></div></td></tr>
+<tr><td class="ticker">CLS</td><td class="num">3.88%</td><td class="num">$1,508</td><td class="num">$3,158</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:32.3%;"></div></div></td></tr>
+<tr><td class="ticker">VRT</td><td class="num">3.72%</td><td class="num">$1,448</td><td class="num">$3,218</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:31.0%;"></div></div></td></tr>
+<tr><td class="ticker">MRVL</td><td class="num">3.40%</td><td class="num">$1,321</td><td class="num">$3,345</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:28.3%;"></div></div></td></tr>
+<tr><td class="ticker">META</td><td class="num">3.32%</td><td class="num">$1,292</td><td class="num">$3,374</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:27.7%;"></div></div></td></tr>
+<tr><td class="ticker">CIEN</td><td class="num">3.26%</td><td class="num">$1,269</td><td class="num">$3,397</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:27.2%;"></div></div></td></tr>
+<tr><td class="ticker">NBIS</td><td class="num">2.74%</td><td class="num">$1,066</td><td class="num">$3,599</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:22.9%;"></div></div></td></tr>
+<tr><td class="ticker">AMAT</td><td class="num">2.74%</td><td class="num">$1,064</td><td class="num">$3,601</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:22.8%;"></div></div></td></tr>
+<tr><td class="ticker">QCOM</td><td class="num">2.65%</td><td class="num">$1,031</td><td class="num">$3,635</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:22.1%;"></div></div></td></tr>
+<tr><td class="ticker">AMD</td><td class="num">2.55%</td><td class="num">$992</td><td class="num">$3,674</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:21.3%;"></div></div></td></tr>
+<tr><td class="ticker">TER</td><td class="num">2.49%</td><td class="num">$968</td><td class="num">$3,698</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:20.7%;"></div></div></td></tr>
+<tr><td class="ticker">IREN</td><td class="num">2.16%</td><td class="num">$840</td><td class="num">$3,825</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:18.0%;"></div></div></td></tr>
+<tr><td class="ticker">COHR</td><td class="num">2.14%</td><td class="num">$833</td><td class="num">$3,833</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:17.8%;"></div></div></td></tr>
+<tr><td class="ticker">AVGO</td><td class="num">1.91%</td><td class="num">$742</td><td class="num">$3,924</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:15.9%;"></div></div></td></tr>
+<tr><td class="ticker">LITE</td><td class="num">1.88%</td><td class="num">$733</td><td class="num">$3,933</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:15.7%;"></div></div></td></tr>
+<tr><td class="ticker">GOOG</td><td class="num">1.78%</td><td class="num">$692</td><td class="num">$3,973</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:14.8%;"></div></div></td></tr>
+<tr><td class="ticker">STM</td><td class="num">1.60%</td><td class="num">$621</td><td class="num">$4,045</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:13.3%;"></div></div></td></tr>
+<tr><td class="ticker">ARM</td><td class="num">1.37%</td><td class="num">$534</td><td class="num">$4,131</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:11.5%;"></div></div></td></tr>
+<tr><td class="ticker">ORCL</td><td class="num">1.30%</td><td class="num">$506</td><td class="num">$4,160</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:10.8%;"></div></div></td></tr>
+<tr><td class="ticker">NOW</td><td class="num">0.80%</td><td class="num">$310</td><td class="num">$4,356</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:6.6%;"></div></div></td></tr>
+<tr><td class="ticker">GEV</td><td class="num">0.00%</td><td class="num">$1</td><td class="num">$4,665</td><td><div class="bar-track" style="max-width:160px;"><div class="bar-fill" style="width:0.0%;"></div></div></td></tr>
       </tbody>
     </table>
   </div>
-  <div class="caveat">"Room to 12%" ignores cluster-level caps. AI Memory/Storage (SNDK/DRAM/MU/EWY) is over its own band regardless of individual position headroom.</div>
+  <div class="caveat">Recomputed from live prices — see correction banner above. "Room to 12%" ignores cluster-level caps. AI Memory/Storage (SNDK/DRAM/MU/EWY) is still barely over its own band (25.81% vs 25%) regardless of individual position headroom.</div>
 
   <div class="section-title">Signal Buckets &amp; Peer-Relative Strength <span class="n">37 journal entries tracked, 1 new (GOOG)</span></div>
   <div class="buckets-grid">
@@ -360,7 +361,7 @@
     <table>
       <thead><tr><th>Ticker</th><th>Cluster</th><th class="num">Weight</th><th>Verdict</th><th>Evidence</th></tr></thead>
       <tbody>
-<tr><td class="ticker">SNDK</td><td>AI Memory/Storage</td><td class="num">12.35%</td><td><span class="pill good">Strengthening</span></td><td>Flipped on real news (Meta flash-storage deal 07-17) — but now largest position, cap breach, severe peer-laggard; any trim is sizing/risk, not thesis</td></tr>
+<tr><td class="ticker">SNDK</td><td>AI Memory/Storage</td><td class="num">10.48%</td><td><span class="pill good">Strengthening</span></td><td>Flipped on real news (Meta flash-storage deal 07-17) — largest position, NO cap breach (corrected from an initially-misreported 12.35%), still a severe peer-laggard; any trim is sizing/risk, not thesis</td></tr>
 <tr><td class="ticker">GLW</td><td>AI Networking/Optics</td><td class="num">8.08%</td><td><span class="pill good">Strengthening</span></td><td>Optical fiber/connectivity for datacenter interconnect buildout</td></tr>
 <tr><td class="ticker">DRAM</td><td>AI Memory/Storage</td><td class="num">7.11%</td><td><span class="pill neutral">Intact</span></td><td>Thematic ETF for concentrated memory (DRAM/NAND) AI demand</td></tr>
 <tr><td class="ticker">TSM</td><td>AI Semis/Fabs</td><td class="num">5.79%</td><td><span class="pill good">Strengthening</span></td><td>Foundry monopoly; US close -2.77% Friday (already reflects the Taiwan session's -7.29% local move, no pending Monday gap — corrected from an earlier timing error)</td></tr>
@@ -395,7 +396,7 @@
 
   <div class="section-title">Factor Concentration</div>
   <div class="card">
-    <div class="kv"><span class="k">Combined AI-capex chain exposure</span><span class="v" style="color:var(--bad); font-weight:700;">99.278% — BREACHED 90% cap, highest ever</span></div>
+    <div class="kv"><span class="k">Combined AI-capex chain exposure</span><span class="v" style="color:var(--bad); font-weight:700;">~99.2% — BREACHED 90% cap, highest ever (corrected from an initially-misreported 99.278%, conclusion holds)</span></div>
     <div class="kv"><span class="k">Genuinely diversifying (NOW only)</span><span class="v">~0.72% — CQQQ's exit removed the last other non-AI-capex sleeve</span></div>
     <div class="kv"><span class="k">Reconciliation note</span><span class="v">value gap hit 16.4% this run (worst yet) — bottom-up sum used as authoritative, confirmed correct by back-solving INDmoney's own weight field</span></div>
   </div>
@@ -426,8 +427,8 @@
     <div class="proposal">
       <div class="num">1</div>
       <div>
-        <div class="action">Trim SNDK — cures the single-position cap breach<span class="size">~$1,500</span></div>
-        <div class="rationale">Position-cap breach (12.35% vs 12%) + severe peer-laggard (-38% vs SMH) + third qty-flip in 48h. This is explicitly a sizing/risk call, not a thesis downgrade — SNDK just flipped to strengthening on real news. Proceeds routed: ~$600 to VRT, ~$900 to cash rebuild. LTCG unconfirmed (lots.json empty).</div>
+        <div class="action">Trim SNDK — NEEDS RE-EVALUATION, cap-breach rationale retracted<span class="size">~$1,500 (under review)</span></div>
+        <div class="rationale">CORRECTED: this proposal originally cited a 12.35% single-position cap breach as the forcing rationale — that was wrong (stale INDmoney price; true weight is 10.48%, no breach). The remaining independent rationale — severe peer-laggard (-38% vs SMH) and a third qty-flip in 48h despite a good-news thesis flip — may still support a smaller or different trim, but the $1,500 size (and the downstream VRT/cash-rebuild legs it was meant to fund) should not be treated as a settled call. Flagged for your judgment rather than auto-carried-forward.</div>
       </div>
     </div>
     <div class="proposal">
@@ -440,8 +441,8 @@
     <div class="proposal">
       <div class="num">3</div>
       <div>
-        <div class="action">Stage into VRT — funded by the SNDK trim<span class="size">~$600</span></div>
-        <div class="rationale">Cures the worst cluster breach on the book: AI Power/Cooling/DC Infra collapsed to 3.58% vs a 15% target. VRT is the only viable vehicle (GEV is dust). Rebound flags this as low-confidence — sized small.</div>
+        <div class="action">Stage into VRT — funding contingent on proposal 1's outcome<span class="size">~$600</span></div>
+        <div class="rationale">Cures the worst cluster breach on the book: AI Power/Cooling/DC Infra collapsed to ~3.7% vs a 15% target. VRT is the only viable vehicle (GEV is dust). Rebound flags this as low-confidence — sized small. Funding source (the SNDK trim) is under review — see proposal 1.</div>
       </div>
     </div>
     <div class="proposal">
@@ -467,7 +468,7 @@
     </div>
   </div>
 
-  <div class="caveat">Not investment advice. Agent Smith is a personal tracking and analysis tool — every proposal above is sized for review, never executed. Standing gaps: G1 no per-lot purchase dates; G3 value-reconciliation gap hit 16.4% this run, its worst reading yet (bottom-up sum used as authoritative); G4 ticker GOLD no longer = Barrick (use B); G5 SNDK/DRAM betas still unavailable, IREN/ARM betas discarded as implausible; G6/G8/G9 smith_math.py's stock-split/full-exit/new-entry blind spots all recurred this run, manually corrected (CQQQ exit, GOOG entry, META false-split); G10 yfinance multi-symbol history still auto-aggregates to weekly, even single-symbol calls need period≤3mo for daily granularity; G11 policy.json revised this run to add the missing Compute/Hyperscaler cluster target — the whole draft could use a fuller re-look; G12 GOOG earnings date conflict (07-22 vs ~07-30) unresolved; G13 NEW (user-caught, post-publish correction): this briefing originally mischaracterized overseas home-listing/index moves (Taiwan -7.29%, KOSPI -6.37%, ASML.AS -3.84%, STMPA.PA -3.91%) as "pending Monday gap risk" for the US-listed names — wrong, since Asian/European exchanges close before the US session opens the same calendar day, so Friday's US closes (TSM -2.77%, EWY -0.50%, ASML -2.09%, STM -1.13%) already reflect that information. Corrected throughout this dashboard; orchestrator to never repeat this framing. Zero scored journal history yet — first readout expected once the 07-12 cohort ages further past 30 days.</div>
+  <div class="caveat">Not investment advice. Agent Smith is a personal tracking and analysis tool — every proposal above is sized for review, never executed. Standing gaps: G1 no per-lot purchase dates; G3 value-reconciliation gap RESOLVED same-day (root cause: stale INDmoney per-position pricing, not a snapshot lag — see G14); G4 ticker GOLD no longer = Barrick (use B); G5 SNDK/DRAM betas still unavailable, IREN/ARM betas discarded as implausible; G6/G8/G9 smith_math.py's stock-split/full-exit/new-entry blind spots all recurred this run, manually corrected (CQQQ exit, GOOG entry, META false-split); G10 yfinance multi-symbol history still auto-aggregates to weekly, even single-symbol calls need period≤3mo for daily granularity; G11 policy.json revised this run to add the missing Compute/Hyperscaler cluster target — the whole draft could use a fuller re-look; G12 GOOG earnings date conflict (07-22 vs ~07-30) unresolved; G13 corrected the earlier "pending Monday gap risk" framing on TSM/EWY/ASML/STM (overseas sessions close before the US opens same-day, so the US close already reflects it); <b>G14 NEW (user-caught): INDmoney's per-position price feed is unreliable for portfolio valuation (SNDK was overstated 36%, GLW 23%, DRAM 21%) — every run must now value from live yfinance quotes (qty × live price) for every holding, never from INDmoney's market_value_inr, and never trust an aggregate just because it's self-consistent with a derived weight field.</b> Zero scored journal history yet — first readout expected once the 07-12 cohort ages further past 30 days.</div>
 
   <div class="footer-line">AGENT SMITH · US BOOK · INDMONEY SOURCE OF TRUTH · DEEP REVIEW 2026-07-18 13:41 IST</div>
 </div>

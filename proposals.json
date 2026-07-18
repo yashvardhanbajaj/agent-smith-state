@@ -384,12 +384,13 @@
     },
     {
       "date": "2026-07-18",
-      "action": "Trim SNDK to cure single-position cap breach (12.352% vs 12% cap), fund VRT stage-in + cash rebuild",
+      "action": "Trim SNDK -- reconsider sizing given retracted cap-breach rationale",
       "size_usd": 1500,
       "price_at_proposal": 1842.1,
       "status": "open",
-      "rationale": "Position-cap breach + severe peer-laggard (-38% vs SMH) + third 48h qty-flip; thesis explicit this is sizing/risk not thesis (SNDK flipped to STRENGTHENING on Meta flash-storage news 07-17); lots.json empty (G1), no LTCG check possible.",
-      "note": "Anchor price 3 days stale (07-15) -- confirm live price before acting. Proceeds routed: ~$600 to VRT, ~$900 to cash rebuild."
+      "rationale": "CORRECTED 2026-07-18 (user-caught): the original rationale cited a 12.352% single-position cap breach -- that was WRONG, caused by a stale INDmoney per-position price. SNDK's true live-price weight is 10.482%, no cap breach. The remaining independent rationale -- severe peer-laggard (-38% vs SMH) and a third qty-flip in 48h despite a good-news thesis flip -- may still support a smaller/different trim, but the forcing ,500 sizing (tied to curing a cap breach that does not exist) needs re-evaluation, not automatic execution. Downstream VRT () and cash-rebuild () legs were funded by this trim and should be reconsidered alongside it.",
+      "note": "Anchor price 3 days stale (07-15) -- confirm live price before acting. Proceeds routed: ~$600 to VRT, ~$900 to cash rebuild.",
+      "flagged_for_review": true
     },
     {
       "date": "2026-07-18",
