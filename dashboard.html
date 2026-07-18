@@ -200,21 +200,6 @@
   .tk-hit{ background: var(--accent-soft) !important; border-radius:4px; box-shadow: 0 0 0 2px var(--accent-soft); }
   .filter-note{ font-family:var(--mono); font-size:11px; color:var(--accent); padding:4px 10px; display:none; }
   body.filtering .filter-note{ display:inline; }
-
-  /* ---- live quotes ---- */
-  .navbar .livebtn{ font-family:var(--mono); font-size:11px; color:var(--accent); background:var(--accent-soft); border:1px solid var(--accent); border-radius:100px; padding:4px 12px; cursor:pointer; white-space:nowrap; }
-  .navbar .livebtn:disabled{ opacity:0.5; cursor:wait; }
-  .navbar .livebtn.on{ background:var(--good-bg); color:var(--good); border-color:var(--good); }
-  .live-strip{ display:none; background:var(--bg-panel); border:1px solid var(--accent); border-radius:10px; padding:14px 20px; margin-bottom:20px; }
-  .live-strip.show{ display:block; }
-  .live-strip .row1{ display:flex; align-items:baseline; gap:18px; flex-wrap:wrap; }
-  .live-strip .lv{ font-family:var(--mono); font-size:26px; font-weight:600; font-variant-numeric:tabular-nums; }
-  .live-strip .movers{ font-size:12px; color:var(--ink-dim); margin-top:8px; line-height:1.7; }
-  .live-strip .stamp{ font-family:var(--mono); font-size:11px; color:var(--ink-faint); margin-left:auto; }
-  .live-strip .err{ font-size:12.5px; color:var(--warn); line-height:1.5; }
-  .live-chg{ font-family:var(--mono); font-size:10.5px; font-weight:700; margin-left:6px; }
-  .live-chg.pos{ color:var(--good); }
-  .live-chg.neg{ color:var(--bad); }
 </style>
 
 <div class="wrap">
@@ -231,18 +216,7 @@
 
   <div class="navbar" id="navbar">
     <span class="filter-note" id="filterNote"></span>
-    <button type="button" class="livebtn" id="liveRefresh" title="Fetch live quotes via your FMP connector">↻ live quotes</button>
-    <button type="button" class="livebtn" id="liveAuto" title="Auto-refresh every 60s">auto: off</button>
     <input type="text" id="tickerSearch" placeholder="filter ticker… (Esc clears)" aria-label="Filter by ticker">
-  </div>
-
-  <div class="live-strip" id="liveStrip">
-    <div class="row1">
-      <span class="lv" id="liveValue"></span>
-      <span class="db" id="liveDelta"></span>
-      <span class="stamp" id="liveStamp"></span>
-    </div>
-    <div class="movers" id="liveMovers"></div>
   </div>
 
   <div class="card" style="border-color: var(--warn); margin-bottom: 20px;">
@@ -775,130 +749,6 @@
   }
   document.addEventListener("keydown", function(e){
     if (e.key === "Escape") { applyFilter(null); if (searchBox) searchBox.value = ""; }
-  });
-
-  /* ---- 5. live quotes via the viewer's FMP connector ---- */
-  var SERVER = "FMP", TOOL = "quote";
-  var WALLET = 23.28, BASELINE = 38879.56;
-  var QTY = {
-    SNDK:3.008131251, GLW:19, DRAM:50, NVDA:12, TSM:6, ASML:1.000001151,
-    MU:2.000365376, EWY:10, LRCX:5, CLS:5.003266352, VRT:5, MRVL:7, META:2,
-    CIEN:3.388528082, NBIS:6, AMAT:2.0091785, QCOM:6.000761904, AMD:2,
-    TER:3.002730188, IREN:25, COHR:3, AVGO:2, LITE:1, GOOG:2, STM:10,
-    ARM:2, ORCL:4, NOW:3, GEV:0.000781934
-  };
-  var SYMBOLS = Object.keys(QTY);
-  var CALL_INPUT = { endpoint: "batch-quote", symbols: SYMBOLS };
-  var btnRefresh = document.getElementById("liveRefresh");
-  var btnAuto = document.getElementById("liveAuto");
-  var strip = document.getElementById("liveStrip");
-  var elValue = document.getElementById("liveValue");
-  var elDelta = document.getElementById("liveDelta");
-  var elStamp = document.getElementById("liveStamp");
-  var elMovers = document.getElementById("liveMovers");
-
-  /* ticker label elements that get a day-change badge */
-  var labelEls = {};
-  units.forEach(function(u){
-    if (!u[2]) return;
-    (labelEls[u[1]] = labelEls[u[1]] || []).push(u[2]);
-  });
-
-  function fmtUsd(n){ return "$" + n.toLocaleString("en-US", { minimumFractionDigits:2, maximumFractionDigits:2 }); }
-  function fmtPct(p){ return (p >= 0 ? "+" : "") + p.toFixed(2) + "%"; }
-
-  function showError(msg){
-    strip.classList.add("show");
-    elValue.textContent = ""; elDelta.textContent = ""; elStamp.textContent = "";
-    elMovers.innerHTML = '<span class="err">' + msg + '</span>';
-  }
-  function errorCopy(e){
-    var code = e && e.code;
-    if (code === "needs_reauth") return "The FMP connector needs re-authentication — reconnect it in claude.ai Settings → Connectors, then retry.";
-    if (code === "server_not_connected" || code === "selection_required") return "No FMP connector available — add (or choose) it in claude.ai Settings → Connectors, then retry.";
-    if (code === "not_in_manifest" || code === "blocked_by_policy" || code === "approval_required") return "Live quotes are blocked for this viewer (" + code + ").";
-    if (code === "server_unavailable" || code === "rate_limited") return "FMP briefly unreachable — try again in a moment.";
-    if (code === "tool_error") return "Quote fetch failed: " + (e.message || "tool error");
-    if (code === "not_granted" || code === "capability_disabled" || code === "capability_removed") return "Live quotes need the claude.ai viewer with connector access enabled.";
-    return "Live quotes failed (" + (code || "unknown") + ") — try again.";
-  }
-
-  function renderQuotes(result){
-    var payload = result && result.payload;
-    if (typeof payload === "string") { try { payload = JSON.parse(payload); } catch(_e){ payload = null; } }
-    if (!Array.isArray(payload)) { showError("Unexpected quote format from the connector."); return; }
-    var byTk = {};
-    payload.forEach(function(q){ if (q && q.symbol) byTk[q.symbol] = q; });
-    var total = WALLET, got = 0, rows = [];
-    Object.keys(QTY).forEach(function(tk){
-      var q = byTk[tk];
-      if (!q || typeof q.price !== "number") return;
-      got++;
-      total += QTY[tk] * q.price;
-      if (typeof q.changePercentage === "number") rows.push([tk, q.changePercentage]);
-      (labelEls[tk] || []).forEach(function(el){
-        var b = el.querySelector(".live-chg");
-        if (!b) { b = document.createElement("span"); b.className = "live-chg"; el.appendChild(b); }
-        b.textContent = fmtPct(q.changePercentage);
-        b.className = "live-chg " + (q.changePercentage >= 0 ? "pos" : "neg");
-      });
-    });
-    if (!got) { showError("No quotes returned for the book's tickers."); return; }
-    var delta = (total - BASELINE) / BASELINE * 100;
-    strip.classList.add("show");
-    elValue.textContent = fmtUsd(total);
-    elDelta.textContent = fmtPct(delta) + " vs 07-18 baseline";
-    elDelta.className = "db " + (delta >= 0 ? "pos" : "neg");
-    var at = (result.cache && result.cache.storedAt) || Date.now();
-    elStamp.textContent = (result.cache ? "cached " : "fresh ") + new Date(at).toLocaleTimeString() +
-      (got < Object.keys(QTY).length ? " · " + got + "/" + Object.keys(QTY).length + " quotes" : "");
-    rows.sort(function(a,b){ return b[1] - a[1]; });
-    function fmtRow(r){ return "<b>" + r[0] + "</b> <span class='db " + (r[1] >= 0 ? "pos" : "neg") + "'>" + fmtPct(r[1]) + "</span>"; }
-    elMovers.innerHTML = "best: " + rows.slice(0,3).map(fmtRow).join(" · ") +
-      " &nbsp;&nbsp; worst: " + rows.slice(-3).reverse().map(fmtRow).join(" · ");
-  }
-
-  var retried = false;
-  function fetchQuotes(){
-    if (!window.claude || !window.claude.mcp) { showError("Live quotes need the claude.ai viewer with connector access enabled."); return; }
-    btnRefresh.disabled = true;
-    btnRefresh.textContent = "↻ fetching…";
-    window.claude.mcp.callTool(SERVER, TOOL, CALL_INPUT, { cache: { refresh: true } })
-      .then(function(result){ retried = false; renderQuotes(result); })
-      .catch(function(e){
-        if (e && e.retryable && !retried) {
-          retried = true;
-          var wait = Math.min(e.retryAfterMs || (1500 + Math.random() * 1500), 60000);
-          setTimeout(function(){ btnRefresh.disabled = false; fetchQuotes(); }, wait);
-          return;
-        }
-        retried = false;
-        showError(errorCopy(e));
-      })
-      .then(function(){ btnRefresh.disabled = false; btnRefresh.textContent = "↻ live quotes"; });
-  }
-  btnRefresh.addEventListener("click", fetchQuotes);
-
-  /* auto mode: watchTool keeps the strip current (60s poll, paused when hidden) */
-  var unwatch = null;
-  btnAuto.addEventListener("click", function(){
-    if (unwatch) { unwatch(); unwatch = null; btnAuto.textContent = "auto: off"; btnAuto.classList.remove("on"); return; }
-    if (!window.claude || !window.claude.mcp) { showError("Live quotes need the claude.ai viewer with connector access enabled."); return; }
-    var un = window.claude.mcp.watchTool(SERVER, TOOL, CALL_INPUT, function(ev){
-      if (ev.type === "data") { renderQuotes(ev.result); return; }
-      var code = ev.error && ev.error.code;
-      var fatal = code === "needs_reauth" || code === "server_not_connected" || code === "blocked_by_policy" ||
-                  code === "approval_required" || code === "not_granted" || code === "capability_disabled" ||
-                  code === "capability_removed" || code === "bad_request" || code === "not_in_manifest";
-      if (fatal) {
-        showError(errorCopy(ev.error));
-        if (unwatch) { unwatch(); unwatch = null; }
-        btnAuto.textContent = "auto: off"; btnAuto.classList.remove("on");
-      } /* transient errors: keep last-good data visible */
-    }, { cache: { staleTime: 30000 }, refetchInterval: 60000 });
-    unwatch = un;
-    btnAuto.textContent = "auto: on";
-    btnAuto.classList.add("on");
   });
 })();
 </script>
