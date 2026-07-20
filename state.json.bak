@@ -544,10 +544,10 @@
     },
     {
       "id": "G3",
-      "description": "INDmoney holdings-feed staleness: networth_snapshot vs bottom-up sum vs live-quote all disagree. 2026-07-20 reading is worst/most granular yet: 25/29 names diverged >3% from live yfinance quotes (SNDK +35.6% worst); live-corrected total used as authoritative each run.",
+      "description": "INDmoney holdings-feed staleness: networth_snapshot/networth_holdings 'live_price' field reflects last regular-session close, not current price, whenever checked before/during pre-market. PARTIAL FIX confirmed 2026-07-20 (user clarified US pre-market starts 1:30pm IST / 4am ET, a full hour before the 2:30pm IST daily scan): INDmoney's get_us_stocks_details already returns an 'ext_hr_live_price' field (extended-hours/pre-market price) in the SAME call as the stale 'live_price' -- no separate yfinance crosscheck needed. Cross-validated against FMP's batch-aftermarket-quote (bid/ask) on 5 names same day, agreement within cents. ACTION FOR ORCHESTRATOR: during market_session='pre-open' on/after 1:30pm IST, holdings.json construction (FLOW step 2) should prefer ext_hr_live_price over live_price per position -- this removes most of the staleness gap without an extra per-name yfinance call. Still open: no live premarket source identified yet for the AGGREGATE INDmoney snapshot endpoints (networth_snapshot/networth_holdings totals) -- those still lag; per-name correction via get_us_stocks_details remains the workaround until/unless a premarket-aware aggregate endpoint is found.",
       "opened": "2026-07-13",
       "owner": "orchestrator (STALENESS GATE)",
-      "status": "open"
+      "status": "open (refined)"
     },
     {
       "id": "G11",
