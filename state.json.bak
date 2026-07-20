@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "ts": "2026-07-19T16:54:00+05:30",
-  "mode": "quick",
-  "usdinr": 96.28,
+  "ts": "2026-07-20T12:40:00+05:30",
+  "mode": "deep",
+  "usdinr": 96.4825,
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
-  "last_run_dir": "runs/2026-07-19-1654/",
+  "last_run_dir": "runs/2026-07-20-1240/",
   "us": {
     "value_usd": 38879.56,
     "count": 29,
@@ -22,11 +22,11 @@
         "weight_pct": 6.78
       }
     ],
-    "pnl_pct": null,
-    "wallet_usd": 23.28,
+    "pnl_pct": -6.5754,
+    "wallet_usd": 23.23,
     "peak_value_usd": 38879.56,
-    "beta": 1.477,
-    "value_note": "Refresher run uses deep run's live-price-corrected value ($38,879.56); market closed, no new trades/prices"
+    "beta": 1.495,
+    "value_note": "Live-price-corrected total (STALENESS GATE applied, G3): today's networth_holdings pull was byte-identical to Friday 2026-07-17's close (pre-open Monday). 25/29 names diverged >3% from live yfinance quotes (worst SNDK +35.6%); live quotes used as authoritative. Exactly reproduces the 2026-07-19 refresher's carried-forward value -- book flat since Friday's close. Beta recomputed 1.495 folding in smith-book's refreshed per-name betas (25/29 names); SNDK/DRAM/ARM/IREN still default to 1.0 (unavailable/implausible, G15)."
   },
   "holdings": [
     {
@@ -175,7 +175,7 @@
       "weight_pct": 0.002
     }
   ],
-  "news_watermark": "2026-07-18",
+  "news_watermark": "2026-07-20",
   "thesis": {
     "NVDA": "Core AI GPU/accelerator platform leadership | strengthening",
     "ASML": "Sole-source EUV lithography gating leading-edge fab capacity | strengthening",
@@ -261,8 +261,7 @@
     ],
     "ASML": [
       "STRONG UPTREND",
-      "PEER LEADER",
-      "NEW TAILWINDS",
+      "TARGET GAP",
       "POLICY IMPACT"
     ],
     "SNDK": [
@@ -295,10 +294,11 @@
       "STRONG DOWNTREND",
       "TARGET GAP",
       "INSIDER ACTIVITY",
-      "NEW TAILWINDS"
+      "MOMENTUM+VOLUME"
     ],
     "TER": [
-      "TARGET GAP"
+      "TARGET GAP",
+      "PEER LAGGARD"
     ],
     "AMD": [],
     "STM": [],
@@ -325,7 +325,6 @@
     ],
     "AVGO": [
       "TARGET GAP",
-      "PEER LEADER",
       "POLICY IMPACT"
     ],
     "IREN": [
@@ -334,7 +333,8 @@
     ],
     "GEV": [],
     "QCOM": [
-      "TARGET GAP"
+      "TARGET GAP",
+      "PEER LAGGARD"
     ],
     "NBIS": [
       "PEER LAGGARD"
@@ -379,9 +379,151 @@
     }
   ],
   "data_cache": {
-    "ticker_map": {},
-    "betas": {},
-    "earnings_calendar": {},
+    "ticker_map": {
+      "Sandisk Corporation Common Stock": "SNDK",
+      "Corning Incorporated": "GLW",
+      "Roundhill Memory ETF": "DRAM",
+      "NVIDIA Corporation Common Stock": "NVDA",
+      "Taiwan Semiconductor Manufacturing Company Ltd.": "TSM",
+      "ASML Holding N.V. New York Registry Shares": "ASML",
+      "Micron Technology, Inc. Common Stock": "MU",
+      "iShares MSCI South Korea ETF": "EWY",
+      "Lam Research Corporation Common Stock": "LRCX",
+      "Celestica, Inc.": "CLS",
+      "Vertiv Holdings Co Class A Common Stock": "VRT",
+      "Marvell Technology, Inc. Common Stock": "MRVL",
+      "Meta Platforms, Inc. Class A Common Stock": "META",
+      "Ciena Corporation": "CIEN",
+      "Nebius Group N.V. Class A Ordinary Shares": "NBIS",
+      "Applied Materials, Inc. Common Stock": "AMAT",
+      "QUALCOMM Incorporated Common Stock": "QCOM",
+      "Advanced Micro Devices, Inc. Common Stock": "AMD",
+      "Teradyne, Inc. Common Stock": "TER",
+      "IREN Limited Ordinary Shares": "IREN",
+      "Coherent Corp.": "COHR",
+      "Broadcom Inc. Common Stock": "AVGO",
+      "Lumentum Holdings Inc. Common Stock": "LITE",
+      "Alphabet Inc. Class C Capital Stock": "GOOG",
+      "STMicroelectronics N.V.": "STM",
+      "Arm Holdings plc American Depositary Shares": "ARM",
+      "Oracle Corp": "ORCL",
+      "SERVICENOW, INC.": "NOW",
+      "GE Vernova Inc.": "GEV"
+    },
+    "betas": {
+      "GLW": {
+        "value": 1.086,
+        "as_of": "2026-07-20"
+      },
+      "NVDA": {
+        "value": 2.211,
+        "as_of": "2026-07-20"
+      },
+      "TSM": {
+        "value": 1.246,
+        "as_of": "2026-07-20"
+      },
+      "ASML": {
+        "value": 1.394,
+        "as_of": "2026-07-20"
+      },
+      "MU": {
+        "value": 2.142,
+        "as_of": "2026-07-20"
+      },
+      "EWY": {
+        "value": 1.46,
+        "as_of": "2026-07-20"
+      },
+      "LRCX": {
+        "value": 1.805,
+        "as_of": "2026-07-20"
+      },
+      "CLS": {
+        "value": 1.515,
+        "as_of": "2026-07-20"
+      },
+      "VRT": {
+        "value": 2.029,
+        "as_of": "2026-07-20"
+      },
+      "MRVL": {
+        "value": 2.197,
+        "as_of": "2026-07-20"
+      },
+      "META": {
+        "value": 1.246,
+        "as_of": "2026-07-20"
+      },
+      "CIEN": {
+        "value": 1.274,
+        "as_of": "2026-07-20"
+      },
+      "NBIS": {
+        "value": 1.402,
+        "as_of": "2026-07-20"
+      },
+      "AMAT": {
+        "value": 1.567,
+        "as_of": "2026-07-20"
+      },
+      "QCOM": {
+        "value": 1.638,
+        "as_of": "2026-07-20"
+      },
+      "AMD": {
+        "value": 2.469,
+        "as_of": "2026-07-20"
+      },
+      "TER": {
+        "value": 1.742,
+        "as_of": "2026-07-20"
+      },
+      "COHR": {
+        "value": 2.037,
+        "as_of": "2026-07-20"
+      },
+      "AVGO": {
+        "value": 1.462,
+        "as_of": "2026-07-20"
+      },
+      "LITE": {
+        "value": 1.482,
+        "as_of": "2026-07-20"
+      },
+      "GOOG": {
+        "value": 1.247,
+        "as_of": "2026-07-20"
+      },
+      "STM": {
+        "value": 1.563,
+        "as_of": "2026-07-20"
+      },
+      "ORCL": {
+        "value": 1.712,
+        "as_of": "2026-07-20"
+      },
+      "NOW": {
+        "value": 0.959,
+        "as_of": "2026-07-20"
+      },
+      "GEV": {
+        "value": 0.935,
+        "as_of": "2026-07-20"
+      }
+    },
+    "earnings_calendar": {
+      "LRCX": {
+        "date": "2026-07-29",
+        "confirmed": true,
+        "source": "web"
+      },
+      "GOOG": {
+        "date": "2026-07-22",
+        "confirmed": true,
+        "source": "macro-desk"
+      }
+    },
     "etf_constituents": {},
     "analyst_targets": {}
   },
@@ -392,20 +534,266 @@
   },
   "us_market_holidays": [],
   "preferences": {},
-  "known_gaps": [],
-  "sentiment": {
-    "score": null,
-    "band": "UNKNOWN",
-    "components": {}
-  },
-  "diversifier_candidates": {},
-  "watchlist_scan_cursor": 0,
-  "data_quality": [
-    "Weekend market-closed run (Sunday 2026-07-19 IST): no networth_holdings call, no compute pipeline, values carried forward as-of Friday 2026-07-17 close (last traded session). smith-signals dispatched news-only vs watermark 2026-07-18 \u2014 nothing genuinely new found; all 5 open_flags remain unresolved from news alone.",
-    "Pre-open heat-check SKIPPED this run: today is Sunday, no same-day US market open exists to prime for. Market inputs fetched (VIX 18.77, +12.19% vs Fri prevClose; ES=F -1.06%; NQ=F -1.55%) reflect Friday 7/17 closing prints already captured and dispatched against in the 2026-07-18 deep run (smith-rebound/smith-macro), not fresh signal. No primer task created; next legitimate heat-check window is Monday's scheduled run.",
-    "DRAM, EWY, GOOG returned no news array in this scan (data gap, not necessarily no-news).",
-    "Refresher run 14:16 IST (market closed): reused deep run 13:41 values as-is. No fresh networth_holdings call. No new signals found post-watermark (07-18, market closed, no news until Monday open).",
-    "smith-signals dispatched news-only; market closed, no new entries expected to surface."
+  "known_gaps": [
+    {
+      "id": "G1",
+      "description": "LTCG per-lot purchase dates unavailable -- lots.json empty since first run",
+      "opened": "2026-07-12",
+      "owner": "orchestrator/user (needs INDmoney order history)",
+      "status": "open"
+    },
+    {
+      "id": "G3",
+      "description": "INDmoney holdings-feed staleness: networth_snapshot vs bottom-up sum vs live-quote all disagree. 2026-07-20 reading is worst/most granular yet: 25/29 names diverged >3% from live yfinance quotes (SNDK +35.6% worst); live-corrected total used as authoritative each run.",
+      "opened": "2026-07-13",
+      "owner": "orchestrator (STALENESS GATE)",
+      "status": "open"
+    },
+    {
+      "id": "G11",
+      "description": "'Compute/Hyperscaler' cluster line added to draft policy.json without user confirmation",
+      "opened": "2026-07-18",
+      "owner": "user (confirm or reject)",
+      "status": "open"
+    },
+    {
+      "id": "G13",
+      "description": "TSM Taiwan-listing session-timing error in a proposal rationale (double-counted a move already priced into the US close)",
+      "opened": "2026-07-18",
+      "owner": "orchestrator",
+      "status": "resolved 2026-07-18"
+    },
+    {
+      "id": "G14",
+      "description": "Same-day stale INDmoney per-position price caused a false single-position-cap breach report for SNDK (12.352% vs true 10.482%)",
+      "opened": "2026-07-18",
+      "owner": "orchestrator",
+      "status": "resolved 2026-07-18, methodology folded into G3"
+    },
+    {
+      "id": "G15",
+      "description": "data_cache.betas was empty -- portfolio beta defaulted to 1.0 for all 29 names. Partially resolved 2026-07-20: smith-book refreshed 25/29; SNDK/DRAM unavailable from any source; ARM/IREN computed but exceed 0-3.5 plausibility band, discarded.",
+      "opened": "2026-07-20",
+      "owner": "orchestrator",
+      "status": "partially resolved"
+    },
+    {
+      "id": "G16",
+      "description": "data_cache.ticker_map was empty despite all 29 names having been resolved in prior runs (persistence gap, not a resolution failure)",
+      "opened": "2026-07-20",
+      "owner": "orchestrator",
+      "status": "resolved 2026-07-20"
+    },
+    {
+      "id": "G17",
+      "description": "spx_125dma/ndx_rsi14/vix_52w_range computed from weekly-aggregated (not daily) yfinance history for the sentiment composite -- a smoothing approximation, not a failure",
+      "opened": "2026-07-20",
+      "owner": "orchestrator",
+      "status": "open, low priority"
+    },
+    {
+      "id": "G18",
+      "description": "SPY/QQQ max-pain unavailable -- single-expiry options pull returned near-zero/null open interest across nearly all strikes (yfinance data gap)",
+      "opened": "2026-07-20",
+      "owner": "smith-macro",
+      "status": "open"
+    }
   ],
-  "market_closed_run": true
+  "sentiment": {
+    "score": 69.6,
+    "band": "greed",
+    "components": {
+      "vix": 75.4,
+      "ma125": 74.6,
+      "rsi14": 52.9,
+      "pct_off_52w_high": 91.4,
+      "yield_trend": 53.9
+    }
+  },
+  "diversifier_candidates": {
+    "NEM": {
+      "upside_pct": 32.56,
+      "clean_diversifier": true,
+      "thesis": "Gold miner, zero AI-capex overlap",
+      "price_usd": 89.7,
+      "target_usd": 133.0
+    },
+    "VST": {
+      "upside_pct": 30.35,
+      "clean_diversifier": false,
+      "thesis": "Merchant power gen, AI-load-adjacent -- not a clean diversifier despite upside",
+      "price_usd": 155.44,
+      "target_usd": 223.17
+    },
+    "DUK": {
+      "upside_pct": 9.81,
+      "clean_diversifier": true,
+      "thesis": "Regulated utility, rate-base growth",
+      "price_usd": 125.01,
+      "target_usd": 138.61
+    },
+    "UNH": {
+      "upside_pct": 9.66,
+      "clean_diversifier": true,
+      "thesis": "Managed care rebound, no capex correlation",
+      "price_usd": 426.09,
+      "target_usd": 471.65
+    },
+    "PG": {
+      "upside_pct": 8.18,
+      "clean_diversifier": true,
+      "thesis": "Staples ballast, 2.9% yield",
+      "price_usd": 149.98,
+      "target_usd": 163.35
+    },
+    "LLY": {
+      "upside_pct": 7.18,
+      "clean_diversifier": true,
+      "thesis": "Pharma/GLP-1, decoupled from semis",
+      "price_usd": 1179.11,
+      "target_usd": 1270.37
+    },
+    "KO": {
+      "upside_pct": 6.63,
+      "clean_diversifier": true,
+      "thesis": "Staples, sold off intraday -- watch for entry",
+      "price_usd": 81.56,
+      "target_usd": 87.35
+    },
+    "JNJ": {
+      "upside_pct": 6.26,
+      "clean_diversifier": true,
+      "thesis": "Diversified pharma/medtech near 52wk high",
+      "price_usd": 253.04,
+      "target_usd": 269.95
+    },
+    "SO": {
+      "upside_pct": 6.06,
+      "clean_diversifier": true,
+      "thesis": "Regulated SE utility, defensive, low beta 0.33",
+      "price_usd": 95.3,
+      "target_usd": 101.45
+    }
+  },
+  "watchlist_scan_cursor": 15,
+  "data_quality": [
+    "G3 worst/most granular reading yet: per-name live-quote crosscheck across all 29 holdings found 25/29 diverging >3% from INDmoney's implied price (SNDK +35.6% worst); live-corrected total ($38,879.56) used as authoritative, exactly matching the 07-19 refresher's carried-forward figure -- strong cross-run confirmation.",
+    "Pre-open snapshot: today's networth_holdings pull is byte-identical to Friday 2026-07-17's close; US Monday cash session had not opened at run time (lockfile ts 07:04 UTC / 03:04 ET). No qty changes, no flows.",
+    "G15: betas_cache was empty; 25/29 refreshed this run, SNDK/DRAM still unavailable, ARM/IREN discarded (implausible >3.5).",
+    "G16: ticker_map was empty despite full prior resolution history; reconstructed and persisted this run, zero new tickers.",
+    "SPY/QQQ max-pain unavailable this run (G18) -- yfinance single-expiry options pull returned near-zero/null OI.",
+    "compute_book.json's own beta figure (1.0, script default) is stale vs this run's folded-in recompute (1.495) -- state.json's us.beta uses the recomputed figure."
+  ],
+  "market_closed_run": true,
+  "peer_map": {
+    "SNDK": {
+      "peer_etf": "SMH",
+      "label": "memory"
+    },
+    "GLW": {
+      "peer_etf": "SMH",
+      "label": "optical-interconnect"
+    },
+    "NVDA": {
+      "peer_etf": "SMH",
+      "label": "semicap/GPU"
+    },
+    "TSM": {
+      "peer_etf": "SMH",
+      "label": "foundry"
+    },
+    "ASML": {
+      "peer_etf": "SMH",
+      "label": "semicap"
+    },
+    "MU": {
+      "peer_etf": "SMH",
+      "label": "memory"
+    },
+    "LRCX": {
+      "peer_etf": "SMH",
+      "label": "semicap"
+    },
+    "CLS": {
+      "peer_etf": "XLK",
+      "label": "hyperscaler-EMS/compute"
+    },
+    "VRT": {
+      "peer_etf": "XLI",
+      "label": "DC-infra"
+    },
+    "MRVL": {
+      "peer_etf": "SMH",
+      "label": "semicap/optical-interconnect"
+    },
+    "META": {
+      "peer_etf": "XLK",
+      "label": "hyperscaler/compute"
+    },
+    "CIEN": {
+      "peer_etf": "SMH",
+      "label": "optical-interconnect"
+    },
+    "NBIS": {
+      "peer_etf": "XLK",
+      "label": "AI cloud/hyperscaler"
+    },
+    "AMAT": {
+      "peer_etf": "SMH",
+      "label": "semicap"
+    },
+    "QCOM": {
+      "peer_etf": "SMH",
+      "label": "semicap/compute"
+    },
+    "AMD": {
+      "peer_etf": "SMH",
+      "label": "semicap/GPU"
+    },
+    "TER": {
+      "peer_etf": "SMH",
+      "label": "semicap"
+    },
+    "IREN": {
+      "peer_etf": "XLK",
+      "label": "AI compute/mining"
+    },
+    "COHR": {
+      "peer_etf": "SMH",
+      "label": "optical-interconnect"
+    },
+    "AVGO": {
+      "peer_etf": "SMH",
+      "label": "semicap/compute"
+    },
+    "LITE": {
+      "peer_etf": "SMH",
+      "label": "optical-interconnect"
+    },
+    "GOOG": {
+      "peer_etf": "XLK",
+      "label": "hyperscaler/compute"
+    },
+    "STM": {
+      "peer_etf": "SMH",
+      "label": "semicap"
+    },
+    "ARM": {
+      "peer_etf": "SMH",
+      "label": "semicap/compute IP"
+    },
+    "ORCL": {
+      "peer_etf": "XLK",
+      "label": "hyperscaler/compute"
+    },
+    "NOW": {
+      "peer_etf": "XLK",
+      "label": "hyperscaler/compute"
+    },
+    "GEV": {
+      "peer_etf": "XLU",
+      "label": "power-infra"
+    }
+  },
+  "changes": []
 }
