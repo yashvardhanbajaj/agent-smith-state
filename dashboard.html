@@ -149,6 +149,28 @@
   .meter-zones{ position:relative; height:12px; border-radius:6px; overflow:hidden; background: linear-gradient(to right, var(--accent-soft) 0%, var(--accent-soft) 45%, var(--line-soft) 45%, var(--line-soft) 55%, var(--warn-bg) 55%, var(--warn-bg) 100%); }
   .meter-marker{ position:absolute; top:-4px; width:3px; height:20px; border-radius:2px; background:var(--ink); }
 
+  /* ---- new: sentiment gauge v2 — real band thresholds (25/45/55/75), hover breakdown ---- */
+  .sentiment-gauge{ position:relative; padding-top: 4px; }
+  .sg-track{ position:relative; height:14px; cursor:default; margin-top:14px; }
+  .sg-fill{ position:absolute; inset:0; border-radius:7px; overflow:hidden; display:flex; }
+  .sg-seg{ height:100%; }
+  .sg-seg.xfear{ background: color-mix(in srgb, var(--bad) 45%, var(--bg-panel)); }
+  .sg-seg.fear{ background: color-mix(in srgb, var(--bad) 16%, var(--bg-panel)); }
+  .sg-seg.neu{ background: var(--line-soft); }
+  .sg-seg.greed{ background: color-mix(in srgb, var(--good) 16%, var(--bg-panel)); }
+  .sg-seg.xgreed{ background: color-mix(in srgb, var(--warn) 45%, var(--bg-panel)); }
+  .sg-tick{ position:absolute; top:-3px; width:1px; height:20px; background:var(--line); }
+  .sg-marker{ position:absolute; top:-6px; width:3px; height:26px; border-radius:2px; background:var(--ink); transform: translateX(-1.5px); }
+  .sg-marker .sg-val{ position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-family:var(--mono); font-size:11px; font-weight:700; color:var(--ink); background:var(--bg-panel); border:1px solid var(--line); border-radius:4px; padding:1px 5px; white-space:nowrap; }
+  .sg-labels{ display:flex; justify-content:space-between; margin-top:6px; font-size:10px; color:var(--ink-faint); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.3px; }
+  .sg-dist{ display:flex; justify-content:space-between; margin-top:10px; font-size:12px; color:var(--ink-dim); gap:10px; }
+  .sg-dist .pill{ font-size:11px; padding:2px 9px; }
+  .sg-tooltip{ display:none; margin-top:10px; background:var(--accent-soft); border:1px solid var(--line); border-radius:8px; padding:8px 12px; }
+  .sentiment-gauge:hover .sg-tooltip, .sentiment-gauge:focus-within .sg-tooltip{ display:block; }
+  .sg-tooltip .kv{ font-size:12px; padding:4px 0; }
+  .sg-hint{ font-size:11px; color:var(--ink-faint); margin-top:8px; text-align:right; }
+  .sg-hint::before{ content:"hover the bar for the component breakdown ›"; }
+
   /* ---- new: holding bars (Can Buy / Should Trim / Hold) ---- */
   .holdbar-row{ display:grid; grid-template-columns: 50px 1fr 44px; align-items:center; column-gap:10px; padding-top:7px; }
   .holdbar-row .tk{ font-family:var(--mono); font-weight:700; font-size:12.5px; }
@@ -278,11 +300,40 @@
   <div class="grid-top">
     <div class="card">
       <h2>Sentiment Gauge <span class="sub">proxy composite, not CNN's index</span></h2>
-      <div class="meter">
-        <div class="head"><span>Fear ······· Neutral ······· Greed</span><b>69.6</b></div>
-        <div class="meter-zones"><div class="meter-marker" style="left:69.6%;"></div></div>
+      <div class="sentiment-gauge" tabindex="0">
+        <div class="head" style="display:flex; justify-content:space-between; align-items:baseline; font-size:12px; color:var(--ink-dim); margin-bottom:8px;">
+          <span>Extreme Fear ─ Fear ─ Neutral ─ Greed ─ Extreme Greed</span>
+          <b style="color:var(--ink); font-family:var(--mono); font-size:15px;">69.6</b>
+        </div>
+        <div class="sg-track">
+          <div class="sg-fill">
+            <div class="sg-seg xfear" style="width:25%"></div>
+            <div class="sg-seg fear" style="width:20%"></div>
+            <div class="sg-seg neu" style="width:10%"></div>
+            <div class="sg-seg greed" style="width:20%"></div>
+            <div class="sg-seg xgreed" style="width:25%"></div>
+          </div>
+          <div class="sg-tick" style="left:25%"></div>
+          <div class="sg-tick" style="left:45%"></div>
+          <div class="sg-tick" style="left:55%"></div>
+          <div class="sg-tick" style="left:75%"></div>
+          <div class="sg-marker" style="left:69.6%;"><span class="sg-val">69.6</span></div>
+        </div>
+        <div class="sg-labels"><span>0</span><span>25</span><span>45</span><span>55</span><span>75</span><span>100</span></div>
+        <div class="sg-dist">
+          <span class="pill neutral sm">14.6 pts to Neutral</span>
+          <span class="pill warn sm">5.4 pts to Extreme Greed</span>
+        </div>
+        <div class="sg-tooltip">
+          <div class="kv"><span class="k">VIX (inverted, 52wk-range)</span><span class="v">75.4</span></div>
+          <div class="kv"><span class="k">SPX vs 125-day MA</span><span class="v">74.6</span></div>
+          <div class="kv"><span class="k">NDX RSI-14</span><span class="v">52.9</span></div>
+          <div class="kv"><span class="k">% off SPX 52wk high</span><span class="v">91.4</span></div>
+          <div class="kv"><span class="k">10yr yield 1m trend</span><span class="v">53.9</span></div>
+        </div>
+        <div class="sg-hint"></div>
       </div>
-      <div class="value-sub" style="margin-top:2px;">Up slightly vs last computed (67.7 → 69.6). "Greed," not extreme — no automatic profit-booking action_hint. VIX flat at 18.77 despite Friday's real -1.0%/-1.4% pullback: a garden-variety dip inside a still-greedy regime, not stress.</div>
+      <div class="value-sub" style="margin-top:2px;">Up slightly vs last computed (67.7 → 69.6). Sitting in <b>Greed</b>, not extreme — no automatic profit-booking action_hint (that fires past 75, or past 70 with hysteresis once already extreme). VIX flat at 18.77 despite Friday's real -1.0%/-1.4% pullback: a garden-variety dip inside a still-greedy regime, not stress.</div>
     </div>
     <div class="card">
       <h2>Pre-Market &amp; International Session</h2>
