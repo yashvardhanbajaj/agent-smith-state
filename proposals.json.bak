@@ -387,9 +387,9 @@
       "action": "Trim SNDK -- reconsider sizing given retracted cap-breach rationale",
       "size_usd": 1500,
       "price_at_proposal": 1842.1,
-      "status": "open",
+      "status": "superseded",
       "rationale": "CORRECTED 2026-07-18 (user-caught): the original rationale cited a 12.352% single-position cap breach -- that was WRONG, caused by a stale INDmoney per-position price. SNDK's true live-price weight is 10.482%, no cap breach. The remaining independent rationale -- severe peer-laggard (-38% vs SMH) and a third qty-flip in 48h despite a good-news thesis flip -- may still support a smaller/different trim, but the forcing ,500 sizing (tied to curing a cap breach that does not exist) needs re-evaluation, not automatic execution. Downstream VRT () and cash-rebuild () legs were funded by this trim and should be reconsidered alongside it.",
-      "note": "Anchor price 3 days stale (07-15) -- confirm live price before acting. Proceeds routed: ~$600 to VRT, ~$900 to cash rebuild.",
+      "note": "Anchor price 3 days stale (07-15) -- confirm live price before acting. Proceeds routed: ~$600 to VRT, ~$900 to cash rebuild. SUPERSEDED 2026-07-20: anchor price $1,842.10 was stale (pre-STALENESS-GATE); live price now $1,354.82, see 2026-07-20 SNDK trim proposal instead.",
       "flagged_for_review": true
     },
     {
@@ -424,7 +424,40 @@
       "size_usd": 0,
       "price_at_proposal": null,
       "status": "open",
-      "rationale": "No funding path remains after the SNDK/CIEN trims above -- this is the primary and sufficient reason for all three. (This proposal originally also cited TSM Monday gap-down risk from its Taiwan listing -7.29% move; that co-rationale was a session-timing error, corrected 2026-07-18 -- TSMs actual US close was -2.77%, already fully priced. See known_gaps G13.) AI Semis/Fabs is also near its band ceiling."
+      "rationale": "No funding path remains after the SNDK/CIEN trims above -- this is the primary and sufficient reason for all three. (This proposal originally also cited TSM Monday gap-down risk from its Taiwan listing -7.29% move; that co-rationale was a session-timing error, corrected 2026-07-18 -- TSMs actual US close was -2.77%, already fully priced. See known_gaps G13.) AI Semis/Fabs is also near its band ceiling.",
+      "note": " SUPERSEDED 2026-07-20: anchor price $1,842.10 was stale (pre-STALENESS-GATE); live price now $1,354.82, see 2026-07-20 SNDK trim proposal instead."
+    },
+    {
+      "date": "2026-07-20",
+      "action": "Trim SNDK",
+      "size_usd": 700,
+      "price_at_proposal": 1354.82,
+      "status": "open",
+      "rationale": "AI Memory/Storage cluster over band top (25.811% vs [15,25]); largest single position (10.48%) and renewed peer-laggard (-22.3% vs SMH); reduces AI-capex cap breach (99.203% vs 90%) and rebuilds near-zero cash (0.06% vs [3,15]%). LTCG unresolved, G1."
+    },
+    {
+      "date": "2026-07-20",
+      "action": "Trim AMAT",
+      "size_usd": 350,
+      "price_at_proposal": 529.66,
+      "status": "open",
+      "rationale": "Fresh STRONG DOWNTREND + INSIDER ACTIVITY + new MOMENTUM+VOLUME journal entry today outranks nominal analyst-target upside ($623.06); AI Semis/Fabs cluster at top of band (34.33%/[25,35]) with zero headroom. LTCG unresolved, G1."
+    },
+    {
+      "date": "2026-07-20",
+      "action": "Deploy into NEM",
+      "size_usd": 300,
+      "price_at_proposal": 89.7,
+      "status": "open",
+      "rationale": "Diversified/Regional ETF cluster at 0% vs 5% target -- the one cluster with zero exposure; NEM is scout's top clean diversifier (no AI-capex overlap), working against the 99.2% factor-concentration breach. Sized small, cash is the more urgent priority."
+    },
+    {
+      "date": "2026-07-20",
+      "action": "Hold -- route remaining ~$750 trim proceeds to cash, defer 2026-07-18 VRT stage-in",
+      "size_usd": 750,
+      "price_at_proposal": null,
+      "status": "open",
+      "rationale": "Cash at 0.06% vs [3,15]% band is the most severe practical breach; GOOGL earnings in 2 trading days is an explicit AI-capex-chain volatility catalyst per macro cluster_impact; hawkish Fed + rising 10yr argue against adding to the underweight but rate-sensitive Power/Cooling/DC Infra cluster right now."
     }
   ],
   "retracted": [
@@ -439,6 +472,6 @@
     "trim_accuracy_30d": null,
     "add_accuracy_30d": null,
     "overall_accuracy_30d": null,
-    "note": "Oldest open proposal (2026-07-13) is 5 days old -- still short of the 30d scoring mark (~2026-08-12 for the earliest cohort). 2026-07-18 deep review: did a full stale-proposal pass, closed 20 as overtaken by events, marked 2 as fulfilled (STM trim, COHR deploy -- both match real user trades), added 5 new coordinated proposals reflecting the funding-constrained reality (near-zero cash)."
+    "note": "Oldest open proposal (2026-07-13) is 5 days old -- still short of the 30d scoring mark (~2026-08-12 for the earliest cohort). 2026-07-18 deep review: did a full stale-proposal pass, closed 20 as overtaken by events, marked 2 as fulfilled (STM trim, COHR deploy -- both match real user trades), added 5 new coordinated proposals reflecting the funding-constrained reality (near-zero cash). 2026-07-20 deep review: added 4 new proposals (SNDK/AMAT trims, NEM deploy, cash-hold), reconciled 1 stale SNDK price anchor from 07-18 as superseded. Still zero proposals in the 30d/90d scoring window (earliest cohort ~2026-08-12)."
   }
 }
