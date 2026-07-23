@@ -256,44 +256,44 @@
   </div>
 
   <div class="card" style="border-color: var(--accent); margin-bottom: 20px;">
-    <h2 style="color: var(--accent);">Data Integrity - fabricated INDmoney feed this run, discarded (new G3 variant)</h2>
+    <h2 style="color: var(--accent);">Refresher pass, 20:15 IST - G22 recurred, G23 new (META missing from feed)</h2>
     <div class="value-sub" style="font-size:13px; line-height:1.6;">
-      This run's INDmoney networth_holdings pull was internally consistent (weights summed to 100%) but its implied per-share prices showed +10-20% intraday "gains" on ~10 names (GLW, SNDK, MRVL, CIEN, ARM, ORCL, DRAM, LRCX, QCOM, EWY) while SPX/NDX sat flat to -0.3% the same session - a portfolio-wide move the broad tape never confirmed. Cross-checked all 29 names directly against yfinance: real moves were flat-to-mixed (-7.4% to +3.1%), matching the calm indices. INDmoney's price feed was discarded wholesale for this run (qty data was fine, only prices were replaced) - yfinance used as the sole price source, not just a >3% crosscheck on flagged names. Live-corrected total: <b>$41,923.47</b> total book (+2.67% vs yesterday's $40,834.49) - within sanity band and explained by the GEV buy plus ordinary price moves.
+      Same book, fresh prices. Deltas only - no sub-agent dispatch this pass. G22 (fabricated INDmoney prices) recurred same-day, worse: 19/28 names diverged >3% from yfinance (GLW +23.4%, CIEN +15.0%, SNDK +14.8%, ARM +14.3%, MRVL +13.9%, ORCL +13.3%) - discarded again, yfinance used for all priced names. NEW (G23): META (2sh, held at 19:07) is absent from this pull, confirmed on 2 consecutive calls - not treated as a confirmed exit (no matching flow/ledger evidence), carried forward at last-known qty x live price and flagged for verification at the next full sweep. Live-corrected total: <b>$41,784.58</b> total book (-$138.89, -0.33% vs the 19:07 run) - ordinary intraday noise, no flows.
     </div>
   </div>
 
   <div class="grid-top">
     <div class="card">
       <h2>Book Value <span class="sub">intraday, qty x live yfinance price</span></h2>
-      <div class="value-big">$41,923.47</div>
-      <div class="value-sub">+$1,088.98 (+2.67%) vs 07-22 total book | holdings $41,887.33 + wallet $36.14 | +2.37% pnl vs invested | new peak, drawdown 0%</div>
+      <div class="value-big">$41,784.58</div>
+      <div class="value-sub">-$138.89 (-0.33%) vs 19:07 run | holdings $41,748.44 + wallet $36.14 | +2.03% pnl vs invested | drawdown -0.33% off peak $41,887.33</div>
       <div class="value-row">
         <div class="stat">Positions<b>29</b></div>
         <div class="stat">Wallet cash<b>$36.14</b></div>
-        <div class="stat">Est. beta<b>1.493</b></div>
-        <div class="stat">Drawdown<b>0.0%, new peak</b></div>
+        <div class="stat">Est. beta<b>1.492</b></div>
+        <div class="stat">Drawdown<b>-0.33%</b></div>
       </div>
       <div class="meter">
-        <div class="head"><span>Top 3 concentration (SNDK | DRAM | NVDA)</span><b>24.46% of book</b></div>
-        <div class="meter-track"><div class="meter-fill" style="width:24.46%;"></div></div>
+        <div class="head"><span>Top 3 concentration (SNDK | DRAM | NVDA)</span><b>24.54% of book</b></div>
+        <div class="meter-track"><div class="meter-fill" style="width:24.54%;"></div></div>
       </div>
     </div>
     <div class="card">
       <h2>Risk Status</h2>
       <div class="meter">
-        <div class="head"><span>Single-position cap - SNDK</span><b>11.44% / 12%</b></div>
-        <div class="meter-track"><div class="meter-fill warn" style="width:95.3%"></div><div class="meter-target" style="left:100%"></div></div>
+        <div class="head"><span>Single-position cap - SNDK</span><b>11.52% / 12%</b></div>
+        <div class="meter-track"><div class="meter-fill warn" style="width:96%"></div><div class="meter-target" style="left:100%"></div></div>
       </div>
       <div class="meter">
-        <div class="head"><span>Cash band</span><b style="color:var(--bad);">0.09% / [3,15]% - worse than yesterday</b></div>
+        <div class="head"><span>Cash band</span><b style="color:var(--bad);">0.09% / [3,15]% - worse than yesterday (unchanged, no flows this pass)</b></div>
         <div class="meter-track"><div class="meter-fill bad" style="width:0.6%"></div><div class="meter-target" style="left:20%"><span class="tl">3% floor</span></div></div>
       </div>
       <div class="meter">
-        <div class="head"><span>AI-capex factor exposure</span><b style="color:var(--bad);">98.61% / 90% cap</b></div>
+        <div class="head"><span>AI-capex factor exposure</span><b style="color:var(--bad);">98.61% / 90% cap (carried, not recomputed this pass)</b></div>
         <div class="meter-track"><div class="meter-fill bad" style="width:98.6%"></div><div class="meter-target" style="left:90%"></div></div>
       </div>
       <div class="stack" style="margin-top:4px;">
-        <div class="kv"><span class="k">Book's own risk-off gate</span><span class="pill good sm">Normal (0% DD, VIX calm)</span></div>
+        <div class="kv"><span class="k">Book's own risk-off gate</span><span class="pill good sm">Normal (-0.33% DD, VIX calm)</span></div>
         <div class="kv"><span class="k">Intraday gate (heat-check)</span><span class="pill warn sm">AMBIGUOUS technically (VIX calm, ES/NQ ~flat)</span></div>
         <div class="kv"><span class="k">Fresh risk flags</span><span class="pill bad sm">ORCL breakdown+downgrade; GEV downgraded to watch</span></div>
         <div class="kv"><span class="k">Policy status</span><span class="pill neutral sm">draft, unconfirmed, stale</span></div>
