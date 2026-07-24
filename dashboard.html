@@ -231,22 +231,15 @@
       <div class="tag">Portfolio Sweep | Quick Sweep</div>
     </div>
     <div class="meta">
-      <div>Run <b>2026-07-23 19:07 IST</b> (intraday, US markets open) - full quick sweep (signals/thesis/watchlist/strategist/rebound all dispatched and returned)</div>
-      <div>USD/INR <b>96.555</b> | 10Y 4.654% | VIX 16.95 (-0.59% vs prior close) | DXY 101.135 | SPX +0.01% | NDX -0.34% (today, intraday)</div>
-    </div>
-  </div>
-
-  <div class="card" style="border-color: var(--warn); margin-bottom: 20px;">
-    <h2 style="color: var(--warn);">FOMC in 5 trading days - 2026-07-29</h2>
-    <div class="value-sub" style="font-size:13px; line-height:1.6;">
-      Fed funds <b>3.63%, HAWKISH</b> stance (cached from smith-macro's last deep read, next check due 07-29 - the meeting itself). That's inside the next-5-trading-day window against a book that is 98.61% concentrated in the AI-capex chain - the nearest real macro catalyst this book faces, well ahead of any single-name earnings date.
+      <div>Run <b>2026-07-24 18:29 IST</b> (pre-open, ~50min to US open) - full quick sweep (signals/thesis/watchlist/strategist dispatched and returned; smith-rebound skipped, gate STABILIZING)</div>
+      <div>USD/INR <b>96.552</b> | 10Y 4.685% | VIX 18.55 (-0.80%) | DXY 101.445 | SPX -1.21% (Thu close) | NDX -2.15% (Thu close)</div>
     </div>
   </div>
 
   <div class="card" style="border-color: var(--bad); margin-bottom: 20px;">
-    <h2 style="color: var(--bad);">One real trade since yesterday - not a proposal, an actual qty change</h2>
+    <h2 style="color: var(--bad);">Mass exit event - 5 positions closed, 2 trimmed, in a single day</h2>
     <div class="value-sub" style="font-size:13px; line-height:1.6;">
-      <b>GEV</b> bought up further, 1.0008&rarr;1.3950 sh (+0.394sh, ~$394, wallet-funded) - landing the same day its Q2 print (revenue beat, guidance raised, but EPS missed) sent the stock -7.4% and its thesis down a notch to WATCH. Wallet cash nearly exhausted as a result: $457.77 &rarr; <b>$36.14</b>. No other position's quantity moved. Strategist declines any further GEV add regardless of cash availability - see Proposals.
+      <b>LITE, META, GOOG, BABA, STM fully exited</b>; <b>AMD</b> trimmed 2&rarr;1sh; <b>QCOM</b> trimmed 14.0008&rarr;6.0008sh. INDmoney's holdings feed simply dropped these 5 tickers rather than reporting zero shares - confirmed as a REAL flow (not the recurring G22/G23 feed glitch) by reconciling wallet cash: $36.14 &rarr; <b>$5,656.86</b>, matching estimated sold-share proceeds within a few dollars. STM crashed <b>-18.67%</b> intraday today (prev close $65.77 &rarr; $53.49 live), almost certainly the trigger for that exit - though no post-print headline confirms the driver by name. GOOG dropped <b>-6.89%</b> with no explanatory news found by either sub-agent. Equity value fell 14.6% ($41,748 &rarr; $35,655) but <b>total book (equity+wallet) is roughly flat, -1.1%</b> - this reads as a reallocation into cash, not value destroyed. Recommend confirming these five trades match intent at your next INDmoney login.
     </div>
   </div>
 
@@ -255,57 +248,50 @@
     <input type="text" id="tickerSearch" placeholder="filter ticker... (Esc clears)" aria-label="Filter by ticker">
   </div>
 
-  <div class="card" style="border-color: var(--accent); margin-bottom: 20px;">
-    <h2 style="color: var(--accent);">Refresher pass, 20:15 IST - G22 recurred, G23 new (META missing from feed)</h2>
-    <div class="value-sub" style="font-size:13px; line-height:1.6;">
-      Same book, fresh prices. Deltas only - no sub-agent dispatch this pass. G22 (fabricated INDmoney prices) recurred same-day, worse: 19/28 names diverged >3% from yfinance (GLW +23.4%, CIEN +15.0%, SNDK +14.8%, ARM +14.3%, MRVL +13.9%, ORCL +13.3%) - discarded again, yfinance used for all priced names. NEW (G23): META (2sh, held at 19:07) is absent from this pull, confirmed on 2 consecutive calls - not treated as a confirmed exit (no matching flow/ledger evidence), carried forward at last-known qty x live price and flagged for verification at the next full sweep. Live-corrected total: <b>$41,784.58</b> total book (-$138.89, -0.33% vs the 19:07 run) - ordinary intraday noise, no flows.
-    </div>
-  </div>
-
   <div class="grid-top">
     <div class="card">
-      <h2>Book Value <span class="sub">intraday, qty x live yfinance price</span></h2>
-      <div class="value-big">$41,784.58</div>
-      <div class="value-sub">-$138.89 (-0.33%) vs 19:07 run | holdings $41,748.44 + wallet $36.14 | +2.03% pnl vs invested | drawdown -0.33% off peak $41,887.33</div>
+      <h2>Book Value <span class="sub">qty x ext_hr pre-market price</span></h2>
+      <div class="value-big">$41,312.24</div>
+      <div class="value-sub">holdings $35,655.38 + wallet $5,656.86 | total book roughly flat (-1.1%) vs 07-23 despite the mass exit | +1.86% pnl on remaining 24 positions | drawdown -14.878% off peak $41,887.33</div>
       <div class="value-row">
-        <div class="stat">Positions<b>29</b></div>
-        <div class="stat">Wallet cash<b>$36.14</b></div>
-        <div class="stat">Est. beta<b>1.492</b></div>
-        <div class="stat">Drawdown<b>-0.33%</b></div>
+        <div class="stat">Positions<b>24</b></div>
+        <div class="stat">Wallet cash<b>$5,656.86</b></div>
+        <div class="stat">Est. beta<b>1.491</b></div>
+        <div class="stat">Drawdown<b style="color:var(--bad);">-14.878%</b></div>
       </div>
       <div class="meter">
-        <div class="head"><span>Top 3 concentration (SNDK | DRAM | NVDA)</span><b>24.54% of book</b></div>
-        <div class="meter-track"><div class="meter-fill" style="width:24.54%;"></div></div>
+        <div class="head"><span>Top 3 concentration (SNDK | DRAM | NVDA)</span><b>28.24% of book</b></div>
+        <div class="meter-track"><div class="meter-fill" style="width:28.24%;"></div></div>
       </div>
     </div>
     <div class="card">
       <h2>Risk Status</h2>
       <div class="meter">
-        <div class="head"><span>Single-position cap - SNDK</span><b>11.52% / 12%</b></div>
-        <div class="meter-track"><div class="meter-fill warn" style="width:96%"></div><div class="meter-target" style="left:100%"></div></div>
+        <div class="head"><span>Single-position cap - SNDK</span><b style="color:var(--bad);">13.271% / 12% - BREACH</b></div>
+        <div class="meter-track"><div class="meter-fill bad" style="width:100%"></div><div class="meter-target" style="left:90.4%"></div></div>
       </div>
       <div class="meter">
-        <div class="head"><span>Cash band</span><b style="color:var(--bad);">0.09% / [3,15]% - worse than yesterday (unchanged, no flows this pass)</b></div>
-        <div class="meter-track"><div class="meter-fill bad" style="width:0.6%"></div><div class="meter-target" style="left:20%"><span class="tl">3% floor</span></div></div>
+        <div class="head"><span>Cash band</span><b style="color:var(--good);">13.693% / [3,15]% - inside band, first time in weeks</b></div>
+        <div class="meter-track"><div class="meter-fill good" style="width:91.3%"></div><div class="meter-target" style="left:20%"><span class="tl">3% floor</span></div></div>
       </div>
       <div class="meter">
-        <div class="head"><span>AI-capex factor exposure</span><b style="color:var(--bad);">98.61% / 90% cap (carried, not recomputed this pass)</b></div>
-        <div class="meter-track"><div class="meter-fill bad" style="width:98.6%"></div><div class="meter-target" style="left:90%"></div></div>
+        <div class="head"><span>AI-capex factor exposure</span><b style="color:var(--bad);">100.0% / 90% cap - worst reading yet</b></div>
+        <div class="meter-track"><div class="meter-fill bad" style="width:100%"></div><div class="meter-target" style="left:90%"></div></div>
       </div>
       <div class="stack" style="margin-top:4px;">
-        <div class="kv"><span class="k">Book's own risk-off gate</span><span class="pill good sm">Normal (-0.33% DD, VIX calm)</span></div>
-        <div class="kv"><span class="k">Intraday gate (heat-check)</span><span class="pill warn sm">AMBIGUOUS technically (VIX calm, ES/NQ ~flat)</span></div>
-        <div class="kv"><span class="k">Fresh risk flags</span><span class="pill bad sm">ORCL breakdown+downgrade; GEV downgraded to watch</span></div>
-        <div class="kv"><span class="k">Policy status</span><span class="pill neutral sm">draft, unconfirmed, stale</span></div>
+        <div class="kv"><span class="k">Book's own risk-off gate</span><span class="pill warn sm">Normal, but 0.12pt from 15% warn line</span></div>
+        <div class="kv"><span class="k">Pre-open heat-check gate</span><span class="pill good sm">STABILIZING (VIX calm, ES/NQ green)</span></div>
+        <div class="kv"><span class="k">Fresh risk flags</span><span class="pill bad sm">SNDK cap breach; 3 clusters newly under-floor</span></div>
+        <div class="kv"><span class="k">Policy status</span><span class="pill neutral sm">draft, unconfirmed, self-flagged stale (28-&gt;24 holdings since 07-12)</span></div>
       </div>
     </div>
     <div class="card">
-      <h2>Benchmark <span class="sub">today intraday vs prior close</span></h2>
+      <h2>Benchmark <span class="sub">Thu 07-23 close vs prior</span></h2>
       <div class="stack">
-        <div class="kv"><span class="k">S&amp;P 500</span><span class="db pos">+0.01%</span></div>
-        <div class="kv"><span class="k">Nasdaq Composite</span><span class="db neg">-0.34%</span></div>
-        <div class="kv"><span class="k">This book (today)</span><span class="v">mixed, -7.4% to +3.1% - not uniform</span></div>
-        <div class="kv"><span class="k">Rolling 1/3/6/12m</span><span class="v" style="font-size:12px;">n/a - only 11 ledger rows</span></div>
+        <div class="kv"><span class="k">S&amp;P 500</span><span class="db neg">-1.21%</span></div>
+        <div class="kv"><span class="k">Nasdaq Composite</span><span class="db neg">-2.15%</span></div>
+        <div class="kv"><span class="k">This book (today)</span><span class="v" style="font-size:12px;">not comparable - dominated by flows (5 exits), not price</span></div>
+        <div class="kv"><span class="k">Rolling 1/3/6/12m</span><span class="v" style="font-size:12px;">n/a - only 12 ledger rows</span></div>
       </div>
     </div>
   </div>
@@ -317,7 +303,7 @@
       <div class="sentiment-gauge" tabindex="0">
         <div class="head" style="display:flex; justify-content:space-between; align-items:baseline; font-size:12px; color:var(--ink-dim); margin-bottom:8px;">
           <span>Extreme Fear - Fear - Neutral - Greed - Extreme Greed</span>
-          <b style="color:var(--ink); font-family:var(--mono); font-size:15px;">65.4</b>
+          <b style="color:var(--ink); font-family:var(--mono); font-size:15px;">64.3</b>
         </div>
         <div class="sg-track">
           <div class="sg-fill">
@@ -331,15 +317,15 @@
           <div class="sg-tick" style="left:45%"></div>
           <div class="sg-tick" style="left:55%"></div>
           <div class="sg-tick" style="left:75%"></div>
-          <div class="sg-marker" style="left:65.4%;"><span class="sg-val">65.4</span></div>
+          <div class="sg-marker" style="left:64.3%;"><span class="sg-val">64.3</span></div>
         </div>
         <div class="sg-labels"><span>0</span><span>25</span><span>45</span><span>55</span><span>75</span><span>100</span></div>
         <div class="sg-dist">
-          <span class="pill neutral sm">9.6 pts to Neutral</span>
-          <span class="pill warn sm">9.6 pts to Extreme Greed</span>
+          <span class="pill neutral sm">10.7 pts to Neutral</span>
+          <span class="pill warn sm">10.7 pts to Extreme Greed</span>
         </div>
         <div class="sg-tooltip">
-          <div class="kv"><span class="k">VIX (inverted, 52wk-range)</span><span class="v">76.8</span></div>
+          <div class="kv"><span class="k">VIX (inverted, 52wk-range)</span><span class="v">71.5</span></div>
           <div class="kv"><span class="k">SPX vs 125-day MA</span><span class="v">50</span></div>
           <div class="kv"><span class="k">NDX RSI-14</span><span class="v">50</span></div>
           <div class="kv"><span class="k">% off SPX 52wk high</span><span class="v">100.0</span></div>
@@ -347,27 +333,26 @@
         </div>
         <div class="sg-hint"></div>
       </div>
-      <div class="value-sub" style="margin-top:2px;">Roughly flat vs yesterday (65.0 -> 65.4), still <b>Greed</b>, not extreme - action_hint is null (no forced profit-booking or cash-deployment lead this run). VIX eased further (16.95) even as NDX slipped slightly - a calm, non-uniform session, not stress.</div>
+      <div class="value-sub" style="margin-top:2px;">Roughly flat vs 07-23 (65.4 -&gt; 64.3), still <b>Greed</b>, not extreme. Thursday's SPX/NDX selloff (-1.2%/-2.2%) hasn't moved VIX into stress territory (18.55, actually down -0.80% today).</div>
     </div>
     <div class="card">
-      <h2>Intraday &amp; International Session</h2>
+      <h2>Pre-Open &amp; International Session</h2>
       <div class="stack">
-        <div class="kv"><span class="k">US futures (ES / NQ)</span><span><span class="db neg">-0.01%</span> / <span class="db neg">-0.30%</span></span></div>
-        <div class="kv"><span class="k">Asia session (prior close)</span><span class="v" style="font-size:12px;">Nikkei <span class="db neg">-0.18%</span> | KOSPI <span class="db pos">+0.74%</span> | EWY (US) <span class="db neg">-1.63%</span></span></div>
-        <div class="kv"><span class="k">ADR home-listing leads</span><span class="v" style="font-size:12px;">ASML.AS <span class="db neg">-0.24%</span> | STMPA.PA <span class="db pos">+1.78%</span> | TSM(TW) <span class="db neg">-0.41%</span></span></div>
+        <div class="kv"><span class="k">US futures (ES / NQ)</span><span><span class="db pos">+0.26%</span> / <span class="db pos">+0.20%</span></span></div>
+        <div class="kv"><span class="k">Asia session (today)</span><span class="v" style="font-size:12px;">Nikkei <span class="db neg">-2.73%</span> | KOSPI <span class="db neg">-5.72%</span> | Taiwan <span class="db neg">-2.67%</span></span></div>
+        <div class="kv"><span class="k">ADR home-listing leads</span><span class="v" style="font-size:12px;">ASML.AS <span class="db pos">+0.06%</span> | STMPA.PA <span class="db pos">+0.20%</span> | TSM(TW) <span class="db neg">-2.29%</span></span></div>
       </div>
-      <div class="value-sub" style="margin-top:10px;">Gate: <b>AMBIGUOUS</b>, but only on a technicality - VIX is DOWN -0.59% to 16.95, ES=F essentially flat (-0.01%), NQ=F -0.30%; the gate trips purely because neither future is literally &ge;0%, not because anything is stressed. smith-rebound dispatched and succeeded this time (see Proposals) - five macro-driven dip-buy candidates found, though cash can't fund most of them right now.</div>
+      <div class="value-sub" style="margin-top:10px;">Gate: <b style="color:var(--good);">STABILIZING</b> - VIX calm and falling, both ES=F and NQ=F green, despite a rough Asia session (KOSPI -5.72%) and Thursday's US close being down hard. smith-rebound skipped (gate calm, not triggered). Book is 4.775% EWY-exposed to that Korea weakness.</div>
     </div>
   </div>
 
   <div class="card" style="margin-top:16px;">
-    <h2>Macro Regime <span class="sub">smith-macro - carried from 07-20 deep review, not re-run this quick pass</span></h2>
+    <h2>Macro Regime <span class="sub">Fed cache - not re-run this quick pass</span></h2>
     <div class="stack">
-      <div class="kv"><span class="k">Fed funds / stance</span><span class="v">3.63% - HAWKISH (cached, next check 2026-07-29 - 5 trading days out)</span></div>
+      <div class="kv"><span class="k">Fed funds / stance</span><span class="v">3.63% - HAWKISH (cached, next check 2026-07-29 - the meeting itself, 3 trading days out)</span></div>
       <div class="kv"><span class="k">SPY / QQQ options PCR</span><span class="v" style="color:var(--ink-faint);">cached from 07-20, not refreshed this pass</span></div>
       <div class="kv"><span class="k">Max pain (SPY/QQQ)</span><span class="v" style="color:var(--ink-faint);">unavailable - yfinance OI data gap (G18)</span></div>
-      <div class="kv"><span class="k">Regime call</span><span class="v" style="color:var(--ink-faint);">cached RISK-OFF-leaning read from 07-20, not re-verified this pass</span></div>
-      <div class="kv"><span class="k">Nearest catalyst</span><span class="v" style="color:var(--warn); font-weight:700;">FOMC 2026-07-29 - 5 trading days out</span></div>
+      <div class="kv"><span class="k">Nearest catalyst</span><span class="v" style="color:var(--warn); font-weight:700;">FOMC 2026-07-29 (3 trading days) - also GLW/TER earnings 07-28, QCOM/LRCX 07-29, same week</span></div>
     </div>
   </div>
 
@@ -376,221 +361,189 @@
     <div class="proposal">
       <div class="num">1</div>
       <div>
-        <div class="action-row"><span class="pill bad sm">trim</span><span class="action">Trim SNDK</span><span class="size">~$1,500 @ $1,605.38</span></div>
-        <div class="size-track"><div class="size-fill" style="width:73%; background:var(--bad);"></div></div>
-        <div class="rationale" style="margin-top:8px;">Restates yesterday's still-open proposal. Largest position (11.44% wt) and sole driver of the AI Memory/Storage cluster breach (27.01% vs [15,25]); renewed peer-laggard; no analyst target computable this run (data gap). Trim funds the cash floor and reduces the AI-capex breach simultaneously. LTCG unresolved (G1, lots.json empty) - untimed.</div>
+        <div class="action-row"><span class="pill bad sm">trim</span><span class="action">Trim SNDK</span><span class="size">~$1,000 @ $1,589.40*</span></div>
+        <div class="size-track"><div class="size-fill" style="width:66%; background:var(--bad);"></div></div>
+        <div class="rationale" style="margin-top:8px;">Dual breach: SNDK alone breaches the 12% single-position cap (13.271%) and is the largest driver of the AI Memory/Storage cluster breach (31.502% vs [15,25]%). No thesis/signal deterioration - pure rebalancing trim. Partial fix only: brings the cluster to an estimated ~29.5%, still above band; MU/DRAM/EWY aren't trim candidates this run (their signals are improving, not worsening). *Price is last-confirmed 07-22, not a fresh quote this run - confirm before acting, this exact name had a stale-price false-breach incident 07-18.</div>
       </div>
     </div>
     <div class="proposal">
       <div class="num">2</div>
       <div>
-        <div class="action-row"><span class="pill bad sm">exit</span><span class="action">Exit ORCL (full remaining stake)</span><span class="size">~$530 @ $125.03</span></div>
-        <div class="size-track"><div class="size-fill" style="width:26%; background:var(--bad);"></div></div>
-        <div class="rationale" style="margin-top:8px;">Restates yesterday's still-open proposal. BREAKDOWN thesis persists, fresh credit downgrade, peer-laggard vs XLK. Small position makes a clean full exit simpler than a partial trim; combined with #1 raises $2,030 toward the cash floor.</div>
+        <div class="action-row"><span class="pill good sm">deploy</span><span class="action">Deploy into GEV</span><span class="size">~$900 @ $1,002.30</span></div>
+        <div class="size-track"><div class="size-fill" style="width:56%; background:var(--good);"></div></div>
+        <div class="rationale" style="margin-top:8px;">AI Power/Cooling/DC Infra is the book's largest floor breach (8.284% vs [10,20]% band). GEV just flipped to STRONG UPTREND + MOMENTUM+VOLUME + TARGET GAP post-earnings (+4.69% today) - the strongest signal cluster this run. Brings the cluster to ~10.5%, the low edge of band.</div>
       </div>
     </div>
-    <div class="proposal deferred">
+    <div class="proposal">
       <div class="num">3</div>
       <div>
-        <div class="action-row"><span class="pill neutral sm">hold</span><span class="action">No further GEV add, despite smith-rebound's $500 stage-in suggestion</span><span class="size">$0</span></div>
-        <div class="size-track"><div class="size-fill" style="width:0%;"></div></div>
-        <div class="rationale" style="margin-top:8px;">The user already added to GEV today ($394, wallet-funded) the same day its thesis downgraded strengthening&rarr;watch on a Q2 EPS miss. Compounding a position that just grew into a weaker print isn't a cash question, it's a timing one - this hold stands regardless of cash availability.</div>
+        <div class="action-row"><span class="pill good sm">deploy</span><span class="action">Deploy into COHR</span><span class="size">~$700 @ $285.29</span></div>
+        <div class="size-track"><div class="size-fill" style="width:44%; background:var(--good);"></div></div>
+        <div class="rationale" style="margin-top:8px;">AI Networking/Optics also under floor (14.833% vs [15,25]%). COHR is already held (no new-name risk), watchlist-flagged +20.0% upside, and has no earnings this week unlike cluster-mates GLW/TER (both 07-28). Closes the floor breach, ~16.5% post-trade.</div>
       </div>
     </div>
     <div class="proposal deferred">
       <div class="num">4</div>
       <div>
-        <div class="action-row"><span class="pill neutral sm">stage-in</span><span class="action">Stage into VRT - contingent on proposals 1-2 clearing the cash floor first</span><span class="size">~$500 @ $303.07</span></div>
-        <div class="size-track"><div class="size-fill" style="width:24%;"></div></div>
-        <div class="rationale" style="margin-top:8px;">Worst cluster breach on the book (AI Power/Cooling/DC Infra, -8.07pt) now that GEV is ruled out as the fix (#3). VRT is trading right at smith-rebound's flagged support ($300.45). Of rebound's five candidates, this is the only one the ~$808 left after the cash floor can actually cover.</div>
-      </div>
-    </div>
-    <div class="proposal deferred">
-      <div class="num">5</div>
-      <div>
-        <div class="action-row"><span class="pill neutral sm">defer</span><span class="action">Defer LITE / COHR / META stage-ins - no funding path this run</span><span class="size">$0</span></div>
+        <div class="action-row"><span class="pill neutral sm">hold</span><span class="action">Hold remaining ~$5,057 cash - no further deployment</span><span class="size">$0</span></div>
         <div class="size-track"><div class="size-fill" style="width:0%;"></div></div>
-        <div class="rationale" style="margin-top:8px;">smith-rebound flagged all three as valid macro-driven dip-buys with intact supports, none on the thesis-watch stay-out list. But after #1, #2, the floor reserve, and #4, there's nothing left. Not rejected - revisit once more cash is freed.</div>
+        <div class="rationale" style="margin-top:8px;">Four earnings prints land next week on held names (GLW/TER 07-28, QCOM/LRCX 07-29) - not the moment to size up into binary events. Drawdown -14.878% is only 0.122pt from the policy's 15% warn threshold - reason for restraint even though status reads "normal". Compute/Hyperscaler cluster is also under floor (4.234% vs [5,15]%) but its only members are ORCL (mixed signals, see below) and IREN (no fresh catalyst) - no clean candidate, left unaddressed rather than forced.</div>
       </div>
     </div>
   </div>
+  <div class="caveat">Not investment advice. Agent Smith is a personal tracking and analysis tool - every proposal above is sized for review, never executed. <b>ORCL verdict (not a numbered proposal):</b> new OVERSOLD BOUNCE off a real $7B DoD contract doesn't yet offset the standing BREAKDOWN + debt-headwind flags - hold, no action; position is too small (1.378%) to be a trim or add candidate either way. Note two PRIOR open proposals (07-22, 07-23) recommended exiting ORCL entirely - still held at 4sh, unresolved inconsistency flagged for review. <b>Diversification check:</b> no genuinely uncorrelated AI-capex alternative found in this run's watchlist output - BABA and SNPS are both still AI-capex-chain-adjacent, IBM carries its own post-earnings value-trap flag. Standing gaps: <b>G1</b> no per-lot purchase dates, LTCG unavailable on any trim; <b>G11</b> draft policy's Compute/Hyperscaler cluster line awaits user confirmation; <b>G19</b> FMP ETF-constituent tool blocked, EWY/DRAM constituent cache stays empty; <b>G20</b> yfinance earnings-calendar tool empty for the 4th consecutive run; <b>G24/G25 (new)</b> today's mass-exit event was reconciled via wallet-cash math, not a hard trade-confirmation source - verify at next login. Zero proposals have reached the 30d/90d scoring window yet - first cohort scores ~2026-08-11.</div>
 
-  <div class="caveat">Not investment advice. Agent Smith is a personal tracking and analysis tool - every proposal above is sized for review, never executed. smith-rebound succeeded this run (five stage-in candidates found, all tagged macro-driven not idiosyncratic) but its headroom math was computed against cluster/policy bands, not the actual $36.14 wallet balance - reconciled manually against the real cash constraint above. Standing gaps: <b>G1</b> no per-lot purchase dates, LTCG unavailable on any trim; <b>G3</b> this run's fabricated-INDmoney-feed incident, handled and discarded (see Data Integrity card); <b>G11</b> draft policy's Compute/Hyperscaler line AND BABA's China Consumer/Cloud cluster both await user confirmation; <b>G17</b> sentiment inputs computed from weekly not daily history, low priority; <b>G18</b> SPY/QQQ max-pain unavailable (yfinance OI gap); <b>G19</b> FMP etfAndMutualFunds blocked on current plan tier, EWY/DRAM constituent cache stays empty; <b>G20</b> yfinance get_earnings_calendar returned empty again this run, reconfirmed. Zero proposals have reached the 30d/90d scoring window - first cohort scores ~2026-08-12.</div>
-
-  <div class="section-title">Can Buy / Should Trim / Hold <span class="n">weight-scaled to SNDK (11.44%, the book's largest position)</span></div>
+  <div class="section-title">Can Buy / Should Trim / Hold <span class="n">weight-scaled to SNDK (13.271%, the book's largest position)</span></div>
   <div class="buckets-grid">
     <div class="bucket" style="border-left: 3px solid var(--good);">
-      <h3 style="color:var(--good);">Can Buy <span class="w">10 names</span></h3>
+      <h3 style="color:var(--good);">Can Buy <span class="w">9 names</span></h3>
       <div>
-        <div class="holdbar-row"><span class="tk">NVDA</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:53.5%"></div></div><span class="wt">6.12%</span></div>
-        <div class="holdbar-tags"><span class="chip good">TARGET GAP</span><span class="chip good">PEER LEADER (unchanged)</span></div>
-        <div class="holdbar-row"><span class="tk">TSM</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:52.8%"></div></div><span class="wt">6.03%</span></div>
-        <div class="holdbar-tags"><span class="chip good">TARGET GAP</span><span class="chip">faded from peer leader to neutral</span></div>
-        <div class="holdbar-row"><span class="tk">ASML</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:37.6%"></div></div><span class="wt">4.30%</span></div>
-        <div class="holdbar-tags"><span class="chip good">STRONG UPTREND</span><span class="chip">faded from peer leader to neutral</span><span class="chip warn">POLICY (export ctrl)</span></div>
-        <div class="holdbar-row"><span class="tk">CLS</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:35.1%"></div></div><span class="wt">4.01%</span></div>
-        <div class="holdbar-tags"><span class="chip good">TARGET GAP</span><span class="chip">no fresh bearish flag</span></div>
-        <div class="holdbar-row"><span class="tk">META</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:26.1%"></div></div><span class="wt">2.99%</span></div>
-        <div class="holdbar-tags"><span class="chip good">TARGET GAP</span><span class="chip good">PEER LEADER (unchanged)</span></div>
-        <div class="holdbar-row"><span class="tk">TER</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:23.2%"></div></div><span class="wt">2.66%</span></div>
-        <div class="holdbar-tags"><span class="chip">yesterday's momentum faded cleanly, no bearish flag</span></div>
-        <div class="holdbar-row"><span class="tk">AMD</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:23.1%"></div></div><span class="wt">2.65%</span></div>
-        <div class="holdbar-tags"><span class="chip good">STRONG UPTREND</span><span class="chip good">PEER LEADER (unchanged)</span></div>
-        <div class="holdbar-row"><span class="tk">LITE</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:17.2%"></div></div><span class="wt">1.97%</span></div>
-        <div class="holdbar-tags"><span class="chip good">TARGET GAP</span><span class="chip">no fresh bearish flag</span></div>
-        <div class="holdbar-row"><span class="tk">AVGO</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:16.6%"></div></div><span class="wt">1.90%</span></div>
-        <div class="holdbar-tags"><span class="chip good">TARGET GAP</span><span class="chip good">PEER LEADER (unchanged)</span><span class="chip warn">POLICY (antitrust)</span></div>
-        <div class="holdbar-row"><span class="tk">STM</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:13.7%"></div></div><span class="wt">1.57%</span></div>
-        <div class="holdbar-tags"><span class="chip">reported earnings today, sub-5% wt, not flagged</span></div>
+        <div class="holdbar-row"><span class="tk">NVDA</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:52.8%"></div></div><span class="wt">7.01%</span></div>
+        <div class="holdbar-tags"><span class="chip good">TARGET GAP +31.1%</span><span class="chip good">PEER LEADER +11.2%</span></div>
+        <div class="holdbar-row"><span class="tk">TSM</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:52.6%"></div></div><span class="wt">6.98%</span></div>
+        <div class="holdbar-tags"><span class="chip good">TARGET GAP</span></div>
+        <div class="holdbar-row"><span class="tk">ASML</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:38.0%"></div></div><span class="wt">5.04%</span></div>
+        <div class="holdbar-tags"><span class="chip good">STRONG UPTREND</span></div>
+        <div class="holdbar-row"><span class="tk">CLS</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:35.6%"></div></div><span class="wt">4.72%</span></div>
+        <div class="holdbar-tags"><span class="chip good">TARGET GAP</span></div>
+        <div class="holdbar-row"><span class="tk">VRT</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:32.0%"></div></div><span class="wt">4.25%</span></div>
+        <div class="holdbar-tags"><span class="chip good">TARGET GAP +19.31%</span><span class="chip">peer-laggard dropped - now neutral</span></div>
+        <div class="holdbar-row"><span class="tk">GEV</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:30.4%"></div></div><span class="wt">4.04%</span></div>
+        <div class="holdbar-tags"><span class="chip good">STRONG UPTREND (new)</span><span class="chip good">MOMENTUM+VOLUME</span><span class="chip good">TARGET GAP +15.72%</span><span class="chip">peer-laggard dropped - now neutral</span></div>
+        <div class="holdbar-row"><span class="tk">QCOM</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:21.7%"></div></div><span class="wt">2.88%</span></div>
+        <div class="holdbar-tags"><span class="chip good">TARGET GAP +22.66%</span><span class="chip">peer-laggard + earnings-proximity both dropped</span></div>
+        <div class="holdbar-row"><span class="tk">COHR</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:19.7%"></div></div><span class="wt">2.62%</span></div>
+        <div class="holdbar-tags"><span class="chip good">TARGET GAP +20.0%</span><span class="chip bad">PEER LAGGARD -13.9%</span></div>
+        <div class="holdbar-row"><span class="tk">AVGO</span><div class="holdbar-track"><div class="holdbar-fill good" style="width:16.5%"></div></div><span class="wt">2.19%</span></div>
+        <div class="holdbar-tags"><span class="chip good">TARGET GAP +25.3%</span><span class="chip good">PEER LEADER +9.0%</span></div>
       </div>
-      <div class="note">Bullish thesis + a confirming signal, no fresh bearish flag, cluster not over its band. Smaller than yesterday's 10 - the broad peer-laggard rollover below pulled several names out as yesterday's rally-day gains reversed on a 1-month lookback.</div>
+      <div class="note">Bullish thesis + a confirming signal, no fresh bearish flag, cluster not over its band (or actively under-floor, where buying helps). GEV, COHR, and VRT double as the cluster-floor fixes behind proposals 2-3.</div>
     </div>
     <div class="bucket" style="border-left: 3px solid var(--bad);">
-      <h3 style="color:var(--bad);">Should Trim <span class="w">8 names</span></h3>
+      <h3 style="color:var(--bad);">Should Trim <span class="w">7 names</span></h3>
       <div>
-        <div class="holdbar-row"><span class="tk">SNDK</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:100%"></div></div><span class="wt">11.44%</span></div>
-        <div class="holdbar-tags"><span class="chip bad">watch, still peer-laggard</span><span class="chip">cluster over cap - see proposal 1</span></div>
-        <div class="holdbar-row"><span class="tk">DRAM</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:60.3%"></div></div><span class="wt">6.90%</span></div>
-        <div class="holdbar-tags"><span class="chip">sizing - cluster over cap</span></div>
-        <div class="holdbar-row"><span class="tk">MU</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:40.3%"></div></div><span class="wt">4.61%</span></div>
-        <div class="holdbar-tags"><span class="chip">sizing - cluster over cap</span><span class="chip bad">newly PEER LAGGARD</span></div>
-        <div class="holdbar-row"><span class="tk">EWY</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:35.5%"></div></div><span class="wt">4.06%</span></div>
-        <div class="holdbar-tags"><span class="chip">sizing - cluster over cap</span></div>
-        <div class="holdbar-row"><span class="tk">MRVL</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:31.1%"></div></div><span class="wt">3.55%</span></div>
-        <div class="holdbar-tags"><span class="chip bad">PEER LAGGARD (unresolved since yesterday)</span><span class="chip">watch</span></div>
-        <div class="holdbar-row"><span class="tk">ARM</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:11.9%"></div></div><span class="wt">1.36%</span></div>
-        <div class="holdbar-tags"><span class="chip bad">newly PEER LAGGARD</span><span class="chip">watch, earnings 07-29</span></div>
-        <div class="holdbar-row"><span class="tk">NBIS</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:28.0%"></div></div><span class="wt">3.20%</span></div>
-        <div class="holdbar-tags"><span class="chip bad">newly PEER LAGGARD</span><span class="chip">watch</span></div>
-        <div class="holdbar-row"><span class="tk">ORCL</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:10.4%"></div></div><span class="wt">1.19%</span></div>
-        <div class="holdbar-tags"><span class="chip bad">BREAKDOWN</span><span class="chip bad">fresh credit downgrade</span><span class="chip bad">PEER LAGGARD (unchanged)</span></div>
+        <div class="holdbar-row"><span class="tk">SNDK</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:100.0%"></div></div><span class="wt">13.27%</span></div>
+        <div class="holdbar-tags"><span class="chip bad">BREACHES 12% cap (13.271%)</span><span class="chip bad">PEER LAGGARD -9.6%</span><span class="chip">see proposal 1</span></div>
+        <div class="holdbar-row"><span class="tk">DRAM</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:60.0%"></div></div><span class="wt">7.96%</span></div>
+        <div class="holdbar-tags"><span class="chip bad">sizing - cluster over cap</span><span class="chip bad">PEER LAGGARD -10.4% (new mapping)</span></div>
+        <div class="holdbar-row"><span class="tk">MU</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:41.4%"></div></div><span class="wt">5.49%</span></div>
+        <div class="holdbar-tags"><span class="chip bad">sizing - cluster over cap</span><span class="chip good">TARGET GAP +34.31%</span><span class="chip">peer-laggard dropped</span></div>
+        <div class="holdbar-row"><span class="tk">EWY</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:36.0%"></div></div><span class="wt">4.78%</span></div>
+        <div class="holdbar-tags"><span class="chip bad">sizing - cluster over cap</span><span class="chip">peer-laggard dropped, no target (ETF)</span></div>
+        <div class="holdbar-row"><span class="tk">MRVL</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:30.7%"></div></div><span class="wt">4.07%</span></div>
+        <div class="holdbar-tags"><span class="chip bad">PEER LAGGARD -18.1%</span><span class="chip good">TARGET GAP +17.7%</span></div>
+        <div class="holdbar-row"><span class="tk">NBIS</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:28.4%"></div></div><span class="wt">3.77%</span></div>
+        <div class="holdbar-tags"><span class="chip bad">PEER LAGGARD -12.4%</span><span class="chip">Nvidia stake + debt raise narrative, dominant tailwind still</span></div>
+        <div class="holdbar-row"><span class="tk">ARM</span><div class="holdbar-track"><div class="holdbar-fill bad" style="width:12.1%"></div></div><span class="wt">1.61%</span></div>
+        <div class="holdbar-tags"><span class="chip bad">PEER LAGGARD -14.9%</span><span class="chip">watch, earnings 07-29</span></div>
       </div>
-      <div class="note">Two reasons kept separate: <b>thesis-driven</b> (watch + a bearish signal - SNDK, MRVL, ARM, NBIS, ORCL) vs. <b>sizing-driven</b> (fundamentally fine but cluster over its band - DRAM, MU, EWY, all AI Memory/Storage). SNDK and ORCL are this run's sized proposals (#1, #2); the rest are not separately proposed.</div>
+      <div class="note">Two reasons kept separate: <b>sizing-driven</b> (AI Memory/Storage over its band top - SNDK, DRAM, MU, EWY, even though MU/DRAM/EWY signals are actually improving) vs. <b>thesis-driven watch + bearish signal</b> (MRVL, ARM, NBIS, all peer-laggards). Only SNDK is sized as a proposal this run (#1) - MU/DRAM/EWY show improving relative strength so aren't trim candidates on this run's evidence.</div>
     </div>
     <div class="bucket" style="border-left: 3px solid var(--warn);">
-      <h3 style="color:var(--warn);">Hold / Mixed Signal <span class="w">10 names</span></h3>
+      <h3 style="color:var(--warn);">Hold / Mixed Signal <span class="w">8 names</span></h3>
       <div>
-        <div class="holdbar-row"><span class="tk">QCOM</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:51.5%"></div></div><span class="wt">5.89%</span></div>
-        <div class="holdbar-tags"><span class="chip warn">strengthening thesis</span><span class="chip bad">newly PEER LAGGARD</span><span class="chip">earnings 07-29</span></div>
-        <div class="holdbar-row"><span class="tk">GLW</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:32.7%"></div></div><span class="wt">3.73%</span></div>
-        <div class="holdbar-tags"><span class="chip warn">strengthening thesis</span><span class="chip bad">PEER LAGGARD (persistent)</span></div>
-        <div class="holdbar-row"><span class="tk">LRCX</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:33.5%"></div></div><span class="wt">3.83%</span></div>
-        <div class="holdbar-tags"><span class="chip warn">strengthening thesis</span><span class="chip bad">newly PEER LAGGARD</span></div>
-        <div class="holdbar-row"><span class="tk">VRT</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:31.5%"></div></div><span class="wt">3.61%</span></div>
-        <div class="holdbar-tags"><span class="chip warn">strengthening thesis, cluster's biggest underweight</span><span class="chip bad">newly PEER LAGGARD</span><span class="chip good">see proposal 4 (stage-in)</span></div>
-        <div class="holdbar-row"><span class="tk">GEV</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:29.1%"></div></div><span class="wt">3.33%</span></div>
-        <div class="holdbar-tags"><span class="chip bad">downgraded to WATCH today</span><span class="chip bad">lost strong uptrend, newly PEER LAGGARD</span><span class="chip warn">bought further same-day - no further add, see proposal 3</span></div>
-        <div class="holdbar-row"><span class="tk">IREN</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:21.6%"></div></div><span class="wt">2.47%</span></div>
-        <div class="holdbar-tags"><span class="chip warn">strengthening thesis, book's largest target gap</span><span class="chip bad">newly PEER LAGGARD</span></div>
-        <div class="holdbar-row"><span class="tk">COHR</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:19.7%"></div></div><span class="wt">2.26%</span></div>
-        <div class="holdbar-tags"><span class="chip warn">strengthening thesis</span><span class="chip bad">newly PEER LAGGARD</span></div>
-        <div class="holdbar-row"><span class="tk">CIEN</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:11.7%"></div></div><span class="wt">1.34%</span></div>
-        <div class="holdbar-tags"><span class="chip bad">confirmed insider sell (unchanged)</span><span class="chip">already trimmed 59%</span></div>
-        <div class="holdbar-row"><span class="tk">GOOG</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:14.4%"></div></div><span class="wt">1.65%</span></div>
-        <div class="holdbar-tags"><span class="chip warn">exit/re-entry whipsaw, still unresolved</span><span class="chip">faded from peer leader to neutral</span></div>
-        <div class="holdbar-row"><span class="tk">BABA</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:12.2%"></div></div><span class="wt">1.39%</span></div>
-        <div class="holdbar-tags"><span class="chip good">OVERSOLD BOUNCE persists</span><span class="chip warn">thesis only WATCH, peer-leader edge cooling</span></div>
+        <div class="holdbar-row"><span class="tk">LRCX</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:33.6%"></div></div><span class="wt">4.46%</span></div>
+        <div class="holdbar-tags"><span class="chip bad">PEER LAGGARD -8.4%</span><span class="chip">no signal otherwise</span></div>
+        <div class="holdbar-row"><span class="tk">GLW</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:32.9%"></div></div><span class="wt">4.37%</span></div>
+        <div class="holdbar-tags"><span class="chip good">TARGET GAP</span><span class="chip bad">PEER LAGGARD -17.9% - book's worst</span></div>
+        <div class="holdbar-row"><span class="tk">TER</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:23.5%"></div></div><span class="wt">3.12%</span></div>
+        <div class="holdbar-tags"><span class="chip">no signal, quiet</span></div>
+        <div class="holdbar-row"><span class="tk">IREN</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:21.5%"></div></div><span class="wt">2.86%</span></div>
+        <div class="holdbar-tags"><span class="chip good">TARGET GAP +49.9% - largest in book</span><span class="chip bad">PEER LAGGARD -16.8%</span></div>
+        <div class="holdbar-row"><span class="tk">CIEN</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:11.9%"></div></div><span class="wt">1.58%</span></div>
+        <div class="holdbar-tags"><span class="chip good">TARGET GAP +28.0%</span><span class="chip bad">INSIDER ACTIVITY (watch, unresolved)</span></div>
+        <div class="holdbar-row"><span class="tk">AMD</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:11.6%"></div></div><span class="wt">1.53%</span></div>
+        <div class="holdbar-tags"><span class="chip good">STRONG UPTREND</span><span class="chip good">PEER LEADER +10.1%</span><span class="chip">trimmed 2->1sh, at consensus target, no fresh upside cushion</span></div>
+        <div class="holdbar-row"><span class="tk">ORCL</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:10.4%"></div></div><span class="wt">1.38%</span></div>
+        <div class="holdbar-tags"><span class="chip bad">BREAKDOWN</span><span class="chip good">OVERSOLD BOUNCE (new, $7B DoD contract)</span><span class="chip bad">PEER LAGGARD</span><span class="chip good">TARGET GAP +51.84%</span></div>
+        <div class="holdbar-row"><span class="tk">AMAT</span><div class="holdbar-track"><div class="holdbar-fill warn" style="width:0.1%"></div></div><span class="wt">0.01%</span></div>
+        <div class="holdbar-tags"><span class="chip">dust position, 0.015% wt, immaterial</span></div>
       </div>
-      <div class="note">Reserved for real thesis-vs-signal conflicts. Today's broad peer-laggard rollover (QCOM, LRCX, VRT, IREN, COHR joining the already-laggard GLW) turned this bucket into the largest of the three - a book-wide give-back of yesterday's rally-day relative strength, not name-specific deterioration. GEV moved here from Can Buy on its thesis downgrade. AMAT (0.012% wt, dust) excluded as immaterial.</div>
+      <div class="note">Genuine thesis-vs-signal conflicts. GLW: strengthening thesis but book's worst peer-laggard (-17.9%). ORCL: fresh oversold-bounce vs standing breakdown/debt flags - strategist verdict hold, no action. IREN: largest target gap in the book (+49.9%) but also a severe peer-laggard (-16.8%). AMD: strong signals but sits at consensus target with no fresh upside cushion after today's trim. AMAT (0.015% wt, dust) included for completeness only.</div>
     </div>
   </div>
 
-  <div class="section-title">Signal Buckets &amp; Peer-Relative Strength <span class="n">1 new journal entry this run (GEV)</span></div>
+  <div class="section-title">Signal Buckets &amp; Peer-Relative Strength <span class="n">1 new journal entry this run (ORCL)</span></div>
   <div class="buckets-grid">
-    <div class="bucket"><h3>Insider Activity <span class="w">Form-4, nothing new since 07-18</span></h3>
+    <div class="bucket"><h3>Insider Activity <span class="w">unchanged since 07-18</span></h3>
       <div class="chip-row">
         <span class="chip bad"><b>CIEN</b> CEO+3 sold 7/15 (confirmed, unchanged; position trimmed 59% since)</span>
       </div>
     </div>
-    <div class="bucket"><h3>Strong Uptrend / Peer Leader <span class="w">unchanged from yesterday</span></h3>
+    <div class="bucket"><h3>Strong Uptrend / Peer Leader <span class="w">GEV and ASML newly join</span></h3>
       <div class="chip-row">
-        <span class="chip good"><b>NVDA</b> +14.3pp vs SMH</span>
-        <span class="chip good"><b>AVGO</b> +13.2pp vs SMH</span>
-        <span class="chip good"><b>AMD</b> +12.5pp vs SMH</span>
-        <span class="chip good"><b>META</b> +17.1pp vs XLK</span>
-      </div>
-      <div class="value-sub" style="font-size:12px; margin-top:6px;">Faded from leader to neutral (relative strength compressed toward peer): ASML, TSM, GOOG, BABA.</div>
-    </div>
-    <div class="bucket"><h3>Breakdown <span class="w">persistent</span></h3>
-      <div class="chip-row"><span class="chip bad"><b>ORCL</b> below 52wk low + fresh 21-Jul credit downgrade + peer-laggard vs XLK (unchanged)</span></div>
-    </div>
-    <div class="bucket"><h3>Peer Laggards <span class="w">broad rollover - up from 1 name to 13</span></h3>
-      <div class="chip-row">
-        <span class="chip bad"><b>SNDK</b> -18.0pp</span><span class="chip bad"><b>MRVL</b> -19.0pp</span><span class="chip bad"><b>ORCL</b> -22.6pp</span><span class="chip bad"><b>ARM</b> -18.2pp (new)</span><span class="chip bad"><b>GLW</b> -13.5pp</span><span class="chip bad"><b>IREN</b> -21.0pp (new)</span><span class="chip bad"><b>NBIS</b> -15.2pp (new)</span><span class="chip bad"><b>VRT</b> -14.0pp (new)</span><span class="chip bad"><b>GEV</b> -13.7pp (new)</span>
-      </div>
-      <div class="chip-row" style="margin-top:6px;"><span class="chip bad">MU -8.4pp (new)</span><span class="chip bad">LRCX -9.8pp (new)</span><span class="chip bad">QCOM -8.8pp (new)</span><span class="chip bad">COHR -14.0pp (new)</span></div>
-      <div class="value-sub" style="font-size:12px; margin-top:6px;">Yesterday's -38% SNDK-vs-SMH read (longer lookback) vs today's -18.0pp (1mo) - same direction, different window, not a contradiction. This is a book-wide give-back of yesterday's rally-day relative strength (SMH -11.9%, XLK -6.1% over 1mo), not name-specific news.</div>
-    </div>
-    <div class="bucket"><h3>Momentum+Volume <span class="w">yesterday's cohort closed out; GEV newly flagged (downside)</span></h3>
-      <div class="chip-row">
-        <span class="chip bad"><b>GEV</b> -7.4% today (Q2 EPS miss despite guidance raise)</span>
-      </div>
-      <div class="value-sub" style="font-size:12px; margin-top:6px;">SNDK/MU/CIEN/TER/CLS/LITE/DRAM/AMAT all closed out of this bucket - day moves now under 4%, confirming a clean fade of Tuesday's rally, not a reversal.</div>
-    </div>
-    <div class="bucket"><h3>Journal - New Entry</h3>
-      <div class="chip-row">
-        <span class="chip warn"><b>GEV</b> MOMENTUM+VOLUME (downside)</span>
+        <span class="chip good"><b>NVDA</b> +11.2pp vs SMH</span>
+        <span class="chip good"><b>AVGO</b> +9.0pp vs SMH</span>
+        <span class="chip good"><b>AMD</b> +10.1pp vs SMH</span>
+        <span class="chip good"><b>ASML</b> +8.5pp vs SMH (new)</span>
+        <span class="chip good"><b>GEV</b> STRONG UPTREND, +4.69% today (new)</span>
       </div>
     </div>
-    <div class="bucket"><h3>Earnings Proximity</h3>
-      <div class="value-sub" style="font-size:12.5px;"><b>QCOM</b> (5.89% wt) reports 2026-07-29, 6 trading days out - not run up into the print. <b>STM</b> reported today but is sub-5% weight, informational only. yfinance's earnings-calendar tool returned empty again (G20, reconfirmed).</div>
+    <div class="bucket"><h3>Breakdown <span class="w">persistent, now offset by a fresh bounce</span></h3>
+      <div class="chip-row"><span class="chip bad"><b>ORCL</b> at 52wk low, but see NEW oversold-bounce below</span></div>
+    </div>
+    <div class="bucket"><h3>Peer Laggards <span class="w">10 names, several rolled off this run</span></h3>
+      <div class="chip-row">
+        <span class="chip bad"><b>GLW</b> -17.9% (worst in book)</span><span class="chip bad"><b>IREN</b> -16.8%</span><span class="chip bad"><b>MRVL</b> -18.1%</span><span class="chip bad"><b>ARM</b> -14.9%</span><span class="chip bad"><b>COHR</b> -13.9%</span><span class="chip bad"><b>NBIS</b> -12.4%</span><span class="chip bad"><b>ORCL</b> laggard</span><span class="chip bad"><b>SNDK</b> -9.6%</span><span class="chip bad"><b>LRCX</b> -8.4%</span><span class="chip bad"><b>DRAM</b> -10.4% (new mapping)</span>
+      </div>
+      <div class="value-sub" style="font-size:12px; margin-top:6px;">Rolled OFF laggard status this run (now neutral): MU, VRT, EWY, QCOM, GEV.</div>
+    </div>
+    <div class="bucket"><h3>Oversold Bounce <span class="w">new this run</span></h3>
+      <div class="chip-row"><span class="chip good"><b>ORCL</b> pos~0.003 (at 52wk low) + 51.84% upside to $249.24 mean target; catalyst: $7B DoD contract 07-23</span></div>
+    </div>
+    <div class="bucket"><h3>Earnings Proximity <span class="w">next week, held names</span></h3>
+      <div class="value-sub" style="font-size:12.5px;"><b>GLW</b> and <b>TER</b> report 07-28; <b>QCOM</b> and <b>LRCX</b> report 07-29 - all four inside the coming week. yfinance's dedicated earnings-calendar tool returned empty for the 4th consecutive run (G20); these dates came from news/web sources instead.</div>
     </div>
   </div>
-  <div class="caveat">Hit-rate readout still not available - journal.json's bucket_hit_rates/name_bucket_grades are empty, all entries younger than the 30-day scoring window (tracking started 07-12, first cohort scores ~08-12).</div>
+  <div class="caveat">Hit-rate readout still not available - journal.json's bucket_hit_rates/name_bucket_grades are empty, all 48 entries younger than the 30-day scoring window (tracking started 07-12, first cohort scores ~08-11).</div>
 
-  <div class="section-title">Thesis Map <span class="n">29 held positions, grouped by cluster - 1 status change this run (GEV)</span></div>
+  <div class="section-title">Thesis Map <span class="n">24 held positions, grouped by cluster - 5 exits (LITE/META/GOOG/BABA/STM), 2 trims (AMD/QCOM) since last run</span></div>
   <div class="card table-wrap">
     <table class="compact">
       <thead><tr><th>Ticker</th><th class="num">Weight</th><th>Verdict</th><th>Note</th></tr></thead>
       <tbody>
-<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--c-semis);"></span><b>AI Semis/Fabs</b> - 34.46% of book</td></tr>
-<tr><td class="ticker">TSM</td><td class="num"><span class="mini-bar"><span style="width:53%;"></span></span>6.11%</td><td><span class="pill good">Strengthening</span></td><td>Foundry monopoly; target gap; newly peer leader +10.9%</td></tr>
-<tr><td class="ticker">NVDA</td><td class="num"><span class="mini-bar"><span style="width:53%;"></span></span>6.03%</td><td><span class="pill good">Strengthening</span></td><td>Peer leader +20.4% (unchanged) + target gap</td></tr>
-<tr><td class="ticker">QCOM</td><td class="num"><span class="mini-bar"><span style="width:51%;"></span></span>5.84%</td><td><span class="pill good">Strengthening</span></td><td>Position doubled (6&rarr;14sh) this run; peer-laggard resolved to neutral</td></tr>
-<tr><td class="ticker">ASML</td><td class="num"><span class="mini-bar"><span style="width:38%;"></span></span>4.36%</td><td><span class="pill good">Strengthening</span></td><td>Sole-source EUV; export-control policy flag; newly peer leader +13.1%</td></tr>
-<tr><td class="ticker">LRCX</td><td class="num"><span class="mini-bar"><span style="width:33%;"></span></span>3.82%</td><td><span class="pill good">Strengthening</span></td><td>Semicap capex bellwether; quiet, no fresh signal</td></tr>
-<tr><td class="ticker">AMD</td><td class="num"><span class="mini-bar"><span style="width:23%;"></span></span>2.62%</td><td><span class="pill good">Strengthening</span></td><td>Direct NVDA competitor; newly STRONG UPTREND + peer leader +17.1%</td></tr>
-<tr><td class="ticker">TER</td><td class="num"><span class="mini-bar"><span style="width:23%;"></span></span>2.67%</td><td><span class="pill good">Strengthening</span></td><td>AI test-equipment demand; momentum+volume, target gap closed &lt;15%</td></tr>
-<tr><td class="ticker">STM</td><td class="num"><span class="mini-bar"><span style="width:14%;"></span></span>1.60%</td><td><span class="pill good">Strengthening</span></td><td>Diversified semis; earnings 07-23, sub-5% wt</td></tr>
-<tr><td class="ticker">ARM</td><td class="num"><span class="mini-bar"><span style="width:12%;"></span></span>1.39%</td><td><span class="pill warn">Watch</span></td><td>Chip IP licensing; peer-laggard resolved to neutral this run; earnings 07-29</td></tr>
-<tr><td class="ticker">AMAT</td><td class="num"><span class="mini-bar"><span style="width:1%;"></span></span>0.01%</td><td><span class="pill good">Strengthening</span></td><td>Cut to dust this run (2.009&rarr;0.0092sh) - sizing decision only, thesis unaffected (record Q2 rev, raised targets)</td></tr>
-<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--c-memory);"></span><b>AI Memory/Storage</b> - 27.16% of book</td></tr>
-<tr><td class="ticker">SNDK</td><td class="num"><span class="mini-bar"><span style="width:100%;"></span></span>11.45%</td><td><span class="pill warn">Watch (downgraded)</span></td><td>Largest position; downgraded from strengthening on severe peer-laggard read, despite intact fundamentals (Meta flash-storage LTA) - see proposal 1</td></tr>
-<tr><td class="ticker">DRAM</td><td class="num"><span class="mini-bar"><span style="width:61%;"></span></span>6.96%</td><td><span class="pill neutral">Intact</span></td><td>Concentrated memory ETF; cluster over cap; +10.9% Tue close</td></tr>
-<tr><td class="ticker">MU</td><td class="num"><span class="mini-bar"><span style="width:41%;"></span></span>4.63%</td><td><span class="pill good">Strengthening</span></td><td>Memory re-buy; momentum+volume, cluster over cap</td></tr>
-<tr><td class="ticker">EWY</td><td class="num"><span class="mini-bar"><span style="width:36%;"></span></span>4.12%</td><td><span class="pill warn">Watch</span></td><td>Korea semis/memory ETF; home-market KOSPI +6.16% overnight, watch for a gap</td></tr>
-<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--c-network);"></span><b>AI Networking/Optics</b> - 14.85% of book</td></tr>
-<tr><td class="ticker">GLW</td><td class="num"><span class="mini-bar"><span style="width:34%;"></span></span>3.89%</td><td><span class="pill good">Strengthening</span></td><td>Trimmed 19&rarr;10sh this run; clean target gap unchanged</td></tr>
-<tr><td class="ticker">MRVL</td><td class="num"><span class="mini-bar"><span style="width:30%;"></span></span>3.49%</td><td><span class="pill warn">Watch</span></td><td>Custom AI silicon; only remaining peer-laggard in the book</td></tr>
-<tr><td class="ticker">COHR</td><td class="num"><span class="mini-bar"><span style="width:20%;"></span></span>2.26%</td><td><span class="pill good">Strengthening</span></td><td>Photonics/optical; peer-laggard resolved to neutral</td></tr>
-<tr><td class="ticker">LITE</td><td class="num"><span class="mini-bar"><span style="width:18%;"></span></span>2.00%</td><td><span class="pill good">Strengthening</span></td><td>Optical transceivers; momentum+volume, newly peer leader</td></tr>
-<tr><td class="ticker">AVGO</td><td class="num"><span class="mini-bar"><span style="width:16%;"></span></span>1.86%</td><td><span class="pill good">Strengthening</span></td><td>Custom AI ASICs; antitrust flag; newly peer leader +18.6%</td></tr>
-<tr><td class="ticker">CIEN</td><td class="num"><span class="mini-bar"><span style="width:12%;"></span></span>1.35%</td><td><span class="pill warn">Watch</span></td><td>Trimmed 59% this run (3.39&rarr;1.39sh) - risk management on the standing insider-sale flag, not a thesis break</td></tr>
-<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--c-oem);"></span><b>Compute/Hyperscaler OEM</b> - 7.21% of book</td></tr>
-<tr><td class="ticker">CLS</td><td class="num"><span class="mini-bar"><span style="width:36%;"></span></span>4.09%</td><td><span class="pill good">Strengthening</span></td><td>Broadcom/OpenAI ASIC + AI server EMS; peer-laggard resolved to neutral</td></tr>
-<tr><td class="ticker">NBIS</td><td class="num"><span class="mini-bar"><span style="width:27%;"></span></span>3.13%</td><td><span class="pill warn">Watch</span></td><td>Neocloud GPU infra; peer-laggard resolved to neutral</td></tr>
-<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--c-hyper);"></span><b>Compute/Hyperscaler</b> - 8.58% of book</td></tr>
-<tr><td class="ticker">META</td><td class="num"><span class="mini-bar"><span style="width:28%;"></span></span>3.15%</td><td><span class="pill good">Strengthening</span></td><td>Peer leader +22.9% (unchanged) + target gap</td></tr>
-<tr><td class="ticker">IREN</td><td class="num"><span class="mini-bar"><span style="width:22%;"></span></span>2.48%</td><td><span class="pill good">Strengthening (upgraded)</span></td><td>$2.8B new AI-cloud contracts; book's largest target gap (+49%); sizing held back by cash/capex caps, see proposal 3</td></tr>
-<tr><td class="ticker">GOOG</td><td class="num"><span class="mini-bar"><span style="width:15%;"></span></span>1.71%</td><td><span class="pill warn">Watch</span></td><td>Exit/re-entry whipsaw still unresolved; newly peer leader +9.4%</td></tr>
-<tr><td class="ticker">ORCL</td><td class="num"><span class="mini-bar"><span style="width:11%;"></span></span>1.24%</td><td><span class="pill warn">Watch</span></td><td>Breakdown + fresh 21-Jul credit downgrade + newly peer-laggard - see proposal 2 (full exit)</td></tr>
-<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--c-power);"></span><b>AI Power/Cooling/DC Infra</b> - 6.33% of book</td></tr>
-<tr><td class="ticker">VRT</td><td class="num"><span class="mini-bar"><span style="width:32%;"></span></span>3.68%</td><td><span class="pill good">Strengthening</span></td><td>Cluster's biggest underweight; peer-laggard resolved to neutral</td></tr>
-<tr><td class="ticker">GEV</td><td class="num"><span class="mini-bar"><span style="width:29%;"></span></span>3.33%</td><td><span class="pill warn">Watch (downgraded)</span></td><td>Bought further today (1.00&rarr;1.395sh, +$394) same day Q2 print (revenue beat, guidance raised, EPS missed) sent it -7.4%; not broken, but execution needs confirming next quarter - see proposal 3 (no further add)</td></tr>
-<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--ink-faint);"></span><b>China Consumer/Cloud</b> - 1.42% of book, non-AI-capex-chain, NEW cluster awaiting policy confirmation (G11)</td></tr>
-<tr><td class="ticker">BABA</td><td class="num"><span class="mini-bar"><span style="width:12%;"></span></span>1.42%</td><td><span class="pill warn">Watch (new)</span></td><td>NEW position 07-22 (5sh) - Apple/Qwen AI-cloud integration, $53B AI/cloud capex pledge, +38% upside, but active securities-fraud probe + Pentagon "military company" designation unresolved. Book's only non-AI-capex-chain name; cluster classification provisional pending user sign-off (G11).</td></tr>
+<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--c-semis);"></span><b>AI Semis/Fabs</b> - 32.65% of book</td></tr>
+<tr><td class="ticker">NVDA</td><td class="num"><span class="mini-bar"><span style="width:53%;"></span></span>7.01%</td><td><span class="pill good">Strengthening</span></td><td>Core AI GPU/accelerator leadership; target gap +31.1%, peer leader</td></tr>
+<tr><td class="ticker">TSM</td><td class="num"><span class="mini-bar"><span style="width:53%;"></span></span>6.98%</td><td><span class="pill good">Strengthening</span></td><td>Foundry monopoly; target gap</td></tr>
+<tr><td class="ticker">ASML</td><td class="num"><span class="mini-bar"><span style="width:38%;"></span></span>5.04%</td><td><span class="pill good">Strengthening</span></td><td>Sole-source EUV; newly peer leader +8.5%, strong uptrend</td></tr>
+<tr><td class="ticker">LRCX</td><td class="num"><span class="mini-bar"><span style="width:34%;"></span></span>4.46%</td><td><span class="pill good">Strengthening</span></td><td>Semicap capex bellwether; peer-laggard -8.4%, otherwise quiet</td></tr>
+<tr><td class="ticker">TER</td><td class="num"><span class="mini-bar"><span style="width:24%;"></span></span>3.12%</td><td><span class="pill good">Strengthening</span></td><td>AI test-equipment demand; no fresh signal</td></tr>
+<tr><td class="ticker">QCOM</td><td class="num"><span class="mini-bar"><span style="width:22%;"></span></span>2.88%</td><td><span class="pill good">Strengthening</span></td><td>Trimmed 57% this run (14.0008->6.0008sh) ahead of 07-29 earnings - de-risking into a binary event, not a thesis break</td></tr>
+<tr><td class="ticker">ARM</td><td class="num"><span class="mini-bar"><span style="width:12%;"></span></span>1.61%</td><td><span class="pill warn">Watch</span></td><td>Chip IP licensing; peer-laggard -14.9%, earnings 07-29</td></tr>
+<tr><td class="ticker">AMD</td><td class="num"><span class="mini-bar"><span style="width:12%;"></span></span>1.53%</td><td><span class="pill good">Strengthening</span></td><td>Trimmed 50% this run (2->1sh) - pure de-risking per news, thesis intact; at consensus target</td></tr>
+<tr><td class="ticker">AMAT</td><td class="num"><span class="mini-bar"><span style="width:0%;"></span></span>0.01%</td><td><span class="pill good">Strengthening</span></td><td>Dust position (0.015% wt) - sizing only, thesis unaffected</td></tr>
+<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--c-memory);"></span><b>AI Memory/Storage</b> - 31.50% of book</td></tr>
+<tr><td class="ticker">SNDK</td><td class="num"><span class="mini-bar"><span style="width:100%;"></span></span>13.27%</td><td><span class="pill warn">Watch</span></td><td>Largest position; BREACHES 12% cap (13.271%) - see proposal 1; peer-laggard persists</td></tr>
+<tr><td class="ticker">DRAM</td><td class="num"><span class="mini-bar"><span style="width:60%;"></span></span>7.96%</td><td><span class="pill neutral">Intact</span></td><td>Concentrated memory ETF; cluster over cap; newly peer-laggard on first mapping</td></tr>
+<tr><td class="ticker">MU</td><td class="num"><span class="mini-bar"><span style="width:41%;"></span></span>5.49%</td><td><span class="pill good">Strengthening</span></td><td>Memory re-buy; target gap +34.31%, cluster over cap</td></tr>
+<tr><td class="ticker">EWY</td><td class="num"><span class="mini-bar"><span style="width:36%;"></span></span>4.78%</td><td><span class="pill warn">Watch</span></td><td>Korea semis/memory ETF; peer-laggard dropped this run</td></tr>
+<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--c-network);"></span><b>AI Networking/Optics</b> - 14.83% of book</td></tr>
+<tr><td class="ticker">GLW</td><td class="num"><span class="mini-bar"><span style="width:33%;"></span></span>4.37%</td><td><span class="pill good">Strengthening</span></td><td>Optical/connectivity; book's worst peer-laggard (-17.9%) despite bullish thesis - genuine conflict</td></tr>
+<tr><td class="ticker">MRVL</td><td class="num"><span class="mini-bar"><span style="width:31%;"></span></span>4.07%</td><td><span class="pill warn">Watch</span></td><td>Custom AI silicon; peer-laggard -18.1%, target gap +17.7%</td></tr>
+<tr><td class="ticker">COHR</td><td class="num"><span class="mini-bar"><span style="width:20%;"></span></span>2.62%</td><td><span class="pill good">Strengthening</span></td><td>Photonics/optical; peer-laggard -13.9%, target gap +20.0% - proposal 3 deploy target</td></tr>
+<tr><td class="ticker">AVGO</td><td class="num"><span class="mini-bar"><span style="width:16%;"></span></span>2.19%</td><td><span class="pill good">Strengthening</span></td><td>Custom AI ASICs; target gap +25.3%, peer leader +9.0%</td></tr>
+<tr><td class="ticker">CIEN</td><td class="num"><span class="mini-bar"><span style="width:12%;"></span></span>1.58%</td><td><span class="pill warn">Watch</span></td><td>Trimmed 59% prior run on insider-sale flag; fresh target gap +28.0%, still watch</td></tr>
+<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--c-oem);"></span><b>Compute/Hyperscaler OEM</b> - 8.50% of book</td></tr>
+<tr><td class="ticker">CLS</td><td class="num"><span class="mini-bar"><span style="width:36%;"></span></span>4.72%</td><td><span class="pill good">Strengthening</span></td><td>Broadcom/OpenAI ASIC + AI server EMS; target gap</td></tr>
+<tr><td class="ticker">NBIS</td><td class="num"><span class="mini-bar"><span style="width:28%;"></span></span>3.77%</td><td><span class="pill warn">Watch</span></td><td>Neocloud GPU infra; peer-laggard -12.4%, Nvidia-stake tailwind narrative persists</td></tr>
+<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--c-power);"></span><b>AI Power/Cooling/DC Infra</b> - 8.28% of book</td></tr>
+<tr><td class="ticker">VRT</td><td class="num"><span class="mini-bar"><span style="width:32%;"></span></span>4.25%</td><td><span class="pill good">Strengthening</span></td><td>Thermal/power mgmt; target gap +19.31%, cluster's second-largest underweight member</td></tr>
+<tr><td class="ticker">GEV</td><td class="num"><span class="mini-bar"><span style="width:30%;"></span></span>4.04%</td><td><span class="pill good">Strengthening (signal reversed)</span></td><td>STRONG UPTREND + MOMENTUM+VOLUME post-earnings (+4.69% today) - proposal 2 deploy target; thesis remains watch pending next quarter's execution confirmation</td></tr>
+<tr class="group-row"><td colspan="4"><span class="cdot" style="background:var(--c-hyper);"></span><b>Compute/Hyperscaler</b> - 4.23% of book</td></tr>
+<tr><td class="ticker">IREN</td><td class="num"><span class="mini-bar"><span style="width:22%;"></span></span>2.86%</td><td><span class="pill good">Strengthening</span></td><td>Book's largest target gap (+49.9%) but also a severe peer-laggard (-16.8%) - genuine conflict</td></tr>
+<tr><td class="ticker">ORCL</td><td class="num"><span class="mini-bar"><span style="width:10%;"></span></span>1.38%</td><td><span class="pill warn">Watch</span></td><td>BREAKDOWN + debt headwinds vs fresh OVERSOLD BOUNCE ($7B DoD contract) - strategist verdict hold, no action; two prior proposals called for a full exit, still held</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="caveat"><b>NOW</b> fully exited 2026-07-22, removed from this table (was Enterprise Software, 0.80% wt, watch).</div>
+  <div class="caveat"><b>LITE, META, GOOG, BABA, STM</b> fully exited 2026-07-24, removed from this table. STM crashed -18.67% intraday same day (likely earnings, unconfirmed by name). GOOG dropped -6.89%, unexplained. All watchlist-flagged as re-entry candidates if their setups hold up (LITE +24.6%, GOOG +26.0%, META +26.6%, BABA +40.1% - though BABA remains AI-capex-adjacent per its own thesis and wouldn't fix the concentration problem on re-entry; STM +27.1% but the crash-driven setup is flagged cautiously, not a clean dip-buy).</div>
 
   <div class="section-title">Factor Concentration</div>
   <div class="card">
     <div class="meter">
-      <div class="head"><span>Combined AI-capex chain exposure <span style="color:var(--bad); font-weight:700;">- BREACHED</span></span><b style="color:var(--bad);">98.61% / 90% cap</b></div>
-      <div class="meter-track"><div class="meter-fill bad" style="width:98.6%"></div><div class="meter-target" style="left:90%"></div></div>
+      <div class="head"><span>Combined AI-capex chain exposure <span style="color:var(--bad); font-weight:700;">- BREACHED, worst reading yet</span></span><b style="color:var(--bad);">100.0% / 90% cap</b></div>
+      <div class="meter-track"><div class="meter-fill bad" style="width:100%"></div><div class="meter-target" style="left:90%"></div></div>
     </div>
-    <div class="value-sub">Essentially unchanged from yesterday - today's only flow (GEV, capex-chain) doesn't touch it either way. Only <b>BABA at 1.39%</b> sits outside the AI-capex chain. Thesis verdict this run: "no meaningful uncorrelated ballast in this book" - proposals #1/#2 (SNDK trim, ORCL exit) are the lever available today; #3 (no further GEV) and #4 (VRT, funded by 1-2) don't move this figure materially.</div>
+    <div class="value-sub">BABA's exit today removed the book's LAST non-AI-capex-chain sleeve - every one of the 24 remaining positions now sits in an AI-capex cluster (semis/fabs, memory, optics, power-infra, or hyperscaler/OEM). Explicitly checked this run for a genuine diversifier in the watchlist output: none found. BABA re-entry (+40.1% upside) and SNPS (+33.8%, EDA/chip-design software) are both still value-chain-correlated; IBM (+21.4%) is structurally different but carries its own post-earnings value-trap flag (-25% crash 07-14). The policy's own "Diversified/Regional ETF" cluster sits at a flat 0% vs a 5% target - a complete, standing miss that no proposal addresses this run.</div>
   </div>
 
   <div class="section-title">Diversifier Bench <span class="n">smith-scout - carried from last deep review, not refreshed this quick pass</span></div>
@@ -598,85 +551,79 @@
     <table>
       <thead><tr><th>Ticker</th><th class="num">Price</th><th class="num">Upside</th><th>Read</th><th>Diversifier?</th></tr></thead>
       <tbody>
-<tr><td class="ticker">NEM</td><td class="num">$89.70</td><td class="num"><span class="db pos">+32.6%</span></td><td>Gold miner, 26 analysts 96% buy/hold, zero AI-capex overlap - this run's top pick</td><td><span class="pill good">Clean</span></td></tr>
-<tr><td class="ticker">VST</td><td class="num">$155.44</td><td class="num"><span class="db pos">+30.4%</span></td><td>Merchant power gen - real upside but demand story is datacenter/AI-load-adjacent</td><td><span class="pill warn">Partial</span></td></tr>
-<tr><td class="ticker">DUK</td><td class="num">$125.01</td><td class="num"><span class="db pos">+9.8%</span></td><td>Regulated multi-state utility, rate-base growth, overwhelmingly retail/industrial</td><td><span class="pill good">Clean</span></td></tr>
-<tr><td class="ticker">UNH</td><td class="num">$426.09</td><td class="num"><span class="db pos">+9.7%</span></td><td>Managed care post-selloff rebound, 88% buy-rated, no capex correlation</td><td><span class="pill good">Clean</span></td></tr>
-<tr><td class="ticker">PG</td><td class="num">$149.98</td><td class="num"><span class="db pos">+8.2%</span></td><td>Staples ballast, 2.9% yield, low beta</td><td><span class="pill good">Clean</span></td></tr>
-<tr><td class="ticker">LLY</td><td class="num">$1,179.11</td><td class="num"><span class="db pos">+7.2%</span></td><td>Pharma/GLP-1 growth, fully decoupled from semis/AI capex</td><td><span class="pill good">Clean</span></td></tr>
-<tr><td class="ticker">KO</td><td class="num">$81.56</td><td class="num"><span class="db pos">+6.6%</span></td><td>Staples, sold off intraday - watch for a cleaner entry next run</td><td><span class="pill good">Clean</span></td></tr>
+<tr><td class="ticker">NEM</td><td class="num">$89.70</td><td class="num"><span class="db pos">+32.6%</span></td><td>Gold miner, zero AI-capex overlap</td><td><span class="pill good">Clean</span></td></tr>
+<tr><td class="ticker">VST</td><td class="num">$155.44</td><td class="num"><span class="db pos">+30.4%</span></td><td>Merchant power gen - demand story is datacenter/AI-load-adjacent</td><td><span class="pill warn">Partial</span></td></tr>
+<tr><td class="ticker">DUK</td><td class="num">$125.01</td><td class="num"><span class="db pos">+9.8%</span></td><td>Regulated multi-state utility, rate-base growth</td><td><span class="pill good">Clean</span></td></tr>
+<tr><td class="ticker">UNH</td><td class="num">$426.09</td><td class="num"><span class="db pos">+9.7%</span></td><td>Managed care rebound, no capex correlation</td><td><span class="pill good">Clean</span></td></tr>
+<tr><td class="ticker">PG</td><td class="num">$149.98</td><td class="num"><span class="db pos">+8.2%</span></td><td>Staples ballast, 2.9% yield</td><td><span class="pill good">Clean</span></td></tr>
+<tr><td class="ticker">LLY</td><td class="num">$1,179.11</td><td class="num"><span class="db pos">+7.2%</span></td><td>Pharma/GLP-1 growth, decoupled from semis</td><td><span class="pill good">Clean</span></td></tr>
+<tr><td class="ticker">KO</td><td class="num">$81.56</td><td class="num"><span class="db pos">+6.6%</span></td><td>Staples, sold off intraday - watch for entry</td><td><span class="pill good">Clean</span></td></tr>
 <tr><td class="ticker">JNJ</td><td class="num">$253.04</td><td class="num"><span class="db pos">+6.3%</span></td><td>Diversified pharma/medtech, near 52wk high</td><td><span class="pill good">Clean</span></td></tr>
-<tr><td class="ticker">SO</td><td class="num">$95.30</td><td class="num"><span class="db pos">+6.1%</span></td><td>Regulated Southeast utility, defensive/rate-driven, low beta 0.33</td><td><span class="pill good">Clean</span></td></tr>
+<tr><td class="ticker">SO</td><td class="num">$95.30</td><td class="num"><span class="db pos">+6.1%</span></td><td>Regulated SE utility, defensive, low beta 0.33</td><td><span class="pill good">Clean</span></td></tr>
       </tbody>
     </table>
   </div>
-  <div class="caveat">GOLD ticker resolves to "Gold.com Inc." (a fintech, not Barrick post-rename) - dropped from the bench previously, verify manually if reconsidering. Cash remains far below the 3% floor even after this run's proposals - these stay candidates for once cash is actually rebuilt, not a signal to deploy today.</div>
+  <div class="caveat">Bench unchanged from last deep review (07-20) - not refreshed this quick pass. With $5,657 idle cash now sitting in the wallet and no clean AI-capex diversifier found in this run's watchlist, this bench deserves a fresh look at the next deep review.</div>
 
-  <div class="section-title">Cluster Headroom <span class="n">this run, 2026-07-23 intraday - only GEV's further buy changed composition</span></div>
+  <div class="section-title">Cluster Headroom <span class="n">this run, 2026-07-24 pre-open - composition changed sharply (5 exits, 2 trims)</span></div>
   <div class="card">
     <div class="stack">
       <div class="drift-row breach">
-        <div class="name">AI-capex combined factor<span class="w">6 clusters, effectively the whole book</span></div>
+        <div class="name">AI-capex combined factor<span class="w">now 100% of the book - BABA's exit removed the last non-capex sleeve</span></div>
         <div class="bar-track"><div class="bar-fill" style="width:100%"></div><div class="bar-target" style="left:90%"></div></div>
-        <div class="delta">98.61% / 90%</div>
+        <div class="delta">100.0% / 90%</div>
       </div>
       <div class="drift-row breach">
-        <div class="name">SNDK - single position<span class="w">largest holding, under the 12% cap</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:95.3%"></div><div class="bar-target" style="left:100%"></div></div>
-        <div class="delta">11.44% / 12%</div>
+        <div class="name">SNDK - single position<span class="w">largest holding, now OVER the 12% cap</span></div>
+        <div class="bar-track"><div class="bar-fill bad" style="width:100%"></div><div class="bar-target" style="left:90.4%"></div></div>
+        <div class="delta">13.271% / 12% - see proposal 1</div>
       </div>
       <div class="drift-row">
-        <div class="name"><span class="cdot" style="background:var(--c-semis);"></span>AI Semis / Fabs<span class="w">NVDA ASML LRCX AMAT(dust) TER STM QCOM TSM ARM AMD</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:98.3%; background:var(--c-semis);"></div><div class="bar-target" style="left:85.7%"></div></div>
-        <div class="delta">34.41% / 30% (band 25-35, near ceiling)</div>
+        <div class="name"><span class="cdot" style="background:var(--c-semis);"></span>AI Semis/Fabs<span class="w">NVDA TSM ASML LRCX TER QCOM ARM AMD AMAT(dust)</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:66.6%; background:var(--c-semis)"></div><div class="bar-target" style="left:61.2%"></div></div>
+        <div class="delta">32.653% / 30% (band 25-35, in band)</div>
       </div>
       <div class="drift-row breach">
-        <div class="name"><span class="cdot" style="background:var(--c-memory);"></span>AI Memory / Storage<span class="w">SNDK DRAM MU EWY</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:100%"></div><div class="bar-target" style="left:80%"></div></div>
-        <div class="delta">27.01% / 20% (band 15-25, +2.01pt over top - proposal 1 (SNDK trim) targets this)</div>
+        <div class="name"><span class="cdot" style="background:var(--c-memory);"></span>AI Memory/Storage<span class="w">SNDK DRAM MU EWY</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:90.0%"></div><div class="bar-target" style="left:57.1%"></div></div>
+        <div class="delta">31.502% / 20% (band 15-25, over top)</div>
       </div>
       <div class="drift-row breach">
-        <div class="name"><span class="cdot" style="background:var(--c-network);"></span>AI Networking / Optics<span class="w">GLW MRVL CIEN AVGO LITE COHR</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:73.7%; background:var(--c-network);"></div><div class="bar-target" style="left:80%"></div></div>
-        <div class="delta">14.75% / 20% (band 15-25, -0.25pt under floor)</div>
+        <div class="name"><span class="cdot" style="background:var(--c-network);"></span>AI Networking/Optics<span class="w">GLW MRVL COHR AVGO CIEN</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:42.4%"></div><div class="bar-target" style="left:57.1%"></div></div>
+        <div class="delta">14.833% / 20% (band 15-25, under floor)</div>
+      </div>
+      <div class="drift-row">
+        <div class="name"><span class="cdot" style="background:var(--c-oem);"></span>Compute/Hyperscaler OEM<span class="w">CLS NBIS</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:60.7%; background:var(--c-oem)"></div><div class="bar-target" style="left:35.7%"></div></div>
+        <div class="delta">8.496% / 5% (band 0-10, in band)</div>
       </div>
       <div class="drift-row breach">
-        <div class="name"><span class="cdot" style="background:var(--c-power);"></span>AI Power / Cooling / DC Infra<span class="w">VRT, GEV</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:34.7%"></div><div class="bar-target" style="left:75%"></div></div>
-        <div class="delta">6.94% / 15% (band 10-20, -8.06pt under floor - book's largest cluster breach; GEV's further buy nudged this up slightly but GEV itself is now held, not added to further - see proposal 4 (VRT) as the fix instead)</div>
+        <div class="name"><span class="cdot" style="background:var(--c-power);"></span>AI Power/Cooling/DC Infra<span class="w">VRT GEV</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:29.6%"></div><div class="bar-target" style="left:53.6%"></div></div>
+        <div class="delta">8.284% / 15% (band 10-20, under floor)</div>
+      </div>
+      <div class="drift-row breach">
+        <div class="name"><span class="cdot" style="background:var(--c-hyper);"></span>Compute/Hyperscaler<span class="w">IREN ORCL</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:20.2%"></div><div class="bar-target" style="left:47.6%"></div></div>
+        <div class="delta">4.234% / 10% (band 5-15, under floor)</div>
       </div>
       <div class="drift-row">
-        <div class="name"><span class="cdot" style="background:var(--c-oem);"></span>Compute / Hyperscaler OEM<span class="w">NBIS CLS</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:72.1%; background:var(--c-oem);"></div><div class="bar-target" style="left:50%"></div></div>
-        <div class="delta">7.21% / 5% (band 0-10, in band)</div>
-      </div>
-      <div class="drift-row">
-        <div class="name"><span class="cdot" style="background:var(--c-hyper);"></span>Compute / Hyperscaler <span class="w">ORCL META GOOG IREN</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:83.0%; background:var(--c-hyper);"></div><div class="bar-target" style="left:66.7%"></div></div>
-        <div class="delta">8.30% / 10% (band 5-15, in band - ORCL exit per proposal 2 shrinks this slightly)</div>
-      </div>
-      <div class="drift-row">
-        <div class="name">Diversified / Regional ETF<span class="w">no holdings - zero exposure</span></div>
+        <div class="name">Diversified / Regional ETF<span class="w">no holdings - zero exposure, standing miss</span></div>
         <div class="bar-track"><div class="bar-fill" style="width:0%"></div><div class="bar-target" style="left:50%"></div></div>
-        <div class="delta">0.00% / 5% (in band [0,10], but the one cluster at zero)</div>
+        <div class="delta">0.00% / 5% (in band [0,10], but the one cluster permanently at zero)</div>
       </div>
       <div class="drift-row">
-        <div class="name">China Consumer/Cloud (BABA)<span class="w">awaiting cluster confirmation (G11)</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:27.8%; background:var(--ink-faint);"></div><div class="bar-target" style="left:0%"></div></div>
-        <div class="delta">1.39% / n/a - China ADR, non-AI-capex but untracked risk factor</div>
-      </div>
-      <div class="drift-row breach">
         <div class="name">Cash<span class="w">wallet as % of total book</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:0.6%"></div><div class="bar-target" style="left:20%"></div></div>
-        <div class="delta">0.086% / 3% floor - worse than yesterday (GEV buy spent the wallet); proposals 1+2 raise this to ~6.1% before the VRT stage-in (4)</div>
+        <div class="bar-track"><div class="bar-fill good" style="width:65.2%"></div><div class="bar-target" style="left:20%"></div></div>
+        <div class="delta" style="color:var(--good);">13.693% / [3,15]% - inside band, first time in weeks (unintentionally, via the mass exit)</div>
       </div>
     </div>
-    <div class="caveat">Only real change since yesterday: GEV's further buy nudged AI Power/Cooling up slightly and drained cash to near-zero. Every other cluster figure moved only on price, not flow. Policy still unconfirmed (as_of 2026-07-12, increasingly stale against actual composition) - needs a full re-look and user sign-off, not a rubber stamp.</div>
+    <div class="caveat">Composition-driven shift, not price-driven: 5 full exits shrank the denominator and reshuffled every cluster - Networking/Optics, Power/Cooling, and Compute/Hyperscaler are ALL newly under-floor (fewer names spreading the same target bands thinner), while Memory/Storage went further over-top as SNDK's share of a smaller book grew. Policy still unconfirmed (as_of 2026-07-12, now badly stale against a book that's gone from 28 to 24 holdings with heavy turnover) - a full re-look is overdue, not urgent enough to block this run's proposals.</div>
   </div>
 
-  <div class="footer-line">AGENT SMITH | US BOOK | INDMONEY SOURCE OF TRUTH (PRICES: YFINANCE THIS RUN, INDMONEY FEED DISCARDED) | RUN 2026-07-23 19:07 IST (INTRADAY, QUICK SWEEP) | MACRO REGIME / DIVERSIFIER BENCH CARRIED FROM 07-20 DEEP REVIEW, NOT REFRESHED THIS PASS | SMITH-REBOUND SUCCEEDED THIS RUN</div>
+  <div class="footer-line">AGENT SMITH | US BOOK | INDMONEY SOURCE OF TRUTH (24/29 POSITIONS RETURNED, 5 RECONCILED VIA WALLET-CASH MATH; PRICES: EXT_HR_LIVE_PRICE PRE-MARKET OVERLAY) | RUN 2026-07-24 18:29 IST (PRE-OPEN, QUICK SWEEP) | MACRO REGIME / DIVERSIFIER BENCH CARRIED FROM 07-20 DEEP REVIEW | SMITH-REBOUND SKIPPED (GATE STABILIZING)</div>
 </div>
-
 <script>
 (function(){
   "use strict";
