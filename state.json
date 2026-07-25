@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "ts": "2026-07-24T18:29:00+05:30",
-  "mode": "quick",
-  "usdinr": 96.552,
+  "ts": "2026-07-25T16:07:00+05:30",
+  "mode": "ad-hoc-correction",
+  "usdinr": 96.56,
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
   "last_run_dir": "runs/2026-07-24-1811/",
   "us": {
-    "value_usd": 35655.38,
-    "count": 24,
+    "value_usd": 21460.52,
+    "count": 21,
     "top3": [
       {
-        "ticker": "SNDK",
-        "weight_pct": 13.271
-      },
-      {
-        "ticker": "DRAM",
-        "weight_pct": 7.962
-      },
-      {
         "ticker": "NVDA",
-        "weight_pct": 7.008
+        "weight_pct": 6.269
+      },
+      {
+        "ticker": "ASML",
+        "weight_pct": 4.438
+      },
+      {
+        "ticker": "EWY",
+        "weight_pct": 4.116
       }
     ],
     "pnl_pct": 1.858,
-    "wallet_usd": 5656.86,
+    "wallet_usd": 18131.51,
     "peak_value_usd": 41887.33,
-    "beta": 1.491,
-    "value_note": "MAJOR FLOW EVENT (2026-07-24): LITE/META/GOOG/BABA/STM fully exited, AMD 2->1sh, QCOM 14.0008->6.0008sh. Confirmed real via wallet-cash reconciliation ($36.14->$5,656.86, matches sold-share value). Equity value dropped 41748.44->35655.38 (-14.6%) but TOTAL book (equity+wallet) roughly flat (-1.1%) -- reallocation, not value destruction. Drawdown -14.878% from peak, 0.12pt from the 15% warn threshold."
+    "beta": null,
+    "value_note": "CORRECTION (ad-hoc, 2026-07-25 IST): user flagged cash as '>10k' vs the stale $5,656.86 carried from the 2026-07-24 18:29 IST run -- that run was captured PRE-MARKET (18:29 IST = 08:59 ET, 31min before the 09:30 ET open), so it missed the entire Friday 07-24 US session. That session saw a severe, broad AI-capex/semis selloff (weighted avg -5.06% across the 21 names still held, worst SNDK -10.79%, COHR -9.84%, CLS -8.80%, DRAM -8.75%) -- confirmed via fresh yfinance quotes (Friday close vs Thursday close), not a live-right-now move; markets are closed over the weekend. Coinciding with that session, GLW/NBIS/IREN were fully exited and SNDK/DRAM/MU/TSM/LRCX/CLS/TER/CIEN were roughly halved -- raising wallet cash from $5,656.86 to $18,131.51. Read as one event (de-risking during/into the selloff), not two unrelated ones; exact trigger (stop-loss rule vs discretionary panic-sell vs pre-planned earnings-week de-risk) is unconfirmed -- no run/ledger/journal entry captured the trade rationale (G26). Corrected total book $39,592.03 (equity $21,460.52 live-priced + wallet $18,131.51). Cash is now 45.8% of book -- a severe ceiling breach of the [3,15]% policy band, the inverse of the 07-20 floor breach. Drawdown -5.48% vs the 07-23 peak of $41,887.33 -- less severe than the pre-correction -14.878% reading, since the cash conversion partly insulated the book from Friday's rout. Beta not recomputed this pass (ad-hoc query, no full compute run) -- left null rather than carrying the stale 1.491. Next real decision point is Monday's reopen (07-27 evening IST), not an immediate live event."
   },
   "holdings": [
     {
@@ -630,6 +630,20 @@
       "opened": "2026-07-24",
       "owner": "orchestrator (script enhancement candidate: diff prior state.json holdings tickers vs current positions tickers to detect exits explicitly)",
       "status": "open"
+    },
+    {
+      "id": "G26",
+      "description": "Undocumented flow event during the Friday 2026-07-24 US session (after the last pre-market snapshot at 18:29 IST): GLW/NBIS/IREN fully exited, SNDK/DRAM/MU/TSM/LRCX/CLS/TER/CIEN roughly halved, wallet $5,656.86->$18,131.51. Coincides with a severe broad selloff that same session -- read as one de-risking event, but exact trigger (stop-loss, discretionary panic-sell, or planned earnings-week de-risk) is unconfirmed. No run/ledger/journal entry captured the trade rationale.",
+      "opened": "2026-07-27 (ad-hoc discovery)",
+      "owner": "orchestrator -- needs a proper sweep to backfill the ledger gap",
+      "status": "open"
+    },
+    {
+      "id": "G27",
+      "description": "Fresh yfinance quotes pulled ad-hoc during this cash-position query show Friday 2026-07-24's close was a severe, broad selloff across all 21 remaining US holdings (weighted avg -5.06%, worst SNDK -10.79%). This is Friday's already-completed session, not a live-right-now move (markets closed for the weekend) -- but no scheduled run captured it, so no signals/thesis/macro context exists yet to judge Monday's reopen. Recommend a fresh sweep before market open Monday.",
+      "opened": "2026-07-27 (ad-hoc discovery)",
+      "owner": "orchestrator -- recommend a fresh smith-signals/smith-book dispatch or smith-rebound triage before any cash redeployment decision",
+      "status": "open"
     }
   ],
   "sentiment": {
@@ -713,6 +727,7 @@
   },
   "watchlist_scan_cursor": 60,
   "data_quality": [
+    "2026-07-27 ad-hoc correction: cash was $18,131.51 (45.8% of book), not the stale $5,656.86 carried from 07-24 -- see G26 (undocumented flow event) and G27 (live in-progress selloff at query time).",
     "G24: 5 full exits (LITE/META/GOOG/BABA/STM) + 2 trims (AMD/QCOM) reconciled via wallet-cash math (high confidence, not hard-confirmed) -- see open_flags MASS-EXIT-2026-07-24.",
     "G25: compute_book.json's qty_changes/est_net_flows_usd doesn't detect full-ticker exits -- this run's attribution residual is inflated by the untracked exit value; manually reconciled by orchestrator, script not patched.",
     "STM's -18.67% crash and GOOG's -6.89% drop today are unexplained by any news pulled by smith-signals/smith-thesis this run -- plausible earnings-driven for STM (recent Q2 report window) but unconfirmed by name.",
