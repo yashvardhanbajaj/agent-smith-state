@@ -386,6 +386,98 @@ def cmd_attribution(args):
 # ---------------------------------------------------------------------------
 # drift
 # ---------------------------------------------------------------------------
+def validate_policy(policy):
+    """Structural checks on policy.json. Returns a list of defect strings (empty == clean).
+
+    Exists because the draft carried an arithmetically impossible target set from 2026-07-12 to
+    2026-07-25 (targets summed to 105% alongside a 3-15% cash band) and nothing caught it -- every
+    drift table in that window was measured against an unsatisfiable spec. These checks make that
+    class of defect loud instead of silent.
+    """
+    defects = []
+    targets = policy.get("cluster_targets", {})
+    if not targets:
+        return ["cluster_targets missing or empty -- no drift analysis possible"]
+
+    tsum = sum(t.get("target_pct", 0) for t in targets.values())
+    denom = policy.get("cluster_target_denominator")
+    if denom not in ("invested_equity", "total_book"):
+        defects.append(
+            "cluster_target_denominator is not declared (expected 'invested_equity' or 'total_book'). "
+            "Cluster percentages and cash percentage are then computed against different bases and are "
+            "not comparable -- this is how the 105%-sum defect went unnoticed."
+        )
+
+    # Targets must sum to 100 of whatever base they are declared against, except that a
+    # total_book basis must leave room for the cash target.
+    if denom == "total_book":
+        cash_band = policy.get("cash_band_pct") or [0, 0]
+        cash_mid = (cash_band[0] + cash_band[1]) / 2 if None not in cash_band else 0
+        expected = 100 - cash_mid
+        if abs(tsum - expected) > 1.0:
+            defects.append(
+                f"cluster targets sum to {tsum:g}% but denominator is total_book with a cash band of "
+                f"{cash_band} -- targets plus cash must total 100%, so targets should sum to about "
+                f"{expected:g}%. Off by {tsum - expected:+.1f}pt."
+            )
+    else:
+        if abs(tsum - 100) > 1.0:
+            defects.append(
+                f"cluster targets sum to {tsum:g}%, not 100%. Off by {tsum - 100:+.1f}pt. "
+                f"Drift is measured against an unsatisfiable target set."
+            )
+
+    # Bands must be jointly satisfiable: you cannot honour every floor if the floors sum past 100,
+    # and you cannot reach 100 if every ceiling together falls short.
+    lo_sum = sum((t.get("band_pct") or [0, 0])[0] or 0 for t in targets.values())
+    hi_sum = sum((t.get("band_pct") or [0, 0])[1] or 0 for t in targets.values())
+    if lo_sum > 100:
+        defects.append(f"band floors sum to {lo_sum:g}% (>100%) -- no allocation can satisfy every floor at once.")
+    if hi_sum < 100:
+        defects.append(f"band ceilings sum to {hi_sum:g}% (<100%) -- no allocation can reach 100% within every ceiling.")
+
+    for name, t in targets.items():
+        band = t.get("band_pct") or [None, None]
+        tgt = t.get("target_pct")
+        if None in band or tgt is None:
+            defects.append(f"'{name}': target_pct or band_pct missing.")
+            continue
+        if band[0] > band[1]:
+            defects.append(f"'{name}': band {band} is inverted (floor > ceiling).")
+        if not (band[0] <= tgt <= band[1]):
+            defects.append(f"'{name}': target {tgt:g}% sits outside its own band {band}.")
+
+    if policy.get("max_ai_capex_factor_pct") is not None and \
+            policy.get("ai_capex_denominator") not in ("invested_equity", "total_book"):
+        defects.append(
+            "max_ai_capex_factor_pct is set but ai_capex_denominator is not declared. This single choice "
+            "flips the headline: on 2026-07-24 the book was 100% of equity (breach) but 86.3% of total "
+            "book (no breach) against the same 90% cap."
+        )
+
+    unknown = [c for c in policy.get("ai_capex_clusters", []) if c not in targets]
+    if unknown:
+        defects.append(f"ai_capex_clusters names clusters with no target defined: {unknown}")
+
+    return defects
+
+
+def cmd_validate(args):
+    policy = load_json(os.path.join(args.base_dir, "policy.json"), default=None)
+    if policy is None:
+        emit({"policy_present": False, "defects": ["no policy.json"]})
+        return
+    defects = validate_policy(policy)
+    emit({
+        "policy_present": True,
+        "policy_confirmed": policy.get("confirmed", False),
+        "policy_as_of": policy.get("as_of"),
+        "clean": not defects,
+        "defect_count": len(defects),
+        "defects": defects,
+    })
+
+
 def cmd_drift(args):
     holdings = load_json(os.path.join(args.run_dir, "holdings.json"))
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
@@ -394,6 +486,8 @@ def cmd_drift(args):
     if policy is None:
         emit({"policy_present": False, "note": "no policy.json -- strategist must bootstrap a draft"})
         return
+
+    policy_defects = validate_policy(policy)
 
     usdinr = holdings["usdinr"]
     rows = holdings["holdings_inr"]
@@ -437,9 +531,20 @@ def cmd_drift(args):
     cash_breach = (cash_band[0] is not None and cash_pct < cash_band[0]) or \
                   (cash_band[1] is not None and cash_pct > cash_band[1])
 
+    # AI-capex exposure is reported on BOTH bases: cluster weights are equity-denominated, so the
+    # equity figure measures concentration *within the invested sleeve*, while the total-book figure
+    # measures portfolio-level single-factor exposure (idle cash genuinely is uncorrelated -- on
+    # 2026-07-24 every held name fell while cash and defensives did not). The two answer different
+    # questions and can disagree about a breach; the cap is tested against whichever basis the policy
+    # declares, and both numbers are emitted so the other is never silently lost.
     ai_clusters = policy.get("ai_capex_clusters", DEFAULT_AI_CAPEX_CLUSTERS)
-    ai_capex_pct = round(sum(cluster_actual.get(c, 0) for c in ai_clusters), 3)
+    ai_capex_pct_equity = round(sum(cluster_actual.get(c, 0) for c in ai_clusters), 3)
+    equity_share = (value_usd / total_book_usd) if total_book_usd else 0.0
+    ai_capex_pct_total_book = round(ai_capex_pct_equity * equity_share, 3)
+
     ai_cap = policy.get("max_ai_capex_factor_pct")
+    ai_denom = policy.get("ai_capex_denominator", "invested_equity")
+    ai_capex_pct = ai_capex_pct_total_book if ai_denom == "total_book" else ai_capex_pct_equity
     ai_capex_breach = ai_cap is not None and ai_capex_pct > ai_cap
 
     prior_us = state.get("us", {})
@@ -456,10 +561,17 @@ def cmd_drift(args):
 
     emit({
         "policy_present": True, "policy_confirmed": policy.get("confirmed", False),
+        "policy_defects": policy_defects,
+        "policy_valid": not policy_defects,
+        "cluster_target_denominator": policy.get("cluster_target_denominator", "UNDECLARED"),
         "cluster_table": sorted(cluster_table, key=lambda c: c["breach"], reverse=True),
         "position_breaches": position_breaches,
         "cash_pct": cash_pct, "cash_band_pct": cash_band, "cash_breach": cash_breach,
+        "cash_pct_denominator": "total_book",
         "ai_capex_pct": ai_capex_pct, "ai_capex_cap_pct": ai_cap, "ai_capex_breach": ai_capex_breach,
+        "ai_capex_denominator": ai_denom,
+        "ai_capex_pct_of_equity": ai_capex_pct_equity,
+        "ai_capex_pct_of_total_book": ai_capex_pct_total_book,
         "drawdown_pct": drawdown_pct, "risk_off_status": risk_off_status,
     })
 
@@ -543,10 +655,15 @@ def main():
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--market-inputs", required=True)
 
+    # No --run-dir: this checks policy.json's internal consistency only, so it can be run
+    # standalone (e.g. right after editing the policy) without a live run directory.
+    sp = sub.add_parser("validate")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+
     args = p.parse_args()
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
-         "drift": cmd_drift, "sentiment": cmd_sentiment}[args.cmd](args)
+         "drift": cmd_drift, "sentiment": cmd_sentiment, "validate": cmd_validate}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")
 

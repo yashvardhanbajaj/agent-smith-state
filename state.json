@@ -648,10 +648,10 @@
     },
     {
       "id": "G28",
-      "description": "policy.json cluster targets sum to 105% while also mandating a 3-15% cash band -- the book would have to total 108-120%. Arithmetically impossible, so 'drift vs policy' has been an ill-defined measurement in every run since 2026-07-12. Also ambiguous whether targets are % of equity or % of total book (matters enormously at 45.8% cash). Needs user to fix targets and pick a denominator.",
+      "description": "policy.json cluster targets summed to 105% alongside a 3-15% cash band (impossible: book would total 108-120%), AND the drift table silently mixed denominators -- clusters/AI-capex were equity-based while cash was total-book-based, so the columns were never comparable. Every drift table 2026-07-12 to 2026-07-25 was measured against an unsatisfiable spec. FIXED 2026-07-25: targets rescaled proportionally (x100/105) to sum to 100 with band widths preserved; denominators now declared explicitly (clusters+AI-capex = invested_equity, cash = total_book); validator added (scripts/smith_math.py validate) and wired into cmd_drift, which now emits policy_defects/policy_valid and BOTH ai_capex bases. STILL OPEN (user decisions, not defects): (1) whether the AI-capex cap should measure against total_book instead of invested_equity -- on total_book the 90% cap reads 54.2% today and the 14-run-old breach vanishes; defaulted to invested_equity deliberately so the warning is not silently lost. (2) whether the cap value itself (90%) is one the user intends to honour, given it has been breached every run since inception and sits 30pt above the draft's own 60% sane-diversification flag.",
       "opened": "2026-07-25",
       "owner": "user (policy fix) + orchestrator (denominator convention)",
-      "status": "open"
+      "status": "PARTIALLY RESOLVED 2026-07-25 -- arithmetic fixed, two judgment calls remain open for the user"
     }
   ],
   "sentiment": {
@@ -875,5 +875,10 @@
       "summary": "MAJOR FLOW EVENT: LITE, META, GOOG, BABA, STM fully exited; AMD trimmed 2->1sh; QCOM trimmed 14.0008->6.0008sh. Confirmed real via wallet-cash reconciliation ($36.14->$5,656.86). STM crashed -18.67% intraday (presumed earnings, unconfirmed). GOOG -6.89% (unexplained). Book now 24 positions, equity value $35,655.38 (-14.6% vs 07-23), total book incl. wallet roughly flat (-1.1%). AI-capex concentration hit 100.0% (worst ever) as BABA's exit removed the last non-AI-capex sleeve. SNDK breaches 12% single-position cap (13.271%). AI Memory/Storage cluster breaches over-band (31.502%); Networking/Optics, Power/Cooling/DC Infra, and Compute/Hyperscaler clusters all breach UNDER-band for the first time (fewer names spreading the same bands thinner). Drawdown -14.878%, 0.12pt from the 15% warn threshold -- closest this book has come to risk-off. Cash $5,656.86 (13.693%) sits inside policy band for the first time in weeks. Strategist proposed: trim SNDK ~$1,000, deploy GEV ~$900, deploy COHR ~$700, hold remaining ~$5,057 cash given 4 earnings prints next week (GLW/TER 07-28, QCOM/LRCX 07-29) and drawdown proximity to warn threshold. No genuine AI-capex diversifier found in watchlist output (BABA/SNPS both AI-adjacent, IBM flagged value-trap). ORCL: fresh oversold-bounce (real $7B DoD contract) vs standing breakdown/debt flags -- strategist verdict hold, no action, though two PRIOR open proposals (07-22, 07-23) had recommended exiting ORCL entirely -- unresolved inconsistency, flagged."
     }
   ],
-  "last_analysis": "runs/2026-07-25-1607-cash-review/cash-position-analysis.md"
+  "last_analysis": "runs/2026-07-25-1607-cash-review/cash-position-analysis.md",
+  "policy_validator": {
+    "command": "python3 scripts/smith_math.py validate --base-dir /Users/yb/Claude/AgentSmith",
+    "wired_into": "cmd_drift emits policy_defects + policy_valid on every run",
+    "last_result": "clean (0 defects) as of 2026-07-25"
+  }
 }

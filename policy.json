@@ -1,20 +1,78 @@
 {
   "schema_version": 1,
   "confirmed": false,
-  "as_of": "2026-07-12",
+  "as_of": "2026-07-25",
   "cluster_targets": {
-    "AI Semis/Fabs": {"target_pct": 30, "band_pct": [25, 35], "actual_pct": 27.62},
-    "AI Memory/Storage": {"target_pct": 20, "band_pct": [15, 25], "actual_pct": 21.48},
-    "AI Networking/Optics": {"target_pct": 20, "band_pct": [15, 25], "actual_pct": 20.80},
-    "AI Power/Cooling/DC Infra": {"target_pct": 15, "band_pct": [10, 20], "actual_pct": 14.45},
-    "Compute/Hyperscaler OEM": {"target_pct": 5, "band_pct": [0, 10], "actual_pct": 4.15},
-    "Compute/Hyperscaler": {"target_pct": 10, "band_pct": [5, 15], "actual_pct": 7.945},
-    "Diversified/Regional ETF": {"target_pct": 5, "band_pct": [0, 10], "actual_pct": 3.97},
-    "Enterprise Software": {"target_pct": 0, "band_pct": [0, 5], "actual_pct": 1.74}
+    "AI Semis/Fabs": {
+      "target_pct": 29,
+      "band_pct": [
+        24,
+        34
+      ]
+    },
+    "AI Memory/Storage": {
+      "target_pct": 19,
+      "band_pct": [
+        14,
+        24
+      ]
+    },
+    "AI Networking/Optics": {
+      "target_pct": 19,
+      "band_pct": [
+        14,
+        24
+      ]
+    },
+    "AI Power/Cooling/DC Infra": {
+      "target_pct": 14,
+      "band_pct": [
+        9,
+        19
+      ]
+    },
+    "Compute/Hyperscaler OEM": {
+      "target_pct": 5,
+      "band_pct": [
+        0,
+        10
+      ]
+    },
+    "Compute/Hyperscaler": {
+      "target_pct": 9,
+      "band_pct": [
+        4,
+        14
+      ]
+    },
+    "Diversified/Regional ETF": {
+      "target_pct": 5,
+      "band_pct": [
+        0,
+        10
+      ]
+    },
+    "Enterprise Software": {
+      "target_pct": 0,
+      "band_pct": [
+        0,
+        5
+      ]
+    }
   },
-  "ai_capex_clusters": ["AI Semis/Fabs", "AI Memory/Storage", "AI Networking/Optics", "AI Power/Cooling/DC Infra", "Compute/Hyperscaler OEM", "Compute/Hyperscaler"],
+  "ai_capex_clusters": [
+    "AI Semis/Fabs",
+    "AI Memory/Storage",
+    "AI Networking/Optics",
+    "AI Power/Cooling/DC Infra",
+    "Compute/Hyperscaler OEM",
+    "Compute/Hyperscaler"
+  ],
   "max_single_position_pct": 12,
-  "cash_band_pct": [3, 15],
+  "cash_band_pct": [
+    3,
+    15
+  ],
   "max_ai_capex_factor_pct": 90,
   "ai_capex_factor_flag_threshold_pct": 60,
   "drawdown_warn_pct": 15,
@@ -22,13 +80,18 @@
   "prefer_ltcg": true,
   "ltcg_boundary_months": 24,
   "notes": [
-    "max_single_position_pct set to a conventional 12% default; MU already sits at 12.71% on day one — see breach in strategist output.",
+    "max_single_position_pct set to a conventional 12% default; MU already sits at 12.71% on day one \u2014 see breach in strategist output.",
     "max_ai_capex_factor_pct set to 90% (today's 88.5% rounded up) per bootstrap convention, but this ceiling sits 30 points above the 60% sane-diversification threshold this draft also carries. Reconsider this number specifically during confirmation rather than accepting the rounding.",
     "Cash band [3,15]% is a default, not derived from this book; 12.45% actual sits comfortably inside it but near the top.",
     "Drawdown thresholds are defaults (no drawdown history exists yet): warn -15%, risk-off -25% from peak.",
-    "LTCG per-lot purchase dates are unavailable — prefer_ltcg is set true on principle but cannot yet be applied name-by-name. Sourcing lot dates is the top data-quality priority for the next run.",
-    "2026-07-18: added the 'Compute/Hyperscaler' cluster line (target 10%, band [5,15]) — this cluster already appeared in ai_capex_clusters but had no target/band, leaving 7.9%+ of the book untracked by drift analysis. Applied without user confirmation since the draft itself remains unconfirmed (see known_gaps G11).",
-    "2026-07-18: the max_ai_capex_factor_pct=90% ceiling flagged as generous in the original note is now genuinely BREACHED (actual ~99.2%, corrected same-day from an initial stale-price-driven 99.278% -- conclusion holds either way) — even the generous ceiling doesn't hold. The whole draft is stale given the book has grown 28->29 holdings with heavy composition turnover since 07-12; a full re-look (not just this one line) is recommended at the user's convenience.",
-    "2026-07-18 (same day, user-caught): max_single_position_pct=12% was reported breached by SNDK at 12.352% -- that was WRONG, caused by a stale INDmoney per-position price (see known_gaps G3/G14). SNDK's true weight is 10.482%, no breach. All cluster_targets actual_pct figures above are historical last-known snapshots from prior runs, not live -- do not treat them as current; each run's script recomputes fresh percentages from live-priced holdings."
-  ]
+    "LTCG per-lot purchase dates are unavailable \u2014 prefer_ltcg is set true on principle but cannot yet be applied name-by-name. Sourcing lot dates is the top data-quality priority for the next run.",
+    "2026-07-18: added the 'Compute/Hyperscaler' cluster line (target 10%, band [5,15]) \u2014 this cluster already appeared in ai_capex_clusters but had no target/band, leaving 7.9%+ of the book untracked by drift analysis. Applied without user confirmation since the draft itself remains unconfirmed (see known_gaps G11).",
+    "2026-07-18: the max_ai_capex_factor_pct=90% ceiling flagged as generous in the original note is now genuinely BREACHED (actual ~99.2%, corrected same-day from an initial stale-price-driven 99.278% -- conclusion holds either way) \u2014 even the generous ceiling doesn't hold. The whole draft is stale given the book has grown 28->29 holdings with heavy composition turnover since 07-12; a full re-look (not just this one line) is recommended at the user's convenience.",
+    "2026-07-18 (same day, user-caught): max_single_position_pct=12% was reported breached by SNDK at 12.352% -- that was WRONG, caused by a stale INDmoney per-position price (see known_gaps G3/G14). SNDK's true weight is 10.482%, no breach. All cluster_targets actual_pct figures above are historical last-known snapshots from prior runs, not live -- do not treat them as current; each run's script recomputes fresh percentages from live-priced holdings.",
+    "2026-07-25 (G28 FIX, arithmetic only -- no change of intent): cluster targets summed to 105% while the policy also mandated a 3-15% cash band, so the book would have had to total 108-120%. Every drift table from 2026-07-12 to 2026-07-25 was therefore measured against an unsatisfiable spec. Targets have been rescaled PROPORTIONALLY (x100/105) to sum to exactly 100%, preserving the original relative ordering and rough weights: {'AI Semis/Fabs': 30, 'AI Memory/Storage': 20, 'AI Networking/Optics': 20, 'AI Power/Cooling/DC Infra': 15, 'Compute/Hyperscaler OEM': 5, 'Compute/Hyperscaler': 10, 'Diversified/Regional ETF': 5, 'Enterprise Software': 0} -> {'AI Semis/Fabs': 29, 'AI Memory/Storage': 19, 'AI Networking/Optics': 19, 'AI Power/Cooling/DC Infra': 14, 'Compute/Hyperscaler': 9, 'Compute/Hyperscaler OEM': 5, 'Diversified/Regional ETF': 5, 'Enterprise Software': 0}. Band widths preserved; each band shifted by the same delta as its target. Stale actual_pct snapshots removed (the notes above already warned they were not current). A validator now enforces this: scripts/smith_math.py validate.",
+    "2026-07-25 (G28, denominator declarations added): the drift table was silently mixing two bases -- cluster and AI-capex percentages were equity-denominated while cash was total-book-denominated, so the columns were never comparable and summed to nothing. Now declared explicitly: cluster targets and the AI-capex cap measure against INVESTED EQUITY; the cash band measures against TOTAL BOOK. This is the standard two-layer split -- layer 1 sets cash vs invested, layer 2 sets allocation shape within the invested sleeve -- and it keeps cluster drift meaningful while cash swings (cash went 0.06% -> 45.8% in five days; a total-book basis would have made every cluster read 'underweight' for reasons unrelated to allocation). ai_capex_denominator was set to invested_equity as the CONSERVATIVE default because it preserves the existing breach warning: on total_book the same 90% cap reads 54.2% today (86.3% on 07-24) and the 14-run-old breach would silently vanish. THAT SWITCH IS THE USER'S CALL, not a default to assume."
+  ],
+  "cluster_target_denominator": "invested_equity",
+  "cash_pct_denominator": "total_book",
+  "ai_capex_denominator": "invested_equity"
 }
