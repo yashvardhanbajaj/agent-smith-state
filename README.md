@@ -2,6 +2,8 @@
 
 Durable memory for the Agent Smith US portfolio agent. Smith reads these files at the start of every run and writes them at the end. Files are bootstrapped on first v3+ run — don't create them by hand (but you may edit `policy.json` anytime; Smith treats your edits as authoritative).
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the agent fleet/flow reference, [CHANGELOG.md](CHANGELOG.md) for dated fixes and decisions, [POLICY-DECISIONS.md](POLICY-DECISIONS.md) for why policy.json's values are what they are, and [LOTS-SEEDING-GUIDE.md](LOTS-SEEDING-GUIDE.md) for unblocking LTCG tracking. `archive/session-docs-2026-07-26/` holds retired status docs from a single work session, superseded by the four files above — kept for the record, not for reading.
+
 | File | What it holds |
 |---|---|
 | `policy.json` | Investment Policy Statement: cluster targets + bands, max single-position %, cash band, max AI-capex factor %, drawdown thresholds (warn / risk-off), LTCG preference. Smith drafts from the current book on first run and asks you to confirm; `"confirmed": false` marks a draft (drift analysis labeled provisional until you confirm). |
@@ -11,6 +13,9 @@ Durable memory for the Agent Smith US portfolio agent. Smith reads these files a
 | `proposals.json` | Strategist's proposal tracking: every sized proposal ("trim NVDA ~$800") recorded with date, price_at_proposal, and status (open); scored at 30d/90d with outcome_pct and verdict (worked/missed). Aggregate strategist scorecard (% accuracy by proposal type: trim-watch, add, etc.). |
 | `dashboard.html` | Source file for the "Portfolio Sweep — Agent Smith" artifact (stable path = stable artifact URL). Updated after every run. The published artifact URL is stored in `state.json` (`artifact_url`) so every session updates the same page instead of minting new links. |
 | `journal-archive.json` | Fully-scored journal entries older than 12 months, pruned from `journal.json` (aggregate hit-rate counts stay in the live journal). |
+| `proposals-archive.json` | Proposals with a terminal, non-scoreable status (superseded/closed/hold/not_taken), pruned from `proposals.json` to keep the live file to entries still inside a 30d/90d scoring window. |
+| `known-gaps-archive.json` | Resolved/closed entries pruned from `state.json`'s `known_gaps`. |
+| `exited-holdings-archive.json` | `thesis`/`sector_map` entries for positions no longer held, pruned from `state.json` (drift logic only needs current holdings). |
 | `runs/<timestamp>/` | Each run's raw sub-agent outputs (holdings.json snapshot + book/signals/thesis/watchlist/quality/strategist.md files) — an auditable per-run archive. Only the 10 most recent runs are kept; older ones deleted. Enables intraday refresher fast-path and prior-self reads. |
 | `.running` | Lockfile while a sweep is in progress (stale after 30 min). Prevents concurrent sweeps from clobbering state. Safe to delete if no sweep is actually running. |
 
