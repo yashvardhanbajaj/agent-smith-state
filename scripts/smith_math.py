@@ -174,9 +174,13 @@ def cmd_book(args):
                     })
 
     # rough net-flow estimate vs prior state holdings (qty deltas x current price)
+    # FIXED 2026-07-26: now catches full exits and new entries, not just qty changes on common holdings
     prior_holdings = {h["ticker"]: h for h in state.get("holdings", [])}
+    current_holdings = {p["ticker"]: p for p in positions}
     est_net_flows_usd = 0.0
     qty_changes = []
+
+    # track qty changes on existing positions
     for p in positions:
         prior = prior_holdings.get(p["ticker"])
         if prior is None:
@@ -196,6 +200,22 @@ def cmd_book(args):
         })
         if not is_split_like and p["price_usd"]:
             est_net_flows_usd += qty_diff * p["price_usd"]
+
+    # track full exits (in prior, not in current)
+    for prior in state.get("holdings", []):
+        if prior["ticker"] not in current_holdings:
+            qty_changes.append({
+                "ticker": prior["ticker"], "prior_qty": prior.get("qty"), "current_qty": 0.0,
+                "ratio": 0.0, "likely_corporate_action": False,
+            })
+
+    # track new entries (in current, not in prior)
+    for p in positions:
+        if p["ticker"] not in prior_holdings:
+            qty_changes.append({
+                "ticker": p["ticker"], "prior_qty": 0.0, "current_qty": p["qty"],
+                "ratio": None, "likely_corporate_action": False,
+            })
 
     data_quality = []
     if beta_missing:
@@ -638,6 +658,67 @@ def cmd_sentiment(args):
 
 
 # ---------------------------------------------------------------------------
+def cmd_proposals(args):
+    """Apply lifecycle rules to proposals.json: auto-supersede duplicates, auto-expire old,
+    auto-void when cited breach clears or position changes materially.
+    FIXED 2026-07-26 (1.6): Tier 1 defect — proposals accumulated as stale duplicates.
+    """
+    proposals = load_json(os.path.join(args.base_dir, "proposals.json"), default={"proposals": [], "scorecard": {}})
+    drift = load_json(os.path.join(args.run_dir, "compute_drift.json"), default={})
+    holdings = load_json(os.path.join(args.run_dir, "holdings.json"), default={"holdings_inr": []})
+
+    props = proposals.get("proposals", [])
+    today_date = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    current_tickers = {h["ticker"] for h in holdings.get("holdings_inr", [])}
+    live_breaches = {c["cluster"] for c in drift.get("cluster_table", []) if c.get("breach")}
+
+    seen = {}  # (date, action, ticker) -> index of first occurrence
+    to_supersede = set()
+
+    for i, pr in enumerate(props):
+        if pr.get("status") != "open":
+            continue
+        key = (pr.get("date"), pr.get("action"), pr.get("ticker"))
+        if key in seen:
+            # duplicate of an earlier proposal — supersede this one
+            to_supersede.add(i)
+        else:
+            seen[key] = i
+
+        # check expiry: 5 trading days since proposal (rough: 7 calendar days)
+        try:
+            prop_date = datetime.strptime(pr.get("date", ""), "%Y-%m-%dT%H:%M").date()
+        except (ValueError, TypeError):
+            try:
+                prop_date = datetime.strptime(pr.get("date", ""), "%Y-%m-%d").date()
+            except (ValueError, TypeError):
+                prop_date = None
+        if prop_date and (today_date - prop_date).days > 7:
+            to_supersede.add(i)
+            if "note" not in pr or "auto-expired" not in pr["note"]:
+                pr["note"] = pr.get("note", "") + " | auto-expired after 7 calendar days"
+
+        # check void: cited breach no longer exists
+        if pr.get("action", "").startswith("Trim"):
+            breach_cluster = pr.get("rationale", "").split("(")[0].strip() if pr.get("rationale") else None
+            if breach_cluster and breach_cluster not in live_breaches:
+                to_supersede.add(i)
+                if "auto-voided" not in pr.get("note", ""):
+                    pr["note"] = pr.get("note", "") + " | auto-voided — cited breach cleared"
+
+        # check void: position exited
+        if pr.get("ticker") and pr.get("ticker") not in current_tickers:
+            to_supersede.add(i)
+            if "auto-voided" not in pr.get("note", ""):
+                pr["note"] = pr.get("note", "") + " | auto-voided — position exited"
+
+    for i in to_supersede:
+        if props[i].get("status") == "open":
+            props[i]["status"] = "superseded"
+
+    emit({"proposals_count": len(props), "superseded_count": len(to_supersede), "changes_made": len(to_supersede)})
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -660,10 +741,15 @@ def main():
     sp = sub.add_parser("validate")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
 
+    sp = sub.add_parser("proposals")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True, help="this run's directory containing compute_drift.json and holdings.json")
+    sp.add_argument("--today", default=None, help="reference date for expiry (YYYY-MM-DD); default today")
+
     args = p.parse_args()
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
-         "drift": cmd_drift, "sentiment": cmd_sentiment, "validate": cmd_validate}[args.cmd](args)
+         "drift": cmd_drift, "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")
 
