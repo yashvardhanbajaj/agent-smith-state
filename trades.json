@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "trades": [
+  ],
+  "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) — populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|'UNCAPTURED'), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior."
+}

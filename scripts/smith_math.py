@@ -217,6 +217,19 @@ def cmd_book(args):
                 "ratio": None, "likely_corporate_action": False,
             })
 
+    # load trade rationales from trades.json if present (FIXED 1.2: 2026-07-26)
+    trades = load_json(os.path.join(args.base_dir, "trades.json"), default={})
+    trade_reasons = {}  # ticker -> reason
+    for trade in trades.get("trades", []):
+        t = trade.get("ticker")
+        if t:
+            trade_reasons[t] = trade.get("reason", "UNCAPTURED")
+
+    # attach trade rationale to qty_changes
+    for qc in qty_changes:
+        if qc["ticker"] in trade_reasons:
+            qc["trade_reason"] = trade_reasons[qc["ticker"]]
+
     data_quality = []
     if beta_missing:
         data_quality.append(f"betas defaulted to 1.0 for {len(beta_missing)} names (no data_cache entry): {', '.join(beta_missing[:8])}{'...' if len(beta_missing) > 8 else ''}")
@@ -319,11 +332,19 @@ def cmd_journal(args):
         else:
             name_bucket_grades[ticker][bucket] = "ungraded"
 
+    dq = [] if price_by_ticker else ["no current prices available -- all entries left open"]
+
+    # Flag entries in the 30-day window (approaching scoring threshold, 1.5: 2026-07-26)
+    today = date.today()
+    pending_30d = [e for e in updates if 14 <= e.get("days_old", 0) < 30 and e.get("verdict") == "open"]
+    if pending_30d:
+        dq.append(f"{len(pending_30d)} entries in 14-30d window; hit-rate scoring begins once they cross 30d")
+
     emit({
         "journal_updates": updates,
         "bucket_hit_rates": bucket_hit_rates,
         "name_bucket_grades": name_bucket_grades,
-        "data_quality": [] if price_by_ticker else ["no current prices available -- all entries left open"],
+        "data_quality": dq,
     })
 
 
@@ -482,19 +503,47 @@ def validate_policy(policy):
     return defects
 
 
+def validate_cache_events(state):
+    """Check that any future-dated event in caches (FOMC date, etc.) hasn't already passed.
+    FIXED 1.7: 2026-07-26 — cache payload validation to prevent stale event dates.
+    Returns list of defects.
+    """
+    defects = []
+    today = date.today()
+    fomc_cache = state.get("fomc_cache", {})
+    if fomc_cache:
+        # fomc_cache should have a next_date or similar field; if it's a future date, flag if it's past
+        next_check = fomc_cache.get("next_check_date")
+        if next_check:
+            try:
+                check_date = datetime.strptime(next_check, "%Y-%m-%d").date()
+                if check_date < today:
+                    defects.append(f"fomc_cache.next_check_date {next_check} is in the past; cache is stale and should be refreshed")
+            except (ValueError, TypeError):
+                pass
+    return defects
+
+
 def cmd_validate(args):
     policy = load_json(os.path.join(args.base_dir, "policy.json"), default=None)
+    state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+
+    policy_defects = []
     if policy is None:
-        emit({"policy_present": False, "defects": ["no policy.json"]})
-        return
-    defects = validate_policy(policy)
+        policy_defects = ["no policy.json"]
+    else:
+        policy_defects = validate_policy(policy)
+
+    cache_defects = validate_cache_events(state)
+    all_defects = policy_defects + cache_defects
+
     emit({
-        "policy_present": True,
-        "policy_confirmed": policy.get("confirmed", False),
-        "policy_as_of": policy.get("as_of"),
-        "clean": not defects,
-        "defect_count": len(defects),
-        "defects": defects,
+        "policy_present": policy is not None,
+        "policy_confirmed": policy.get("confirmed", False) if policy else False,
+        "policy_as_of": policy.get("as_of") if policy else None,
+        "clean": not all_defects,
+        "defect_count": len(all_defects),
+        "defects": all_defects,
     })
 
 
