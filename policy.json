@@ -2,6 +2,24 @@
   "schema_version": 1,
   "confirmed": false,
   "as_of": "2026-07-25",
+  "mandate": {
+    "confirmed_date": "2026-07-26",
+    "objective": "aggressive_single_factor_conviction_bet",
+    "benchmark": "SMH",
+    "benchmark_note": "Success = beating SMH (the zero-effort passive version of this same thesis) on total return. If concentration doesn't beat SMH, the extra risk bought nothing.",
+    "horizon_years": [2, 5],
+    "risk_budget_pct": 25,
+    "risk_budget_note": "Matches drawdown_risk_off_pct below -- this is the user's actual sustainable-loss ceiling, not an unexamined default. The drawdown_trim_ladder exists so this line is never discovered by hitting it.",
+    "liquidity_floor_pct": 0,
+    "liquidity_floor_note": "No external constraint -- all cash here is tactical dry powder for the ladder/rebalancing, not a protected reserve. cash_band_pct below is a discipline band, not a liquidity requirement.",
+    "glide_path": [
+      {"at_years": 3, "action": "raise cash floor toward 15-20%, independent of any drawdown trigger", "status": "not yet automated"},
+      {"at_years": 4, "action": "AI-capex ceiling steps down from 100% to ~70% of invested equity", "status": "not yet automated"},
+      {"at_years": 5, "action": "full mandate review and explicit renewal, or convert to core-holding profile", "status": "not yet automated"}
+    ],
+    "review_cadence": "annual, or on a glide-path transition, or on user request, or after a -25% risk-off event actually fires -- never renegotiated mid-drawdown as a reaction to that drawdown",
+    "full_document": "INVESTMENT-POLICY-STATEMENT.md"
+  },
   "cluster_targets": {
     "AI Semis/Fabs": {
       "target_pct": 30,
