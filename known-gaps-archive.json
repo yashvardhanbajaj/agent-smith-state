@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "_readme": "known_gaps entries fully resolved/closed, archived 2026-07-26 to keep state.json to gaps a live run still needs to cite. Full original text preserved for audit.",
+  "known_gaps": [
+    {
+      "id": "G13",
+      "description": "TSM Taiwan-listing session-timing error in a proposal rationale (double-counted a move already priced into the US close)",
+      "opened": "2026-07-18",
+      "owner": "orchestrator",
+      "status": "resolved 2026-07-18"
+    },
+    {
+      "id": "G14",
+      "description": "Same-day stale INDmoney per-position price caused a false single-position-cap breach report for SNDK (12.352% vs true 10.482%)",
+      "opened": "2026-07-18",
+      "owner": "orchestrator",
+      "status": "resolved 2026-07-18, methodology folded into G3"
+    },
+    {
+      "id": "G16",
+      "description": "data_cache.ticker_map was empty despite all 29 names having been resolved in prior runs (persistence gap, not a resolution failure)",
+      "opened": "2026-07-20",
+      "owner": "orchestrator",
+      "status": "resolved 2026-07-20"
+    },
+    {
+      "id": "G21",
+      "description": "smith-rebound stalled twice this run (initial dispatch and retry, no progress for 600s both times) on a genuinely AMBIGUOUS-but-calm gate (VIX 17.44, marginal NQ=F breach) -- no rebound-candidate output this run, strategist proceeded without it",
+      "opened": "2026-07-22",
+      "owner": "orchestrator",
+      "status": "resolved 2026-07-23 -- smith-rebound succeeded on retry this run, produced 5 stage-in candidates"
+    },
+    {
+      "id": "G22",
+      "description": "INDmoney networth_holdings price feed on 2026-07-23 was internally consistent (weights summed to 100%) but implied +10-20% intraday gains on ~10 names while SPX/NDX were flat/-0.3% same session -- actively wrong, not merely stale. Cross-checked all 29 names against yfinance, confirmed fabricated, discarded wholesale for the run. More severe than prior G3 entries (those were stale/lagging; this was internally-consistent but false).",
+      "opened": "2026-07-23",
+      "owner": "orchestrator (STALENESS/SANITY GATE)",
+      "status": "RECURRED 2026-07-23 20:15 refresher (19/28 names, worse than the 19:07 incident) -- workaround (yfinance) applied again; root cause still unknown, now a same-day repeat pattern"
+    },
+    {
+      "id": "G23",
+      "description": "META (2sh) present in 19:07 full sweep holdings but absent from the 20:15 refresher's networth_holdings(US_STOCK) pull, confirmed twice -- carried forward at last-known qty per GUARD rule rather than silently dropped. Not corroborated by any ledger/flow evidence of a real exit.",
+      "opened": "2026-07-23",
+      "owner": "orchestrator (GUARD check)",
+      "status": "RESOLVED 2026-07-24 -- confirmed as a REAL flow via wallet-cash reconciliation (wallet $36.14->$5,656.86 matches sold-share proceeds), not a feed glitch. Extends to 4 more names same pattern this run (LITE/GOOG/BABA/STM all similarly absent from networth_holdings, all corroborated as real exits)."
+    },
+    {
+      "id": "G25",
+      "description": "smith_math.py book's qty_changes/est_net_flows_usd only detects tickers present in BOTH prior and current holdings -- a full position exit (ticker vanishes from current entirely) is invisible to that logic. This run's attribution residual_market_move_usd (-$4,176.39) is therefore inflated by ~$3,700-3,800 of untracked full-exit value removal, not pure market price movement. Orchestrator manually reconciled this run via wallet-cash math; script itself was not patched.",
+      "opened": "2026-07-24",
+      "owner": "orchestrator (script enhancement candidate: diff prior state.json holdings tickers vs current positions tickers to detect exits explicitly)",
+      "status": "resolved 2026-07-26 -- qty_changes now catches full exits/new entries (see smith_math.py cmd_book), not just tickers common to both snapshots"
+    },
+    {
+      "id": "G27",
+      "description": "Fresh yfinance quotes pulled ad-hoc during this cash-position query show Friday 2026-07-24's close was a severe, broad selloff across all 21 remaining US holdings (weighted avg -5.06%, worst SNDK -10.79%). This is Friday's already-completed session, not a live-right-now move (markets closed for the weekend) -- but no scheduled run captured it, so no signals/thesis/macro context exists yet to judge Monday's reopen. Recommend a fresh sweep before market open Monday.",
+      "opened": "2026-07-27 (ad-hoc discovery)",
+      "owner": "orchestrator -- recommend a fresh smith-signals/smith-book dispatch or smith-rebound triage before any cash redeployment decision",
+      "status": "resolved 2026-07-25 -- context fully folded into state.json us.value_note; no standing gap, was a one-time market observation not a system defect"
+    },
+    {
+      "id": "G28",
+      "description": "policy.json cluster targets summed to 105% alongside a 3-15% cash band (impossible: book would total 108-120%), AND the drift table silently mixed denominators -- clusters/AI-capex were equity-based while cash was total-book-based, so the columns were never comparable. Every drift table 2026-07-12 to 2026-07-25 was measured against an unsatisfiable spec. FIXED 2026-07-25: targets rescaled proportionally (x100/105) to sum to 100 with band widths preserved; denominators now declared explicitly (clusters+AI-capex = invested_equity, cash = total_book); validator added (scripts/smith_math.py validate) and wired into cmd_drift, which now emits policy_defects/policy_valid and BOTH ai_capex bases. STILL OPEN (user decisions, not defects): (1) whether the AI-capex cap should measure against total_book instead of invested_equity -- on total_book the 90% cap reads 54.2% today and the 14-run-old breach vanishes; defaulted to invested_equity deliberately so the warning is not silently lost. (2) whether the cap value itself (90%) is one the user intends to honour, given it has been breached every run since inception and sits 30pt above the draft's own 60% sane-diversification flag.",
+      "opened": "2026-07-25",
+      "owner": "user (policy fix) + orchestrator (denominator convention)",
+      "status": "resolved 2026-07-25 -- both open user-decisions closed: AI-capex concentration affirmed intentional (cap raised 90->100%, invested_equity basis); arithmetic/denominator fixes already landed 07-25"
+    }
+  ]
+}
