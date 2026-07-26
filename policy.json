@@ -4,31 +4,31 @@
   "as_of": "2026-07-25",
   "cluster_targets": {
     "AI Semis/Fabs": {
-      "target_pct": 29,
+      "target_pct": 30,
       "band_pct": [
-        24,
-        34
+        25,
+        35
       ]
     },
     "AI Memory/Storage": {
-      "target_pct": 19,
+      "target_pct": 20,
       "band_pct": [
-        14,
-        24
+        15,
+        25
       ]
     },
     "AI Networking/Optics": {
-      "target_pct": 19,
+      "target_pct": 20,
       "band_pct": [
-        14,
-        24
+        15,
+        25
       ]
     },
     "AI Power/Cooling/DC Infra": {
-      "target_pct": 14,
+      "target_pct": 15,
       "band_pct": [
-        9,
-        19
+        10,
+        20
       ]
     },
     "Compute/Hyperscaler OEM": {
@@ -39,14 +39,14 @@
       ]
     },
     "Compute/Hyperscaler": {
-      "target_pct": 9,
+      "target_pct": 10,
       "band_pct": [
-        4,
-        14
+        5,
+        15
       ]
     },
     "Diversified/Regional ETF": {
-      "target_pct": 5,
+      "target_pct": 0,
       "band_pct": [
         0,
         10
@@ -73,8 +73,8 @@
     3,
     15
   ],
-  "max_ai_capex_factor_pct": 90,
-  "ai_capex_factor_flag_threshold_pct": 60,
+  "max_ai_capex_factor_pct": 100,
+  "ai_capex_factor_flag_threshold_pct": null,
   "drawdown_warn_pct": 15,
   "drawdown_risk_off_pct": 25,
   "prefer_ltcg": true,
@@ -88,10 +88,12 @@
     "2026-07-18: added the 'Compute/Hyperscaler' cluster line (target 10%, band [5,15]) \u2014 this cluster already appeared in ai_capex_clusters but had no target/band, leaving 7.9%+ of the book untracked by drift analysis. Applied without user confirmation since the draft itself remains unconfirmed (see known_gaps G11).",
     "2026-07-18: the max_ai_capex_factor_pct=90% ceiling flagged as generous in the original note is now genuinely BREACHED (actual ~99.2%, corrected same-day from an initial stale-price-driven 99.278% -- conclusion holds either way) \u2014 even the generous ceiling doesn't hold. The whole draft is stale given the book has grown 28->29 holdings with heavy composition turnover since 07-12; a full re-look (not just this one line) is recommended at the user's convenience.",
     "2026-07-18 (same day, user-caught): max_single_position_pct=12% was reported breached by SNDK at 12.352% -- that was WRONG, caused by a stale INDmoney per-position price (see known_gaps G3/G14). SNDK's true weight is 10.482%, no breach. All cluster_targets actual_pct figures above are historical last-known snapshots from prior runs, not live -- do not treat them as current; each run's script recomputes fresh percentages from live-priced holdings.",
-    "2026-07-25 (G28 FIX, arithmetic only -- no change of intent): cluster targets summed to 105% while the policy also mandated a 3-15% cash band, so the book would have had to total 108-120%. Every drift table from 2026-07-12 to 2026-07-25 was therefore measured against an unsatisfiable spec. Targets have been rescaled PROPORTIONALLY (x100/105) to sum to exactly 100%, preserving the original relative ordering and rough weights: {'AI Semis/Fabs': 30, 'AI Memory/Storage': 20, 'AI Networking/Optics': 20, 'AI Power/Cooling/DC Infra': 15, 'Compute/Hyperscaler OEM': 5, 'Compute/Hyperscaler': 10, 'Diversified/Regional ETF': 5, 'Enterprise Software': 0} -> {'AI Semis/Fabs': 29, 'AI Memory/Storage': 19, 'AI Networking/Optics': 19, 'AI Power/Cooling/DC Infra': 14, 'Compute/Hyperscaler': 9, 'Compute/Hyperscaler OEM': 5, 'Diversified/Regional ETF': 5, 'Enterprise Software': 0}. Band widths preserved; each band shifted by the same delta as its target. Stale actual_pct snapshots removed (the notes above already warned they were not current). A validator now enforces this: scripts/smith_math.py validate.",
-    "2026-07-25 (G28, denominator declarations added): the drift table was silently mixing two bases -- cluster and AI-capex percentages were equity-denominated while cash was total-book-denominated, so the columns were never comparable and summed to nothing. Now declared explicitly: cluster targets and the AI-capex cap measure against INVESTED EQUITY; the cash band measures against TOTAL BOOK. This is the standard two-layer split -- layer 1 sets cash vs invested, layer 2 sets allocation shape within the invested sleeve -- and it keeps cluster drift meaningful while cash swings (cash went 0.06% -> 45.8% in five days; a total-book basis would have made every cluster read 'underweight' for reasons unrelated to allocation). ai_capex_denominator was set to invested_equity as the CONSERVATIVE default because it preserves the existing breach warning: on total_book the same 90% cap reads 54.2% today (86.3% on 07-24) and the 14-run-old breach would silently vanish. THAT SWITCH IS THE USER'S CALL, not a default to assume."
+    "2026-07-25 (G28, denominator declarations added): the drift table was silently mixing two bases -- cluster and AI-capex percentages were equity-denominated while cash was total-book-denominated, so the columns were never comparable and summed to nothing. Now declared explicitly: cluster targets and the AI-capex cap measure against INVESTED EQUITY; the cash band measures against TOTAL BOOK. This is the standard two-layer split -- layer 1 sets cash vs invested, layer 2 sets allocation shape within the invested sleeve -- and it keeps cluster drift meaningful while cash swings (cash went 0.06% -> 45.8% in five days; a total-book basis would have made every cluster read 'underweight' for reasons unrelated to allocation). ai_capex_denominator was set to invested_equity as the CONSERVATIVE default because it preserves the existing breach warning: on total_book the same 90% cap reads 54.2% today (86.3% on 07-24) and the 14-run-old breach would silently vanish. THAT SWITCH IS THE USER'S CALL, not a default to assume.",
+    "2026-07-25 USER DECISION (explicit): high conviction on AI infrastructure/capex -- the concentration is INTENTIONAL, not drift. Consequences applied: max_ai_capex_factor_pct raised 90 -> 100 on an invested_equity basis, i.e. the invested sleeve may be entirely AI-capex by design and this is no longer reported as a breach. ai_capex_factor_flag_threshold_pct (was 60) set to null -- it existed to nag about a concentration the user has now affirmed, so it was noise. 'Diversified/Regional ETF' target set 5 -> 0 with its permissive [0,10] band kept, so a diversifier sleeve remains ALLOWED but is no longer a standing shortfall. This also cleanly resolves G28: the AI-cluster targets (30/20/20/15/10/5) already summed to exactly 100 -- the 105% defect was purely the Diversified 5% being bolted on without being carved out. The user's original numbers are restored verbatim; the earlier proportional rescale (29/19/19/14/9/5) is reverted as no longer needed.",
+    "2026-07-25 RISK CONTROLS NOW CARRY THE LOAD: with factor diversification deliberately abandoned as a control, the binding constraints are (a) max_single_position_pct 12%, (b) cash_band_pct [3,15] on total book, (c) drawdown_warn_pct 15 / drawdown_risk_off_pct 25, and (d) cluster bands, which now govern MIX WITHIN the AI-capex chain rather than exposure to it. These should be reviewed as a set, since they are the only remaining brakes -- a 100% single-factor book at ~61% sector volatility (SOX 3mo realized) has no internal offset."
   ],
   "cluster_target_denominator": "invested_equity",
   "cash_pct_denominator": "total_book",
-  "ai_capex_denominator": "invested_equity"
+  "ai_capex_denominator": "invested_equity",
+  "concentration_is_intentional": true
 }
