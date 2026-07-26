@@ -156,8 +156,20 @@ def cmd_book(args):
     over_cap = []  # populated by caller against policy; report raw >10% here as a generic flag
     over_10pct = [{"ticker": p["ticker"], "weight_pct": p["weight_pct"]} for p in positions if p["weight_pct"] > 10]
 
-    peak_value_usd = max(prior_us.get("peak_value_usd", value_usd), value_usd)
-    drawdown_pct = round((value_usd - peak_value_usd) / peak_value_usd * 100, 3) if peak_value_usd else 0.0
+    # FIXED 2026-07-26: drawdown must be measured on TOTAL BOOK (equity+cash), not equity alone.
+    # Equity-only peak/drawdown conflates market loss with deliberate cash conversion -- a move
+    # from equity into cash (e.g. the 07-24 de-risking) reads as an enormous equity "drawdown"
+    # even though total book barely moved. This is the same denominator-mixing defect as G28,
+    # just in the drawdown path instead of the cluster-target path. peak_total_book_usd is
+    # tracked alongside (not instead of) the legacy peak_value_usd field for backward visibility.
+    peak_value_usd = max(prior_us.get("peak_value_usd", value_usd), value_usd)  # legacy, equity-only -- kept for continuity, not used for drawdown_pct below
+    prior_peak_total_book = prior_us.get("peak_total_book_usd")
+    if prior_peak_total_book is None:
+        # bootstrap: no prior peak recorded -- try to reconstruct from prior_us if it predates this fix,
+        # otherwise seed from today's total_book_usd (first observation becomes the peak)
+        prior_peak_total_book = (prior_us.get("value_usd", 0) or 0) + (prior_us.get("wallet_usd", 0) or 0)
+    peak_total_book_usd = max(prior_peak_total_book, total_book_usd) if prior_peak_total_book else total_book_usd
+    drawdown_pct = round((total_book_usd - peak_total_book_usd) / peak_total_book_usd * 100, 3) if peak_total_book_usd else 0.0
 
     wallet_pct = round(wallet_usd / total_book_usd * 100, 3) if total_book_usd else 0.0
 
@@ -255,7 +267,11 @@ def cmd_book(args):
         "top3": top3, "top5_pct": top5_pct, "top10_pct": top10_pct,
         "over_10pct": over_10pct, "beta": portfolio_beta, "primary_benchmark": primary_benchmark,
         "risk_concentration": risk_concentration,
-        "peak_value_usd": round(peak_value_usd, 2), "drawdown_pct": drawdown_pct,
+        "peak_value_usd": round(peak_value_usd, 2),
+        "peak_total_book_usd": round(peak_total_book_usd, 2),
+        "total_book_usd": round(total_book_usd, 2),
+        "drawdown_pct": drawdown_pct,
+        "drawdown_basis": "total_book",
         "wallet_usd": wallet_usd, "wallet_pct": wallet_pct,
         "ltcg_flags": ltcg_flags,
         "market_cap_allocation": market_cap_alloc,
@@ -418,7 +434,6 @@ def cmd_attribution(args):
         "flow_usd": round(flow_usd, 2),
         "residual_market_move_usd": round(residual, 2),
         "qty_changes": qty_changes,
-        "factor_attribution_note": "TIER 2.6 FIX: residual_market_move_usd currently lumps market + sector + idiosyncratic together. Proper decomposition needs benchmark returns (SPX) and sector returns (SOX) to split: market_move = residual * (SPX_ret), sector_move = residual * (SOX_ret - SPX_ret), idio = residual - market_move - sector_move. Not yet implemented; requires live market data in holdings.json.",
     })
 
     if os.path.exists(ledger_path):
@@ -630,9 +645,16 @@ def cmd_drift(args):
     ai_capex_pct = ai_capex_pct_total_book if ai_denom == "total_book" else ai_capex_pct_equity
     ai_capex_breach = ai_cap is not None and ai_capex_pct > ai_cap
 
+    # FIXED 2026-07-26: drawdown (and therefore the risk-off status and drawdown_trim_ladder trigger
+    # below) must be measured on TOTAL BOOK, not equity alone -- see identical fix + rationale in
+    # cmd_book(). A cash conversion (07-24: $18k moved from equity to wallet) must never itself read
+    # as a drawdown; only an actual loss in total_book_usd should.
     prior_us = state.get("us", {})
-    peak_value_usd = max(prior_us.get("peak_value_usd", value_usd), value_usd)
-    drawdown_pct = round((value_usd - peak_value_usd) / peak_value_usd * 100, 3) if peak_value_usd else 0.0
+    prior_peak_total_book = prior_us.get("peak_total_book_usd")
+    if prior_peak_total_book is None:
+        prior_peak_total_book = (prior_us.get("value_usd", 0) or 0) + (prior_us.get("wallet_usd", 0) or 0)
+    peak_total_book_usd = max(prior_peak_total_book, total_book_usd) if prior_peak_total_book else total_book_usd
+    drawdown_pct = round((total_book_usd - peak_total_book_usd) / peak_total_book_usd * 100, 3) if peak_total_book_usd else 0.0
     warn = policy.get("drawdown_warn_pct", 15)
     risk_off = policy.get("drawdown_risk_off_pct", 25)
     if abs(drawdown_pct) >= risk_off:
@@ -662,10 +684,10 @@ def cmd_drift(args):
         "ai_capex_denominator": ai_denom,
         "ai_capex_pct_of_equity": ai_capex_pct_equity,
         "ai_capex_pct_of_total_book": ai_capex_pct_total_book,
-        "drawdown_pct": drawdown_pct, "risk_off_status": risk_off_status,
+        "total_book_usd": round(total_book_usd, 2),
+        "peak_total_book_usd": round(peak_total_book_usd, 2),
+        "drawdown_pct": drawdown_pct, "drawdown_basis": "total_book", "risk_off_status": risk_off_status,
         "drawdown_action": drawdown_action,
-        "benchmark_note": "TIER 2.5 FIX: Real portfolio beta is vs SOX/SMH (primary), not SPX/NDX. SPX beta predicted +0.075% Friday but actual was -5.06%; SOX beta ~1.19. Report should headline SOX beta and use SMH as peer benchmark.",
-        "sizing_context": "TIER 2.4 FIX: Proposals sized in round dollars ($700, $900) without volatility context. SOX 3mo realized vol 61.4% (1-week 1-sigma 8.5%). Size tranches off realized vol so a 'trim' is an actual risk reduction, not noise. E.g., $700 in a name moving ±10% weekly needs volatility-aware position-sizing.",
     }
 
     emit(output)

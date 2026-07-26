@@ -27,7 +27,9 @@
     "peak_value_usd": 41887.33,
     "beta": null,
     "value_note": "CORRECTION (ad-hoc, 2026-07-25 IST): user flagged cash as '>10k' vs the stale $5,656.86 carried from the 2026-07-24 18:29 IST run -- that run was captured PRE-MARKET (18:29 IST = 08:59 ET, 31min before the 09:30 ET open), so it missed the entire Friday 07-24 US session. That session saw a severe, broad AI-capex/semis selloff (weighted avg -5.06% across the 21 names still held, worst SNDK -10.79%, COHR -9.84%, CLS -8.80%, DRAM -8.75%) -- confirmed via fresh yfinance quotes (Friday close vs Thursday close), not a live-right-now move; markets are closed over the weekend. Coinciding with that session, GLW/NBIS/IREN were fully exited and SNDK/DRAM/MU/TSM/LRCX/CLS/TER/CIEN were roughly halved -- raising wallet cash from $5,656.86 to $18,131.51. Read as one event (de-risking during/into the selloff), not two unrelated ones; exact trigger (stop-loss rule vs discretionary panic-sell vs pre-planned earnings-week de-risk) is unconfirmed -- no run/ledger/journal entry captured the trade rationale (G26). Corrected total book $39,592.03 (equity $21,460.52 live-priced + wallet $18,131.51). Cash is now 45.8% of book -- a severe ceiling breach of the [3,15]% policy band, the inverse of the 07-20 floor breach. Drawdown -5.48% vs the 07-23 peak of $41,887.33 -- less severe than the pre-correction -14.878% reading, since the cash conversion partly insulated the book from Friday's rout. Beta not recomputed this pass (ad-hoc query, no full compute run) -- left null rather than carrying the stale 1.491. Next real decision point is Monday's reopen (07-27 evening IST), not an immediate live event.",
-    "beta_note": "Stated 1.491 is SPX-based and MISLEADING: it predicted +0.075% for Friday 2026-07-24 vs an actual -5.06%. Implied SOX beta from that session is 1.19. Book's true factor is SOX (3mo vol 61.4%), not SPX. Do not size positions off the SPX beta."
+    "beta_note": "Stated 1.491 is SPX-based and MISLEADING: it predicted +0.075% for Friday 2026-07-24 vs an actual -5.06%. Implied SOX beta from that session is 1.19. Book's true factor is SOX (3mo vol 61.4%), not SPX. Do not size positions off the SPX beta.",
+    "peak_total_book_usd": 44873.02,
+    "peak_total_book_note": "FIXED 2026-07-26: seeded from ledger.csv's true historical max (2026-07-18T13:41, equity $44,850.31 + wallet $22.71). Drawdown must be measured on total book (equity+wallet), never equity alone -- an equity-only peak/drawdown conflates market loss with deliberate cash conversion (the 07-24 de-risking moved $18k from equity to wallet and would otherwise read as a ~49% equity 'drawdown' when total book was actually down ~12% from this peak). See scripts/smith_math.py cmd_book()/cmd_drift() and known_gaps."
   },
   "holdings": [
     {
@@ -480,30 +482,6 @@
       "GEV": {
         "value": 0.935,
         "as_of": "2026-07-20"
-      },
-      "SNDK": {
-        "value": 1.2,
-        "source": "estimated",
-        "verified_at": "2026-07-26",
-        "confidence": "medium"
-      },
-      "DRAM": {
-        "value": 0.95,
-        "source": "estimated",
-        "verified_at": "2026-07-26",
-        "confidence": "medium"
-      },
-      "IREN": {
-        "value": 1.3,
-        "source": "estimated",
-        "verified_at": "2026-07-26",
-        "confidence": "low"
-      },
-      "ARM": {
-        "value": 1.15,
-        "source": "estimated",
-        "verified_at": "2026-07-26",
-        "confidence": "medium"
       }
     },
     "benchmark_betas": {
@@ -598,10 +576,10 @@
     },
     {
       "id": "G15",
-      "description": "data_cache.betas was empty -- portfolio beta defaulted to 1.0 for all 29 names. Partially resolved 2026-07-20: smith-book refreshed 25/29; SNDK/DRAM unavailable from any source; ARM/IREN computed but exceed 0-3.5 plausibility band, discarded.",
+      "description": "data_cache.betas empty for SNDK/DRAM/IREN/ARM -- portfolio beta defaults to 1.0 for these 4 names (25.7% of book), flagged in data_quality. 2026-07-26: an earlier fix inserted ESTIMATED/guessed values for these 4 into the cache, silently feeding an invented number into portfolio beta with no distinguishing flag downstream -- reverted, since the orchestrator's own hard guardrail ('never estimate or interpolate a number the script wasn't handed directly') forbids exactly this. Correct fix is real 3mo-returns beta computation vs SOX (primary benchmark, see benchmark_betas), not a guess.",
       "opened": "2026-07-20",
-      "owner": "orchestrator",
-      "status": "partially resolved"
+      "owner": "orchestrator (smith-book, real computation only)",
+      "status": "open -- reverted a guessed-value shortcut 2026-07-26"
     },
     {
       "id": "G16",

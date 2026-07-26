@@ -1,3 +1,13 @@
 {
-  "_readme": "Per-lot purchase records for LTCG tracking (Indian 24-month foreign-equity boundary). Schema: {\"TICKER\": [{\"qty\": 0, \"date\": \"YYYY-MM-DD\", \"price_usd\": 0}]}. This file is empty because INDmoney's holdings feed does not expose per-lot purchase dates -- seed it manually from your INDmoney order history / contract notes, or let the orchestrator append a lot when it detects a new qty increase and you confirm it's a fresh buy (see known_gaps G1 in state.json). Until seeded, LTCG flags stay unavailable and are cited by that gap ID rather than re-explained every run."
+  "schema_version": 1,
+  "_readme": "Per-lot purchase records for LTCG tracking. Schema: {\"TICKER\": [{\"qty\": float, \"date\": \"YYYY-MM-DD\", \"price_usd\": float, \"notes\": \"optional context\"}]}. TIER 2.7 FIX: seeding this file unblocks LTCG boundary tracking and enables tax-aware trim sequencing. Source: INDmoney order history (via account statement CSV or manual entry). Until seeded, LTCG flags unavailable (gap G1).",
+  "_example": {
+    "NVDA": [
+      {"qty": 12.0, "date": "2024-03-15", "price_usd": 875.50, "notes": "initial entry"},
+      {"qty": 5.0, "date": "2024-09-20", "price_usd": 1204.80, "notes": "add-on during dip"}
+    ],
+    "SNDK": [
+      {"qty": 3.0, "date": "2023-11-10", "price_usd": 1089.20, "notes": "core position"}
+    ]
+  }
 }
