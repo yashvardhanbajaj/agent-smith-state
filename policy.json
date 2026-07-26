@@ -95,5 +95,35 @@
   "cluster_target_denominator": "invested_equity",
   "cash_pct_denominator": "total_book",
   "ai_capex_denominator": "invested_equity",
-  "concentration_is_intentional": true
+  "concentration_is_intentional": true,
+  "drawdown_trim_ladder": [
+    {
+      "drawdown_pct": -15,
+      "phase": "warn",
+      "equity_trim_action": "none",
+      "duration_days": null,
+      "rationale": "Monitor only; trigger volatility alert in briefing"
+    },
+    {
+      "drawdown_pct": -18,
+      "phase": "de-risk_batch_1",
+      "equity_trim_action": "trim_10pct_of_watchlist",
+      "duration_days": 30,
+      "rationale": "De-risk batch 1 (lowest-conviction names from strategist watchlist)"
+    },
+    {
+      "drawdown_pct": -22,
+      "phase": "de-risk_batch_2",
+      "equity_trim_action": "trim_20pct_of_watchlist",
+      "duration_days": 14,
+      "rationale": "De-risk batch 2 (mid-conviction names from strategist watchlist)"
+    },
+    {
+      "drawdown_pct": -25,
+      "phase": "risk_off",
+      "equity_trim_action": "move_to_cash",
+      "duration_days": 0,
+      "rationale": "Immediate risk-off; freeze new deployments, rotate to cash"
+    }
+  ]
 }

@@ -506,6 +506,23 @@
         "confidence": "medium"
       }
     },
+    "benchmark_betas": {
+      "SPX": {
+        "value": 1.491,
+        "as_of": "2026-07-24",
+        "note": "MISLEADING: SPX beta predicted +0.075% for Friday 07-24 vs actual -5.06%. Book is overexposed to SOX/SMH."
+      },
+      "SOX": {
+        "value": 1.19,
+        "derived_from": "Friday 07-24 session move analysis (actual -5.06% vs holdings)",
+        "verified_at": "2026-07-26",
+        "note": "PRIMARY benchmark. Book's real factor exposure."
+      },
+      "SMH": {
+        "value": 1.19,
+        "note": "Semiconductor ETF, peer benchmark for holdings. Use instead of QQQ for relative performance assessment."
+      }
+    },
     "earnings_calendar": {
       "LRCX": {
         "date": "2026-07-29",

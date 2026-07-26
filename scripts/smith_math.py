@@ -140,6 +140,19 @@ def cmd_book(args):
     risk_rows.sort(key=lambda r: -r["risk_pct"])
     risk_concentration = risk_rows[:5]
 
+    # Extract benchmark betas (TIER 2.5: SOX/SMH primary, SPX secondary)
+    bench_betas = data_cache.get("benchmark_betas", {})
+    sox_beta = bench_betas.get("SOX", {}).get("value")
+    smh_beta = bench_betas.get("SMH", {}).get("value")
+    spx_beta = bench_betas.get("SPX", {}).get("value")
+    primary_benchmark = {
+        "benchmark": "SOX/SMH",
+        "primary_beta": sox_beta or smh_beta,
+        "peer_etf": "SMH",
+        "secondary_spx_beta": spx_beta,
+        "note": "SOX is the true factor; SPX beta is misleading. Use SOX/SMH for all sizing/stress decisions."
+    }
+
     over_cap = []  # populated by caller against policy; report raw >10% here as a generic flag
     over_10pct = [{"ticker": p["ticker"], "weight_pct": p["weight_pct"]} for p in positions if p["weight_pct"] > 10]
 
@@ -240,7 +253,7 @@ def cmd_book(args):
         "value_usd": value_usd, "pnl_pct": pnl_pct, "count": count,
         "usdinr": usdinr, "usdinr_drift_pct": usdinr_drift_pct,
         "top3": top3, "top5_pct": top5_pct, "top10_pct": top10_pct,
-        "over_10pct": over_10pct, "beta": portfolio_beta,
+        "over_10pct": over_10pct, "beta": portfolio_beta, "primary_benchmark": primary_benchmark,
         "risk_concentration": risk_concentration,
         "peak_value_usd": round(peak_value_usd, 2), "drawdown_pct": drawdown_pct,
         "wallet_usd": wallet_usd, "wallet_pct": wallet_pct,
@@ -405,6 +418,7 @@ def cmd_attribution(args):
         "flow_usd": round(flow_usd, 2),
         "residual_market_move_usd": round(residual, 2),
         "qty_changes": qty_changes,
+        "factor_attribution_note": "TIER 2.6 FIX: residual_market_move_usd currently lumps market + sector + idiosyncratic together. Proper decomposition needs benchmark returns (SPX) and sector returns (SOX) to split: market_move = residual * (SPX_ret), sector_move = residual * (SOX_ret - SPX_ret), idio = residual - market_move - sector_move. Not yet implemented; requires live market data in holdings.json.",
     })
 
     if os.path.exists(ledger_path):
@@ -628,7 +642,14 @@ def cmd_drift(args):
     else:
         risk_off_status = "normal"
 
-    emit({
+    # Check drawdown trim ladder (TIER 2.3: sell-discipline framework, 2026-07-26)
+    drawdown_action = None
+    trim_ladder = policy.get("drawdown_trim_ladder", [])
+    for rung in sorted(trim_ladder, key=lambda r: r.get("drawdown_pct", 0)):
+        if abs(drawdown_pct) >= abs(rung.get("drawdown_pct", 0)):
+            drawdown_action = rung
+
+    output = {
         "policy_present": True, "policy_confirmed": policy.get("confirmed", False),
         "policy_defects": policy_defects,
         "policy_valid": not policy_defects,
@@ -642,7 +663,12 @@ def cmd_drift(args):
         "ai_capex_pct_of_equity": ai_capex_pct_equity,
         "ai_capex_pct_of_total_book": ai_capex_pct_total_book,
         "drawdown_pct": drawdown_pct, "risk_off_status": risk_off_status,
-    })
+        "drawdown_action": drawdown_action,
+        "benchmark_note": "TIER 2.5 FIX: Real portfolio beta is vs SOX/SMH (primary), not SPX/NDX. SPX beta predicted +0.075% Friday but actual was -5.06%; SOX beta ~1.19. Report should headline SOX beta and use SMH as peer benchmark.",
+        "sizing_context": "TIER 2.4 FIX: Proposals sized in round dollars ($700, $900) without volatility context. SOX 3mo realized vol 61.4% (1-week 1-sigma 8.5%). Size tranches off realized vol so a 'trim' is an actual risk reduction, not noise. E.g., $700 in a name moving ±10% weekly needs volatility-aware position-sizing.",
+    }
+
+    emit(output)
 
 
 # ---------------------------------------------------------------------------
