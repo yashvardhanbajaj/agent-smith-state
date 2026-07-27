@@ -1,166 +1,147 @@
 {
   "schema_version": 1,
-  "ts": "2026-07-25T16:07:00+05:30",
-  "mode": "ad-hoc-correction",
+  "ts": "2026-07-27T10:09:00+05:30",
+  "mode": "deep",
   "usdinr": 96.56,
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
-  "last_run_dir": "runs/2026-07-24-1811/",
+  "last_run_dir": "runs/2026-07-27-1009/",
   "us": {
-    "value_usd": 21460.52,
+    "value_usd": 21276.56,
     "count": 21,
     "top3": [
       {
         "ticker": "NVDA",
-        "weight_pct": 6.269
+        "weight_pct": 10.107
       },
       {
-        "ticker": "ASML",
-        "weight_pct": 4.438
+        "ticker": "SNDK",
+        "weight_pct": 7.781
       },
       {
         "ticker": "EWY",
-        "weight_pct": 4.116
+        "weight_pct": 7.673
       }
     ],
-    "pnl_pct": 1.858,
-    "wallet_usd": 18131.51,
+    "pnl_pct": -2.993,
+    "wallet_usd": 18191.32,
     "peak_value_usd": 41887.33,
-    "beta": null,
-    "value_note": "CORRECTION (ad-hoc, 2026-07-25 IST): user flagged cash as '>10k' vs the stale $5,656.86 carried from the 2026-07-24 18:29 IST run -- that run was captured PRE-MARKET (18:29 IST = 08:59 ET, 31min before the 09:30 ET open), so it missed the entire Friday 07-24 US session. That session saw a severe, broad AI-capex/semis selloff (weighted avg -5.06% across the 21 names still held, worst SNDK -10.79%, COHR -9.84%, CLS -8.80%, DRAM -8.75%) -- confirmed via fresh yfinance quotes (Friday close vs Thursday close), not a live-right-now move; markets are closed over the weekend. Coinciding with that session, GLW/NBIS/IREN were fully exited and SNDK/DRAM/MU/TSM/LRCX/CLS/TER/CIEN were roughly halved -- raising wallet cash from $5,656.86 to $18,131.51. Read as one event (de-risking during/into the selloff), not two unrelated ones; exact trigger (stop-loss rule vs discretionary panic-sell vs pre-planned earnings-week de-risk) is unconfirmed -- no run/ledger/journal entry captured the trade rationale (G26). Corrected total book $39,592.03 (equity $21,460.52 live-priced + wallet $18,131.51). Cash is now 45.8% of book -- a severe ceiling breach of the [3,15]% policy band, the inverse of the 07-20 floor breach. Drawdown -5.48% vs the 07-23 peak of $41,887.33 -- less severe than the pre-correction -14.878% reading, since the cash conversion partly insulated the book from Friday's rout. Beta not recomputed this pass (ad-hoc query, no full compute run) -- left null rather than carrying the stale 1.491. Next real decision point is Monday's reopen (07-27 evening IST), not an immediate live event.",
-    "beta_note": "Stated 1.491 is SPX-based and MISLEADING: it predicted +0.075% for Friday 2026-07-24 vs an actual -5.06%. Implied SOX beta from that session is 1.19. Book's true factor is SOX (3mo vol 61.4%), not SPX. Do not size positions off the SPX beta.",
-    "peak_total_book_usd": 41923.47,
-    "peak_total_book_note": "Drawdown must be measured on total book (equity+wallet), never equity alone -- an equity-only peak conflates market loss with deliberate cash conversion (the 07-24 de-risking moved $18k equity->wallet and would otherwise read as a ~49% equity 'drawdown'). Seeded 2026-07-26 from the highest TRUSTWORTHY ledger row: 2026-07-23T19:07, $41,923.47. NOT from the nominal max ($44,873.02 on 07-18) -- that row self-flags a 16.4% G3 snapshot-price gap in its own note, and 07-20 live-corrected the same unchanged book (zero flows between) down to $38,903, so 07-18 is a corrupted reading, not a real peak. 07-17 ($40,300) is likewise excluded (self-flagged ~12% gap). See ledger.csv's new value_trust column."
+    "beta": 1.608,
+    "usdinr": 96.2425
   },
   "holdings": [
     {
-      "ticker": "SNDK",
-      "qty": 3.008131251,
-      "weight_pct": 13.271
-    },
-    {
-      "ticker": "DRAM",
-      "qty": 50,
-      "weight_pct": 7.962
-    },
-    {
-      "ticker": "NVDA",
-      "qty": 12,
-      "weight_pct": 7.008
+      "ticker": "QCOM",
+      "qty": 6.000761904,
+      "weight_pct": 4.7631
     },
     {
       "ticker": "TSM",
-      "qty": 6,
-      "weight_pct": 6.983
+      "qty": 3,
+      "weight_pct": 5.4446
     },
     {
-      "ticker": "MU",
-      "qty": 2.000365376,
-      "weight_pct": 5.494
-    },
-    {
-      "ticker": "ASML",
-      "qty": 1.000001151,
-      "weight_pct": 5.037
-    },
-    {
-      "ticker": "EWY",
-      "qty": 10,
-      "weight_pct": 4.775
-    },
-    {
-      "ticker": "CLS",
-      "qty": 5.003266352,
-      "weight_pct": 4.723
-    },
-    {
-      "ticker": "LRCX",
-      "qty": 5,
-      "weight_pct": 4.46
-    },
-    {
-      "ticker": "GLW",
-      "qty": 10,
-      "weight_pct": 4.368
+      "ticker": "SNDK",
+      "qty": 1.008131251,
+      "weight_pct": 7.7809
     },
     {
       "ticker": "VRT",
       "qty": 5,
-      "weight_pct": 4.247
-    },
-    {
-      "ticker": "MRVL",
-      "qty": 7,
-      "weight_pct": 4.074
-    },
-    {
-      "ticker": "GEV",
-      "qty": 1.394950742,
-      "weight_pct": 4.037
-    },
-    {
-      "ticker": "NBIS",
-      "qty": 6,
-      "weight_pct": 3.773
-    },
-    {
-      "ticker": "TER",
-      "qty": 3.002730188,
-      "weight_pct": 3.121
-    },
-    {
-      "ticker": "QCOM",
-      "qty": 6.000761904,
-      "weight_pct": 2.885
-    },
-    {
-      "ticker": "IREN",
-      "qty": 25,
-      "weight_pct": 2.856
-    },
-    {
-      "ticker": "COHR",
-      "qty": 3,
-      "weight_pct": 2.617
-    },
-    {
-      "ticker": "AVGO",
-      "qty": 2,
-      "weight_pct": 2.189
-    },
-    {
-      "ticker": "ARM",
-      "qty": 2,
-      "weight_pct": 1.611
-    },
-    {
-      "ticker": "CIEN",
-      "qty": 1.388528082,
-      "weight_pct": 1.585
+      "weight_pct": 6.7268
     },
     {
       "ticker": "AMD",
       "qty": 1,
-      "weight_pct": 1.533
+      "weight_pct": 2.2707
     },
     {
-      "ticker": "ORCL",
-      "qty": 4,
-      "weight_pct": 1.378
+      "ticker": "ASML",
+      "qty": 1.000001151,
+      "weight_pct": 7.4938
+    },
+    {
+      "ticker": "CLS",
+      "qty": 3.003266352,
+      "weight_pct": 4.4254
+    },
+    {
+      "ticker": "GEV",
+      "qty": 1.394950742,
+      "weight_pct": 6.2298
+    },
+    {
+      "ticker": "LRCX",
+      "qty": 3,
+      "weight_pct": 4.4006
+    },
+    {
+      "ticker": "ARM",
+      "qty": 2,
+      "weight_pct": 2.7235
+    },
+    {
+      "ticker": "MU",
+      "qty": 1.000365376,
+      "weight_pct": 4.1202
+    },
+    {
+      "ticker": "EWY",
+      "qty": 10,
+      "weight_pct": 7.6734
+    },
+    {
+      "ticker": "COHR",
+      "qty": 3,
+      "weight_pct": 4.0775
     },
     {
       "ticker": "AMAT",
       "qty": 0.0091785,
-      "weight_pct": 0.015
+      "weight_pct": 0.0224
+    },
+    {
+      "ticker": "ORCL",
+      "qty": 4,
+      "weight_pct": 2.396
+    },
+    {
+      "ticker": "NVDA",
+      "qty": 12,
+      "weight_pct": 10.1067
+    },
+    {
+      "ticker": "AVGO",
+      "qty": 2,
+      "weight_pct": 3.3319
+    },
+    {
+      "ticker": "TER",
+      "qty": 1.002730188,
+      "weight_pct": 1.5108
+    },
+    {
+      "ticker": "DRAM",
+      "qty": 25,
+      "weight_pct": 6.6828
+    },
+    {
+      "ticker": "MRVL",
+      "qty": 7,
+      "weight_pct": 7.0728
+    },
+    {
+      "ticker": "CIEN",
+      "qty": 0.388528082,
+      "weight_pct": 0.7461
     }
   ],
-  "news_watermark": "2026-07-24",
+  "news_watermark": "2026-07-27",
   "thesis": {
     "NVDA": "Core AI GPU/accelerator platform leadership | strengthening",
     "ASML": "Sole-source EUV lithography gating leading-edge fab capacity | strengthening",
-    "GLW": "Optical fiber/connectivity for datacenter interconnect buildout | strengthening",
-    "GEV": "Grid/power-gen equipment for AI datacenter electrification; position further added (1.00sh -> 1.395sh, +$394 from wallet cash) | watch",
+    "GEV": "Grid/power-gen equipment for AI datacenter electrification; Q2 rev +22%, raised guidance, $11B grid capex | strengthening",
     "CLS": "EMS/contract manufacturer building Broadcom/OpenAI custom AI ASICs (Jalapeno) + AI server hardware | strengthening",
-    "DRAM": "Thematic ETF for concentrated memory (DRAM/NAND) AI demand | intact",
+    "DRAM": "Thematic ETF for concentrated memory (DRAM/NAND) AI demand -- same HBM3E ASP tension as MU | watch",
     "VRT": "Thermal/power management (cooling, UPS) for AI datacenters | strengthening",
     "AVGO": "Custom AI ASICs (XPUs) and networking silicon for hyperscalers | strengthening",
     "MRVL": "Custom AI silicon and optical interconnect for hyperscalers | watch",
@@ -170,13 +151,11 @@
     "LRCX": "Semicap wafer fab equipment geared to leading-edge and memory capex | strengthening",
     "TER": "Semicap automated test equipment geared to AI chip test volume | strengthening",
     "TSM": "Foundry monopoly manufacturing leading-edge AI chips | strengthening",
-    "MU": "Memory (DRAM/HBM), real re-buy after dust period | strengthening",
+    "MU": "Memory (DRAM/HBM) -- HBM3E ASP -51% peak-to-current, DDR5 now more profitable, but 2027 forecast +80-150% suggests trough not break | watch",
     "SNDK": "AI NAND/enterprise-SSD supercycle bet -- fundamentals intact but severe peer-laggard vs SMH | watch",
     "AMAT": "Semicap deposition/etch equipment for AI chip fabs (position cut to dust, 0.012% weight -- sizing only, thesis unaffected) | strengthening",
-    "NBIS": "Emerging AI-cloud/neocloud GPU-as-a-service infrastructure | watch",
     "COHR": "Photonics/optical components for datacenter interconnect | strengthening",
     "ARM": "Chip architecture/IP licensing powering most AI silicon | watch",
-    "IREN": "Bitcoin-mining infra pivoted to AI/GPU cloud -- $2.8B new AI cloud contracts, revenue guide raised | strengthening",
     "AMD": "GPU/CPU compute silicon, direct AI-accelerator competitor to NVDA | strengthening",
     "ORCL": "Oracle Cloud Infrastructure -- hyperscaler cloud/AI-capex beneficiary | watch"
   },
@@ -195,86 +174,96 @@
     "MRVL": "AI Networking/Optics",
     "AVGO": "AI Networking/Optics",
     "CIEN": "AI Networking/Optics",
-    "GLW": "AI Networking/Optics",
     "CLS": "Compute/Hyperscaler OEM",
     "GEV": "AI Power/Cooling/DC Infra",
     "VRT": "AI Power/Cooling/DC Infra",
-    "NBIS": "Compute/Hyperscaler OEM",
     "AMD": "AI Semis/Fabs",
     "ORCL": "Compute/Hyperscaler",
     "COHR": "AI Networking/Optics",
-    "ARM": "AI Semis/Fabs",
-    "IREN": "Compute/Hyperscaler"
+    "ARM": "AI Semis/Fabs"
   },
   "signal_history": {
     "ORCL": [
       "BREAKDOWN",
-      "TARGET GAP",
+      "OVERSOLD BOUNCE",
       "PEER LAGGARD",
-      "OVERSOLD BOUNCE"
+      "STRONG DOWNTREND",
+      "TARGET GAP"
     ],
     "ASML": [
+      "PEER LEADER",
       "STRONG UPTREND",
-      "PEER LEADER"
+      "TARGET GAP"
     ],
     "SNDK": [
-      "PEER LAGGARD"
-    ],
-    "GLW": [
-      "TARGET GAP",
-      "PEER LAGGARD"
+      "PEER LAGGARD",
+      "STRONG DOWNTREND"
     ],
     "TSM": [
       "TARGET GAP"
     ],
     "MU": [
+      "PEER LAGGARD",
+      "STRONG DOWNTREND",
       "TARGET GAP"
     ],
     "LRCX": [
-      "PEER LAGGARD"
-    ],
-    "MRVL": [
-      "TARGET GAP",
-      "PEER LAGGARD"
-    ],
-    "CIEN": [
-      "TARGET GAP",
-      "INSIDER ACTIVITY"
-    ],
-    "VRT": [
+      "PEER LAGGARD",
+      "STRONG DOWNTREND",
       "TARGET GAP"
     ],
-    "AMAT": [],
-    "TER": [],
+    "MRVL": [
+      "PEER LAGGARD",
+      "STRONG DOWNTREND",
+      "TARGET GAP"
+    ],
+    "CIEN": [
+      "INSIDER ACTIVITY",
+      "STRONG DOWNTREND",
+      "TARGET GAP"
+    ],
+    "VRT": [
+      "PEER LAGGARD",
+      "STRONG DOWNTREND",
+      "TARGET GAP"
+    ],
+    "AMAT": [
+      "STRONG DOWNTREND"
+    ],
+    "TER": [
+      "PEER LAGGARD",
+      "STRONG DOWNTREND",
+      "TARGET GAP"
+    ],
     "AMD": [
       "STRONG UPTREND",
       "PEER LEADER"
     ],
     "STM": [],
     "COHR": [
-      "TARGET GAP",
-      "PEER LAGGARD"
+      "PEER LAGGARD",
+      "STRONG DOWNTREND",
+      "TARGET GAP"
     ],
     "LITE": [
       "TARGET GAP"
     ],
     "ARM": [
-      "PEER LAGGARD"
+      "PEER LAGGARD",
+      "STRONG DOWNTREND"
     ],
     "DRAM": [
-      "PEER LAGGARD"
+      "PEER LAGGARD",
+      "STRONG DOWNTREND"
     ],
     "NVDA": [
-      "TARGET GAP",
-      "PEER LEADER"
+      "NEW TAILWINDS",
+      "PEER LEADER",
+      "TARGET GAP"
     ],
     "AVGO": [
       "TARGET GAP",
       "PEER LEADER"
-    ],
-    "IREN": [
-      "TARGET GAP",
-      "PEER LAGGARD"
     ],
     "GEV": [
       "TARGET GAP",
@@ -284,10 +273,9 @@
     "QCOM": [
       "TARGET GAP"
     ],
-    "NBIS": [
-      "PEER LAGGARD"
-    ],
     "CLS": [
+      "PEER LAGGARD",
+      "STRONG DOWNTREND",
       "TARGET GAP"
     ],
     "META": [
@@ -301,14 +289,12 @@
       "OVERSOLD BOUNCE",
       "TARGET GAP"
     ],
-    "EWY": []
+    "EWY": [
+      "PEER LAGGARD",
+      "STRONG DOWNTREND"
+    ]
   },
   "open_flags": [
-    {
-      "ticker": "SNDK",
-      "flag": "Confirmed BREACH of 12% single-position cap (13.271%, +1.271pt) and largest driver of AI Memory/Storage cluster breach (31.502% vs [15,25]% band). Strategist proposes ~$1,000 trim (proposal 1, 2026-07-24). SNDK price ref used was last-confirmed 07-22 print, not a fresh quote -- confirm before acting (prior stale-price false-breach incident on this exact name, 07-18).",
-      "opened": "2026-07-14"
-    },
     {
       "ticker": "CIEN",
       "flag": "Confirmed fresh insider activity (CEO+3 execs, filed 7/17); position trimmed 59% 2026-07-22 as risk management. Remains WATCH.",
@@ -316,13 +302,8 @@
     },
     {
       "ticker": "ORCL",
-      "flag": "Fresh OVERSOLD BOUNCE 2026-07-24 off a real $7B DoD contract, but standing BREAKDOWN/debt-headwind flags persist. Strategist verdict: hold, no action -- bounce doesn't yet offset headwinds, position is tiny (1.192%) so not a trim or add candidate. NOTE: two prior open proposals (07-22, 07-23) recommended 'Exit ORCL (full remaining stake)' but ORCL is still held at 4sh -- unresolved inconsistency between prior and current strategist reads, flagged for user attention.",
+      "flag": "Thesis now BROKEN (strategist verdict, 2026-07-27): 7/24 oversold bounce off the $7B DoD contract failed, price continued lower 7/25; standing debt-headwind/breakdown thesis confirmed. Strategist proposes full exit -- this is the THIRD open proposal recommending exit (07-22, 07-23, 07-27) with ORCL still held at 4sh. Flag user attention to this repeated-but-unactioned proposal.",
       "opened": "2026-07-17"
-    },
-    {
-      "ticker": "MASS-EXIT-2026-07-24",
-      "flag": "5 positions (LITE, META, GOOG, BABA, STM) fully exited and 2 positions (AMD, QCOM) heavily trimmed in a single day -- the largest flow event in this book's tracked history. Confirmed real (not a feed glitch) via wallet-cash reconciliation: wallet rose $36.14->$5,656.86, matching estimated sold-share proceeds (~$5,600-5,700) within a few dollars. STM's exit coincides with an -18.67% intraday crash (likely earnings, unconfirmed by name -- sub-agents' news pulls topped out pre-print). GOOG's -6.89% drop also unexplained by any news pulled this run. User should verify these trades match intent at their next login, especially STM/GOOG given no confirming news.",
-      "opened": "2026-07-24"
     }
   ],
   "data_cache": {
@@ -458,7 +439,10 @@
       "GEV": {
         "value": 0.935,
         "as_of": "2026-07-20"
-      }
+      },
+      "SNDK": 2.566,
+      "DRAM": 2.202,
+      "ARM": 1.756
     },
     "benchmark_betas": {
       "SPX": {
@@ -488,11 +472,6 @@
         "confirmed": true,
         "source": "macro-desk"
       },
-      "GLW": {
-        "date": "2026-07-28",
-        "confirmed": true,
-        "source": "news"
-      },
       "TER": {
         "date": "2026-07-28",
         "confirmed": true,
@@ -500,6 +479,11 @@
       },
       "QCOM": {
         "date": "2026-07-29",
+        "confirmed": true,
+        "source": "news"
+      },
+      "AAPL": {
+        "date": "2026-07-30",
         "confirmed": true,
         "source": "news"
       }
@@ -510,7 +494,7 @@
   "fomc_cache": {
     "rate_pct": 3.63,
     "stance": "HAWKISH",
-    "next_check_date": "2026-07-29"
+    "next_check_date": "2026-09-17"
   },
   "us_market_holidays": [],
   "preferences": {},
@@ -541,7 +525,7 @@
       "description": "data_cache.betas empty for SNDK/DRAM/IREN/ARM (25.7% of book) -- defaults to 1.0, flagged in data_quality. 2026-07-26: reverted a guessed-value insertion that violated the never-estimate guardrail. Needs real 3mo-returns beta vs SOX (see benchmark_betas), not an estimate.",
       "opened": "2026-07-20",
       "owner": "orchestrator (smith-book, real computation only)",
-      "status": "open -- reverted a guessed-value shortcut 2026-07-26"
+      "status": "resolved 2026-07-27 -- real betas computed via 15-week SMH regression: SNDK 2.566, DRAM 2.202, ARM 1.756 (ARM corr only 0.603, noisier)"
     },
     {
       "id": "G17",
@@ -587,85 +571,83 @@
     }
   ],
   "sentiment": {
-    "score": 64.3,
+    "score": 66.7,
     "band": "greed",
     "components": {
       "vix": 71.5,
-      "ma125": 50,
-      "rsi14": 50,
-      "pct_off_52w_high": 100.0,
+      "ma125": 70.0,
+      "rsi14": 50.9,
+      "pct_off_52w_high": 91.1,
       "yield_trend": 50.0
     },
-    "action_hint": null,
-    "prior_band": "greed",
-    "note": "proxy composite, not CNN's Fear & Greed Index -- equal-weighted VIX-range/125dma/RSI14/52wk-high/yield-trend"
+    "action_hint": null
   },
   "diversifier_candidates": {
     "NEM": {
-      "upside_pct": 32.56,
-      "clean_diversifier": true,
-      "thesis": "Gold miner, zero AI-capex overlap",
-      "price_usd": 89.7,
-      "target_usd": 133.0
+      "price_usd": 93.19,
+      "target_usd": 133.0,
+      "upside_pct": 42.72,
+      "thesis": "Gold miner, zero AI-capex overlap, beta 0.48",
+      "clean_diversifier": true
     },
     "VST": {
-      "upside_pct": 30.35,
-      "clean_diversifier": false,
-      "thesis": "Merchant power gen, AI-load-adjacent -- not a clean diversifier despite upside",
-      "price_usd": 155.44,
-      "target_usd": 223.17
-    },
-    "DUK": {
-      "upside_pct": 9.81,
-      "clean_diversifier": true,
-      "thesis": "Regulated utility, rate-base growth",
-      "price_usd": 125.01,
-      "target_usd": 138.61
+      "price_usd": 163.38,
+      "target_usd": 223.17,
+      "upside_pct": 36.6,
+      "thesis": "Merchant power gen, AI-load-adjacent -- not a clean diversifier",
+      "clean_diversifier": false
     },
     "UNH": {
-      "upside_pct": 9.66,
-      "clean_diversifier": true,
+      "price_usd": 420.74,
+      "target_usd": 471.65,
+      "upside_pct": 12.1,
       "thesis": "Managed care rebound, no capex correlation",
-      "price_usd": 426.09,
-      "target_usd": 471.65
+      "clean_diversifier": true
     },
     "PG": {
-      "upside_pct": 8.18,
-      "clean_diversifier": true,
-      "thesis": "Staples ballast, 2.9% yield",
-      "price_usd": 149.98,
-      "target_usd": 163.35
+      "price_usd": 147.41,
+      "target_usd": 163.35,
+      "upside_pct": 10.81,
+      "thesis": "Staples ballast, 2.95% yield",
+      "clean_diversifier": true
     },
     "LLY": {
-      "upside_pct": 7.18,
-      "clean_diversifier": true,
+      "price_usd": 1196.03,
+      "target_usd": 1270.37,
+      "upside_pct": 6.22,
       "thesis": "Pharma/GLP-1, decoupled from semis",
-      "price_usd": 1179.11,
-      "target_usd": 1270.37
+      "clean_diversifier": true
+    },
+    "DUK": {
+      "price_usd": 130.52,
+      "target_usd": 138.61,
+      "upside_pct": 6.2,
+      "thesis": "Regulated utility, rate-base growth, beta 0.37",
+      "clean_diversifier": true
     },
     "KO": {
-      "upside_pct": 6.63,
-      "clean_diversifier": true,
-      "thesis": "Staples, sold off intraday -- watch for entry",
-      "price_usd": 81.56,
-      "target_usd": 87.35
-    },
-    "JNJ": {
-      "upside_pct": 6.26,
-      "clean_diversifier": true,
-      "thesis": "Diversified pharma/medtech near 52wk high",
-      "price_usd": 253.04,
-      "target_usd": 269.95
+      "price_usd": 82.25,
+      "target_usd": 87.35,
+      "upside_pct": 6.2,
+      "thesis": "Staples, near 52wk high",
+      "clean_diversifier": true
     },
     "SO": {
-      "upside_pct": 6.06,
-      "clean_diversifier": true,
-      "thesis": "Regulated SE utility, defensive, low beta 0.33",
-      "price_usd": 95.3,
-      "target_usd": 101.45
+      "price_usd": 97.25,
+      "target_usd": 101.45,
+      "upside_pct": 4.32,
+      "thesis": "Regulated SE utility, defensive, beta 0.33",
+      "clean_diversifier": true
+    },
+    "JNJ": {
+      "price_usd": 263.4,
+      "target_usd": 269.95,
+      "upside_pct": 2.49,
+      "thesis": "Diversified pharma/medtech, near 52wk high",
+      "clean_diversifier": true
     }
   },
-  "watchlist_scan_cursor": 60,
+  "watchlist_scan_cursor": 75,
   "data_quality": [
     "2026-07-27 ad-hoc correction: cash was $18,131.51 (45.8% of book), not the stale $5,656.86 carried from 07-24 -- see G26 (undocumented flow event) and G27 (live in-progress selloff at query time).",
     "G24: 5 full exits (LITE/META/GOOG/BABA/STM) + 2 trims (AMD/QCOM) reconciled via wallet-cash math (high confidence, not hard-confirmed) -- see open_flags MASS-EXIT-2026-07-24.",
@@ -679,10 +661,6 @@
     "SNDK": {
       "peer_etf": "SMH",
       "label": "memory"
-    },
-    "GLW": {
-      "peer_etf": "SMH",
-      "label": "optical-interconnect"
     },
     "NVDA": {
       "peer_etf": "SMH",
@@ -724,10 +702,6 @@
       "peer_etf": "SMH",
       "label": "optical-interconnect"
     },
-    "NBIS": {
-      "peer_etf": "XLK",
-      "label": "AI cloud/hyperscaler"
-    },
     "AMAT": {
       "peer_etf": "SMH",
       "label": "semicap"
@@ -743,10 +717,6 @@
     "TER": {
       "peer_etf": "SMH",
       "label": "semicap"
-    },
-    "IREN": {
-      "peer_etf": "XLK",
-      "label": "AI compute/mining"
     },
     "COHR": {
       "peer_etf": "SMH",

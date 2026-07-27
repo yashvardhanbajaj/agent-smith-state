@@ -1,557 +1,155 @@
 {
- "schema_version": 1,
- "proposals": [
-  {
-   "date": "2026-07-13",
-   "action": "Trim MU to bring under 12% single-position cap",
-   "size_usd": 800,
-   "price_at_proposal": 979.3,
-   "status": "superseded_by_user_action",
-   "resized_from": {
-    "date": "2026-07-13T13:22",
-    "size_usd": 550
-   },
-   "rationale": "Cap breach (12.637% vs 12% cap) compounded by fresh bearish insider selling (EVP sold ~$33M, 7/1) and thesis at WATCH; extreme_greed sentiment (76.1) explicitly hints profit-booking on overweight/breach names. TSM's insider buying (7/7) is a bullish counter-signal that argues for trimming MU specifically, not the AI-semis sector broadly. LTCG caveat: known_gaps G1, lots.json empty.",
-   "note": "User independently sold ~4 sh of MU (qty 4.000365376 -> 0.000365376, ~$3,900-3,958 notional) on 2026-07-13 between the 15:35 and 19:23 runs -- far exceeding this $800 proposal. Position is now a dust remainder; single-position breach is resolved. Closing this line as overtaken by events, not scored as a strategist call."
-  },
-  {
-   "date": "2026-07-13",
-   "action": "Deploy into KO (diversifier tranche 1/3)",
-   "size_usd": 400,
-   "price_at_proposal": 83.49,
-   "status": "superseded_by_user_direction",
-   "resized_from": {
-    "date": "2026-07-13T13:22",
-    "action": "Deploy idle cash into non-AI-capex diversifier (NEM/AEM/NRG, exploratory)",
-    "size_usd": 350
-   },
-   "rationale": "Cash 12.45% near top of band + AI-capex combined factor CONFIRMED BREACHED at 94.23% vs 90% cap (ticker-mapping bug fixed and independently verified). KO is the only clean diversifier bench candidate with a confirmed analyst target (+3.46% upside).",
-   "note": "User redirected 19:23 same-day: wants cash redeployed within existing/recently-exited book (today's exits were SL trades), not new diversifier names. Withdrawn in favor of in-book redeployment tranche below."
-  },
-  {
-   "date": "2026-07-13",
-   "action": "Deploy into NEM (diversifier tranche 2/3)",
-   "size_usd": 350,
-   "price_at_proposal": 95.29,
-   "status": "closed_overtaken_by_events",
-   "rationale": "Same cash/AI-capex-breach rationale as the KO leg. NEM is -29% off its 52-week high with 22 buy/1 sell analyst coverage -- a direct, liquid hedge against the live Iran/Hormuz-driven oil shock (oil +5%) already moving markets.",
-   "note": "Reaffirmed 2026-07-14 quick sweep at a slightly better live price ($93.10 vs $95.29) -- still open, size unchanged.",
-   "closure_note": "closed_overtaken_by_events -- cash situation has fully reversed since 07-13 (multiple real trades/deposits since)"
-  },
-  {
-   "date": "2026-07-13",
-   "action": "Deploy into GLD (diversifier tranche 3/3)",
-   "size_usd": 250,
-   "price_at_proposal": 377.01,
-   "status": "closed_overtaken_by_events",
-   "rationale": "Rounds out the diversifier tranche with pure gold-spot beta (no single-name miner risk). Sized moderately, not fully -- scout flags today's extreme_greed reading as stale versus the live Asia risk-off wobble (KOSPI -8.95%), so this is an averaging-in tranche, not a single conviction bet into an unresolved live shock.",
-   "note": "Reaffirmed 2026-07-14 quick sweep at a slightly better live price ($367.13 vs $377.01) -- still open, size unchanged.",
-   "closure_note": "closed_overtaken_by_events -- cash situation has fully reversed since 07-13"
-  },
-  {
-   "date": "2026-07-13T19:23",
-   "action": "Deploy into KO (resized tranche, cash-band breach follow-up)",
-   "size_usd": 1600,
-   "price_at_proposal": 84.165,
-   "status": "superseded_by_user_direction",
-   "resized_from": {
-    "date": "2026-07-13T15:35",
-    "size_usd": 400
-   },
-   "rationale": "Cash breach worsened sharply after user's own MU/LRCX/AMAT/AVGO trims + MRVL/DELL/CRDO/VRT/AIA exits pushed wallet to 38.57% of book (vs [3,15]% band, $8,124 over the 15% ceiling). KO is up +0.81% today while the AI-capex chain sells off broadly on live Iran/Hormuz escalation (SOX -3.40%, DRAM -8.63%) -- proving its diversification value in real time, not just on a confirmed +3.46% analyst target. Sized as a first (partial) tranche, not the full excess -- war risk is unresolved.",
-   "note": "User redirected 19:23 same-day: wants cash redeployed within existing/recently-exited book (today's exits were SL trades), not new diversifier names. Withdrawn in favor of in-book redeployment tranche below."
-  },
-  {
-   "date": "2026-07-13T19:23",
-   "action": "Deploy into UNH (resized tranche, cash-band breach follow-up)",
-   "size_usd": 1600,
-   "price_at_proposal": 429.67,
-   "status": "superseded_by_user_direction",
-   "rationale": "Same cash-band-breach rationale as KO. UNH up +1.19% today against a broadly red tape; confirmed analyst target +1.71% upside; healthcare has ~zero AI-capex factor correlation.",
-   "note": "User redirected 19:23 same-day: wants cash redeployed within existing/recently-exited book (today's exits were SL trades), not new diversifier names. Withdrawn in favor of in-book redeployment tranche below."
-  },
-  {
-   "date": "2026-07-13T19:23",
-   "action": "Deploy into PG (new leg, cash-band breach follow-up)",
-   "size_usd": 1200,
-   "price_at_proposal": 149.14,
-   "status": "superseded_by_user_direction",
-   "rationale": "Same cash-band-breach rationale. PG up +1.43% today, best performer of the whole diversifier bench -- consumer staples decoupling cleanly from the AI-capex selloff. No confirmed analyst target this run (FMP plan-gated, known_gaps), sized on today's relative-strength evidence instead.",
-   "note": "User redirected 19:23 same-day: wants cash redeployed within existing/recently-exited book (today's exits were SL trades), not new diversifier names. Withdrawn in favor of in-book redeployment tranche below."
-  },
-  {
-   "date": "2026-07-13T19:23",
-   "action": "Hold \u2014 no re-entry into MRVL/CRDO/VRT/DELL; no top-up on LRCX/AMAT/AVGO",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "closed_overtaken_by_events",
-   "rationale": "All are down sharply today (MRVL -6.6%, CRDO -5.7%, VRT -2.1%, DELL -1.3%, LRCX -4.8%, AMAT -3.5%, AVGO -2.1%) as part of a broad AI-capex-chain selloff driven by live US-Iran/Hormuz military escalation (WSJ: 'AI-Related Stocks Slide Across Globe'), not company-specific news. Re-entering today would be catching a falling knife mid-shock and would directly re-open the AI-capex factor-cap breach (94.23% vs 90% as of 15:35) the day's trims just improved. AMAT carries an independent bearish tell (CEO sold >$55m block, pre-dating today). Revisit only once Hormuz de-escalates and the chain stabilizes -- not on a single red day.",
-   "closure_note": "closed_overtaken_by_events -- situational 07-13T19:23 note, book unrecognizable since (VRT re-entered, MRVL/LRCX/AMAT weights all changed materially)"
-  },
-  {
-   "date": "2026-07-13T19:23",
-   "action": "Watch \u2014 no re-entry into AIA yet",
-   "size_usd": 0,
-   "price_at_proposal": 134.775,
-   "status": "closed_overtaken_by_events",
-   "rationale": "AIA is a genuine diversifier (Diversified/Regional ETF cluster, not counted toward the AI-capex cap; cluster sat under its 5% target even before today's exit), unlike the other closed names. But Asia is closest to the Hormuz energy shock and AIA is down -2.91% today -- wait for the geopolitical picture to clarify before re-adding, even though the factor-concentration logic favors it over the AI-capex names.",
-   "closure_note": "closed_overtaken_by_events -- situational 07-13T19:23 note, AIA never re-entered and is no longer a live consideration"
-  },
-  {
-   "date": "2026-07-13T19:23",
-   "action": "Hold \u2014 no allocation to NEM/GLD/B/AEM (gold complex) this tranche",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "closed_overtaken_by_events",
-   "rationale": "Gold complex is NOT acting as today's hedge (NEM -1.63%, GLD -1.74%, B -1.88%, AEM -2.36%, all red) -- likely rate-hike-risk (Fed chair testimony this week, El-Erian's 'no way this bond market can fund the markets' needs without higher yields' commentary) offsetting the war/oil-driven gold bid. KO/UNH/PG are the diversifiers actually proving out today; deprioritizing gold until it decouples from the broader risk-off tape.",
-   "closure_note": "closed_overtaken_by_events -- situational 07-13T19:23 note, superseded by this run's fresh diversifier-bench read"
-  },
-  {
-   "date": "2026-07-13T19:40",
-   "action": "Top up TSM",
-   "size_usd": 1300,
-   "price_at_proposal": 428.945,
-   "status": "executed",
-   "rationale": "Chairman/CEO + 8 SVPs bought shares 7/7 (rare bullish insider cluster, direct contrast to MU's insider selling). STRENGTHENING thesis, most resilient AI-capex-chain name today (-1.19% vs SOX -3.40%), earnings 7/16. Room to 12% single-position cap ~$1,400 -- sized within it.",
-   "note": "User bought 3 sh TSM (qty 3->6) ~$1,288 -- matches $1,300 proposal closely."
-  },
-  {
-   "date": "2026-07-13T19:40",
-   "action": "Restore LRCX to pre-trim 5 sh",
-   "size_usd": 705,
-   "price_at_proposal": 333.38,
-   "status": "executed",
-   "rationale": "Undoes today's 2-share SL trim exactly. Clean STRENGTHENING thesis, no insider flag, record Q3 + raised 2026 WFE outlook.",
-   "note": "User bought 2 sh LRCX (qty 3->5), exact restore -- ~$665, matches $705 proposal closely."
-  },
-  {
-   "date": "2026-07-13T19:40",
-   "action": "Re-enter CRDO",
-   "size_usd": 700,
-   "price_at_proposal": 243.12,
-   "status": "executed",
-   "rationale": "Clean STRENGTHENING thesis (revenue +157-206% YoY), no insider flag. Sized down vs TSM/LRCX for beta (3.20) and today's steeper drop (-5.69%).",
-   "note": "User bought 3 sh CRDO (new position) ~$731 -- matches $700 proposal closely."
-  },
-  {
-   "date": "2026-07-13T19:40",
-   "action": "Re-enter MRVL",
-   "size_usd": 600,
-   "price_at_proposal": 220.14,
-   "status": "not_taken",
-   "rationale": "STRENGTHENING thesis ($2bn Nvidia stake, S&P 500 inclusion) but two insiders sold (CFO Durn + COO Koopmans) and it fell hardest of the group today (-6.65%). Sized down for the double insider-sell flag.",
-   "note": "User did not re-enter MRVL -- consistent with it carrying the double insider-sell flag (CFO Durn + COO Koopmans). Position remains closed."
-  },
-  {
-   "date": "2026-07-13T19:40",
-   "action": "Re-enter VRT (small)",
-   "size_usd": 400,
-   "price_at_proposal": 312.14,
-   "status": "executed",
-   "rationale": "Clean STRENGTHENING thesis but Power/DC Infra cluster already at 17.82% vs 20% band ceiling -- only ~$419 of cluster headroom, sized to stay inside it.",
-   "note": "User bought 1 sh VRT (new position) ~$312 -- close to $400 proposal (smaller)."
-  },
-  {
-   "date": "2026-07-13T19:40",
-   "action": "Hold -- no top-up on AMAT/AVGO, no re-entry on MU/DELL/AIA",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "closed_overtaken_by_events",
-   "rationale": "AMAT: CEO sold ~78k sh late June, unresolved. AVGO: insider selling (director+officer) AND separate open Google customer-concentration concern (7/6) -- two independent flags. MU: insider selling + price-fixing suit + WATCH thesis, avoid regardless of SL framing. DELL: already flagged OVERBOUGHT PULLBACK before today's drop -- stacking a re-entry on top of an existing technical warning. AIA: ~48% of its own weight is TSM/Samsung/SK Hynix per constituent re-check -- not the clean diversifier the label suggests, and Asia is closest to the live Hormuz shock.",
-   "closure_note": "closed_overtaken_by_events -- situational 07-13T19:40 note, book composition has changed materially since"
-  },
-  {
-   "date": "2026-07-13T19:40",
-   "action": "Note -- AI-capex factor unchanged by this tranche",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "closed_overtaken_by_events",
-   "rationale": "Post-tranche AI-capex combined factor stays ~95-96% of invested stock value (vs 90% cap) -- this redeployment restores exposure, it does not fix concentration. Per thesis agent's own 15:35 read, even the 'Diversified' sleeve (CQQQ/AIA) is only partly diversifying; NOW is the one existing holding that's genuinely non-AI-correlated (oversold, +23.5% target gap) but carries its own unresolved AI-disruption bear thesis (WATCH) -- flagged, not included in this tranche, user's call.",
-   "closure_note": "closed_overtaken_by_events -- situational 07-13T19:40 note, AI-capex factor has since moved from ~89% to 99.3%"
-  },
-  {
-   "date": "2026-07-14",
-   "action": "Trim TSM to fund AI Semis/Fabs cluster breach + earnings event-risk",
-   "size_usd": 700,
-   "price_at_proposal": 421.58,
-   "status": "closed_overtaken_by_events",
-   "rationale": "AI Semis/Fabs cluster is 14.1pt over target (44.1% vs 30%, band [25,35]) -- caused mechanically by the ETN/ANET/DLR/VRT exits gutting the surrounding clusters, not fresh semis buying, but the cluster is still over-band regardless of cause. TSM earnings in 2 days (07-16) adds event-risk. AI-capex factor already breached at 94.3%, so proceeds get redeployed within the envelope (see VRT re-entry below) rather than parked as more idle cash. LTCG lot dates unavailable (G1) -- confirm no near-boundary lots before executing.",
-   "closure_note": "closed_overtaken_by_events -- AI Semis/Fabs is no longer breached this run (32.056% vs 30% target, breach:false), price stale, TSM's earnings already reported 07-16"
-  },
-  {
-   "date": "2026-07-14",
-   "action": "Re-enter VRT (funded by TSM trim)",
-   "size_usd": 500,
-   "price_at_proposal": 305.87,
-   "status": "executed",
-   "rationale": "Power/Infra cluster is 6.5pt under target (8.5% vs 15%, band [10,20]) after the 07-14 exit -- watchlist found +18.9% upside with uniformly positive post-exit news, and today's signals/thesis agents independently found no bearish trigger for the original exit (reads mechanical/SL-day, not thesis-driven). Net-neutral on the AI-capex factor since VRT is itself in the AI-capex chain -- fixes the Power/Infra underweight without adding fresh non-AI-capex exposure.",
-   "note": "User re-entered VRT with 3sh (~$964 notional) in the 22:10 run -- larger than the $500 proposal but directionally matches; funding came from wallet cash broadly (multiple buys this run), not a dedicated TSM trim (TSM qty unchanged at 6sh)."
-  },
-  {
-   "date": "2026-07-14",
-   "action": "Hold -- no further SNDK or EWY accumulation this run",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "closed_overtaken_by_events",
-   "rationale": "SNDK: grown to a real 7.4% position with no analyst consensus target and a -12.6% earnings-day whipsaw despite a +251% revenue beat -- sizing further without a target is unanchored. EWY: WATCH-escalated after a second KOSPI drop (-8.45% today, on top of -8.95% on 07-13) yet the position kept growing 6->10sh through the deterioration -- flagging the pattern, not adding more until it stabilizes.",
-   "closure_note": "closed_overtaken_by_events -- superseded by this run's SNDK analysis (now largest position, cap breach) and EWY analysis (KOSPI disconnect)"
-  },
-  {
-   "date": "2026-07-14",
-   "action": "Hold -- DLR re-entry deferred, cash breach not force-cured",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "closed_overtaken_by_events",
-   "rationale": "DLR shows a mixed signal (dilutive equity raise funding an otherwise-positive acquisition) vs VRT's cleaner setup -- only VRT sized this run. Cash breach (29.77% vs [3,15]% band) is not being force-cured in one tranche: AI-capex cap already blocks bigger redeployment into the chain, and drawdown (-23.8%) sits only 1.2pt from the -25% risk-off threshold, so carrying some cash as ballast is reasonable pending a deep-mode scout run.",
-   "closure_note": "closed_overtaken_by_events -- DLR not currently held, generic 07-14 note"
-  },
-  {
-   "date": "2026-07-14T22:10",
-   "action": "Trim TER",
-   "size_usd": 350,
-   "price_at_proposal": null,
-   "status": "closed_overtaken_by_events",
-   "rationale": "Peer-laggard threshold breach (-8% vs SOXX) despite today's bounce; TARGET GAP signal conflicts; feeds AI Semis/Fabs overweight (+11.78pt over band).",
-   "closure_note": "closed_overtaken_by_events -- same stale cluster reasoning as other 07-14T22:10 trims"
-  },
-  {
-   "date": "2026-07-14T22:10",
-   "action": "Trim QCOM",
-   "size_usd": 300,
-   "price_at_proposal": null,
-   "status": "closed_overtaken_by_events",
-   "rationale": "PEER LAGGARD signal; earnings date unconfirmed (data-quality gap open since 07-12); reduces undated-print exposure inside breached Semis/Fabs cluster.",
-   "closure_note": "closed_overtaken_by_events -- same stale cluster reasoning as other 07-14T22:10 trims"
-  },
-  {
-   "date": "2026-07-14T22:10",
-   "action": "Trim MRVL",
-   "size_usd": 250,
-   "price_at_proposal": null,
-   "status": "closed_overtaken_by_events",
-   "rationale": "New position already -18.6% peer-relative laggard on day one; premature sizing inside an 11.8pt-overweight cluster; not a thesis break.",
-   "closure_note": "closed_overtaken_by_events -- same stale cluster reasoning, superseded by this run's fresh MRVL peer-laggard read"
-  },
-  {
-   "date": "2026-07-14T22:10",
-   "action": "Deploy into CIEN",
-   "size_usd": 700,
-   "price_at_proposal": null,
-   "status": "closed_overtaken_by_events",
-   "rationale": "AI Networking/Optics underweight (-5.35pt vs band) plus TARGET GAP signal; cash still breached at 19.2% vs [3,15]% band, puts idle wallet cash to work in the underweight cluster.",
-   "closure_note": "closed_overtaken_by_events -- DIRECTLY REVERSED: fresh CONFIRMED insider cluster-sale evidence (07-18) flips this to a trim candidate, see the new CIEN trim proposal this run"
-  },
-  {
-   "date": "2026-07-14T22:10",
-   "action": "Deploy into CQQQ",
-   "size_usd": 500,
-   "price_at_proposal": null,
-   "status": "closed_overtaken_by_events",
-   "rationale": "Diversified/Regional ETF underweight (-3.0pt); sits outside the AI-capex chain per thesis factor flags, chips at the 95.0% vs 90% AI-capex cap breach.",
-   "closure_note": "closed_overtaken_by_events -- position fully exited 2026-07-18, proposal is moot"
-  },
-  {
-   "date": "2026-07-15T15:42",
-   "action": "Trim SNDK ~$1,790 (to dust)",
-   "size_usd": 1790,
-   "price_at_proposal": 1842.1,
-   "status": "closed_overtaken_by_events",
-   "rationale": "Third position flip in 48 hours (real->dust->real, re-bought today). No post-watermark news catalyst; +5.01% price is technical momentum (SK Hynix Nasdaq debut) not conviction. Thesis WATCH, unstable. Trim to ease AI Memory/Storage +6.82pt breach and AI-capex +5.33pt breach.",
-   "sentiment_driver": "greed_band_no_extreme_action; reduce single-factor concentration",
-   "closure_note": "closed_overtaken_by_events -- superseded by this run's more nuanced sizing-not-thesis SNDK trim proposal (SNDK has since grown further and flipped to strengthening on real news)"
-  },
-  {
-   "date": "2026-07-15T15:42",
-   "action": "Trim NBIS ~$620 (50% reduction)",
-   "size_usd": 620,
-   "price_at_proposal": 214.32,
-   "status": "closed_overtaken_by_events",
-   "rationale": "STRONG DOWNTREND -7.8% day, -19.89% vs XLK peer, no analyst consensus (new proxy). Weakness is idiosyncratic (Meta-competition chatter), not sector-wide. Data quality red flag. De-concentrates AI-capex bet.",
-   "thesis_status": "watch",
-   "closure_note": "closed_overtaken_by_events -- 3 days stale, NBIS weight and cluster context have moved on"
-  },
-  {
-   "date": "2026-07-15T15:42",
-   "action": "Trim TSM ~$1,280 (15% of 8.49% position)",
-   "size_usd": 1280,
-   "price_at_proposal": 433.16,
-   "status": "closed_overtaken_by_events",
-   "rationale": "TSM earnings TOMORROW (2026-07-16), 8.49% position = largest single-name risk this week. Pre-emptive modest trim to derisk into volatility window; thesis intact (foundry monopoly, strengthening). Eases AI Semis/Fabs +9.27pt breach, keeps bulk exposure.",
-   "earnings_risk": "2026-07-16",
-   "closure_note": "closed_overtaken_by_events -- price and rationale both stale post-earnings (07-16) and post the Friday Taiwan-listing crash"
-  },
-  {
-   "date": "2026-07-15T15:42",
-   "action": "Deploy COHR ~$1,200 (new position, optical interconnect)",
-   "size_usd": 1200,
-   "price_at_proposal": 387.36,
-   "status": "fulfilled",
-   "rationale": "Watchlist setup TARGET GAP, 19.8% upside (analyst $387.36). Optical interconnect for AI/datacenter; fills AI Networking/Optics -6.23pt underweight. Sentiment greed band supports entry.",
-   "watchlist_source": "9-setup scan, tier-2 confidence",
-   "closure_note": "fulfilled -- COHR is now held (3 shares, 2.169% of book), consistent with this proposal's intent"
-  },
-  {
-   "date": "2026-07-15T15:42",
-   "action": "Deploy APLD ~$800 (new position, optical datacenter chips)",
-   "size_usd": 800,
-   "price_at_proposal": 45.58,
-   "status": "closed_overtaken_by_events",
-   "rationale": "Watchlist standout TARGET GAP, 61.2% upside (analyst $73.36). Applied Digital lease deals ($5.2B+$12.7B rev potential) with hyperscalers. Continues AI Networking fill.",
-   "watchlist_source": "9-setup scan, tier-1 highest-upside",
-   "closure_note": "closed_overtaken_by_events -- never acted on, cash-incompatible now (wallet is de minimis)"
-  },
-  {
-   "date": "2026-07-16T16:44",
-   "action": "Trim MRVL ~$150 (partial, same-day add caution)",
-   "size_usd": 150,
-   "price_at_proposal": 194.71,
-   "status": "closed_overtaken_by_events",
-   "rationale": "Escalating peer-laggard -18.6%->-21.4% vs SOXX since this morning's own buy; AI Semis/Fabs cluster over band top (38.12% vs 35%); LTCG check unavailable, lots.json empty (G1)",
-   "closure_note": "closed_overtaken_by_events -- same stale cluster reasoning as other MRVL trim proposals"
-  },
-  {
-   "date": "2026-07-16T16:44",
-   "action": "Defer GLW stage-in (rebound candidate)",
-   "size_usd": 0,
-   "price_at_proposal": 162.0,
-   "status": "deferred",
-   "rationale": "Rebound flagged $600 stage-in on sharpest AI-capex dip (-6.07%) but cash 0.095% vs 3-15% band leaves no dry powder; deferred pending cash rebuild"
-  },
-  {
-   "date": "2026-07-16T16:44",
-   "action": "Defer CQQQ stage-in (rebound candidate)",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "deferred",
-   "rationale": "Low-priority $300 ETF-band stage-in from rebound; same cash constraint as GLW, deferred"
-  },
-  {
-   "date": "2026-07-16T16:44",
-   "action": "Hold -- no add to today's 6 new positions (LITE/IREN/COHR/ARM/GOOG/META)",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "hold",
-   "rationale": "All bought same day, theses only seeded this run; ARM/IREN carry thesis-WATCH flags that outrank target-gap upside"
-  },
-  {
-   "date": "2026-07-16T16:44",
-   "action": "No action -- AI Power/Cooling/DC Infra gap (-12.3pt vs target)",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "hold",
-   "rationale": "Deepest cluster breach on the table but only natural vehicle VRT is on the stay-out (watch-thesis) list"
-  },
-  {
-   "date": "2026-07-16T16:44",
-   "action": "No action -- SNDK (3x-whipsaw pattern)",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "hold",
-   "rationale": "Peer-laggard -18.0% vs SMH and marginal Memory/Storage over-band, but bought today (+0.5sh) with an existing 3x-whipsaw-in-48h open_flag; declined to extend the pattern"
-  },
-  {
-   "date": "2026-07-17T13:44",
-   "action": "Defer smith-rebound stage-ins (GOOG/CLS/GLW/COHR)",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "deferred",
-   "rationale": "Cash severely breached (1.06% vs 3-15%) and AI-capex already over cap (97.77% vs 90%); ESCALATING gate, no confirmed bottom -- deploying deepens both breaches"
-  },
-  {
-   "date": "2026-07-17T13:44",
-   "action": "Defensive stance on ORCL (stop/partial trim)",
-   "size_usd": 125,
-   "price_at_proposal": null,
-   "status": "open",
-   "rationale": "Bought into a technical breakdown (pre-market at/below 52wk low) with real credit-downgrade/negative-FCF/debt-capex risk; fresh idiosyncratic risk distinct from the macro gate"
-  },
-  {
-   "date": "2026-07-17T13:44",
-   "action": "Trim STM (AI Semis/Fabs + Memory/Storage cluster overage)",
-   "size_usd": 400,
-   "price_at_proposal": null,
-   "status": "fulfilled",
-   "rationale": "Both clusters over band, AI-capex capped-out; STM already CLUSTER_FULL per rebound and a laggard per watchlist; avoid NVDA/AMD (today RS leaders)",
-   "closure_note": "fulfilled -- smith-rebound confirmed a 5-share STM trim on 2026-07-18 closely matches this proposal's size (~$400) and rationale (cluster-full/laggard); reads as the user executing this call, not an independent stop-loss"
-  },
-  {
-   "date": "2026-07-17T13:44",
-   "action": "Hold NOW, no re-add",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "hold",
-   "rationale": "Trim was routine de-risking per thesis; today +13.4% peer-RS bounce is single-day noise not a reversal signal"
-  },
-  {
-   "date": "2026-07-18",
-   "action": "Trim SNDK -- reconsider sizing given retracted cap-breach rationale",
-   "size_usd": 1500,
-   "price_at_proposal": 1842.1,
-   "status": "superseded",
-   "rationale": "CORRECTED 2026-07-18 (user-caught): the original rationale cited a 12.352% single-position cap breach -- that was WRONG, caused by a stale INDmoney per-position price. SNDK's true live-price weight is 10.482%, no cap breach. The remaining independent rationale -- severe peer-laggard (-38% vs SMH) and a third qty-flip in 48h despite a good-news thesis flip -- may still support a smaller/different trim, but the forcing ,500 sizing (tied to curing a cap breach that does not exist) needs re-evaluation, not automatic execution. Downstream VRT () and cash-rebuild () legs were funded by this trim and should be reconsidered alongside it.",
-   "note": "Anchor price 3 days stale (07-15) -- confirm live price before acting. Proceeds routed: ~$600 to VRT, ~$900 to cash rebuild. SUPERSEDED 2026-07-20: anchor price $1,842.10 was stale (pre-STALENESS-GATE); live price now $1,354.82, see 2026-07-20 SNDK trim proposal instead.",
-   "flagged_for_review": true
-  },
-  {
-   "date": "2026-07-18",
-   "action": "Trim CIEN to fund META stage-in",
-   "size_usd": 500,
-   "price_at_proposal": null,
-   "status": "open",
-   "rationale": "CONFIRMED insider cluster sale (CEO+3 execs, dated 7/15, filed 7/17, right before Friday's selloff) reverses the prior Deploy-CIEN proposal; thesis WATCH outranks pure drift."
-  },
-  {
-   "date": "2026-07-18",
-   "action": "Stage into VRT (funded by SNDK trim)",
-   "size_usd": 600,
-   "price_at_proposal": 310.0,
-   "status": "open",
-   "rationale": "AI Power/Cooling/DC Infra cluster collapsed to 3.581% vs 15% target (-11.4pt, worst cluster breach on the book); VRT is the only viable vehicle (GEV is dust); rebound flags low confidence, sized small.",
-   "note": "Anchor price 2-4 days stale -- confirm live price before acting."
-  },
-  {
-   "date": "2026-07-18",
-   "action": "Stage into META (funded by CIEN trim)",
-   "size_usd": 500,
-   "price_at_proposal": 672.54,
-   "status": "open",
-   "rationale": "Best rebound pick by peer-relative strength (+20.2% RS, book's strongest name) and thesis STRENGTHENING; Friday's -2.79% dip reads as buyable pullback not distress.",
-   "note": "Anchor price checked 07-16, 2 days stale -- confirm live price before acting."
-  },
-  {
-   "date": "2026-07-18",
-   "action": "Defer TSM/GLW/AVGO stage-ins (rebound's remaining $900) -- no funding path after SNDK/CIEN trims",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "open",
-   "rationale": "No funding path remains after the SNDK/CIEN trims above -- this is the primary and sufficient reason for all three. (This proposal originally also cited TSM Monday gap-down risk from its Taiwan listing -7.29% move; that co-rationale was a session-timing error, corrected 2026-07-18 -- TSMs actual US close was -2.77%, already fully priced. See known_gaps G13.) AI Semis/Fabs is also near its band ceiling.",
-   "note": " SUPERSEDED 2026-07-20: anchor price $1,842.10 was stale (pre-STALENESS-GATE); live price now $1,354.82, see 2026-07-20 SNDK trim proposal instead."
-  },
-  {
-   "date": "2026-07-20",
-   "action": "Trim SNDK",
-   "size_usd": 700,
-   "price_at_proposal": 1354.82,
-   "status": "open",
-   "rationale": "AI Memory/Storage cluster over band top (25.811% vs [15,25]); largest single position (10.48%) and renewed peer-laggard (-22.3% vs SMH); reduces AI-capex cap breach (99.203% vs 90%) and rebuilds near-zero cash (0.06% vs [3,15]%). LTCG unresolved, G1."
-  },
-  {
-   "date": "2026-07-20",
-   "action": "Trim AMAT",
-   "size_usd": 350,
-   "price_at_proposal": 529.66,
-   "status": "open",
-   "rationale": "Fresh STRONG DOWNTREND + INSIDER ACTIVITY + new MOMENTUM+VOLUME journal entry today outranks nominal analyst-target upside ($623.06); AI Semis/Fabs cluster at top of band (34.33%/[25,35]) with zero headroom. LTCG unresolved, G1."
-  },
-  {
-   "date": "2026-07-20",
-   "action": "Deploy into NEM",
-   "size_usd": 300,
-   "price_at_proposal": 89.7,
-   "status": "open",
-   "rationale": "Diversified/Regional ETF cluster at 0% vs 5% target -- the one cluster with zero exposure; NEM is scout's top clean diversifier (no AI-capex overlap), working against the 99.2% factor-concentration breach. Sized small, cash is the more urgent priority."
-  },
-  {
-   "date": "2026-07-20",
-   "action": "Hold -- route remaining ~$750 trim proceeds to cash, defer 2026-07-18 VRT stage-in",
-   "size_usd": 750,
-   "price_at_proposal": null,
-   "status": "open",
-   "rationale": "Cash at 0.06% vs [3,15]% band is the most severe practical breach; GOOGL earnings in 2 trading days is an explicit AI-capex-chain volatility catalyst per macro cluster_impact; hawkish Fed + rising 10yr argue against adding to the underweight but rate-sensitive Power/Cooling/DC Infra cluster right now."
-  },
-  {
-   "date": "2026-07-22",
-   "action": "Trim SNDK",
-   "size_usd": 1500,
-   "price_at_proposal": 1554.44,
-   "status": "open",
-   "rationale": "Largest position (11.45% wt) driving AI Memory/Storage cluster breach (27.158% vs 15-25% band); thesis downgraded intact->WATCH on severe peer-laggard; no analyst target computable (data gap); trim closes cluster breach and cash-floor breach together (cash 1.109% -> ~4.8%). LTCG unresolved (G1)."
-  },
-  {
-   "date": "2026-07-22",
-   "action": "Exit ORCL (full remaining stake)",
-   "size_usd": 530,
-   "price_at_proposal": 132.82,
-   "status": "open",
-   "rationale": "BREAKDOWN + fresh 21-Jul credit downgrade + new peer-laggard vs XLK (-8.5%); open defensive-stance flag (since 07-17) stays actionable; small position makes full exit cleaner than partial trim; adds to cash rebuild alongside SNDK trim."
-  },
-  {
-   "date": "2026-07-22",
-   "action": "Hold - no add to IREN despite STRENGTHENING upgrade + book's largest target gap (+49%)",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "hold",
-   "rationale": "$2.8B new AI-cloud contracts and a marginal AI Networking/Optics underweight would normally support an add, but cash is below floor (1.109% vs 3-15%) and ai_capex_pct is above cap (98.577% vs 90%); IREN is capex-chain, adding worsens both breaches. Revisit after SNDK/ORCL trims land."
-  },
-  {
-   "date": "2026-07-22",
-   "action": "Hold - no add to GEV / AI Power-Cooling-DC Infra cluster",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "hold",
-   "rationale": "Largest cluster underweight in the book (-8.674pt) and GEV just reconfirmed STRENGTHENING (rebuilt from dust), but GEV is capex-chain and cash/capex caps are both breached; BABA is the book's only non-AI-capex-chain name, so this underweight is a symptom of concentration, not a fundable opportunity right now."
-  },
-  {
-   "date": "2026-07-22",
-   "action": "Flag BABA cluster for confirmation, no size change",
-   "size_usd": 0,
-   "price_at_proposal": 115.97,
-   "status": "hold",
-   "rationale": "Only non-AI-capex-chain name in book (1.42% wt), OVERSOLD BOUNCE + TARGET GAP + PEER LEADER signals, shows as Unclassified pending user confirmation of new 'China Consumer/Cloud' cluster (G11); logical destination for future fresh cash but not sized this run given cash constraint and recency of purchase."
-  },
-  {
-   "date": "2026-07-23",
-   "action": "Trim SNDK",
-   "size_usd": 1500,
-   "price_at_proposal": 1605.38,
-   "status": "open",
-   "rationale": "Restates 2026-07-22's open proposal. Largest position (11.44% wt), sole driver of AI Memory/Storage cluster breach (27.01% vs 20% target); renewed peer-laggard; funds cash floor and reduces ai_capex breach. LTCG unresolved (G1)."
-  },
-  {
-   "date": "2026-07-23",
-   "action": "Exit ORCL (full remaining stake)",
-   "size_usd": 530,
-   "price_at_proposal": 125.03,
-   "status": "open",
-   "rationale": "Restates 2026-07-22's open proposal. BREAKDOWN persists, fresh credit downgrade, peer-laggard vs XLK. Adds to cash rebuild alongside SNDK trim."
-  },
-  {
-   "date": "2026-07-23",
-   "action": "Hold - no further GEV add",
-   "size_usd": 0,
-   "price_at_proposal": 984.94,
-   "status": "hold",
-   "rationale": "User bought more GEV today ($394, wallet-funded) same day thesis downgraded strengthening->watch on Q2 EPS miss. Declining smith-rebound's $500 stage-in suggestion on thesis-timing grounds, independent of cash constraint."
-  },
-  {
-   "date": "2026-07-23",
-   "action": "Stage into VRT (contingent on SNDK/ORCL trims clearing cash floor first)",
-   "size_usd": 500,
-   "price_at_proposal": 303.07,
-   "status": "hold",
-   "rationale": "Worst cluster breach on the book (AI Power/Cooling/DC Infra, -8.07pt) with GEV ruled out as the fix; VRT at smith-rebound's flagged support ($300.45); only bench name the ~$808 post-floor cash can cover."
-  },
-  {
-   "date": "2026-07-23",
-   "action": "Defer LITE/COHR/META stage-ins - no funding path this run",
-   "size_usd": 0,
-   "price_at_proposal": null,
-   "status": "hold",
-   "rationale": "smith-rebound flagged all three as valid macro-driven dip-buys but there's no cash left after proposals 1-2-4. Not rejected, revisit once more cash is freed."
+  "schema_version": 1,
+  "proposals": [
+    {
+      "date": "2026-07-13T19:40",
+      "action": "Top up TSM",
+      "size_usd": 1300,
+      "price_at_proposal": 428.945,
+      "status": "executed",
+      "rationale": "Chairman/CEO + 8 SVPs bought shares 7/7 (rare bullish insider cluster, direct contrast to MU's insider selling). STRENGTHENING thesis, most resilient AI-capex-chain name today (-1.19% vs SOX -3.40%), earnings 7/16. Room to 12% single-position cap ~$1,400 -- sized within it.",
+      "note": "User bought 3 sh TSM (qty 3->6) ~$1,288 -- matches $1,300 proposal closely."
+    },
+    {
+      "date": "2026-07-13T19:40",
+      "action": "Restore LRCX to pre-trim 5 sh",
+      "size_usd": 705,
+      "price_at_proposal": 333.38,
+      "status": "executed",
+      "rationale": "Undoes today's 2-share SL trim exactly. Clean STRENGTHENING thesis, no insider flag, record Q3 + raised 2026 WFE outlook.",
+      "note": "User bought 2 sh LRCX (qty 3->5), exact restore -- ~$665, matches $705 proposal closely."
+    },
+    {
+      "date": "2026-07-13T19:40",
+      "action": "Re-enter CRDO",
+      "size_usd": 700,
+      "price_at_proposal": 243.12,
+      "status": "executed",
+      "rationale": "Clean STRENGTHENING thesis (revenue +157-206% YoY), no insider flag. Sized down vs TSM/LRCX for beta (3.20) and today's steeper drop (-5.69%).",
+      "note": "User bought 3 sh CRDO (new position) ~$731 -- matches $700 proposal closely."
+    },
+    {
+      "date": "2026-07-13T19:40",
+      "action": "Re-enter VRT (small)",
+      "size_usd": 400,
+      "price_at_proposal": 312.14,
+      "status": "executed",
+      "rationale": "Clean STRENGTHENING thesis but Power/DC Infra cluster already at 17.82% vs 20% band ceiling -- only ~$419 of cluster headroom, sized to stay inside it.",
+      "note": "User bought 1 sh VRT (new position) ~$312 -- close to $400 proposal (smaller)."
+    },
+    {
+      "date": "2026-07-14",
+      "action": "Re-enter VRT (funded by TSM trim)",
+      "size_usd": 500,
+      "price_at_proposal": 305.87,
+      "status": "executed",
+      "rationale": "Power/Infra cluster is 6.5pt under target (8.5% vs 15%, band [10,20]) after the 07-14 exit -- watchlist found +18.9% upside with uniformly positive post-exit news, and today's signals/thesis agents independently found no bearish trigger for the original exit (reads mechanical/SL-day, not thesis-driven). Net-neutral on the AI-capex factor since VRT is itself in the AI-capex chain -- fixes the Power/Infra underweight without adding fresh non-AI-capex exposure.",
+      "note": "User re-entered VRT with 3sh (~$964 notional) in the 22:10 run -- larger than the $500 proposal but directionally matches; funding came from wallet cash broadly (multiple buys this run), not a dedicated TSM trim (TSM qty unchanged at 6sh)."
+    },
+    {
+      "date": "2026-07-15T15:42",
+      "action": "Deploy COHR ~$1,200 (new position, optical interconnect)",
+      "size_usd": 1200,
+      "price_at_proposal": 387.36,
+      "status": "fulfilled",
+      "rationale": "Watchlist setup TARGET GAP, 19.8% upside (analyst $387.36). Optical interconnect for AI/datacenter; fills AI Networking/Optics -6.23pt underweight. Sentiment greed band supports entry.",
+      "watchlist_source": "9-setup scan, tier-2 confidence",
+      "closure_note": "fulfilled -- COHR is now held (3 shares, 2.169% of book), consistent with this proposal's intent"
+    },
+    {
+      "date": "2026-07-16T16:44",
+      "action": "Defer GLW stage-in (rebound candidate)",
+      "size_usd": 0,
+      "price_at_proposal": 162.0,
+      "status": "deferred",
+      "rationale": "Rebound flagged $600 stage-in on sharpest AI-capex dip (-6.07%) but cash 0.095% vs 3-15% band leaves no dry powder; deferred pending cash rebuild"
+    },
+    {
+      "date": "2026-07-16T16:44",
+      "action": "Defer CQQQ stage-in (rebound candidate)",
+      "size_usd": 0,
+      "price_at_proposal": null,
+      "status": "deferred",
+      "rationale": "Low-priority $300 ETF-band stage-in from rebound; same cash constraint as GLW, deferred"
+    },
+    {
+      "date": "2026-07-17T13:44",
+      "action": "Defer smith-rebound stage-ins (GOOG/CLS/GLW/COHR)",
+      "size_usd": 0,
+      "price_at_proposal": null,
+      "status": "deferred",
+      "rationale": "Cash severely breached (1.06% vs 3-15%) and AI-capex already over cap (97.77% vs 90%); ESCALATING gate, no confirmed bottom -- deploying deepens both breaches"
+    },
+    {
+      "date": "2026-07-17T13:44",
+      "action": "Trim STM (AI Semis/Fabs + Memory/Storage cluster overage)",
+      "size_usd": 400,
+      "price_at_proposal": null,
+      "status": "fulfilled",
+      "rationale": "Both clusters over band, AI-capex capped-out; STM already CLUSTER_FULL per rebound and a laggard per watchlist; avoid NVDA/AMD (today RS leaders)",
+      "closure_note": "fulfilled -- smith-rebound confirmed a 5-share STM trim on 2026-07-18 closely matches this proposal's size (~$400) and rationale (cluster-full/laggard); reads as the user executing this call, not an independent stop-loss"
+    },
+    {
+      "date": "2026-07-20",
+      "action": "Deploy into NEM",
+      "size_usd": 300,
+      "price_at_proposal": 89.7,
+      "status": "open",
+      "rationale": "Diversified/Regional ETF cluster at 0% vs 5% target -- the one cluster with zero exposure; NEM is scout's top clean diversifier (no AI-capex overlap), working against the 99.2% factor-concentration breach. Sized small, cash is the more urgent priority."
+    },
+    {
+      "date": "2026-07-27T10:09:00+05:30",
+      "action": "Trim MRVL",
+      "size_usd": 300,
+      "price_at_proposal": null,
+      "status": "open",
+      "rationale": "AI Semis/Fabs cluster +8.7pt over band; MRVL STRONG DOWNTREND, named worst-laggard, no earnings-proximity buffer unlike LRCX/TER/QCOM."
+    },
+    {
+      "date": "2026-07-27T10:09:00+05:30",
+      "action": "Deploy into GOOG",
+      "size_usd": 700,
+      "price_at_proposal": null,
+      "status": "open",
+      "rationale": "Cash 46.09% vs 15% ceiling; Compute/Hyperscaler cluster -7.6pt underweight; GOOG target-gap 24.35%; sized small ahead of 07-29 FOMC+earnings convergence."
+    },
+    {
+      "date": "2026-07-27T10:09:00+05:30",
+      "action": "Exit ORCL (full remaining stake)",
+      "size_usd": null,
+      "price_at_proposal": null,
+      "status": "open",
+      "rationale": "Thesis BROKEN -- 7/24 oversold bounce off $7B DoD contract failed, stock continued lower 7/25; standing debt-headwind/breakdown thesis confirmed, not reversed. NOTE: two prior open proposals (07-22, 07-23) already recommended this exact exit and were never actioned -- ORCL still held at 4sh."
+    },
+    {
+      "date": "2026-07-27T10:09:00+05:30",
+      "action": "Deploy into NEM",
+      "size_usd": 400,
+      "price_at_proposal": null,
+      "status": "open",
+      "rationale": "Clean diversifier, beta 0.48, zero AI-capex overlap, 42.72% upside; addresses 100%-AI-capex single-factor risk independent of FOMC timing; sentiment greed (not extreme) so partial not full redeployment."
+    },
+    {
+      "date": "2026-07-27T10:09:00+05:30",
+      "action": "Hold MU, no add",
+      "size_usd": 0,
+      "price_at_proposal": null,
+      "status": "open",
+      "rationale": "Thesis WATCH not broken -- HBM3E ASP margin-mix headwind unresolved until Aug 5 earnings; 38.9% target gap real but WATCH names not added to regardless of upside gap."
+    }
+  ],
+  "retracted": [
+    {
+      "date": "2026-07-13",
+      "action": "Verify MEM ticker identity against brokerage statement",
+      "status": "resolved",
+      "note": "User confirmed same-day: the Roundhill Memory ETF holding's correct ticker is DRAM, not MEM. MEM (\"Matthews Emerging Markets Equity Active ETF\") was an orchestrator snapshot-build error, not an INDmoney data issue. No brokerage-statement check needed. State corrected in place."
+    }
+  ],
+  "scorecard": {
+    "trim_accuracy_30d": null,
+    "add_accuracy_30d": null,
+    "overall_accuracy_30d": null,
+    "note": "Oldest open proposal (2026-07-13) is 5 days old -- still short of the 30d scoring mark (~2026-08-12 for the earliest cohort). 2026-07-18 deep review: did a full stale-proposal pass, closed 20 as overtaken by events, marked 2 as fulfilled (STM trim, COHR deploy -- both match real user trades), added 5 new coordinated proposals reflecting the funding-constrained reality (near-zero cash). 2026-07-20 deep review: added 4 new proposals (SNDK/AMAT trims, NEM deploy, cash-hold), reconciled 1 stale SNDK price anchor from 07-18 as superseded. Still zero proposals in the 30d/90d scoring window (earliest cohort ~2026-08-12). 2026-07-22 quick sweep: added 5 new proposals (SNDK trim, ORCL exit, IREN/GEV holds, BABA cluster flag). Still zero proposals in the 30d/90d scoring window. 2026-07-23 quick sweep: restated SNDK/ORCL as prerequisites for smith-rebound's stage-in bench; added VRT stage-in (funded) and GEV hold (thesis-timing) plus 3 deferred rebound names. Still zero proposals in the 30d/90d scoring window. 2026-07-25 cash-position review: reconciled proposal backlog -- marked 8 stale/overtaken proposals (repeated SNDK trims from 07-20/07-22/07-23, ORCL exit calls from 07-22/07-23, and 07-18 CIEN/VRT/META/TSM-GLW-AVGO items mooted by the 07-24 major flow event) as superseded, keeping the 07-24 SNDK/GEV/COHR/hold-cash set as the live, actionable proposals."
   }
- ],
- "retracted": [
-  {
-   "date": "2026-07-13",
-   "action": "Verify MEM ticker identity against brokerage statement",
-   "status": "resolved",
-   "note": "User confirmed same-day: the Roundhill Memory ETF holding's correct ticker is DRAM, not MEM. MEM (\"Matthews Emerging Markets Equity Active ETF\") was an orchestrator snapshot-build error, not an INDmoney data issue. No brokerage-statement check needed. State corrected in place."
-  }
- ],
- "scorecard": {
-  "trim_accuracy_30d": null,
-  "add_accuracy_30d": null,
-  "overall_accuracy_30d": null,
-  "note": "Oldest open proposal (2026-07-13) is 5 days old -- still short of the 30d scoring mark (~2026-08-12 for the earliest cohort). 2026-07-18 deep review: did a full stale-proposal pass, closed 20 as overtaken by events, marked 2 as fulfilled (STM trim, COHR deploy -- both match real user trades), added 5 new coordinated proposals reflecting the funding-constrained reality (near-zero cash). 2026-07-20 deep review: added 4 new proposals (SNDK/AMAT trims, NEM deploy, cash-hold), reconciled 1 stale SNDK price anchor from 07-18 as superseded. Still zero proposals in the 30d/90d scoring window (earliest cohort ~2026-08-12). 2026-07-22 quick sweep: added 5 new proposals (SNDK trim, ORCL exit, IREN/GEV holds, BABA cluster flag). Still zero proposals in the 30d/90d scoring window. 2026-07-23 quick sweep: restated SNDK/ORCL as prerequisites for smith-rebound's stage-in bench; added VRT stage-in (funded) and GEV hold (thesis-timing) plus 3 deferred rebound names. Still zero proposals in the 30d/90d scoring window."
- }
 }

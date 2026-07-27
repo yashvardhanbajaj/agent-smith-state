@@ -1,0 +1,40 @@
+{
+  "ts": "2026-07-27T09:55:00+05:30",
+  "usdinr": 96.552,
+  "us10y": 4.679,
+  "us10y_prev": 4.703,
+  "us10y_chg_1m_bps": 19.4,
+  "vix": 18.58,
+  "vix_prev_close": 18.7,
+  "vix_chg_pct": -0.642,
+  "vix_52w_range": [14.96, 31.52],
+  "dxy": 101.162,
+  "spx": 7411.98,
+  "spx_prev_close": 7408.3,
+  "spx_125dma": 7316.46,
+  "spx_52w_high": 7620.9,
+  "ndx": 24975.824,
+  "ndx_prev_close": 25137.7,
+  "ndx_rsi14": 53.12,
+  "es_f": 7499.25,
+  "es_f_chg_pct": 0.695,
+  "nq_f": 28621.5,
+  "nq_f_chg_pct": 1.2,
+  "international_session": {
+    "nikkei_225": {"price": 64698.9, "chg_pct": 0.136},
+    "kospi": {"price": 6611.18, "chg_pct": -1.187, "note": "EWY proxy"},
+    "taiwan_taiex": {"price": 43399.28, "chg_pct": -0.585, "note": "TSM proxy"},
+    "euro_stoxx50": {"price": 6280.94, "chg_pct": 1.14},
+    "home_listings": {
+      "ASML.AS": {"price_eur": 1563.0, "chg_pct": -1.026},
+      "2330.TW": {"price_twd": 2355.0, "chg_pct": 0.213}
+    }
+  },
+  "market_session": "pre-open",
+  "gate_classification": "STABILIZING",
+  "gate_inputs": {"vix_chg_pct": -0.642, "es_f_chg_pct": 0.695, "nq_f_chg_pct": 1.2},
+  "data_quality": [
+    "spx_125dma/ndx_rsi14/spx_52w_high/vix_52w_range computed from 17-week weekly-aggregated yfinance history (max_rows truncation returned only 17 of 53 weeks), not full 52-week daily series -- consistent with known gap G17 (smoothing approximation, not a failure); 52w high/low may understate true extremes from >4 months ago.",
+    "market_session is pre-open: current time is Sunday night ET (US Monday cash session has not opened; Globex futures active). Pre-market equity price overlay (SKILL.md 2.5) does not yet apply -- IST clock is well before the 1:30pm IST threshold."
+  ]
+}

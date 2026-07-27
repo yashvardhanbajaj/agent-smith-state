@@ -1,218 +1,184 @@
 {
   "schema_version": 1,
-  "ts": "2026-07-23T20:15:00+05:30",
-  "mode": "quick-refresher",
-  "usdinr": 96.555,
+  "ts": "2026-07-25T16:07:00+05:30",
+  "mode": "ad-hoc-correction",
+  "usdinr": 96.56,
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
-  "last_run_dir": "runs/2026-07-23-2015-refresher/",
+  "last_run_dir": "runs/2026-07-24-1811/",
   "us": {
-    "value_usd": 41748.44,
-    "count": 29,
+    "value_usd": 21460.52,
+    "count": 21,
     "top3": [
       {
-        "ticker": "SNDK",
-        "weight_pct": 11.523
-      },
-      {
-        "ticker": "DRAM",
-        "weight_pct": 6.919
-      },
-      {
         "ticker": "NVDA",
-        "weight_pct": 6.095
+        "weight_pct": 6.269
+      },
+      {
+        "ticker": "ASML",
+        "weight_pct": 4.438
+      },
+      {
+        "ticker": "EWY",
+        "weight_pct": 4.116
       }
     ],
-    "pnl_pct": 2.0297,
-    "wallet_usd": 36.14,
+    "pnl_pct": 1.858,
+    "wallet_usd": 18131.51,
     "peak_value_usd": 41887.33,
-    "beta": 1.492,
-    "value_note": "REFRESHER (20:15 IST): fresh price-only pass on unchanged book. Value $41,748.44, -0.33% (-$138.89) vs 19:07 run, within normal intraday noise -- pure market move, no flows/qty changes. See G22/G23 data_quality below."
+    "beta": null,
+    "value_note": "CORRECTION (ad-hoc, 2026-07-25 IST): user flagged cash as '>10k' vs the stale $5,656.86 carried from the 2026-07-24 18:29 IST run -- that run was captured PRE-MARKET (18:29 IST = 08:59 ET, 31min before the 09:30 ET open), so it missed the entire Friday 07-24 US session. That session saw a severe, broad AI-capex/semis selloff (weighted avg -5.06% across the 21 names still held, worst SNDK -10.79%, COHR -9.84%, CLS -8.80%, DRAM -8.75%) -- confirmed via fresh yfinance quotes (Friday close vs Thursday close), not a live-right-now move; markets are closed over the weekend. Coinciding with that session, GLW/NBIS/IREN were fully exited and SNDK/DRAM/MU/TSM/LRCX/CLS/TER/CIEN were roughly halved -- raising wallet cash from $5,656.86 to $18,131.51. Read as one event (de-risking during/into the selloff), not two unrelated ones; exact trigger (stop-loss rule vs discretionary panic-sell vs pre-planned earnings-week de-risk) is unconfirmed -- no run/ledger/journal entry captured the trade rationale (G26). Corrected total book $39,592.03 (equity $21,460.52 live-priced + wallet $18,131.51). Cash is now 45.8% of book -- a severe ceiling breach of the [3,15]% policy band, the inverse of the 07-20 floor breach. Drawdown -5.48% vs the 07-23 peak of $41,887.33 -- less severe than the pre-correction -14.878% reading, since the cash conversion partly insulated the book from Friday's rout. Beta not recomputed this pass (ad-hoc query, no full compute run) -- left null rather than carrying the stale 1.491. Next real decision point is Monday's reopen (07-27 evening IST), not an immediate live event.",
+    "beta_note": "Stated 1.491 is SPX-based and MISLEADING: it predicted +0.075% for Friday 2026-07-24 vs an actual -5.06%. Implied SOX beta from that session is 1.19. Book's true factor is SOX (3mo vol 61.4%), not SPX. Do not size positions off the SPX beta.",
+    "peak_total_book_usd": 41923.47,
+    "peak_total_book_note": "Drawdown must be measured on total book (equity+wallet), never equity alone -- an equity-only peak conflates market loss with deliberate cash conversion (the 07-24 de-risking moved $18k equity->wallet and would otherwise read as a ~49% equity 'drawdown'). Seeded 2026-07-26 from the highest TRUSTWORTHY ledger row: 2026-07-23T19:07, $41,923.47. NOT from the nominal max ($44,873.02 on 07-18) -- that row self-flags a 16.4% G3 snapshot-price gap in its own note, and 07-20 live-corrected the same unchanged book (zero flows between) down to $38,903, so 07-18 is a corrupted reading, not a real peak. 07-17 ($40,300) is likewise excluded (self-flagged ~12% gap). See ledger.csv's new value_trust column."
   },
   "holdings": [
     {
-      "ticker": "MU",
-      "qty": 2.000365376,
-      "weight_pct": 4.611
-    },
-    {
-      "ticker": "ASML",
-      "qty": 1.000001151,
-      "weight_pct": 4.301
-    },
-    {
-      "ticker": "LRCX",
-      "qty": 5,
-      "weight_pct": 3.829
+      "ticker": "SNDK",
+      "qty": 3.008131251,
+      "weight_pct": 13.271
     },
     {
       "ticker": "DRAM",
       "qty": 50,
-      "weight_pct": 6.901
-    },
-    {
-      "ticker": "AMD",
-      "qty": 2,
-      "weight_pct": 2.647
-    },
-    {
-      "ticker": "TER",
-      "qty": 3.002730188,
-      "weight_pct": 2.657
-    },
-    {
-      "ticker": "ARM",
-      "qty": 2,
-      "weight_pct": 1.361
-    },
-    {
-      "ticker": "MRVL",
-      "qty": 7,
-      "weight_pct": 3.554
-    },
-    {
-      "ticker": "GEV",
-      "qty": 1.394950742,
-      "weight_pct": 3.328
-    },
-    {
-      "ticker": "TSM",
-      "qty": 6,
-      "weight_pct": 6.033
-    },
-    {
-      "ticker": "LITE",
-      "qty": 1,
-      "weight_pct": 1.972
-    },
-    {
-      "ticker": "ORCL",
-      "qty": 4,
-      "weight_pct": 1.192
-    },
-    {
-      "ticker": "META",
-      "qty": 2,
-      "weight_pct": 2.989
-    },
-    {
-      "ticker": "AVGO",
-      "qty": 2,
-      "weight_pct": 1.895
-    },
-    {
-      "ticker": "GLW",
-      "qty": 10,
-      "weight_pct": 3.734
-    },
-    {
-      "ticker": "EWY",
-      "qty": 10,
-      "weight_pct": 4.06
-    },
-    {
-      "ticker": "BABA",
-      "qty": 5,
-      "weight_pct": 1.39
-    },
-    {
-      "ticker": "GOOG",
-      "qty": 2,
-      "weight_pct": 1.652
-    },
-    {
-      "ticker": "IREN",
-      "qty": 25,
-      "weight_pct": 2.467
+      "weight_pct": 7.962
     },
     {
       "ticker": "NVDA",
       "qty": 12,
-      "weight_pct": 6.121
+      "weight_pct": 7.008
     },
     {
-      "ticker": "COHR",
-      "qty": 3,
-      "weight_pct": 2.257
+      "ticker": "TSM",
+      "qty": 6,
+      "weight_pct": 6.983
     },
     {
-      "ticker": "CIEN",
-      "qty": 1.388528082,
-      "weight_pct": 1.336
+      "ticker": "MU",
+      "qty": 2.000365376,
+      "weight_pct": 5.494
+    },
+    {
+      "ticker": "ASML",
+      "qty": 1.000001151,
+      "weight_pct": 5.037
+    },
+    {
+      "ticker": "EWY",
+      "qty": 10,
+      "weight_pct": 4.775
     },
     {
       "ticker": "CLS",
       "qty": 5.003266352,
-      "weight_pct": 4.01
+      "weight_pct": 4.723
     },
     {
-      "ticker": "SNDK",
-      "qty": 3.008131251,
-      "weight_pct": 11.436
+      "ticker": "LRCX",
+      "qty": 5,
+      "weight_pct": 4.46
     },
     {
-      "ticker": "AMAT",
-      "qty": 0.0091785,
-      "weight_pct": 0.012
-    },
-    {
-      "ticker": "STM",
+      "ticker": "GLW",
       "qty": 10,
-      "weight_pct": 1.566
-    },
-    {
-      "ticker": "NBIS",
-      "qty": 6,
-      "weight_pct": 3.198
+      "weight_pct": 4.368
     },
     {
       "ticker": "VRT",
       "qty": 5,
-      "weight_pct": 3.607
+      "weight_pct": 4.247
+    },
+    {
+      "ticker": "MRVL",
+      "qty": 7,
+      "weight_pct": 4.074
+    },
+    {
+      "ticker": "GEV",
+      "qty": 1.394950742,
+      "weight_pct": 4.037
+    },
+    {
+      "ticker": "NBIS",
+      "qty": 6,
+      "weight_pct": 3.773
+    },
+    {
+      "ticker": "TER",
+      "qty": 3.002730188,
+      "weight_pct": 3.121
     },
     {
       "ticker": "QCOM",
-      "qty": 14.000761904,
-      "weight_pct": 5.885
+      "qty": 6.000761904,
+      "weight_pct": 2.885
+    },
+    {
+      "ticker": "IREN",
+      "qty": 25,
+      "weight_pct": 2.856
+    },
+    {
+      "ticker": "COHR",
+      "qty": 3,
+      "weight_pct": 2.617
+    },
+    {
+      "ticker": "AVGO",
+      "qty": 2,
+      "weight_pct": 2.189
+    },
+    {
+      "ticker": "ARM",
+      "qty": 2,
+      "weight_pct": 1.611
+    },
+    {
+      "ticker": "CIEN",
+      "qty": 1.388528082,
+      "weight_pct": 1.585
+    },
+    {
+      "ticker": "AMD",
+      "qty": 1,
+      "weight_pct": 1.533
+    },
+    {
+      "ticker": "ORCL",
+      "qty": 4,
+      "weight_pct": 1.378
+    },
+    {
+      "ticker": "AMAT",
+      "qty": 0.0091785,
+      "weight_pct": 0.015
     }
   ],
-  "news_watermark": "2026-07-23",
+  "news_watermark": "2026-07-24",
   "thesis": {
     "NVDA": "Core AI GPU/accelerator platform leadership | strengthening",
     "ASML": "Sole-source EUV lithography gating leading-edge fab capacity | strengthening",
     "GLW": "Optical fiber/connectivity for datacenter interconnect buildout | strengthening",
     "GEV": "Grid/power-gen equipment for AI datacenter electrification; position further added (1.00sh -> 1.395sh, +$394 from wallet cash) | watch",
-    "STM": "Diversified semis with emerging AI/datacenter power exposure | strengthening",
-    "DLR": "Datacenter REIT owning the physical AI compute real estate | EXITED 2026-07-14",
     "CLS": "EMS/contract manufacturer building Broadcom/OpenAI custom AI ASICs (Jalapeno) + AI server hardware | strengthening",
     "DRAM": "Thematic ETF for concentrated memory (DRAM/NAND) AI demand | intact",
     "VRT": "Thermal/power management (cooling, UPS) for AI datacenters | strengthening",
-    "DELL": "AI server OEM (PowerEdge) hardware pick-and-shovel | strengthening",
-    "ETN": "Electrical equipment for data-center electrification | EXITED 2026-07-14",
     "AVGO": "Custom AI ASICs (XPUs) and networking silicon for hyperscalers | strengthening",
-    "ANET": "High-speed Ethernet switching for AI/cloud datacenter networking | EXITED 2026-07-14",
     "MRVL": "Custom AI silicon and optical interconnect for hyperscalers | watch",
     "EWY": "Regional ETF, South Korea semis/memory (Samsung, SK Hynix) exposure | watch",
     "CIEN": "Optical networking gear for AI datacenter/telco backbone -- trimmed 59%, weak FY guide vs AI PoC win | watch",
     "QCOM": "Diversifying from handsets into AI/datacenter CPUs and auto | strengthening",
     "LRCX": "Semicap wafer fab equipment geared to leading-edge and memory capex | strengthening",
     "TER": "Semicap automated test equipment geared to AI chip test volume | strengthening",
-    "CRDO": "High-speed connectivity/retimers, pure-play AI networking small-cap | EXITED 2026-07-16",
     "TSM": "Foundry monopoly manufacturing leading-edge AI chips | strengthening",
-    "CQQQ": "Thematic ETF, China tech/internet diversification | EXITED 2026-07-18",
     "MU": "Memory (DRAM/HBM), real re-buy after dust period | strengthening",
     "SNDK": "AI NAND/enterprise-SSD supercycle bet -- fundamentals intact but severe peer-laggard vs SMH | watch",
     "AMAT": "Semicap deposition/etch equipment for AI chip fabs (position cut to dust, 0.012% weight -- sizing only, thesis unaffected) | strengthening",
     "NBIS": "Emerging AI-cloud/neocloud GPU-as-a-service infrastructure | watch",
-    "AIA": "Regional ETF, broad Asia-50 large caps diversification | intact",
-    "LITE": "Optical transceivers/components for AI datacenter interconnect | strengthening",
     "COHR": "Photonics/optical components for datacenter interconnect | strengthening",
     "ARM": "Chip architecture/IP licensing powering most AI silicon | watch",
     "IREN": "Bitcoin-mining infra pivoted to AI/GPU cloud -- $2.8B new AI cloud contracts, revenue guide raised | strengthening",
-    "GOOG": "Google Cloud/TPU/Gemini hyperscaler | watch",
-    "META": "Llama models + aggressive AI-capex hyperscaler | strengthening",
     "AMD": "GPU/CPU compute silicon, direct AI-accelerator competitor to NVDA | strengthening",
-    "ORCL": "Oracle Cloud Infrastructure -- hyperscaler cloud/AI-capex beneficiary | watch",
-    "BABA": "China AI/cloud recovery: Alibaba Cloud + Qwen-Apple integration, $53B AI/cloud capex pledge | watch"
+    "ORCL": "Oracle Cloud Infrastructure -- hyperscaler cloud/AI-capex beneficiary | watch"
   },
   "sector_map": {
     "NVDA": "AI Semis/Fabs",
@@ -220,47 +186,36 @@
     "LRCX": "AI Semis/Fabs",
     "AMAT": "AI Semis/Fabs",
     "TER": "AI Semis/Fabs",
-    "STM": "AI Semis/Fabs",
     "QCOM": "AI Semis/Fabs",
     "TSM": "AI Semis/Fabs",
     "MU": "AI Memory/Storage",
     "SNDK": "AI Memory/Storage",
     "EWY": "AI Memory/Storage",
     "DRAM": "AI Memory/Storage",
-    "ANET": "AI Networking/Optics",
     "MRVL": "AI Networking/Optics",
     "AVGO": "AI Networking/Optics",
     "CIEN": "AI Networking/Optics",
-    "CRDO": "AI Networking/Optics",
     "GLW": "AI Networking/Optics",
     "CLS": "Compute/Hyperscaler OEM",
     "GEV": "AI Power/Cooling/DC Infra",
     "VRT": "AI Power/Cooling/DC Infra",
-    "ETN": "AI Power/Cooling/DC Infra",
-    "DLR": "AI Power/Cooling/DC Infra",
-    "DELL": "Compute/Hyperscaler OEM",
     "NBIS": "Compute/Hyperscaler OEM",
-    "CQQQ": "Diversified/Regional ETF",
-    "AIA": "Diversified/Regional ETF",
     "AMD": "AI Semis/Fabs",
     "ORCL": "Compute/Hyperscaler",
-    "LITE": "AI Networking/Optics",
     "COHR": "AI Networking/Optics",
     "ARM": "AI Semis/Fabs",
-    "IREN": "Compute/Hyperscaler",
-    "GOOG": "Compute/Hyperscaler",
-    "META": "Compute/Hyperscaler",
-    "BABA": "China Consumer/Cloud"
+    "IREN": "Compute/Hyperscaler"
   },
   "signal_history": {
     "ORCL": [
       "BREAKDOWN",
       "TARGET GAP",
-      "PEER LAGGARD"
+      "PEER LAGGARD",
+      "OVERSOLD BOUNCE"
     ],
     "ASML": [
       "STRONG UPTREND",
-      "TARGET GAP"
+      "PEER LEADER"
     ],
     "SNDK": [
       "PEER LAGGARD"
@@ -273,8 +228,7 @@
       "TARGET GAP"
     ],
     "MU": [
-      "TARGET GAP",
-      "PEER LAGGARD"
+      "TARGET GAP"
     ],
     "LRCX": [
       "PEER LAGGARD"
@@ -288,8 +242,7 @@
       "INSIDER ACTIVITY"
     ],
     "VRT": [
-      "TARGET GAP",
-      "PEER LAGGARD"
+      "TARGET GAP"
     ],
     "AMAT": [],
     "TER": [],
@@ -308,7 +261,9 @@
     "ARM": [
       "PEER LAGGARD"
     ],
-    "DRAM": [],
+    "DRAM": [
+      "PEER LAGGARD"
+    ],
     "NVDA": [
       "TARGET GAP",
       "PEER LEADER"
@@ -323,13 +278,11 @@
     ],
     "GEV": [
       "TARGET GAP",
-      "PEER LAGGARD",
-      "MOMENTUM+VOLUME"
+      "MOMENTUM+VOLUME",
+      "STRONG UPTREND"
     ],
     "QCOM": [
-      "TARGET GAP",
-      "PEER LAGGARD",
-      "EARNINGS PROXIMITY"
+      "TARGET GAP"
     ],
     "NBIS": [
       "PEER LAGGARD"
@@ -352,29 +305,24 @@
   },
   "open_flags": [
     {
-      "ticker": "GOOG",
-      "flag": "RE-ENTERED 07-18, one day after the 07-17 exit -- no agreed explanation across agents (rotation vs distress vs simple whipsaw); fresh TARGET GAP but strategist declined to add given the flip-flop. User should look at this directly.",
-      "opened": "2026-07-17"
-    },
-    {
       "ticker": "SNDK",
-      "flag": "Largest position (11.449%, under the 12% cap). Peer-laggard persists though improved (-11.3% this run's window vs the -38% longer-lookback flag, discrepancy noted not resolved). Thesis downgraded intact->WATCH 2026-07-22. Trim proposed (~$1,500, proposal 1).",
+      "flag": "Confirmed BREACH of 12% single-position cap (13.271%, +1.271pt) and largest driver of AI Memory/Storage cluster breach (31.502% vs [15,25]% band). Strategist proposes ~$1,000 trim (proposal 1, 2026-07-24). SNDK price ref used was last-confirmed 07-22 print, not a fresh quote -- confirm before acting (prior stale-price false-breach incident on this exact name, 07-18).",
       "opened": "2026-07-14"
     },
     {
       "ticker": "CIEN",
-      "flag": "CONFIRMED fresh insider activity (CEO+3 execs, filed 7/17); position trimmed 59% (3.39->1.39sh) 2026-07-22 as risk management, not a thesis break. Remains WATCH.",
+      "flag": "Confirmed fresh insider activity (CEO+3 execs, filed 7/17); position trimmed 59% 2026-07-22 as risk management. Remains WATCH.",
       "opened": "2026-07-18"
     },
     {
       "ticker": "ORCL",
-      "flag": "Bought into a technical breakdown 07-17; NEW HEADWINDS (debt/FCF concerns) confirmed 07-18. Strategist's defensive-stance proposal stays open.",
+      "flag": "Fresh OVERSOLD BOUNCE 2026-07-24 off a real $7B DoD contract, but standing BREAKDOWN/debt-headwind flags persist. Strategist verdict: hold, no action -- bounce doesn't yet offset headwinds, position is tiny (1.192%) so not a trim or add candidate. NOTE: two prior open proposals (07-22, 07-23) recommended 'Exit ORCL (full remaining stake)' but ORCL is still held at 4sh -- unresolved inconsistency between prior and current strategist reads, flagged for user attention.",
       "opened": "2026-07-17"
     },
     {
-      "ticker": "GEV",
-      "flag": "Bought further (1.00->1.395sh, +$394 wallet-funded) the same day thesis downgraded strengthening->watch on a Q2 EPS miss (despite revenue beat + raised guidance), -7.4% same day. Strategist declines any further add regardless of cash availability -- timing call, not thesis-broken.",
-      "opened": "2026-07-23"
+      "ticker": "MASS-EXIT-2026-07-24",
+      "flag": "5 positions (LITE, META, GOOG, BABA, STM) fully exited and 2 positions (AMD, QCOM) heavily trimmed in a single day -- the largest flow event in this book's tracked history. Confirmed real (not a feed glitch) via wallet-cash reconciliation: wallet rose $36.14->$5,656.86, matching estimated sold-share proceeds (~$5,600-5,700) within a few dollars. STM's exit coincides with an -18.67% intraday crash (likely earnings, unconfirmed by name -- sub-agents' news pulls topped out pre-print). GOOG's -6.89% drop also unexplained by any news pulled this run. User should verify these trades match intent at their next login, especially STM/GOOG given no confirming news.",
+      "opened": "2026-07-24"
     }
   ],
   "data_cache": {
@@ -512,6 +460,23 @@
         "as_of": "2026-07-20"
       }
     },
+    "benchmark_betas": {
+      "SPX": {
+        "value": 1.491,
+        "as_of": "2026-07-24",
+        "note": "MISLEADING: SPX beta predicted +0.075% for Friday 07-24 vs actual -5.06%. Book is overexposed to SOX/SMH."
+      },
+      "SOX": {
+        "value": 1.19,
+        "derived_from": "Friday 07-24 session move analysis (actual -5.06% vs holdings)",
+        "verified_at": "2026-07-26",
+        "note": "PRIMARY benchmark. Book's real factor exposure."
+      },
+      "SMH": {
+        "value": 1.19,
+        "note": "Semiconductor ETF, peer benchmark for holdings. Use instead of QQQ for relative performance assessment."
+      }
+    },
     "earnings_calendar": {
       "LRCX": {
         "date": "2026-07-29",
@@ -522,6 +487,21 @@
         "date": "2026-07-22",
         "confirmed": true,
         "source": "macro-desk"
+      },
+      "GLW": {
+        "date": "2026-07-28",
+        "confirmed": true,
+        "source": "news"
+      },
+      "TER": {
+        "date": "2026-07-28",
+        "confirmed": true,
+        "source": "web"
+      },
+      "QCOM": {
+        "date": "2026-07-29",
+        "confirmed": true,
+        "source": "news"
       }
     },
     "etf_constituents": {},
@@ -544,7 +524,7 @@
     },
     {
       "id": "G3",
-      "description": "INDmoney holdings-feed staleness: networth_snapshot/networth_holdings 'live_price' field reflects last regular-session close, not current price, whenever checked before/during pre-market. PARTIAL FIX confirmed 2026-07-20 (user clarified US pre-market starts 1:30pm IST / 4am ET, a full hour before the 2:30pm IST daily scan): INDmoney's get_us_stocks_details already returns an 'ext_hr_live_price' field (extended-hours/pre-market price) in the SAME call as the stale 'live_price' -- no separate yfinance crosscheck needed. Cross-validated against FMP's batch-aftermarket-quote (bid/ask) on 5 names same day, agreement within cents. ACTION FOR ORCHESTRATOR: during market_session='pre-open' on/after 1:30pm IST, holdings.json construction (FLOW step 2) should prefer ext_hr_live_price over live_price per position -- this removes most of the staleness gap without an extra per-name yfinance call. Still open: no live premarket source identified yet for the AGGREGATE INDmoney snapshot endpoints (networth_snapshot/networth_holdings totals) -- those still lag; per-name correction via get_us_stocks_details remains the workaround until/unless a premarket-aware aggregate endpoint is found.",
+      "description": "INDmoney networth_snapshot/networth_holdings AGGREGATE totals lag the real-time price (per-name fix landed via get_us_stocks_details.ext_hr_live_price + PRE-MARKET PRICE OVERLAY in SKILL.md step 2.5, cross-validated vs FMP aftermarket quotes). Aggregate endpoint staleness remains open.",
       "opened": "2026-07-13",
       "owner": "orchestrator (STALENESS GATE)",
       "status": "open -- per-name fix IMPLEMENTED 2026-07-20 (SKILL.md step 2.5, PRE-MARKET PRICE OVERLAY); aggregate networth_snapshot/networth_holdings totals still lag, that part remains open"
@@ -557,32 +537,11 @@
       "status": "open"
     },
     {
-      "id": "G13",
-      "description": "TSM Taiwan-listing session-timing error in a proposal rationale (double-counted a move already priced into the US close)",
-      "opened": "2026-07-18",
-      "owner": "orchestrator",
-      "status": "resolved 2026-07-18"
-    },
-    {
-      "id": "G14",
-      "description": "Same-day stale INDmoney per-position price caused a false single-position-cap breach report for SNDK (12.352% vs true 10.482%)",
-      "opened": "2026-07-18",
-      "owner": "orchestrator",
-      "status": "resolved 2026-07-18, methodology folded into G3"
-    },
-    {
       "id": "G15",
-      "description": "data_cache.betas was empty -- portfolio beta defaulted to 1.0 for all 29 names. Partially resolved 2026-07-20: smith-book refreshed 25/29; SNDK/DRAM unavailable from any source; ARM/IREN computed but exceed 0-3.5 plausibility band, discarded.",
+      "description": "data_cache.betas empty for SNDK/DRAM/IREN/ARM (25.7% of book) -- defaults to 1.0, flagged in data_quality. 2026-07-26: reverted a guessed-value insertion that violated the never-estimate guardrail. Needs real 3mo-returns beta vs SOX (see benchmark_betas), not an estimate.",
       "opened": "2026-07-20",
-      "owner": "orchestrator",
-      "status": "partially resolved"
-    },
-    {
-      "id": "G16",
-      "description": "data_cache.ticker_map was empty despite all 29 names having been resolved in prior runs (persistence gap, not a resolution failure)",
-      "opened": "2026-07-20",
-      "owner": "orchestrator",
-      "status": "resolved 2026-07-20"
+      "owner": "orchestrator (smith-book, real computation only)",
+      "status": "open -- reverted a guessed-value shortcut 2026-07-26"
     },
     {
       "id": "G17",
@@ -607,43 +566,39 @@
     },
     {
       "id": "G20",
-      "description": "yfinance get_earnings_calendar returned empty on 2 attempts (7d and 20d windows) this run -- likely tool/data gap, not a zero-earnings confirmation; no held-name earnings confirmable for the 07-22 to 07-29 window Reconfirmed 2026-07-23: yfinance get_earnings_calendar returned empty again.",
+      "description": "yfinance earnings-calendar pulls have been unreliable for confirmed dates; smith-earnings agent (Tier 3.2 skeleton) recommends switching to FMP as primary source.",
       "opened": "2026-07-22",
       "owner": "smith-watchlist",
       "status": "open"
     },
     {
-      "id": "G21",
-      "description": "smith-rebound stalled twice this run (initial dispatch and retry, no progress for 600s both times) on a genuinely AMBIGUOUS-but-calm gate (VIX 17.44, marginal NQ=F breach) -- no rebound-candidate output this run, strategist proceeded without it",
-      "opened": "2026-07-22",
-      "owner": "orchestrator",
-      "status": "resolved 2026-07-23 -- smith-rebound succeeded on retry this run, produced 5 stage-in candidates"
+      "id": "G24",
+      "description": "High-confidence reconstruction (not live-verified): 07-24 cash jump traced to 5 full exits + 8 halvings coinciding with a broad AI-capex selloff; exact trigger (stop-loss/panic/planned de-risk) unconfirmed -- see G26.",
+      "opened": "2026-07-24",
+      "owner": "user (verify at next INDmoney login/statement)",
+      "status": "open -- high confidence via cash reconciliation, not a hard confirmation"
     },
     {
-      "id": "G22",
-      "description": "INDmoney networth_holdings price feed on 2026-07-23 was internally consistent (weights summed to 100%) but implied +10-20% intraday gains on ~10 names while SPX/NDX were flat/-0.3% same session -- actively wrong, not merely stale. Cross-checked all 29 names against yfinance, confirmed fabricated, discarded wholesale for the run. More severe than prior G3 entries (those were stale/lagging; this was internally-consistent but false).",
-      "opened": "2026-07-23",
-      "owner": "orchestrator (STALENESS/SANITY GATE)",
-      "status": "RECURRED 2026-07-23 20:15 refresher (19/28 names, worse than the 19:07 incident) -- workaround (yfinance) applied again; root cause still unknown, now a same-day repeat pattern"
-    },
-    {
-      "id": "G23",
-      "description": "META (2sh) present in 19:07 full sweep holdings but absent from the 20:15 refresher's networth_holdings(US_STOCK) pull, confirmed twice -- carried forward at last-known qty per GUARD rule rather than silently dropped. Not corroborated by any ledger/flow evidence of a real exit.",
-      "opened": "2026-07-23",
-      "owner": "orchestrator (GUARD check)",
-      "status": "open -- needs verification at next full sweep"
+      "id": "G26",
+      "description": "07-24 flow event (5 exits + 8 halvings, wallet $5.7k->$18.1k) had no captured trade rationale. FIXED GOING FORWARD 2026-07-26: trades.json + flow interrogation now attaches trade_reason to every qty_change (smith_math.py cmd_book). This historical instance stays UNCAPTURED.",
+      "opened": "2026-07-27 (ad-hoc discovery)",
+      "owner": "orchestrator -- needs a proper sweep to backfill the ledger gap",
+      "status": "open"
     }
   ],
   "sentiment": {
-    "score": 65.4,
+    "score": 64.3,
     "band": "greed",
     "components": {
-      "vix": 76.8,
+      "vix": 71.5,
       "ma125": 50,
       "rsi14": 50,
       "pct_off_52w_high": 100.0,
       "yield_trend": 50.0
-    }
+    },
+    "action_hint": null,
+    "prior_band": "greed",
+    "note": "proxy composite, not CNN's Fear & Greed Index -- equal-weighted VIX-range/125dma/RSI14/52wk-high/yield-trend"
   },
   "diversifier_candidates": {
     "NEM": {
@@ -710,10 +665,14 @@
       "target_usd": 101.45
     }
   },
-  "watchlist_scan_cursor": 45,
+  "watchlist_scan_cursor": 60,
   "data_quality": [
-    "G22 RECURRED same-day (20:15 refresher): fresh networth_holdings pull again diverged >3% from yfinance on 19/28 names (GLW +23.4%, CIEN +15.0%, SNDK +14.8%, ARM +14.3%, MRVL +13.9%, ORCL +13.3% -- worse severity than the 19:07 incident). Discarded again, yfinance direct quotes used for all 28 priced names.",
-    "G23 (NEW): META (2sh, 2.99% wt at 19:07) is ABSENT from this refresher's networth_holdings(US_STOCK) pull, confirmed on 2 consecutive calls -- not treated as a confirmed exit per GUARD rule (no matching flow/ledger evidence). Carried forward in this run's book math at last-known qty x live yfinance price ($627.17), flagged for direct verification at the next full sweep."
+    "2026-07-27 ad-hoc correction: cash was $18,131.51 (45.8% of book), not the stale $5,656.86 carried from 07-24 -- see G26 (undocumented flow event) and G27 (live in-progress selloff at query time).",
+    "G24: 5 full exits (LITE/META/GOOG/BABA/STM) + 2 trims (AMD/QCOM) reconciled via wallet-cash math (high confidence, not hard-confirmed) -- see open_flags MASS-EXIT-2026-07-24.",
+    "G25: compute_book.json's qty_changes/est_net_flows_usd doesn't detect full-ticker exits -- this run's attribution residual is inflated by the untracked exit value; manually reconciled by orchestrator, script not patched.",
+    "STM's -18.67% crash and GOOG's -6.89% drop today are unexplained by any news pulled by smith-signals/smith-thesis this run -- plausible earnings-driven for STM (recent Q2 report window) but unconfirmed by name.",
+    "DRAM 52wk_low returned as an implausible $0 from yfinance this run -- price-position calc skipped for that field (smith-signals).",
+    "SNDK price_at_proposal in today's strategist proposal is a last-confirmed 07-22 print, not a fresh quote -- confirm before considering execution."
   ],
   "market_closed_run": true,
   "peer_map": {
@@ -828,6 +787,10 @@
     "BABA": {
       "peer_etf": "KWEB",
       "label": "Chinese ADR/e-commerce"
+    },
+    "DRAM": {
+      "peer_etf": "SMH",
+      "label": "memory"
     }
   },
   "changes": [
@@ -838,6 +801,16 @@
     {
       "date": "2026-07-23",
       "summary": "Only real flow: GEV bought up further (1.0008->1.3950sh, +$394, wallet-funded), same day thesis downgraded strengthening->watch on Q2 EPS miss (revenue beat, guidance raised). Wallet nearly exhausted ($457.77->$36.14). Total book $41,923.47 (+2.67% vs 07-22). NEW G3-variant incident: INDmoney price feed fabricated +10-20% gains on ~10 names, discarded, yfinance used instead (G22). smith-rebound succeeded this run (G21 resolved) -- 5 macro-driven stage-in candidates (GEV/VRT/LITE/COHR/META), but cash math only funds one (VRT) after restating SNDK trim + ORCL exit as prerequisites."
+    },
+    {
+      "date": "2026-07-24",
+      "summary": "MAJOR FLOW EVENT: LITE, META, GOOG, BABA, STM fully exited; AMD trimmed 2->1sh; QCOM trimmed 14.0008->6.0008sh. Confirmed real via wallet-cash reconciliation ($36.14->$5,656.86). STM crashed -18.67% intraday (presumed earnings, unconfirmed). GOOG -6.89% (unexplained). Book now 24 positions, equity value $35,655.38 (-14.6% vs 07-23), total book incl. wallet roughly flat (-1.1%). AI-capex concentration hit 100.0% (worst ever) as BABA's exit removed the last non-AI-capex sleeve. SNDK breaches 12% single-position cap (13.271%). AI Memory/Storage cluster breaches over-band (31.502%); Networking/Optics, Power/Cooling/DC Infra, and Compute/Hyperscaler clusters all breach UNDER-band for the first time (fewer names spreading the same bands thinner). Drawdown -14.878%, 0.12pt from the 15% warn threshold -- closest this book has come to risk-off. Cash $5,656.86 (13.693%) sits inside policy band for the first time in weeks. Strategist proposed: trim SNDK ~$1,000, deploy GEV ~$900, deploy COHR ~$700, hold remaining ~$5,057 cash given 4 earnings prints next week (GLW/TER 07-28, QCOM/LRCX 07-29) and drawdown proximity to warn threshold. No genuine AI-capex diversifier found in watchlist output (BABA/SNPS both AI-adjacent, IBM flagged value-trap). ORCL: fresh oversold-bounce (real $7B DoD contract) vs standing breakdown/debt flags -- strategist verdict hold, no action, though two PRIOR open proposals (07-22, 07-23) had recommended exiting ORCL entirely -- unresolved inconsistency, flagged."
     }
-  ]
+  ],
+  "last_analysis": "runs/2026-07-25-1607-cash-review/cash-position-analysis.md",
+  "policy_validator": {
+    "command": "python3 scripts/smith_math.py validate --base-dir /Users/yb/Claude/AgentSmith",
+    "wired_into": "cmd_drift emits policy_defects + policy_valid on every run",
+    "last_result": "clean (0 defects) as of 2026-07-25"
+  }
 }
