@@ -1,129 +1,134 @@
 {
   "schema_version": 1,
-  "ts": "2026-07-28T18:50:00+05:30",
-  "mode": "quick",
+  "ts": "2026-07-28T21:10:00+05:30",
+  "mode": "intraday-update",
   "usdinr": 95.842,
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
   "last_run_dir": "runs/2026-07-27-1009/",
   "us": {
-    "value_usd": 15177.89,
-    "count": 19,
+    "value_usd": 19919.4,
+    "count": 20,
     "top3": [
       {
-        "ticker": "ASML",
-        "weight_pct": 10.4
+        "ticker": "GOOG",
+        "weight_pct": 13.92
       },
       {
-        "ticker": "VRT",
-        "weight_pct": 9.08
+        "ticker": "TSM",
+        "weight_pct": 10.5
       },
       {
-        "ticker": "MRVL",
-        "weight_pct": 8.31
+        "ticker": "AVGO",
+        "weight_pct": 9.68
       }
     ],
     "pnl_pct": null,
-    "wallet_usd": 23295.09,
+    "wallet_usd": 18295.09,
     "peak_value_usd": 41887.33,
     "beta": null,
     "usdinr": 96.2425,
-    "value_note": "2026-07-28 18:50 IST pre-market (09:20 ET, 10min before open). Equity $15,177.89 priced on get_us_stocks_details ext_hr_live_price; wallet $23,295.09; total book $38,472.98, -4.25% vs the 07-27 run. FLOW: NVDA (12sh) and LRCX (3sh) fully exited, GEV 1.395->0.395sh, EWY 10->5sh -- ~$5,036 proceeds at Mon close vs wallet +$5,162, reconciles within $127 (FX + fill variance). None of the 07-27 proposals (SNDK/MRVL/DRAM trims, ORCL exit, GOOG/AVGO buys) were executed; a different set stopped out instead. Cash now 60.5% of book -- highest ever recorded. Drawdown -14.26% vs peak $44,873.02, only 0.74pt from the -15% warn rung."
+    "value_note": "2026-07-28 21:10 IST / 11:40 ET, live session. Equity $19919.40 across 20 positions, wallet $18295.09, total book $38214.49. SUPERSEDES the 18:50 pre-market row: that snapshot predated the $5,000 redeployment executed this morning (GOOG 8.441sh new @325.79, AVGO +3.086 @372.68, TSM +2.406 @384.45, ASML +0.111 @1571.16). Cash 47.9%. Drawdown -14.84% vs peak $44,873.02. Earlier today: NVDA (12sh) and LRCX (3sh) stopped out fully, GEV 1.395->0.395, EWY 10->5."
   },
   "holdings": [
     {
+      "ticker": "GOOG",
+      "qty": 8.441,
+      "weight_pct": 13.92
+    },
+    {
+      "ticker": "TSM",
+      "qty": 5.406,
+      "weight_pct": 10.5
+    },
+    {
+      "ticker": "AVGO",
+      "qty": 5.086,
+      "weight_pct": 9.68
+    },
+    {
       "ticker": "ASML",
-      "qty": 1.000001151,
-      "weight_pct": 10.4
+      "qty": 1.111,
+      "weight_pct": 8.8
     },
     {
       "ticker": "VRT",
       "qty": 5,
-      "weight_pct": 9.08
+      "weight_pct": 6.67
     },
     {
       "ticker": "MRVL",
       "qty": 7,
-      "weight_pct": 8.31
+      "weight_pct": 6.14
     },
     {
       "ticker": "DRAM",
       "qty": 25,
-      "weight_pct": 7.99
+      "weight_pct": 6.0
     },
     {
       "ticker": "SNDK",
       "qty": 1.008131251,
-      "weight_pct": 7.9
-    },
-    {
-      "ticker": "CLS",
-      "qty": 3.003266352,
-      "weight_pct": 6.43
-    },
-    {
-      "ticker": "TSM",
-      "qty": 3,
-      "weight_pct": 7.62
+      "weight_pct": 5.61
     },
     {
       "ticker": "QCOM",
       "qty": 6.000761904,
-      "weight_pct": 6.57
+      "weight_pct": 5.03
+    },
+    {
+      "ticker": "CLS",
+      "qty": 3.003266352,
+      "weight_pct": 4.94
     },
     {
       "ticker": "MU",
       "qty": 1.000365376,
-      "weight_pct": 5.57
-    },
-    {
-      "ticker": "COHR",
-      "qty": 3,
-      "weight_pct": 5.04
+      "weight_pct": 4.11
     },
     {
       "ticker": "EWY",
       "qty": 5,
-      "weight_pct": 5.02
+      "weight_pct": 3.77
     },
     {
-      "ticker": "AVGO",
-      "qty": 2,
-      "weight_pct": 4.96
+      "ticker": "COHR",
+      "qty": 3,
+      "weight_pct": 3.59
     },
     {
       "ticker": "ARM",
       "qty": 2,
-      "weight_pct": 3.36
-    },
-    {
-      "ticker": "AMD",
-      "qty": 1,
-      "weight_pct": 3.12
+      "weight_pct": 2.46
     },
     {
       "ticker": "ORCL",
       "qty": 4,
-      "weight_pct": 3.12
+      "weight_pct": 2.37
     },
     {
-      "ticker": "TER",
-      "qty": 1.002730188,
-      "weight_pct": 2.12
+      "ticker": "AMD",
+      "qty": 1,
+      "weight_pct": 2.27
     },
     {
       "ticker": "GEV",
       "qty": 0.394950742,
-      "weight_pct": 2.46
+      "weight_pct": 1.85
+    },
+    {
+      "ticker": "TER",
+      "qty": 1.002730188,
+      "weight_pct": 1.55
     },
     {
       "ticker": "CIEN",
       "qty": 0.388528082,
-      "weight_pct": 0.91
+      "weight_pct": 0.69
     },
     {
       "ticker": "AMAT",
       "qty": 0.0091785,
-      "weight_pct": 0.03
+      "weight_pct": 0.02
     }
   ],
   "news_watermark": "2026-07-27",
@@ -480,7 +485,44 @@
       }
     },
     "etf_constituents": {},
-    "analyst_targets": {}
+    "analyst_targets": {},
+    "atr20": {
+      "as_of": "2026-07-28",
+      "window": "21 daily bars, 25 Jun - 24 Jul 2026",
+      "source": "yfinance daily OHLC, true-range method",
+      "values_pct": {
+        "NVDA": 3.37,
+        "SNDK": 13.73,
+        "EWY": 5.92,
+        "ASML": 4.69,
+        "MRVL": 9.57,
+        "VRT": 6.46,
+        "DRAM": 8.97,
+        "GEV": 6.22,
+        "TSM": 4.58,
+        "QCOM": 5.37,
+        "CLS": 7.51,
+        "LRCX": 8.39,
+        "MU": 8.36,
+        "COHR": 9.39,
+        "AVGO": 3.9,
+        "ARM": 9.39,
+        "ORCL": 5.65,
+        "AMD": 7.18,
+        "TER": 9.36,
+        "CIEN": 7.51,
+        "AMAT": 8.43,
+        "GOOG": 3.46,
+        "AMZN": 3.08,
+        "CEG": 3.58,
+        "VST": 4.88,
+        "ETN": 4.54,
+        "NVT": 5.73,
+        "PWR": 4.49,
+        "HUBB": 3.45
+      },
+      "note": "Basis of stop_loss_framework (stop = 2 x ATR20, floored at 3%). Validated 2026-07-28: across 460 name-days a 2x stop was breached by a single session's move once (0.2%), with 22 of 23 names never touched; 1.5x breached 8 times. Refresh on each deep run -- these readings are inflated by the violent 15-17 Jul and 27-28 Jul sessions, so caps will widen as vol normalises."
+    }
   },
   "fomc_cache": {
     "rate_pct": 3.63,
@@ -571,6 +613,20 @@
       "opened": "2026-07-27 (ad-hoc discovery)",
       "owner": "orchestrator -- needs a proper sweep to backfill the ledger gap",
       "status": "open"
+    },
+    {
+      "id": "G28",
+      "description": "smith_math.py cmd_drift does not implement policy.cash_regimes (two-regime cash band added 2026-07-28); reports breach vs [5,15] irrespective of post-stop-event regime.",
+      "opened": "2026-07-28",
+      "owner": "orchestrator/script",
+      "status": "open"
+    },
+    {
+      "id": "G29",
+      "description": "dashboard.html stale since 2026-07-27 15:27 -- shows superseded Friday-range stops instead of ATR20 framework, and predates the two-regime cash band and CEG/NVDA proposals.",
+      "opened": "2026-07-28",
+      "owner": "orchestrator",
+      "status": "open"
     }
   ],
   "sentiment": {
@@ -652,11 +708,10 @@
   },
   "watchlist_scan_cursor": 75,
   "data_quality": [
-    "2026-07-28 pre-market run: equity priced on ext_hr_live_price at 09:20 ET (10 min pre-open); regular-session prints will differ.",
-    "Gate classification STABILIZING is misleading this session -- broad-index inputs (VIX, ES=F) are calm while SMH/semis are down sharply. Gate rule needs a sector-relative term (new gap).",
-    "INDmoney aggregate US_STOCK ($15,794.67) vs row-level pre-market sum ($15,177.89): 4.1% divergence, consistent with G3.",
-    "Trade rationale for the 07-28 NVDA/LRCX/GEV/EWY stop-outs not captured in trades.json (G26 pattern repeats).",
-    "beta/pnl_pct not recomputed this run (quick pre-market pass)."
+    "2026-07-28 21:10: state brought forward past the morning $5k deployment; the 18:50 pre-market holdings row was stale (missing GOOG entirely).",
+    "smith_math.py reads policy.cash_band_pct only -- it does NOT yet implement the new two-regime cash_regimes logic, so cmd_drift will report a breach against [5,15] regardless of regime. Code change pending (new gap G28).",
+    "dashboard.html is stale (27 Jul 15:27) -- still shows Friday-range stops, not ATR20. Rebuild was drafted but never executed (new gap G29).",
+    "ATR20 now cached in data_cache.atr20; previously existed only in scratch and would have been lost."
   ],
   "market_closed_run": true,
   "peer_map": {

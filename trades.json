@@ -1,6 +1,114 @@
 {
   "schema_version": 1,
   "trades": [
+    {
+      "date": "2026-07-24",
+      "ticker": "GLW",
+      "action": "exit",
+      "qty_change": -10,
+      "price_at_trade": null,
+      "reason": "stop-loss",
+      "notes": "Mass stop-out event #1. Reconstructed from wallet-cash reconciliation; not live-captured (G26)."
+    },
+    {
+      "date": "2026-07-24",
+      "ticker": "IREN",
+      "action": "exit",
+      "qty_change": -25,
+      "price_at_trade": null,
+      "reason": "stop-loss",
+      "notes": "Mass stop-out event #1, reconstructed."
+    },
+    {
+      "date": "2026-07-24",
+      "ticker": "NBIS",
+      "action": "exit",
+      "qty_change": -6,
+      "price_at_trade": null,
+      "reason": "stop-loss",
+      "notes": "Mass stop-out event #1, reconstructed."
+    },
+    {
+      "date": "2026-07-24",
+      "ticker": "MULTI",
+      "action": "trim",
+      "qty_change": null,
+      "price_at_trade": null,
+      "reason": "stop-loss",
+      "notes": "SNDK/DRAM/TSM/CLS/LRCX/MU/TER/CIEN each roughly halved in the same session. Reconstructed, per-name fills unknown."
+    },
+    {
+      "date": "2026-07-27",
+      "ticker": "NVDA",
+      "action": "exit",
+      "qty_change": -12,
+      "price_at_trade": 196.51,
+      "reason": "stop-loss",
+      "notes": "Stop-out event #2. Fired on Monday's -4.99%. NOTE: under the ATR20 framework adopted 2026-07-28 (2x3.37%=6.74%) this stop would NOT have fired -- the exit was an artifact of an over-tight stop. Basis of the 07-28 re-entry proposal."
+    },
+    {
+      "date": "2026-07-27",
+      "ticker": "LRCX",
+      "action": "exit",
+      "qty_change": -3,
+      "price_at_trade": 291.61,
+      "reason": "stop-loss",
+      "notes": "Stop-out event #2."
+    },
+    {
+      "date": "2026-07-27",
+      "ticker": "GEV",
+      "action": "trim",
+      "qty_change": -1.0,
+      "price_at_trade": 996.57,
+      "reason": "stop-loss",
+      "notes": "Stop-out event #2. 1.395 -> 0.395 sh. Left Power/DC under its 10% floor."
+    },
+    {
+      "date": "2026-07-27",
+      "ticker": "EWY",
+      "action": "trim",
+      "qty_change": -5,
+      "price_at_trade": 161.2,
+      "reason": "stop-loss",
+      "notes": "Stop-out event #2. 10 -> 5 sh, into the KOSPI -10.84% overnight crash."
+    },
+    {
+      "date": "2026-07-28",
+      "ticker": "GOOG",
+      "action": "entry",
+      "qty_change": 8.441,
+      "price_at_trade": 325.79,
+      "reason": "rebalance",
+      "notes": "$5,000 redeployment, clip 1 of 4. Fixes Compute/Hyperscaler at 3.13% vs 20% target. Stop 303.25 (2xATR20 6.9%)."
+    },
+    {
+      "date": "2026-07-28",
+      "ticker": "AVGO",
+      "action": "add",
+      "qty_change": 3.086,
+      "price_at_trade": 372.68,
+      "reason": "rebalance",
+      "notes": "Clip 2 of 4. Stop 343.61."
+    },
+    {
+      "date": "2026-07-28",
+      "ticker": "TSM",
+      "action": "add",
+      "qty_change": 2.406,
+      "price_at_trade": 384.45,
+      "reason": "rebalance",
+      "notes": "Clip 3 of 4. Stop 349.23."
+    },
+    {
+      "date": "2026-07-28",
+      "ticker": "ASML",
+      "action": "add",
+      "qty_change": 0.111,
+      "price_at_trade": 1571.16,
+      "reason": "rebalance",
+      "notes": "Clip 4 of 4, balance of the $5,000. Stop 1,423.79."
+    }
   ],
-  "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) — populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|'UNCAPTURED'), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior."
+  "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|'UNCAPTURED'), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time."
 }
