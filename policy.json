@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "confirmed": false,
-  "as_of": "2026-07-27",
+  "as_of": "2026-07-28",
   "mandate": {
     "confirmed_date": "2026-07-26",
     "objective": "aggressive_single_factor_conviction_bet",
@@ -103,7 +103,7 @@
   ],
   "max_single_position_pct": 12,
   "cash_band_pct": [
-    3,
+    5,
     15
   ],
   "max_ai_capex_factor_pct": 100,
@@ -117,7 +117,8 @@
     "AI-capex concentration is INTENTIONAL (user decision, 2026-07-25) -- do not treat max_ai_capex_factor_pct=100 as a bug or re-flag the concentration as drift.",
     "LTCG per-lot purchase dates unavailable -- lots.json needs seeding from INDmoney order history (known_gaps G1, LOTS-SEEDING-GUIDE.md). prefer_ltcg is true on principle but not yet appliable name-by-name.",
     "2026-07-27: cluster_targets revised (Memory 20->15, Optics 20->15, Hyperscaler 10->20) and stop_loss_framework added, both on explicit user instruction. See cluster_targets_rationale and stop_loss_framework.",
-    "2026-07-27: monthly_contribution_usd of 1000 added -- affects cash-band interpretation, since cash now refills mechanically each month."
+    "2026-07-28: cash band replaced with a two-regime rule (normal [5,15]%, post-stop-event [5,40]%) on user instruction. See cash_regimes.",
+    "2026-07-28: Power/DC cluster floor was found to cap total deployable equity at ~$30,010 with only GEV+VRT in the cluster -- breadth, not capital, is the binding constraint. A third Power/DC name was screened and proposed (CEG) to relieve it."
   ],
   "cluster_target_denominator": "invested_equity",
   "cash_pct_denominator": "total_book",
@@ -165,5 +166,26 @@
     "review_note": "Daily-range inputs should be refreshed from a trailing 20-day window, not a single session; the 2026-07-27 seeding used Friday 07-24 ranges only."
   },
   "monthly_contribution_usd": 1000,
-  "monthly_contribution_note": "User commits USD 1,000 of NEW external cash per month starting 2026-08 (confirmed 2026-07-27). ~2.5% of current book per month. Deployment rule: direct each month's contribution to the cluster furthest BELOW its target_pct, and within that cluster to the lowest-volatility name with the most headroom under its constant-risk position cap. This is the structural antidote to the stop-out cycle -- fresh capital arrives every month regardless of whether stops fired, so redeployment never depends on conviction returning at a low."
+  "monthly_contribution_note": "User commits USD 1,000 of NEW external cash per month starting 2026-08 (confirmed 2026-07-27). ~2.5% of current book per month. Deployment rule: direct each month's contribution to the cluster furthest BELOW its target_pct, and within that cluster to the lowest-volatility name with the most headroom under its constant-risk position cap. This is the structural antidote to the stop-out cycle -- fresh capital arrives every month regardless of whether stops fired, so redeployment never depends on conviction returning at a low.",
+  "cash_regimes": {
+    "confirmed_by_user": "2026-07-28",
+    "normal": {
+      "band_pct": [
+        5,
+        15
+      ],
+      "description": "Steady-state operating band. Applies when no stop-loss event has fired in the prior 15 trading sessions."
+    },
+    "post_stop_event": {
+      "band_pct": [
+        5,
+        40
+      ],
+      "trigger": "Any session in which stop-outs raise cash above 20% of total book. Regime persists for 15 trading sessions from the last stop-out, or until cash re-enters the normal band, whichever comes first.",
+      "glide": "Redeploy toward the normal band at whatever pace the volatility-scaled position caps permit (stop_loss_framework: 0.5% risk per position at 2x ATR20). Redeployment is NEVER forced by the calendar -- if the caps do not allow it, cash stays high and that is a correct outcome, not a breach.",
+      "description": "Elevated band that applies after a mass stop-out. Recognises that a tight, large-quantum stop discipline on a maximally-correlated book structurally converts equity to cash in single sessions."
+    },
+    "rationale": "REVISED 2026-07-28 on explicit user instruction. The prior single [3,15]% band was an inherited default -- policy.json's own notes flagged it as not derived from this book's behaviour. It is incompatible with the user's confirmed stop-loss method, which has now twice liquidated a large fraction of the book in one session (2026-07-24: cash to 45.8%; 2026-07-28: cash to 60.5%). Under the old band, every post-stop-event day reported a severe breach the desk could not cure without violating the position-risk framework -- a false alarm that trained the reader to ignore a real control. The two-regime band separates 'cash is high because stops fired' (expected, tolerated to 40%) from 'cash is high because we are not deploying' (a genuine breach). Above 40% remains a real breach requiring action in either regime.",
+    "current_note": "As of 2026-07-28 cash is ~47.9% of book -- above even the post_stop_event ceiling of 40%, so this remains a live breach, not a tolerated level."
+  }
 }
