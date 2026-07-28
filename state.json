@@ -816,6 +816,13 @@
       "status": "closed",
       "closed": "2026-07-28",
       "resolution": "CLOSED 2026-07-28: new smith-catalyst sub-agent watches the book's FACTOR rather than its tickers (WebSearch-only, <=6 queries, <90s target), dispatched on gate=ESCALATING / SMH >=3% / Asia >=3% / cluster >=4% / deep runs. Gate rule revised to v2 with Asia and SMH terms -- v1 called 2026-07-28 STABILIZING on a day KOSPI fell 10.84%. factor_themes seeded in state.json. Catalysts now lead the briefing whenever classified structural."
+    },
+    {
+      "id": "G31",
+      "description": "A regex-based dashboard section replace over-matched and silently deleted the entire Factor Catalysts panel, and the deletion was committed without a section-by-section check -- only aggregate tag-balance and placeholder counts were verified before committing. General lesson: string-replace edits on this file must use exact, unambiguous anchors (a unique start marker + that same elements own next closing tag), never a greedy/non-greedy regex spanning multiple sections. Caught by user asking a follow-up question, not by any check on this end. Fixed by restoring from git and redoing the edit with precise anchors; SKILL.md dashboard regression guard (added same day for a different incident) should be read as covering this class of failure too.",
+      "opened": "2026-07-29",
+      "owner": "orchestrator",
+      "status": "open"
     }
   ],
   "sentiment": {
