@@ -645,6 +645,43 @@ def cmd_drift(args):
                                    "target_pct": None, "band_pct": None, "drift_pt": None,
                                    "breach": False, "note": "no policy target for this cluster"})
 
+    # ADDED 2026-07-28: conditional cluster denominator. Cluster weights on INVESTED EQUITY are the
+    # right measure of concentration inside the deployed sleeve, but while a large cash balance is
+    # being rebuilt they overstate real risk -- a shrunken equity base makes every cluster look
+    # oversized and manufactures breaches the risk framework forbids curing. When cash sits above the
+    # NORMAL band top, breach-testing switches to a total-book basis. Both figures are always emitted
+    # so neither is silently lost. User-raised and accepted 2026-07-28.
+    cash_pct_pre = (wallet_usd / total_book_usd * 100) if total_book_usd else 0.0
+    _regs = policy.get("cash_regimes") or {}
+    _norm = (_regs.get("normal") or {}).get("band_pct") or policy.get("cash_band_pct") or [0, 100]
+    equity_share_pre = (value_usd / total_book_usd) if total_book_usd else 1.0
+    _cond = policy.get("cluster_denominator_conditional", {}).get("enabled", False)
+    use_total_book = bool(_cond and _norm[1] is not None and cash_pct_pre > _norm[1])
+    cluster_basis = "total_book" if use_total_book else "invested_equity"
+    # The two denominators answer different questions, so they govern different edges of the band:
+    #   CEILING ("am I over-exposed to this factor?") -> TOTAL BOOK when cash is elevated. Idle cash is
+    #     genuinely uncorrelated, so memory at 19% of a half-invested sleeve is only 10% of the wealth
+    #     actually at risk. This is the edge the user asked to relax.
+    #   FLOOR ("is the invested portfolio the right shape?") -> ALWAYS INVESTED EQUITY. A floor is a
+    #     statement about portfolio construction, and "you must hold 10% of TOTAL BOOK in Power" is
+    #     incoherent while deliberately sitting on 48% cash -- it would fire on every cluster at once.
+    # Testing both edges on one denominator is what broke in the first cut of this change: switching
+    # wholesale to total book halved every reading and manufactured five phantom floor breaches.
+    for c in cluster_table:
+        c["actual_pct_of_equity"] = c["actual_pct"]
+        c["actual_pct_of_total_book"] = round(c["actual_pct"] * equity_share_pre, 3)
+        _lo, _hi = c["band_pct"]
+        ceil_val = c["actual_pct_of_total_book"] if use_total_book else c["actual_pct_of_equity"]
+        floor_val = c["actual_pct_of_equity"]
+        over = ceil_val > _hi
+        under = floor_val < _lo
+        c["breach"] = bool(over or under)
+        c["breach_edge"] = "over" if over else ("under" if under else None)
+        c["ceiling_tested_on"] = "total_book" if use_total_book else "invested_equity"
+        c["floor_tested_on"] = "invested_equity"
+        c["actual_pct"] = c["actual_pct_of_equity"]
+        c["drift_pt"] = round(c["actual_pct_of_equity"] - c["target_pct"], 3)
+
     max_single = policy.get("max_single_position_pct")
     position_breaches = []
     for r in rows:
@@ -736,7 +773,14 @@ def cmd_drift(args):
         "policy_present": True, "policy_confirmed": policy.get("confirmed", False),
         "policy_defects": policy_defects,
         "policy_valid": not policy_defects,
-        "cluster_target_denominator": policy.get("cluster_target_denominator", "UNDECLARED"),
+        "cluster_target_denominator": "split: ceiling=%s, floor=invested_equity" % cluster_basis,
+        "cluster_denominator_declared": policy.get("cluster_target_denominator", "UNDECLARED"),
+        "cluster_denominator_switched": use_total_book,
+        "cluster_denominator_reason": (
+            "cash %.1f%% is above the normal band top %s%% -- cluster CEILINGS tested on total book, floors still on invested equity"
+            % (cash_pct_pre, _norm[1]) if use_total_book else
+            "cash %.1f%% within the normal band -- cluster breaches tested on invested equity"
+            % cash_pct_pre),
         "cluster_table": sorted(cluster_table, key=lambda c: c["breach"], reverse=True),
         "position_breaches": position_breaches,
         "cash_pct": cash_pct, "cash_band_pct": cash_band, "cash_breach": cash_breach,

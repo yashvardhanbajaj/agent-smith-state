@@ -118,7 +118,8 @@
     "LTCG per-lot purchase dates unavailable -- lots.json needs seeding from INDmoney order history (known_gaps G1, LOTS-SEEDING-GUIDE.md). prefer_ltcg is true on principle but not yet appliable name-by-name.",
     "2026-07-27: cluster_targets revised (Memory 20->15, Optics 20->15, Hyperscaler 10->20) and stop_loss_framework added, both on explicit user instruction. See cluster_targets_rationale and stop_loss_framework.",
     "2026-07-28: cash band replaced with a two-regime rule (normal [5,15]%, post-stop-event [5,40]%) on user instruction. See cash_regimes.",
-    "2026-07-28: Power/DC cluster floor was found to cap total deployable equity at ~$30,010 with only GEV+VRT in the cluster -- breadth, not capital, is the binding constraint. A third Power/DC name was screened and proposed (CEG) to relieve it."
+    "2026-07-28: Power/DC cluster floor was found to cap total deployable equity at ~$30,010 with only GEV+VRT in the cluster -- breadth, not capital, is the binding constraint. A third Power/DC name was screened and proposed (CEG) to relieve it.",
+    "2026-07-28: cluster denominator made conditional on cash regime (user-raised). See cluster_denominator_conditional."
   ],
   "cluster_target_denominator": "invested_equity",
   "cash_pct_denominator": "total_book",
@@ -189,5 +190,13 @@
     },
     "rationale": "REVISED 2026-07-28 on explicit user instruction. The prior single [3,15]% band was an inherited default -- policy.json's own notes flagged it as not derived from this book's behaviour. It is incompatible with the user's confirmed stop-loss method, which has now twice liquidated a large fraction of the book in one session (2026-07-24: cash to 45.8%; 2026-07-28: cash to 60.5%). Under the old band, every post-stop-event day reported a severe breach the desk could not cure without violating the position-risk framework -- a false alarm that trained the reader to ignore a real control. The two-regime band separates 'cash is high because stops fired' (expected, tolerated to 40%) from 'cash is high because we are not deploying' (a genuine breach). Above 40% remains a real breach requiring action in either regime.",
     "current_note": "As of 2026-07-28 cash is ~47.9% of book -- above even the post_stop_event ceiling of 40%, so this remains a live breach, not a tolerated level."
+  },
+  "cluster_denominator_conditional": {
+    "enabled": true,
+    "confirmed_by_user": "2026-07-28",
+    "rule": "While cash exceeds the NORMAL band top (15%), cluster CEILINGS are tested on TOTAL BOOK; cluster FLOORS are always tested on INVESTED EQUITY. Below that cash level both edges use invested equity.",
+    "rationale": "User-raised 2026-07-28 and accepted. Rebuilding a book from a large cash position takes weeks, and cluster percentages computed on a shrunken equity base manufacture breaches that cannot be cured without violating the position-risk framework -- the third instance of the same denominator defect this week (Power floor binding at $29,870; cash band reporting an uncurable breach; now cluster ceilings). Cash is genuinely uncorrelated, so total book is the honest measure of factor risk while it is elevated. WHAT THIS DOES NOT DO: it does not relax per-position risk caps. A name at 1.6x its 0.5%-risk cap is oversized on either denominator -- SNDK on 2026-07-28 is the live example.",
+    "both_emitted": "cmd_drift always emits actual_pct_of_equity and actual_pct_of_total_book regardless of basis tested.",
+    "why_split": "A ceiling asks 'am I over-exposed to this factor?' -- idle cash is uncorrelated, so total book is the honest denominator. A floor asks 'is the invested portfolio the right shape?' -- that is a construction question, and 'hold 10% of TOTAL BOOK in Power' is incoherent while deliberately holding 48% cash. Testing both edges on one denominator was tried first and manufactured five phantom floor breaches."
   }
 }

@@ -137,21 +137,21 @@
   "news_watermark": "2026-07-27",
   "thesis": {
     "NVDA": "Core AI GPU/accelerator platform leadership | strengthening",
-    "ASML": "Sole-source EUV lithography gating leading-edge fab capacity | strengthening",
+    "ASML": "Sole-source EUV lithography. THESIS DENTED not broken 2026-07-28: China began mass-producing immersion DUV, first units to SMIC/Hua Hong/CXMT. Scale is tiny (5 units 2026, ~20 in 2027 vs ASML's 131 immersion tools in 2025 and 98.7% share), still needs Japanese components, and does NOT touch EUV -- which is the actual moat | watch",
     "GEV": "Grid/power-gen equipment for AI datacenter electrification; Q2 rev +22%, raised guidance, $11B grid capex | strengthening",
     "CLS": "EMS/contract manufacturer building Broadcom/OpenAI custom AI ASICs (Jalapeno) + AI server hardware | strengthening",
-    "DRAM": "Thematic ETF for concentrated memory (DRAM/NAND) AI demand -- same HBM3E ASP tension as MU | watch",
+    "DRAM": "Thematic memory ETF -- holds the exact names CXMT now competes with (Samsung, SK Hynix, Micron) | watch",
     "VRT": "Thermal/power management (cooling, UPS) for AI datacenters | strengthening",
     "AVGO": "Custom AI ASICs (XPUs) and networking silicon for hyperscalers | strengthening",
     "MRVL": "Custom AI silicon and optical interconnect for hyperscalers | watch",
-    "EWY": "Regional ETF, South Korea semis/memory (Samsung, SK Hynix) exposure | watch",
+    "EWY": "South Korea ETF: >50% Samsung + SK Hynix. On 2026-07-28 Samsung fell 14.4% (worst since Oct 2008) and SK Hynix 14.7%; KOSPI -10.84%, -34% in 25 days after a 300% spike | watch",
     "CIEN": "Optical networking gear for AI datacenter/telco backbone -- trimmed 59%, weak FY guide vs AI PoC win | watch",
     "QCOM": "Diversifying from handsets into AI/datacenter CPUs and auto | strengthening",
     "LRCX": "Semicap wafer fab equipment geared to leading-edge and memory capex | strengthening",
     "TER": "Semicap automated test equipment geared to AI chip test volume | strengthening",
     "TSM": "Foundry monopoly manufacturing leading-edge AI chips | strengthening",
-    "MU": "Memory (DRAM/HBM) -- HBM3E ASP -51% peak-to-current, DDR5 now more profitable, but 2027 forecast +80-150% suggests trough not break | watch",
-    "SNDK": "AI NAND/enterprise-SSD supercycle bet -- fundamentals intact but severe peer-laggard vs SMH | watch",
+    "MU": "Memory (DRAM/HBM). THESIS THREAT 2026-07-28: CXMT listed on Shanghai STAR (+400% debut) -- China's domestic DRAM champion is now publicly capitalised, on top of HBM3E ASP -51% from peak. Named, funded competitor where there was none | watch",
+    "SNDK": "AI NAND/enterprise-SSD supercycle. Same CXMT capitalisation threat as MU; highest beta in book (2.464) and 1.6x its risk cap | watch",
     "AMAT": "Semicap deposition/etch equipment for AI chip fabs (position cut to dust, 0.012% weight -- sizing only, thesis unaffected) | strengthening",
     "COHR": "Photonics/optical components for datacenter interconnect | strengthening",
     "ARM": "Chip architecture/IP licensing powering most AI silicon | watch",
@@ -299,14 +299,19 @@
   },
   "open_flags": [
     {
-      "ticker": "CIEN",
-      "flag": "Confirmed fresh insider activity (CEO+3 execs, filed 7/17); position trimmed 59% 2026-07-22 as risk management. Remains WATCH.",
-      "opened": "2026-07-18"
+      "ticker": "NVDA",
+      "flag": "NEW THESIS RISK 2026-07-28: Nvidia weighing a $250B financing guarantee for an OpenAI datacenter, part of >$750B of deals. Goldman flags 'circular revenue from strategic investments could be dilutive to the multiple'. This is a revenue-QUALITY question, not a price wobble, and it post-dates the re-entry proposal. Re-entry rationale (mis-calibrated stop) still holds on price; the thesis leg is now contested.",
+      "opened": "2026-07-28"
     },
     {
-      "ticker": "ORCL",
-      "flag": "Thesis now BROKEN (strategist verdict, 2026-07-27): 7/24 oversold bounce off the $7B DoD contract failed, price continued lower 7/25; standing debt-headwind/breakdown thesis confirmed. Strategist proposes full exit -- this is the THIRD open proposal recommending exit (07-22, 07-23, 07-27) with ORCL still held at 4sh. Flag user attention to this repeated-but-unactioned proposal.",
-      "opened": "2026-07-17"
+      "ticker": "MEMORY-CLUSTER",
+      "flag": "CXMT IPO'd on Shanghai STAR +400% on 2026-07-28. The memory thesis now faces a capitalised domestic Chinese competitor. Affects SNDK/MU/DRAM/EWY = 19.5% of equity, 10.2% of book. Hand to HBMTracker for supply-side tracking.",
+      "opened": "2026-07-28"
+    },
+    {
+      "ticker": "ASML",
+      "flag": "China immersion DUV entered mass production 2026-07-28. Near-term revenue impact negligible (5 units vs 131); strategic signal real. Watch for EUV-adjacent announcements -- that would be the thesis-breaking event.",
+      "opened": "2026-07-28"
     }
   ],
   "data_cache": {
@@ -772,6 +777,13 @@
       "status": "closed",
       "closed": "2026-07-28",
       "resolution": "CLOSED 2026-07-28: dashboard rebuilt on ATR20 stops, measured SMH betas, two-regime cash band and the NVDA/CEG proposals; republished to the persistent artifact URL."
+    },
+    {
+      "id": "G30",
+      "description": "KOSPI/memory event of 2026-07-28 was researched and attributed (CXMT IPO + China DUV + NVDA circular-financing) but the desk had no news-monitoring that surfaced it -- it was found only because the user asked. smith-signals runs on price, not on named catalysts.",
+      "opened": "2026-07-28",
+      "owner": "orchestrator/smith-signals",
+      "status": "open"
     }
   ],
   "sentiment": {
@@ -859,7 +871,8 @@
     "dashboard.html is stale (27 Jul 15:27) -- still shows Friday-range stops, not ATR20. Rebuild was drafted but never executed (new gap G29).",
     "ATR20 now cached in data_cache.atr20; previously existed only in scratch and would have been lost.",
     "2026-07-28 self-test caught two silent defects: (a) us.peak_total_book_usd had been dropped, making drawdown read -0.0% vs a real -14.84%; (b) GOOG was absent from sector_map, so $2,773 fell out of the cluster table and Compute/Hyperscaler under-read at 2.37% vs 16.30%. Both fixed; cluster weights now sum to 100%.",
-    "2026-07-28: data-pull audit. Quick-run payload was ~119KB (~33k tokens); 18 of 27 calls avoidable. Cache TTLs and a price-source rule added to data_cache.cache_policy; SKILL.md sections 1.5/2.5/2.8 rewritten. Target quick run ~26KB (78% lighter)."
+    "2026-07-28: data-pull audit. Quick-run payload was ~119KB (~33k tokens); 18 of 27 calls avoidable. Cache TTLs and a price-source rule added to data_cache.cache_policy; SKILL.md sections 1.5/2.5/2.8 rewritten. Target quick run ~26KB (78% lighter).",
+    "2026-07-28: cluster denominator split by band edge (ceiling=total book while cash elevated, floor=invested equity). First implementation switched both edges and manufactured 5 phantom floor breaches; corrected. Live result: breaches fall from 3 to 1 (Power under-band, which is real)."
   ],
   "market_closed_run": true,
   "peer_map": {
