@@ -783,7 +783,9 @@
       "description": "KOSPI/memory event of 2026-07-28 was researched and attributed (CXMT IPO + China DUV + NVDA circular-financing) but the desk had no news-monitoring that surfaced it -- it was found only because the user asked. smith-signals runs on price, not on named catalysts.",
       "opened": "2026-07-28",
       "owner": "orchestrator/smith-signals",
-      "status": "open"
+      "status": "closed",
+      "closed": "2026-07-28",
+      "resolution": "CLOSED 2026-07-28: new smith-catalyst sub-agent watches the book's FACTOR rather than its tickers (WebSearch-only, <=6 queries, <90s target), dispatched on gate=ESCALATING / SMH >=3% / Asia >=3% / cluster >=4% / deep runs. Gate rule revised to v2 with Asia and SMH terms -- v1 called 2026-07-28 STABILIZING on a day KOSPI fell 10.84%. factor_themes seeded in state.json. Catalysts now lead the briefing whenever classified structural."
     }
   ],
   "sentiment": {
@@ -872,7 +874,8 @@
     "ATR20 now cached in data_cache.atr20; previously existed only in scratch and would have been lost.",
     "2026-07-28 self-test caught two silent defects: (a) us.peak_total_book_usd had been dropped, making drawdown read -0.0% vs a real -14.84%; (b) GOOG was absent from sector_map, so $2,773 fell out of the cluster table and Compute/Hyperscaler under-read at 2.37% vs 16.30%. Both fixed; cluster weights now sum to 100%.",
     "2026-07-28: data-pull audit. Quick-run payload was ~119KB (~33k tokens); 18 of 27 calls avoidable. Cache TTLs and a price-source rule added to data_cache.cache_policy; SKILL.md sections 1.5/2.5/2.8 rewritten. Target quick run ~26KB (78% lighter).",
-    "2026-07-28: cluster denominator split by band edge (ceiling=total book while cash elevated, floor=invested equity). First implementation switched both edges and manufactured 5 phantom floor breaches; corrected. Live result: breaches fall from 3 to 1 (Power under-band, which is real)."
+    "2026-07-28: cluster denominator split by band edge (ceiling=total book while cash elevated, floor=invested equity). First implementation switched both edges and manufactured 5 phantom floor breaches; corrected. Live result: breaches fall from 3 to 1 (Power under-band, which is real).",
+    "2026-07-28: G30 closed. Gate v2 (Asia + SMH terms) would have classified this morning ESCALATING rather than STABILIZING, dispatching both smith-rebound and the new smith-catalyst before the user had to ask."
   ],
   "market_closed_run": true,
   "peer_map": {
@@ -1013,5 +1016,86 @@
     "wired_into": "cmd_drift emits policy_defects + policy_valid on every run",
     "last_result": "clean (0 defects) as of 2026-07-25"
   },
-  "last_stop_event_date": "2026-07-27"
+  "last_stop_event_date": "2026-07-27",
+  "factor_themes": {
+    "seeded": "2026-07-28",
+    "owner": "smith-catalyst",
+    "note": "Derived from the book's actual exposures; smith-catalyst proposes updates as composition changes.",
+    "themes": [
+      {
+        "id": 1,
+        "name": "China semiconductor self-sufficiency",
+        "watch": "DUV/EUV progress, CXMT, SMIC, Hua Hong, YMTC, export-control changes",
+        "maps_to": [
+          "ASML",
+          "LRCX",
+          "AMAT",
+          "TER",
+          "MU",
+          "SNDK",
+          "DRAM"
+        ],
+        "live_2026_07_28": "China began mass-producing immersion DUV; 5 units 2026, ~20 in 2027, vs ASML 131 immersion tools 2025 and 98.7% share. Does not touch EUV."
+      },
+      {
+        "id": 2,
+        "name": "Memory pricing & competition",
+        "watch": "HBM/DRAM/NAND contract and spot pricing, Samsung/SK Hynix/Micron capacity, CXMT supply",
+        "maps_to": [
+          "SNDK",
+          "MU",
+          "DRAM",
+          "EWY"
+        ],
+        "live_2026_07_28": "CXMT listed on Shanghai STAR +400% debut. Named, capitalised domestic Chinese competitor where there was none. Hand to HBMTracker."
+      },
+      {
+        "id": 3,
+        "name": "AI capex financing structure",
+        "watch": "circular/vendor financing, SPVs, supplier equity stakes in customers, datacentre debt",
+        "maps_to": [
+          "NVDA",
+          "AMD",
+          "AVGO",
+          "GOOG",
+          "ORCL"
+        ],
+        "live_2026_07_28": "Nvidia weighing $250bn guarantee for an OpenAI datacentre, part of >$750bn of deals. Goldman: circular revenue could be dilutive to the multiple."
+      },
+      {
+        "id": 4,
+        "name": "Hyperscaler capex guidance",
+        "watch": "MSFT/GOOG/AMZN/META capex raises or cuts, datacentre deferrals",
+        "maps_to": [
+          "ALL"
+        ],
+        "live_2026_07_28": null
+      },
+      {
+        "id": 5,
+        "name": "Policy & export controls",
+        "watch": "tariffs, entity lists, CHIPS, Taiwan/Korea geopolitics",
+        "maps_to": [
+          "ASML",
+          "TSM",
+          "EWY",
+          "ARM"
+        ],
+        "live_2026_07_28": null
+      },
+      {
+        "id": 6,
+        "name": "Asian session leadership",
+        "watch": "KOSPI/TAIEX/Nikkei overnight moves >=3% and their named cause",
+        "maps_to": [
+          "EWY",
+          "TSM",
+          "MU",
+          "SNDK",
+          "DRAM"
+        ],
+        "live_2026_07_28": "KOSPI -10.84% (circuit breaker), TAIEX -4.65%, Nikkei -3.95%. KOSPI -34% in 25 days after a 300% spike."
+      }
+    ]
+  }
 }
