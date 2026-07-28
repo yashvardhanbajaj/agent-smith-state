@@ -623,11 +623,29 @@
         "PWR": 4.49,
         "HUBB": 3.45
       },
-      "note": "Basis of stop_loss_framework (stop = 2 x ATR20, floored at 3%). Validated 2026-07-28: across 460 name-days a 2x stop was breached by a single session's move once (0.2%), with 22 of 23 names never touched; 1.5x breached 8 times. Refresh on each deep run -- these readings are inflated by the violent 15-17 Jul and 27-28 Jul sessions, so caps will widen as vol normalises."
+      "note": "Basis of stop_loss_framework (stop = 2 x ATR20, floored at 3%). Validated 2026-07-28: across 460 name-days a 2x stop was breached by a single session's move once (0.2%), with 22 of 23 names never touched; 1.5x breached 8 times. Refresh on each deep run -- these readings are inflated by the violent 15-17 Jul and 27-28 Jul sessions, so caps will widen as vol normalises.",
+      "ttl_days": 7,
+      "refresh_after": "2026-08-04"
     },
     "earnings_method": "RESOLVED 2026-07-28 (G20): reliable method is yfinance get_earnings -> take the latest quarterly reportedDate and add ~91 days for the next print; cross-check near-dated names against the FMP earnings-calendar endpoint (works on the current plan for the calendar range query; the per-symbol earnings-company endpoint is plan-blocked). yfinance's own earnings-calendar endpoint remains unreliable -- do not use it.",
-    "beta_method": "RESOLVED 2026-07-28 (G15): betas computed vs SMH (the book's true factor, not SPX) from 20 daily returns, 25 Jun - 24 Jul 2026. CAVEAT: a 20-observation window carries wide standard errors -- treat these as ordinal (which names are high- vs low-beta) rather than precise point estimates, and refresh to a 60-day window on the next deep run. No name now defaults to 1.0.",
-    "sentiment_method": "RESOLVED-IN-PART 2026-07-28 (G17). Findings: (a) 52-week high/low from WEEKLY bars is EXACT, not an approximation -- a weekly high is by construction the max of that week's daily highs, so the 52wk range component never had an error; (b) RSI14 must use TRUE DAILY closes -- the weekly-aggregated version read 53.12 against a true daily 35.81, a 17.3-point error that materially misstated the composite; (c) the 125-day MA still uses weekly closes, a genuine but small smoothing approximation. METHOD: indices auto-aggregate to weekly for period>=3mo; use period='1mo' with at most 3 symbols per call to force daily bars. RSI14 needs only 15 daily closes, so one 1mo call suffices."
+    "beta_method": "RESOLVED 2026-07-28 (G15): betas computed vs SMH (the book's true factor, not SPX) from 20 daily returns, 25 Jun - 24 Jul 2026. CAVEAT: a 20-observation window carries wide standard errors -- treat these as ordinal (which names are high- vs low-beta) rather than precise point estimates, and refresh to a 60-day window on the next deep run. No name now defaults to 1.0. TTL 30 days; refresh after 2026-08-27.",
+    "sentiment_method": "RESOLVED-IN-PART 2026-07-28 (G17). Findings: (a) 52-week high/low from WEEKLY bars is EXACT, not an approximation -- a weekly high is by construction the max of that week's daily highs, so the 52wk range component never had an error; (b) RSI14 must use TRUE DAILY closes -- the weekly-aggregated version read 53.12 against a true daily 35.81, a 17.3-point error that materially misstated the composite; (c) the 125-day MA still uses weekly closes, a genuine but small smoothing approximation. METHOD: indices auto-aggregate to weekly for period>=3mo; use period='1mo' with at most 3 symbols per call to force daily bars. RSI14 needs only 15 daily closes, so one 1mo call suffices.",
+    "cache_policy": {
+      "added": "2026-07-28",
+      "rationale": "A quick run was costing ~119KB of raw API payload (~33k tokens), of which 18 of 27 calls were avoidable. ATR20, betas and earnings dates are slow-moving; re-pulling them every run is the single largest waste.",
+      "ttl_days": {
+        "atr20": 7,
+        "betas": 30,
+        "earnings_calendar": "until the stored date passes",
+        "ticker_map": 365,
+        "fomc_cache": "until next_check_date",
+        "etf_constituents": 30,
+        "analyst_targets": 7
+      },
+      "refresh_rule": "On a QUICK run, read every cache as-is; refresh nothing. On a DEEP run, refresh only entries whose TTL has expired. ATR20 over a 20-day window drifts roughly 5% per week -- weekly refresh is ample, and a stale ATR makes stops slightly wide, which is the safe direction to be wrong.",
+      "price_source_rule": "Live prices: use yfinance get_stock_price (232 chars/symbol). Use INDmoney get_us_stocks_details (726 chars/symbol, 3.1x heavier) ONLY when market_session is pre-open and ext_hr_live_price is genuinely needed. get_stock_price already carries price, prev_close and day high/low -- everything the stop framework consumes.",
+      "session_reuse": "Do not re-pull prices for the same symbol within 20 minutes unless the user asks for a fresh check or a stop level is being placed."
+    }
   },
   "fomc_cache": {
     "rate_pct": 3.63,
@@ -840,7 +858,8 @@
     "smith_math.py reads policy.cash_band_pct only -- it does NOT yet implement the new two-regime cash_regimes logic, so cmd_drift will report a breach against [5,15] regardless of regime. Code change pending (new gap G28).",
     "dashboard.html is stale (27 Jul 15:27) -- still shows Friday-range stops, not ATR20. Rebuild was drafted but never executed (new gap G29).",
     "ATR20 now cached in data_cache.atr20; previously existed only in scratch and would have been lost.",
-    "2026-07-28 self-test caught two silent defects: (a) us.peak_total_book_usd had been dropped, making drawdown read -0.0% vs a real -14.84%; (b) GOOG was absent from sector_map, so $2,773 fell out of the cluster table and Compute/Hyperscaler under-read at 2.37% vs 16.30%. Both fixed; cluster weights now sum to 100%."
+    "2026-07-28 self-test caught two silent defects: (a) us.peak_total_book_usd had been dropped, making drawdown read -0.0% vs a real -14.84%; (b) GOOG was absent from sector_map, so $2,773 fell out of the cluster table and Compute/Hyperscaler under-read at 2.37% vs 16.30%. Both fixed; cluster weights now sum to 100%.",
+    "2026-07-28: data-pull audit. Quick-run payload was ~119KB (~33k tokens); 18 of 27 calls avoidable. Cache TTLs and a price-source rule added to data_cache.cache_policy; SKILL.md sections 1.5/2.5/2.8 rewritten. Target quick run ~26KB (78% lighter)."
   ],
   "market_closed_run": true,
   "peer_map": {
