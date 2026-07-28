@@ -30,11 +30,17 @@ Check ledger.csv for a row with today's date. If one exists AND this is a quick 
 Read policy.json, state.json, ledger.csv, journal.json, proposals.json, lots.json (may be an empty template — see PERSIST). If state.json is missing, fall back to the legacy path: find the most recent completed Agent Smith session via session-info tools and parse its fenced MILESTONE JSON. If neither exists, this is a first-run baseline — say so in one line. data_cache (includes the ticker_map, betas, earnings_calendar caches), preferences, us_market_holidays, known_gaps, sentiment, diversifier_candidates, watchlist_scan_cursor all live inside state.json (see PERSIST schema).
 
 ### 1.5. MARKET INPUTS — one batched fetch (every sweep type)
-ONE batched yfinance call covering: USD/INR (INR=X), US 10-yr yield (^TNX), VIX (^VIX), DXY (DX-Y.NYB), S&P 500 (^GSPC), Nasdaq (^IXIC), US index futures (ES=F, NQ=F), and international session references: Nikkei (^N225), KOSPI (^KS11, → EWY), Taiwan (^TWII, → TSM), Euro Stoxx 50 (^STOXX50E), plus home-listing leads for ADR holdings currently in the book (ASML.AS, STMPA.PA, 2330.TW, or others as holdings change). If the sentiment composite needs data this call doesn't cover (SPX 125-day MA, NDX 14-day RSI, SPX 52-week high, VIX 52-week range, 10yr yield 1-month change), make one additional small fetch. Write everything to `runs/<ts>/market_inputs.json`.
+ONE batched yfinance call. **CORE 9, every run**: USD/INR (INR=X), 10-yr (^TNX), VIX (^VIX), DXY (DX-Y.NYB), S&P 500 (^GSPC), Nasdaq (^IXIC), futures (ES=F, NQ=F), and SMH — the actual benchmark, which was previously missing from this call. **ASIA BLOCK, pre-open runs only**: Nikkei (^N225), KOSPI (^KS11 → EWY), Taiwan (^TWII → TSM), Euro Stoxx 50 (^STOXX50E). **DROPPED (2026-07-28)**: home-listing ADR leads (ASML.AS, 2330.TW, STMPA.PA) — over three weeks they never produced a signal the ADR itself didn't already carry, and they cost a symbol slot each. Re-add only if an ADR starts gapping away from its home line. If the sentiment composite needs data this call doesn't cover (SPX 125-day MA, NDX 14-day RSI, SPX 52-week high, VIX 52-week range, 10yr yield 1-month change), make one additional small fetch. Write everything to `runs/<ts>/market_inputs.json`.
 
 Compute `market_session` (pre-open / intraday / post-close) from current time vs US market hours (9:30am–4:00pm ET) and the holiday calendar. State the 4 headline macro numbers (10-yr, VIX, DXY, Fed status) in the briefing header even in quick mode — "Fed status" comes from state.json's `fomc_cache` (rate + stance), which only smith-macro refreshes on deep runs; quick mode reads the cached value as-is (a rate decision doesn't change intra-cycle) rather than re-deriving it.
 
-Compute `gate_classification` (for smith-rebound dispatch decision): ESCALATING if VIX change ≥ +5% AND both ES/NQ ≤ -0.5%; STABILIZING if VIX change ≤ +2% AND at least one of ES/NQ ≥ 0%; AMBIGUOUS otherwise.
+Compute `gate_classification` — **GATE v2, revised 2026-07-28**. The v1 rule read only VIX/ES/NQ and classified 2026-07-28 as STABILIZING on a morning when KOSPI had fallen 10.84%, TAIEX 4.65% and SMH went on to fall 4.9%. Broad-index inputs are structurally blind to a sector-specific event, which is the only kind this book actually has.
+
+- **ESCALATING** if ANY of: VIX change ≥ +5% AND both ES/NQ ≤ −0.5% · **worst Asia index (^KS11, ^TWII, ^N225) ≤ −3%** · **SMH ≤ −2.5%** · any single cluster's constituent-weighted move ≤ −4%.
+- **STABILIZING** only if ALL of: VIX change ≤ +2% · at least one of ES/NQ ≥ 0% · **no Asia index ≤ −2%** · **SMH ≥ −1%**.
+- **AMBIGUOUS** otherwise.
+
+The Asia and SMH terms are not decoration: KOSPI and TAIEX lead the memory and foundry complexes by a full session, and SMH is the book's declared benchmark. A gate that ignores both is measuring someone else's portfolio.
 
 ### 1.6. HOLIDAY CALENDAR CHECK
 Compare today against state.json's `us_market_holidays` list (seeded at first run from yfinance calendar data; updated annually — seed early-close days too, e.g. day after Thanksgiving, Christmas Eve, as `{"date","early_close":true}` entries). US MARKET CLOSED (quick mode only): dispatch only smith-signals (news-only: new items since watermark + open-flag status + journal scoring via the script). Mini-briefing, carry forward last state's values labeled "as of last close." Persist state/journal but append NO ledger row. Say so up front. EARLY-CLOSE DAY: a normal trading day, but market_session flips to post-close at 1:00pm ET, not 4:00pm — note the special session in one line.
@@ -58,10 +64,40 @@ Compare today against state.json's `us_market_holidays` list (seeded at first ru
 
 Every sub-agent receives the resolved holdings.json AND the relevant compute_*.json inline — none of them re-fetches the holdings list or redoes arithmetic the script already did.
 
+### 2.5b. PRICE SOURCE — pick the cheap pipe (added 2026-07-28)
+`get_us_stocks_details` costs **726 chars/symbol**; yfinance `get_stock_price` costs **232** for the same decision-relevant fields (price, prev_close, day high/low). That is a 3.1x tax, and on a 20-name book it is 14.2K vs 4.5K per pull.
+- **market_session == pre-open** → `get_us_stocks_details`, batched ≤10, because only it carries `ext_hr_live_price`. This is the one case where the heavy call earns its cost.
+- **intraday / post-close** → `get_stock_price`, all names in one call. Do NOT use the INDmoney per-name endpoint here; the extended-hours field is meaningless while the cash session is printing.
+- **Never re-pull the same symbol within 20 minutes** unless the user asks for a fresh check or you are about to hand over an actionable stop level.
+
+### 2.8. CACHE TTLs — do not refresh what has not moved (added 2026-07-28)
+Measured 2026-07-28: a quick run was costing ~119KB of raw payload (~33k tokens), and **18 of 27 calls were avoidable**. The dominant waste was re-deriving slow-moving quantities.
+
+| cache | TTL | refresh on |
+|---|---|---|
+| `atr20` | 7 days | deep run only |
+| `betas` | 30 days | deep run only |
+| `earnings_calendar` | until the stored date passes | deep run only |
+| `ticker_map` | 365 days | new holding only |
+| `analyst_targets` | 7 days | deep run only |
+
+**QUICK runs read every cache as-is and refresh nothing.** A stale ATR20 makes stops marginally wide, which is the safe direction to err. Getting ATR/beta needs 8-9 `get_stock_history` calls (3-symbol batches) — that is the single most expensive thing this desk does and it belongs on a weekly cadence, not a daily one.
+
+**Budget:** lean quick run ≈ 4 calls / 26KB. Lean deep run ≈ 12 calls / 87KB. If a quick run exceeds ~8 calls, something is being re-derived that should have been cached.
+
+### 2.6. PERSIST GATE (added 2026-07-28, closes G3)
+`compute_book.json` now emits `reconciliation` and `persist_safe`. The script compares the row-level sum of holdings against the snapshot total and any `aggregate_value_inr` supplied, and sets `persist_safe: false` when either diverges >3%. **When `persist_safe` is false: do NOT write state.json and do NOT append a ledger row.** Report the divergence, run the analysis clearly labelled provisional, and stop. This replaces the manual STALENESS-GATE judgement call for the aggregate-vs-rows case; the live-quote crosscheck in HARD RULES still applies to per-name prices.
+
+### 2.7. DATA-FETCH METHODS THAT WORK (added 2026-07-28)
+- **Daily bars**: yfinance auto-aggregates to weekly for `period >= 3mo`, and caps rows per symbol when many symbols are requested. To force true daily bars use `period='1mo'` with **at most 3 symbols per call** — that reliably returns ~21 daily rows each. ATR20, beta and RSI14 all depend on this.
+- **Earnings dates**: use `get_earnings` and take the latest quarterly `reportedDate` + ~91 days; cross-check near-dated names against FMP's earnings-calendar range endpoint. yfinance's own earnings-calendar endpoint is unreliable (was G20). FMP's per-symbol `earnings-company` endpoint is plan-blocked.
+- **Betas**: compute vs **SMH**, not SPX. The SPX beta was shown to be actively misleading (predicted +0.075% for a session that delivered -5.06%).
+
 ### 3. STAGE 1 — dispatch analysts IN PARALLEL
 - **QUICK roster**: `smith-signals`, `smith-thesis`, `smith-watchlist` (3 agents — book and scout are script-covered in quick mode, not dispatched).
 - **DEEP roster**: the QUICK roster's 3, PLUS `smith-book` (slimmed — narrative only, see below) PLUS `smith-scout` PLUS `smith-macro`. All three are mandatory on every deep run, no condition attached — do not drop any silently.
 - **PRE-MARKET REBOUND trigger**: on any sweep (quick or deep), if the computed gate classification from section 1.5's market inputs is `ESCALATING` or `AMBIGUOUS` (pre-market hot/bleeding), dispatch `smith-rebound` in parallel with Stage 1 analysts. Skip if `STABILIZING` (calm pre-open). This allows rapid redeployment triage as soon as holdings stabilize or SLs fire.
+- **CATALYST trigger** (added 2026-07-28, closes G30): dispatch `smith-catalyst` in parallel with Stage 1 when ANY of: gate = ESCALATING · SMH moved ≥3% in either direction · any Asia index moved ≥3% overnight · any cluster moved ≥4% · this is a DEEP run · the user asks why something moved. It is a WebSearch-only agent with a fixed ≤6-query budget, targeting under 90 seconds, so the cost of dispatching it on a false alarm is small and the cost of missing a real catalyst has already been demonstrated. Embed: `factor_themes` from state.json, trimmed holdings rows, `cluster_table`, news_watermark, its own prior tail, market_session, and the trigger reason.
 - **QUALITY-CHECK trigger**: on a DEEP run, also dispatch `smith-quality` if this is the first deep review of the current calendar month. Test: does ledger.csv have zero rows with `mode:deep` for the current month? This is true both when ledger.csv has rows but none this month, AND when ledger.csv does not exist yet at all (the bootstrap case — a missing ledger.csv counts as zero deep rows this month, not as "can't check, skip"). An explicit "quality check" request always dispatches `smith-quality` regardless of this test.
 - **Before moving to Stage 2 on a DEEP run, confirm out loud in this exact checklist form**: "Deep run dispatched: signals ✓ thesis ✓ watchlist ✓ book ✓ scout ✓ macro ✓ [rebound ✓ if hot] [quality ✓ if triggered]" — a cheap forcing function against silently dropping sub-agents mid-orchestration, which has happened before (see `known_gaps` G7).
 
@@ -95,6 +131,7 @@ Embed: mode, today's date, the JSON tail RETURNED by each Stage-1 agent (inline)
 Header: **Agent Smith — US** (quick) or **Agent Smith — US Deep Review** (deep).
 1. THE NUMBER — value (USD) + delta + P&L; macro strip (10-yr yield, VIX, DXY, Fed status); benchmark line and rolling-performance lines; attribution paragraph (from compute_attribution.json). USD/INR rate once; flag >1% drift. If risk_off_status is warn/risk_off, state it coldly here.
 2. MARKET TEMPERATURE & SESSION READ — sentiment score/band (from compute_sentiment.json) with its action_hint if extreme; pre-market/international-session read from smith-scout (deep) or the raw market_inputs.json (quick) — what already moved overseas, what US futures imply, which holdings gap-risk today. If gate = ESCALATING or AMBIGUOUS (pre-market hot/bleeding), state one line: "Pre-market heat detected — smith-rebound primed for rapid redeployment triage (see proposals)." MACRO REGIME (deep only, from smith-macro) — Fed funds rate + FOMC stance, SPY/QQQ options PCR + max-pain, next FOMC/CPI/NFP dates, and the regime read with cluster_impact (which of AI-capex chain / rate-sensitive / defensives the current regime favors or pressures). Lead with it if a FOMC/CPI/NFP date falls within the next 5 trading days.
+2.5. FACTOR CATALYSTS (whenever smith-catalyst ran) — named, dated, sourced events affecting the book's factor, each with the holdings it touches and its exposure. **Lead the briefing with this whenever a catalyst is classified `structural`** — a competitor IPO or a supply-chain breakthrough outranks any price observation. Always carry the magnitude alongside the threat (the "5 units vs ASML's 131" discipline); a threat reported without its scale is fear, not analysis. State explicitly when a catalyst invalidates the rationale of an open proposal.
 3. CHANGES SINCE LAST RUN — holdings diff (buys/sells/qty changes) from compute_book.json's qty_changes; corporate actions called out distinctly ("NVDA 10:1 split detected — not a flow") never miscounted as flows.
 4. BOOK & RISK — top-3 + overweight flags, risk-weighted concentration, portfolio beta, drawdown, cash line, LTCG boundary flags, dividend line. Collapse unchanged to one line.
 5. THESIS CHECK — status changes (quick) / full table (deep); factor-overlap read and single-bet verdict.
@@ -110,7 +147,32 @@ Header: **Agent Smith — US** (quick) or **Agent Smith — US Deep Review** (de
 Close with: "Open the Portfolio Sweep artifact for the live dashboard." Then the MILESTONE block.
 
 ### 6. DASHBOARD ARTIFACT
-Write/update `/Users/yb/Claude/AgentSmith/dashboard.html` (load the artifact-design skill before first build) and publish via the Artifact tool. URL PERSISTENCE — critical: if state.json has "artifact_url", pass it as the Artifact tool's `url` parameter so the same page updates (new sessions mint a NEW url otherwise); after publishing, save the returned URL into state.json as "artifact_url". Content: header (value, delta, drawdown, risk-off status), sentiment strip + session-read line, macro strip (Fed rate/stance, SPY/QQQ PCR + max-pain, next FOMC/CPI/NFP dates — deep mode; header-only Fed status in quick), drift-vs-policy bars, signal buckets incl. peer-relative leaders/laggards strip, thesis table with statuses, diversifier bench (deep), numbered proposals, hit-rate, rolling performance. Quick mode: refresh the numbers. Deep mode: rebuild fully. Theme-aware, self-contained.
+**REGRESSION GUARD (added 2026-07-28).** On 2026-07-28 two consecutive rebuilds shipped a ~30KB dashboard that silently
+dropped four SVG charts and the entire Diagnostics tier, regressing work done in an earlier session (commit 7cb26ea,
+"generate it from state + charts instead of hand-writing prose"). The user caught it, not the desk. **Before publishing,
+diff the new file against the last published version: if section count or byte size falls materially, you are deleting
+someone's work — stop and merge instead of overwriting.** The dashboard is cumulative; sections are added, not replaced.
+
+REQUIRED SECTIONS (a rebuild missing any of these is incomplete):
+- Status strip · Decisions tier: open proposals + factor catalysts + the read
+- Book state tier: **book value & cash** (stacked, every ledger row, corrupt readings ringed not dropped) ·
+  **drawdown vs the trim ladder** (total-book basis, all four rungs drawn) · **book vs SMH per clean period** ·
+  **position weights vs the 12% cap** (amber = over its ATR risk cap)
+- Clusters (equity% and book% side by side) · risk-cap breaches · full positions table
+- Diagnostics tier, collapsed: thesis map · signal history · open data gaps
+
+GENERATED, NOT HAND-WRITTEN (changed 2026-07-26). Do NOT author dashboard HTML yourself — the same compute-first rule that governs arithmetic governs the dashboard. Run:
+- `python3 scripts/smith_dashboard.py --base-dir .` → rewrites `dashboard.html` from state.json/policy.json/ledger.csv/proposals.json plus `narrative.json`, embedding four inline-SVG charts produced by `scripts/smith_charts.py` (book value + cash stacked area, drawdown-vs-trim-ladder meter, per-period book-vs-SMH diverging bars, position weights vs cap).
+
+Before running it, write `narrative.json` — `{"session_read": "...", "macro": "..."}` — with this run's judgment prose (both optional; omit a key and its panel is skipped). That file is the ONLY place narrative belongs; everything else the builder derives.
+
+STRUCTURE the builder enforces, and the reason for it: the old layout was 16 flat sections at equal weight, 3,164 words, ~14 min of reading, with proposals buried at section 11 and zero charts. It was the chat briefing transcribed into HTML. Three tiers now: **DECISIONS** (breaches + open proposals, always open, first), **BOOK STATE** (KPI row + the four charts, always open), **DIAGNOSTICS** (thesis map, signal history, data gaps — collapsed `<details>`). Prose rule: one sentence inline, anything longer inside `<details>`. Don't reintroduce narrative panels — the briefing in chat already carries the narrative.
+
+Charts follow the `dataviz` skill: validated palette (blue/yellow/red passed the six checks in both modes), one axis per chart and never a dual axis, direct labels on the light-mode yellow (sub-3:1, relief rule), `<title>` hover on every mark. If you change chart code, re-run `scripts/validate_palette.js` and re-render to look at it before shipping.
+
+HONESTY CONSTRAINTS baked into the charts, do not "fix" them by making the numbers look cleaner: (a) ledger rows whose `value_trust` is not `ok` are drawn ringed/hatched and EXCLUDED from scales and win/loss counts — a corrupt price-feed reading is never allowed to set an axis or count as performance; (b) cumulative book-vs-SMH is deliberately NOT plotted while `external_flow_usd` is unpopulated, because a cumulative line would mix deposits with returns — only per-period relative performance is shown.
+
+Then publish via the Artifact tool. URL PERSISTENCE — critical: if state.json has "artifact_url", pass it as the Artifact tool's `url` parameter so the same page updates (new sessions mint a NEW url otherwise); after publishing, save the returned URL into state.json as "artifact_url". Both modes run the same builder — it is cheap and always reflects current state.
 
 ### 7. PERSIST (before the milestone block)
 WRITE SAFETY (state.json, journal.json, proposals.json — the files whose loss can't be reconstructed): before overwriting, copy the current file to `<name>.bak` (one generation is enough); then write the new content to `<name>.tmp` and `mv` it over the original — an interrupted run leaves either the old file intact or a stray .tmp, never a truncated memory-of-record. If on any run state.json fails to parse at MEMORY load, fall back to state.json.bak (say so) before resorting to the legacy milestone-JSON path.
@@ -139,4 +201,5 @@ Emit compact fenced MILESTONE JSON (≤15 lines: agent, mode, ts, usdinr, us{...
 - Corporate actions (splits, bonuses) are never counted as flows — the script's qty_changes already flags likely_corporate_action; verify before treating any qty change as new money.
 - State files are the memory of record; write only inside `/Users/yb/Claude/AgentSmith/`. Never modify a confirmed policy.json without explicit user instruction.
 - If a sub-agent OR a compute_*.json subcommand fails: retry the sub-agent once via SendMessage resume; for a script failure, just compute that section inline via the corresponding sub-agent. Either way, note it in data_quality rather than dropping the section silently. Always remove the lockfile before ending, even on failure.
+- PERSIST GATE: never write state.json or a ledger row when compute_book.json reports `persist_safe: false` (>3% row-vs-aggregate divergence, G3).
 - STALENESS GATE: any user-facing output containing actionable price levels (stop-loss suggestions, entry stage-ins, sized $ proposals) must state its price source and timestamp. If snapshot-derived and live-quote prices diverge >3% on a name (the G3 pattern — INDmoney lagged live by 15–20% on fast movers, 2026-07-17), the live quote wins for that output and the divergence is stated plainly — never hand the user an actionable level computed from a feed known to lag. On/after 1:30pm IST pre-open (see PRE-MARKET PRICE OVERLAY, step 2.5), prefer `get_us_stocks_details`' `ext_hr_live_price` as the live quote for this comparison before reaching for an external yfinance crosscheck — it's already same-call-available and cross-validated against FMP aftermarket quotes.
