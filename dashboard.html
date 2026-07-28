@@ -292,6 +292,16 @@ details .body{padding:2px 0 15px}
 .hero .v{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:-.02em}
 .hero .k{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
 .hero .s{font-size:11.5px;color:var(--ink-3);font-family:var(--mono)}
+
+.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.rcol{display:flex;flex-direction:column;gap:9px}
+.rct{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:400;margin-left:auto}
+.rchip{display:inline-flex;align-items:baseline;gap:5px;padding:5px 9px;border-radius:5px;
+  font-size:12.5px;font-weight:700;cursor:help;border:1px solid var(--line)}
+.rchip.g{background:var(--good-soft);color:var(--good);border-color:transparent}
+.rchip.b{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.rchip.w{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.rchip i{font-style:normal;font-family:var(--mono);font-size:10.5px;opacity:.75}
 </style>
 <div class="wrap">
  <header class="mast"><h1>Agent Smith <span>· US Deep Review</span></h1>
@@ -323,6 +333,20 @@ details .body{padding:2px 0 15px}
    <p class="note">Ticker-scoped news cannot see any of these — CXMT is not a holding, KOSPI is not a ticker, and a Chinese
    lithography breakthrough is news about ASML's competitor. This panel is why the agent exists.</p>
    <div><div class="ci"><span class="cb TAILWIND">TAILWIND</span><div><div class="hh">CXMT DDR5 server modules price 2.2% ABOVE Samsung/SK Hynix — the feared price war is absent from the only hard data point</div><div class="mm">18,999 vs 18,595 yuan; CXMT cost base 30%+ higher; 8% DRAM share vs Samsung 36% / SK Hynix 29% / Micron 24%</div><div class="aa">MU · SNDK · DRAM · EWY</div></div></div><div class="ci"><span class="cb AMBIGUOUS">AMBIGUOUS</span><div><div class="hh">Alphabet FY26 capex raised to $195–205bn; quarterly FCF turned negative −$5.9bn</div><div class="mm">Q2 capex $44.9bn against −$5.9bn FCF; revenue still +24% YoY, cloud +82%. AMZN/META/MSFT face the same question this week</div><div class="aa">GOOGL</div></div></div><div class="ci"><span class="cb THREAT">THREAT</span><div><div class="hh">Nvidia's $250bn OpenAI guarantee is ~71× its own disclosed lease-guarantee cap</div><div class="mm">$250bn commitment vs a $3.5bn disclosed 10-Q cap</div><div class="aa">NVDA · AVGO · AMD · ORCL</div></div></div><div class="ci"><span class="cb THREAT">THREAT</span><div><div class="hh">KOSPI's plunge was Korea's 8th circuit breaker of 2026</div><div class="mm">−34% in 25 days after a prior +300% spike</div><div class="aa">EWY · TSM · memory</div></div></div></div>
+  </div></section>
+
+
+ <section class="panel"><div class="phead"><h2>Rotation analysis</h2>
+   <span class="pill">thesis × signal history × risk headroom</span></div>
+  <div class="pbody">
+   <p class="note">Rule-based, not a new sub-agent: <b>ACCUMULATE</b> = strengthening thesis + net-bullish signals +
+   risk headroom available. <b>ROTATE OUT</b> = watch thesis + net-bearish signals. <b>TRIM — RISK CAP</b> = over its
+   ATR risk cap regardless of thesis (ASML's bullish signals don't override a 1.55× cap breach). Everything else is
+   MIXED — thesis and signal disagree, worth a look but not actionable on this rule alone.</p>
+   <div class="rgrid"><div class="rcol"><div class="grp-h"><span class="dot-g"></span>Accumulate<b class="rct">6</b></div><div class="chips"><span class="rchip g" title="Power/DC | strengthening | net signal +3 (Target gap, Momentum, Uptrend) | $598 headroom">GEV<i>+3</i></span><span class="rchip g" title="Semis/Fabs | strengthening | net signal +3 (Tailwinds, Peer leader, Target gap) | $871 headroom">NVDA<i>+3</i></span><span class="rchip g" title="Networking/Optics | strengthening | net signal +2 (Target gap, Peer leader) | $556 headroom">AVGO<i>+2</i></span><span class="rchip g" title="Semis/Fabs | strengthening | net signal +2 (Uptrend, Peer leader) | $875 headroom">AMD<i>+2</i></span><span class="rchip g" title="Semis/Fabs | strengthening | net signal +1 (Target gap) | $795 headroom">QCOM<i>+1</i></span><span class="rchip g" title="Semis/Fabs | strengthening | net signal +1 (Target gap) | $916 headroom">TSM<i>+1</i></span></div></div><div class="rcol"><div class="grp-h"><span class="dot-b"></span>Rotate out<b class="rct">7</b></div><div class="chips"><span class="rchip b" title="Memory | watch | net signal -2 (Peer laggard, Downtrend) | 3.11x over cap">SNDK<i>-2</i></span><span class="rchip b" title="Memory | watch | net signal -2 (Peer laggard, Downtrend) | 2.24x over cap">DRAM<i>-2</i></span><span class="rchip b" title="Memory | watch | net signal -2 (Peer laggard, Downtrend) | $396 headroom">EWY<i>-2</i></span><span class="rchip b" title="Semis/Fabs | watch | net signal -2 (Peer laggard, Downtrend) | $527 headroom">ARM<i>-2</i></span><span class="rchip b" title="Networking/Optics | watch | net signal -1 (Target gap, Peer laggard, Downtrend) | 1.75x over cap">MRVL<i>-1</i></span><span class="rchip b" title="Memory | watch | net signal -1 (Target gap, Peer laggard, Downtrend) | $326 headroom">MU<i>-1</i></span><span class="rchip b" title="Hyperscaler | watch | net signal -1 (Oversold bounce, Target gap, Breakdown, Peer laggard, Downtrend) | $1,213 headroom">ORCL<i>-1</i></span></div></div><div class="rcol"><div class="grp-h"><span class="dot-w"></span>Trim — risk cap<b class="rct">2</b></div><div class="chips"><span class="rchip w" title="Networking/Optics | strengthening | net signal -1 (Target gap, Peer laggard, Downtrend) | 1.18x over cap">COHR<i>-1</i></span><span class="rchip w" title="Semis/Fabs | watch | net signal +3 (Peer leader, Uptrend, Target gap) | 1.55x over cap">ASML<i>+3</i></span></div></div></div>
+   <p class="note" style="margin-top:4px"><b>Not yet in the open proposals above:</b> rotate-out screen also surfaces
+   ARM, ASML, COHR, EWY, MU, ORCL — worth reviewing for the next reallocation pass. Accumulate screen adds AMD, AVGO, GEV, NVDA, QCOM, TSM as candidates once
+   the current trims free up capital.</p>
   </div></section>
 
  <section class="panel"><div class="phead"><h2>The read</h2>
@@ -382,8 +406,118 @@ details .body{padding:2px 0 15px}
 <div class="day"><span class="d">Tue 4 Aug</span><span class="ev">AMD</span></div>
 </div></div></section>
 
- <div class="tier"><h2>Book state</h2><div class="ln"></div></div>
+ <div class="tier"><h2>Book composition</h2><div class="ln"></div></div>
 
+ <section class="panel viz"><div class="phead"><h2>Allocation treemap</h2>
+   <span class="pill">size = weight · color = cluster · red outline = over risk cap</span></div>
+  <div class="pbody"><div class="scroll"><svg class="viz-svg" viewBox="0 0 760 320" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Position allocation treemap, size by weight, color by cluster">
+<rect class="mark" x="0.0" y="0.0" width="409.6" height="64.5" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>ASML — 11.25% of equity — $3,166 — Semis/Fabs  (OVER RISK CAP)</title></rect>
+<text x="6.0" y="17.0" font-size="12" font-weight="700" fill="#fff">ASML</text>
+<text x="6.0" y="32.0" font-size="10" fill="#ffffffcc">11.3%</text>
+<rect class="mark" x="411.6" y="0.0" width="346.4" height="64.5" fill="#4a6fa5" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>GOOGL — 9.53% of equity — $2,680 — Hyperscaler</title></rect>
+<text x="417.6" y="17.0" font-size="12" font-weight="700" fill="#fff">GOOGL</text>
+<text x="417.6" y="32.0" font-size="10" fill="#ffffffcc">9.5%</text>
+<rect class="mark" x="0.0" y="66.5" width="396.8" height="49.9" fill="#b8862b" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>DRAM — 8.52% of equity — $2,397 — Memory  (OVER RISK CAP)</title></rect>
+<text x="6.0" y="83.5" font-size="12" font-weight="700" fill="#fff">DRAM</text>
+<text x="6.0" y="98.5" font-size="10" fill="#ffffffcc">8.5%</text>
+<rect class="mark" x="398.8" y="66.5" width="359.2" height="49.9" fill="#b8862b" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>SNDK — 7.71% of equity — $2,170 — Memory  (OVER RISK CAP)</title></rect>
+<text x="404.8" y="83.5" font-size="12" font-weight="700" fill="#fff">SNDK</text>
+<text x="404.8" y="98.5" font-size="10" fill="#ffffffcc">7.7%</text>
+<rect class="mark" x="0.0" y="118.4" width="264.5" height="62.0" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>NVDA — 7.01% of equity — $1,973 — Semis/Fabs</title></rect>
+<text x="6.0" y="135.4" font-size="12" font-weight="700" fill="#fff">NVDA</text>
+<text x="6.0" y="150.4" font-size="10" fill="#ffffffcc">7.0%</text>
+<rect class="mark" x="266.5" y="118.4" width="254.9" height="62.0" fill="#7a6ca8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>AVGO — 6.76% of equity — $1,901 — Networking/Optics</title></rect>
+<text x="272.5" y="135.4" font-size="12" font-weight="700" fill="#fff">AVGO</text>
+<text x="272.5" y="150.4" font-size="10" fill="#ffffffcc">6.8%</text>
+<rect class="mark" x="523.4" y="118.4" width="234.6" height="62.0" fill="#7a6ca8" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>MRVL — 6.22% of equity — $1,751 — Networking/Optics  (OVER RISK CAP)</title></rect>
+<text x="529.4" y="135.4" font-size="12" font-weight="700" fill="#fff">MRVL</text>
+<text x="529.4" y="150.4" font-size="10" fill="#ffffffcc">6.2%</text>
+<rect class="mark" x="0.0" y="182.4" width="203.7" height="54.2" fill="#3f8f6b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>VRT — 4.76% of equity — $1,338 — Power/DC</title></rect>
+<text x="6.0" y="199.4" font-size="12" font-weight="700" fill="#fff">VRT</text>
+<text x="6.0" y="214.4" font-size="10" fill="#ffffffcc">4.8%</text>
+<rect class="mark" x="205.7" y="182.4" width="186.0" height="54.2" fill="#b8862b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>EWY — 4.34% of equity — $1,222 — Memory</title></rect>
+<text x="211.7" y="199.4" font-size="12" font-weight="700" fill="#fff">EWY</text>
+<text x="211.7" y="214.4" font-size="10" fill="#ffffffcc">4.3%</text>
+<rect class="mark" x="393.7" y="182.4" width="183.4" height="54.2" fill="#7a6ca8" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>COHR — 4.29% of equity — $1,206 — Networking/Optics  (OVER RISK CAP)</title></rect>
+<text x="399.7" y="199.4" font-size="12" font-weight="700" fill="#fff">COHR</text>
+<text x="399.7" y="214.4" font-size="10" fill="#ffffffcc">4.3%</text>
+<rect class="mark" x="579.1" y="182.4" width="178.9" height="54.2" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>TSM — 4.18% of equity — $1,176 — Semis/Fabs</title></rect>
+<text x="585.1" y="199.4" font-size="12" font-weight="700" fill="#fff">TSM</text>
+<text x="585.1" y="214.4" font-size="10" fill="#ffffffcc">4.2%</text>
+<rect class="mark" x="0.0" y="238.6" width="158.3" height="51.9" fill="#a86f5b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>CLS — 3.55% of equity — $1,000 — Compute OEM</title></rect>
+<text x="6.0" y="255.6" font-size="12" font-weight="700" fill="#fff">CLS</text>
+<text x="6.0" y="270.6" font-size="10" fill="#ffffffcc">3.6%</text>
+<rect class="mark" x="160.3" y="238.6" width="156.6" height="51.9" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>QCOM — 3.52% of equity — $989 — Semis/Fabs</title></rect>
+<text x="166.3" y="255.6" font-size="12" font-weight="700" fill="#fff">QCOM</text>
+<text x="166.3" y="270.6" font-size="10" fill="#ffffffcc">3.5%</text>
+<rect class="mark" x="318.8" y="238.6" width="149.1" height="51.9" fill="#3f8f6b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>GEV — 3.35% of equity — $943 — Power/DC</title></rect>
+<text x="324.8" y="255.6" font-size="12" font-weight="700" fill="#fff">GEV</text>
+<text x="324.8" y="270.6" font-size="10" fill="#ffffffcc">3.4%</text>
+<rect class="mark" x="470.0" y="238.6" width="129.4" height="51.9" fill="#b8862b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>MU — 2.91% of equity — $820 — Memory</title></rect>
+<text x="476.0" y="255.6" font-size="12" font-weight="700" fill="#fff">MU</text>
+<text x="476.0" y="270.6" font-size="10" fill="#ffffffcc">2.9%</text>
+<rect class="mark" x="601.4" y="238.6" width="77.5" height="51.9" fill="#a86f5b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>NBIS — 1.76% of equity — $495 — Compute OEM</title></rect>
+<text x="607.4" y="255.6" font-size="12" font-weight="700" fill="#fff">NBIS</text>
+<text x="607.4" y="270.6" font-size="10" fill="#ffffffcc">1.8%</text>
+<rect class="mark" x="680.9" y="238.6" width="77.1" height="51.9" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>ARM — 1.75% of equity — $493 — Semis/Fabs</title></rect>
+<text x="686.9" y="255.6" font-size="12" font-weight="700" fill="#fff">ARM</text>
+<text x="686.9" y="270.6" font-size="10" fill="#ffffffcc">1.8%</text>
+<rect class="mark" x="0.0" y="292.6" width="150.1" height="25.4" fill="#4a6fa5" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>ORCL — 1.72% of equity — $483 — Hyperscaler</title></rect>
+<text x="6.0" y="309.6" font-size="12" font-weight="700" fill="#fff">ORCL</text>
+<rect class="mark" x="152.1" y="292.6" width="149.0" height="25.4" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>AMAT — 1.70% of equity — $479 — Semis/Fabs</title></rect>
+<text x="158.1" y="309.6" font-size="12" font-weight="700" fill="#fff">AMAT</text>
+<rect class="mark" x="303.1" y="292.6" width="142.7" height="25.4" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>AMD — 1.63% of equity — $459 — Semis/Fabs</title></rect>
+<text x="309.1" y="309.6" font-size="12" font-weight="700" fill="#fff">AMD</text>
+<rect class="mark" x="447.8" y="292.6" width="106.1" height="25.4" fill="#7a6ca8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>CIEN — 1.22% of equity — $343 — Networking/Optics</title></rect>
+<text x="453.8" y="309.6" font-size="12" font-weight="700" fill="#fff">CIEN</text>
+<rect class="mark" x="556.0" y="292.6" width="103.5" height="25.4" fill="#4a6fa5" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>IREN — 1.19% of equity — $335 — Hyperscaler</title></rect>
+<text x="562.0" y="309.6" font-size="12" font-weight="700" fill="#fff">IREN</text>
+<rect class="mark" x="661.4" y="292.6" width="96.6" height="25.4" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>TER — 1.11% of equity — $312 — Semis/Fabs</title></rect>
+<text x="667.4" y="309.6" font-size="12" font-weight="700" fill="#fff">TER</text>
+</svg></div>
+   <div class="viz-legend" style="margin-top:8px"><span><i style="background:#5b8fa8"></i>Semis/Fabs</span><span><i style="background:#b8862b"></i>Memory</span><span><i style="background:#7a6ca8"></i>Networking/Optics</span><span><i style="background:#3f8f6b"></i>Power/DC</span><span><i style="background:#a86f5b"></i>Compute OEM</span><span><i style="background:#4a6fa5"></i>Hyperscaler</span></div>
+   <p class="viz-note">Not shown: a correlation heatmap. On a 100%-single-factor book every pair correlates near 1.0 — it
+   would render as a wall of red saying nothing a treemap doesn't already say faster.</p></div></section>
+
+ <div class="grid2">
+  <section class="panel"><div class="phead"><h2>Clusters</h2><span class="pill">ceiling on book · floor on equity</span></div>
+   <div class="pbody"><div class="scroll"><table id="clusters">
+    <thead><tr><th>Cluster</th><th>Equity</th><th>Book</th><th>Band</th><th style="width:150px"></th></tr></thead>
+    <tbody></tbody></table></div>
+    <p class="note">While cash sits above the normal band top, ceilings test on total book and floors on invested equity.
+    Both figures always shown so neither is lost.</p></div></section>
+
+  <section class="panel"><div class="phead"><h2>Risk-cap breaches</h2><span class="pill w">5 names</span></div>
+   <div class="pbody"><div class="scroll"><table id="over">
+    <thead><tr><th>Name</th><th>Held</th><th>Cap</th><th>×</th><th>Excess</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">Cap = 0.5% of book ÷ that name's 2×ATR20 stop. Memory holds the two worst — the distinction that matters:
+    tolerating a cluster ceiling is not the same statement as holding SNDK at 3.1× its cap.</p></div></section>
+ </div>
+
+ <section class="panel"><div class="phead"><h2>Positions</h2><span class="pill">23 · ATR20 stops · SMH betas</span></div>
+  <div class="pbody"><div class="scroll"><table id="holdings">
+   <thead><tr><th>Name</th><th>Cluster</th><th>Qty</th><th>Price</th><th>Value</th><th>Wt</th><th>ATR20</th><th>β</th>
+   <th>Stop</th><th>Stop px</th><th>Cap</th><th>Headroom</th></tr></thead><tbody></tbody><tfoot></tfoot></table></div>
+  </div></section>
+
+ <div class="tier"><h2>Diagnostics</h2><div class="ln"></div></div>
+
+ <section class="panel"><div class="pbody" style="gap:0">
+   <details><summary>Thesis map<span class="c">23 held</span></summary><div class="body">
+     <div class="grp-h"><span class="dot-g"></span>Strengthening</div><div class="chips"><span class="chip" title="Semicap deposition/etch equipment for AI chip fabs (position cut to dust, 0.012% weight -- sizing only, thesis unaffected) | strengthening">AMAT<i>Semis/Fabs</i></span><span class="chip" title="GPU/CPU compute silicon, direct AI-accelerator competitor to NVDA | strengthening">AMD<i>Semis/Fabs</i></span><span class="chip" title="Custom AI ASICs (XPUs) and networking silicon for hyperscalers | strengthening">AVGO<i>Networking/Optics</i></span><span class="chip" title="EMS/contract manufacturer building Broadcom/OpenAI custom AI ASICs (Jalapeno) + AI server hardware | strengthening">CLS<i>Compute OEM</i></span><span class="chip" title="Photonics/optical components for datacenter interconnect | strengthening">COHR<i>Networking/Optics</i></span><span class="chip" title="Grid/power-gen equipment for AI datacenter electrification; Q2 rev +22%, raised guidance, $11B grid capex | strengthening">GEV<i>Power/DC</i></span><span class="chip" title="Alphabet Class A — replaced the Class C holding 2026-07-28. Hyperscaler that BUYS AI capex; blowout 2Q26 (rev +24%, cloud +82%) but FY26 capex raised to $195-205bn and quarterly FCF went negative -$5.">GOOGL<i>Hyperscaler</i></span><span class="chip" title="Core AI GPU/accelerator platform leadership | strengthening">NVDA<i>Semis/Fabs</i></span><span class="chip" title="Diversifying from handsets into AI/datacenter CPUs and auto | strengthening">QCOM<i>Semis/Fabs</i></span><span class="chip" title="Semicap automated test equipment geared to AI chip test volume | strengthening">TER<i>Semis/Fabs</i></span><span class="chip" title="Foundry monopoly manufacturing leading-edge AI chips | strengthening">TSM<i>Semis/Fabs</i></span><span class="chip" title="Thermal/power management (cooling, UPS) for AI datacenters | strengthening">VRT<i>Power/DC</i></span></div>
+     <div class="grp-h" style="margin-top:16px"><span class="dot-w"></span>Watch</div><div class="chips"><span class="chip" title="Chip architecture/IP licensing powering most AI silicon | watch">ARM<i>Semis/Fabs</i></span><span class="chip" title="Sole-source EUV lithography. THESIS DENTED not broken 2026-07-28: China began mass-producing immersion DUV, first units to SMIC/Hua Hong/CXMT. Scale is tiny (5 units 2026, ~20 in 2027 vs ASML's 131 im">ASML<i>Semis/Fabs</i></span><span class="chip" title="Optical networking gear for AI datacenter/telco backbone -- trimmed 59%, weak FY guide vs AI PoC win | watch">CIEN<i>Networking/Optics</i></span><span class="chip" title="Thematic memory ETF -- holds the exact names CXMT now competes with (Samsung, SK Hynix, Micron) | watch">DRAM<i>Memory</i></span><span class="chip" title="South Korea ETF: >50% Samsung + SK Hynix. On 2026-07-28 Samsung fell 14.4% (worst since Oct 2008) and SK Hynix 14.7%; KOSPI -10.84%, -34% in 25 days after a 300% spike | watch">EWY<i>Memory</i></span><span class="chip" title="Re-entered 2026-07-28 at 10sh after the 07-24 stop-out. Bitcoin-mining infra pivoted to AI/GPU cloud; ATR 11.47% | watch">IREN<i>Hyperscaler</i></span><span class="chip" title="Custom AI silicon and optical interconnect for hyperscalers | watch">MRVL<i>Networking/Optics</i></span><span class="chip" title="Memory (DRAM/HBM). THESIS THREAT 2026-07-28: CXMT listed on Shanghai STAR (+400% debut) -- China's domestic DRAM champion is now publicly capitalised, on top of HBM3E ASP -51% from peak. Named, funded">MU<i>Memory</i></span><span class="chip" title="Re-entered 2026-07-28 at 3sh after the 07-24 stop-out. Neocloud GPU-as-a-service; highest ATR in the book at 14.89% | watch">NBIS<i>Compute OEM</i></span><span class="chip" title="Oracle Cloud Infrastructure -- hyperscaler cloud/AI-capex beneficiary | watch">ORCL<i>Hyperscaler</i></span><span class="chip" title="AI NAND/enterprise-SSD supercycle. Same CXMT capitalisation threat as MU; highest beta in book (2.464) and 1.6x its risk cap | watch">SNDK<i>Memory</i></span></div>
+     <p class="note" style="margin-top:12px">Hover any ticker for its thesis. Nothing is broken.</p></div></details>
+   <details><summary>Signal history<span class="c">bullish / bearish</span></summary><div class="body">
+     <div class="grp-h"><span class="dot-g"></span>Bullish</div><div class="srow"><span class="slab">Strong Uptrend</span><span class="sch"><span class="tick g">AMD</span><span class="tick g">ASML</span><span class="tick g">GEV</span></span></div><div class="srow"><span class="slab">Peer Leader</span><span class="sch"><span class="tick g">AMD</span><span class="tick g">ASML</span><span class="tick g">AVGO</span><span class="tick g gone">META</span><span class="tick g">NVDA</span></span></div><div class="srow"><span class="slab">Momentum+Volume</span><span class="sch"><span class="tick g">GEV</span></span></div><div class="srow"><span class="slab">Oversold Bounce</span><span class="sch"><span class="tick g gone">BABA</span><span class="tick g">ORCL</span></span></div><div class="srow"><span class="slab">New Tailwinds</span><span class="sch"><span class="tick g">NVDA</span></span></div><div class="srow"><span class="slab">Target Gap</span><span class="sch"><span class="tick g">ASML</span><span class="tick g">AVGO</span><span class="tick g gone">BABA</span><span class="tick g">CIEN</span><span class="tick g">CLS</span><span class="tick g">COHR</span><span class="tick g">GEV</span><span class="tick g gone">GOOG</span><span class="tick g gone">LITE</span><span class="tick g gone">LRCX</span><span class="tick g gone">META</span><span class="tick g">MRVL</span><span class="tick g">MU</span><span class="tick g">NVDA</span><span class="tick g">ORCL</span><span class="tick g">QCOM</span><span class="tick g">TER</span><span class="tick g">TSM</span><span class="tick g">VRT</span></span></div>
+     <div class="grp-h" style="margin-top:14px"><span class="dot-w"></span>Bearish</div><div class="srow"><span class="slab">Strong Downtrend</span><span class="sch"><span class="tick b">AMAT</span><span class="tick b">ARM</span><span class="tick b">CIEN</span><span class="tick b">CLS</span><span class="tick b">COHR</span><span class="tick b">DRAM</span><span class="tick b">EWY</span><span class="tick b gone">LRCX</span><span class="tick b">MRVL</span><span class="tick b">MU</span><span class="tick b">ORCL</span><span class="tick b">SNDK</span><span class="tick b">TER</span><span class="tick b">VRT</span></span></div><div class="srow"><span class="slab">Peer Laggard</span><span class="sch"><span class="tick b">ARM</span><span class="tick b">CLS</span><span class="tick b">COHR</span><span class="tick b">DRAM</span><span class="tick b">EWY</span><span class="tick b gone">LRCX</span><span class="tick b">MRVL</span><span class="tick b">MU</span><span class="tick b">ORCL</span><span class="tick b">SNDK</span><span class="tick b">TER</span><span class="tick b">VRT</span></span></div><div class="srow"><span class="slab">Breakdown</span><span class="sch"><span class="tick b">ORCL</span></span></div>
+     <p class="note" style="margin-top:10px">Struck-through tickers are no longer held.</p></div></details>
+   <details><summary>Open data gaps<span class="c">actionable only</span></summary><div class="body"><div class="srow"><span class="slab"><b>G1</b></span><span style="font-size:12.5px;color:var(--ink-2)">LTCG per-lot purchase dates. Partially seeded: the 2026-07-28 buys (GOOG/AVGO/TSM/ASML) now carry exact dates and fills in lots.json, sourced from trades.json. Pre-07-28 lots remain unknown and need INDmoney order histor</span></div>
+     <p class="note" style="margin-top:10px">Nine gaps closed and two reclassified won't-fix on 28 Jul. Only genuinely
+     actionable items are listed here.</p></div></details>
+ </div></section>
+
+<section class="panel"><div class="pbody" style="gap:0">
+   <details><summary>Historical charts<span class="c">ledger · drawdown · benchmark · weights</span></summary><div class="body" style="display:flex;flex-direction:column;gap:26px">
  <section class="panel viz"><div class="phead"><h2>Book value &amp; cash · every ledger row</h2>
    <div class="viz-legend"><span><i style="background:var(--equity)"></i>Equity</span><span><i style="background:var(--cash)"></i>Cash</span></div></div>
   <div class="pbody"><div class="scroll"><svg class="viz-svg" viewBox="0 0 760 250" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Total book split into equity and cash across every ledger row">
@@ -574,113 +708,8 @@ details .body{padding:2px 0 15px}
     name over its own <b>ATR risk cap</b> — a different and currently more binding constraint than the weight cap.</p></div></section>
  </div>
 
- <section class="panel viz"><div class="phead"><h2>Allocation treemap</h2>
-   <span class="pill">size = weight · color = cluster · red outline = over risk cap</span></div>
-  <div class="pbody"><div class="scroll"><svg class="viz-svg" viewBox="0 0 760 320" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Position allocation treemap, size by weight, color by cluster">
-<rect class="mark" x="0.0" y="0.0" width="409.6" height="64.5" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>ASML — 11.25% of equity — $3,166 — Semis/Fabs  (OVER RISK CAP)</title></rect>
-<text x="6.0" y="17.0" font-size="12" font-weight="700" fill="#fff">ASML</text>
-<text x="6.0" y="32.0" font-size="10" fill="#ffffffcc">11.3%</text>
-<rect class="mark" x="411.6" y="0.0" width="346.4" height="64.5" fill="#4a6fa5" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>GOOGL — 9.53% of equity — $2,680 — Hyperscaler</title></rect>
-<text x="417.6" y="17.0" font-size="12" font-weight="700" fill="#fff">GOOGL</text>
-<text x="417.6" y="32.0" font-size="10" fill="#ffffffcc">9.5%</text>
-<rect class="mark" x="0.0" y="66.5" width="396.8" height="49.9" fill="#b8862b" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>DRAM — 8.52% of equity — $2,397 — Memory  (OVER RISK CAP)</title></rect>
-<text x="6.0" y="83.5" font-size="12" font-weight="700" fill="#fff">DRAM</text>
-<text x="6.0" y="98.5" font-size="10" fill="#ffffffcc">8.5%</text>
-<rect class="mark" x="398.8" y="66.5" width="359.2" height="49.9" fill="#b8862b" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>SNDK — 7.71% of equity — $2,170 — Memory  (OVER RISK CAP)</title></rect>
-<text x="404.8" y="83.5" font-size="12" font-weight="700" fill="#fff">SNDK</text>
-<text x="404.8" y="98.5" font-size="10" fill="#ffffffcc">7.7%</text>
-<rect class="mark" x="0.0" y="118.4" width="264.5" height="62.0" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>NVDA — 7.01% of equity — $1,973 — Semis/Fabs</title></rect>
-<text x="6.0" y="135.4" font-size="12" font-weight="700" fill="#fff">NVDA</text>
-<text x="6.0" y="150.4" font-size="10" fill="#ffffffcc">7.0%</text>
-<rect class="mark" x="266.5" y="118.4" width="254.9" height="62.0" fill="#7a6ca8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>AVGO — 6.76% of equity — $1,901 — Networking/Optics</title></rect>
-<text x="272.5" y="135.4" font-size="12" font-weight="700" fill="#fff">AVGO</text>
-<text x="272.5" y="150.4" font-size="10" fill="#ffffffcc">6.8%</text>
-<rect class="mark" x="523.4" y="118.4" width="234.6" height="62.0" fill="#7a6ca8" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>MRVL — 6.22% of equity — $1,751 — Networking/Optics  (OVER RISK CAP)</title></rect>
-<text x="529.4" y="135.4" font-size="12" font-weight="700" fill="#fff">MRVL</text>
-<text x="529.4" y="150.4" font-size="10" fill="#ffffffcc">6.2%</text>
-<rect class="mark" x="0.0" y="182.4" width="203.7" height="54.2" fill="#3f8f6b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>VRT — 4.76% of equity — $1,338 — Power/DC</title></rect>
-<text x="6.0" y="199.4" font-size="12" font-weight="700" fill="#fff">VRT</text>
-<text x="6.0" y="214.4" font-size="10" fill="#ffffffcc">4.8%</text>
-<rect class="mark" x="205.7" y="182.4" width="186.0" height="54.2" fill="#b8862b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>EWY — 4.34% of equity — $1,222 — Memory</title></rect>
-<text x="211.7" y="199.4" font-size="12" font-weight="700" fill="#fff">EWY</text>
-<text x="211.7" y="214.4" font-size="10" fill="#ffffffcc">4.3%</text>
-<rect class="mark" x="393.7" y="182.4" width="183.4" height="54.2" fill="#7a6ca8" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>COHR — 4.29% of equity — $1,206 — Networking/Optics  (OVER RISK CAP)</title></rect>
-<text x="399.7" y="199.4" font-size="12" font-weight="700" fill="#fff">COHR</text>
-<text x="399.7" y="214.4" font-size="10" fill="#ffffffcc">4.3%</text>
-<rect class="mark" x="579.1" y="182.4" width="178.9" height="54.2" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>TSM — 4.18% of equity — $1,176 — Semis/Fabs</title></rect>
-<text x="585.1" y="199.4" font-size="12" font-weight="700" fill="#fff">TSM</text>
-<text x="585.1" y="214.4" font-size="10" fill="#ffffffcc">4.2%</text>
-<rect class="mark" x="0.0" y="238.6" width="158.3" height="51.9" fill="#a86f5b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>CLS — 3.55% of equity — $1,000 — Compute OEM</title></rect>
-<text x="6.0" y="255.6" font-size="12" font-weight="700" fill="#fff">CLS</text>
-<text x="6.0" y="270.6" font-size="10" fill="#ffffffcc">3.6%</text>
-<rect class="mark" x="160.3" y="238.6" width="156.6" height="51.9" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>QCOM — 3.52% of equity — $989 — Semis/Fabs</title></rect>
-<text x="166.3" y="255.6" font-size="12" font-weight="700" fill="#fff">QCOM</text>
-<text x="166.3" y="270.6" font-size="10" fill="#ffffffcc">3.5%</text>
-<rect class="mark" x="318.8" y="238.6" width="149.1" height="51.9" fill="#3f8f6b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>GEV — 3.35% of equity — $943 — Power/DC</title></rect>
-<text x="324.8" y="255.6" font-size="12" font-weight="700" fill="#fff">GEV</text>
-<text x="324.8" y="270.6" font-size="10" fill="#ffffffcc">3.4%</text>
-<rect class="mark" x="470.0" y="238.6" width="129.4" height="51.9" fill="#b8862b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>MU — 2.91% of equity — $820 — Memory</title></rect>
-<text x="476.0" y="255.6" font-size="12" font-weight="700" fill="#fff">MU</text>
-<text x="476.0" y="270.6" font-size="10" fill="#ffffffcc">2.9%</text>
-<rect class="mark" x="601.4" y="238.6" width="77.5" height="51.9" fill="#a86f5b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>NBIS — 1.76% of equity — $495 — Compute OEM</title></rect>
-<text x="607.4" y="255.6" font-size="12" font-weight="700" fill="#fff">NBIS</text>
-<text x="607.4" y="270.6" font-size="10" fill="#ffffffcc">1.8%</text>
-<rect class="mark" x="680.9" y="238.6" width="77.1" height="51.9" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>ARM — 1.75% of equity — $493 — Semis/Fabs</title></rect>
-<text x="686.9" y="255.6" font-size="12" font-weight="700" fill="#fff">ARM</text>
-<text x="686.9" y="270.6" font-size="10" fill="#ffffffcc">1.8%</text>
-<rect class="mark" x="0.0" y="292.6" width="150.1" height="25.4" fill="#4a6fa5" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>ORCL — 1.72% of equity — $483 — Hyperscaler</title></rect>
-<text x="6.0" y="309.6" font-size="12" font-weight="700" fill="#fff">ORCL</text>
-<rect class="mark" x="152.1" y="292.6" width="149.0" height="25.4" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>AMAT — 1.70% of equity — $479 — Semis/Fabs</title></rect>
-<text x="158.1" y="309.6" font-size="12" font-weight="700" fill="#fff">AMAT</text>
-<rect class="mark" x="303.1" y="292.6" width="142.7" height="25.4" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>AMD — 1.63% of equity — $459 — Semis/Fabs</title></rect>
-<text x="309.1" y="309.6" font-size="12" font-weight="700" fill="#fff">AMD</text>
-<rect class="mark" x="447.8" y="292.6" width="106.1" height="25.4" fill="#7a6ca8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>CIEN — 1.22% of equity — $343 — Networking/Optics</title></rect>
-<text x="453.8" y="309.6" font-size="12" font-weight="700" fill="#fff">CIEN</text>
-<rect class="mark" x="556.0" y="292.6" width="103.5" height="25.4" fill="#4a6fa5" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>IREN — 1.19% of equity — $335 — Hyperscaler</title></rect>
-<text x="562.0" y="309.6" font-size="12" font-weight="700" fill="#fff">IREN</text>
-<rect class="mark" x="661.4" y="292.6" width="96.6" height="25.4" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>TER — 1.11% of equity — $312 — Semis/Fabs</title></rect>
-<text x="667.4" y="309.6" font-size="12" font-weight="700" fill="#fff">TER</text>
-</svg></div>
-   <div class="viz-legend" style="margin-top:8px"><span><i style="background:#5b8fa8"></i>Semis/Fabs</span><span><i style="background:#b8862b"></i>Memory</span><span><i style="background:#7a6ca8"></i>Networking/Optics</span><span><i style="background:#3f8f6b"></i>Power/DC</span><span><i style="background:#a86f5b"></i>Compute OEM</span><span><i style="background:#4a6fa5"></i>Hyperscaler</span></div>
-   <p class="viz-note">Not shown: a correlation heatmap. On a 100%-single-factor book every pair correlates near 1.0 — it
-   would render as a wall of red saying nothing a treemap doesn't already say faster.</p></div></section>
-
- <div class="grid2">
-  <section class="panel"><div class="phead"><h2>Clusters</h2><span class="pill">ceiling on book · floor on equity</span></div>
-   <div class="pbody"><div class="scroll"><table id="clusters">
-    <thead><tr><th>Cluster</th><th>Equity</th><th>Book</th><th>Band</th><th style="width:150px"></th></tr></thead>
-    <tbody></tbody></table></div>
-    <p class="note">While cash sits above the normal band top, ceilings test on total book and floors on invested equity.
-    Both figures always shown so neither is lost.</p></div></section>
-
-  <section class="panel"><div class="phead"><h2>Risk-cap breaches</h2><span class="pill w">5 names</span></div>
-   <div class="pbody"><div class="scroll"><table id="over">
-    <thead><tr><th>Name</th><th>Held</th><th>Cap</th><th>×</th><th>Excess</th></tr></thead><tbody></tbody></table></div>
-    <p class="note">Cap = 0.5% of book ÷ that name's 2×ATR20 stop. Memory holds the two worst — the distinction that matters:
-    tolerating a cluster ceiling is not the same statement as holding SNDK at 3.1× its cap.</p></div></section>
- </div>
-
- <section class="panel"><div class="phead"><h2>Positions</h2><span class="pill">23 · ATR20 stops · SMH betas</span></div>
-  <div class="pbody"><div class="scroll"><table id="holdings">
-   <thead><tr><th>Name</th><th>Cluster</th><th>Qty</th><th>Price</th><th>Value</th><th>Wt</th><th>ATR20</th><th>β</th>
-   <th>Stop</th><th>Stop px</th><th>Cap</th><th>Headroom</th></tr></thead><tbody></tbody><tfoot></tfoot></table></div>
+</div></details>
   </div></section>
-
- <div class="tier"><h2>Diagnostics</h2><div class="ln"></div></div>
-
- <section class="panel"><div class="pbody" style="gap:0">
-   <details><summary>Thesis map<span class="c">23 held</span></summary><div class="body">
-     <div class="grp-h"><span class="dot-g"></span>Strengthening</div><div class="chips"><span class="chip" title="Semicap deposition/etch equipment for AI chip fabs (position cut to dust, 0.012% weight -- sizing only, thesis unaffected) | strengthening">AMAT<i>Semis/Fabs</i></span><span class="chip" title="GPU/CPU compute silicon, direct AI-accelerator competitor to NVDA | strengthening">AMD<i>Semis/Fabs</i></span><span class="chip" title="Custom AI ASICs (XPUs) and networking silicon for hyperscalers | strengthening">AVGO<i>Networking/Optics</i></span><span class="chip" title="EMS/contract manufacturer building Broadcom/OpenAI custom AI ASICs (Jalapeno) + AI server hardware | strengthening">CLS<i>Compute OEM</i></span><span class="chip" title="Photonics/optical components for datacenter interconnect | strengthening">COHR<i>Networking/Optics</i></span><span class="chip" title="Grid/power-gen equipment for AI datacenter electrification; Q2 rev +22%, raised guidance, $11B grid capex | strengthening">GEV<i>Power/DC</i></span><span class="chip" title="Alphabet Class A — replaced the Class C holding 2026-07-28. Hyperscaler that BUYS AI capex; blowout 2Q26 (rev +24%, cloud +82%) but FY26 capex raised to $195-205bn and quarterly FCF went negative -$5.">GOOGL<i>Hyperscaler</i></span><span class="chip" title="Core AI GPU/accelerator platform leadership | strengthening">NVDA<i>Semis/Fabs</i></span><span class="chip" title="Diversifying from handsets into AI/datacenter CPUs and auto | strengthening">QCOM<i>Semis/Fabs</i></span><span class="chip" title="Semicap automated test equipment geared to AI chip test volume | strengthening">TER<i>Semis/Fabs</i></span><span class="chip" title="Foundry monopoly manufacturing leading-edge AI chips | strengthening">TSM<i>Semis/Fabs</i></span><span class="chip" title="Thermal/power management (cooling, UPS) for AI datacenters | strengthening">VRT<i>Power/DC</i></span></div>
-     <div class="grp-h" style="margin-top:16px"><span class="dot-w"></span>Watch</div><div class="chips"><span class="chip" title="Chip architecture/IP licensing powering most AI silicon | watch">ARM<i>Semis/Fabs</i></span><span class="chip" title="Sole-source EUV lithography. THESIS DENTED not broken 2026-07-28: China began mass-producing immersion DUV, first units to SMIC/Hua Hong/CXMT. Scale is tiny (5 units 2026, ~20 in 2027 vs ASML's 131 im">ASML<i>Semis/Fabs</i></span><span class="chip" title="Optical networking gear for AI datacenter/telco backbone -- trimmed 59%, weak FY guide vs AI PoC win | watch">CIEN<i>Networking/Optics</i></span><span class="chip" title="Thematic memory ETF -- holds the exact names CXMT now competes with (Samsung, SK Hynix, Micron) | watch">DRAM<i>Memory</i></span><span class="chip" title="South Korea ETF: >50% Samsung + SK Hynix. On 2026-07-28 Samsung fell 14.4% (worst since Oct 2008) and SK Hynix 14.7%; KOSPI -10.84%, -34% in 25 days after a 300% spike | watch">EWY<i>Memory</i></span><span class="chip" title="Re-entered 2026-07-28 at 10sh after the 07-24 stop-out. Bitcoin-mining infra pivoted to AI/GPU cloud; ATR 11.47% | watch">IREN<i>Hyperscaler</i></span><span class="chip" title="Custom AI silicon and optical interconnect for hyperscalers | watch">MRVL<i>Networking/Optics</i></span><span class="chip" title="Memory (DRAM/HBM). THESIS THREAT 2026-07-28: CXMT listed on Shanghai STAR (+400% debut) -- China's domestic DRAM champion is now publicly capitalised, on top of HBM3E ASP -51% from peak. Named, funded">MU<i>Memory</i></span><span class="chip" title="Re-entered 2026-07-28 at 3sh after the 07-24 stop-out. Neocloud GPU-as-a-service; highest ATR in the book at 14.89% | watch">NBIS<i>Compute OEM</i></span><span class="chip" title="Oracle Cloud Infrastructure -- hyperscaler cloud/AI-capex beneficiary | watch">ORCL<i>Hyperscaler</i></span><span class="chip" title="AI NAND/enterprise-SSD supercycle. Same CXMT capitalisation threat as MU; highest beta in book (2.464) and 1.6x its risk cap | watch">SNDK<i>Memory</i></span></div>
-     <p class="note" style="margin-top:12px">Hover any ticker for its thesis. Nothing is broken.</p></div></details>
-   <details><summary>Signal history<span class="c">bullish / bearish</span></summary><div class="body">
-     <div class="grp-h"><span class="dot-g"></span>Bullish</div><div class="srow"><span class="slab">Strong Uptrend</span><span class="sch"><span class="tick g">AMD</span><span class="tick g">ASML</span><span class="tick g">GEV</span></span></div><div class="srow"><span class="slab">Peer Leader</span><span class="sch"><span class="tick g">AMD</span><span class="tick g">ASML</span><span class="tick g">AVGO</span><span class="tick g gone">META</span><span class="tick g">NVDA</span></span></div><div class="srow"><span class="slab">Momentum+Volume</span><span class="sch"><span class="tick g">GEV</span></span></div><div class="srow"><span class="slab">Oversold Bounce</span><span class="sch"><span class="tick g gone">BABA</span><span class="tick g">ORCL</span></span></div><div class="srow"><span class="slab">New Tailwinds</span><span class="sch"><span class="tick g">NVDA</span></span></div><div class="srow"><span class="slab">Target Gap</span><span class="sch"><span class="tick g">ASML</span><span class="tick g">AVGO</span><span class="tick g gone">BABA</span><span class="tick g">CIEN</span><span class="tick g">CLS</span><span class="tick g">COHR</span><span class="tick g">GEV</span><span class="tick g gone">GOOG</span><span class="tick g gone">LITE</span><span class="tick g gone">LRCX</span><span class="tick g gone">META</span><span class="tick g">MRVL</span><span class="tick g">MU</span><span class="tick g">NVDA</span><span class="tick g">ORCL</span><span class="tick g">QCOM</span><span class="tick g">TER</span><span class="tick g">TSM</span><span class="tick g">VRT</span></span></div>
-     <div class="grp-h" style="margin-top:14px"><span class="dot-w"></span>Bearish</div><div class="srow"><span class="slab">Strong Downtrend</span><span class="sch"><span class="tick b">AMAT</span><span class="tick b">ARM</span><span class="tick b">CIEN</span><span class="tick b">CLS</span><span class="tick b">COHR</span><span class="tick b">DRAM</span><span class="tick b">EWY</span><span class="tick b gone">LRCX</span><span class="tick b">MRVL</span><span class="tick b">MU</span><span class="tick b">ORCL</span><span class="tick b">SNDK</span><span class="tick b">TER</span><span class="tick b">VRT</span></span></div><div class="srow"><span class="slab">Peer Laggard</span><span class="sch"><span class="tick b">ARM</span><span class="tick b">CLS</span><span class="tick b">COHR</span><span class="tick b">DRAM</span><span class="tick b">EWY</span><span class="tick b gone">LRCX</span><span class="tick b">MRVL</span><span class="tick b">MU</span><span class="tick b">ORCL</span><span class="tick b">SNDK</span><span class="tick b">TER</span><span class="tick b">VRT</span></span></div><div class="srow"><span class="slab">Breakdown</span><span class="sch"><span class="tick b">ORCL</span></span></div>
-     <p class="note" style="margin-top:10px">Struck-through tickers are no longer held.</p></div></details>
-   <details><summary>Open data gaps<span class="c">actionable only</span></summary><div class="body"><div class="srow"><span class="slab"><b>G1</b></span><span style="font-size:12.5px;color:var(--ink-2)">LTCG per-lot purchase dates. Partially seeded: the 2026-07-28 buys (GOOG/AVGO/TSM/ASML) now carry exact dates and fills in lots.json, sourced from trades.json. Pre-07-28 lots remain unknown and need INDmoney order histor</span></div>
-     <p class="note" style="margin-top:10px">Nine gaps closed and two reclassified won't-fix on 28 Jul. Only genuinely
-     actionable items are listed here.</p></div></details>
- </div></section>
 
  <footer>
   <p class="note"><b>Everything here is a proposal for your review.</b> No trade has been or will be placed by this desk,
