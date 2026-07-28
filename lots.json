@@ -1,13 +1,32 @@
 {
   "schema_version": 1,
-  "_readme": "Per-lot purchase records for LTCG tracking. Schema: {\"TICKER\": [{\"qty\": float, \"date\": \"YYYY-MM-DD\", \"price_usd\": float, \"notes\": \"optional context\"}]}. TIER 2.7 FIX: seeding this file unblocks LTCG boundary tracking and enables tax-aware trim sequencing. Source: INDmoney order history (via account statement CSV or manual entry). Until seeded, LTCG flags unavailable (gap G1).",
-  "_example": {
-    "NVDA": [
-      {"qty": 12.0, "date": "2024-03-15", "price_usd": 875.50, "notes": "initial entry"},
-      {"qty": 5.0, "date": "2024-09-20", "price_usd": 1204.80, "notes": "add-on during dip"}
-    ],
-    "SNDK": [
-      {"qty": 3.0, "date": "2023-11-10", "price_usd": 1089.20, "notes": "core position"}
-    ]
-  }
+  "GOOG": [
+    {
+      "qty": 8.441,
+      "date": "2026-07-28",
+      "price_usd": 325.79
+    }
+  ],
+  "AVGO": [
+    {
+      "qty": 3.086,
+      "date": "2026-07-28",
+      "price_usd": 372.68
+    }
+  ],
+  "TSM": [
+    {
+      "qty": 2.406,
+      "date": "2026-07-28",
+      "price_usd": 384.45
+    }
+  ],
+  "ASML": [
+    {
+      "qty": 0.111,
+      "date": "2026-07-28",
+      "price_usd": 1571.16
+    }
+  ],
+  "_note": "Partially seeded 2026-07-28 from trades.json. Only lots opened on/after 2026-07-28 have verified dates and fills; every earlier lot is still unknown and must come from INDmoney order history (G1)."
 }

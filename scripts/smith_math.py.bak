@@ -624,43 +624,10 @@ def cmd_drift(args):
             position_breaches.append({"ticker": r["ticker"], "actual_pct": round(r["weight_pct"], 3),
                                        "cap_pct": max_single, "drift_pt": round(r["weight_pct"] - max_single, 3)})
 
-    # FIXED 2026-07-28 (G28): two-regime cash band. The user runs a tight, large-quantum stop
-    # discipline on a maximally-correlated book, which structurally converts equity to cash in single
-    # sessions (07-24: cash to 45.8%; 07-28: to 60.5%). A single [5,15] band declared a severe breach
-    # on every such day that could NOT be cured without violating the position-risk framework -- a
-    # false alarm that trains the reader to ignore a real control. policy.cash_regimes lets the band
-    # widen while a stop-out is recent, and the ceiling above it is still a genuine breach.
+    cash_band = policy.get("cash_band_pct", [None, None])
     cash_pct = round(wallet_usd / total_book_usd * 100, 3) if total_book_usd else 0.0
-    regimes = policy.get("cash_regimes") or {}
-    cash_regime = "normal"
-    regime_reason = "no cash_regimes block in policy; using cash_band_pct"
-    if regimes:
-        trig = (regimes.get("post_stop_event") or {}).get("trigger_cash_pct", 20)
-        window = (regimes.get("post_stop_event") or {}).get("window_sessions", 15)
-        last_stop = state.get("last_stop_event_date")
-        sessions_since = None
-        if last_stop:
-            try:
-                d0 = datetime.strptime(last_stop, "%Y-%m-%d").date()
-                today_d = datetime.strptime(args.today, "%Y-%m-%d").date() if getattr(args, "today", None) else date.today()
-                sessions_since = int((today_d - d0).days * 5 / 7)  # calendar->trading-day approximation
-            except ValueError:
-                sessions_since = None
-        in_window = sessions_since is not None and sessions_since <= window
-        if in_window and cash_pct > trig:
-            cash_regime = "post_stop_event"
-            regime_reason = f"stop-out on {last_stop}, ~{sessions_since} sessions ago (window {window}), cash {cash_pct}% > {trig}% trigger"
-        elif in_window:
-            regime_reason = f"stop-out {sessions_since} sessions ago but cash {cash_pct}% <= {trig}% trigger"
-        else:
-            regime_reason = f"no stop-out within {window} sessions (last: {last_stop or 'none recorded'})"
-    band_src = (regimes.get(cash_regime) or {}).get("band_pct") if regimes else None
-    cash_band = band_src or policy.get("cash_band_pct", [None, None])
     cash_breach = (cash_band[0] is not None and cash_pct < cash_band[0]) or \
                   (cash_band[1] is not None and cash_pct > cash_band[1])
-    normal_band = (regimes.get("normal") or {}).get("band_pct") or policy.get("cash_band_pct", [None, None])
-    cash_breach_vs_normal = (normal_band[1] is not None and cash_pct > normal_band[1]) or \
-                            (normal_band[0] is not None and cash_pct < normal_band[0])
 
     # AI-capex exposure is reported on BOTH bases: cluster weights are equity-denominated, so the
     # equity figure measures concentration *within the invested sleeve*, while the total-book figure
@@ -712,8 +679,6 @@ def cmd_drift(args):
         "cluster_table": sorted(cluster_table, key=lambda c: c["breach"], reverse=True),
         "position_breaches": position_breaches,
         "cash_pct": cash_pct, "cash_band_pct": cash_band, "cash_breach": cash_breach,
-        "cash_regime": cash_regime, "cash_regime_reason": regime_reason,
-        "cash_band_normal_pct": normal_band, "cash_breach_vs_normal": cash_breach_vs_normal,
         "cash_pct_denominator": "total_book",
         "ai_capex_pct": ai_capex_pct, "ai_capex_cap_pct": ai_cap, "ai_capex_breach": ai_capex_breach,
         "ai_capex_denominator": ai_denom,

@@ -25,9 +25,12 @@
     "pnl_pct": null,
     "wallet_usd": 18295.09,
     "peak_value_usd": 41887.33,
-    "beta": null,
+    "beta": 1.072,
     "usdinr": 96.2425,
-    "value_note": "2026-07-28 21:10 IST / 11:40 ET, live session. Equity $19919.40 across 20 positions, wallet $18295.09, total book $38214.49. SUPERSEDES the 18:50 pre-market row: that snapshot predated the $5,000 redeployment executed this morning (GOOG 8.441sh new @325.79, AVGO +3.086 @372.68, TSM +2.406 @384.45, ASML +0.111 @1571.16). Cash 47.9%. Drawdown -14.84% vs peak $44,873.02. Earlier today: NVDA (12sh) and LRCX (3sh) stopped out fully, GEV 1.395->0.395, EWY 10->5."
+    "value_note": "2026-07-28 21:10 IST / 11:40 ET, live session. Equity $19919.40 across 20 positions, wallet $18295.09, total book $38214.49. SUPERSEDES the 18:50 pre-market row: that snapshot predated the $5,000 redeployment executed this morning (GOOG 8.441sh new @325.79, AVGO +3.086 @372.68, TSM +2.406 @384.45, ASML +0.111 @1571.16). Cash 47.9%. Drawdown -14.84% vs peak $44,873.02. Earlier today: NVDA (12sh) and LRCX (3sh) stopped out fully, GEV 1.395->0.395, EWY 10->5.",
+    "peak_total_book_usd": 44873.02,
+    "peak_total_book_note": "Restored 2026-07-28 after being silently dropped. True historical max from ledger 2026-07-18T13:41 (equity $44,849.74 + wallet $23.28). Loss of this key made cmd_drift report drawdown -0.0% against a real -14.84%.",
+    "beta_note": "Portfolio beta vs SMH = 1.072 on current 20 holdings, value-weighted (2026-07-28). Down from the prior SPX-based 1.491, which cmd_book flagged as misleading. The fall is almost entirely GOOG: its beta to SMH is 0.244 with R2 0.08, and AMZN's is -0.030 with R2 0.00 -- statistically near-independent of the semiconductor complex. That is the quantitative case for the hyperscaler sleeve, and it is now measured rather than asserted."
   },
   "holdings": [
     {
@@ -153,7 +156,8 @@
     "COHR": "Photonics/optical components for datacenter interconnect | strengthening",
     "ARM": "Chip architecture/IP licensing powering most AI silicon | watch",
     "AMD": "GPU/CPU compute silicon, direct AI-accelerator competitor to NVDA | strengthening",
-    "ORCL": "Oracle Cloud Infrastructure -- hyperscaler cloud/AI-capex beneficiary | watch"
+    "ORCL": "Oracle Cloud Infrastructure -- hyperscaler cloud/AI-capex beneficiary | watch",
+    "GOOG": "Hyperscaler that BUYS AI capex rather than selling it -- the chain's only internal hedge; blowout 2Q26 print, no earnings until ~late Oct | strengthening"
   },
   "sector_map": {
     "NVDA": "AI Semis/Fabs",
@@ -176,7 +180,10 @@
     "AMD": "AI Semis/Fabs",
     "ORCL": "Compute/Hyperscaler",
     "COHR": "AI Networking/Optics",
-    "ARM": "AI Semis/Fabs"
+    "ARM": "AI Semis/Fabs",
+    "GOOG": "Compute/Hyperscaler",
+    "AMZN": "Compute/Hyperscaler",
+    "CEG": "AI Power/Cooling/DC Infra"
   },
   "signal_history": {
     "ORCL": [
@@ -336,109 +343,121 @@
       "Alibaba Group Holding Limited American Depositary Shares, each represents eight Ordinary Shares": "BABA"
     },
     "betas": {
-      "GLW": {
-        "value": 1.086,
-        "as_of": "2026-07-20"
-      },
-      "NVDA": {
-        "value": 2.211,
-        "as_of": "2026-07-20"
-      },
-      "TSM": {
-        "value": 1.246,
-        "as_of": "2026-07-20"
-      },
-      "ASML": {
-        "value": 1.394,
-        "as_of": "2026-07-20"
-      },
-      "MU": {
-        "value": 2.142,
-        "as_of": "2026-07-20"
-      },
-      "EWY": {
-        "value": 1.46,
-        "as_of": "2026-07-20"
-      },
-      "LRCX": {
-        "value": 1.805,
-        "as_of": "2026-07-20"
-      },
-      "CLS": {
-        "value": 1.515,
-        "as_of": "2026-07-20"
-      },
-      "VRT": {
-        "value": 2.029,
-        "as_of": "2026-07-20"
-      },
-      "MRVL": {
-        "value": 2.197,
-        "as_of": "2026-07-20"
-      },
-      "META": {
-        "value": 1.246,
-        "as_of": "2026-07-20"
-      },
-      "CIEN": {
-        "value": 1.274,
-        "as_of": "2026-07-20"
-      },
-      "NBIS": {
-        "value": 1.402,
-        "as_of": "2026-07-20"
-      },
       "AMAT": {
-        "value": 1.567,
-        "as_of": "2026-07-20"
-      },
-      "QCOM": {
-        "value": 1.638,
-        "as_of": "2026-07-20"
+        "value": 1.521,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
       },
       "AMD": {
-        "value": 2.469,
-        "as_of": "2026-07-20"
+        "value": 1.375,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
       },
-      "TER": {
-        "value": 1.742,
-        "as_of": "2026-07-20"
+      "AMZN": {
+        "value": -0.03,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
       },
-      "COHR": {
-        "value": 2.037,
-        "as_of": "2026-07-20"
+      "ARM": {
+        "value": 1.174,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
+      },
+      "ASML": {
+        "value": 0.991,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
       },
       "AVGO": {
-        "value": 1.462,
-        "as_of": "2026-07-20"
+        "value": 0.731,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
       },
-      "LITE": {
-        "value": 1.482,
-        "as_of": "2026-07-20"
+      "CIEN": {
+        "value": 1.139,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
       },
-      "GOOG": {
-        "value": 1.247,
-        "as_of": "2026-07-20"
+      "CLS": {
+        "value": 1.249,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
       },
-      "STM": {
-        "value": 1.563,
-        "as_of": "2026-07-20"
+      "COHR": {
+        "value": 1.434,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
       },
-      "ORCL": {
-        "value": 1.712,
-        "as_of": "2026-07-20"
+      "DRAM": {
+        "value": 1.76,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
       },
-      "NOW": {
-        "value": 0.959,
-        "as_of": "2026-07-20"
+      "EWY": {
+        "value": 1.146,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
       },
       "GEV": {
-        "value": 0.935,
-        "as_of": "2026-07-20"
+        "value": 0.728,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
       },
-      "SNDK": 2.566,
-      "DRAM": 2.202,
-      "ARM": 1.756
+      "GOOG": {
+        "value": 0.244,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
+      },
+      "LRCX": {
+        "value": 1.565,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
+      },
+      "MRVL": {
+        "value": 1.653,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
+      },
+      "MU": {
+        "value": 1.434,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
+      },
+      "NVDA": {
+        "value": 0.505,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
+      },
+      "ORCL": {
+        "value": 0.514,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
+      },
+      "QCOM": {
+        "value": 0.511,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
+      },
+      "SNDK": {
+        "value": 2.464,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
+      },
+      "TER": {
+        "value": 1.904,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
+      },
+      "TSM": {
+        "value": 0.9,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
+      },
+      "VRT": {
+        "value": 1.13,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH"
+      }
     },
     "benchmark_betas": {
       "SPX": {
@@ -461,27 +480,110 @@
       "LRCX": {
         "date": "2026-07-29",
         "confirmed": true,
-        "source": "web"
+        "source": "fmp-calendar",
+        "as_of": "2026-07-28"
       },
       "GOOG": {
-        "date": "2026-07-22",
+        "date": "2026-10-21",
         "confirmed": true,
-        "source": "macro-desk"
+        "source": "reported 07-22",
+        "as_of": "2026-07-28"
       },
       "TER": {
         "date": "2026-07-28",
         "confirmed": true,
-        "source": "web"
+        "source": "reported",
+        "as_of": "2026-07-28"
       },
       "QCOM": {
         "date": "2026-07-29",
         "confirmed": true,
-        "source": "news"
+        "source": "fmp-calendar",
+        "as_of": "2026-07-28"
       },
       "AAPL": {
         "date": "2026-07-30",
         "confirmed": true,
-        "source": "news"
+        "source": "fmp-calendar",
+        "as_of": "2026-07-28"
+      },
+      "AMZN": {
+        "date": "2026-07-30",
+        "confirmed": true,
+        "source": "fmp-calendar",
+        "as_of": "2026-07-28"
+      },
+      "AMD": {
+        "date": "2026-08-04",
+        "confirmed": true,
+        "source": "fmp-calendar",
+        "as_of": "2026-07-28"
+      },
+      "CLS": {
+        "date": "2026-07-28",
+        "confirmed": false,
+        "source": "cadence",
+        "as_of": "2026-07-28"
+      },
+      "VRT": {
+        "date": "2026-07-30",
+        "confirmed": false,
+        "source": "cadence",
+        "as_of": "2026-07-28"
+      },
+      "COHR": {
+        "date": "2026-08-05",
+        "confirmed": false,
+        "source": "cadence",
+        "as_of": "2026-07-28"
+      },
+      "MRVL": {
+        "date": "2026-08-26",
+        "confirmed": false,
+        "source": "cadence",
+        "as_of": "2026-07-28"
+      },
+      "AVGO": {
+        "date": "2026-09-02",
+        "confirmed": false,
+        "source": "cadence",
+        "as_of": "2026-07-28"
+      },
+      "GEV": {
+        "date": "2026-10-21",
+        "confirmed": true,
+        "source": "reported 07-22",
+        "as_of": "2026-07-28"
+      },
+      "CEG": {
+        "date": "2026-08-10",
+        "confirmed": false,
+        "source": "cadence",
+        "as_of": "2026-07-28"
+      },
+      "VST": {
+        "date": "2026-08-07",
+        "confirmed": false,
+        "source": "cadence",
+        "as_of": "2026-07-28"
+      },
+      "ETN": {
+        "date": "2026-08-04",
+        "confirmed": false,
+        "source": "cadence",
+        "as_of": "2026-07-28"
+      },
+      "HUBB": {
+        "date": "2026-10-27",
+        "confirmed": true,
+        "source": "reported 07-28",
+        "as_of": "2026-07-28"
+      },
+      "NVDA": {
+        "date": "2026-08-26",
+        "confirmed": false,
+        "source": "cadence",
+        "as_of": "2026-07-28"
       }
     },
     "etf_constituents": {},
@@ -522,7 +624,9 @@
         "HUBB": 3.45
       },
       "note": "Basis of stop_loss_framework (stop = 2 x ATR20, floored at 3%). Validated 2026-07-28: across 460 name-days a 2x stop was breached by a single session's move once (0.2%), with 22 of 23 names never touched; 1.5x breached 8 times. Refresh on each deep run -- these readings are inflated by the violent 15-17 Jul and 27-28 Jul sessions, so caps will widen as vol normalises."
-    }
+    },
+    "earnings_method": "RESOLVED 2026-07-28 (G20): reliable method is yfinance get_earnings -> take the latest quarterly reportedDate and add ~91 days for the next print; cross-check near-dated names against the FMP earnings-calendar endpoint (works on the current plan for the calendar range query; the per-symbol earnings-company endpoint is plan-blocked). yfinance's own earnings-calendar endpoint remains unreliable -- do not use it.",
+    "beta_method": "RESOLVED 2026-07-28 (G15): betas computed vs SMH (the book's true factor, not SPX) from 20 daily returns, 25 Jun - 24 Jul 2026. CAVEAT: a 20-observation window carries wide standard errors -- treat these as ordinal (which names are high- vs low-beta) rather than precise point estimates, and refresh to a 60-day window on the next deep run. No name now defaults to 1.0."
   },
   "fomc_cache": {
     "rate_pct": 3.63,
@@ -546,10 +650,10 @@
   "known_gaps": [
     {
       "id": "G1",
-      "description": "LTCG per-lot purchase dates unavailable -- lots.json empty since first run",
+      "description": "LTCG per-lot purchase dates. Partially seeded: the 2026-07-28 buys (GOOG/AVGO/TSM/ASML) now carry exact dates and fills in lots.json, sourced from trades.json. Pre-07-28 lots remain unknown and need INDmoney order history.",
       "opened": "2026-07-12",
       "owner": "orchestrator/user (needs INDmoney order history)",
-      "status": "open"
+      "status": "open -- PARTIALLY SEEDED 2026-07-28"
     },
     {
       "id": "G3",
@@ -563,14 +667,18 @@
       "description": "'Compute/Hyperscaler' cluster line added to draft policy.json without user confirmation",
       "opened": "2026-07-18",
       "owner": "user (confirm or reject)",
-      "status": "open"
+      "status": "closed",
+      "closed": "2026-07-28",
+      "resolution": "CLOSED 2026-07-28: user explicitly confirmed the full cluster-target set including Compute/Hyperscaler (raised 10%->20%) when choosing option 3 on 2026-07-27."
     },
     {
       "id": "G15",
       "description": "data_cache.betas empty for SNDK/DRAM/IREN/ARM (25.7% of book) -- defaults to 1.0, flagged in data_quality. 2026-07-26: reverted a guessed-value insertion that violated the never-estimate guardrail. Needs real 3mo-returns beta vs SOX (see benchmark_betas), not an estimate.",
       "opened": "2026-07-20",
       "owner": "orchestrator (smith-book, real computation only)",
-      "status": "resolved 2026-07-27 -- real betas computed via 15-week SMH regression: SNDK 2.566, DRAM 2.202, ARM 1.756 (ARM corr only 0.603, noisier)"
+      "status": "closed",
+      "closed": "2026-07-28",
+      "resolution": "CLOSED 2026-07-28: real betas vs SMH computed for all 23 names from 20 daily returns; SNDK/DRAM/ARM no longer default to 1.0. See data_cache.beta_method for the window caveat."
     },
     {
       "id": "G17",
@@ -598,7 +706,9 @@
       "description": "yfinance earnings-calendar pulls have been unreliable for confirmed dates; smith-earnings agent (Tier 3.2 skeleton) recommends switching to FMP as primary source.",
       "opened": "2026-07-22",
       "owner": "smith-watchlist",
-      "status": "open"
+      "status": "closed",
+      "closed": "2026-07-28",
+      "resolution": "CLOSED 2026-07-28: reliable method established and documented in data_cache.earnings_method; 18 names seeded into earnings_calendar."
     },
     {
       "id": "G24",
@@ -612,14 +722,18 @@
       "description": "07-24 flow event (5 exits + 8 halvings, wallet $5.7k->$18.1k) had no captured trade rationale. FIXED GOING FORWARD 2026-07-26: trades.json + flow interrogation now attaches trade_reason to every qty_change (smith_math.py cmd_book). This historical instance stays UNCAPTURED.",
       "opened": "2026-07-27 (ad-hoc discovery)",
       "owner": "orchestrator -- needs a proper sweep to backfill the ledger gap",
-      "status": "open"
+      "status": "closed",
+      "closed": "2026-07-28",
+      "resolution": "CLOSED 2026-07-28: trades.json seeded with 12 entries covering the 07-24 event (reconstructed), the 07-27 stop-outs (with fills) and the 07-28 redeployment (exact fills). Forward capture mechanism was already in place; the historical hole is now filled and labelled."
     },
     {
       "id": "G28",
       "description": "smith_math.py cmd_drift does not implement policy.cash_regimes (two-regime cash band added 2026-07-28); reports breach vs [5,15] irrespective of post-stop-event regime.",
       "opened": "2026-07-28",
       "owner": "orchestrator/script",
-      "status": "open"
+      "status": "closed",
+      "closed": "2026-07-28",
+      "resolution": "CLOSED 2026-07-28: smith_math.py cmd_drift now implements policy.cash_regimes -- emits cash_regime, cash_regime_reason, cash_band_normal_pct and cash_breach_vs_normal. Verified live: 47.9% cash correctly reads post_stop_event regime, band [5,40], still a breach."
     },
     {
       "id": "G29",
@@ -711,7 +825,8 @@
     "2026-07-28 21:10: state brought forward past the morning $5k deployment; the 18:50 pre-market holdings row was stale (missing GOOG entirely).",
     "smith_math.py reads policy.cash_band_pct only -- it does NOT yet implement the new two-regime cash_regimes logic, so cmd_drift will report a breach against [5,15] regardless of regime. Code change pending (new gap G28).",
     "dashboard.html is stale (27 Jul 15:27) -- still shows Friday-range stops, not ATR20. Rebuild was drafted but never executed (new gap G29).",
-    "ATR20 now cached in data_cache.atr20; previously existed only in scratch and would have been lost."
+    "ATR20 now cached in data_cache.atr20; previously existed only in scratch and would have been lost.",
+    "2026-07-28 self-test caught two silent defects: (a) us.peak_total_book_usd had been dropped, making drawdown read -0.0% vs a real -14.84%; (b) GOOG was absent from sector_map, so $2,773 fell out of the cluster table and Compute/Hyperscaler under-read at 2.37% vs 16.30%. Both fixed; cluster weights now sum to 100%."
   ],
   "market_closed_run": true,
   "peer_map": {
@@ -818,6 +933,14 @@
     "DRAM": {
       "peer_etf": "SMH",
       "label": "memory"
+    },
+    "AMZN": {
+      "peer_etf": "XLK",
+      "label": "hyperscaler/compute"
+    },
+    "CEG": {
+      "peer_etf": "XLU",
+      "label": "power-generation/nuclear PPA"
     }
   },
   "changes": [
@@ -843,5 +966,6 @@
     "command": "python3 scripts/smith_math.py validate --base-dir /Users/yb/Claude/AgentSmith",
     "wired_into": "cmd_drift emits policy_defects + policy_valid on every run",
     "last_result": "clean (0 defects) as of 2026-07-25"
-  }
+  },
+  "last_stop_event_date": "2026-07-27"
 }

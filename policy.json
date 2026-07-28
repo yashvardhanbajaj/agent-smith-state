@@ -183,7 +183,9 @@
       ],
       "trigger": "Any session in which stop-outs raise cash above 20% of total book. Regime persists for 15 trading sessions from the last stop-out, or until cash re-enters the normal band, whichever comes first.",
       "glide": "Redeploy toward the normal band at whatever pace the volatility-scaled position caps permit (stop_loss_framework: 0.5% risk per position at 2x ATR20). Redeployment is NEVER forced by the calendar -- if the caps do not allow it, cash stays high and that is a correct outcome, not a breach.",
-      "description": "Elevated band that applies after a mass stop-out. Recognises that a tight, large-quantum stop discipline on a maximally-correlated book structurally converts equity to cash in single sessions."
+      "description": "Elevated band that applies after a mass stop-out. Recognises that a tight, large-quantum stop discipline on a maximally-correlated book structurally converts equity to cash in single sessions.",
+      "trigger_cash_pct": 20,
+      "window_sessions": 15
     },
     "rationale": "REVISED 2026-07-28 on explicit user instruction. The prior single [3,15]% band was an inherited default -- policy.json's own notes flagged it as not derived from this book's behaviour. It is incompatible with the user's confirmed stop-loss method, which has now twice liquidated a large fraction of the book in one session (2026-07-24: cash to 45.8%; 2026-07-28: cash to 60.5%). Under the old band, every post-stop-event day reported a severe breach the desk could not cure without violating the position-risk framework -- a false alarm that trained the reader to ignore a real control. The two-regime band separates 'cash is high because stops fired' (expected, tolerated to 40%) from 'cash is high because we are not deploying' (a genuine breach). Above 40% remains a real breach requiring action in either regime.",
     "current_note": "As of 2026-07-28 cash is ~47.9% of book -- above even the post_stop_event ceiling of 40%, so this remains a live breach, not a tolerated level."
