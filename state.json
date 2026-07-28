@@ -1,137 +1,152 @@
 {
   "schema_version": 1,
-  "ts": "2026-07-28T21:10:00+05:30",
-  "mode": "intraday-update",
+  "ts": "2026-07-29T00:15:00+05:30",
+  "mode": "deep",
   "usdinr": 95.842,
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
-  "last_run_dir": "runs/2026-07-28-2110/",
+  "last_run_dir": "runs/2026-07-29-0008/",
   "us": {
-    "value_usd": 19919.4,
-    "count": 20,
+    "value_usd": 28141.68,
+    "count": 23,
     "top3": [
       {
-        "ticker": "GOOG",
-        "weight_pct": 13.92
+        "ticker": "ASML",
+        "weight_pct": 11.253
       },
       {
-        "ticker": "TSM",
-        "weight_pct": 10.5
+        "ticker": "GOOGL",
+        "weight_pct": 9.526
       },
       {
-        "ticker": "AVGO",
-        "weight_pct": 9.68
+        "ticker": "DRAM",
+        "weight_pct": 8.519
       }
     ],
     "pnl_pct": null,
-    "wallet_usd": 18295.09,
+    "wallet_usd": 10198.53,
     "peak_value_usd": 41887.33,
-    "beta": 1.072,
+    "beta": 1.136,
     "usdinr": 96.2425,
-    "value_note": "2026-07-28 21:10 IST / 11:40 ET, live session. Equity $19919.40 across 20 positions, wallet $18295.09, total book $38214.49. SUPERSEDES the 18:50 pre-market row: that snapshot predated the $5,000 redeployment executed this morning (GOOG 8.441sh new @325.79, AVGO +3.086 @372.68, TSM +2.406 @384.45, ASML +0.111 @1571.16). Cash 47.9%. Drawdown -14.84% vs peak $44,873.02. Earlier today: NVDA (12sh) and LRCX (3sh) stopped out fully, GEV 1.395->0.395, EWY 10->5.",
+    "value_note": "2026-07-28 14:45 ET DEEP run, resumed after a mid-flight pause. Equity $28141.68 across 23 positions, wallet $10198.53, book $38340.21. During the pause the user deployed ~$8,100: NEW NVDA 10sh, NBIS 3sh, IREN 10sh; Memory doubled (SNDK 1.008->2.008, DRAM 25->50, EWY 5->8); added ASML/MRVL/COHR/CIEN/GEV/AMAT; reduced TSM 5.406->3 and AVGO 5.086->5; and swapped GOOG Class C 8.441sh for GOOGL Class A 8sh (different security). Cash fell 47.7%->26.6%, which under the new two-regime band is NO LONGER A BREACH. But ai_capex rose 52.3%->73.4% of total book: the cash that was absorbing factor risk has largely been spent, 0.44pt from the -15% warn rung, on the eve of a no-dot-plot FOMC.",
     "peak_total_book_usd": 44873.02,
     "peak_total_book_note": "Restored 2026-07-28 after being silently dropped. True historical max from ledger 2026-07-18T13:41 (equity $44,849.74 + wallet $23.28). Loss of this key made cmd_drift report drawdown -0.0% against a real -14.84%.",
     "beta_note": "Portfolio beta vs SMH = 1.072 on current 20 holdings, value-weighted (2026-07-28). Down from the prior SPX-based 1.491, which cmd_book flagged as misleading. The fall is almost entirely GOOG: its beta to SMH is 0.244 with R2 0.08, and AMZN's is -0.030 with R2 0.00 -- statistically near-independent of the semiconductor complex. That is the quantitative case for the hyperscaler sleeve, and it is now measured rather than asserted."
   },
   "holdings": [
     {
-      "ticker": "GOOG",
-      "qty": 8.441,
-      "weight_pct": 13.92
+      "ticker": "ASML",
+      "qty": 2.000001151,
+      "weight_pct": 11.253
     },
     {
-      "ticker": "TSM",
-      "qty": 5.406,
-      "weight_pct": 10.5
+      "ticker": "GOOGL",
+      "qty": 8,
+      "weight_pct": 9.526
+    },
+    {
+      "ticker": "DRAM",
+      "qty": 50,
+      "weight_pct": 8.519
+    },
+    {
+      "ticker": "SNDK",
+      "qty": 2.008131251,
+      "weight_pct": 7.714
+    },
+    {
+      "ticker": "NVDA",
+      "qty": 10,
+      "weight_pct": 7.011
     },
     {
       "ticker": "AVGO",
-      "qty": 5.086,
-      "weight_pct": 9.68
+      "qty": 5,
+      "weight_pct": 6.758
     },
     {
-      "ticker": "ASML",
-      "qty": 1.111,
-      "weight_pct": 8.8
+      "ticker": "MRVL",
+      "qty": 10,
+      "weight_pct": 6.225
     },
     {
       "ticker": "VRT",
       "qty": 5,
-      "weight_pct": 6.67
+      "weight_pct": 4.756
     },
     {
-      "ticker": "MRVL",
-      "qty": 7,
-      "weight_pct": 6.14
+      "ticker": "EWY",
+      "qty": 8,
+      "weight_pct": 4.345
     },
     {
-      "ticker": "DRAM",
-      "qty": 25,
-      "weight_pct": 6.0
+      "ticker": "COHR",
+      "qty": 5,
+      "weight_pct": 4.286
     },
     {
-      "ticker": "SNDK",
-      "qty": 1.008131251,
-      "weight_pct": 5.61
-    },
-    {
-      "ticker": "QCOM",
-      "qty": 6.000761904,
-      "weight_pct": 5.03
+      "ticker": "TSM",
+      "qty": 3,
+      "weight_pct": 4.181
     },
     {
       "ticker": "CLS",
       "qty": 3.003266352,
-      "weight_pct": 4.94
+      "weight_pct": 3.554
+    },
+    {
+      "ticker": "QCOM",
+      "qty": 6.000761904,
+      "weight_pct": 3.516
+    },
+    {
+      "ticker": "GEV",
+      "qty": 1.004950742,
+      "weight_pct": 3.351
     },
     {
       "ticker": "MU",
       "qty": 1.000365376,
-      "weight_pct": 4.11
+      "weight_pct": 2.914
     },
     {
-      "ticker": "EWY",
-      "qty": 5,
-      "weight_pct": 3.77
-    },
-    {
-      "ticker": "COHR",
+      "ticker": "NBIS",
       "qty": 3,
-      "weight_pct": 3.59
+      "weight_pct": 1.762
     },
     {
       "ticker": "ARM",
       "qty": 2,
-      "weight_pct": 2.46
+      "weight_pct": 1.755
     },
     {
       "ticker": "ORCL",
       "qty": 4,
-      "weight_pct": 2.37
+      "weight_pct": 1.716
+    },
+    {
+      "ticker": "AMAT",
+      "qty": 1.0081785,
+      "weight_pct": 1.704
     },
     {
       "ticker": "AMD",
       "qty": 1,
-      "weight_pct": 2.27
+      "weight_pct": 1.633
     },
     {
-      "ticker": "GEV",
-      "qty": 0.394950742,
-      "weight_pct": 1.85
+      "ticker": "CIEN",
+      "qty": 1.008528082,
+      "weight_pct": 1.22
+    },
+    {
+      "ticker": "IREN",
+      "qty": 10,
+      "weight_pct": 1.19
     },
     {
       "ticker": "TER",
       "qty": 1.002730188,
-      "weight_pct": 1.55
-    },
-    {
-      "ticker": "CIEN",
-      "qty": 0.388528082,
-      "weight_pct": 0.69
-    },
-    {
-      "ticker": "AMAT",
-      "qty": 0.0091785,
-      "weight_pct": 0.02
+      "weight_pct": 1.112
     }
   ],
   "news_watermark": "2026-07-27",
@@ -157,7 +172,10 @@
     "ARM": "Chip architecture/IP licensing powering most AI silicon | watch",
     "AMD": "GPU/CPU compute silicon, direct AI-accelerator competitor to NVDA | strengthening",
     "ORCL": "Oracle Cloud Infrastructure -- hyperscaler cloud/AI-capex beneficiary | watch",
-    "GOOG": "Hyperscaler that BUYS AI capex rather than selling it -- the chain's only internal hedge; blowout 2Q26 print, no earnings until ~late Oct | strengthening"
+    "GOOG": "Hyperscaler that BUYS AI capex rather than selling it -- the chain's only internal hedge; blowout 2Q26 print, no earnings until ~late Oct | strengthening [POSITION CLOSED 2026-07-28, swapped to GOOGL Class A]",
+    "GOOGL": "Alphabet Class A \u2014 replaced the Class C holding 2026-07-28. Hyperscaler that BUYS AI capex; blowout 2Q26 (rev +24%, cloud +82%) but FY26 capex raised to $195-205bn and quarterly FCF went negative -$5.9bn | strengthening",
+    "NBIS": "Re-entered 2026-07-28 at 3sh after the 07-24 stop-out. Neocloud GPU-as-a-service; highest ATR in the book at 14.89% | watch",
+    "IREN": "Re-entered 2026-07-28 at 10sh after the 07-24 stop-out. Bitcoin-mining infra pivoted to AI/GPU cloud; ATR 11.47% | watch"
   },
   "sector_map": {
     "NVDA": "AI Semis/Fabs",
@@ -183,7 +201,10 @@
     "ARM": "AI Semis/Fabs",
     "GOOG": "Compute/Hyperscaler",
     "AMZN": "Compute/Hyperscaler",
-    "CEG": "AI Power/Cooling/DC Infra"
+    "CEG": "AI Power/Cooling/DC Infra",
+    "GOOGL": "Compute/Hyperscaler",
+    "NBIS": "Compute/Hyperscaler OEM",
+    "IREN": "Compute/Hyperscaler"
   },
   "signal_history": {
     "ORCL": [
@@ -299,18 +320,18 @@
   },
   "open_flags": [
     {
-      "ticker": "NVDA",
-      "flag": "NEW THESIS RISK 2026-07-28: Nvidia weighing a $250B financing guarantee for an OpenAI datacenter, part of >$750B of deals. Goldman flags 'circular revenue from strategic investments could be dilutive to the multiple'. This is a revenue-QUALITY question, not a price wobble, and it post-dates the re-entry proposal. Re-entry rationale (mis-calibrated stop) still holds on price; the thesis leg is now contested.",
+      "ticker": "RISK-CAPS",
+      "flag": "FIVE names now exceed their 0.5%-of-book risk cap at 2xATR20: DRAM 2.24x ($2,398 vs $1,069), MRVL 1.75x, SNDK 1.55x, ASML 1.55x, COHR 1.18x. Aggregate excess ~$4,160 \u2014 larger than the entire 10% book risk budget of $3,834. Strategist proposes trims of $1,200/$650/$450 on DRAM/MRVL/SNDK.",
+      "opened": "2026-07-28"
+    },
+    {
+      "ticker": "GOOGL",
+      "flag": "Ticker swap GOOG Class C -> GOOGL Class A on 2026-07-28. Different security and investment_code (114025 -> 112778). ATR and beta are proxied from GOOG pending their own history. Confirm this was intentional rather than a broker substitution.",
       "opened": "2026-07-28"
     },
     {
       "ticker": "MEMORY-CLUSTER",
-      "flag": "CXMT IPO'd on Shanghai STAR +400% on 2026-07-28. The memory thesis now faces a capitalised domestic Chinese competitor. Affects SNDK/MU/DRAM/EWY = 19.5% of equity, 10.2% of book. Hand to HBMTracker for supply-side tracking.",
-      "opened": "2026-07-28"
-    },
-    {
-      "ticker": "ASML",
-      "flag": "China immersion DUV entered mass production 2026-07-28. Near-term revenue impact negligible (5 units vs 131); strategic signal real. Watch for EUV-adjacent announcements -- that would be the thesis-breaking event.",
+      "flag": "User doubled Memory into the CXMT crash (SNDK, DRAM, EWY). Catalyst 1 partially vindicates it \u2014 CXMT's DDR5 modules price 2.2% ABOVE Samsung/SK Hynix, so the feared price war has not appeared in the only hard data point. But the cluster is now 23.5% of equity and two of its names are the worst risk-cap breaches in the book.",
       "opened": "2026-07-28"
     }
   ],
@@ -462,6 +483,12 @@
         "value": 1.13,
         "as_of": "2026-07-28",
         "benchmark": "SMH"
+      },
+      "GOOGL": {
+        "value": 0.244,
+        "as_of": "2026-07-28",
+        "benchmark": "SMH",
+        "note": "proxied from GOOG Class C"
       }
     },
     "benchmark_betas": {
@@ -626,7 +653,10 @@
         "ETN": 4.54,
         "NVT": 5.73,
         "PWR": 4.49,
-        "HUBB": 3.45
+        "HUBB": 3.45,
+        "NBIS": 14.89,
+        "IREN": 11.47,
+        "GOOGL": 3.46
       },
       "note": "Basis of stop_loss_framework (stop = 2 x ATR20, floored at 3%). Validated 2026-07-28: across 460 name-days a 2x stop was breached by a single session's move once (0.2%), with 22 of 23 names never touched; 1.5x breached 8 times. Refresh on each deep run -- these readings are inflated by the violent 15-17 Jul and 27-28 Jul sessions, so caps will widen as vol normalises.",
       "ttl_days": 7,
@@ -868,14 +898,10 @@
   },
   "watchlist_scan_cursor": 75,
   "data_quality": [
-    "2026-07-28 21:10: state brought forward past the morning $5k deployment; the 18:50 pre-market holdings row was stale (missing GOOG entirely).",
-    "smith_math.py reads policy.cash_band_pct only -- it does NOT yet implement the new two-regime cash_regimes logic, so cmd_drift will report a breach against [5,15] regardless of regime. Code change pending (new gap G28).",
-    "dashboard.html is stale (27 Jul 15:27) -- still shows Friday-range stops, not ATR20. Rebuild was drafted but never executed (new gap G29).",
-    "ATR20 now cached in data_cache.atr20; previously existed only in scratch and would have been lost.",
-    "2026-07-28 self-test caught two silent defects: (a) us.peak_total_book_usd had been dropped, making drawdown read -0.0% vs a real -14.84%; (b) GOOG was absent from sector_map, so $2,773 fell out of the cluster table and Compute/Hyperscaler under-read at 2.37% vs 16.30%. Both fixed; cluster weights now sum to 100%.",
-    "2026-07-28: data-pull audit. Quick-run payload was ~119KB (~33k tokens); 18 of 27 calls avoidable. Cache TTLs and a price-source rule added to data_cache.cache_policy; SKILL.md sections 1.5/2.5/2.8 rewritten. Target quick run ~26KB (78% lighter).",
-    "2026-07-28: cluster denominator split by band edge (ceiling=total book while cash elevated, floor=invested equity). First implementation switched both edges and manufactured 5 phantom floor breaches; corrected. Live result: breaches fall from 3 to 1 (Power under-band, which is real).",
-    "2026-07-28: G30 closed. Gate v2 (Asia + SMH terms) would have classified this morning ESCALATING rather than STABILIZING, dispatching both smith-rebound and the new smith-catalyst before the user had to ask."
+    "2026-07-28 deep run resumed after pause; all figures post-deployment. est_net_flows_usd ($3,156) understates the true ~$8,100 wallet drawdown because the GOOG->GOOGL swap reads as one exit plus one entry rather than a substitution.",
+    "NBIS and IREN ATR20 computed fresh (14.89%, 11.47%); GOOGL ATR and beta proxied from GOOG Class C pending its own 21-bar history.",
+    "smith-strategist tail reports missing hit-rate and proposal-scorecard inputs (not passed in its slice) \u2014 scorecard skipped this run.",
+    "smith-book, smith-scout, smith-watchlist and smith-quality were NOT dispatched this run \u2014 disclosed, not silent. Catalyst/thesis/macro/strategist ran."
   ],
   "market_closed_run": true,
   "peer_map": {
