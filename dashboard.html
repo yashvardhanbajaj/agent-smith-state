@@ -225,29 +225,50 @@ details .body{padding:2px 0 15px}
 .pill.warn{background:var(--warn-soft);color:var(--warn)}
 .pill.bad{background:var(--bad-soft);color:var(--bad)}
 
-.cat{display:flex;flex-direction:column;gap:0}
+.viz{--surface-1:var(--surface);--grid:var(--line-soft);--axis:var(--line);--ink-1:var(--ink);
+ --equity:#35586a;--cash:#b8862b;--pos:#1f7a4d;--neg:#a83737;--critical:#a83737;--warning:#9c6f18;--serious:#b06a2c;--muted:#b6bbbd}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .viz{
+ --equity:#5f93ad;--cash:#c9963f;--pos:#5cb98a;--neg:#d97676;--critical:#d97676;--warning:#d3a446;--serious:#d08a4e;--muted:#4d5457}}
+:root[data-theme="dark"] .viz{--equity:#5f93ad;--cash:#c9963f;--pos:#5cb98a;--neg:#d97676;--critical:#d97676;--warning:#d3a446;--serious:#d08a4e;--muted:#4d5457}
+.viz text{font-family:var(--mono)} .viz .mark{transition:opacity .12s} .viz .mark:hover{opacity:.72}
+.viz-legend{display:flex;gap:15px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--ink-2)}
+.viz-legend i{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:-1px}
+.viz-note{font-size:12px;color:var(--ink-3);line-height:1.55}
+.tier{display:flex;align-items:center;gap:13px;margin-top:6px}
+.tier h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-3);white-space:nowrap}
+.tier .ln{flex:1;height:1px;background:var(--line)}
+details{border-top:1px solid var(--line-soft)} details:first-of-type{border-top:none}
+details>summary{cursor:pointer;list-style:none;padding:12px 0;font-size:13.5px;font-weight:640;letter-spacing:-.01em}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▸  ";color:var(--ink-3)} details[open]>summary::before{content:"▾  "}
+details>summary:hover{color:var(--accent)} details>summary .c{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:400;margin-left:7px}
+details .body{padding:2px 0 15px}
 .ci{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
 .ci:last-child{border-bottom:none}
-.cb{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 6px;
-  border-radius:4px;text-align:center;height:fit-content}
-.cb.TAILWIND{background:var(--good-soft);color:var(--good)}
-.cb.THREAT{background:var(--bad-soft);color:var(--bad)}
+.cb{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 6px;border-radius:4px;text-align:center;height:fit-content}
+.cb.TAILWIND{background:var(--good-soft);color:var(--good)} .cb.THREAT{background:var(--bad-soft);color:var(--bad)}
 .cb.AMBIGUOUS{background:var(--warn-soft);color:var(--warn)}
-.ci .hh{font-size:13.5px;font-weight:640;letter-spacing:-.01em;line-height:1.4}
-.ci .mm{font-size:12px;color:var(--ink-3);margin-top:4px;line-height:1.45}
+.ci .hh{font-size:13.5px;font-weight:640;line-height:1.4} .ci .mm{font-size:12px;color:var(--ink-3);margin-top:4px;line-height:1.45}
 .ci .aa{font-family:var(--mono);font-size:11px;color:var(--accent);margin-top:4px}
-.ci .kk{font-size:9.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;margin-top:5px}
-.corr{border-left:3px solid var(--warn);background:var(--warn-soft);padding:12px 15px;border-radius:0 5px 5px 0}
-.corr .h{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);margin-bottom:6px}
+.pr{display:grid;grid-template-columns:96px 1fr auto;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft);align-items:baseline}
+.pr:last-child{border-bottom:none}
+.pr .act2{font-family:var(--mono);font-size:12px;font-weight:700} .pr .why{font-size:12.5px;color:var(--ink-2);line-height:1.45}
+.pr .amt{font-family:var(--mono);font-weight:700;color:var(--action)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;flex-direction:column;gap:1px;padding:5px 9px;border-radius:5px;background:var(--surface-2);
+ border:1px solid var(--line);border-left-width:3px;font-size:12.5px;font-weight:700;cursor:help}
+.chip i{font-style:normal;font-size:9.5px;font-weight:500;color:var(--ink-3)}
+.grp-h{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
+.dot-g,.dot-w{width:7px;height:7px;border-radius:50%} .dot-g{background:var(--good)} .dot-w{background:var(--warn)}
+.tick{font-family:var(--mono);font-size:11.5px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--surface-2);color:var(--ink-2)}
+.tick.g{background:var(--good-soft);color:var(--good)} .tick.b{background:var(--bad-soft);color:var(--bad)}
+.tick.gone{opacity:.42;text-decoration:line-through}
+.srow{display:grid;grid-template-columns:150px 1fr;gap:11px;align-items:baseline;padding:5px 0}
+.slab{font-size:11.5px;color:var(--ink-2)} .sch{display:flex;flex-wrap:wrap;gap:4px}
 .hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px}
 .hero .v{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:-.02em}
 .hero .k{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
 .hero .s{font-size:11.5px;color:var(--ink-3);font-family:var(--mono)}
-.pr{display:grid;grid-template-columns:96px 1fr auto;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft);align-items:baseline}
-.pr:last-child{border-bottom:none}
-.pr .act{font-family:var(--mono);font-size:12px;font-weight:700}
-.pr .why{font-size:12.5px;color:var(--ink-2);line-height:1.45}
-.pr .amt{font-family:var(--mono);font-weight:700;color:var(--action)}
 </style>
 <div class="wrap">
  <header class="mast"><h1>Agent Smith <span>· US Deep Review</span></h1>
@@ -263,14 +284,32 @@ details .body{padding:2px 0 15px}
   <div class="cell flag"><span class="k">AI-capex</span><span class="v num">73.4%</span><span class="s">of book, was 52.3%</span></div>
  </section>
 
+ <div class="tier"><h2>Decisions</h2><div class="ln"></div></div>
+
+ <section class="panel act"><div class="phead"><h2>Open proposals</h2>
+   <span class="pill a">For review — never executed</span></div>
+  <div class="pbody">
+   <p class="voice">Aggregate excess over the risk caps is <em>$4,860</em> — larger than the entire $3,834 risk budget.
+   The three trims are risk discipline, not a thesis reversal. The two buys wait for Powell.</p>
+   <div><div class="pr"><span class="act2">BUY CEG (new position)</span><span class="why">New Power/DC name, selected from a 10-name screen. Chosen over HUBB/ETN/NVT/PWR/VST because it is GENERATION, not equipment: GEV and VRT are both equipment vendors sharing one order-book cycle, so a third equipment name adds a ticker without adding diversification. CEG sells power to datacenters under long-dated nuclear PPAs -- contracted revenue that keeps paying if AI capex pauses, which is the live risk. ATR20 3.58% (2nd lowest of the screen), 27.1% upside (double HUBB's), -3.61% on 28 Jul vs SMH -3.58%. Repairs the Power/DC floor breach (8.52% vs 10% floor) and lifts the cluster's equity ceiling from $29,870 to $56,550, removing Power as the binding constraint on total deployment. RISK: reports ~10 Aug, ~2 weeks of clean runway.</span><span class="amt">$1,500</span></div><div class="pr"><span class="act2">TRIM DRAM</span><span class="why">2.24x its ATR risk cap ($2,398 held vs $1,069). Risk-sizing trim, not a thesis exit — Memory remains WATCH not BROKEN.</span><span class="amt">$1,200</span></div><div class="pr"><span class="act2">TRIM MRVL</span><span class="why">1.75x risk cap. No broken thesis; frees room in Optics which sits near its band top.</span><span class="amt">$650</span></div><div class="pr"><span class="act2">TRIM SNDK</span><span class="why">1.55x risk cap, but catalyst 1 (CXMT priced 2.2% above incumbents) supports the thesis — partial trim only.</span><span class="amt">$450</span></div><div class="pr"><span class="act2">BUY CEG</span><span class="why">Power/DC under-band (5.95% of book vs a 10% floor). Generation not equipment. Sequence after tomorrow's FOMC presser.</span><span class="amt">$1,500</span></div><div class="pr"><span class="act2">ADD GOOGL</span><span class="why">Hyperscaler fell under-band (9.12% of book vs 15% floor) on the GOOG->GOOGL swap sizing. Thesis intact, no risk-cap issue.</span><span class="amt">$700</span></div></div>
+  </div></section>
+
+ <section class="panel"><div class="phead"><h2>Factor catalysts</h2>
+   <span class="pill g">smith-catalyst · first dispatch · 6 searches</span></div>
+  <div class="pbody">
+   <p class="note">Ticker-scoped news cannot see any of these — CXMT is not a holding, KOSPI is not a ticker, and a Chinese
+   lithography breakthrough is news about ASML's competitor. This panel is why the agent exists.</p>
+   <div><div class="ci"><span class="cb TAILWIND">TAILWIND</span><div><div class="hh">CXMT DDR5 server modules price 2.2% ABOVE Samsung/SK Hynix — the feared price war is absent from the only hard data point</div><div class="mm">18,999 vs 18,595 yuan; CXMT cost base 30%+ higher; 8% DRAM share vs Samsung 36% / SK Hynix 29% / Micron 24%</div><div class="aa">MU · SNDK · DRAM · EWY</div></div></div><div class="ci"><span class="cb AMBIGUOUS">AMBIGUOUS</span><div><div class="hh">Alphabet FY26 capex raised to $195–205bn; quarterly FCF turned negative −$5.9bn</div><div class="mm">Q2 capex $44.9bn against −$5.9bn FCF; revenue still +24% YoY, cloud +82%. AMZN/META/MSFT face the same question this week</div><div class="aa">GOOGL</div></div></div><div class="ci"><span class="cb THREAT">THREAT</span><div><div class="hh">Nvidia's $250bn OpenAI guarantee is ~71× its own disclosed lease-guarantee cap</div><div class="mm">$250bn commitment vs a $3.5bn disclosed 10-Q cap</div><div class="aa">NVDA · AVGO · AMD · ORCL</div></div></div><div class="ci"><span class="cb THREAT">THREAT</span><div><div class="hh">KOSPI's plunge was Korea's 8th circuit breaker of 2026</div><div class="mm">−34% in 25 days after a prior +300% spike</div><div class="aa">EWY · TSM · memory</div></div></div></div>
+  </div></section>
+
  <section class="panel"><div class="phead"><h2>The read</h2>
-  <div class="pills"><span class="pill b">Gate v2 · ESCALATING</span><span class="pill g">Cash regime · post-stop-event</span></div></div>
+  <div class="pills"><span class="pill b">Gate v2 · ESCALATING</span><span class="pill g">Cash · post-stop-event</span></div></div>
   <div class="pbody">
    <p class="voice">You deployed roughly <em>$8,100</em> during the pause. Cash fell 47.7% to 26.6% — which under the band
    written this morning is <em>no longer a breach</em>. The policy change did what it was built to do, on its first real test.</p>
    <p class="voice">But the ballast went with it. AI-capex exposure rose from 52.3% to <em>73.4% of total book</em> — not because
-   the theme was bought proportionally, but because the cash that was absorbing its risk has largely been spent. You are
-   0.44 points from the warn rung, with a no-dot-plot FOMC tomorrow at 14:00 ET and QCOM and LRCX reporting the same day.</p>
+   the theme was bought proportionally, but because the cash absorbing its risk has largely been spent. You sit 0.44 points from
+   the warn rung, with a no-dot-plot FOMC tomorrow at 14:00 ET and QCOM and LRCX reporting the same day.</p>
    <hr class="rule">
    <div class="macro">
     <div class="col"><span class="k">10-yr</span><span class="v">4.596%</span><span class="s">−4.5bp today</span></div>
@@ -282,77 +321,267 @@ details .body{padding:2px 0 15px}
    </div>
   </div></section>
 
- <section class="panel"><div class="phead"><h2>Factor catalysts</h2>
-   <span class="pill g">smith-catalyst · first dispatch · 6 searches</span></div>
-  <div class="pbody">
-   <p class="note">Ticker-scoped news scanning cannot see any of these — CXMT is not a holding, KOSPI is not a ticker,
-   and a Chinese lithography breakthrough is news about ASML's competitor. This panel is why the agent exists.</p>
-   <div class="cat"><div class="ci"><span class="cb TAILWIND">TAILWIND</span><div><div class="hh">CXMT DDR5 server modules price 2.2% ABOVE Samsung/SK Hynix — the feared price war is absent from the only hard data point</div><div class="mm">18,999 vs 18,595 yuan; CXMT cost base 30%+ higher; 8% DRAM share vs Samsung 36% / SK Hynix 29% / Micron 24%</div><div class="aa">MU · SNDK · DRAM · EWY</div><div class="kk">structural</div></div></div><div class="ci"><span class="cb AMBIGUOUS">AMBIGUOUS</span><div><div class="hh">Alphabet FY26 capex raised to $195–205bn; quarterly FCF turned negative −$5.9bn</div><div class="mm">Q2 capex $44.9bn against −$5.9bn FCF; revenue still +24% YoY, cloud +82%. AMZN/META/MSFT face the same question this week</div><div class="aa">GOOGL</div><div class="kk">structural</div></div></div><div class="ci"><span class="cb THREAT">THREAT</span><div><div class="hh">Nvidia's $250bn OpenAI guarantee is ~71× its own disclosed lease-guarantee cap</div><div class="mm">$250bn commitment vs $3.5bn disclosed 10-Q cap</div><div class="aa">NVDA · AVGO · AMD · ORCL</div><div class="kk">structural</div></div></div><div class="ci"><span class="cb THREAT">THREAT</span><div><div class="hh">KOSPI's plunge was Korea's 8th circuit breaker of 2026</div><div class="mm">−34% in 25 days after a prior +300% spike</div><div class="aa">EWY · TSM · memory</div><div class="kk">immediate</div></div></div></div>
-  </div></section>
+ <div class="tier"><h2>Book state</h2><div class="ln"></div></div>
 
- <section class="panel act"><div class="phead"><h2>Open proposals</h2>
-   <span class="pill a">For review — never executed</span></div>
-  <div class="pbody">
-   <p class="voice">Aggregate excess over the risk caps is <em>$4,860</em> — larger than the entire $3,834 risk budget.
-   The three trims are risk discipline, not a thesis reversal. The two buys wait for Powell.</p>
-   <div><div class="pr"><span class="act">BUY CEG (new position)</span><span class="why">New Power/DC name, selected from a 10-name screen. Chosen over HUBB/ETN/NVT/PWR/VST because it is GENERATION, not equipment: GEV and VRT are both equipment vendors sharing one order-book cycle, so a third equipment name adds a ticker without adding diversification. CEG sells power to datacenters under long-dated nuclear PPAs -- contracted revenue that keeps paying if AI capex pauses, which is the live risk. ATR20 3.58% (2nd lowest of the screen), 27.1% upside (double HUBB's), -3.61% on 28 Jul vs SMH -3.58%. Repairs the Power/DC floor breach (8.52% vs 10% floor) and lifts the cluster's equity ceiling from $29,870 to $56,550, removing Power as the binding constraint on total deployment. RISK: reports ~10 Aug, ~2 weeks of clean runway.</span><span class="amt">$1,500</span></div><div class="pr"><span class="act">TRIM DRAM</span><span class="why">2.24x its ATR risk cap ($2,398 held vs $1,069). Risk-sizing trim, not a thesis exit — Memory remains WATCH not BROKEN.</span><span class="amt">$1,200</span></div><div class="pr"><span class="act">TRIM MRVL</span><span class="why">1.75x risk cap. No broken thesis; frees room in Optics which sits near its band top.</span><span class="amt">$650</span></div><div class="pr"><span class="act">TRIM SNDK</span><span class="why">1.55x risk cap, but catalyst 1 (CXMT priced 2.2% above incumbents) supports the thesis — partial trim only.</span><span class="amt">$450</span></div><div class="pr"><span class="act">BUY CEG</span><span class="why">Power/DC under-band (5.95% of book vs a 10% floor). Generation not equipment. Sequence after tomorrow's FOMC presser.</span><span class="amt">$1,500</span></div><div class="pr"><span class="act">ADD GOOGL</span><span class="why">Hyperscaler fell under-band (9.12% of book vs 15% floor) on the GOOG->GOOGL swap sizing. Thesis intact, no risk-cap issue.</span><span class="amt">$700</span></div></div>
-  </div></section>
+ <section class="panel viz"><div class="phead"><h2>Book value &amp; cash · every ledger row</h2>
+   <div class="viz-legend"><span><i style="background:var(--equity)"></i>Equity</span><span><i style="background:var(--cash)"></i>Cash</span></div></div>
+  <div class="pbody"><div class="scroll"><svg class="viz-svg" viewBox="0 0 760 250" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Total book split into equity and cash across every ledger row">
+<line x1="52" y1="220.0" x2="698" y2="220.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="45" y="223.5" text-anchor="end" font-size="10" fill="var(--ink-3)">$0k</text>
+<line x1="52" y1="177.9" x2="698" y2="177.9" stroke="var(--grid)" stroke-width="1"/>
+<text x="45" y="181.4" text-anchor="end" font-size="10" fill="var(--ink-3)">$10k</text>
+<line x1="52" y1="135.8" x2="698" y2="135.8" stroke="var(--grid)" stroke-width="1"/>
+<text x="45" y="139.3" text-anchor="end" font-size="10" fill="var(--ink-3)">$20k</text>
+<line x1="52" y1="93.7" x2="698" y2="93.7" stroke="var(--grid)" stroke-width="1"/>
+<text x="45" y="97.2" text-anchor="end" font-size="10" fill="var(--ink-3)">$30k</text>
+<line x1="52" y1="51.6" x2="698" y2="51.6" stroke="var(--grid)" stroke-width="1"/>
+<text x="45" y="55.1" text-anchor="end" font-size="10" fill="var(--ink-3)">$40k</text>
+<polygon points="52.0,69.3 92.4,69.9 132.8,69.7 173.1,76.9 213.5,74.6 253.9,75.1 294.2,69.3 334.6,50.4 375.0,31.1 415.4,56.2 455.8,46.2 496.1,43.5 536.5,46.1 576.9,53.3 617.2,53.9 657.6,58.1 698.0,58.6 698.0,220.0 52.0,220.0" fill="var(--cash)" fill-opacity="0.85"/>
+<polygon points="52.0,88.1 92.4,88.6 132.8,88.4 173.1,119.5 213.5,102.6 253.9,95.5 294.2,69.4 334.6,52.2 375.0,31.2 415.4,56.3 455.8,48.1 496.1,43.7 536.5,69.9 576.9,129.7 617.2,130.4 657.6,156.1 698.0,101.5 698.0,220.0 52.0,220.0" fill="var(--equity)" fill-opacity="0.9"/>
+<polyline points="52.0,69.3 92.4,69.9 132.8,69.7 173.1,76.9 213.5,74.6 253.9,75.1 294.2,69.3 334.6,50.4 375.0,31.1 415.4,56.2 455.8,46.2 496.1,43.5 536.5,46.1 576.9,53.3 617.2,53.9 657.6,58.1 698.0,58.6" fill="none" stroke="var(--ink-1)" stroke-width="1.5" stroke-opacity="0.5"/>
+<rect class="mark" x="45.0" y="16" width="14" height="204" fill="transparent"><title>2026-07-12T14:43  total $35,794 | equity $31,339 | cash $4,454 (12.4%)</title></rect>
+<rect class="mark" x="85.4" y="16" width="14" height="204" fill="transparent"><title>2026-07-13T13:22  total $35,664 | equity $31,226 | cash $4,438 (12.4%)</title></rect>
+<rect class="mark" x="125.8" y="16" width="14" height="204" fill="transparent"><title>2026-07-13T15:35  total $35,708 | equity $31,264 | cash $4,444 (12.4%)</title></rect>
+<rect class="mark" x="166.1" y="16" width="14" height="204" fill="transparent"><title>2026-07-14T17:42  total $33,993 | equity $23,873 | cash $10,119 (29.8%)</title></rect>
+<rect class="mark" x="206.5" y="16" width="14" height="204" fill="transparent"><title>2026-07-14T22:10  total $34,533 | equity $27,897 | cash $6,636 (19.2%)</title></rect>
+<rect class="mark" x="246.9" y="16" width="14" height="204" fill="transparent"><title>2026-07-15T15:42  total $34,423 | equity $29,567 | cash $4,856 (14.1%)</title></rect>
+<rect class="mark" x="287.2" y="16" width="14" height="204" fill="transparent"><title>2026-07-16T16:44  total $35,811 | equity $35,777 | cash $34 (0.1%)</title></rect>
+<line x1="334.6" y1="16" x2="334.6" y2="220.0" stroke="var(--neg)" stroke-width="1" stroke-dasharray="2 3" stroke-opacity="0.7"/>
+<circle cx="334.6" cy="50.4" r="3.5" fill="var(--surface-1)" stroke="var(--neg)" stroke-width="2"><title>2026-07-17T13:44 excluded: suspect</title></circle>
+<rect class="mark" x="327.6" y="16" width="14" height="204" fill="transparent"><title>2026-07-17T13:44  total $40,299 | equity $39,872 | cash $427 (1.1%)</title></rect>
+<line x1="375.0" y1="16" x2="375.0" y2="220.0" stroke="var(--neg)" stroke-width="1" stroke-dasharray="2 3" stroke-opacity="0.7"/>
+<circle cx="375.0" cy="31.1" r="3.5" fill="var(--surface-1)" stroke="var(--neg)" stroke-width="2"><title>2026-07-18T13:41 excluded: suspect</title></circle>
+<rect class="mark" x="368.0" y="16" width="14" height="204" fill="transparent"><title>2026-07-18T13:41  total $44,873 | equity $44,849 | cash $23 (0.1%)</title></rect>
+<rect class="mark" x="408.4" y="16" width="14" height="204" fill="transparent"><title>2026-07-20T12:40  total $38,902 | equity $38,879 | cash $23 (0.1%)</title></rect>
+<rect class="mark" x="448.8" y="16" width="14" height="204" fill="transparent"><title>2026-07-22T14:31  total $41,292 | equity $40,834 | cash $457 (1.1%)</title></rect>
+<rect class="mark" x="489.1" y="16" width="14" height="204" fill="transparent"><title>2026-07-23T19:07  total $41,923 | equity $41,887 | cash $36 (0.1%)</title></rect>
+<line x1="536.5" y1="16" x2="536.5" y2="220.0" stroke="var(--neg)" stroke-width="1" stroke-dasharray="2 3" stroke-opacity="0.7"/>
+<circle cx="536.5" cy="46.1" r="3.5" fill="var(--surface-1)" stroke="var(--neg)" stroke-width="2"><title>2026-07-24T18:29 excluded: stale_dated</title></circle>
+<rect class="mark" x="529.5" y="16" width="14" height="204" fill="transparent"><title>2026-07-24T18:29  total $41,312 | equity $35,655 | cash $5,656 (13.7%)</title></rect>
+<rect class="mark" x="569.9" y="16" width="14" height="204" fill="transparent"><title>2026-07-25T16:07  total $39,592 | equity $21,460 | cash $18,131 (45.8%)</title></rect>
+<rect class="mark" x="610.2" y="16" width="14" height="204" fill="transparent"><title>2026-07-27T10:09  total $39,467 | equity $21,276 | cash $18,191 (46.1%)</title></rect>
+<rect class="mark" x="650.6" y="16" width="14" height="204" fill="transparent"><title>2026-07-28T18:50  total $38,472 | equity $15,177 | cash $23,295 (60.5%)</title></rect>
+<rect class="mark" x="691.0" y="16" width="14" height="204" fill="transparent"><title>2026-07-28T14:45  total $38,340 | equity $28,141 | cash $10,198 (26.6%)</title></rect>
+<text x="704" y="164.8" font-size="11" fill="var(--ink-2)">equity</text>
+<text x="704" y="177.8" font-size="11" font-weight="600" fill="var(--ink-1)">$28.1k</text>
+<text x="704" y="84.1" font-size="11" fill="var(--ink-2)">cash</text>
+<text x="704" y="97.1" font-size="11" font-weight="600" fill="var(--ink-1)">$10.2k</text>
+<text x="52.0" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-12</text>
+<text x="173.1" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-14</text>
+<text x="294.2" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-16</text>
+<text x="415.4" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-20</text>
+<text x="536.5" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-24</text>
+<text x="657.6" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-28</text>
+<text x="698.0" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-28</text>
+<line x1="52" y1="220.0" x2="698" y2="220.0" stroke="var(--axis)" stroke-width="1"/>
+</svg></div>
+   <p class="viz-note">Cash is the upper band, not a second axis — the stack is total book with the cash split shown on one
+   scale. Readings ringed in red are self-flagged as corrupt price feeds and drawn rather than silently dropped.</p></div></section>
+
+ <section class="panel viz"><div class="phead"><h2>Drawdown vs the trim ladder</h2>
+   <span class="pill w">-14.56% · warn at −15%</span></div>
+  <div class="pbody"><div class="scroll"><svg class="viz-svg" viewBox="0 0 760 250" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Total-book drawdown against the policy trim ladder">
+<line x1="52" y1="133.7" x2="698" y2="133.7" stroke="var(--warning)" stroke-width="1.2" stroke-dasharray="5 4" stroke-opacity="0.8"/>
+<text x="56" y="129.7" font-size="9.5" fill="var(--warning)">-15% warn - monitor only</text>
+<text x="45" y="137.2" text-anchor="end" font-size="10" fill="var(--ink-3)">-15%</text>
+<line x1="52" y1="157.2" x2="698" y2="157.2" stroke="var(--serious)" stroke-width="1.2" stroke-dasharray="5 4" stroke-opacity="0.8"/>
+<text x="56" y="153.2" font-size="9.5" fill="var(--serious)">-18% de-risk batch 1</text>
+<text x="45" y="160.7" text-anchor="end" font-size="10" fill="var(--ink-3)">-18%</text>
+<line x1="52" y1="188.6" x2="698" y2="188.6" stroke="var(--serious)" stroke-width="1.2" stroke-dasharray="5 4" stroke-opacity="0.8"/>
+<text x="56" y="184.6" font-size="9.5" fill="var(--serious)">-22% de-risk batch 2</text>
+<text x="45" y="192.1" text-anchor="end" font-size="10" fill="var(--ink-3)">-22%</text>
+<line x1="52" y1="212.2" x2="698" y2="212.2" stroke="var(--critical)" stroke-width="1.2" stroke-dasharray="5 4" stroke-opacity="0.8"/>
+<text x="56" y="208.2" font-size="9.5" fill="var(--critical)">-25% risk-off - move to cash</text>
+<text x="45" y="215.7" text-anchor="end" font-size="10" fill="var(--ink-3)">-25%</text>
+<line x1="52" y1="16.0" x2="698" y2="16.0" stroke="var(--axis)" stroke-width="1.5"/>
+<polygon points="52.0,16.0 92.4,18.8 132.8,17.9 173.1,55.5 213.5,43.7 253.9,46.0 294.2,16.0 334.6,16.0 375.0,16.0 415.4,120.4 455.8,78.6 496.1,67.6 536.5,78.3 576.9,108.3 617.2,110.5 657.6,127.9 698.0,130.2 698.0,16.0 52.0,16.0" fill="var(--neg)" fill-opacity="0.13"/>
+<polyline points="52.0,16.0 92.4,18.8 132.8,17.9 173.1,55.5 213.5,43.7 253.9,46.0 294.2,16.0 334.6,16.0 375.0,16.0 415.4,120.4 455.8,78.6 496.1,67.6 536.5,78.3 576.9,108.3 617.2,110.5 657.6,127.9 698.0,130.2" fill="none" stroke="var(--neg)" stroke-width="2.2" stroke-linejoin="round"/>
+<circle cx="698.0" cy="130.2" r="4" fill="var(--neg)"/>
+<text x="704" y="134.2" font-size="12" font-weight="700" fill="var(--neg)">-14.56%</text>
+<rect class="mark" x="45.0" y="16" width="14" height="204" fill="transparent"><title>2026-07-12T14:43  drawdown 0.00%  book $35,794</title></rect>
+<text x="52.0" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-12</text>
+<rect class="mark" x="85.4" y="16" width="14" height="204" fill="transparent"><title>2026-07-13T13:22  drawdown -0.36%  book $35,664</title></rect>
+<rect class="mark" x="125.8" y="16" width="14" height="204" fill="transparent"><title>2026-07-13T15:35  drawdown -0.24%  book $35,708</title></rect>
+<rect class="mark" x="166.1" y="16" width="14" height="204" fill="transparent"><title>2026-07-14T17:42  drawdown -5.03%  book $33,993</title></rect>
+<text x="173.1" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-14</text>
+<rect class="mark" x="206.5" y="16" width="14" height="204" fill="transparent"><title>2026-07-14T22:10  drawdown -3.52%  book $34,533</title></rect>
+<rect class="mark" x="246.9" y="16" width="14" height="204" fill="transparent"><title>2026-07-15T15:42  drawdown -3.83%  book $34,423</title></rect>
+<rect class="mark" x="287.2" y="16" width="14" height="204" fill="transparent"><title>2026-07-16T16:44  drawdown 0.00%  book $35,811</title></rect>
+<text x="294.2" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-16</text>
+<rect class="mark" x="327.6" y="16" width="14" height="204" fill="transparent"><title>2026-07-17T13:44  drawdown 0.00%  book $40,299</title></rect>
+<rect class="mark" x="368.0" y="16" width="14" height="204" fill="transparent"><title>2026-07-18T13:41  drawdown 0.00%  book $44,873</title></rect>
+<rect class="mark" x="408.4" y="16" width="14" height="204" fill="transparent"><title>2026-07-20T12:40  drawdown -13.30%  book $38,902</title></rect>
+<text x="415.4" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-20</text>
+<rect class="mark" x="448.8" y="16" width="14" height="204" fill="transparent"><title>2026-07-22T14:31  drawdown -7.98%  book $41,292</title></rect>
+<rect class="mark" x="489.1" y="16" width="14" height="204" fill="transparent"><title>2026-07-23T19:07  drawdown -6.57%  book $41,923</title></rect>
+<rect class="mark" x="529.5" y="16" width="14" height="204" fill="transparent"><title>2026-07-24T18:29  drawdown -7.94%  book $41,312</title></rect>
+<text x="536.5" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-24</text>
+<rect class="mark" x="569.9" y="16" width="14" height="204" fill="transparent"><title>2026-07-25T16:07  drawdown -11.77%  book $39,592</title></rect>
+<rect class="mark" x="610.2" y="16" width="14" height="204" fill="transparent"><title>2026-07-27T10:09  drawdown -12.05%  book $39,467</title></rect>
+<rect class="mark" x="650.6" y="16" width="14" height="204" fill="transparent"><title>2026-07-28T18:50  drawdown -14.26%  book $38,472</title></rect>
+<text x="657.6" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-28</text>
+<rect class="mark" x="691.0" y="16" width="14" height="204" fill="transparent"><title>2026-07-28T14:45  drawdown -14.56%  book $38,340</title></rect>
+<text x="698.0" y="241" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-28</text>
+</svg></div>
+   <p class="viz-note">Measured on <b>total book</b>, never equity alone — a deliberate cash conversion must not read as a
+   drawdown. The dashed rungs are the policy ladder: −15% warn (monitor only, no forced trim), −18% de-risk batch 1,
+   −22% batch 2, −25% risk-off. The line has never crossed the first rung.</p></div></section>
 
  <div class="grid2">
-  <section class="panel"><div class="phead"><h2>Clusters</h2>
-    <span class="pill">ceiling on book · floor on equity</span></div>
+  <section class="panel viz"><div class="phead"><h2>Book vs SMH · per clean period</h2>
+    <span class="pill">5 of 9 beat</span></div>
+   <div class="pbody"><div class="scroll"><svg class="viz-svg" viewBox="0 0 760 250" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Book return minus SMH return, per clean ledger period">
+<line x1="52" y1="178.5" x2="698" y2="178.5" stroke="var(--grid)" stroke-width="1"/>
+<text x="45" y="182.0" text-anchor="end" font-size="10" fill="var(--ink-3)">-4%</text>
+<line x1="52" y1="57.5" x2="698" y2="57.5" stroke="var(--grid)" stroke-width="1"/>
+<text x="45" y="61.0" text-anchor="end" font-size="10" fill="var(--ink-3)">+4%</text>
+<rect class="mark" x="29.7" y="118.0" width="44.5" height="5.5" rx="2" fill="var(--neg)"><title>07-13  book -0.36%  SMH +0.00%  =>  -0.36pt</title></rect>
+<text x="52.0" y="241" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">07-13</text>
+<rect class="mark" x="110.5" y="116.1" width="44.5" height="1.9" rx="2" fill="var(--pos)"><title>07-13  book +0.12%  SMH +0.00%  =>  +0.12pt</title></rect>
+<text x="132.8" y="241" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">07-13</text>
+<rect class="mark" x="191.2" y="118.0" width="44.5" height="9.8" rx="2" fill="var(--neg)"><title>07-14  book -4.80%  SMH -4.16%  =>  -0.65pt</title></rect>
+<text x="213.5" y="241" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">07-14</text>
+<rect class="mark" x="272.0" y="94.0" width="44.5" height="24.0" rx="2" fill="var(--pos)"><title>07-14  book +1.59%  SMH +0.00%  =>  +1.59pt</title></rect>
+<text x="294.2" y="241" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">07-14</text>
+<rect class="mark" x="352.7" y="118.0" width="44.5" height="42.7" rx="2" fill="var(--neg)"><title>07-15  book -0.32%  SMH +2.51%  =>  -2.83pt</title></rect>
+<text x="375.0" y="241" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">07-15</text>
+<rect class="mark" x="433.5" y="33.0" width="44.5" height="85.0" rx="2" fill="var(--pos)"><title>07-16  book +4.03%  SMH -1.59%  =>  +5.62pt</title></rect>
+<text x="455.8" y="241" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">07-16</text>
+<rect class="mark" x="514.2" y="100.0" width="44.5" height="18.0" rx="2" fill="var(--pos)"><title>07-22  book +6.14%  SMH +4.95%  =>  +1.19pt</title></rect>
+<text x="536.5" y="241" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">07-22</text>
+<rect class="mark" x="595.0" y="102.2" width="44.5" height="15.8" rx="2" fill="var(--pos)"><title>07-23  book +1.53%  SMH +0.48%  =>  +1.04pt</title></rect>
+<text x="617.2" y="241" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">07-23</text>
+<rect class="mark" x="675.7" y="118.0" width="44.5" height="1.5" rx="2" fill="var(--neg)"><title>07-28  book -0.35%  SMH -0.34%  =>  -0.00pt</title></rect>
+<text x="698.0" y="241" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">07-28</text>
+<line x1="52" y1="118.0" x2="698" y2="118.0" stroke="var(--axis)" stroke-width="1.5"/>
+<text x="52" y="230" font-size="10" fill="var(--ink-3)">above 0 = beat SMH that period</text>
+</svg></div>
+    <p class="viz-note">Only periods where both endpoints are trustworthy. Cumulative performance is deliberately not shown:
+    external contributions aren't recorded in the ledger, so a cumulative line would mix deposits with returns.</p></div></section>
+
+  <section class="panel viz"><div class="phead"><h2>Position weights vs the 12% cap</h2>
+    <span class="pill w">5 over ATR risk caps</span></div>
+   <div class="pbody"><div class="scroll"><svg class="viz-svg" viewBox="0 0 760 338" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Position weights against the 12 percent single-position cap">
+<rect x="634.3" y="10" width="47.7" height="298" fill="var(--critical)" fill-opacity="0.06"/>
+<text x="54" y="29.0" text-anchor="end" font-size="11" fill="var(--ink-1)">ASML</text>
+<rect class="mark" x="62" y="16.0" width="536.7" height="15" rx="3" fill="var(--warning)"><title>ASML  11.25% of equity  |  $3,166  |  risk cap $2,043  OVER 1.55x</title></rect>
+<text x="605.7" y="28.0" font-size="10.5" fill="var(--ink-2)">11.3%  •</text>
+<text x="54" y="50.0" text-anchor="end" font-size="11" fill="var(--ink-1)">GOOGL</text>
+<rect class="mark" x="62" y="37.0" width="454.3" height="15" rx="3" fill="var(--equity)"><title>GOOGL  9.53% of equity  |  $2,680  |  risk cap $2,770</title></rect>
+<text x="523.3" y="49.0" font-size="10.5" fill="var(--ink-2)">9.5%</text>
+<text x="54" y="71.0" text-anchor="end" font-size="11" fill="var(--ink-1)">DRAM</text>
+<rect class="mark" x="62" y="58.0" width="406.3" height="15" rx="3" fill="var(--warning)"><title>DRAM  8.52% of equity  |  $2,397  |  risk cap $1,068  OVER 2.24x</title></rect>
+<text x="475.3" y="70.0" font-size="10.5" fill="var(--ink-2)">8.5%  •</text>
+<text x="54" y="92.0" text-anchor="end" font-size="11" fill="var(--ink-1)">SNDK</text>
+<rect class="mark" x="62" y="79.0" width="367.9" height="15" rx="3" fill="var(--warning)"><title>SNDK  7.71% of equity  |  $2,170  |  risk cap $698  OVER 3.11x</title></rect>
+<text x="436.9" y="91.0" font-size="10.5" fill="var(--ink-2)">7.7%  •</text>
+<text x="54" y="113.0" text-anchor="end" font-size="11" fill="var(--ink-1)">NVDA</text>
+<rect class="mark" x="62" y="100.0" width="334.4" height="15" rx="3" fill="var(--equity)"><title>NVDA  7.01% of equity  |  $1,973  |  risk cap $2,844</title></rect>
+<text x="403.4" y="112.0" font-size="10.5" fill="var(--ink-2)">7.0%</text>
+<text x="54" y="134.0" text-anchor="end" font-size="11" fill="var(--ink-1)">AVGO</text>
+<rect class="mark" x="62" y="121.0" width="322.3" height="15" rx="3" fill="var(--equity)"><title>AVGO  6.76% of equity  |  $1,901  |  risk cap $2,457</title></rect>
+<text x="391.3" y="133.0" font-size="10.5" fill="var(--ink-2)">6.8%</text>
+<text x="54" y="155.0" text-anchor="end" font-size="11" fill="var(--ink-1)">MRVL</text>
+<rect class="mark" x="62" y="142.0" width="296.9" height="15" rx="3" fill="var(--warning)"><title>MRVL  6.22% of equity  |  $1,751  |  risk cap $1,001  OVER 1.75x</title></rect>
+<text x="365.9" y="154.0" font-size="10.5" fill="var(--ink-2)">6.2%  •</text>
+<text x="54" y="176.0" text-anchor="end" font-size="11" fill="var(--ink-1)">VRT</text>
+<rect class="mark" x="62" y="163.0" width="226.8" height="15" rx="3" fill="var(--equity)"><title>VRT  4.76% of equity  |  $1,338  |  risk cap $1,483</title></rect>
+<text x="295.8" y="175.0" font-size="10.5" fill="var(--ink-2)">4.8%</text>
+<text x="54" y="197.0" text-anchor="end" font-size="11" fill="var(--ink-1)">EWY</text>
+<rect class="mark" x="62" y="184.0" width="207.2" height="15" rx="3" fill="var(--equity)"><title>EWY  4.34% of equity  |  $1,222  |  risk cap $1,619</title></rect>
+<text x="276.2" y="196.0" font-size="10.5" fill="var(--ink-2)">4.3%</text>
+<text x="54" y="218.0" text-anchor="end" font-size="11" fill="var(--ink-1)">COHR</text>
+<rect class="mark" x="62" y="205.0" width="204.4" height="15" rx="3" fill="var(--warning)"><title>COHR  4.29% of equity  |  $1,206  |  risk cap $1,020  OVER 1.18x</title></rect>
+<text x="273.4" y="217.0" font-size="10.5" fill="var(--ink-2)">4.3%  •</text>
+<text x="54" y="239.0" text-anchor="end" font-size="11" fill="var(--ink-1)">TSM</text>
+<rect class="mark" x="62" y="226.0" width="199.4" height="15" rx="3" fill="var(--equity)"><title>TSM  4.18% of equity  |  $1,176  |  risk cap $2,092</title></rect>
+<text x="268.4" y="238.0" font-size="10.5" fill="var(--ink-2)">4.2%</text>
+<text x="54" y="260.0" text-anchor="end" font-size="11" fill="var(--ink-1)">CLS</text>
+<rect class="mark" x="62" y="247.0" width="169.5" height="15" rx="3" fill="var(--equity)"><title>CLS  3.55% of equity  |  $1,000  |  risk cap $1,276</title></rect>
+<text x="238.5" y="259.0" font-size="10.5" fill="var(--ink-2)">3.6%</text>
+<text x="54" y="281.0" text-anchor="end" font-size="11" fill="var(--ink-1)">QCOM</text>
+<rect class="mark" x="62" y="268.0" width="167.7" height="15" rx="3" fill="var(--equity)"><title>QCOM  3.52% of equity  |  $989  |  risk cap $1,784</title></rect>
+<text x="236.7" y="280.0" font-size="10.5" fill="var(--ink-2)">3.5%</text>
+<text x="54" y="302.0" text-anchor="end" font-size="11" fill="var(--ink-1)">GEV</text>
+<rect class="mark" x="62" y="289.0" width="159.8" height="15" rx="3" fill="var(--equity)"><title>GEV  3.35% of equity  |  $943  |  risk cap $1,541</title></rect>
+<text x="228.8" y="301.0" font-size="10.5" fill="var(--ink-2)">3.4%</text>
+<line x1="634.3" y1="10" x2="634.3" y2="308" stroke="var(--critical)" stroke-width="1.5" stroke-dasharray="3 3"/>
+<text x="634.3" y="322" text-anchor="middle" font-size="10" fill="var(--critical)">12% cap</text>
+<text x="62" y="322" font-size="9.5" fill="var(--warning)">amber = over its ATR risk cap</text>
+</svg></div>
+    <p class="viz-note">Bar length is weight of equity; the shaded zone is beyond the 12% single-position cap. Amber marks a
+    name over its own <b>ATR risk cap</b> — a different and currently more binding constraint than the weight cap.</p></div></section>
+ </div>
+
+ <div class="grid2">
+  <section class="panel"><div class="phead"><h2>Clusters</h2><span class="pill">ceiling on book · floor on equity</span></div>
    <div class="pbody"><div class="scroll"><table id="clusters">
     <thead><tr><th>Cluster</th><th>Equity</th><th>Book</th><th>Band</th><th style="width:150px"></th></tr></thead>
     <tbody></tbody></table></div>
-    <p class="note">While cash sits above the normal band top, ceilings are tested on total book and floors on invested
-    equity. Both figures are always shown so neither is lost.</p></div></section>
+    <p class="note">While cash sits above the normal band top, ceilings test on total book and floors on invested equity.
+    Both figures always shown so neither is lost.</p></div></section>
 
   <section class="panel"><div class="phead"><h2>Risk-cap breaches</h2><span class="pill w">5 names</span></div>
    <div class="pbody"><div class="scroll"><table id="over">
     <thead><tr><th>Name</th><th>Held</th><th>Cap</th><th>×</th><th>Excess</th></tr></thead><tbody></tbody></table></div>
-    <p class="note">Cap = 0.5% of book ÷ that name's 2×ATR20 stop. Memory holds the two worst breaches — which is the
-    distinction that matters: tolerating a cluster ceiling is not the same statement as holding SNDK at 3.1× its cap.</p>
-   </div></section>
+    <p class="note">Cap = 0.5% of book ÷ that name's 2×ATR20 stop. Memory holds the two worst — the distinction that matters:
+    tolerating a cluster ceiling is not the same statement as holding SNDK at 3.1× its cap.</p></div></section>
  </div>
 
  <section class="panel"><div class="phead"><h2>Positions</h2><span class="pill">23 · ATR20 stops · SMH betas</span></div>
   <div class="pbody"><div class="scroll"><table id="holdings">
-   <thead><tr><th>Name</th><th>Cluster</th><th>Qty</th><th>Price</th><th>Value</th><th>ATR20</th><th>β</th>
+   <thead><tr><th>Name</th><th>Cluster</th><th>Qty</th><th>Price</th><th>Value</th><th>Wt</th><th>ATR20</th><th>β</th>
    <th>Stop</th><th>Stop px</th><th>Cap</th><th>Headroom</th></tr></thead><tbody></tbody><tfoot></tfoot></table></div>
   </div></section>
+
+ <div class="tier"><h2>Diagnostics</h2><div class="ln"></div></div>
+
+ <section class="panel"><div class="pbody" style="gap:0">
+   <details><summary>Thesis map<span class="c">23 held</span></summary><div class="body">
+     <div class="grp-h"><span class="dot-g"></span>Strengthening</div><div class="chips"><span class="chip" title="Semicap deposition/etch equipment for AI chip fabs (position cut to dust, 0.012% weight -- sizing only, thesis unaffected) | strengthening">AMAT<i>Semis/Fabs</i></span><span class="chip" title="GPU/CPU compute silicon, direct AI-accelerator competitor to NVDA | strengthening">AMD<i>Semis/Fabs</i></span><span class="chip" title="Custom AI ASICs (XPUs) and networking silicon for hyperscalers | strengthening">AVGO<i>Networking/Optics</i></span><span class="chip" title="EMS/contract manufacturer building Broadcom/OpenAI custom AI ASICs (Jalapeno) + AI server hardware | strengthening">CLS<i>Compute OEM</i></span><span class="chip" title="Photonics/optical components for datacenter interconnect | strengthening">COHR<i>Networking/Optics</i></span><span class="chip" title="Grid/power-gen equipment for AI datacenter electrification; Q2 rev +22%, raised guidance, $11B grid capex | strengthening">GEV<i>Power/DC</i></span><span class="chip" title="Alphabet Class A — replaced the Class C holding 2026-07-28. Hyperscaler that BUYS AI capex; blowout 2Q26 (rev +24%, cloud +82%) but FY26 capex raised to $195-205bn and quarterly FCF went negative -$5.">GOOGL<i>Hyperscaler</i></span><span class="chip" title="Core AI GPU/accelerator platform leadership | strengthening">NVDA<i>Semis/Fabs</i></span><span class="chip" title="Diversifying from handsets into AI/datacenter CPUs and auto | strengthening">QCOM<i>Semis/Fabs</i></span><span class="chip" title="Semicap automated test equipment geared to AI chip test volume | strengthening">TER<i>Semis/Fabs</i></span><span class="chip" title="Foundry monopoly manufacturing leading-edge AI chips | strengthening">TSM<i>Semis/Fabs</i></span><span class="chip" title="Thermal/power management (cooling, UPS) for AI datacenters | strengthening">VRT<i>Power/DC</i></span></div>
+     <div class="grp-h" style="margin-top:16px"><span class="dot-w"></span>Watch</div><div class="chips"><span class="chip" title="Chip architecture/IP licensing powering most AI silicon | watch">ARM<i>Semis/Fabs</i></span><span class="chip" title="Sole-source EUV lithography. THESIS DENTED not broken 2026-07-28: China began mass-producing immersion DUV, first units to SMIC/Hua Hong/CXMT. Scale is tiny (5 units 2026, ~20 in 2027 vs ASML's 131 im">ASML<i>Semis/Fabs</i></span><span class="chip" title="Optical networking gear for AI datacenter/telco backbone -- trimmed 59%, weak FY guide vs AI PoC win | watch">CIEN<i>Networking/Optics</i></span><span class="chip" title="Thematic memory ETF -- holds the exact names CXMT now competes with (Samsung, SK Hynix, Micron) | watch">DRAM<i>Memory</i></span><span class="chip" title="South Korea ETF: >50% Samsung + SK Hynix. On 2026-07-28 Samsung fell 14.4% (worst since Oct 2008) and SK Hynix 14.7%; KOSPI -10.84%, -34% in 25 days after a 300% spike | watch">EWY<i>Memory</i></span><span class="chip" title="Re-entered 2026-07-28 at 10sh after the 07-24 stop-out. Bitcoin-mining infra pivoted to AI/GPU cloud; ATR 11.47% | watch">IREN<i>Hyperscaler</i></span><span class="chip" title="Custom AI silicon and optical interconnect for hyperscalers | watch">MRVL<i>Networking/Optics</i></span><span class="chip" title="Memory (DRAM/HBM). THESIS THREAT 2026-07-28: CXMT listed on Shanghai STAR (+400% debut) -- China's domestic DRAM champion is now publicly capitalised, on top of HBM3E ASP -51% from peak. Named, funded">MU<i>Memory</i></span><span class="chip" title="Re-entered 2026-07-28 at 3sh after the 07-24 stop-out. Neocloud GPU-as-a-service; highest ATR in the book at 14.89% | watch">NBIS<i>Compute OEM</i></span><span class="chip" title="Oracle Cloud Infrastructure -- hyperscaler cloud/AI-capex beneficiary | watch">ORCL<i>Hyperscaler</i></span><span class="chip" title="AI NAND/enterprise-SSD supercycle. Same CXMT capitalisation threat as MU; highest beta in book (2.464) and 1.6x its risk cap | watch">SNDK<i>Memory</i></span></div>
+     <p class="note" style="margin-top:12px">Hover any ticker for its thesis. Nothing is broken.</p></div></details>
+   <details><summary>Signal history<span class="c">bullish / bearish</span></summary><div class="body">
+     <div class="grp-h"><span class="dot-g"></span>Bullish</div><div class="srow"><span class="slab">Strong Uptrend</span><span class="sch"><span class="tick g">AMD</span><span class="tick g">ASML</span><span class="tick g">GEV</span></span></div><div class="srow"><span class="slab">Peer Leader</span><span class="sch"><span class="tick g">AMD</span><span class="tick g">ASML</span><span class="tick g">AVGO</span><span class="tick g gone">META</span><span class="tick g">NVDA</span></span></div><div class="srow"><span class="slab">Momentum+Volume</span><span class="sch"><span class="tick g">GEV</span></span></div><div class="srow"><span class="slab">Oversold Bounce</span><span class="sch"><span class="tick g gone">BABA</span><span class="tick g">ORCL</span></span></div><div class="srow"><span class="slab">New Tailwinds</span><span class="sch"><span class="tick g">NVDA</span></span></div><div class="srow"><span class="slab">Target Gap</span><span class="sch"><span class="tick g">ASML</span><span class="tick g">AVGO</span><span class="tick g gone">BABA</span><span class="tick g">CIEN</span><span class="tick g">CLS</span><span class="tick g">COHR</span><span class="tick g">GEV</span><span class="tick g gone">GOOG</span><span class="tick g gone">LITE</span><span class="tick g gone">LRCX</span><span class="tick g gone">META</span><span class="tick g">MRVL</span><span class="tick g">MU</span><span class="tick g">NVDA</span><span class="tick g">ORCL</span><span class="tick g">QCOM</span><span class="tick g">TER</span><span class="tick g">TSM</span><span class="tick g">VRT</span></span></div>
+     <div class="grp-h" style="margin-top:14px"><span class="dot-w"></span>Bearish</div><div class="srow"><span class="slab">Strong Downtrend</span><span class="sch"><span class="tick b">AMAT</span><span class="tick b">ARM</span><span class="tick b">CIEN</span><span class="tick b">CLS</span><span class="tick b">COHR</span><span class="tick b">DRAM</span><span class="tick b">EWY</span><span class="tick b gone">LRCX</span><span class="tick b">MRVL</span><span class="tick b">MU</span><span class="tick b">ORCL</span><span class="tick b">SNDK</span><span class="tick b">TER</span><span class="tick b">VRT</span></span></div><div class="srow"><span class="slab">Peer Laggard</span><span class="sch"><span class="tick b">ARM</span><span class="tick b">CLS</span><span class="tick b">COHR</span><span class="tick b">DRAM</span><span class="tick b">EWY</span><span class="tick b gone">LRCX</span><span class="tick b">MRVL</span><span class="tick b">MU</span><span class="tick b">ORCL</span><span class="tick b">SNDK</span><span class="tick b">TER</span><span class="tick b">VRT</span></span></div><div class="srow"><span class="slab">Breakdown</span><span class="sch"><span class="tick b">ORCL</span></span></div>
+     <p class="note" style="margin-top:10px">Struck-through tickers are no longer held.</p></div></details>
+   <details><summary>Open data gaps<span class="c">actionable only</span></summary><div class="body"><div class="srow"><span class="slab"><b>G1</b></span><span style="font-size:12.5px;color:var(--ink-2)">LTCG per-lot purchase dates. Partially seeded: the 2026-07-28 buys (GOOG/AVGO/TSM/ASML) now carry exact dates and fills in lots.json, sourced from trades.json. Pre-07-28 lots remain unknown and need INDmoney order histor</span></div>
+     <p class="note" style="margin-top:10px">Nine gaps closed and two reclassified won't-fix on 28 Jul. Only genuinely
+     actionable items are listed here.</p></div></details>
+ </div></section>
 
  <footer>
   <p class="note"><b>Everything here is a proposal for your review.</b> No trade has been or will be placed by this desk,
   and none of it is licensed investment advice.</p>
-  <p class="note">Two items need your confirmation: the <b>GOOG Class C → GOOGL Class A swap</b> is a different security
+  <p class="note">Two items need confirmation: the <b>GOOG Class C → GOOGL Class A swap</b> is a different security
   (investment_code 114025 → 112778), with ATR and beta proxied from Class C; and <b>NVDA was bought early</b> at $1,973
-  against the $1,335 proposed, so the proposal is marked filled rather than open. smith-book, smith-scout, smith-watchlist
-  and smith-quality were not dispatched this run — disclosed, not silent.</p>
+  against $1,335 proposed, so that proposal is marked filled. smith-book, smith-scout, smith-watchlist and smith-quality
+  were not dispatched this run — disclosed, not silent.</p>
  </footer>
 </div>
 <script>
-const clusters=[{"n":"Power/DC","eq":8.107,"bk":5.951,"tgt":15,"lo":10,"hi":20,"br":true,"edge":"under"},{"n":"Hyperscaler","eq":12.432,"bk":9.125,"tgt":20,"lo":15,"hi":25,"br":true,"edge":"under"},{"n":"Semis/Fabs","eq":32.165,"bk":23.609,"tgt":30,"lo":25,"hi":35,"br":false,"edge":null},{"n":"Memory","eq":23.492,"bk":17.243,"tgt":15,"lo":10,"hi":20,"br":false,"edge":null},{"n":"Networking/Optics","eq":18.489,"bk":13.571,"tgt":15,"lo":10,"hi":20,"br":false,"edge":null},{"n":"Compute OEM","eq":5.316,"bk":3.902,"tgt":5,"lo":0,"hi":10,"br":false,"edge":null},{"n":"Diversified/Regional ETF","eq":0.0,"bk":0.0,"tgt":0,"lo":0,"hi":10,"br":false,"edge":null},{"n":"Enterprise Software","eq":0.0,"bk":0.0,"tgt":0,"lo":0,"hi":5,"br":false,"edge":null}], rows=[{"t":"ASML","cl":"Semis/Fabs","qty":2.0,"px":1583.36,"val":3167,"atr":4.69,"beta":0.991,"stop":9.4,"stopPx":1434.84,"cap":2044,"head":-1123,"new":false},{"t":"GOOGL","cl":"Hyperscaler","qty":8,"px":335.09,"val":2681,"atr":3.46,"beta":0.244,"stop":6.9,"stopPx":311.9,"cap":2770,"head":90,"new":true},{"t":"DRAM","cl":"Memory","qty":50,"px":47.95,"val":2398,"atr":8.97,"beta":1.76,"stop":17.9,"stopPx":39.35,"cap":1069,"head":-1329,"new":false},{"t":"SNDK","cl":"Memory","qty":2.0081,"px":1081.02,"val":2171,"atr":13.73,"beta":2.464,"stop":27.5,"stopPx":784.17,"cap":698,"head":-1473,"new":false},{"t":"NVDA","cl":"Semis/Fabs","qty":10,"px":197.31,"val":1973,"atr":3.37,"beta":0.505,"stop":6.7,"stopPx":184.01,"cap":2844,"head":871,"new":true},{"t":"AVGO","cl":"Networking/Optics","qty":5,"px":380.35,"val":1902,"atr":3.9,"beta":0.731,"stop":7.8,"stopPx":350.68,"cap":2458,"head":556,"new":false},{"t":"MRVL","cl":"Networking/Optics","qty":10,"px":175.18,"val":1752,"atr":9.57,"beta":1.653,"stop":19.1,"stopPx":141.65,"cap":1002,"head":-750,"new":false},{"t":"VRT","cl":"Power/DC","qty":5,"px":267.69,"val":1338,"atr":6.46,"beta":1.13,"stop":12.9,"stopPx":233.1,"cap":1484,"head":145,"new":false},{"t":"EWY","cl":"Memory","qty":8,"px":152.83,"val":1223,"atr":5.92,"beta":1.146,"stop":11.8,"stopPx":134.73,"cap":1619,"head":396,"new":false},{"t":"COHR","cl":"Networking/Optics","qty":5,"px":241.21,"val":1206,"atr":9.39,"beta":1.434,"stop":18.8,"stopPx":195.91,"cap":1021,"head":-185,"new":false},{"t":"TSM","cl":"Semis/Fabs","qty":3,"px":392.19,"val":1177,"atr":4.58,"beta":0.9,"stop":9.2,"stopPx":356.27,"cap":2093,"head":916,"new":false},{"t":"CLS","cl":"Compute OEM","qty":3.0033,"px":332.99,"val":1000,"atr":7.51,"beta":1.249,"stop":15.0,"stopPx":282.97,"cap":1276,"head":276,"new":false},{"t":"QCOM","cl":"Semis/Fabs","qty":6.0008,"px":164.9,"val":990,"atr":5.37,"beta":0.511,"stop":10.7,"stopPx":147.19,"cap":1785,"head":795,"new":false},{"t":"GEV","cl":"Power/DC","qty":1.005,"px":938.43,"val":943,"atr":6.22,"beta":0.728,"stop":12.4,"stopPx":821.69,"cap":1541,"head":598,"new":false},{"t":"MU","cl":"Memory","qty":1.0004,"px":819.76,"val":820,"atr":8.36,"beta":1.434,"stop":16.7,"stopPx":682.7,"cap":1147,"head":326,"new":false},{"t":"NBIS","cl":"Compute OEM","qty":3,"px":165.26,"val":496,"atr":14.89,"beta":null,"stop":29.8,"stopPx":116.05,"cap":644,"head":148,"new":true},{"t":"ARM","cl":"Semis/Fabs","qty":2,"px":246.89,"val":494,"atr":9.39,"beta":1.174,"stop":18.8,"stopPx":200.52,"cap":1021,"head":527,"new":false},{"t":"ORCL","cl":"Hyperscaler","qty":4,"px":120.75,"val":483,"atr":5.65,"beta":0.514,"stop":11.3,"stopPx":107.11,"cap":1696,"head":1213,"new":false},{"t":"AMAT","cl":"Semis/Fabs","qty":1.0082,"px":475.59,"val":479,"atr":8.43,"beta":1.521,"stop":16.9,"stopPx":395.41,"cap":1137,"head":658,"new":false},{"t":"AMD","cl":"Semis/Fabs","qty":1,"px":459.47,"val":459,"atr":7.18,"beta":1.375,"stop":14.4,"stopPx":393.49,"cap":1335,"head":875,"new":false},{"t":"CIEN","cl":"Networking/Optics","qty":1.0085,"px":340.47,"val":343,"atr":7.51,"beta":1.139,"stop":15.0,"stopPx":289.34,"cap":1276,"head":933,"new":false},{"t":"IREN","cl":"Hyperscaler","qty":10,"px":33.5,"val":335,"atr":11.47,"beta":null,"stop":22.9,"stopPx":25.82,"cap":836,"head":501,"new":true},{"t":"TER","cl":"Semis/Fabs","qty":1.0027,"px":312.1,"val":313,"atr":9.36,"beta":1.904,"stop":18.7,"stopPx":253.67,"cap":1024,"head":711,"new":false}], m=n=>"$"+Math.round(Math.abs(n)).toLocaleString("en-US");
+const clusters=[{"n":"Power/DC","eq":8.107,"bk":5.951,"tgt":15,"lo":10,"hi":20,"br":true},{"n":"Hyperscaler","eq":12.432,"bk":9.125,"tgt":20,"lo":15,"hi":25,"br":true},{"n":"Semis/Fabs","eq":32.165,"bk":23.609,"tgt":30,"lo":25,"hi":35,"br":false},{"n":"Memory","eq":23.492,"bk":17.243,"tgt":15,"lo":10,"hi":20,"br":false},{"n":"Networking/Optics","eq":18.489,"bk":13.571,"tgt":15,"lo":10,"hi":20,"br":false},{"n":"Compute OEM","eq":5.316,"bk":3.902,"tgt":5,"lo":0,"hi":10,"br":false},{"n":"Diversified/Regional ETF","eq":0.0,"bk":0.0,"tgt":0,"lo":0,"hi":10,"br":false},{"n":"Enterprise Software","eq":0.0,"bk":0.0,"tgt":0,"lo":0,"hi":5,"br":false}], rows=[{"t":"ASML","cl":"Semis/Fabs","qty":2.0,"px":1583.36,"val":3167,"w":11.253,"atr":4.69,"beta":0.991,"stop":9.4,"stopPx":1434.84,"cap":2044,"head":-1123,"new":false},{"t":"GOOGL","cl":"Hyperscaler","qty":8,"px":335.09,"val":2681,"w":9.526,"atr":3.46,"beta":0.244,"stop":6.9,"stopPx":311.9,"cap":2770,"head":90,"new":true},{"t":"DRAM","cl":"Memory","qty":50,"px":47.95,"val":2398,"w":8.519,"atr":8.97,"beta":1.76,"stop":17.9,"stopPx":39.35,"cap":1069,"head":-1329,"new":false},{"t":"SNDK","cl":"Memory","qty":2.0081,"px":1081.02,"val":2171,"w":7.714,"atr":13.73,"beta":2.464,"stop":27.5,"stopPx":784.17,"cap":698,"head":-1473,"new":false},{"t":"NVDA","cl":"Semis/Fabs","qty":10,"px":197.31,"val":1973,"w":7.011,"atr":3.37,"beta":0.505,"stop":6.7,"stopPx":184.01,"cap":2844,"head":871,"new":true},{"t":"AVGO","cl":"Networking/Optics","qty":5,"px":380.35,"val":1902,"w":6.758,"atr":3.9,"beta":0.731,"stop":7.8,"stopPx":350.68,"cap":2458,"head":556,"new":false},{"t":"MRVL","cl":"Networking/Optics","qty":10,"px":175.18,"val":1752,"w":6.225,"atr":9.57,"beta":1.653,"stop":19.1,"stopPx":141.65,"cap":1002,"head":-750,"new":false},{"t":"VRT","cl":"Power/DC","qty":5,"px":267.69,"val":1338,"w":4.756,"atr":6.46,"beta":1.13,"stop":12.9,"stopPx":233.1,"cap":1484,"head":145,"new":false},{"t":"EWY","cl":"Memory","qty":8,"px":152.83,"val":1223,"w":4.345,"atr":5.92,"beta":1.146,"stop":11.8,"stopPx":134.73,"cap":1619,"head":396,"new":false},{"t":"COHR","cl":"Networking/Optics","qty":5,"px":241.21,"val":1206,"w":4.286,"atr":9.39,"beta":1.434,"stop":18.8,"stopPx":195.91,"cap":1021,"head":-185,"new":false},{"t":"TSM","cl":"Semis/Fabs","qty":3,"px":392.19,"val":1177,"w":4.181,"atr":4.58,"beta":0.9,"stop":9.2,"stopPx":356.27,"cap":2093,"head":916,"new":false},{"t":"CLS","cl":"Compute OEM","qty":3.0033,"px":332.99,"val":1000,"w":3.554,"atr":7.51,"beta":1.249,"stop":15.0,"stopPx":282.97,"cap":1276,"head":276,"new":false},{"t":"QCOM","cl":"Semis/Fabs","qty":6.0008,"px":164.9,"val":990,"w":3.516,"atr":5.37,"beta":0.511,"stop":10.7,"stopPx":147.19,"cap":1785,"head":795,"new":false},{"t":"GEV","cl":"Power/DC","qty":1.005,"px":938.43,"val":943,"w":3.351,"atr":6.22,"beta":0.728,"stop":12.4,"stopPx":821.69,"cap":1541,"head":598,"new":false},{"t":"MU","cl":"Memory","qty":1.0004,"px":819.76,"val":820,"w":2.914,"atr":8.36,"beta":1.434,"stop":16.7,"stopPx":682.7,"cap":1147,"head":326,"new":false},{"t":"NBIS","cl":"Compute OEM","qty":3,"px":165.26,"val":496,"w":1.762,"atr":14.89,"beta":null,"stop":29.8,"stopPx":116.05,"cap":644,"head":148,"new":true},{"t":"ARM","cl":"Semis/Fabs","qty":2,"px":246.89,"val":494,"w":1.755,"atr":9.39,"beta":1.174,"stop":18.8,"stopPx":200.52,"cap":1021,"head":527,"new":false},{"t":"ORCL","cl":"Hyperscaler","qty":4,"px":120.75,"val":483,"w":1.716,"atr":5.65,"beta":0.514,"stop":11.3,"stopPx":107.11,"cap":1696,"head":1213,"new":false},{"t":"AMAT","cl":"Semis/Fabs","qty":1.0082,"px":475.59,"val":479,"w":1.704,"atr":8.43,"beta":1.521,"stop":16.9,"stopPx":395.41,"cap":1137,"head":658,"new":false},{"t":"AMD","cl":"Semis/Fabs","qty":1,"px":459.47,"val":459,"w":1.633,"atr":7.18,"beta":1.375,"stop":14.4,"stopPx":393.49,"cap":1335,"head":875,"new":false},{"t":"CIEN","cl":"Networking/Optics","qty":1.0085,"px":340.47,"val":343,"w":1.22,"atr":7.51,"beta":1.139,"stop":15.0,"stopPx":289.34,"cap":1276,"head":933,"new":false},{"t":"IREN","cl":"Hyperscaler","qty":10,"px":33.5,"val":335,"w":1.19,"atr":11.47,"beta":null,"stop":22.9,"stopPx":25.82,"cap":836,"head":501,"new":true},{"t":"TER","cl":"Semis/Fabs","qty":1.0027,"px":312.1,"val":313,"w":1.112,"atr":9.36,"beta":1.904,"stop":18.7,"stopPx":253.67,"cap":1024,"head":711,"new":false}], m=n=>"$"+Math.round(Math.abs(n)).toLocaleString("en-US");
 const SC=40, pc=v=>Math.max(0,Math.min(100,v/SC*100));
-document.querySelector("#clusters tbody").innerHTML=clusters.map(function(c){
- return '<tr><td class="name">'+c.n+'</td>'
- +'<td>'+c.eq.toFixed(2)+'%</td><td class="'+(c.br?"neg":"pos")+'">'+c.bk.toFixed(2)+'%</td>'
- +'<td class="blank">['+c.lo+','+c.hi+']</td>'
+document.querySelector("#clusters tbody").innerHTML=clusters.map(c=>
+ '<tr><td class="name">'+c.n+'</td><td>'+c.eq.toFixed(2)+'%</td>'
+ +'<td class="'+(c.br?"neg":"pos")+'">'+c.bk.toFixed(2)+'%</td><td class="blank">['+c.lo+','+c.hi+']</td>'
  +'<td><div class="band"><div class="ok" style="left:'+pc(c.lo)+'%;width:'+(pc(c.hi)-pc(c.lo))+'%"></div>'
  +'<div class="tgt" style="left:'+pc(c.tgt)+'%"></div>'
- +'<div class="mk'+(c.br?" bad":"")+'" style="left:'+pc(c.bk)+'%"></div></div></td></tr>';}).join("");
+ +'<div class="mk'+(c.br?" bad":"")+'" style="left:'+pc(c.bk)+'%"></div></div></td></tr>').join("");
 const over=rows.filter(r=>r.head!==null&&r.head<-40).sort((a,b)=>a.head-b.head);
 document.querySelector("#over tbody").innerHTML=over.map(r=>'<tr><td class="name">'+r.t+'</td><td>'+m(r.val)+'</td>'
  +'<td class="blank">'+m(r.cap)+'</td><td class="neg">'+(r.val/r.cap).toFixed(2)+'x</td>'
  +'<td class="neg" style="font-weight:640">'+m(r.head)+'</td></tr>').join("");
-document.querySelector("#holdings tbody").innerHTML=rows.map(function(r){
- return '<tr class="'+(r.new?"fresh":"")+'"><td class="name">'+r.t+(r.new?' <span class="tag">new</span>':'')+'</td>'
+document.querySelector("#holdings tbody").innerHTML=rows.map(r=>
+ '<tr class="'+(r.new?"fresh":"")+'"><td class="name">'+r.t+(r.new?' <span class="tag">new</span>':'')+'</td>'
  +'<td class="txt">'+r.cl+'</td><td>'+r.qty+'</td><td>'+r.px.toFixed(2)+'</td><td>'+m(r.val)+'</td>'
+ +'<td class="blank">'+r.w.toFixed(2)+'%</td>'
  +'<td class="blank">'+(r.atr?r.atr.toFixed(2)+'%':'—')+'</td>'
  +'<td class="'+(r.beta>=1.5?"neg":(r.beta<=0.6?"pos":""))+'">'+(r.beta==null?'—':r.beta.toFixed(3))+'</td>'
  +'<td>'+(r.stop?r.stop.toFixed(1)+'%':'—')+'</td><td>'+(r.stopPx?r.stopPx.toFixed(2):'—')+'</td>'
  +'<td class="blank">'+(r.cap?m(r.cap):'—')+'</td>'
- +'<td class="'+(r.head<0?"neg":"pos")+'" style="font-weight:640">'+(r.head==null?'—':(r.head<0?"−":"+")+m(r.head))+'</td></tr>';}).join("");
+ +'<td class="'+(r.head<0?"neg":"pos")+'" style="font-weight:640">'+(r.head==null?'—':(r.head<0?"−":"+")+m(r.head))+'</td></tr>').join("");
 document.querySelector("#holdings tfoot").innerHTML='<tr><td class="name">Book</td><td class="txt"></td><td></td><td></td>'
- +'<td>'+m(rows.reduce((a,r)=>a+r.val,0))+'</td><td class="blank"></td><td class="pos">1.136</td>'
+ +'<td>'+m(rows.reduce((a,r)=>a+r.val,0))+'</td><td class="blank">100%</td><td class="blank"></td><td class="pos">1.136</td>'
  +'<td colspan="3" class="blank" style="text-align:right">aggregate open risk</td><td class="neg">10.2%</td></tr>';
 </script>
