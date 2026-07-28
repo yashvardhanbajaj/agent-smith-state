@@ -1,0 +1,357 @@
+<title>Agent Smith — US Book</title>
+<style>
+/* ============ tokens ============ */
+:root{
+  --ground:#f2f4f5; --surface:#ffffff; --surface-2:#f7f9f9;
+  --ink:#12171b; --ink-2:#48545c; --ink-3:#79868e;
+  --line:#dbe1e3; --line-soft:#e9edee;
+  --accent:#35586a; --accent-soft:#e4ecef; --accent-line:#b6cbd4;
+  --action:#8f5322; --action-soft:#f7ece2; --action-line:#e0bd9c;
+  --good:#1f7a4d; --good-soft:#e3f1e9;
+  --warn:#9c6f18; --warn-soft:#f8efd9;
+  --bad:#a83737;  --bad-soft:#f8e5e5;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:7px; --shadow:0 1px 2px rgba(18,23,27,.05),0 1px 10px rgba(18,23,27,.03);
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme="light"])){
+    --ground:#0d1013; --surface:#161b1f; --surface-2:#1b2126;
+    --ink:#e6eaec; --ink-2:#a3b0b7; --ink-3:#6f7c84;
+    --line:#283036; --line-soft:#212930;
+    --accent:#82abbf; --accent-soft:#182831; --accent-line:#2d4653;
+    --action:#d1904f; --action-soft:#2b1e12; --action-line:#4d3620;
+    --good:#5cb98a; --good-soft:#12251c;
+    --warn:#d3a446; --warn-soft:#2a2211;
+    --bad:#d97676;  --bad-soft:#2b1717;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 1px 10px rgba(0,0,0,.2);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0d1013; --surface:#161b1f; --surface-2:#1b2126;
+  --ink:#e6eaec; --ink-2:#a3b0b7; --ink-3:#6f7c84;
+  --line:#283036; --line-soft:#212930;
+  --accent:#82abbf; --accent-soft:#182831; --accent-line:#2d4653;
+  --action:#d1904f; --action-soft:#2b1e12; --action-line:#4d3620;
+  --good:#5cb98a; --good-soft:#12251c;
+  --warn:#d3a446; --warn-soft:#2a2211;
+  --bad:#d97676;  --bad-soft:#2b1717;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 1px 10px rgba(0,0,0,.2);
+}
+:root[data-theme="light"]{
+  --ground:#f2f4f5; --surface:#ffffff; --surface-2:#f7f9f9;
+  --ink:#12171b; --ink-2:#48545c; --ink-3:#79868e;
+  --line:#dbe1e3; --line-soft:#e9edee;
+  --accent:#35586a; --accent-soft:#e4ecef; --accent-line:#b6cbd4;
+  --action:#8f5322; --action-soft:#f7ece2; --action-line:#e0bd9c;
+  --good:#1f7a4d; --good-soft:#e3f1e9;
+  --warn:#9c6f18; --warn-soft:#f8efd9;
+  --bad:#a83737;  --bad-soft:#f8e5e5;
+  --shadow:0 1px 2px rgba(18,23,27,.05),0 1px 10px rgba(18,23,27,.03);
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;line-height:1.5;font-size:15px}
+.wrap{max-width:1140px;margin:0 auto;padding:26px 20px 80px;display:flex;flex-direction:column;gap:26px}
+h1,h2{margin:0;text-wrap:balance;font-weight:640;letter-spacing:-.015em}
+p{margin:0}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.voice{font-family:var(--serif);font-size:15.5px;line-height:1.62;color:var(--ink-2)}
+.voice em{color:var(--ink);font-style:italic}
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.col{display:flex;flex-direction:column}
+
+/* ============ masthead ============ */
+.mast{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;justify-content:space-between;
+  padding-bottom:16px;border-bottom:2px solid var(--ink)}
+.mast h1{font-size:25px}
+.mast h1 span{color:var(--accent);font-weight:500}
+.stamp{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right;line-height:1.65}
+
+/* ============ status strip ============ */
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.cell{background:var(--surface);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.cell .k{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.cell .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:19px;font-weight:600;letter-spacing:-.02em}
+.cell .s{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.cell.flag{background:var(--bad-soft)} .cell.flag .v{color:var(--bad)}
+.cell.okc .v{color:var(--good)}
+.macro{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:16px}
+.macro .k{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.macro .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:18px;font-weight:600;letter-spacing:-.02em}
+.macro .s{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+
+/* ============ panels ============ */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.phead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+  padding:13px 17px;border-bottom:1px solid var(--line-soft)}
+.phead h2{font-size:14.5px}
+.pbody{padding:17px;display:flex;flex-direction:column;gap:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:26px;align-items:start}
+
+/* the one thing on the page that asks for a decision */
+.act{border-color:var(--action-line);background:var(--action-soft)}
+.act .phead{border-bottom-color:var(--action-line)}
+.act .phead h2{color:var(--action)}
+
+.pill{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:100px;
+  background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.pill.g{background:var(--good-soft);color:var(--good)}
+.pill.w{background:var(--warn-soft);color:var(--warn)}
+.pill.a{background:var(--surface);color:var(--action);border:1px solid var(--action-line)}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ============ tables ============ */
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+  text-align:right;padding:0 10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+th:last-child,td:last-child{padding-right:0}
+td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap;
+  font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:none}
+td.name{font-family:var(--sans);font-weight:640;letter-spacing:-.01em}
+td.txt{font-family:var(--sans);text-align:left;white-space:normal;color:var(--ink-2);font-size:12px}
+tr.out td{opacity:.55;text-decoration:line-through;text-decoration-color:var(--bad)}
+tr.fresh td{background:var(--action-soft)}
+.tag{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--action);border:1px solid var(--action-line);border-radius:3px;padding:1px 4px;vertical-align:1px}
+tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:none;padding-top:10px}
+td.add{color:var(--action);font-weight:640}
+td.blank{color:var(--ink-3)}
+
+/* ============ band meter ============ */
+.band{position:relative;height:26px;background:var(--surface-2);border-radius:4px;overflow:hidden;min-width:160px}
+.band .ok{position:absolute;top:0;bottom:0;background:var(--accent-soft)}
+.band .tgt{position:absolute;top:0;bottom:0;width:2px;background:var(--accent-line)}
+.band .mk{position:absolute;top:3px;bottom:3px;width:3px;border-radius:2px;background:var(--ink)}
+.band .mk.bad{background:var(--bad)}
+.band .mk.fut{background:var(--good)}
+.key{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-3);align-items:center}
+.sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+
+/* ============ tranche sequence ============ */
+.leg{display:grid;grid-template-columns:38px 1fr;gap:15px;padding:16px 0;border-bottom:1px solid var(--line-soft)}
+.leg:last-child{border-bottom:none;padding-bottom:0}
+.leg:first-child{padding-top:0}
+.dot{width:38px;height:38px;border-radius:100px;display:grid;place-items:center;
+  font-family:var(--mono);font-size:15px;font-weight:700;
+  background:var(--surface);color:var(--action);border:1.5px solid var(--action-line)}
+.leg-h{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between;margin-bottom:4px}
+.leg-h .when{font-weight:700;font-size:14.5px;letter-spacing:-.01em}
+.leg-h .amt{font-family:var(--mono);font-weight:700;font-size:15px;color:var(--action)}
+.gate{font-size:12.5px;color:var(--ink-2);margin-bottom:10px;line-height:1.5}
+.buys{display:flex;flex-wrap:wrap;gap:7px}
+.buy{display:flex;align-items:baseline;gap:8px;background:var(--surface);border:1px solid var(--line);
+  border-radius:5px;padding:6px 11px}
+.buy b{font-size:13px;letter-spacing:-.01em}
+.buy .q{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.buy .d{font-family:var(--mono);font-size:12.5px;font-weight:640;color:var(--action)}
+
+/* ============ calendar ============ */
+.cal{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.day{background:var(--surface);padding:11px 12px;display:flex;flex-direction:column;gap:7px;min-height:118px}
+.day.hot{background:var(--warn-soft)}
+.day .d{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.day.hot .d{color:var(--warn)}
+.ev{font-size:12px;line-height:1.4;color:var(--ink)}
+.ev.other{color:var(--ink-3)}
+.ev .est{color:var(--ink-3);font-weight:400}
+
+/* ============ misc ============ */
+ul.tight{margin:0;padding-left:17px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+ul.tight b{color:var(--ink)}
+.kv{display:flex;flex-direction:column;gap:9px}
+.kv .row{display:flex;gap:12px;align-items:baseline;justify-content:space-between;
+  padding-bottom:9px;border-bottom:1px solid var(--line-soft)}
+.kv .row:last-child{border-bottom:none;padding-bottom:0}
+.kv .lab{font-size:13px;color:var(--ink-2)}
+.kv .val{font-family:var(--mono);font-size:13.5px;font-weight:640;text-align:right;line-height:1.45}
+.kv .val small{font-family:var(--mono);color:var(--ink-3);font-weight:400;font-size:11.5px}
+.kv .val.sans{font-family:var(--sans);font-weight:500;font-size:12.5px}
+.note{font-size:12.5px;color:var(--ink-3);line-height:1.55}
+.note b{color:var(--ink-2)}
+.rule{height:1px;background:var(--line-soft);border:0;margin:0}
+.gauge{height:9px;border-radius:5px;overflow:hidden;display:flex;gap:1px}
+.gauge i{display:block;height:100%}
+.gkey{display:flex;justify-content:space-between;font-size:11.5px;font-family:var(--mono);color:var(--ink-3)}
+footer{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:10px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+  .panel{animation:rise .4s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+}
+
+/* ---- charts + diagnostics carried forward from the 10:09 deep run ---- */
+.viz{--surface-1:var(--surface);--grid:var(--line-soft);--axis:var(--line);
+  --ink-1:var(--ink);--ink-2:var(--ink-2);--ink-3:var(--ink-3);
+  --equity:#35586a;--cash:#b8862b;--pos:#1f7a4d;--neg:#a83737;
+  --critical:#a83737;--muted:#b6bbbd}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .viz{
+  --equity:#5f93ad;--cash:#c9963f;--pos:#5cb98a;--neg:#d97676;--critical:#d97676;--muted:#4d5457}}
+:root[data-theme="dark"] .viz{--equity:#5f93ad;--cash:#c9963f;--pos:#5cb98a;
+  --neg:#d97676;--critical:#d97676;--muted:#4d5457}
+.viz text{font-family:var(--mono)}
+.viz .lbl{font-family:var(--sans)}
+.viz .mark{transition:opacity .12s}
+.viz .mark:hover{opacity:.72}
+.viz-legend{display:flex;gap:15px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--ink-2)}
+.viz-legend i{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:-1px}
+.viz-note{font-size:12px;color:var(--ink-3);line-height:1.55}
+details{border-top:1px solid var(--line-soft)}
+details:first-of-type{border-top:none}
+details>summary{cursor:pointer;list-style:none;user-select:none;padding:12px 0;
+  font-size:13.5px;font-weight:640;letter-spacing:-.01em}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▸  ";color:var(--ink-3)}
+details[open]>summary::before{content:"▾  "}
+details>summary:hover{color:var(--accent)}
+details>summary .c{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:400;margin-left:7px}
+details .body{padding:2px 0 15px}
+.diag table{font-size:12.5px}
+.diag td{font-family:var(--sans);text-align:left;white-space:normal;padding:7px 9px}
+.diag td.tk{font-family:var(--mono);font-weight:700;white-space:nowrap;width:1%}
+.diag td.num{text-align:right;font-family:var(--mono)}
+.diag th{text-align:left;padding:0 9px 7px}
+.diag .table-wrap{overflow-x:auto}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+
+.corr{border-left:3px solid var(--warn);background:var(--warn-soft);padding:12px 15px;border-radius:0 5px 5px 0}
+.corr .h{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);margin-bottom:6px}
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px}
+.hero .v{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:-.02em}
+.hero .k{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.hero .s{font-size:11.5px;color:var(--ink-3);font-family:var(--mono)}
+.gap{display:grid;grid-template-columns:52px 1fr;gap:11px;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
+.gap:last-child{border-bottom:none}
+.gid{font-family:var(--mono);font-weight:700;font-size:11px;padding:2px 0;text-align:center;border-radius:4px}
+.gid.closed{background:var(--good-soft);color:var(--good)} .gid.open{background:var(--warn-soft);color:var(--warn)}
+.gap .d{color:var(--ink-2);line-height:1.45} .gap .r{color:var(--good);font-size:11.5px;margin-top:3px;line-height:1.4}
+.regime{display:inline-flex;gap:7px;align-items:center;font-family:var(--mono);font-size:12px;
+  background:var(--warn-soft);color:var(--warn);padding:4px 10px;border-radius:5px;font-weight:600}
+</style>
+<div class="wrap">
+ <header class="mast"><h1>Agent Smith <span>· US Book</span></h1>
+  <div class="stamp">TUE 28 JUL 2026 · 21:10 IST / 11:40 ET · LIVE SESSION<br>
+   USD/INR 95.842 · stops on ATR20 · betas vs SMH</div></header>
+
+ <section class="strip">
+  <div class="cell"><span class="k">Total book</span><span class="v num">$38,214</span><span class="s">equity + wallet</span></div>
+  <div class="cell"><span class="k">Equity</span><span class="v num">$19,919</span><span class="s">20 positions</span></div>
+  <div class="cell flag"><span class="k">Cash</span><span class="v num">47.9%</span><span class="s">band [5,40] this regime</span></div>
+  <div class="cell"><span class="k">Drawdown</span><span class="v num">−14.84%</span><span class="s">warn at −15%</span></div>
+  <div class="cell"><span class="k">Beta vs SMH</span><span class="v num">1.072</span><span class="s">was 1.491 (SPX)</span></div>
+  <div class="cell okc"><span class="k">Risk state</span><span class="v num">NORMAL</span><span class="s">ladder untriggered</span></div>
+ </section>
+
+ <section class="panel"><div class="phead"><h2>The read</h2>
+   <span class="regime">● cash regime: post-stop-event</span></div>
+  <div class="pbody">
+   <p class="voice">Two stop-out events in three sessions have converted the book to <em>47.9% cash</em>. Under the two-regime
+   band adopted today that is measured against a [5,40] ceiling rather than [5,15] — still a breach, but a 7-point one
+   rather than a 33-point one, and the difference is the whole point: the old band declared an emergency the risk
+   framework forbade you from curing.</p>
+   <p class="voice">Today's $5,000 went into the four names least involved in the decline and is <em>up 1.0%</em> while
+   SMH fell a further 0.45 points beneath it. The measured betas now explain why, and they are the strongest evidence
+   this desk has produced: <em>GOOG's beta to SMH is 0.244 with an R² of 0.08; AMZN's is −0.030 with an R² of 0.00.</em>
+   Statistically they are near-independent of the semiconductor complex. The hyperscaler sleeve is not a story any more,
+   it is a measurement.</p>
+   <hr class="rule">
+   <div class="hero">
+    <div class="col"><span class="k">SNDK beta</span><span class="v neg">2.464</span><span class="s">highest in book</span></div>
+    <div class="col"><span class="k">TER · DRAM · MRVL</span><span class="v neg">1.90 · 1.76 · 1.65</span><span class="s">the trim list</span></div>
+    <div class="col"><span class="k">GOOG beta</span><span class="v pos">0.244</span><span class="s">R² 0.08</span></div>
+    <div class="col"><span class="k">AMZN beta</span><span class="v pos">−0.030</span><span class="s">R² 0.00</span></div>
+   </div>
+  </div></section>
+
+ <section class="panel act"><div class="phead"><h2>Open proposals · post-FOMC, Thu 30 Jul from 19:00 IST</h2>
+   <span class="pill a">Never executed</span></div>
+  <div class="pbody">
+   <p class="voice">FOMC lands at 23:30 IST Wednesday and Powell speaks at midnight. <em>Trade Thursday's session
+   instead</em> — same information, civilised hour, and the worst post-FOMC liquidity is long gone.</p>
+   <div class="buys">
+    <div class="buy"><b>NVDA</b><span class="q">re-entry · stop 183.94 · β 0.505</span><span class="d">$1,335</span></div>
+    <div class="buy"><b>CEG</b><span class="q">new · stop 241.62 · ATR 3.58%</span><span class="d">$1,500</span></div>
+   </div>
+   <p class="note"><b>NVDA</b> — the exit was an artifact: at ATR20 3.37% a correct 6.74% stop would not have fired on
+   Monday's −4.99%. Measured beta 0.505 confirms it is far less SMH-coupled than the sector it sits in. Capped at $1,335
+   by the Semis band, not by conviction. <b>Abort if</b> it closes Wednesday below $192.74.<br>
+   <b>CEG</b> — the only screened Power name that is <b>generation, not equipment</b>; GEV and VRT already share one
+   order-book cycle. Repairs the Power floor and lifts the cluster's equity ceiling from $29,870 to $56,550. <b>Reports
+   ~10 Aug</b> — two weeks of runway, then a dated event.</p>
+  </div></section>
+
+ <div class="grid2">
+  <section class="panel"><div class="phead"><h2>Cluster targets</h2><span class="pill">Amended 27 Jul</span></div>
+   <div class="pbody"><div class="scroll"><table id="clusters">
+    <thead><tr><th>Cluster</th><th>Now</th><th>Target</th><th style="width:160px">Band</th></tr></thead>
+    <tbody></tbody></table></div></div></section>
+  <section class="panel"><div class="phead"><h2>Framework</h2><span class="pill">Live in code</span></div>
+   <div class="pbody"><div class="kv">
+    <div class="row"><span class="lab">Stop distance</span><span class="val">2 × ATR20<br><small>floored 3%</small></span></div>
+    <div class="row"><span class="lab">Risk per position</span><span class="val">0.50% of book · $191</span></div>
+    <div class="row"><span class="lab">Cash — normal</span><span class="val">[5, 15]%</span></div>
+    <div class="row"><span class="lab">Cash — post-stop-event</span><span class="val">[5, 40]%<br><small>15 sessions from last stop-out</small></span></div>
+    <div class="row"><span class="lab">Monthly contribution</span><span class="val">$1,000 from Aug</span></div>
+    <div class="row"><span class="lab">Benchmark</span><span class="val">SMH</span></div>
+   </div>
+   <p class="note">The two-regime cash band is now implemented in <span class="num">smith_math.py</span>, not just written
+   in policy — verified live this session at 47.9% cash.</p></div></section>
+ </div>
+
+ <section class="panel"><div class="phead"><h2>Positions · ATR20 stops, SMH betas, risk headroom</h2>
+   <span class="pill">0.5% of book per position</span></div>
+  <div class="pbody"><div class="scroll"><table id="holdings">
+   <thead><tr><th>Name</th><th>Cluster</th><th>Qty</th><th>Price</th><th>Value</th><th>ATR20</th>
+   <th>β vs SMH</th><th>Stop</th><th>Stop px</th><th>Risk cap</th><th>Headroom</th></tr></thead>
+   <tbody></tbody><tfoot></tfoot></table></div>
+   <p class="note"><b>Headroom</b> negative = oversized against the 0.5% risk budget. The three worst are also the three
+   highest betas — SNDK (2.46), DRAM (1.76), MRVL (1.65). That is not a coincidence; it is the same fact stated twice.</p>
+  </div></section>
+
+ <section class="panel"><div class="phead"><h2>Gap register</h2><span class="pill g">5 closed today</span></div>
+  <div class="pbody" style="gap:0"><div id="gaps"></div></div></section>
+
+ <footer>
+  <p class="note"><b>Everything here is a proposal for your review.</b> No trade has been or will be placed by this desk,
+  and none of it is licensed investment advice.</p>
+  <p class="note">Prices are INDmoney live quotes, Tue 28 Jul 2026 ~11:40 ET. ATR20 and betas are computed from yfinance
+  daily bars, 25 Jun – 24 Jul — a 20-observation window, so betas are ordinal rather than precise. Policy remains a draft
+  (<span class="num">confirmed: false</span>).</p>
+ </footer>
+</div>
+<script>
+const clusters=[{"n":"AI Semis/Fabs","now":30.64,"tgt":30,"lo":25,"hi":35},{"n":"AI Memory/Storage","now":19.5,"tgt":15,"lo":10,"hi":20},{"n":"AI Networking/Optics","now":20.1,"tgt":15,"lo":10,"hi":20},{"n":"AI Power/Cooling/DC","now":8.52,"tgt":15,"lo":10,"hi":20},{"n":"Compute/Hyperscaler OEM","now":4.94,"tgt":5,"lo":0,"hi":10},{"n":"Compute/Hyperscaler","now":16.3,"tgt":20,"lo":15,"hi":25}], SCALE=40, pc=v=>Math.max(0,Math.min(100,v/SCALE*100));
+document.querySelector("#clusters tbody").innerHTML=clusters.map(function(c){
+ var ok=c.now>=c.lo&&c.now<=c.hi;
+ return '<tr><td class="name">'+c.n+'</td><td class="'+(ok?"pos":"neg")+'">'+c.now.toFixed(2)+'%</td>'
+ +'<td class="blank">'+c.tgt+'%</td><td><div class="band">'
+ +'<div class="ok" style="left:'+pc(c.lo)+'%;width:'+(pc(c.hi)-pc(c.lo))+'%"></div>'
+ +'<div class="tgt" style="left:'+pc(c.tgt)+'%"></div>'
+ +'<div class="mk'+(ok?"":" bad")+'" style="left:'+pc(c.now)+'%"></div></div></td></tr>';}).join("");
+const CL={Semis:"Semis/Fabs",Memory:"Memory",Optics:"Networking/Optics",Power:"Power/DC",OEM:"Compute OEM",Hyper:"Hyperscaler"};
+const holdings=[{"t":"GOOG","cl":"Hyper","qty":8.441,"px":328.59,"val":2774,"atr":3.46,"beta":0.244,"stop":6.9,"stopPx":305.85,"cap":2761,"head":-12,"new":true},{"t":"TSM","cl":"Semis","qty":5.406,"px":386.94,"val":2092,"atr":4.58,"beta":0.9,"stop":9.2,"stopPx":351.5,"cap":2086,"head":-6,"new":false},{"t":"AVGO","cl":"Optics","qty":5.086,"px":379.16,"val":1928,"atr":3.9,"beta":0.731,"stop":7.8,"stopPx":349.59,"cap":2450,"head":521,"new":false},{"t":"ASML","cl":"Semis","qty":1.111,"px":1577.6,"val":1753,"atr":4.69,"beta":0.991,"stop":9.4,"stopPx":1429.62,"cap":2037,"head":284,"new":false},{"t":"VRT","cl":"Power","qty":5,"px":265.54,"val":1328,"atr":6.46,"beta":1.13,"stop":12.9,"stopPx":231.23,"cap":1479,"head":151,"new":false},{"t":"MRVL","cl":"Optics","qty":7,"px":174.8,"val":1224,"atr":9.57,"beta":1.653,"stop":19.1,"stopPx":141.34,"cap":998,"head":-225,"new":false},{"t":"DRAM","cl":"Memory","qty":25,"px":47.79,"val":1195,"atr":8.97,"beta":1.76,"stop":17.9,"stopPx":39.22,"cap":1065,"head":-130,"new":false},{"t":"SNDK","cl":"Memory","qty":1.0081,"px":1108.63,"val":1118,"atr":13.73,"beta":2.464,"stop":27.5,"stopPx":804.2,"cap":696,"head":-422,"new":false},{"t":"QCOM","cl":"Semis","qty":6.0008,"px":167.12,"val":1003,"atr":5.37,"beta":0.511,"stop":10.7,"stopPx":149.17,"cap":1779,"head":776,"new":false},{"t":"CLS","cl":"OEM","qty":3.0033,"px":327.93,"val":985,"atr":7.51,"beta":1.249,"stop":15.0,"stopPx":278.67,"cap":1272,"head":287,"new":false},{"t":"MU","cl":"Memory","qty":1.0004,"px":818.3,"val":819,"atr":8.36,"beta":1.434,"stop":16.7,"stopPx":681.48,"cap":1143,"head":324,"new":false},{"t":"EWY","cl":"Memory","qty":5,"px":150.35,"val":752,"atr":5.92,"beta":1.146,"stop":11.8,"stopPx":132.55,"cap":1614,"head":862,"new":false},{"t":"COHR","cl":"Optics","qty":3,"px":238.3,"val":715,"atr":9.39,"beta":1.434,"stop":18.8,"stopPx":193.55,"cap":1017,"head":303,"new":false},{"t":"ARM","cl":"Semis","qty":2,"px":245.22,"val":490,"atr":9.39,"beta":1.174,"stop":18.8,"stopPx":199.17,"cap":1017,"head":527,"new":false},{"t":"ORCL","cl":"Hyper","qty":4,"px":118.21,"val":473,"atr":5.65,"beta":0.514,"stop":11.3,"stopPx":104.85,"cap":1691,"head":1218,"new":false},{"t":"AMD","cl":"Semis","qty":1,"px":452.82,"val":453,"atr":7.18,"beta":1.375,"stop":14.4,"stopPx":387.8,"cap":1331,"head":878,"new":false},{"t":"GEV","cl":"Power","qty":0.395,"px":934.0,"val":369,"atr":6.22,"beta":0.728,"stop":12.4,"stopPx":817.81,"cap":1536,"head":1167,"new":false},{"t":"TER","cl":"Semis","qty":1.0027,"px":308.33,"val":309,"atr":9.36,"beta":1.904,"stop":18.7,"stopPx":250.61,"cap":1021,"head":712,"new":false},{"t":"CIEN","cl":"Optics","qty":0.3885,"px":353.96,"val":138,"atr":7.51,"beta":1.139,"stop":15.0,"stopPx":300.8,"cap":1272,"head":1135,"new":false},{"t":"AMAT","cl":"Semis","qty":0.0092,"px":492.37,"val":5,"atr":8.43,"beta":1.521,"stop":16.9,"stopPx":409.36,"cap":1133,"head":1129,"new":false}], m=n=>"$"+Math.round(Math.abs(n)).toLocaleString("en-US");
+document.querySelector("#holdings tbody").innerHTML=holdings.map(function(h){
+ return '<tr class="'+(h.new?"fresh":"")+'"><td class="name">'+h.t+(h.new?' <span class="tag">new</span>':'')+'</td>'
+ +'<td class="txt">'+CL[h.cl]+'</td><td>'+h.qty+'</td><td>'+h.px.toFixed(2)+'</td><td>'+m(h.val)+'</td>'
+ +'<td class="blank">'+h.atr.toFixed(2)+'%</td>'
+ +'<td class="'+(h.beta>=1.5?"neg":(h.beta<=0.6?"pos":""))+'">'+(h.beta===null?"—":h.beta.toFixed(3))+'</td>'
+ +'<td>'+h.stop.toFixed(1)+'%</td><td>'+h.stopPx.toFixed(2)+'</td><td class="blank">'+m(h.cap)+'</td>'
+ +'<td class="'+(h.head<0?"neg":"pos")+'" style="font-weight:640">'+(h.head<0?"−":"+")+m(h.head)+'</td></tr>';}).join("");
+document.querySelector("#holdings tfoot").innerHTML='<tr><td class="name">Book</td><td class="txt"></td><td></td><td></td>'
+ +'<td>'+m(holdings.reduce((a,h)=>a+h.val,0))+'</td><td class="blank"></td>'
+ +'<td class="pos">1.072</td><td colspan="3" class="blank" style="text-align:right">portfolio beta vs SMH</td><td></td></tr>';
+const gaps=[{"id":"G1","d":"LTCG per-lot purchase dates. Partially seeded: the 2026-07-28 buys (GOOG/AVGO/TSM/ASML) now carry exact dates and fills in lots.json, sourced from trades.json. Pre-07-28 lots remain unknown and need I","st":"open","res":""},{"id":"G3","d":"INDmoney networth_snapshot/networth_holdings AGGREGATE totals lag the real-time price (per-name fix landed via get_us_stocks_details.ext_hr_live_price + PRE-MARKET PRICE OVERLAY in SKILL.md step 2.5, ","st":"open","res":""},{"id":"G11","d":"'Compute/Hyperscaler' cluster line added to draft policy.json without user confirmation","st":"closed","res":"CLOSED 2026-07-28: user explicitly confirmed the full cluster-target set including Compute/Hyperscaler (raised 10%->20%) when choosing option 3 on 2026-07-27."},{"id":"G15","d":"data_cache.betas empty for SNDK/DRAM/IREN/ARM (25.7% of book) -- defaults to 1.0, flagged in data_quality. 2026-07-26: reverted a guessed-value insertion that violated the never-estimate guardrail. Ne","st":"closed","res":"CLOSED 2026-07-28: real betas vs SMH computed for all 23 names from 20 daily returns; SNDK/DRAM/ARM no longer default to 1.0. See data_cache.beta_method for the window caveat."},{"id":"G17","d":"spx_125dma/ndx_rsi14/vix_52w_range computed from weekly-aggregated (not daily) yfinance history for the sentiment composite -- a smoothing approximation, not a failure","st":"open","res":""},{"id":"G18","d":"SPY/QQQ max-pain unavailable -- single-expiry options pull returned near-zero/null open interest across nearly all strikes (yfinance data gap)","st":"open","res":""},{"id":"G19","d":"FMP etfAndMutualFunds tool blocked on current plan tier (requires Ultimate/Enterprise) -- EWY/DRAM ETF-constituent cache cannot be refreshed","st":"open","res":""},{"id":"G20","d":"yfinance earnings-calendar pulls have been unreliable for confirmed dates; smith-earnings agent (Tier 3.2 skeleton) recommends switching to FMP as primary source.","st":"closed","res":"CLOSED 2026-07-28: reliable method established and documented in data_cache.earnings_method; 18 names seeded into earnings_calendar."},{"id":"G24","d":"High-confidence reconstruction (not live-verified): 07-24 cash jump traced to 5 full exits + 8 halvings coinciding with a broad AI-capex selloff; exact trigger (stop-loss/panic/planned de-risk) unconf","st":"open","res":""},{"id":"G26","d":"07-24 flow event (5 exits + 8 halvings, wallet $5.7k->$18.1k) had no captured trade rationale. FIXED GOING FORWARD 2026-07-26: trades.json + flow interrogation now attaches trade_reason to every qty_c","st":"closed","res":"CLOSED 2026-07-28: trades.json seeded with 12 entries covering the 07-24 event (reconstructed), the 07-27 stop-outs (with fills) and the 07-28 redeployment (exact fills). Forward c"},{"id":"G28","d":"smith_math.py cmd_drift does not implement policy.cash_regimes (two-regime cash band added 2026-07-28); reports breach vs [5,15] irrespective of post-stop-event regime.","st":"closed","res":"CLOSED 2026-07-28: smith_math.py cmd_drift now implements policy.cash_regimes -- emits cash_regime, cash_regime_reason, cash_band_normal_pct and cash_breach_vs_normal. Verified liv"},{"id":"G29","d":"dashboard.html stale since 2026-07-27 15:27 -- shows superseded Friday-range stops instead of ATR20 framework, and predates the two-regime cash band and CEG/NVDA proposals.","st":"open","res":""}];
+document.getElementById("gaps").innerHTML=gaps.map(g=>'<div class="gap"><span class="gid '+g.st+'">'+g.id+'</span>'
+ +'<div><div class="d">'+g.d+'</div>'+(g.res?'<div class="r">✓ '+g.res+'</div>':'')+'</div></div>').join("");
+</script>

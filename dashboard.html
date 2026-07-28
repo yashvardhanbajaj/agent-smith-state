@@ -225,133 +225,134 @@ details .body{padding:2px 0 15px}
 .pill.warn{background:var(--warn-soft);color:var(--warn)}
 .pill.bad{background:var(--bad-soft);color:var(--bad)}
 
+.cat{display:flex;flex-direction:column;gap:0}
+.ci{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
+.ci:last-child{border-bottom:none}
+.cb{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 6px;
+  border-radius:4px;text-align:center;height:fit-content}
+.cb.TAILWIND{background:var(--good-soft);color:var(--good)}
+.cb.THREAT{background:var(--bad-soft);color:var(--bad)}
+.cb.AMBIGUOUS{background:var(--warn-soft);color:var(--warn)}
+.ci .hh{font-size:13.5px;font-weight:640;letter-spacing:-.01em;line-height:1.4}
+.ci .mm{font-size:12px;color:var(--ink-3);margin-top:4px;line-height:1.45}
+.ci .aa{font-family:var(--mono);font-size:11px;color:var(--accent);margin-top:4px}
+.ci .kk{font-size:9.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;margin-top:5px}
 .corr{border-left:3px solid var(--warn);background:var(--warn-soft);padding:12px 15px;border-radius:0 5px 5px 0}
 .corr .h{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);margin-bottom:6px}
 .hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px}
 .hero .v{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:-.02em}
 .hero .k{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
 .hero .s{font-size:11.5px;color:var(--ink-3);font-family:var(--mono)}
-.gap{display:grid;grid-template-columns:52px 1fr;gap:11px;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
-.gap:last-child{border-bottom:none}
-.gid{font-family:var(--mono);font-weight:700;font-size:11px;padding:2px 0;text-align:center;border-radius:4px}
-.gid.closed{background:var(--good-soft);color:var(--good)} .gid.open{background:var(--warn-soft);color:var(--warn)}
-.gap .d{color:var(--ink-2);line-height:1.45} .gap .r{color:var(--good);font-size:11.5px;margin-top:3px;line-height:1.4}
-.regime{display:inline-flex;gap:7px;align-items:center;font-family:var(--mono);font-size:12px;
-  background:var(--warn-soft);color:var(--warn);padding:4px 10px;border-radius:5px;font-weight:600}
+.pr{display:grid;grid-template-columns:96px 1fr auto;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft);align-items:baseline}
+.pr:last-child{border-bottom:none}
+.pr .act{font-family:var(--mono);font-size:12px;font-weight:700}
+.pr .why{font-size:12.5px;color:var(--ink-2);line-height:1.45}
+.pr .amt{font-family:var(--mono);font-weight:700;color:var(--action)}
 </style>
 <div class="wrap">
- <header class="mast"><h1>Agent Smith <span>· US Book</span></h1>
-  <div class="stamp">TUE 28 JUL 2026 · 21:10 IST / 11:40 ET · LIVE SESSION<br>
+ <header class="mast"><h1>Agent Smith <span>· US Deep Review</span></h1>
+  <div class="stamp">TUE 28 JUL 2026 · 14:45 ET / 00:15 IST<br>
    USD/INR 95.842 · stops on ATR20 · betas vs SMH</div></header>
 
  <section class="strip">
-  <div class="cell"><span class="k">Total book</span><span class="v num">$38,214</span><span class="s">equity + wallet</span></div>
-  <div class="cell"><span class="k">Equity</span><span class="v num">$19,919</span><span class="s">20 positions</span></div>
-  <div class="cell flag"><span class="k">Cash</span><span class="v num">47.9%</span><span class="s">band [5,40] this regime</span></div>
-  <div class="cell"><span class="k">Drawdown</span><span class="v num">−14.84%</span><span class="s">warn at −15%</span></div>
-  <div class="cell"><span class="k">Beta vs SMH</span><span class="v num">1.072</span><span class="s">was 1.491 (SPX)</span></div>
-  <div class="cell okc"><span class="k">Risk state</span><span class="v num">NORMAL</span><span class="s">ladder untriggered</span></div>
+  <div class="cell"><span class="k">Total book</span><span class="v num">$38,340</span><span class="s">equity + wallet</span></div>
+  <div class="cell"><span class="k">Equity</span><span class="v num">$28,142</span><span class="s">23 positions</span></div>
+  <div class="cell okc"><span class="k">Cash</span><span class="v num">26.6%</span><span class="s">band [5,40] · in band</span></div>
+  <div class="cell flag"><span class="k">Drawdown</span><span class="v num">−14.56%</span><span class="s">0.44pt to warn</span></div>
+  <div class="cell flag"><span class="k">Open risk</span><span class="v num">10.2%</span><span class="s">cap 10% · OVER</span></div>
+  <div class="cell flag"><span class="k">AI-capex</span><span class="v num">73.4%</span><span class="s">of book, was 52.3%</span></div>
  </section>
 
  <section class="panel"><div class="phead"><h2>The read</h2>
-   <span class="regime">● cash regime: post-stop-event</span></div>
+  <div class="pills"><span class="pill b">Gate v2 · ESCALATING</span><span class="pill g">Cash regime · post-stop-event</span></div></div>
   <div class="pbody">
-   <p class="voice">Two stop-out events in three sessions have converted the book to <em>47.9% cash</em>. Under the two-regime
-   band adopted today that is measured against a [5,40] ceiling rather than [5,15] — still a breach, but a 7-point one
-   rather than a 33-point one, and the difference is the whole point: the old band declared an emergency the risk
-   framework forbade you from curing.</p>
-   <p class="voice">Today's $5,000 went into the four names least involved in the decline and is <em>up 1.0%</em> while
-   SMH fell a further 0.45 points beneath it. The measured betas now explain why, and they are the strongest evidence
-   this desk has produced: <em>GOOG's beta to SMH is 0.244 with an R² of 0.08; AMZN's is −0.030 with an R² of 0.00.</em>
-   Statistically they are near-independent of the semiconductor complex. The hyperscaler sleeve is not a story any more,
-   it is a measurement.</p>
+   <p class="voice">You deployed roughly <em>$8,100</em> during the pause. Cash fell 47.7% to 26.6% — which under the band
+   written this morning is <em>no longer a breach</em>. The policy change did what it was built to do, on its first real test.</p>
+   <p class="voice">But the ballast went with it. AI-capex exposure rose from 52.3% to <em>73.4% of total book</em> — not because
+   the theme was bought proportionally, but because the cash that was absorbing its risk has largely been spent. You are
+   0.44 points from the warn rung, with a no-dot-plot FOMC tomorrow at 14:00 ET and QCOM and LRCX reporting the same day.</p>
    <hr class="rule">
-   <div class="hero">
-    <div class="col"><span class="k">SNDK beta</span><span class="v neg">2.464</span><span class="s">highest in book</span></div>
-    <div class="col"><span class="k">TER · DRAM · MRVL</span><span class="v neg">1.90 · 1.76 · 1.65</span><span class="s">the trim list</span></div>
-    <div class="col"><span class="k">GOOG beta</span><span class="v pos">0.244</span><span class="s">R² 0.08</span></div>
-    <div class="col"><span class="k">AMZN beta</span><span class="v pos">−0.030</span><span class="s">R² 0.00</span></div>
+   <div class="macro">
+    <div class="col"><span class="k">10-yr</span><span class="v">4.596%</span><span class="s">−4.5bp today</span></div>
+    <div class="col"><span class="k">VIX</span><span class="v">17.95</span><span class="s">off a 19.52 high</span></div>
+    <div class="col"><span class="k">SMH</span><span class="v neg">−3.08%</span><span class="s">the benchmark</span></div>
+    <div class="col"><span class="k">KOSPI</span><span class="v neg">−10.84%</span><span class="s">8th halt of 2026</span></div>
+    <div class="col"><span class="k">Fed</span><span class="v">3.63%</span><span class="s">hawkish · no dot plot</span></div>
+    <div class="col"><span class="k">Beta vs SMH</span><span class="v">1.136</span><span class="s">was 1.070</span></div>
    </div>
   </div></section>
 
- <section class="panel act"><div class="phead"><h2>Open proposals · post-FOMC, Thu 30 Jul from 19:00 IST</h2>
-   <span class="pill a">Never executed</span></div>
+ <section class="panel"><div class="phead"><h2>Factor catalysts</h2>
+   <span class="pill g">smith-catalyst · first dispatch · 6 searches</span></div>
   <div class="pbody">
-   <p class="voice">FOMC lands at 23:30 IST Wednesday and Powell speaks at midnight. <em>Trade Thursday's session
-   instead</em> — same information, civilised hour, and the worst post-FOMC liquidity is long gone.</p>
-   <div class="buys">
-    <div class="buy"><b>NVDA</b><span class="q">re-entry · stop 183.94 · β 0.505</span><span class="d">$1,335</span></div>
-    <div class="buy"><b>CEG</b><span class="q">new · stop 241.62 · ATR 3.58%</span><span class="d">$1,500</span></div>
-   </div>
-   <p class="note"><b>NVDA</b> — the exit was an artifact: at ATR20 3.37% a correct 6.74% stop would not have fired on
-   Monday's −4.99%. Measured beta 0.505 confirms it is far less SMH-coupled than the sector it sits in. Capped at $1,335
-   by the Semis band, not by conviction. <b>Abort if</b> it closes Wednesday below $192.74.<br>
-   <b>CEG</b> — the only screened Power name that is <b>generation, not equipment</b>; GEV and VRT already share one
-   order-book cycle. Repairs the Power floor and lifts the cluster's equity ceiling from $29,870 to $56,550. <b>Reports
-   ~10 Aug</b> — two weeks of runway, then a dated event.</p>
+   <p class="note">Ticker-scoped news scanning cannot see any of these — CXMT is not a holding, KOSPI is not a ticker,
+   and a Chinese lithography breakthrough is news about ASML's competitor. This panel is why the agent exists.</p>
+   <div class="cat"><div class="ci"><span class="cb TAILWIND">TAILWIND</span><div><div class="hh">CXMT DDR5 server modules price 2.2% ABOVE Samsung/SK Hynix — the feared price war is absent from the only hard data point</div><div class="mm">18,999 vs 18,595 yuan; CXMT cost base 30%+ higher; 8% DRAM share vs Samsung 36% / SK Hynix 29% / Micron 24%</div><div class="aa">MU · SNDK · DRAM · EWY</div><div class="kk">structural</div></div></div><div class="ci"><span class="cb AMBIGUOUS">AMBIGUOUS</span><div><div class="hh">Alphabet FY26 capex raised to $195–205bn; quarterly FCF turned negative −$5.9bn</div><div class="mm">Q2 capex $44.9bn against −$5.9bn FCF; revenue still +24% YoY, cloud +82%. AMZN/META/MSFT face the same question this week</div><div class="aa">GOOGL</div><div class="kk">structural</div></div></div><div class="ci"><span class="cb THREAT">THREAT</span><div><div class="hh">Nvidia's $250bn OpenAI guarantee is ~71× its own disclosed lease-guarantee cap</div><div class="mm">$250bn commitment vs $3.5bn disclosed 10-Q cap</div><div class="aa">NVDA · AVGO · AMD · ORCL</div><div class="kk">structural</div></div></div><div class="ci"><span class="cb THREAT">THREAT</span><div><div class="hh">KOSPI's plunge was Korea's 8th circuit breaker of 2026</div><div class="mm">−34% in 25 days after a prior +300% spike</div><div class="aa">EWY · TSM · memory</div><div class="kk">immediate</div></div></div></div>
+  </div></section>
+
+ <section class="panel act"><div class="phead"><h2>Open proposals</h2>
+   <span class="pill a">For review — never executed</span></div>
+  <div class="pbody">
+   <p class="voice">Aggregate excess over the risk caps is <em>$4,860</em> — larger than the entire $3,834 risk budget.
+   The three trims are risk discipline, not a thesis reversal. The two buys wait for Powell.</p>
+   <div><div class="pr"><span class="act">BUY CEG (new position)</span><span class="why">New Power/DC name, selected from a 10-name screen. Chosen over HUBB/ETN/NVT/PWR/VST because it is GENERATION, not equipment: GEV and VRT are both equipment vendors sharing one order-book cycle, so a third equipment name adds a ticker without adding diversification. CEG sells power to datacenters under long-dated nuclear PPAs -- contracted revenue that keeps paying if AI capex pauses, which is the live risk. ATR20 3.58% (2nd lowest of the screen), 27.1% upside (double HUBB's), -3.61% on 28 Jul vs SMH -3.58%. Repairs the Power/DC floor breach (8.52% vs 10% floor) and lifts the cluster's equity ceiling from $29,870 to $56,550, removing Power as the binding constraint on total deployment. RISK: reports ~10 Aug, ~2 weeks of clean runway.</span><span class="amt">$1,500</span></div><div class="pr"><span class="act">TRIM DRAM</span><span class="why">2.24x its ATR risk cap ($2,398 held vs $1,069). Risk-sizing trim, not a thesis exit — Memory remains WATCH not BROKEN.</span><span class="amt">$1,200</span></div><div class="pr"><span class="act">TRIM MRVL</span><span class="why">1.75x risk cap. No broken thesis; frees room in Optics which sits near its band top.</span><span class="amt">$650</span></div><div class="pr"><span class="act">TRIM SNDK</span><span class="why">1.55x risk cap, but catalyst 1 (CXMT priced 2.2% above incumbents) supports the thesis — partial trim only.</span><span class="amt">$450</span></div><div class="pr"><span class="act">BUY CEG</span><span class="why">Power/DC under-band (5.95% of book vs a 10% floor). Generation not equipment. Sequence after tomorrow's FOMC presser.</span><span class="amt">$1,500</span></div><div class="pr"><span class="act">ADD GOOGL</span><span class="why">Hyperscaler fell under-band (9.12% of book vs 15% floor) on the GOOG->GOOGL swap sizing. Thesis intact, no risk-cap issue.</span><span class="amt">$700</span></div></div>
   </div></section>
 
  <div class="grid2">
-  <section class="panel"><div class="phead"><h2>Cluster targets</h2><span class="pill">Amended 27 Jul</span></div>
+  <section class="panel"><div class="phead"><h2>Clusters</h2>
+    <span class="pill">ceiling on book · floor on equity</span></div>
    <div class="pbody"><div class="scroll"><table id="clusters">
-    <thead><tr><th>Cluster</th><th>Now</th><th>Target</th><th style="width:160px">Band</th></tr></thead>
-    <tbody></tbody></table></div></div></section>
-  <section class="panel"><div class="phead"><h2>Framework</h2><span class="pill">Live in code</span></div>
-   <div class="pbody"><div class="kv">
-    <div class="row"><span class="lab">Stop distance</span><span class="val">2 × ATR20<br><small>floored 3%</small></span></div>
-    <div class="row"><span class="lab">Risk per position</span><span class="val">0.50% of book · $191</span></div>
-    <div class="row"><span class="lab">Cash — normal</span><span class="val">[5, 15]%</span></div>
-    <div class="row"><span class="lab">Cash — post-stop-event</span><span class="val">[5, 40]%<br><small>15 sessions from last stop-out</small></span></div>
-    <div class="row"><span class="lab">Monthly contribution</span><span class="val">$1,000 from Aug</span></div>
-    <div class="row"><span class="lab">Benchmark</span><span class="val">SMH</span></div>
-   </div>
-   <p class="note">The two-regime cash band is now implemented in <span class="num">smith_math.py</span>, not just written
-   in policy — verified live this session at 47.9% cash.</p></div></section>
+    <thead><tr><th>Cluster</th><th>Equity</th><th>Book</th><th>Band</th><th style="width:150px"></th></tr></thead>
+    <tbody></tbody></table></div>
+    <p class="note">While cash sits above the normal band top, ceilings are tested on total book and floors on invested
+    equity. Both figures are always shown so neither is lost.</p></div></section>
+
+  <section class="panel"><div class="phead"><h2>Risk-cap breaches</h2><span class="pill w">5 names</span></div>
+   <div class="pbody"><div class="scroll"><table id="over">
+    <thead><tr><th>Name</th><th>Held</th><th>Cap</th><th>×</th><th>Excess</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">Cap = 0.5% of book ÷ that name's 2×ATR20 stop. Memory holds the two worst breaches — which is the
+    distinction that matters: tolerating a cluster ceiling is not the same statement as holding SNDK at 3.1× its cap.</p>
+   </div></section>
  </div>
 
- <section class="panel"><div class="phead"><h2>Positions · ATR20 stops, SMH betas, risk headroom</h2>
-   <span class="pill">0.5% of book per position</span></div>
+ <section class="panel"><div class="phead"><h2>Positions</h2><span class="pill">23 · ATR20 stops · SMH betas</span></div>
   <div class="pbody"><div class="scroll"><table id="holdings">
-   <thead><tr><th>Name</th><th>Cluster</th><th>Qty</th><th>Price</th><th>Value</th><th>ATR20</th>
-   <th>β vs SMH</th><th>Stop</th><th>Stop px</th><th>Risk cap</th><th>Headroom</th></tr></thead>
-   <tbody></tbody><tfoot></tfoot></table></div>
-   <p class="note"><b>Headroom</b> negative = oversized against the 0.5% risk budget. The three worst are also the three
-   highest betas — SNDK (2.46), DRAM (1.76), MRVL (1.65). That is not a coincidence; it is the same fact stated twice.</p>
+   <thead><tr><th>Name</th><th>Cluster</th><th>Qty</th><th>Price</th><th>Value</th><th>ATR20</th><th>β</th>
+   <th>Stop</th><th>Stop px</th><th>Cap</th><th>Headroom</th></tr></thead><tbody></tbody><tfoot></tfoot></table></div>
   </div></section>
-
- <section class="panel"><div class="phead"><h2>Gap register</h2><span class="pill g">5 closed today</span></div>
-  <div class="pbody" style="gap:0"><div id="gaps"></div></div></section>
 
  <footer>
   <p class="note"><b>Everything here is a proposal for your review.</b> No trade has been or will be placed by this desk,
   and none of it is licensed investment advice.</p>
-  <p class="note">Prices are INDmoney live quotes, Tue 28 Jul 2026 ~11:40 ET. ATR20 and betas are computed from yfinance
-  daily bars, 25 Jun – 24 Jul — a 20-observation window, so betas are ordinal rather than precise. Policy remains a draft
-  (<span class="num">confirmed: false</span>).</p>
+  <p class="note">Two items need your confirmation: the <b>GOOG Class C → GOOGL Class A swap</b> is a different security
+  (investment_code 114025 → 112778), with ATR and beta proxied from Class C; and <b>NVDA was bought early</b> at $1,973
+  against the $1,335 proposed, so the proposal is marked filled rather than open. smith-book, smith-scout, smith-watchlist
+  and smith-quality were not dispatched this run — disclosed, not silent.</p>
  </footer>
 </div>
 <script>
-const clusters=[{"n":"AI Semis/Fabs","now":30.64,"tgt":30,"lo":25,"hi":35},{"n":"AI Memory/Storage","now":19.5,"tgt":15,"lo":10,"hi":20},{"n":"AI Networking/Optics","now":20.1,"tgt":15,"lo":10,"hi":20},{"n":"AI Power/Cooling/DC","now":8.52,"tgt":15,"lo":10,"hi":20},{"n":"Compute/Hyperscaler OEM","now":4.94,"tgt":5,"lo":0,"hi":10},{"n":"Compute/Hyperscaler","now":16.3,"tgt":20,"lo":15,"hi":25}], SCALE=40, pc=v=>Math.max(0,Math.min(100,v/SCALE*100));
+const clusters=[{"n":"Power/DC","eq":8.107,"bk":5.951,"tgt":15,"lo":10,"hi":20,"br":true,"edge":"under"},{"n":"Hyperscaler","eq":12.432,"bk":9.125,"tgt":20,"lo":15,"hi":25,"br":true,"edge":"under"},{"n":"Semis/Fabs","eq":32.165,"bk":23.609,"tgt":30,"lo":25,"hi":35,"br":false,"edge":null},{"n":"Memory","eq":23.492,"bk":17.243,"tgt":15,"lo":10,"hi":20,"br":false,"edge":null},{"n":"Networking/Optics","eq":18.489,"bk":13.571,"tgt":15,"lo":10,"hi":20,"br":false,"edge":null},{"n":"Compute OEM","eq":5.316,"bk":3.902,"tgt":5,"lo":0,"hi":10,"br":false,"edge":null},{"n":"Diversified/Regional ETF","eq":0.0,"bk":0.0,"tgt":0,"lo":0,"hi":10,"br":false,"edge":null},{"n":"Enterprise Software","eq":0.0,"bk":0.0,"tgt":0,"lo":0,"hi":5,"br":false,"edge":null}], rows=[{"t":"ASML","cl":"Semis/Fabs","qty":2.0,"px":1583.36,"val":3167,"atr":4.69,"beta":0.991,"stop":9.4,"stopPx":1434.84,"cap":2044,"head":-1123,"new":false},{"t":"GOOGL","cl":"Hyperscaler","qty":8,"px":335.09,"val":2681,"atr":3.46,"beta":0.244,"stop":6.9,"stopPx":311.9,"cap":2770,"head":90,"new":true},{"t":"DRAM","cl":"Memory","qty":50,"px":47.95,"val":2398,"atr":8.97,"beta":1.76,"stop":17.9,"stopPx":39.35,"cap":1069,"head":-1329,"new":false},{"t":"SNDK","cl":"Memory","qty":2.0081,"px":1081.02,"val":2171,"atr":13.73,"beta":2.464,"stop":27.5,"stopPx":784.17,"cap":698,"head":-1473,"new":false},{"t":"NVDA","cl":"Semis/Fabs","qty":10,"px":197.31,"val":1973,"atr":3.37,"beta":0.505,"stop":6.7,"stopPx":184.01,"cap":2844,"head":871,"new":true},{"t":"AVGO","cl":"Networking/Optics","qty":5,"px":380.35,"val":1902,"atr":3.9,"beta":0.731,"stop":7.8,"stopPx":350.68,"cap":2458,"head":556,"new":false},{"t":"MRVL","cl":"Networking/Optics","qty":10,"px":175.18,"val":1752,"atr":9.57,"beta":1.653,"stop":19.1,"stopPx":141.65,"cap":1002,"head":-750,"new":false},{"t":"VRT","cl":"Power/DC","qty":5,"px":267.69,"val":1338,"atr":6.46,"beta":1.13,"stop":12.9,"stopPx":233.1,"cap":1484,"head":145,"new":false},{"t":"EWY","cl":"Memory","qty":8,"px":152.83,"val":1223,"atr":5.92,"beta":1.146,"stop":11.8,"stopPx":134.73,"cap":1619,"head":396,"new":false},{"t":"COHR","cl":"Networking/Optics","qty":5,"px":241.21,"val":1206,"atr":9.39,"beta":1.434,"stop":18.8,"stopPx":195.91,"cap":1021,"head":-185,"new":false},{"t":"TSM","cl":"Semis/Fabs","qty":3,"px":392.19,"val":1177,"atr":4.58,"beta":0.9,"stop":9.2,"stopPx":356.27,"cap":2093,"head":916,"new":false},{"t":"CLS","cl":"Compute OEM","qty":3.0033,"px":332.99,"val":1000,"atr":7.51,"beta":1.249,"stop":15.0,"stopPx":282.97,"cap":1276,"head":276,"new":false},{"t":"QCOM","cl":"Semis/Fabs","qty":6.0008,"px":164.9,"val":990,"atr":5.37,"beta":0.511,"stop":10.7,"stopPx":147.19,"cap":1785,"head":795,"new":false},{"t":"GEV","cl":"Power/DC","qty":1.005,"px":938.43,"val":943,"atr":6.22,"beta":0.728,"stop":12.4,"stopPx":821.69,"cap":1541,"head":598,"new":false},{"t":"MU","cl":"Memory","qty":1.0004,"px":819.76,"val":820,"atr":8.36,"beta":1.434,"stop":16.7,"stopPx":682.7,"cap":1147,"head":326,"new":false},{"t":"NBIS","cl":"Compute OEM","qty":3,"px":165.26,"val":496,"atr":14.89,"beta":null,"stop":29.8,"stopPx":116.05,"cap":644,"head":148,"new":true},{"t":"ARM","cl":"Semis/Fabs","qty":2,"px":246.89,"val":494,"atr":9.39,"beta":1.174,"stop":18.8,"stopPx":200.52,"cap":1021,"head":527,"new":false},{"t":"ORCL","cl":"Hyperscaler","qty":4,"px":120.75,"val":483,"atr":5.65,"beta":0.514,"stop":11.3,"stopPx":107.11,"cap":1696,"head":1213,"new":false},{"t":"AMAT","cl":"Semis/Fabs","qty":1.0082,"px":475.59,"val":479,"atr":8.43,"beta":1.521,"stop":16.9,"stopPx":395.41,"cap":1137,"head":658,"new":false},{"t":"AMD","cl":"Semis/Fabs","qty":1,"px":459.47,"val":459,"atr":7.18,"beta":1.375,"stop":14.4,"stopPx":393.49,"cap":1335,"head":875,"new":false},{"t":"CIEN","cl":"Networking/Optics","qty":1.0085,"px":340.47,"val":343,"atr":7.51,"beta":1.139,"stop":15.0,"stopPx":289.34,"cap":1276,"head":933,"new":false},{"t":"IREN","cl":"Hyperscaler","qty":10,"px":33.5,"val":335,"atr":11.47,"beta":null,"stop":22.9,"stopPx":25.82,"cap":836,"head":501,"new":true},{"t":"TER","cl":"Semis/Fabs","qty":1.0027,"px":312.1,"val":313,"atr":9.36,"beta":1.904,"stop":18.7,"stopPx":253.67,"cap":1024,"head":711,"new":false}], m=n=>"$"+Math.round(Math.abs(n)).toLocaleString("en-US");
+const SC=40, pc=v=>Math.max(0,Math.min(100,v/SC*100));
 document.querySelector("#clusters tbody").innerHTML=clusters.map(function(c){
- var ok=c.now>=c.lo&&c.now<=c.hi;
- return '<tr><td class="name">'+c.n+'</td><td class="'+(ok?"pos":"neg")+'">'+c.now.toFixed(2)+'%</td>'
- +'<td class="blank">'+c.tgt+'%</td><td><div class="band">'
- +'<div class="ok" style="left:'+pc(c.lo)+'%;width:'+(pc(c.hi)-pc(c.lo))+'%"></div>'
+ return '<tr><td class="name">'+c.n+'</td>'
+ +'<td>'+c.eq.toFixed(2)+'%</td><td class="'+(c.br?"neg":"pos")+'">'+c.bk.toFixed(2)+'%</td>'
+ +'<td class="blank">['+c.lo+','+c.hi+']</td>'
+ +'<td><div class="band"><div class="ok" style="left:'+pc(c.lo)+'%;width:'+(pc(c.hi)-pc(c.lo))+'%"></div>'
  +'<div class="tgt" style="left:'+pc(c.tgt)+'%"></div>'
- +'<div class="mk'+(ok?"":" bad")+'" style="left:'+pc(c.now)+'%"></div></div></td></tr>';}).join("");
-const CL={Semis:"Semis/Fabs",Memory:"Memory",Optics:"Networking/Optics",Power:"Power/DC",OEM:"Compute OEM",Hyper:"Hyperscaler"};
-const holdings=[{"t":"GOOG","cl":"Hyper","qty":8.441,"px":328.59,"val":2774,"atr":3.46,"beta":0.244,"stop":6.9,"stopPx":305.85,"cap":2761,"head":-12,"new":true},{"t":"TSM","cl":"Semis","qty":5.406,"px":386.94,"val":2092,"atr":4.58,"beta":0.9,"stop":9.2,"stopPx":351.5,"cap":2086,"head":-6,"new":false},{"t":"AVGO","cl":"Optics","qty":5.086,"px":379.16,"val":1928,"atr":3.9,"beta":0.731,"stop":7.8,"stopPx":349.59,"cap":2450,"head":521,"new":false},{"t":"ASML","cl":"Semis","qty":1.111,"px":1577.6,"val":1753,"atr":4.69,"beta":0.991,"stop":9.4,"stopPx":1429.62,"cap":2037,"head":284,"new":false},{"t":"VRT","cl":"Power","qty":5,"px":265.54,"val":1328,"atr":6.46,"beta":1.13,"stop":12.9,"stopPx":231.23,"cap":1479,"head":151,"new":false},{"t":"MRVL","cl":"Optics","qty":7,"px":174.8,"val":1224,"atr":9.57,"beta":1.653,"stop":19.1,"stopPx":141.34,"cap":998,"head":-225,"new":false},{"t":"DRAM","cl":"Memory","qty":25,"px":47.79,"val":1195,"atr":8.97,"beta":1.76,"stop":17.9,"stopPx":39.22,"cap":1065,"head":-130,"new":false},{"t":"SNDK","cl":"Memory","qty":1.0081,"px":1108.63,"val":1118,"atr":13.73,"beta":2.464,"stop":27.5,"stopPx":804.2,"cap":696,"head":-422,"new":false},{"t":"QCOM","cl":"Semis","qty":6.0008,"px":167.12,"val":1003,"atr":5.37,"beta":0.511,"stop":10.7,"stopPx":149.17,"cap":1779,"head":776,"new":false},{"t":"CLS","cl":"OEM","qty":3.0033,"px":327.93,"val":985,"atr":7.51,"beta":1.249,"stop":15.0,"stopPx":278.67,"cap":1272,"head":287,"new":false},{"t":"MU","cl":"Memory","qty":1.0004,"px":818.3,"val":819,"atr":8.36,"beta":1.434,"stop":16.7,"stopPx":681.48,"cap":1143,"head":324,"new":false},{"t":"EWY","cl":"Memory","qty":5,"px":150.35,"val":752,"atr":5.92,"beta":1.146,"stop":11.8,"stopPx":132.55,"cap":1614,"head":862,"new":false},{"t":"COHR","cl":"Optics","qty":3,"px":238.3,"val":715,"atr":9.39,"beta":1.434,"stop":18.8,"stopPx":193.55,"cap":1017,"head":303,"new":false},{"t":"ARM","cl":"Semis","qty":2,"px":245.22,"val":490,"atr":9.39,"beta":1.174,"stop":18.8,"stopPx":199.17,"cap":1017,"head":527,"new":false},{"t":"ORCL","cl":"Hyper","qty":4,"px":118.21,"val":473,"atr":5.65,"beta":0.514,"stop":11.3,"stopPx":104.85,"cap":1691,"head":1218,"new":false},{"t":"AMD","cl":"Semis","qty":1,"px":452.82,"val":453,"atr":7.18,"beta":1.375,"stop":14.4,"stopPx":387.8,"cap":1331,"head":878,"new":false},{"t":"GEV","cl":"Power","qty":0.395,"px":934.0,"val":369,"atr":6.22,"beta":0.728,"stop":12.4,"stopPx":817.81,"cap":1536,"head":1167,"new":false},{"t":"TER","cl":"Semis","qty":1.0027,"px":308.33,"val":309,"atr":9.36,"beta":1.904,"stop":18.7,"stopPx":250.61,"cap":1021,"head":712,"new":false},{"t":"CIEN","cl":"Optics","qty":0.3885,"px":353.96,"val":138,"atr":7.51,"beta":1.139,"stop":15.0,"stopPx":300.8,"cap":1272,"head":1135,"new":false},{"t":"AMAT","cl":"Semis","qty":0.0092,"px":492.37,"val":5,"atr":8.43,"beta":1.521,"stop":16.9,"stopPx":409.36,"cap":1133,"head":1129,"new":false}], m=n=>"$"+Math.round(Math.abs(n)).toLocaleString("en-US");
-document.querySelector("#holdings tbody").innerHTML=holdings.map(function(h){
- return '<tr class="'+(h.new?"fresh":"")+'"><td class="name">'+h.t+(h.new?' <span class="tag">new</span>':'')+'</td>'
- +'<td class="txt">'+CL[h.cl]+'</td><td>'+h.qty+'</td><td>'+h.px.toFixed(2)+'</td><td>'+m(h.val)+'</td>'
- +'<td class="blank">'+h.atr.toFixed(2)+'%</td>'
- +'<td class="'+(h.beta>=1.5?"neg":(h.beta<=0.6?"pos":""))+'">'+(h.beta===null?"—":h.beta.toFixed(3))+'</td>'
- +'<td>'+h.stop.toFixed(1)+'%</td><td>'+h.stopPx.toFixed(2)+'</td><td class="blank">'+m(h.cap)+'</td>'
- +'<td class="'+(h.head<0?"neg":"pos")+'" style="font-weight:640">'+(h.head<0?"−":"+")+m(h.head)+'</td></tr>';}).join("");
+ +'<div class="mk'+(c.br?" bad":"")+'" style="left:'+pc(c.bk)+'%"></div></div></td></tr>';}).join("");
+const over=rows.filter(r=>r.head!==null&&r.head<-40).sort((a,b)=>a.head-b.head);
+document.querySelector("#over tbody").innerHTML=over.map(r=>'<tr><td class="name">'+r.t+'</td><td>'+m(r.val)+'</td>'
+ +'<td class="blank">'+m(r.cap)+'</td><td class="neg">'+(r.val/r.cap).toFixed(2)+'x</td>'
+ +'<td class="neg" style="font-weight:640">'+m(r.head)+'</td></tr>').join("");
+document.querySelector("#holdings tbody").innerHTML=rows.map(function(r){
+ return '<tr class="'+(r.new?"fresh":"")+'"><td class="name">'+r.t+(r.new?' <span class="tag">new</span>':'')+'</td>'
+ +'<td class="txt">'+r.cl+'</td><td>'+r.qty+'</td><td>'+r.px.toFixed(2)+'</td><td>'+m(r.val)+'</td>'
+ +'<td class="blank">'+(r.atr?r.atr.toFixed(2)+'%':'—')+'</td>'
+ +'<td class="'+(r.beta>=1.5?"neg":(r.beta<=0.6?"pos":""))+'">'+(r.beta==null?'—':r.beta.toFixed(3))+'</td>'
+ +'<td>'+(r.stop?r.stop.toFixed(1)+'%':'—')+'</td><td>'+(r.stopPx?r.stopPx.toFixed(2):'—')+'</td>'
+ +'<td class="blank">'+(r.cap?m(r.cap):'—')+'</td>'
+ +'<td class="'+(r.head<0?"neg":"pos")+'" style="font-weight:640">'+(r.head==null?'—':(r.head<0?"−":"+")+m(r.head))+'</td></tr>';}).join("");
 document.querySelector("#holdings tfoot").innerHTML='<tr><td class="name">Book</td><td class="txt"></td><td></td><td></td>'
- +'<td>'+m(holdings.reduce((a,h)=>a+h.val,0))+'</td><td class="blank"></td>'
- +'<td class="pos">1.072</td><td colspan="3" class="blank" style="text-align:right">portfolio beta vs SMH</td><td></td></tr>';
-const gaps=[{"id":"G1","d":"LTCG per-lot purchase dates. Partially seeded: the 2026-07-28 buys (GOOG/AVGO/TSM/ASML) now carry exact dates and fills in lots.json, sourced from trades.json. Pre-07-28 lots remain unknown and need I","st":"open","res":""},{"id":"G3","d":"INDmoney networth_snapshot/networth_holdings AGGREGATE totals lag the real-time price (per-name fix landed via get_us_stocks_details.ext_hr_live_price + PRE-MARKET PRICE OVERLAY in SKILL.md step 2.5, ","st":"open","res":""},{"id":"G11","d":"'Compute/Hyperscaler' cluster line added to draft policy.json without user confirmation","st":"closed","res":"CLOSED 2026-07-28: user explicitly confirmed the full cluster-target set including Compute/Hyperscaler (raised 10%->20%) when choosing option 3 on 2026-07-27."},{"id":"G15","d":"data_cache.betas empty for SNDK/DRAM/IREN/ARM (25.7% of book) -- defaults to 1.0, flagged in data_quality. 2026-07-26: reverted a guessed-value insertion that violated the never-estimate guardrail. Ne","st":"closed","res":"CLOSED 2026-07-28: real betas vs SMH computed for all 23 names from 20 daily returns; SNDK/DRAM/ARM no longer default to 1.0. See data_cache.beta_method for the window caveat."},{"id":"G17","d":"spx_125dma/ndx_rsi14/vix_52w_range computed from weekly-aggregated (not daily) yfinance history for the sentiment composite -- a smoothing approximation, not a failure","st":"open","res":""},{"id":"G18","d":"SPY/QQQ max-pain unavailable -- single-expiry options pull returned near-zero/null open interest across nearly all strikes (yfinance data gap)","st":"open","res":""},{"id":"G19","d":"FMP etfAndMutualFunds tool blocked on current plan tier (requires Ultimate/Enterprise) -- EWY/DRAM ETF-constituent cache cannot be refreshed","st":"open","res":""},{"id":"G20","d":"yfinance earnings-calendar pulls have been unreliable for confirmed dates; smith-earnings agent (Tier 3.2 skeleton) recommends switching to FMP as primary source.","st":"closed","res":"CLOSED 2026-07-28: reliable method established and documented in data_cache.earnings_method; 18 names seeded into earnings_calendar."},{"id":"G24","d":"High-confidence reconstruction (not live-verified): 07-24 cash jump traced to 5 full exits + 8 halvings coinciding with a broad AI-capex selloff; exact trigger (stop-loss/panic/planned de-risk) unconf","st":"open","res":""},{"id":"G26","d":"07-24 flow event (5 exits + 8 halvings, wallet $5.7k->$18.1k) had no captured trade rationale. FIXED GOING FORWARD 2026-07-26: trades.json + flow interrogation now attaches trade_reason to every qty_c","st":"closed","res":"CLOSED 2026-07-28: trades.json seeded with 12 entries covering the 07-24 event (reconstructed), the 07-27 stop-outs (with fills) and the 07-28 redeployment (exact fills). Forward c"},{"id":"G28","d":"smith_math.py cmd_drift does not implement policy.cash_regimes (two-regime cash band added 2026-07-28); reports breach vs [5,15] irrespective of post-stop-event regime.","st":"closed","res":"CLOSED 2026-07-28: smith_math.py cmd_drift now implements policy.cash_regimes -- emits cash_regime, cash_regime_reason, cash_band_normal_pct and cash_breach_vs_normal. Verified liv"},{"id":"G29","d":"dashboard.html stale since 2026-07-27 15:27 -- shows superseded Friday-range stops instead of ATR20 framework, and predates the two-regime cash band and CEG/NVDA proposals.","st":"open","res":""}];
-document.getElementById("gaps").innerHTML=gaps.map(g=>'<div class="gap"><span class="gid '+g.st+'">'+g.id+'</span>'
- +'<div><div class="d">'+g.d+'</div>'+(g.res?'<div class="r">✓ '+g.res+'</div>':'')+'</div></div>').join("");
+ +'<td>'+m(rows.reduce((a,r)=>a+r.val,0))+'</td><td class="blank"></td><td class="pos">1.136</td>'
+ +'<td colspan="3" class="blank" style="text-align:right">aggregate open risk</td><td class="neg">10.2%</td></tr>';
 </script>
