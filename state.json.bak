@@ -497,7 +497,19 @@
     "next_check_date": "2026-09-17"
   },
   "us_market_holidays": [],
-  "preferences": {},
+  "preferences": {
+    "stop_loss_style": {
+      "confirmed_by_user": "2026-07-27",
+      "description": "User deliberately runs tight stop-losses across a large share of the US book simultaneously, and has confirmed this is the ongoing method, not a one-off. Trigger on 2026-07-24: 11 of 24 positions stopped in one session. Stated reason: was fully cash-deployed with zero dry powder, and holding an uncertain AI-capex book over a weekend was intolerable.",
+      "implications_for_desk": [
+        "Cash spikes far above the [3,15]% policy band are a RECURRING structural feature of this book, not a fresh defect to re-flag each run.",
+        "Every redeployment proposal must be sized for stop-out probability, preferring lower-vol mega-caps over high-beta pure-plays when filling cluster gaps.",
+        "Deployments should be staged in tranches around known binary events (FOMC, earnings), never in one shot.",
+        "Recommend stop distances near 2x the name's recent daily range; stops at the prior day's low on 7-9% daily-range names are near-certain whipsaws.",
+        "STANDING TENSION: the draft policy's cluster targets (Optics 20%, Power 15%, Memory 20%) force exposure to the highest-volatility parts of the AI-capex chain -- exactly what keeps stopping out. Fully curing a cash breach within the current bands REQUIRES buying the volatile clusters. Flag for user decision."
+      ]
+    }
+  },
   "known_gaps": [
     {
       "id": "G1",
