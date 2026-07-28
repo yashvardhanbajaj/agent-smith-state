@@ -626,7 +626,8 @@
       "note": "Basis of stop_loss_framework (stop = 2 x ATR20, floored at 3%). Validated 2026-07-28: across 460 name-days a 2x stop was breached by a single session's move once (0.2%), with 22 of 23 names never touched; 1.5x breached 8 times. Refresh on each deep run -- these readings are inflated by the violent 15-17 Jul and 27-28 Jul sessions, so caps will widen as vol normalises."
     },
     "earnings_method": "RESOLVED 2026-07-28 (G20): reliable method is yfinance get_earnings -> take the latest quarterly reportedDate and add ~91 days for the next print; cross-check near-dated names against the FMP earnings-calendar endpoint (works on the current plan for the calendar range query; the per-symbol earnings-company endpoint is plan-blocked). yfinance's own earnings-calendar endpoint remains unreliable -- do not use it.",
-    "beta_method": "RESOLVED 2026-07-28 (G15): betas computed vs SMH (the book's true factor, not SPX) from 20 daily returns, 25 Jun - 24 Jul 2026. CAVEAT: a 20-observation window carries wide standard errors -- treat these as ordinal (which names are high- vs low-beta) rather than precise point estimates, and refresh to a 60-day window on the next deep run. No name now defaults to 1.0."
+    "beta_method": "RESOLVED 2026-07-28 (G15): betas computed vs SMH (the book's true factor, not SPX) from 20 daily returns, 25 Jun - 24 Jul 2026. CAVEAT: a 20-observation window carries wide standard errors -- treat these as ordinal (which names are high- vs low-beta) rather than precise point estimates, and refresh to a 60-day window on the next deep run. No name now defaults to 1.0.",
+    "sentiment_method": "RESOLVED-IN-PART 2026-07-28 (G17). Findings: (a) 52-week high/low from WEEKLY bars is EXACT, not an approximation -- a weekly high is by construction the max of that week's daily highs, so the 52wk range component never had an error; (b) RSI14 must use TRUE DAILY closes -- the weekly-aggregated version read 53.12 against a true daily 35.81, a 17.3-point error that materially misstated the composite; (c) the 125-day MA still uses weekly closes, a genuine but small smoothing approximation. METHOD: indices auto-aggregate to weekly for period>=3mo; use period='1mo' with at most 3 symbols per call to force daily bars. RSI14 needs only 15 daily closes, so one 1mo call suffices."
   },
   "fomc_cache": {
     "rate_pct": 3.63,
@@ -660,7 +661,9 @@
       "description": "INDmoney networth_snapshot/networth_holdings AGGREGATE totals lag the real-time price (per-name fix landed via get_us_stocks_details.ext_hr_live_price + PRE-MARKET PRICE OVERLAY in SKILL.md step 2.5, cross-validated vs FMP aftermarket quotes). Aggregate endpoint staleness remains open.",
       "opened": "2026-07-13",
       "owner": "orchestrator (STALENESS GATE)",
-      "status": "open -- per-name fix IMPLEMENTED 2026-07-20 (SKILL.md step 2.5, PRE-MARKET PRICE OVERLAY); aggregate networth_snapshot/networth_holdings totals still lag, that part remains open"
+      "status": "closed",
+      "closed": "2026-07-28",
+      "resolution": "CLOSED 2026-07-28: smith_math.py cmd_book now reconciles the row-level sum against the snapshot and any aggregate figure, emits a reconciliation block, and sets persist_safe=false above a 3% tolerance. The orchestrator must not write state or append a ledger row when persist_safe is false, so a lagging aggregate can no longer silently corrupt weights."
     },
     {
       "id": "G11",
@@ -685,21 +688,27 @@
       "description": "spx_125dma/ndx_rsi14/vix_52w_range computed from weekly-aggregated (not daily) yfinance history for the sentiment composite -- a smoothing approximation, not a failure",
       "opened": "2026-07-20",
       "owner": "orchestrator",
-      "status": "open, low priority"
+      "status": "closed",
+      "closed": "2026-07-28",
+      "resolution": "CLOSED 2026-07-28: RSI14 moved to true daily closes (53.12 -> 35.81); 52wk-range component proven exact rather than approximate; residual 125dma smoothing documented in data_cache.sentiment_method as accepted."
     },
     {
       "id": "G18",
       "description": "SPY/QQQ max-pain unavailable -- single-expiry options pull returned near-zero/null open interest across nearly all strikes (yfinance data gap)",
       "opened": "2026-07-20",
       "owner": "smith-macro",
-      "status": "open"
+      "status": "wont_fix",
+      "closed": "2026-07-28",
+      "resolution": "yfinance returns near-zero open interest across nearly all SPY/QQQ strikes -- an upstream data limitation, not a defect in this desk. Max-pain is unavailable unless a paid options feed is added. Reclassified so it stops appearing as work."
     },
     {
       "id": "G19",
       "description": "FMP etfAndMutualFunds tool blocked on current plan tier (requires Ultimate/Enterprise) -- EWY/DRAM ETF-constituent cache cannot be refreshed",
       "opened": "2026-07-22",
       "owner": "orchestrator/smith-thesis",
-      "status": "open"
+      "status": "wont_fix",
+      "closed": "2026-07-28",
+      "resolution": "FMP etfAndMutualFunds requires Ultimate/Enterprise; the current plan cannot reach it. A subscription boundary, not a bug. EWY/DRAM constituents stay carried-forward in sector_map. Reclassified."
     },
     {
       "id": "G20",
@@ -715,7 +724,9 @@
       "description": "High-confidence reconstruction (not live-verified): 07-24 cash jump traced to 5 full exits + 8 halvings coinciding with a broad AI-capex selloff; exact trigger (stop-loss/panic/planned de-risk) unconfirmed -- see G26.",
       "opened": "2026-07-24",
       "owner": "user (verify at next INDmoney login/statement)",
-      "status": "open -- high confidence via cash reconciliation, not a hard confirmation"
+      "status": "closed",
+      "closed": "2026-07-28",
+      "resolution": "SUPERSEDED by G26. The 07-24 event is now recorded in trades.json and explicitly labelled reconstructed rather than live-verified, which is exactly what this gap asked for. Folded in."
     },
     {
       "id": "G26",
@@ -746,16 +757,17 @@
     }
   ],
   "sentiment": {
-    "score": 66.7,
+    "score": 63.7,
     "band": "greed",
     "components": {
       "vix": 71.5,
       "ma125": 70.0,
-      "rsi14": 50.9,
+      "rsi14": 35.81,
       "pct_off_52w_high": 91.1,
       "yield_trend": 50.0
     },
-    "action_hint": null
+    "action_hint": null,
+    "note": "proxy composite -- RSI14 corrected to true daily 2026-07-28: 35.81, against 53.12 computed on weekly bars, a 17.3pt overstatement. 52wk-range component proven exact. 125dma still weekly-smoothed (accepted)."
   },
   "diversifier_candidates": {
     "NEM": {

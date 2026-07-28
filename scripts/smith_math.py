@@ -83,6 +83,30 @@ def cmd_book(args):
     rows = holdings["holdings_inr"]
     totals = holdings["totals"]
 
+    # FIXED 2026-07-28 (G3): reconcile the row-level sum against whatever aggregate figure the
+    # snapshot reported. INDmoney's aggregate US_STOCK endpoint lags the per-name feed -- observed
+    # 12.2% divergence on 2026-07-27 and 4.1% on 2026-07-28. Persisting an aggregate that disagrees
+    # with the rows silently corrupts every downstream weight, so the divergence is measured here and
+    # persist_safe is flipped false above a 3% tolerance. The orchestrator must not write state.json
+    # or append a ledger row when persist_safe is false.
+    row_sum_inr = sum(r.get("market_value_inr", 0) for r in rows)
+    snapshot_inr = totals["current_value_inr_from_snapshot"]
+    aggregate_inr = totals.get("aggregate_value_inr")
+    recon = {"row_sum_inr": round(row_sum_inr, 2), "snapshot_inr": round(snapshot_inr, 2),
+             "aggregate_inr": round(aggregate_inr, 2) if aggregate_inr else None,
+             "tolerance_pct": 3.0}
+    persist_safe = True
+    for label, other in (("snapshot", snapshot_inr), ("aggregate", aggregate_inr)):
+        if not other or not row_sum_inr:
+            continue
+        div = abs(other - row_sum_inr) / row_sum_inr * 100
+        recon[f"{label}_divergence_pct"] = round(div, 3)
+        if div > recon["tolerance_pct"]:
+            persist_safe = False
+            recon.setdefault("breaches", []).append(
+                f"{label} differs from row-level sum by {div:.2f}% (tolerance 3%) -- G3 pattern")
+    recon["persist_safe"] = persist_safe
+
     value_usd = round(totals["current_value_inr_from_snapshot"] / usdinr, 2)
     wallet_usd = round(totals.get("wallet_inr", 0) / usdinr, 2)
     total_book_usd = value_usd + wallet_usd
@@ -256,6 +280,8 @@ def cmd_book(args):
             qc["trade_reason"] = trade_reasons[qc["ticker"]]
 
     data_quality = []
+    if not recon["persist_safe"]:
+        data_quality.append("PERSIST BLOCKED (G3): " + "; ".join(recon.get("breaches", [])))
     if beta_missing:
         data_quality.append(f"betas defaulted to 1.0 for {len(beta_missing)} names (no data_cache entry): {', '.join(beta_missing[:8])}{'...' if len(beta_missing) > 8 else ''}")
     if not lots:
@@ -275,6 +301,8 @@ def cmd_book(args):
         "wallet_usd": wallet_usd, "wallet_pct": wallet_pct,
         "ltcg_flags": ltcg_flags,
         "market_cap_allocation": market_cap_alloc,
+        "reconciliation": recon,
+        "persist_safe": persist_safe,
         "qty_changes": qty_changes, "est_net_flows_usd": round(est_net_flows_usd, 2),
         "positions": positions,
         "data_quality": data_quality,
