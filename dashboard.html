@@ -165,6 +165,29 @@ td.blank{color:var(--ink-3)}
 .ev.other{color:var(--ink-3)}
 .ev .est{color:var(--ink-3);font-weight:400}
 
+/* ============ sentiment gauge ============ */
+.sg{display:flex;flex-direction:column;gap:10px}
+.sg-head{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;color:var(--ink-3)}
+.sg-head b{font-size:19px;color:var(--ink)}
+.sg-track{position:relative;height:14px;border-radius:7px;overflow:hidden;display:flex}
+.sg-seg{height:100%}
+.sg-seg.xfear{background:#7a3a3a} .sg-seg.fear{background:#a86a4a}
+.sg-seg.neu{background:var(--ink-3);opacity:.4} .sg-seg.greed{background:#7a9a5a} .sg-seg.xgreed{background:#4a7a5a}
+.sg-marker{position:absolute;top:-5px;width:2px;height:24px;background:var(--ink);transform:translateX(-1px)}
+.sg-marker::after{content:"";position:absolute;top:-4px;left:-4px;width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.sg-val{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-family:var(--mono);
+  font-size:11px;font-weight:700;white-space:nowrap;color:var(--ink)}
+.sg-labels{display:flex;justify-content:space-between;font-size:10px;font-family:var(--mono);color:var(--ink-3)}
+.sg-dist{display:flex;gap:6px;flex-wrap:wrap}
+.sg-comp{display:flex;gap:12px;flex-wrap:wrap;padding-top:6px;border-top:1px solid var(--line-soft)}
+.scc{font-size:11.5px;color:var(--ink-3)} .scc b{font-family:var(--mono);color:var(--ink-2);font-weight:640}
+
+/* ============ intl session / delta badges ============ */
+.db{font-family:var(--mono);font-weight:640}
+.db.pos{color:var(--good)} .db.neg{color:var(--bad)}
+.value-sub{font-size:12.5px;color:var(--ink-2);line-height:1.5;padding-top:8px;border-top:1px solid var(--line-soft)}
+.value-sub b{color:var(--ink)}
+
 /* ============ misc ============ */
 ul.tight{margin:0;padding-left:17px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:var(--ink-2);line-height:1.5}
 ul.tight b{color:var(--ink)}
@@ -320,6 +343,44 @@ details .body{padding:2px 0 15px}
     <div class="col"><span class="k">Beta vs SMH</span><span class="v">1.136</span><span class="s">was 1.070</span></div>
    </div>
   </div></section>
+
+ <div class="grid2">
+  <section class="panel"><div class="phead"><h2>Sentiment gauge</h2>
+    <span class="pill">proxy composite, not CNN's index</span></div>
+   <div class="pbody"><div class="sg" tabindex="0">
+<div class="sg-head"><span>Extreme Fear — Fear — Neutral — Greed — Extreme Greed</span><b class="num">63.7</b></div>
+<div class="sg-track">
+<div class="sg-seg xfear" style="width:25%"></div><div class="sg-seg fear" style="width:20%"></div>
+<div class="sg-seg neu" style="width:10%"></div><div class="sg-seg greed" style="width:20%"></div>
+<div class="sg-seg xgreed" style="width:25%"></div>
+<div class="sg-marker" style="left:63.7%"><span class="sg-val">63.7</span></div>
+</div>
+<div class="sg-labels"><span>0</span><span>25</span><span>45</span><span>55</span><span>75</span><span>100</span></div>
+<div class="sg-dist">
+<span class="pill">8.7 pts above Neutral</span>
+<span class="pill w">11.3 pts to Extreme Greed</span>
+</div>
+<div class="sg-comp"><span class="scc">VIX-range <b>72</b></span><span class="scc">125dma <b>70</b></span><span class="scc">RSI14 <b>36</b></span><span class="scc">52w-high <b>91</b></span><span class="scc">Yield trend <b>50</b></span></div>
+</div></div></section>
+
+  <section class="panel"><div class="phead"><h2>Intraday &amp; international session</h2></div>
+   <div class="pbody">
+<div class="kv"><span class="k">US futures (ES / NQ)</span><span><span class="db pos">+0.47%</span> / <span class="db neg">-0.43%</span></span></div>
+<div class="kv"><span class="k">Asia session (overnight)</span><span class="v" style="font-size:12px">KOSPI <span class="db neg">-10.84%</span> · TAIEX <span class="db neg">-4.65%</span> · Nikkei <span class="db neg">-3.95%</span></span></div>
+<div class="kv"><span class="k">Book benchmark (SMH)</span><span><span class="db neg">-3.08%</span></span></div>
+<div class="value-sub">Gate v2: <b>ESCALATING</b> — triggered by KOSPI ≤ -3% and SMH ≤ -2.5%. The v1 rule (VIX/ES/NQ only) would have called this session STABILIZING; it cannot see a sector-specific Asia-led move, which is exactly what today was.</div></div></section>
+ </div>
+
+ <section class="panel"><div class="phead"><h2>The week ahead</h2>
+   <span class="pill w">FOMC tomorrow · no dot plot</span></div>
+  <div class="pbody"><div class="cal">
+<div class="day"><span class="d">Tue 28</span><span class="ev">Today</span><span class="ev">Redeployed ~$8,100</span></div>
+<div class="day hot"><span class="d">Wed 29</span><span class="ev">FOMC 14:00 ET</span><span class="ev">presser 14:30 · no dot plot</span><span class="ev">QCOM · LRCX</span></div>
+<div class="day hot"><span class="d">Thu 30</span><span class="ev">AAPL · AMZN · VRT</span></div>
+<div class="day"><span class="d">Fri 31</span><span class="ev">Month-end</span></div>
+<div class="day"><span class="d">Mon 3 Aug</span><span class="ev">—</span></div>
+<div class="day"><span class="d">Tue 4 Aug</span><span class="ev">AMD</span></div>
+</div></div></section>
 
  <div class="tier"><h2>Book state</h2><div class="ln"></div></div>
 
@@ -512,6 +573,77 @@ details .body{padding:2px 0 15px}
     <p class="viz-note">Bar length is weight of equity; the shaded zone is beyond the 12% single-position cap. Amber marks a
     name over its own <b>ATR risk cap</b> — a different and currently more binding constraint than the weight cap.</p></div></section>
  </div>
+
+ <section class="panel viz"><div class="phead"><h2>Allocation treemap</h2>
+   <span class="pill">size = weight · color = cluster · red outline = over risk cap</span></div>
+  <div class="pbody"><div class="scroll"><svg class="viz-svg" viewBox="0 0 760 320" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Position allocation treemap, size by weight, color by cluster">
+<rect class="mark" x="0.0" y="0.0" width="409.6" height="64.5" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>ASML — 11.25% of equity — $3,166 — Semis/Fabs  (OVER RISK CAP)</title></rect>
+<text x="6.0" y="17.0" font-size="12" font-weight="700" fill="#fff">ASML</text>
+<text x="6.0" y="32.0" font-size="10" fill="#ffffffcc">11.3%</text>
+<rect class="mark" x="411.6" y="0.0" width="346.4" height="64.5" fill="#4a6fa5" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>GOOGL — 9.53% of equity — $2,680 — Hyperscaler</title></rect>
+<text x="417.6" y="17.0" font-size="12" font-weight="700" fill="#fff">GOOGL</text>
+<text x="417.6" y="32.0" font-size="10" fill="#ffffffcc">9.5%</text>
+<rect class="mark" x="0.0" y="66.5" width="396.8" height="49.9" fill="#b8862b" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>DRAM — 8.52% of equity — $2,397 — Memory  (OVER RISK CAP)</title></rect>
+<text x="6.0" y="83.5" font-size="12" font-weight="700" fill="#fff">DRAM</text>
+<text x="6.0" y="98.5" font-size="10" fill="#ffffffcc">8.5%</text>
+<rect class="mark" x="398.8" y="66.5" width="359.2" height="49.9" fill="#b8862b" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>SNDK — 7.71% of equity — $2,170 — Memory  (OVER RISK CAP)</title></rect>
+<text x="404.8" y="83.5" font-size="12" font-weight="700" fill="#fff">SNDK</text>
+<text x="404.8" y="98.5" font-size="10" fill="#ffffffcc">7.7%</text>
+<rect class="mark" x="0.0" y="118.4" width="264.5" height="62.0" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>NVDA — 7.01% of equity — $1,973 — Semis/Fabs</title></rect>
+<text x="6.0" y="135.4" font-size="12" font-weight="700" fill="#fff">NVDA</text>
+<text x="6.0" y="150.4" font-size="10" fill="#ffffffcc">7.0%</text>
+<rect class="mark" x="266.5" y="118.4" width="254.9" height="62.0" fill="#7a6ca8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>AVGO — 6.76% of equity — $1,901 — Networking/Optics</title></rect>
+<text x="272.5" y="135.4" font-size="12" font-weight="700" fill="#fff">AVGO</text>
+<text x="272.5" y="150.4" font-size="10" fill="#ffffffcc">6.8%</text>
+<rect class="mark" x="523.4" y="118.4" width="234.6" height="62.0" fill="#7a6ca8" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>MRVL — 6.22% of equity — $1,751 — Networking/Optics  (OVER RISK CAP)</title></rect>
+<text x="529.4" y="135.4" font-size="12" font-weight="700" fill="#fff">MRVL</text>
+<text x="529.4" y="150.4" font-size="10" fill="#ffffffcc">6.2%</text>
+<rect class="mark" x="0.0" y="182.4" width="203.7" height="54.2" fill="#3f8f6b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>VRT — 4.76% of equity — $1,338 — Power/DC</title></rect>
+<text x="6.0" y="199.4" font-size="12" font-weight="700" fill="#fff">VRT</text>
+<text x="6.0" y="214.4" font-size="10" fill="#ffffffcc">4.8%</text>
+<rect class="mark" x="205.7" y="182.4" width="186.0" height="54.2" fill="#b8862b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>EWY — 4.34% of equity — $1,222 — Memory</title></rect>
+<text x="211.7" y="199.4" font-size="12" font-weight="700" fill="#fff">EWY</text>
+<text x="211.7" y="214.4" font-size="10" fill="#ffffffcc">4.3%</text>
+<rect class="mark" x="393.7" y="182.4" width="183.4" height="54.2" fill="#7a6ca8" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>COHR — 4.29% of equity — $1,206 — Networking/Optics  (OVER RISK CAP)</title></rect>
+<text x="399.7" y="199.4" font-size="12" font-weight="700" fill="#fff">COHR</text>
+<text x="399.7" y="214.4" font-size="10" fill="#ffffffcc">4.3%</text>
+<rect class="mark" x="579.1" y="182.4" width="178.9" height="54.2" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>TSM — 4.18% of equity — $1,176 — Semis/Fabs</title></rect>
+<text x="585.1" y="199.4" font-size="12" font-weight="700" fill="#fff">TSM</text>
+<text x="585.1" y="214.4" font-size="10" fill="#ffffffcc">4.2%</text>
+<rect class="mark" x="0.0" y="238.6" width="158.3" height="51.9" fill="#a86f5b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>CLS — 3.55% of equity — $1,000 — Compute OEM</title></rect>
+<text x="6.0" y="255.6" font-size="12" font-weight="700" fill="#fff">CLS</text>
+<text x="6.0" y="270.6" font-size="10" fill="#ffffffcc">3.6%</text>
+<rect class="mark" x="160.3" y="238.6" width="156.6" height="51.9" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>QCOM — 3.52% of equity — $989 — Semis/Fabs</title></rect>
+<text x="166.3" y="255.6" font-size="12" font-weight="700" fill="#fff">QCOM</text>
+<text x="166.3" y="270.6" font-size="10" fill="#ffffffcc">3.5%</text>
+<rect class="mark" x="318.8" y="238.6" width="149.1" height="51.9" fill="#3f8f6b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>GEV — 3.35% of equity — $943 — Power/DC</title></rect>
+<text x="324.8" y="255.6" font-size="12" font-weight="700" fill="#fff">GEV</text>
+<text x="324.8" y="270.6" font-size="10" fill="#ffffffcc">3.4%</text>
+<rect class="mark" x="470.0" y="238.6" width="129.4" height="51.9" fill="#b8862b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>MU — 2.91% of equity — $820 — Memory</title></rect>
+<text x="476.0" y="255.6" font-size="12" font-weight="700" fill="#fff">MU</text>
+<text x="476.0" y="270.6" font-size="10" fill="#ffffffcc">2.9%</text>
+<rect class="mark" x="601.4" y="238.6" width="77.5" height="51.9" fill="#a86f5b" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>NBIS — 1.76% of equity — $495 — Compute OEM</title></rect>
+<text x="607.4" y="255.6" font-size="12" font-weight="700" fill="#fff">NBIS</text>
+<text x="607.4" y="270.6" font-size="10" fill="#ffffffcc">1.8%</text>
+<rect class="mark" x="680.9" y="238.6" width="77.1" height="51.9" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>ARM — 1.75% of equity — $493 — Semis/Fabs</title></rect>
+<text x="686.9" y="255.6" font-size="12" font-weight="700" fill="#fff">ARM</text>
+<text x="686.9" y="270.6" font-size="10" fill="#ffffffcc">1.8%</text>
+<rect class="mark" x="0.0" y="292.6" width="150.1" height="25.4" fill="#4a6fa5" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>ORCL — 1.72% of equity — $483 — Hyperscaler</title></rect>
+<text x="6.0" y="309.6" font-size="12" font-weight="700" fill="#fff">ORCL</text>
+<rect class="mark" x="152.1" y="292.6" width="149.0" height="25.4" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>AMAT — 1.70% of equity — $479 — Semis/Fabs</title></rect>
+<text x="158.1" y="309.6" font-size="12" font-weight="700" fill="#fff">AMAT</text>
+<rect class="mark" x="303.1" y="292.6" width="142.7" height="25.4" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>AMD — 1.63% of equity — $459 — Semis/Fabs</title></rect>
+<text x="309.1" y="309.6" font-size="12" font-weight="700" fill="#fff">AMD</text>
+<rect class="mark" x="447.8" y="292.6" width="106.1" height="25.4" fill="#7a6ca8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>CIEN — 1.22% of equity — $343 — Networking/Optics</title></rect>
+<text x="453.8" y="309.6" font-size="12" font-weight="700" fill="#fff">CIEN</text>
+<rect class="mark" x="556.0" y="292.6" width="103.5" height="25.4" fill="#4a6fa5" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>IREN — 1.19% of equity — $335 — Hyperscaler</title></rect>
+<text x="562.0" y="309.6" font-size="12" font-weight="700" fill="#fff">IREN</text>
+<rect class="mark" x="661.4" y="292.6" width="96.6" height="25.4" fill="#5b8fa8" fill-opacity="0.85" stroke="var(--surface)" stroke-width="1.5"><title>TER — 1.11% of equity — $312 — Semis/Fabs</title></rect>
+<text x="667.4" y="309.6" font-size="12" font-weight="700" fill="#fff">TER</text>
+</svg></div>
+   <div class="viz-legend" style="margin-top:8px"><span><i style="background:#5b8fa8"></i>Semis/Fabs</span><span><i style="background:#b8862b"></i>Memory</span><span><i style="background:#7a6ca8"></i>Networking/Optics</span><span><i style="background:#3f8f6b"></i>Power/DC</span><span><i style="background:#a86f5b"></i>Compute OEM</span><span><i style="background:#4a6fa5"></i>Hyperscaler</span></div>
+   <p class="viz-note">Not shown: a correlation heatmap. On a 100%-single-factor book every pair correlates near 1.0 — it
+   would render as a wall of red saying nothing a treemap doesn't already say faster.</p></div></section>
 
  <div class="grid2">
   <section class="panel"><div class="phead"><h2>Clusters</h2><span class="pill">ceiling on book · floor on equity</span></div>
