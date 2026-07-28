@@ -1,0 +1,668 @@
+<title>Agent Smith — US Book</title>
+<style>
+/* ============ tokens ============ */
+:root{
+  --ground:#f2f4f5; --surface:#ffffff; --surface-2:#f7f9f9;
+  --ink:#12171b; --ink-2:#48545c; --ink-3:#79868e;
+  --line:#dbe1e3; --line-soft:#e9edee;
+  --accent:#35586a; --accent-soft:#e4ecef; --accent-line:#b6cbd4;
+  --action:#8f5322; --action-soft:#f7ece2; --action-line:#e0bd9c;
+  --good:#1f7a4d; --good-soft:#e3f1e9;
+  --warn:#9c6f18; --warn-soft:#f8efd9;
+  --bad:#a83737;  --bad-soft:#f8e5e5;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:7px; --shadow:0 1px 2px rgba(18,23,27,.05),0 1px 10px rgba(18,23,27,.03);
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme="light"])){
+    --ground:#0d1013; --surface:#161b1f; --surface-2:#1b2126;
+    --ink:#e6eaec; --ink-2:#a3b0b7; --ink-3:#6f7c84;
+    --line:#283036; --line-soft:#212930;
+    --accent:#82abbf; --accent-soft:#182831; --accent-line:#2d4653;
+    --action:#d1904f; --action-soft:#2b1e12; --action-line:#4d3620;
+    --good:#5cb98a; --good-soft:#12251c;
+    --warn:#d3a446; --warn-soft:#2a2211;
+    --bad:#d97676;  --bad-soft:#2b1717;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 1px 10px rgba(0,0,0,.2);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0d1013; --surface:#161b1f; --surface-2:#1b2126;
+  --ink:#e6eaec; --ink-2:#a3b0b7; --ink-3:#6f7c84;
+  --line:#283036; --line-soft:#212930;
+  --accent:#82abbf; --accent-soft:#182831; --accent-line:#2d4653;
+  --action:#d1904f; --action-soft:#2b1e12; --action-line:#4d3620;
+  --good:#5cb98a; --good-soft:#12251c;
+  --warn:#d3a446; --warn-soft:#2a2211;
+  --bad:#d97676;  --bad-soft:#2b1717;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 1px 10px rgba(0,0,0,.2);
+}
+:root[data-theme="light"]{
+  --ground:#f2f4f5; --surface:#ffffff; --surface-2:#f7f9f9;
+  --ink:#12171b; --ink-2:#48545c; --ink-3:#79868e;
+  --line:#dbe1e3; --line-soft:#e9edee;
+  --accent:#35586a; --accent-soft:#e4ecef; --accent-line:#b6cbd4;
+  --action:#8f5322; --action-soft:#f7ece2; --action-line:#e0bd9c;
+  --good:#1f7a4d; --good-soft:#e3f1e9;
+  --warn:#9c6f18; --warn-soft:#f8efd9;
+  --bad:#a83737;  --bad-soft:#f8e5e5;
+  --shadow:0 1px 2px rgba(18,23,27,.05),0 1px 10px rgba(18,23,27,.03);
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;line-height:1.5;font-size:15px}
+.wrap{max-width:1140px;margin:0 auto;padding:26px 20px 80px;display:flex;flex-direction:column;gap:26px}
+h1,h2{margin:0;text-wrap:balance;font-weight:640;letter-spacing:-.015em}
+p{margin:0}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.voice{font-family:var(--serif);font-size:15.5px;line-height:1.62;color:var(--ink-2)}
+.voice em{color:var(--ink);font-style:italic}
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.col{display:flex;flex-direction:column}
+
+/* ============ masthead ============ */
+.mast{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;justify-content:space-between;
+  padding-bottom:16px;border-bottom:2px solid var(--ink)}
+.mast h1{font-size:25px}
+.mast h1 span{color:var(--accent);font-weight:500}
+.stamp{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right;line-height:1.65}
+
+/* ============ status strip ============ */
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.cell{background:var(--surface);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.cell .k{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.cell .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:19px;font-weight:600;letter-spacing:-.02em}
+.cell .s{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.cell.flag{background:var(--bad-soft)} .cell.flag .v{color:var(--bad)}
+.cell.okc .v{color:var(--good)}
+.macro{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:16px}
+.macro .k{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.macro .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:18px;font-weight:600;letter-spacing:-.02em}
+.macro .s{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+
+/* ============ panels ============ */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.phead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+  padding:13px 17px;border-bottom:1px solid var(--line-soft)}
+.phead h2{font-size:14.5px}
+.pbody{padding:17px;display:flex;flex-direction:column;gap:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:26px;align-items:start}
+
+/* the one thing on the page that asks for a decision */
+.act{border-color:var(--action-line);background:var(--action-soft)}
+.act .phead{border-bottom-color:var(--action-line)}
+.act .phead h2{color:var(--action)}
+
+.pill{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:100px;
+  background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.pill.g{background:var(--good-soft);color:var(--good)}
+.pill.w{background:var(--warn-soft);color:var(--warn)}
+.pill.a{background:var(--surface);color:var(--action);border:1px solid var(--action-line)}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ============ tables ============ */
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+  text-align:right;padding:0 10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+th:last-child,td:last-child{padding-right:0}
+td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap;
+  font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:none}
+td.name{font-family:var(--sans);font-weight:640;letter-spacing:-.01em}
+td.txt{font-family:var(--sans);text-align:left;white-space:normal;color:var(--ink-2);font-size:12px}
+tr.out td{opacity:.55;text-decoration:line-through;text-decoration-color:var(--bad)}
+tr.fresh td{background:var(--action-soft)}
+.tag{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--action);border:1px solid var(--action-line);border-radius:3px;padding:1px 4px;vertical-align:1px}
+tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:none;padding-top:10px}
+td.add{color:var(--action);font-weight:640}
+td.blank{color:var(--ink-3)}
+
+/* ============ band meter ============ */
+.band{position:relative;height:26px;background:var(--surface-2);border-radius:4px;overflow:hidden;min-width:160px}
+.band .ok{position:absolute;top:0;bottom:0;background:var(--accent-soft)}
+.band .tgt{position:absolute;top:0;bottom:0;width:2px;background:var(--accent-line)}
+.band .mk{position:absolute;top:3px;bottom:3px;width:3px;border-radius:2px;background:var(--ink)}
+.band .mk.bad{background:var(--bad)}
+.band .mk.fut{background:var(--good)}
+.key{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-3);align-items:center}
+.sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+
+/* ============ tranche sequence ============ */
+.leg{display:grid;grid-template-columns:38px 1fr;gap:15px;padding:16px 0;border-bottom:1px solid var(--line-soft)}
+.leg:last-child{border-bottom:none;padding-bottom:0}
+.leg:first-child{padding-top:0}
+.dot{width:38px;height:38px;border-radius:100px;display:grid;place-items:center;
+  font-family:var(--mono);font-size:15px;font-weight:700;
+  background:var(--surface);color:var(--action);border:1.5px solid var(--action-line)}
+.leg-h{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between;margin-bottom:4px}
+.leg-h .when{font-weight:700;font-size:14.5px;letter-spacing:-.01em}
+.leg-h .amt{font-family:var(--mono);font-weight:700;font-size:15px;color:var(--action)}
+.gate{font-size:12.5px;color:var(--ink-2);margin-bottom:10px;line-height:1.5}
+.buys{display:flex;flex-wrap:wrap;gap:7px}
+.buy{display:flex;align-items:baseline;gap:8px;background:var(--surface);border:1px solid var(--line);
+  border-radius:5px;padding:6px 11px}
+.buy b{font-size:13px;letter-spacing:-.01em}
+.buy .q{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.buy .d{font-family:var(--mono);font-size:12.5px;font-weight:640;color:var(--action)}
+
+/* ============ calendar ============ */
+.cal{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.day{background:var(--surface);padding:11px 12px;display:flex;flex-direction:column;gap:7px;min-height:118px}
+.day.hot{background:var(--warn-soft)}
+.day .d{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.day.hot .d{color:var(--warn)}
+.ev{font-size:12px;line-height:1.4;color:var(--ink)}
+.ev.other{color:var(--ink-3)}
+.ev .est{color:var(--ink-3);font-weight:400}
+
+/* ============ misc ============ */
+ul.tight{margin:0;padding-left:17px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:var(--ink-2);line-height:1.5}
+ul.tight b{color:var(--ink)}
+.kv{display:flex;flex-direction:column;gap:9px}
+.kv .row{display:flex;gap:12px;align-items:baseline;justify-content:space-between;
+  padding-bottom:9px;border-bottom:1px solid var(--line-soft)}
+.kv .row:last-child{border-bottom:none;padding-bottom:0}
+.kv .lab{font-size:13px;color:var(--ink-2)}
+.kv .val{font-family:var(--mono);font-size:13.5px;font-weight:640;text-align:right;line-height:1.45}
+.kv .val small{font-family:var(--mono);color:var(--ink-3);font-weight:400;font-size:11.5px}
+.kv .val.sans{font-family:var(--sans);font-weight:500;font-size:12.5px}
+.note{font-size:12.5px;color:var(--ink-3);line-height:1.55}
+.note b{color:var(--ink-2)}
+.rule{height:1px;background:var(--line-soft);border:0;margin:0}
+.gauge{height:9px;border-radius:5px;overflow:hidden;display:flex;gap:1px}
+.gauge i{display:block;height:100%}
+.gkey{display:flex;justify-content:space-between;font-size:11.5px;font-family:var(--mono);color:var(--ink-3)}
+footer{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:10px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){
+  .panel{animation:rise .4s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+}
+
+/* ---- charts + diagnostics carried forward from the 10:09 deep run ---- */
+.viz{--surface-1:var(--surface);--grid:var(--line-soft);--axis:var(--line);
+  --ink-1:var(--ink);--ink-2:var(--ink-2);--ink-3:var(--ink-3);
+  --equity:#35586a;--cash:#b8862b;--pos:#1f7a4d;--neg:#a83737;
+  --critical:#a83737;--muted:#b6bbbd}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .viz{
+  --equity:#5f93ad;--cash:#c9963f;--pos:#5cb98a;--neg:#d97676;--critical:#d97676;--muted:#4d5457}}
+:root[data-theme="dark"] .viz{--equity:#5f93ad;--cash:#c9963f;--pos:#5cb98a;
+  --neg:#d97676;--critical:#d97676;--muted:#4d5457}
+.viz text{font-family:var(--mono)}
+.viz .lbl{font-family:var(--sans)}
+.viz .mark{transition:opacity .12s}
+.viz .mark:hover{opacity:.72}
+.viz-legend{display:flex;gap:15px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--ink-2)}
+.viz-legend i{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:-1px}
+.viz-note{font-size:12px;color:var(--ink-3);line-height:1.55}
+details{border-top:1px solid var(--line-soft)}
+details:first-of-type{border-top:none}
+details>summary{cursor:pointer;list-style:none;user-select:none;padding:12px 0;
+  font-size:13.5px;font-weight:640;letter-spacing:-.01em}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▸  ";color:var(--ink-3)}
+details[open]>summary::before{content:"▾  "}
+details>summary:hover{color:var(--accent)}
+details>summary .c{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:400;margin-left:7px}
+details .body{padding:2px 0 15px}
+.diag table{font-size:12.5px}
+.diag td{font-family:var(--sans);text-align:left;white-space:normal;padding:7px 9px}
+.diag td.tk{font-family:var(--mono);font-weight:700;white-space:nowrap;width:1%}
+.diag td.num{text-align:right;font-family:var(--mono)}
+.diag th{text-align:left;padding:0 9px 7px}
+.diag .table-wrap{overflow-x:auto}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <h1>Agent Smith <span>· US Book</span></h1>
+    <div class="stamp">
+      MON 27 JUL 2026 · 13:50 IST / 04:20 ET<br>
+      PRE-MARKET · USD/INR 96.552 · quotes: INDmoney ext-hours
+    </div>
+  </header>
+
+  <!-- ============ STATUS ============ -->
+  <section class="strip">
+    <div class="cell"><span class="k">Total book</span><span class="v num">$40,180</span><span class="s">equity + wallet</span></div>
+    <div class="cell"><span class="k">Equity</span><span class="v num">$22,047</span><span class="s">21 positions</span></div>
+    <div class="cell flag"><span class="k">Cash</span><span class="v num">45.1%</span><span class="s">$18,133 · band 3–15%</span></div>
+    <div class="cell okc"><span class="k">Drawdown</span><span class="v num">0.0%</span><span class="s">warn at −15%</span></div>
+    <div class="cell"><span class="k">Open risk</span><span class="v num">7.4%</span><span class="s">if every stop fires</span></div>
+    <div class="cell okc"><span class="k">Risk state</span><span class="v num">NORMAL</span><span class="s">ladder untriggered</span></div>
+  </section>
+
+  <!-- ============ THE READ ============ -->
+  <section class="panel">
+    <div class="phead">
+      <h2>The read</h2>
+      <div class="pills">
+        <span class="pill g">Gate · stabilizing</span>
+        <span class="pill w">Sentiment 67.3 · greed</span>
+      </div>
+    </div>
+    <div class="pbody">
+      <p class="voice">Friday's stops did what you built them to do. Eleven of twenty-four positions fired in one session,
+      and the cost of that insurance — measured against this morning's bounce — is <em>$110, or 0.27% of the book</em>.
+      Effectively free. The shares sold would be worth $420 more today; the cash you raised sat out Friday's remaining
+      downside. Those two very nearly cancel.</p>
+      <p class="voice">What the session exposed is structural. Eleven simultaneous stops is not eleven judgments — it is one
+      factor wearing eleven tickers. The book was built so that a bad day for AI capex is a bad day for
+      <em>everything you own at once</em>. That is now corrected on two fronts: cluster targets shift weight toward the only
+      link in the chain that benefits when capex slows, and position sizes are set by risk rather than by dollars.</p>
+      <hr class="rule">
+      <div class="macro">
+        <div class="col"><span class="k">10-yr</span><span class="v">4.679%</span><span class="s neg">+19.4bp / 1mo</span></div>
+        <div class="col"><span class="k">VIX</span><span class="v">18.58</span><span class="s pos">−0.6%</span></div>
+        <div class="col"><span class="k">DXY</span><span class="v">101.16</span><span class="s">−0.3%</span></div>
+        <div class="col"><span class="k">Fed funds</span><span class="v">3.63%</span><span class="s">hawkish</span></div>
+        <div class="col"><span class="k">ES=F</span><span class="v pos">+0.70%</span><span class="s">S&amp;P futures</span></div>
+        <div class="col"><span class="k">NQ=F</span><span class="v pos">+1.20%</span><span class="s">Nasdaq futures</span></div>
+      </div>
+      <p class="note">Pre-market is a broad snapback — every holding up 1.6–5.1% except CIEN (−0.8%), with the hardest-hit
+      names bouncing hardest. That is mean reversion off a capitulation low, not new information. Rising long rates into a
+      hawkish, no-dot-plot FOMC is the live risk this week, and it lands squarely on high-duration AI names.</p>
+    </div>
+  </section>
+
+  <!-- ============ ACTION ============ -->
+  <section class="panel act">
+    <div class="phead">
+      <h2>Deployment plan · $12,580 across three gated tranches</h2>
+      <span class="pill a">Proposals — nothing executed</span>
+    </div>
+    <div class="pbody">
+      <p class="voice">Tranches are numbered because they are a strict sequence: each is gated on a dated event clearing, and
+      none should be pulled forward. Funded by $18,133 wallet cash plus $474 from the ORCL exit, leaving
+      <em>$6,027 — 14.8% of book</em>, back inside the band.</p>
+
+      <div>
+        <div class="leg">
+          <div class="dot">1</div>
+          <div>
+            <div class="leg-h"><span class="when">Today · Mon 27 Jul</span><span class="amt">$4,000</span></div>
+            <p class="gate">Pre-FOMC. Only names with <b>zero earnings risk</b> for weeks. Use limit orders near Friday's
+            close — you are buying into a gap-up two days before the Fed; if it runs away, skip it and wait for tranche 2.</p>
+            <div class="buys">
+              <div class="buy"><b>GOOG</b><span class="q">≈7.71 sh</span><span class="d">$2,500</span></div>
+              <div class="buy"><b>AVGO</b><span class="q">≈3.83 sh</span><span class="d">$1,500</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="leg">
+          <div class="dot">2</div>
+          <div>
+            <div class="leg-h"><span class="when">Wed 29 Jul · after 2:30pm ET</span><span class="amt">$4,730</span></div>
+            <p class="gate">After the Fed decision <b>and</b> the Powell press conference, and after LRCX + QCOM have
+            printed. The two largest binaries of the week are resolved by this point.</p>
+            <div class="buys">
+              <div class="buy"><b>GOOG</b><span class="q">≈7.40 sh</span><span class="d">$2,400</span></div>
+              <div class="buy"><b>AVGO</b><span class="q">≈3.14 sh</span><span class="d">$1,230</span></div>
+              <div class="buy"><b>GEV</b><span class="q">≈1.06 sh</span><span class="d">$1,100</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="leg">
+          <div class="dot">3</div>
+          <div>
+            <div class="leg-h"><span class="when">Fri 31 Jul → Mon 3 Aug</span><span class="amt">$3,850</span></div>
+            <p class="gate">Each name only <b>after its own print</b>. Both report Thu 30 Jul — do not pre-position.</p>
+            <div class="buys">
+              <div class="buy"><b>AMZN</b><span class="q">≈13.56 sh</span><span class="d">$3,190</span></div>
+              <div class="buy"><b>VRT</b><span class="q">≈2.20 sh</span><span class="d">$660</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="rule">
+      <div class="grid2" style="gap:20px">
+        <div class="col" style="gap:8px">
+          <div class="eyebrow">Also this week</div>
+          <ul class="tight">
+            <li><b>Exit ORCL</b> (~$474). With Hyperscaler moving to a 20% target, the "we need some hyperscaler exposure"
+            argument for holding it disappears. It sits at $114.99 against a 52-week low of $114.75 with a fresh breakdown.
+            Two prior proposals already said exit — this closes an inconsistency open since 17 Jul.</li>
+            <li><b>Trim SNDK ~$600.</b> At an 11.25% daily range it needs a 22.5% stop, capping it at ~$904; you hold
+            $1,505. The one position where a stop-out costs more than 0.5% of book.</li>
+          </ul>
+        </div>
+        <div class="col" style="gap:8px">
+          <div class="eyebrow">Deliberately not in the plan</div>
+          <ul class="tight">
+            <li><b>MRVL, GLW, CLS.</b> Under the revised targets, Optics and Compute/OEM no longer need filling — and all
+            three sit in the 7.6–8.8% daily-range band, the exact profile the new framework says to own less of.</li>
+            <li><b>Nothing into Semis or Memory.</b> Both are at or over band. The cash deployment dilutes them back inside
+            on its own; you fix them by buying elsewhere, not by trimming.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ POLICY ============ -->
+  <div class="grid2">
+    <section class="panel">
+      <div class="phead"><h2>Revised cluster targets</h2><span class="pill">Amended 27 Jul</span></div>
+      <div class="pbody">
+        <p class="note">Memory and Optics each step down 20→15; Compute/Hyperscaler steps up 10→20, funded from them.
+        Hyperscalers are the only link in the chain that <b>benefits</b> if AI capex slows — they are the buyers, not the
+        sellers — so this raises internal hedging without leaving the single-factor mandate. Still sums to 100%; benchmark
+        stays SMH.</p>
+        <div class="scroll">
+          <table id="clusters">
+            <thead><tr><th>Cluster</th><th>Now</th><th>After plan</th><th>Target</th><th style="width:180px">Band</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="key">
+          <span><i class="sw" style="background:var(--ink)"></i>current</span>
+          <span><i class="sw" style="background:var(--good)"></i>after plan</span>
+          <span><i class="sw" style="background:var(--accent-soft);border:1px solid var(--accent-line)"></i>policy band, tick marks target</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="phead"><h2>Stop-loss framework</h2><span class="pill">New</span></div>
+      <div class="pbody">
+        <div class="kv">
+          <div class="row"><span class="lab">Stop distance</span><span class="val">2 × avg daily range<br><small>floored at 3%</small></span></div>
+          <div class="row"><span class="lab">Risk per position</span><span class="val">0.50% of book<br><small>≈ $203</small></span></div>
+          <div class="row"><span class="lab">Position size</span><span class="val">risk ÷ stop distance</span></div>
+          <div class="row"><span class="lab">Aggregate open risk</span><span class="val"><span class="pos">7.4%</span> / 10% cap</span></div>
+        </div>
+        <div class="gauge" role="img" aria-label="Aggregate open risk of 7.4 percent against a 10 percent cap and a 15 percent drawdown warning threshold">
+          <i style="width:49.3%;background:var(--good)"></i>
+          <i style="width:17.4%;background:var(--warn)"></i>
+          <i style="width:33.3%;background:var(--line)"></i>
+        </div>
+        <div class="gkey"><span>0%</span><span>7.4% actual</span><span>10% cap</span><span>−15% warn</span></div>
+        <hr class="rule">
+        <p class="voice" style="font-size:14.5px">You were treating <em>tight stop</em> and <em>small loss</em> as the same
+        thing. They are not. A 3% stop on a name that ranges 8.8% intraday is not protection — it is a coin flip you keep
+        losing. Sizing by risk resolves it: a wider stop mechanically produces a <em>smaller</em> position, so the dollar
+        loss stays capped either way. Room to breathe and bounded pain, not one or the other.</p>
+        <p class="note">Worst case with every stop firing is 7.4% of book — deliberately inside the −15% warn rung, so the
+        stop system can never by itself trigger the de-risking ladder.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ HOLDINGS ============ -->
+  <section class="panel">
+    <div class="phead">
+      <h2>Positions &amp; risk headroom</h2>
+      <span class="pill">Stops sized off Fri 24 Jul ranges</span>
+    </div>
+    <div class="pbody">
+      <div class="scroll">
+        <table id="holdings">
+          <thead><tr>
+            <th>Name</th><th>Cluster</th><th>Qty</th><th>Price</th><th>Value</th><th>+ Add</th>
+            <th>Range</th><th>Stop</th><th>Stop px</th><th>Risk cap</th><th>Headroom</th><th>Fri 24th</th>
+          </tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <p class="note"><b>Headroom</b> is how much more of a name the 0.5% risk budget permits at that name's own stop
+      distance. Negative means oversized — trim, or knowingly accept more than 0.5% at risk. Only SNDK is meaningfully over;
+      Friday's stops did most of the risk-balancing for you. ORCL is struck through as a proposed exit.</p>
+    </div>
+  </section>
+
+
+  <!-- ============ HISTORY ============ -->
+  <section class="panel viz">
+    <div class="phead"><h2>Book value &amp; cash · every ledger row</h2>
+      <div class="viz-legend"><span><i style="background:var(--equity)"></i>Equity</span><span><i style="background:var(--cash)"></i>Cash</span></div></div>
+    <div class="pbody">
+      <div class="scroll"><svg class="viz-svg" viewBox="0 0 720 260" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Total book value over time, split into equity and cash">
+<line x1="62" y1="226.0" x2="644" y2="226.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="229.5" text-anchor="end" font-size="10" fill="var(--ink-3)">$0k</text>
+<line x1="62" y1="173.5" x2="644" y2="173.5" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="177.0" text-anchor="end" font-size="10" fill="var(--ink-3)">$12k</text>
+<line x1="62" y1="121.0" x2="644" y2="121.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="124.5" text-anchor="end" font-size="10" fill="var(--ink-3)">$25k</text>
+<line x1="62" y1="68.5" x2="644" y2="68.5" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="72.0" text-anchor="end" font-size="10" fill="var(--ink-3)">$38k</text>
+<line x1="62" y1="16.0" x2="644" y2="16.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="19.5" text-anchor="end" font-size="10" fill="var(--ink-3)">$50k</text>
+<path d="M62.0,94.4 L103.6,94.9 L145.1,94.7 L186.7,125.7 L228.3,108.8 L269.9,101.8 L311.4,75.7 L353.0,58.5 L394.6,37.6 L436.1,62.7 L477.7,54.5 L519.3,50.1 L560.9,76.2 L602.4,135.9 L644.0,136.6 L644.0,226.0 L62.0,226.0 Z" fill="var(--equity)" fill-opacity="0.88"/>
+<path d="M62.0,94.4 L103.6,94.9 L145.1,94.7 L186.7,125.7 L228.3,108.8 L269.9,101.8 L311.4,75.7 L353.0,58.5 L394.6,37.6 L436.1,62.7 L477.7,54.5 L519.3,50.1 L560.9,76.2 L602.4,135.9 L644.0,136.6" fill="none" stroke="var(--surface-1)" stroke-width="2"/>
+<path d="M62.0,75.7 L103.6,76.2 L145.1,76.0 L186.7,83.2 L228.3,81.0 L269.9,81.4 L311.4,75.6 L353.0,56.7 L394.6,37.5 L436.1,62.6 L477.7,52.6 L519.3,49.9 L560.9,52.5 L602.4,59.7 L644.0,60.2 L644.0,136.6 L602.4,135.9 L560.9,76.2 L519.3,50.1 L477.7,54.5 L436.1,62.7 L394.6,37.6 L353.0,58.5 L311.4,75.7 L269.9,101.8 L228.3,108.8 L186.7,125.7 L145.1,94.7 L103.6,94.9 L62.0,94.4 Z" fill="var(--cash)" fill-opacity="0.9"/>
+<path d="M62.0,75.7 L103.6,76.2 L145.1,76.0 L186.7,83.2 L228.3,81.0 L269.9,81.4 L311.4,75.6 L353.0,56.7 L394.6,37.5 L436.1,62.6 L477.7,52.6 L519.3,49.9 L560.9,52.5 L602.4,59.7 L644.0,60.2" fill="none" stroke="var(--ink-1)" stroke-width="2" stroke-opacity="0.55"/>
+<line x1="353.0" y1="16" x2="353.0" y2="226" stroke="var(--neg)" stroke-width="1" stroke-dasharray="2 3" stroke-opacity="0.65"/>
+<circle cx="353.0" cy="56.7" r="4" fill="var(--surface-1)" stroke="var(--neg)" stroke-width="2"><title>2026-07-17 $40,300 - EXCLUDED (suspect: price-feed gap, not a real value)</title></circle>
+<line x1="394.6" y1="16" x2="394.6" y2="226" stroke="var(--neg)" stroke-width="1" stroke-dasharray="2 3" stroke-opacity="0.65"/>
+<circle cx="394.6" cy="37.5" r="4" fill="var(--surface-1)" stroke="var(--neg)" stroke-width="2"><title>2026-07-18 $44,873 - EXCLUDED (suspect: price-feed gap, not a real value)</title></circle>
+<line x1="560.9" y1="16" x2="560.9" y2="226" stroke="var(--neg)" stroke-width="1" stroke-dasharray="2 3" stroke-opacity="0.65"/>
+<circle cx="560.9" cy="52.5" r="4" fill="var(--surface-1)" stroke="var(--neg)" stroke-width="2"><title>2026-07-24 $41,312 - EXCLUDED (stale_dated: price-feed gap, not a real value)</title></circle>
+<rect class="mark" x="54.0" y="16" width="16" height="210" fill="transparent"><title>2026-07-12 14:43  total $35,795  |  equity $31,340  |  cash $4,455 (12.4%)</title></rect>
+<rect class="mark" x="95.6" y="16" width="16" height="210" fill="transparent"><title>2026-07-13 13:22  total $35,665  |  equity $31,226  |  cash $4,439 (12.4%)</title></rect>
+<rect class="mark" x="137.1" y="16" width="16" height="210" fill="transparent"><title>2026-07-13 15:35  total $35,709  |  equity $31,264  |  cash $4,444 (12.4%)</title></rect>
+<rect class="mark" x="178.7" y="16" width="16" height="210" fill="transparent"><title>2026-07-14 17:42  total $33,993  |  equity $23,873  |  cash $10,120 (29.8%)</title></rect>
+<rect class="mark" x="220.3" y="16" width="16" height="210" fill="transparent"><title>2026-07-14 22:10  total $34,533  |  equity $27,897  |  cash $6,636 (19.2%)</title></rect>
+<rect class="mark" x="261.9" y="16" width="16" height="210" fill="transparent"><title>2026-07-15 15:42  total $34,424  |  equity $29,567  |  cash $4,856 (14.1%)</title></rect>
+<rect class="mark" x="303.4" y="16" width="16" height="210" fill="transparent"><title>2026-07-16 16:44  total $35,811  |  equity $35,777  |  cash $34 (0.1%)</title></rect>
+<rect class="mark" x="345.0" y="16" width="16" height="210" fill="transparent"><title>2026-07-17 13:44  total $40,300  |  equity $39,872  |  cash $427 (1.1%)</title></rect>
+<rect class="mark" x="386.6" y="16" width="16" height="210" fill="transparent"><title>2026-07-18 13:41  total $44,873  |  equity $44,850  |  cash $23 (0.1%)</title></rect>
+<rect class="mark" x="428.1" y="16" width="16" height="210" fill="transparent"><title>2026-07-20 12:40  total $38,903  |  equity $38,880  |  cash $23 (0.1%)</title></rect>
+<rect class="mark" x="469.7" y="16" width="16" height="210" fill="transparent"><title>2026-07-22 14:31  total $41,292  |  equity $40,834  |  cash $458 (1.1%)</title></rect>
+<rect class="mark" x="511.3" y="16" width="16" height="210" fill="transparent"><title>2026-07-23 19:07  total $41,923  |  equity $41,887  |  cash $36 (0.1%)</title></rect>
+<rect class="mark" x="552.9" y="16" width="16" height="210" fill="transparent"><title>2026-07-24 18:29  total $41,312  |  equity $35,655  |  cash $5,657 (13.7%)</title></rect>
+<rect class="mark" x="594.4" y="16" width="16" height="210" fill="transparent"><title>2026-07-25 16:07  total $39,592  |  equity $21,461  |  cash $18,132 (45.8%)</title></rect>
+<rect class="mark" x="636.0" y="16" width="16" height="210" fill="transparent"><title>2026-07-27 10:09  total $39,468  |  equity $21,277  |  cash $18,191 (46.1%)</title></rect>
+<text x="652" y="184.8" font-size="11" fill="var(--ink-2)">equity</text>
+<text x="652" y="197.3" font-size="11" fill="var(--ink-1)" font-weight="600">$21.3k</text>
+<text x="652" y="101.9" font-size="11" fill="var(--ink-2)">cash</text>
+<text x="652" y="114.4" font-size="11" fill="var(--ink-1)" font-weight="600">$18.2k</text>
+<text x="62.0" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-12</text>
+<text x="145.1" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-13</text>
+<text x="228.3" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-14</text>
+<text x="311.4" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-16</text>
+<text x="394.6" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-18</text>
+<text x="477.7" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-22</text>
+<text x="560.9" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-24</text>
+<text x="644.0" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-27</text>
+<line x1="62" y1="226" x2="644" y2="226" stroke="var(--axis)" stroke-width="1"/>
+</svg></div>
+      <p class="viz-note">Cash is the top band, not a second axis - the stack shows total book and the cash split on one scale. 3 reading(s) ringed in red are EXCLUDED as corrupt (self-flagged price-feed gaps); they are drawn so the gap is visible, not silently dropped.</p>
+      <hr class="rule">
+      <div class="viz-legend"><b style="font-size:13px;color:var(--ink)">Book vs SMH · per period</b>
+        <span><i style="background:var(--pos)"></i>Beat SMH</span><span><i style="background:var(--neg)"></i>Lagged</span>
+        <span><i style="background:var(--muted)"></i>Excluded (bad data)</span></div>
+      <div class="scroll"><svg class="viz-svg" viewBox="0 0 720 230" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Book return minus SMH return, per period">
+<defs><pattern id="hatch" width="5" height="5" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="0" y2="5" stroke="var(--muted)" stroke-width="2.5"/></pattern></defs>
+<line x1="46" y1="190.0" x2="704" y2="190.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="38" y="193.5" text-anchor="end" font-size="10" fill="var(--ink-3)">-8%</text>
+<line x1="46" y1="146.0" x2="704" y2="146.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="38" y="149.5" text-anchor="end" font-size="10" fill="var(--ink-3)">-4%</text>
+<line x1="46" y1="58.0" x2="704" y2="58.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="38" y="61.5" text-anchor="end" font-size="10" fill="var(--ink-3)">+4%</text>
+<line x1="46" y1="14.0" x2="704" y2="14.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="38" y="17.5" text-anchor="end" font-size="10" fill="var(--ink-3)">+8%</text>
+<rect class="mark" x="56.3" y="102.0" width="30.0" height="4.3" rx="3" fill="var(--neg)"><title>2026-07-12 to 2026-07-13  book -0.36%  SMH +0.00%  =>  -0.36% vs benchmark</title></rect>
+<rect class="mark" x="106.9" y="100.6" width="30.0" height="1.5" rx="3" fill="var(--pos)"><title>2026-07-13 to 2026-07-13  book +0.12%  SMH +0.00%  =>  +0.12% vs benchmark</title></rect>
+<rect class="mark" x="157.5" y="102.0" width="30.0" height="7.6" rx="3" fill="var(--neg)"><title>2026-07-13 to 2026-07-14  book -4.80%  SMH -4.16%  =>  -0.65% vs benchmark</title></rect>
+<rect class="mark" x="208.2" y="83.4" width="30.0" height="18.6" rx="3" fill="var(--pos)"><title>2026-07-14 to 2026-07-14  book +1.59%  SMH +0.00%  =>  +1.59% vs benchmark</title></rect>
+<rect class="mark" x="258.8" y="102.0" width="30.0" height="33.2" rx="3" fill="var(--neg)"><title>2026-07-14 to 2026-07-15  book -0.32%  SMH +2.51%  =>  -2.83% vs benchmark</title></rect>
+<rect class="mark" x="309.4" y="36.1" width="30.0" height="65.9" rx="3" fill="var(--pos)"><title>2026-07-15 to 2026-07-16  book +4.03%  SMH -1.59%  =>  +5.62% vs benchmark</title></rect>
+<rect class="mark" x="360.0" y="87.9" width="30.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-07-16 to 2026-07-17 - EXCLUDED, corrupt price feed in this interval</title></rect>
+<rect class="mark" x="410.6" y="87.9" width="30.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-07-17 to 2026-07-18 - EXCLUDED, corrupt price feed in this interval</title></rect>
+<rect class="mark" x="461.2" y="87.9" width="30.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-07-18 to 2026-07-20 - EXCLUDED, corrupt price feed in this interval</title></rect>
+<rect class="mark" x="511.8" y="88.0" width="30.0" height="14.0" rx="3" fill="var(--pos)"><title>2026-07-20 to 2026-07-22  book +6.14%  SMH +4.95%  =>  +1.19% vs benchmark</title></rect>
+<rect class="mark" x="562.5" y="89.7" width="30.0" height="12.3" rx="3" fill="var(--pos)"><title>2026-07-22 to 2026-07-23  book +1.53%  SMH +0.48%  =>  +1.04% vs benchmark</title></rect>
+<rect class="mark" x="613.1" y="87.9" width="30.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-07-23 to 2026-07-24 - EXCLUDED, corrupt price feed in this interval</title></rect>
+<rect class="mark" x="663.7" y="87.9" width="30.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-07-24 to 2026-07-25 - EXCLUDED, corrupt price feed in this interval</title></rect>
+<line x1="46" y1="102.0" x2="704" y2="102.0" stroke="var(--axis)" stroke-width="1.5"/>
+<text x="71.3" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-13</text>
+<text x="172.5" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-14</text>
+<text x="273.8" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-15</text>
+<text x="375.0" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-17</text>
+<text x="476.2" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-20</text>
+<text x="577.5" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-23</text>
+<text x="678.7" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-25</text>
+<text x="46" y="222" font-size="10" fill="var(--ink-3)">above 0 = beat SMH that period</text>
+</svg></div>
+      <p class="viz-note">Per-period only. 5 of 8 clean periods beat SMH. CUMULATIVE performance vs SMH is deliberately NOT shown: external contributions are not recorded in the ledger, so a cumulative book line would mix deposits with returns and overstate performance. The new external_flow_usd column fixes this going forward.</p>
+      <p class="note"><b>Both charts carry forward from this morning's 10:09 IST deep run</b>, so their final point reads
+      $39,468 against the $40,180 at the top of this page — the difference is 3¾ hours of pre-market drift, not a
+      correction. History is unaffected.</p>
+    </div>
+  </section>
+
+  <!-- ============ WEEK ============ -->
+  <section class="panel">
+    <div class="phead"><h2>The week you are deploying into</h2><span class="pill w">3 holdings report · FOMC Wed</span></div>
+    <div class="pbody">
+      <div class="cal">
+        <div class="day"><span class="d">Mon 27</span>
+          <span class="ev"><b>Tranche 1</b> · GOOG, AVGO</span>
+          <span class="ev other">No holdings report</span></div>
+        <div class="day hot"><span class="d">Tue 28</span>
+          <span class="ev"><b>TER</b> earnings</span>
+          <span class="ev"><b>CLS</b> earnings <span class="est">(est)</span></span>
+          <span class="ev other">GLW · V · KO · BA</span></div>
+        <div class="day hot"><span class="d">Wed 29</span>
+          <span class="ev"><b>FOMC 2:00pm ET</b><br>presser 2:30 · no dot plot</span>
+          <span class="ev"><b>LRCX</b> · <b>QCOM</b></span>
+          <span class="ev other">MSFT · META</span></div>
+        <div class="day hot"><span class="d">Thu 30</span>
+          <span class="ev"><b>VRT</b> earnings <span class="est">(est)</span></span>
+          <span class="ev other">AAPL · AMZN</span></div>
+        <div class="day"><span class="d">Fri 31</span>
+          <span class="ev"><b>Tranche 3</b> opens</span>
+          <span class="ev other">Month-end · XOM · CVX</span></div>
+      </div>
+      <p class="note">Clean runways, for reference: <b>GOOG</b> and <b>GEV</b> reported 22 Jul and are clear until ~late
+      October; <b>AVGO</b> until ~2 Sep; <b>MRVL</b> until ~26 Aug. That availability is what determined which names sit in
+      tranche 1.</p>
+    </div>
+  </section>
+
+  <!-- ============ MONTHLY + STANDING ============ -->
+  <div class="grid2">
+    <section class="panel">
+      <div class="phead"><h2>Monthly contribution</h2><span class="pill g">$1,000 / mo from Aug</span></div>
+      <div class="pbody">
+        <p class="voice" style="font-size:14.5px">Roughly 2.5% of book per month, and worth more than the number suggests:
+        fresh capital arrives <em>whether or not stops fired</em>. Redeployment stops depending on conviction returning at a
+        low — which is exactly the moment conviction is hardest to find.</p>
+        <div class="kv">
+          <div class="row"><span class="lab">Rule</span><span class="val sans">Cluster furthest below target →<br>lowest-vol name with most headroom</span></div>
+          <div class="row"><span class="lab">August target</span><span class="val">AI Semis/Fabs<br><small>26.2% vs 30%</small></span></div>
+          <div class="row"><span class="lab">August candidates</span><span class="val">TSM · QCOM<br><small>~3.0–3.2% range, $2.1k+ headroom</small></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="phead"><h2>Standing items</h2></div>
+      <div class="pbody">
+        <ul class="tight">
+          <li><b>A second session published a deep run at 10:09 IST today.</b> Its charts and diagnostics are carried
+          forward above; its decision list is superseded by the plan on this page, which is built on the revised policy it
+          predates. One correction: that run priced ORCL at $142.98 — the live quote is <b>$114.99</b> (verified against a
+          second source), so the exit raises ~$474, not ~$572. A stale-feed read of the kind gap G3 tracks.</li>
+          <li><b>MU → watch.</b> Downgraded from strengthening. HBM3E ASP has fallen 51% from the H1'25 peak
+          ($18.5 → $9/GB) and DDR5 contract profitability crossed above HBM3E for the first time. Sold-out-through-2026
+          capacity offsets volume, not price.</li>
+          <li><b>Factor concentration remains 100%</b> of invested equity — intentional per mandate, not flagged as drift.
+          On total book it is 56.8%; cash is the only real diversifier, and the revised targets are the structural fix.</li>
+          <li><b>Stop inputs are provisional.</b> Daily ranges were seeded from Friday 24 Jul alone — an unusually violent
+          session — so the distances above run conservative. Refresh from a trailing 20-day window on the next deep run;
+          expect them to tighten somewhat.</li>
+          <li><b>Lot dates still missing</b> (gap G1). LTCG sequencing stays qualitative until lots.json is seeded from
+          INDmoney order history.</li>
+          <li><b>Friday's trade rationale was never captured</b> (G26). Fixed going forward via trades.json; that one
+          historical event stays unattributed.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+
+  <!-- ============ DIAGNOSTICS ============ -->
+  <section class="panel diag">
+    <div class="phead"><h2>Diagnostics</h2><span class="pill">Detail — expand as needed</span></div>
+    <div class="pbody" style="gap:0">
+      <details><summary>Thesis map<span class="c">21 held</span></summary><div class="body"><div class="table-wrap"><table><thead><tr><th>Ticker</th><th>Cluster</th><th>Thesis</th><th>Status</th></tr></thead><tbody><tr><td class="tk">DRAM</td><td style="color:var(--ink-3);font-size:11.5px">AI Memory/Storage</td><td>Thematic ETF for concentrated memory (DRAM/NAND) AI demand -- same HBM3E ASP tension as MU</td><td><span class="pill warn">watch</span></td></tr><tr><td class="tk">EWY</td><td style="color:var(--ink-3);font-size:11.5px">AI Memory/Storage</td><td>Regional ETF, South Korea semis/memory (Samsung, SK Hynix) exposure</td><td><span class="pill warn">watch</span></td></tr><tr><td class="tk">MU</td><td style="color:var(--ink-3);font-size:11.5px">AI Memory/Storage</td><td>Memory (DRAM/HBM) -- HBM3E ASP -51% peak-to-current, DDR5 now more profitable, but 2027 forecast +80-150% sugg</td><td><span class="pill warn">watch</span></td></tr><tr><td class="tk">SNDK</td><td style="color:var(--ink-3);font-size:11.5px">AI Memory/Storage</td><td>AI NAND/enterprise-SSD supercycle bet -- fundamentals intact but severe peer-laggard vs SMH</td><td><span class="pill warn">watch</span></td></tr><tr><td class="tk">AVGO</td><td style="color:var(--ink-3);font-size:11.5px">AI Networking/Optics</td><td>Custom AI ASICs (XPUs) and networking silicon for hyperscalers</td><td><span class="pill good">strengthening</span></td></tr><tr><td class="tk">MRVL</td><td style="color:var(--ink-3);font-size:11.5px">AI Networking/Optics</td><td>Custom AI silicon and optical interconnect for hyperscalers</td><td><span class="pill warn">watch</span></td></tr><tr><td class="tk">CIEN</td><td style="color:var(--ink-3);font-size:11.5px">AI Networking/Optics</td><td>Optical networking gear for AI datacenter/telco backbone -- trimmed 59%, weak FY guide vs AI PoC win</td><td><span class="pill warn">watch</span></td></tr><tr><td class="tk">COHR</td><td style="color:var(--ink-3);font-size:11.5px">AI Networking/Optics</td><td>Photonics/optical components for datacenter interconnect</td><td><span class="pill good">strengthening</span></td></tr><tr><td class="tk">GEV</td><td style="color:var(--ink-3);font-size:11.5px">AI Power/Cooling/DC Infra</td><td>Grid/power-gen equipment for AI datacenter electrification; Q2 rev +22%, raised guidance, $11B grid capex</td><td><span class="pill good">strengthening</span></td></tr><tr><td class="tk">VRT</td><td style="color:var(--ink-3);font-size:11.5px">AI Power/Cooling/DC Infra</td><td>Thermal/power management (cooling, UPS) for AI datacenters</td><td><span class="pill good">strengthening</span></td></tr><tr><td class="tk">NVDA</td><td style="color:var(--ink-3);font-size:11.5px">AI Semis/Fabs</td><td>Core AI GPU/accelerator platform leadership</td><td><span class="pill good">strengthening</span></td></tr><tr><td class="tk">ASML</td><td style="color:var(--ink-3);font-size:11.5px">AI Semis/Fabs</td><td>Sole-source EUV lithography gating leading-edge fab capacity</td><td><span class="pill good">strengthening</span></td></tr><tr><td class="tk">QCOM</td><td style="color:var(--ink-3);font-size:11.5px">AI Semis/Fabs</td><td>Diversifying from handsets into AI/datacenter CPUs and auto</td><td><span class="pill good">strengthening</span></td></tr><tr><td class="tk">LRCX</td><td style="color:var(--ink-3);font-size:11.5px">AI Semis/Fabs</td><td>Semicap wafer fab equipment geared to leading-edge and memory capex</td><td><span class="pill good">strengthening</span></td></tr><tr><td class="tk">TER</td><td style="color:var(--ink-3);font-size:11.5px">AI Semis/Fabs</td><td>Semicap automated test equipment geared to AI chip test volume</td><td><span class="pill good">strengthening</span></td></tr><tr><td class="tk">TSM</td><td style="color:var(--ink-3);font-size:11.5px">AI Semis/Fabs</td><td>Foundry monopoly manufacturing leading-edge AI chips</td><td><span class="pill good">strengthening</span></td></tr><tr><td class="tk">AMAT</td><td style="color:var(--ink-3);font-size:11.5px">AI Semis/Fabs</td><td>Semicap deposition/etch equipment for AI chip fabs (position cut to dust, 0.012% weight -- sizing only, thesis</td><td><span class="pill good">strengthening</span></td></tr><tr><td class="tk">ARM</td><td style="color:var(--ink-3);font-size:11.5px">AI Semis/Fabs</td><td>Chip architecture/IP licensing powering most AI silicon</td><td><span class="pill warn">watch</span></td></tr><tr><td class="tk">AMD</td><td style="color:var(--ink-3);font-size:11.5px">AI Semis/Fabs</td><td>GPU/CPU compute silicon, direct AI-accelerator competitor to NVDA</td><td><span class="pill good">strengthening</span></td></tr><tr><td class="tk">ORCL</td><td style="color:var(--ink-3);font-size:11.5px">Compute/Hyperscaler</td><td>Oracle Cloud Infrastructure -- hyperscaler cloud/AI-capex beneficiary</td><td><span class="pill warn">watch</span></td></tr><tr><td class="tk">CLS</td><td style="color:var(--ink-3);font-size:11.5px">Compute/Hyperscaler OEM</td><td>EMS/contract manufacturer building Broadcom/OpenAI custom AI ASICs (Jalapeno) + AI server hardware</td><td><span class="pill good">strengthening</span></td></tr></tbody></table></div></div></details>
+      <details><summary>Signal history<span class="c">25 names</span></summary><div class="body"><div class="table-wrap"><table><tbody><tr><td class="tk">AMAT</td><td>STRONG DOWNTREND</td></tr><tr><td class="tk">AMD</td><td>STRONG UPTREND, PEER LEADER</td></tr><tr><td class="tk">ARM</td><td>PEER LAGGARD, STRONG DOWNTREND</td></tr><tr><td class="tk">ASML</td><td>PEER LEADER, STRONG UPTREND, TARGET GAP</td></tr><tr><td class="tk">AVGO</td><td>TARGET GAP, PEER LEADER</td></tr><tr><td class="tk">BABA</td><td>OVERSOLD BOUNCE, TARGET GAP</td></tr><tr><td class="tk">CIEN</td><td>INSIDER ACTIVITY, STRONG DOWNTREND, TARGET GAP</td></tr><tr><td class="tk">CLS</td><td>PEER LAGGARD, STRONG DOWNTREND, TARGET GAP</td></tr><tr><td class="tk">COHR</td><td>PEER LAGGARD, STRONG DOWNTREND, TARGET GAP</td></tr><tr><td class="tk">DRAM</td><td>PEER LAGGARD, STRONG DOWNTREND</td></tr><tr><td class="tk">EWY</td><td>PEER LAGGARD, STRONG DOWNTREND</td></tr><tr><td class="tk">GEV</td><td>TARGET GAP, MOMENTUM+VOLUME, STRONG UPTREND</td></tr><tr><td class="tk">GOOG</td><td>TARGET GAP</td></tr><tr><td class="tk">LITE</td><td>TARGET GAP</td></tr><tr><td class="tk">LRCX</td><td>PEER LAGGARD, STRONG DOWNTREND, TARGET GAP</td></tr><tr><td class="tk">META</td><td>TARGET GAP, PEER LEADER</td></tr><tr><td class="tk">MRVL</td><td>PEER LAGGARD, STRONG DOWNTREND, TARGET GAP</td></tr><tr><td class="tk">MU</td><td>PEER LAGGARD, STRONG DOWNTREND, TARGET GAP</td></tr><tr><td class="tk">NVDA</td><td>NEW TAILWINDS, PEER LEADER, TARGET GAP</td></tr><tr><td class="tk">ORCL</td><td>BREAKDOWN, OVERSOLD BOUNCE, PEER LAGGARD, STRONG DOWNTREND, TARGET GAP</td></tr><tr><td class="tk">QCOM</td><td>TARGET GAP</td></tr><tr><td class="tk">SNDK</td><td>PEER LAGGARD, STRONG DOWNTREND</td></tr><tr><td class="tk">TER</td><td>PEER LAGGARD, STRONG DOWNTREND, TARGET GAP</td></tr><tr><td class="tk">TSM</td><td>TARGET GAP</td></tr><tr><td class="tk">VRT</td><td>PEER LAGGARD, STRONG DOWNTREND, TARGET GAP</td></tr></tbody></table></div></div></details>
+      <details><summary>Open data gaps<span class="c">10</span></summary><div class="body"><div class="table-wrap"><table><tbody><tr><td class="tk">G1</td><td>LTCG per-lot purchase dates unavailable -- lots.json empty since first run</td></tr><tr><td class="tk">G3</td><td>INDmoney networth_snapshot/networth_holdings AGGREGATE totals lag the real-time price (per-name fix landed via get_us_stocks_details.ext_hr_live_price + PRE-MARKET PRICE OVERLAY in SKILL.md step 2.5, cross-validated vs FMP aftermarket quotes). Aggregate endpoint staleness remains open.</td></tr><tr><td class="tk">G11</td><td>'Compute/Hyperscaler' cluster line added to draft policy.json without user confirmation</td></tr><tr><td class="tk">G15</td><td>data_cache.betas empty for SNDK/DRAM/IREN/ARM (25.7% of book) -- defaults to 1.0, flagged in data_quality. 2026-07-26: reverted a guessed-value insertion that violated the never-estimate guardrail. Needs real 3mo-returns beta vs SOX (see benchmark_betas), not an estimate.</td></tr><tr><td class="tk">G17</td><td>spx_125dma/ndx_rsi14/vix_52w_range computed from weekly-aggregated (not daily) yfinance history for the sentiment composite -- a smoothing approximation, not a failure</td></tr><tr><td class="tk">G18</td><td>SPY/QQQ max-pain unavailable -- single-expiry options pull returned near-zero/null open interest across nearly all strikes (yfinance data gap)</td></tr><tr><td class="tk">G19</td><td>FMP etfAndMutualFunds tool blocked on current plan tier (requires Ultimate/Enterprise) -- EWY/DRAM ETF-constituent cache cannot be refreshed</td></tr><tr><td class="tk">G20</td><td>yfinance earnings-calendar pulls have been unreliable for confirmed dates; smith-earnings agent (Tier 3.2 skeleton) recommends switching to FMP as primary source.</td></tr><tr><td class="tk">G24</td><td>High-confidence reconstruction (not live-verified): 07-24 cash jump traced to 5 full exits + 8 halvings coinciding with a broad AI-capex selloff; exact trigger (stop-loss/panic/planned de-risk) unconfirmed -- see G26.</td></tr><tr><td class="tk">G26</td><td>07-24 flow event (5 exits + 8 halvings, wallet $5.7k-&gt;$18.1k) had no captured trade rationale. FIXED GOING FORWARD 2026-07-26: trades.json + flow interrogation now attaches trade_reason to every qty_change (smith_math.py cmd_book). This historical instance stays UNCAPTURED.</td></tr></tbody></table></div></div></details>
+    </div>
+  </section>
+
+  <footer>
+    <p class="note"><b>Everything on this page is a proposal for your review.</b> No trade has been or will be placed by
+    this desk, and none of this is licensed investment advice. Sizing is expressed in dollars for clarity, not as
+    instruction.</p>
+    <p class="note">Prices are INDmoney extended-hours quotes captured Mon 27 Jul 2026, ~04:20 ET. Pre-market levels move —
+    re-check before acting, particularly the tranche 3 names, whose entries sit on the far side of their earnings. The
+    policy file remains a draft (<span class="num">confirmed: false</span>); cluster targets, the stop framework and the
+    monthly contribution were amended on your instruction on 27 Jul and validate clean against the policy checker.</p>
+  </footer>
+</div>
+
+<script>
+const clusters=[
+ {n:"AI Semis/Fabs",now:40.58,post:26.20,tgt:30,lo:25,hi:35},
+ {n:"AI Memory/Storage",now:25.08,post:16.19,tgt:15,lo:10,hi:20},
+ {n:"AI Networking/Optics",now:14.59,post:17.41,tgt:15,lo:10,hi:20},
+ {n:"AI Power/Cooling/DC",now:13.34,post:13.76,tgt:15,lo:10,hi:20},
+ {n:"Compute/Hyperscaler OEM",now:4.26,post:2.75,tgt:5,lo:0,hi:10},
+ {n:"Compute/Hyperscaler",now:2.15,post:23.69,tgt:20,lo:15,hi:25}
+];
+const SCALE=45;
+const pc=v=>Math.max(0,Math.min(100,v/SCALE*100));
+document.querySelector("#clusters tbody").innerHTML=clusters.map(c=>{
+  const inNow=c.now>=c.lo&&c.now<=c.hi;
+  return '<tr><td class="name">'+c.n+'</td>'
+    +'<td class="'+(inNow?"":"neg")+'">'+c.now.toFixed(2)+'%</td>'
+    +'<td class="pos">'+c.post.toFixed(2)+'%</td>'
+    +'<td class="blank">'+c.tgt+'%</td>'
+    +'<td><div class="band">'
+      +'<div class="ok" style="left:'+pc(c.lo)+'%;width:'+(pc(c.hi)-pc(c.lo))+'%"></div>'
+      +'<div class="tgt" style="left:'+pc(c.tgt)+'%"></div>'
+      +'<div class="mk'+(inNow?"":" bad")+'" style="left:'+pc(c.now)+'%"></div>'
+      +'<div class="mk fut" style="left:'+pc(c.post)+'%"></div>'
+    +'</div></td></tr>';
+}).join("");
+
+const CL={Semis:"Semis/Fabs",Memory:"Memory",Optics:"Networking/Optics",Power:"Power/DC",OEM:"Compute OEM",Hyper:"Hyperscaler"};
+const holdings=[{"t":"GOOG","cl":"Hyper","qty":15.105,"px":324.40,"val":0,"add":4900,"rng":2.03,"stop":4.1,"stopPx":311.23,"cap":5006,"head":106,"fri":0.24,"exit":false,"new":true},{"t":"AVGO","cl":"Optics","qty":2,"px":390.23,"val":780,"add":2730,"rng":2.75,"stop":5.5,"stopPx":368.73,"cap":3690,"head":179,"fri":-2.69,"exit":false},{"t":"AMZN","cl":"Hyper","qty":13.556,"px":235.31,"val":0,"add":3190,"rng":1.56,"stop":3.1,"stopPx":227.97,"cap":6515,"head":3325,"fri":-0.66,"exit":false,"new":true},{"t":"GEV","cl":"Power","qty":1.395,"px":1034.6,"val":1443,"add":1100,"rng":4.03,"stop":8.1,"stopPx":951.26,"cap":2523,"head":-20,"fri":-1.59,"exit":false},{"t":"NVDA","cl":"Semis","qty":12,"px":209.08,"val":2509,"add":0,"rng":3.43,"stop":6.9,"stopPx":194.73,"cap":2961,"head":452,"fri":-0.92,"exit":false},{"t":"VRT","cl":"Power","qty":5,"px":299.4,"val":1497,"add":660,"rng":4.8,"stop":9.6,"stopPx":270.65,"cap":2117,"head":-40,"fri":-4.5,"exit":false},{"t":"ASML","cl":"Semis","qty":1.0,"px":1799.1,"val":1799,"add":0,"rng":3.29,"stop":6.6,"stopPx":1680.59,"cap":3086,"head":1287,"fri":-2.55,"exit":false},{"t":"EWY","cl":"Memory","qty":10,"px":168.07,"val":1681,"add":0,"rng":3.63,"stop":7.3,"stopPx":155.86,"cap":2798,"head":1117,"fri":-6.27,"exit":false},{"t":"SNDK","cl":"Memory","qty":1.0081,"px":1493.19,"val":1505,"add":0,"rng":11.25,"stop":22.5,"stopPx":1157.27,"cap":904,"head":-602,"fri":-10.79,"exit":false},{"t":"MRVL","cl":"Optics","qty":7,"px":201.0,"val":1407,"add":0,"rng":7.6,"stop":15.2,"stopPx":170.43,"cap":1337,"head":-70,"fri":-7.21,"exit":false},{"t":"DRAM","cl":"Memory","qty":25,"px":55.78,"val":1394,"add":0,"rng":6.54,"stop":13.1,"stopPx":48.48,"cap":1554,"head":159,"fri":-8.75,"exit":false},{"t":"TSM","cl":"Semis","qty":3,"px":410.0,"val":1230,"add":0,"rng":3.0,"stop":6.0,"stopPx":385.36,"cap":3383,"head":2153,"fri":-2.93,"exit":false},{"t":"QCOM","cl":"Semis","qty":6.0008,"px":170.33,"val":1022,"add":0,"rng":3.19,"stop":6.4,"stopPx":159.46,"cap":3184,"head":2162,"fri":-2.42,"exit":false},{"t":"MU","cl":"Memory","qty":1.0004,"px":948.51,"val":949,"add":0,"rng":6.86,"stop":13.7,"stopPx":818.45,"cap":1482,"head":534,"fri":-6.99,"exit":false},{"t":"LRCX","cl":"Semis","qty":3,"px":315.31,"val":946,"add":0,"rng":5.9,"stop":11.8,"stopPx":278.08,"cap":1721,"head":775,"fri":-4.56,"exit":false},{"t":"CLS","cl":"OEM","qty":3.0033,"px":313.0,"val":940,"add":0,"rng":8.83,"stop":17.7,"stopPx":257.74,"cap":1151,"head":211,"fri":-8.8,"exit":false},{"t":"COHR","cl":"Optics","qty":3,"px":292.7,"val":878,"add":0,"rng":9.59,"stop":19.2,"stopPx":236.54,"cap":1059,"head":181,"fri":-9.84,"exit":false},{"t":"ARM","cl":"Semis","qty":2,"px":267.6,"val":535,"add":0,"rng":11.73,"stop":23.5,"stopPx":204.84,"cap":867,"head":332,"fri":-8.14,"exit":false},{"t":"AMD","cl":"Semis","qty":1,"px":534.99,"val":535,"add":0,"rng":5.89,"stop":11.8,"stopPx":471.99,"cap":1726,"head":1191,"fri":-3.29,"exit":false},{"t":"ORCL","cl":"Hyper","qty":4,"px":118.39,"val":474,"add":0,"rng":7.12,"stop":14.2,"stopPx":101.53,"cap":1427,"head":953,"fri":-4.21,"exit":true},{"t":"TER","cl":"Semis","qty":1.0027,"px":365.57,"val":367,"add":0,"rng":7.25,"stop":14.5,"stopPx":312.58,"cap":1402,"head":1036,"fri":-6.38,"exit":false},{"t":"CIEN","cl":"Optics","qty":0.3885,"px":387.97,"val":151,"add":0,"rng":5.75,"stop":11.5,"stopPx":343.33,"cap":1767,"head":1616,"fri":-4.07,"exit":false},{"t":"AMAT","cl":"Semis","qty":0.0092,"px":553.71,"val":5,"add":0,"rng":6.1,"stop":12.2,"stopPx":486.14,"cap":1666,"head":1661,"fri":-4.72,"exit":false}];
+const m=n=>"$"+Math.round(n).toLocaleString("en-US");
+document.querySelector("#holdings tbody").innerHTML=holdings.map(h=>
+  '<tr class="'+(h.exit?"out":(h.new?"fresh":""))+'">'
+  +'<td class="name">'+h.t+(h.new?' <span class="tag">new</span>':'')+'</td>'
+  +'<td class="txt">'+CL[h.cl]+'</td>'
+  +'<td>'+h.qty+'</td><td>'+h.px.toFixed(2)+'</td><td>'+m(h.val)+'</td>'
+  +'<td class="'+(h.add?"add":"blank")+'">'+(h.add?"+"+m(h.add):"—")+'</td>'
+  +'<td class="blank">'+h.rng.toFixed(2)+'%</td>'
+  +'<td>'+h.stop.toFixed(1)+'%</td><td>'+h.stopPx.toFixed(2)+'</td>'
+  +'<td class="blank">'+m(h.cap)+'</td>'
+  +'<td class="'+(h.head<0?"neg":"pos")+'" style="font-weight:640">'+(h.head<0?"−":"+")+m(Math.abs(h.head))+'</td>'
+  +'<td class="'+(h.fri<0?"neg":"pos")+'">'+h.fri.toFixed(2)+'%</td></tr>').join("");
+const tv=holdings.filter(h=>!h.exit).reduce((a,h)=>a+h.val+h.add,0);
+const ta=holdings.reduce((a,h)=>a+h.add,0);
+document.querySelector("#holdings tfoot").innerHTML='<tr>'
+  +'<td class="name">Post-plan</td><td class="txt"></td><td></td><td></td>'
+  +'<td>'+m(tv)+'</td><td class="add">+'+m(ta)+'</td>'
+  +'<td colspan="4" class="blank" style="text-align:right">aggregate open risk / Fri book move</td>'
+  +'<td class="pos">7.4%</td><td class="neg">−5.09%</td></tr>';
+</script>
