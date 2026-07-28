@@ -865,9 +865,21 @@ def cmd_sentiment(args):
 def cmd_proposals(args):
     """Apply lifecycle rules to proposals.json: auto-supersede duplicates, auto-expire old,
     auto-void when cited breach clears or position changes materially.
-    FIXED 2026-07-26 (1.6): Tier 1 defect — proposals accumulated as stale duplicates.
+    FIXED 2026-07-26 (1.6): Tier 1 defect -- proposals accumulated as stale duplicates.
+    FIXED 2026-07-29 (four compounding bugs found via a user-spotted duplicate CEG proposal):
+      (a) this function computed supersessions but NEVER WROTE proposals.json back -- every prior
+          "cleanup" run was a silent no-op, which is why the file had drifted this far;
+      (b) the dedup key did exact string match on `action`, so "BUY CEG" and "BUY CEG (new position)"
+          were treated as different proposals instead of the same trade -- normalize to a
+          (date, ticker, direction) key instead, where direction is the leading verb;
+      (c) six proposals were missing their `ticker` field entirely, silently disabling the
+          void-on-exit check -- backfill ticker from the action text when absent;
+      (d) the date parser only tried two exact formats and silently gave up on an ISO string with
+          seconds and a UTC offset, disabling auto-expiry for that whole batch -- try
+          datetime.fromisoformat first, with the old formats as fallback.
     """
-    proposals = load_json(os.path.join(args.base_dir, "proposals.json"), default={"proposals": [], "scorecard": {}})
+    p_path = os.path.join(args.base_dir, "proposals.json")
+    proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
     drift = load_json(os.path.join(args.run_dir, "compute_drift.json"), default={})
     holdings = load_json(os.path.join(args.run_dir, "holdings.json"), default={"holdings_inr": []})
 
@@ -876,51 +888,107 @@ def cmd_proposals(args):
     current_tickers = {h["ticker"] for h in holdings.get("holdings_inr", [])}
     live_breaches = {c["cluster"] for c in drift.get("cluster_table", []) if c.get("breach")}
 
-    seen = {}  # (date, action, ticker) -> index of first occurrence
+    VERBS = ["BUY", "TRIM", "EXIT", "ADD", "DEPLOY INTO", "HOLD"]
+
+    def direction(action):
+        a = (action or "").upper()
+        for v in VERBS:
+            if a.startswith(v):
+                return v
+        return a.split()[0] if a.split() else ""
+
+    def infer_ticker(pr):
+        if pr.get("ticker"):
+            return pr["ticker"]
+        # backfill from the action text: last all-caps token 2-5 chars is almost always the symbol
+        words = (pr.get("action") or "").replace("(", " ").replace(")", " ").split()
+        for w in reversed(words):
+            wc = w.strip(".,")
+            if wc.isupper() and 2 <= len(wc) <= 5 and wc not in ("BUY", "TRIM", "EXIT", "ADD", "HOLD", "NO"):
+                return wc
+        return None
+
+    def parse_date(raw):
+        if not raw:
+            return None
+        try:
+            return datetime.fromisoformat(raw).date()
+        except ValueError:
+            pass
+        for fmt in ("%Y-%m-%dT%H:%M", "%Y-%m-%d"):
+            try:
+                return datetime.strptime(raw, fmt).date()
+            except ValueError:
+                continue
+        return None
+
+    seen = {}  # (date, ticker, direction) -> index of first (most detailed) occurrence
     to_supersede = set()
+
+    # backfill ticker before the main pass so every later check sees it
+    for pr in props:
+        if not pr.get("ticker"):
+            inferred = infer_ticker(pr)
+            if inferred:
+                pr["ticker"] = inferred
+                pr["note"] = (pr.get("note", "") + " | ticker backfilled from action text (2026-07-29 fix)").strip(" |")
 
     for i, pr in enumerate(props):
         if pr.get("status") != "open":
             continue
-        key = (pr.get("date"), pr.get("action"), pr.get("ticker"))
-        if key in seen:
-            # duplicate of an earlier proposal — supersede this one
-            to_supersede.add(i)
+        prop_date = parse_date(pr.get("date", ""))
+        key = (prop_date, pr.get("ticker"), direction(pr.get("action")))
+        if key in seen and key[1] is not None:
+            j = seen[key]
+            # keep whichever of the pair has the longer rationale; supersede the other
+            len_i = len(pr.get("rationale", "") or "")
+            len_j = len(props[j].get("rationale", "") or "")
+            loser = j if len_i > len_j else i
+            if loser == j:
+                seen[key] = i
+            to_supersede.add(loser)
+            if "note" not in props[loser] or "duplicate" not in props[loser]["note"]:
+                props[loser]["note"] = (props[loser].get("note", "")
+                                        + " | auto-superseded 2026-07-29 -- duplicate of another open %s %s proposal same day"
+                                        % (key[1], key[2])).strip(" |")
         else:
             seen[key] = i
 
-        # check expiry: 5 trading days since proposal (rough: 7 calendar days)
-        try:
-            prop_date = datetime.strptime(pr.get("date", ""), "%Y-%m-%dT%H:%M").date()
-        except (ValueError, TypeError):
-            try:
-                prop_date = datetime.strptime(pr.get("date", ""), "%Y-%m-%d").date()
-            except (ValueError, TypeError):
-                prop_date = None
         if prop_date and (today_date - prop_date).days > 7:
             to_supersede.add(i)
-            if "note" not in pr or "auto-expired" not in pr["note"]:
-                pr["note"] = pr.get("note", "") + " | auto-expired after 7 calendar days"
+            if "auto-expired" not in pr.get("note", ""):
+                pr["note"] = (pr.get("note", "") + " | auto-expired after 7 calendar days").strip(" |")
 
-        # check void: cited breach no longer exists
-        if pr.get("action", "").startswith("Trim"):
-            breach_cluster = pr.get("rationale", "").split("(")[0].strip() if pr.get("rationale") else None
-            if breach_cluster and breach_cluster not in live_breaches:
-                to_supersede.add(i)
-                if "auto-voided" not in pr.get("note", ""):
-                    pr["note"] = pr.get("note", "") + " | auto-voided — cited breach cleared"
+        # Breach-cleared auto-void is DISABLED as of 2026-07-29. The prior implementation parsed
+        # free-text rationale (splitting on "(") and false-positive-voided every TRIM proposal with normal
+        # prose, since none of them happen to start with a bare cluster name. A second attempt at matching
+        # the structured `cites` field against live_breaches cluster names ran into the same class of
+        # problem one level up: cites uses informal short labels ("Power/DC floor breach") while
+        # compute_drift uses the formal taxonomy ("AI Power/Cooling/DC Infra"), and no reliable mapping
+        # between the two exists yet. Voiding a still-valid proposal silently is worse than leaving a
+        # cleared one open for manual review, so this check is off until proposals carry an explicit
+        # cited_cluster_id field drawn from the same enum compute_drift emits (see known_gaps).
 
-        # check void: position exited
-        if pr.get("ticker") and pr.get("ticker") not in current_tickers:
+        # Only TRIM/EXIT/ADD/HOLD presuppose the position is currently held; a BUY or "Deploy into"
+        # proposes OPENING a position, so "not currently held" is the normal, expected state for those,
+        # not a staleness signal. Conflating the two (found 2026-07-29) voided a same-day CEG buy
+        # proposal on the grounds that CEG "had been exited" when it had simply never been bought yet.
+        holds_presupposed = direction(pr.get("action")) in ("TRIM", "EXIT", "ADD", "HOLD")
+        if holds_presupposed and pr.get("ticker") and pr.get("ticker") not in current_tickers:
             to_supersede.add(i)
             if "auto-voided" not in pr.get("note", ""):
-                pr["note"] = pr.get("note", "") + " | auto-voided — position exited"
+                pr["note"] = (pr.get("note", "") + " | auto-voided -- position exited").strip(" |")
 
     for i in to_supersede:
         if props[i].get("status") == "open":
             props[i]["status"] = "superseded"
 
-    emit({"proposals_count": len(props), "superseded_count": len(to_supersede), "changes_made": len(to_supersede)})
+    proposals["proposals"] = props
+    json.dump(proposals, open(p_path + ".tmp", "w"), indent=2)
+    os.replace(p_path + ".tmp", p_path)
+
+    emit({"proposals_count": len(props), "superseded_count": len(to_supersede), "changes_made": len(to_supersede),
+          "written": True})
 
 
 def main():
