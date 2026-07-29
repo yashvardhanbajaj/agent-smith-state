@@ -723,8 +723,14 @@ def build(base, out):
         other = []
         for tk, txt in thesis.items():
             body, _, status = txt.rpartition("|")
-            st = status.strip().lower() if status else ""
-            (groups.get(st) or other).append((tk, body.strip()))
+            # status is usually a bare keyword but sometimes carries a bracketed note
+            # (e.g. "strengthening [position closed ...]") -- match by prefix, not equality,
+            # membership-check the dict (not `groups.get(st) or other` -- an empty list is
+            # falsy, so that pattern silently sent every ticker to `other` on every run).
+            st_raw = status.strip().lower() if status else ""
+            st = next((k for k in groups if st_raw.startswith(k)), None)
+            target = groups[st] if st else other
+            target.append((tk, body.strip()))
         dotcls = {"strengthening": "dot-g", "watch": "dot-w", "broken": "dot-b"}
         blocks = []
         for st in ("strengthening", "watch", "broken"):
@@ -735,6 +741,12 @@ def build(base, out):
                 f'<span class="chip" title="{esc(body[:220])}">{esc(tk)}<i>{esc(sector_map.get(tk,"-"))}</i></span>'
                 for tk, body in sorted(items))
             blocks.append(f'<div class="grp-h"><span class="{dotcls[st]}"></span>{st.title()}</div>'
+                          f'<div class="chips" style="margin-bottom:12px">{chips}</div>')
+        if other:
+            chips = "".join(
+                f'<span class="chip" title="{esc(body[:220])}">{esc(tk)}<i>{esc(sector_map.get(tk,"-"))}</i></span>'
+                for tk, body in sorted(other))
+            blocks.append(f'<div class="grp-h">Other</div>'
                           f'<div class="chips" style="margin-bottom:12px">{chips}</div>')
         H.append(f'<details><summary>Thesis map<span class="c">{len(thesis)} held</span></summary>'
                  f'<div class="body">{"".join(blocks)}'
