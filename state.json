@@ -1,156 +1,166 @@
 {
   "schema_version": 1,
-  "ts": "2026-07-29T22:30:00+05:30",
+  "ts": "2026-07-30T00:30:00+05:30",
   "mode": "quick-refresher",
   "usdinr": 95.62,
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
-  "last_run_dir": "runs/2026-07-29-2230/",
+  "last_run_dir": "runs/2026-07-30-0030/",
   "us": {
-    "value_usd": 30137.02,
-    "count": 24,
+    "value_usd": 32999.26,
+    "count": 26,
     "top3": [
       {
         "ticker": "ASML",
-        "weight_pct": 10.303
+        "weight_pct": 9.596
       },
       {
         "ticker": "GOOGL",
-        "weight_pct": 8.935
+        "weight_pct": 8.155
       },
       {
         "ticker": "DRAM",
-        "weight_pct": 7.59
+        "weight_pct": 6.976
       }
     ],
     "pnl_pct": null,
-    "wallet_usd": 7116.06,
+    "wallet_usd": 4294.91,
     "peak_value_usd": 41887.33,
     "peak_total_book_usd": 44873.02,
-    "usdinr": 95.637,
-    "beta": 1.178,
-    "value_note": "Intraday QUICK refresher, ~1pm ET (FOMC decision pending same session). Gate ESCALATING (VIX +10.2% intraday to 20.06, SMH -3.54%, both independent triggers). User deployed ~$1,797 net today (ARM/TER/NBIS/VRT/AMD +2sh each, QCOM exited to dust) since the 05:00 ET pre-open run -- captured via qty-diff on this refresher's live snapshot, not yet logged in trades.json (UNCAPTURED, see data_quality). INDmoney's per-position feed (networth_holdings) again diverged from its own aggregate by up to 79.5% on individual names (worst: SNDK) -- G32 recurrence, second time same day; repriced from live yfinance quotes, cross-validated against INDmoney's aggregate net-worth total (row-sum vs aggregate: 0.00% after correction). Equity $29,627.86 (23 positions), wallet $7,642.63, total book $37,270.49. | UPDATED same session after discovering a 7th trade (BE, new position, 3sh @ $175, 23:32 IST) via INDmoney confirmation emails -- not caught by the original 22:30 refresher since the fill postdated that snapshot. Equity now $30,137.02 (24 positions), wallet $7,116.06, total book $37,253.08. Cash regime re-evaluated post-fix (see G36): post_stop_event, 19.102% -- stop-out on 2026-07-27, ~2 sessions ago (window 15), cash 19.102% has not yet re-entered the normal band (<= 15%)",
+    "usdinr": 95.64,
+    "beta": 1.174,
+    "value_note": "FULL RECONCILIATION 2026-07-30 00:30 IST from INDmoney transaction-confirmation emails, not the holdings snapshot (per_position feed unreliable, G32). 12 trades today: SELL QCOM 6sh (stop) -> BUY TER/AMD/NBIS/ARM/VRT (DCA) -> BUY BE (new, re-entry-after-price-correction) -> BUY GLW 5sh (re-entry, was fully exited 07-24) -> BUY QCOM 3sh (re-entry, same-day buyback) -> BUY MKSI 2sh (new-entry) -> BUY MRVL/MU (DCA). Net: 26 positions (was 23), 3 new/re-entered names (BE/GLW/MKSI) unclassified pending next full sweep (G38). Equity $32,999.26 (26 positions), wallet $4,294.91, total book $37,294.17. Cash 11.516%, regime normal (stop-out 2 sessions ago but cash 11.516% has re-entered the normal band (<= 15%)). Aggregate open risk 12.107% vs 10% cap.",
     "beta_note": "Portfolio beta 1.181 vs SMH, value-weighted on today's live-repriced positions."
   },
   "holdings": [
     {
       "ticker": "ASML",
-      "qty": 2.000001151,
-      "weight_pct": 10.303
+      "qty": 2.000001,
+      "weight_pct": 9.596
     },
     {
       "ticker": "GOOGL",
       "qty": 8,
-      "weight_pct": 8.935
+      "weight_pct": 8.155
     },
     {
       "ticker": "DRAM",
       "qty": 50,
-      "weight_pct": 7.59
+      "weight_pct": 6.976
+    },
+    {
+      "ticker": "MU",
+      "qty": 3.00337,
+      "weight_pct": 6.888
     },
     {
       "ticker": "SNDK",
-      "qty": 2.008131251,
-      "weight_pct": 6.882
+      "qty": 2.008131,
+      "weight_pct": 6.387
+    },
+    {
+      "ticker": "MRVL",
+      "qty": 12.0,
+      "weight_pct": 6.124
     },
     {
       "ticker": "NVDA",
       "qty": 10,
-      "weight_pct": 6.375
+      "weight_pct": 5.829
     },
     {
       "ticker": "AVGO",
       "qty": 5,
-      "weight_pct": 6.227
-    },
-    {
-      "ticker": "MRVL",
-      "qty": 10,
-      "weight_pct": 5.507
+      "weight_pct": 5.727
     },
     {
       "ticker": "VRT",
-      "qty": 7,
-      "weight_pct": 5.221
-    },
-    {
-      "ticker": "MU",
-      "qty": 2.000365376,
-      "weight_pct": 5.155
+      "qty": 7.005923,
+      "weight_pct": 4.734
     },
     {
       "ticker": "AMD",
-      "qty": 3,
-      "weight_pct": 4.296
+      "qty": 3.006,
+      "weight_pct": 3.985
     },
     {
       "ticker": "EWY",
       "qty": 8,
-      "weight_pct": 3.885
+      "weight_pct": 3.602
     },
     {
       "ticker": "TSM",
       "qty": 3,
-      "weight_pct": 3.771
+      "weight_pct": 3.463
     },
     {
       "ticker": "COHR",
       "qty": 5,
-      "weight_pct": 3.713
+      "weight_pct": 3.433
     },
     {
       "ticker": "TER",
-      "qty": 3.002730188,
-      "weight_pct": 3.339
+      "qty": 3.00273,
+      "weight_pct": 3.006
     },
     {
       "ticker": "CLS",
-      "qty": 3.003266352,
-      "weight_pct": 3.233
+      "qty": 3.003266,
+      "weight_pct": 3.005
     },
     {
       "ticker": "ARM",
-      "qty": 4,
-      "weight_pct": 3.067
+      "qty": 4.0,
+      "weight_pct": 2.792
     },
     {
       "ticker": "GEV",
-      "qty": 1.004950742,
-      "weight_pct": 3.022
+      "qty": 1.004951,
+      "weight_pct": 2.771
     },
     {
       "ticker": "NBIS",
-      "qty": 5,
-      "weight_pct": 2.58
+      "qty": 5.0,
+      "weight_pct": 2.283
+    },
+    {
+      "ticker": "GLW",
+      "qty": 5.0,
+      "weight_pct": 1.908
+    },
+    {
+      "ticker": "MKSI",
+      "qty": 2.0,
+      "weight_pct": 1.606
     },
     {
       "ticker": "BE",
-      "qty": 3,
-      "weight_pct": 1.69
+      "qty": 3.0,
+      "weight_pct": 1.518
+    },
+    {
+      "ticker": "QCOM",
+      "qty": 3.000762,
+      "weight_pct": 1.459
     },
     {
       "ticker": "ORCL",
       "qty": 4,
-      "weight_pct": 1.575
+      "weight_pct": 1.449
     },
     {
       "ticker": "AMAT",
-      "qty": 1.0081785,
-      "weight_pct": 1.496
+      "qty": 1.008179,
+      "weight_pct": 1.373
     },
     {
       "ticker": "CIEN",
-      "qty": 1.008528082,
-      "weight_pct": 1.114
+      "qty": 1.008528,
+      "weight_pct": 1.024
     },
     {
       "ticker": "IREN",
       "qty": 10,
-      "weight_pct": 1.023
-    },
-    {
-      "ticker": "QCOM",
-      "qty": 0.000761904,
-      "weight_pct": 0.0
+      "weight_pct": 0.909
     }
   ],
   "news_watermark": "2026-07-29",
@@ -395,7 +405,8 @@
       "GE Vernova Inc.": "GEV",
       "Alibaba Group Holding Limited American Depositary Shares, each represents eight Ordinary Shares": "BABA",
       "Alphabet Inc. Class A Common Stock": "GOOGL",
-      "Bloom Energy Corporation": "BE"
+      "Bloom Energy Corporation": "BE",
+      "MKS Inc.": "MKSI"
     },
     "betas": {
       "AMAT": {
@@ -909,9 +920,16 @@
     },
     {
       "id": "G38",
-      "description": "BE (Bloom Energy) is a brand-new position (3sh, entered 2026-07-29 23:32 IST) with no sector_map cluster, no thesis, no ATR20/beta cache entry -- currently renders as 'Unclassified' everywhere (treemap, clusters table, rotation analysis) and its risk cap/stop can't be computed (missing_atr). Needs smith-thesis to assign a cluster + write a thesis line on the next full sweep, and smith-book/the ATR refresh path to seed atr20/betas for it. Also worth noting: this position was discovered via INDmoney confirmation emails, not the qty-diff detector, because the trade postdated the run's holdings snapshot -- the qty-diff method only catches trades that happened *before* the snapshot it's diffing against, never ones that happen *during* the analysis window itself. Worth considering whether TRADE RATIONALE CAPTURE (step 2.9) should also check INDmoney transaction emails (from:transactions.indmoney.com since last_run_dir's timestamp) as a second detection path, not just holdings qty-diff.",
+      "description": "BE (Bloom Energy), GLW (Corning, re-entered after full exit 07-24), and MKSI (MKS Instruments, brand new) are all newly (re-)entered positions from the 2026-07-29 evening session (3sh, entered 2026-07-29 23:32 IST) with no sector_map cluster, no thesis, no ATR20/beta cache entry -- currently renders as 'Unclassified' everywhere (treemap, clusters table, rotation analysis) and its risk cap/stop can't be computed (missing_atr). All three need smith-thesis to assign a cluster + write a thesis line on the next full sweep, and smith-book/the ATR refresh path to seed atr20/betas for it. Also worth noting: this position was discovered via INDmoney confirmation emails, not the qty-diff detector, because the trade postdated the run's holdings snapshot -- the qty-diff method only catches trades that happened *before* the snapshot it's diffing against, never ones that happen *during* the analysis window itself. Worth considering whether TRADE RATIONALE CAPTURE (step 2.9) should also check INDmoney transaction emails (from:transactions.indmoney.com since last_run_dir's timestamp) as a second detection path, not just holdings qty-diff.",
       "opened": "2026-07-29",
       "owner": "orchestrator",
+      "status": "open"
+    },
+    {
+      "id": "G39",
+      "description": "The email pull surfaced 3 more custom trade rationales beyond dollar-cost-averaging (G35): 're-entry-after-price-correction' (BE, GLW), 're-entry' (QCOM same-day buyback -- kept distinct from the price-correction framing since it's a same-day stop/rebuy, not a return after days-to-weeks), and 'new-entry' (MKSI). All three went through 'Other' rather than the 5 standard buckets. Worth a single decision pass on whether any belong as standing buckets, same as the G35 DCA promotion -- not decided unilaterally here.",
+      "opened": "2026-07-29",
+      "owner": "orchestrator (TRADE RATIONALE CAPTURE)",
       "status": "open"
     }
   ],

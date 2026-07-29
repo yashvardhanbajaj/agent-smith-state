@@ -170,7 +170,52 @@
       "qty_change": 3,
       "price_at_trade": 175.0,
       "reason": "re-entry-after-price-correction",
-      "notes": "Brand new position, first-ever BE holding in this book -- not caught by qty-diff detection since the fill (2026-07-29T18:02:22Z / 23:32:22 IST) postdated the 22:30 IST refresher's holdings snapshot; only surfaced via the INDmoney confirmation email, discovered when the user pointed Agent Smith at the inbox. Exact fill: $526.57 for 3 shares @ $175.00, Market order. User-confirmed rationale via TRADE RATIONALE CAPTURE (chosen via 'Other', not one of the 5 standard buckets): 're-enter asfter price correction' [sic] -- reading this as a deliberate re-entry into a name the user had been watching, now that its price corrected, not a stop-loss/DCA/thesis-change/raise-cash/rebalance in the standard sense. No sector_map/thesis/ATR/beta cache entry yet -- needs smith-thesis classification on the next full sweep (see the new gap opened alongside this entry)."
+      "notes": "Brand new position, first-ever BE holding in this book -- not caught by qty-diff detection since the fill (2026-07-29T18:02:22Z / 23:32:22 IST) postdated the 22:30 IST refresher's holdings snapshot; only surfaced via the INDmoney confirmation email, discovered when the user pointed Agent Smith at the inbox. Exact fill: $526.57 for 3 shares @ $175.00, Market order. User-confirmed rationale via TRADE RATIONALE CAPTURE (chosen via 'Other', not one of the 5 standard buckets): 're-enter asfter price correction' [sic] -- reading this as a deliberate re-entry into a name the user had been watching, now that its price corrected, not a stop-loss/DCA/thesis-change/raise-cash/rebalance in the standard sense. No sector_map/thesis/ATR/beta cache entry yet -- needs smith-thesis classification on the next full sweep (see G38)."
+    },
+    {
+      "date": "2026-07-29",
+      "ticker": "GLW",
+      "action": "entry",
+      "qty_change": 5,
+      "price_at_trade": 128.86,
+      "reason": "re-entry-after-price-correction",
+      "notes": "Re-entered after the full stop-out exit on 2026-07-24 (10sh sold @ $151.90). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:50:14Z (2026-07-30T00:20:14 IST): $646.23 for 5 shares @ $128.86, Market order -- about 15% below the exit price. Discovered via the full email pull, not qty-diff (postdated all prior snapshots this session). User-confirmed rationale (chosen via 'Other'): 're-enter after correction'. No sector_map/thesis/ATR/beta cache entry -- needs smith-thesis classification (see G38)."
+    },
+    {
+      "date": "2026-07-29",
+      "ticker": "QCOM",
+      "action": "entry",
+      "qty_change": 3,
+      "price_at_trade": 163.51,
+      "reason": "re-entry",
+      "notes": "Bought back a few hours after the same-day stop-out (6sh sold 13:30:36Z @ $162.01, this fill 18:51:11Z / 2026-07-30T00:21:11 IST @ $163.51, essentially flat to the stop price). Net today: -6+3 = -3sh vs this morning's baseline. Exact fill: $492.00 for 3 shares, Market order. User-confirmed rationale (chosen via 'Other'): 're-enter' -- distinct from the GLW/BE 're-entry-after-price-correction' answers since this is a same-day re-entry after a stop, not a return to a name exited days/weeks earlier; kept as a separate reason string rather than merged, pending a decision on whether it deserves its own bucket."
+    },
+    {
+      "date": "2026-07-29",
+      "ticker": "MKSI",
+      "action": "entry",
+      "qty_change": 2,
+      "price_at_trade": 272.72,
+      "reason": "new-entry",
+      "notes": "Brand new position, first-ever MKSI (MKS Instruments) holding in this book. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:54:23Z (2026-07-30T00:24:23 IST): $547.08 for 2 shares @ $272.72, Market order. User-confirmed rationale (chosen via 'Other'): 'new entry' -- distinct from the DCA/re-entry answers since this is a genuinely first-time position, not adding to or returning to anything. No sector_map/thesis/ATR/beta cache entry -- needs smith-thesis classification (see G38)."
+    },
+    {
+      "date": "2026-07-29",
+      "ticker": "MRVL",
+      "action": "add",
+      "qty_change": 2,
+      "price_at_trade": 175.59,
+      "reason": "dollar-cost-averaging",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE: dollar-cost-averaging. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:54:58Z (2026-07-30T00:24:58 IST): $352.24 for 2 shares @ $175.59, Market order."
+    },
+    {
+      "date": "2026-07-29",
+      "ticker": "MU",
+      "action": "add",
+      "qty_change": 1.003005,
+      "price_at_trade": 788.81,
+      "reason": "dollar-cost-averaging",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE: dollar-cost-averaging. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:55:10Z (2026-07-30T00:25:10 IST): $791.18 for ~1.003 shares @ $788.81, Market order."
     }
   ],
   "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out."
