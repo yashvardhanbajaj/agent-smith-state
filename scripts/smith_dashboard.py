@@ -94,6 +94,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
 .masthead .meta{text-align:right;color:var(--ink-2);font-size:12.5px;line-height:1.6}
 .masthead .meta b{color:var(--ink)}
 
+.statusstrip{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+
 .tier{margin:30px 0 12px;display:flex;align-items:center;gap:12px}
 .tier h2{font-family:var(--serif);font-size:13px;font-weight:600;margin:0;
   text-transform:uppercase;letter-spacing:1.4px;color:var(--ink-3);white-space:nowrap}
@@ -169,6 +171,11 @@ def build(base, out):
     narr = load(os.path.join(base, "narrative.json"), {}) or {}
     ch = charts(base)
 
+    # Latest run's compute outputs, if available -- optional, graceful degradation.
+    last_run_dir = state.get("last_run_dir", "")
+    drift = load(os.path.join(base, last_run_dir, "compute_drift.json"), {}) or {} if last_run_dir else {}
+    market_inputs = load(os.path.join(base, last_run_dir, "market_inputs.json"), {}) or {} if last_run_dir else {}
+
     us = state.get("us", {})
     equity = us.get("value_usd") or 0
     cash = us.get("wallet_usd") or 0
@@ -190,6 +197,26 @@ def build(base, out):
     H.append(f'<div class="masthead"><div><h1>Agent Smith &mdash; US Book</h1></div>'
              f'<div class="meta"><b>${total:,.0f}</b> total book<br>'
              f'{esc(ts[:16].replace("T"," "))} &middot; {esc(state.get("mode",""))}</div></div>')
+
+    # ---------------- STATUS STRIP ----------------
+    sentiment = state.get("sentiment", {})
+    gate = market_inputs.get("gate_classification") or drift.get("gate_classification")
+    ai_capex_pct = drift.get("ai_capex_pct")
+    strip = []
+    strip.append(('bad' if abs(dd) >= 15 else ('warn' if abs(dd) >= 10 else 'good'),
+                   f'Drawdown {dd:.1f}%'))
+    strip.append(('bad' if (cash_pct < band[0] or cash_pct > band[1]) else 'good',
+                   f'Cash {cash_pct:.1f}%'))
+    if gate:
+        strip.append(({'ESCALATING': 'bad', 'AMBIGUOUS': 'warn', 'STABILIZING': 'good'}.get(gate, 'neutral'),
+                       f'Gate {gate.title()}'))
+    if sentiment.get("band"):
+        strip.append(('neutral', f'Sentiment {esc(sentiment.get("band",""))} ({sentiment.get("score","-")})'))
+    if ai_capex_pct is not None:
+        strip.append(('warn' if ai_capex_pct >= 90 else 'neutral', f'AI-capex {ai_capex_pct:.0f}% of equity'))
+    if strip:
+        H.append('<div class="statusstrip">' + "".join(
+            f'<span class="pill {cls}">{esc(txt)}</span>' for cls, txt in strip) + '</div>')
 
     # ---------------- TIER 1 : DECISIONS ----------------
     H.append('<div class="tier"><h2>Decisions</h2><div class="rule"></div></div>')
@@ -236,6 +263,40 @@ def build(base, out):
     H.append('<div class="viz-note">Proposals are for review &mdash; nothing is ever '
              'executed automatically.</div></section>')
 
+    # the read -- session narrative, always open, one sentence visible per the prose rule
+    for key, label in (("session_read", "The read"), ("macro", "Macro")):
+        text = narr.get(key)
+        if not text:
+            continue
+        head = text.split(". ")[0]
+        if len(head) > 180:
+            head = head[:180].rsplit(" ", 1)[0]
+        short = head.rstrip(" ,;:-") + "."
+        rest = text[len(head):].strip(" .")
+        more = (f'<details><summary>more</summary><div class="body">{esc(rest)}</div></details>'
+                if len(rest) > 40 else "")
+        H.append(f'<section class="card"><h2>{esc(label)}</h2>'
+                 f'<div style="font-size:13px;color:var(--ink-2);line-height:1.55">{esc(short)}</div>'
+                 f'{more}</section>')
+
+    # factor catalysts -- named, dated, sourced events affecting the book's factor
+    catalysts = state.get("factor_catalysts", [])
+    if catalysts:
+        rows = []
+        for c in catalysts[:6]:
+            dirn = c.get("direction", "")
+            cls = {"threat": "bad", "tailwind": "good"}.get(dirn, "neutral")
+            affects = ", ".join(c.get("affects", []))
+            exp = c.get("exposure_pct_equity")
+            exp_s = f'{exp:.1f}% equity' if isinstance(exp, (int, float)) else ""
+            rows.append(f'<div class="decision"><div class="n" style="border:none">'
+                        f'<span class="pill {cls}" style="width:100%">{esc(dirn or "-")}</span></div>'
+                        f'<div><div class="t">{esc(c.get("headline",""))}</div>'
+                        f'<div class="why">{esc(c.get("magnitude",""))} &mdash; affects {esc(affects)}'
+                        f'{" (" + exp_s + ")" if exp_s else ""}</div></div>'
+                        f'<div class="amt" style="font-size:11px;color:var(--ink-3)">{esc(c.get("date",""))}</div></div>')
+        H.append('<section class="card"><h2>Factor catalysts</h2>' + "".join(rows) + '</section>')
+
     # ---------------- TIER 2 : BOOK STATE ----------------
     H.append('<div class="tier"><h2>Book state</h2><div class="rule"></div></div>')
 
@@ -260,6 +321,49 @@ def build(base, out):
     H.append(fig(ch.get("drawdown"), "Drawdown vs trim ladder", "pre-committed rungs"))
     H.append(fig(ch.get("relative"), "Book vs SMH", "per period, clean data only"))
     H.append(fig(ch.get("weights"), "Position weights", f"against the {cap}% cap"))
+
+    # clusters -- equity% and book% side by side, vs policy target/band
+    cluster_table = drift.get("cluster_table", [])
+    if cluster_table:
+        rows = []
+        for c in sorted(cluster_table, key=lambda r: -r.get("actual_pct_of_equity", r.get("actual_pct", 0))):
+            breach = c.get("breach")
+            cls = "bad" if breach else "good"
+            band_c = c.get("band_pct", ["-", "-"])
+            rows.append(f'<tr><td class="tk">{esc(c.get("cluster",""))}</td>'
+                        f'<td class="num">{c.get("actual_pct_of_equity", c.get("actual_pct",0)):.1f}%</td>'
+                        f'<td class="num">{c.get("actual_pct_of_total_book", 0):.1f}%</td>'
+                        f'<td class="num">{c.get("target_pct",0):.0f}%</td>'
+                        f'<td class="num" style="color:var(--ink-3)">[{band_c[0]},{band_c[1]}]%</td>'
+                        f'<td><span class="pill {cls}">{"breach" if breach else "ok"}</span></td></tr>')
+        H.append('<section class="card"><h2>Clusters</h2><div class="table-wrap"><table>'
+                 '<thead><tr><th>Cluster</th><th>% equity</th><th>% book</th><th>Target</th>'
+                 '<th>Band</th><th>Status</th></tr></thead><tbody>' + "".join(rows)
+                 + '</tbody></table></div></section>')
+
+    # risk-cap breaches -- qualitative flag from open_flags (structured ATR-based caps
+    # require live ATR20, refreshed on deep runs only; rendered as-flagged, not recomputed)
+    risk_flags = [f for f in state.get("open_flags", [])
+                  if "RISK-CAP" in f.get("ticker", "").upper() or "risk cap" in f.get("flag", "").lower()]
+    if risk_flags:
+        rows = "".join(f'<tr><td class="tk">{esc(f.get("ticker",""))}</td>'
+                       f'<td>{esc(f.get("flag",""))}</td>'
+                       f'<td style="color:var(--ink-3);font-size:11px;white-space:nowrap">{esc(f.get("opened",""))}</td></tr>'
+                       for f in risk_flags)
+        H.append('<section class="card"><h2>Risk-cap breaches</h2><div class="table-wrap"><table>'
+                 '<tbody>' + rows + '</tbody></table></div></section>')
+
+    # full positions table
+    holdings = sorted(state.get("holdings", []), key=lambda h: -h.get("weight_pct", 0))
+    if holdings:
+        rows = "".join(f'<tr><td class="tk">{esc(h.get("ticker",""))}</td>'
+                       f'<td class="num">{h.get("qty",0):g}</td>'
+                       f'<td class="num">{h.get("weight_pct",0):.2f}%</td></tr>'
+                       for h in holdings)
+        H.append('<section class="card"><h2>Positions<span class="sub">'
+                 f'{len(holdings)} names</span></h2><div class="table-wrap"><table>'
+                 '<thead><tr><th>Ticker</th><th>Qty</th><th>Weight</th></tr></thead>'
+                 '<tbody>' + rows + '</tbody></table></div></section>')
 
     # ---------------- TIER 3 : DIAGNOSTICS ----------------
     H.append('<div class="tier"><h2>Diagnostics</h2><div class="rule"></div></div>')
@@ -295,12 +399,6 @@ def build(base, out):
                  f'<span class="c">{len(sig)} names</span></summary><div class="body">'
                  f'<div class="table-wrap"><table><tbody>{items}</tbody></table></div>'
                  f'</div></details></section>')
-
-    # narrative slots (session read / macro) -- collapsed, one line visible
-    for key, label in (("session_read", "Session read"), ("macro", "Macro regime")):
-        if narr.get(key):
-            H.append(f'<section class="card"><details><summary>{label}</summary>'
-                     f'<div class="body">{esc(narr[key])}</div></details></section>')
 
     # gaps
     gaps = state.get("known_gaps", [])
