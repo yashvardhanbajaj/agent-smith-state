@@ -153,20 +153,29 @@ dropped four SVG charts and the entire Diagnostics tier, regressing work done in
 diff the new file against the last published version: if section count or byte size falls materially, you are deleting
 someone's work — stop and merge instead of overwriting.** The dashboard is cumulative; sections are added, not replaced.
 
-REQUIRED SECTIONS (a rebuild missing any of these is incomplete):
-- Status strip · Decisions tier: open proposals + factor catalysts + the read
-- Book state tier: **book value & cash** (stacked, every ledger row, corrupt readings ringed not dropped) ·
-  **drawdown vs the trim ladder** (total-book basis, all four rungs drawn) · **book vs SMH per clean period** ·
-  **position weights vs the 12% cap** (amber = over its ATR risk cap)
-- Clusters (equity% and book% side by side) · risk-cap breaches · full positions table
-- Diagnostics tier, collapsed: thesis map · signal history · open data gaps
+REQUIRED SECTIONS (a rebuild missing any of these is incomplete — revised 2026-07-29, G34: the prior list described an
+older, leaner 3-tier design; this one matches what the generator actually produces now):
+- Masthead · Status strip (6 cells: total book, equity, cash%+band, drawdown, open risk%+cap, AI-capex%)
+- Decisions tier: open proposals · factor catalysts · **rotation analysis** (accumulate / rotate out / trim — risk cap,
+  rule-based per `scripts/smith_risk.py`'s `SIGNAL_POLARITY` table) · the read · macro strip (10-yr, VIX, SMH, worst
+  Asia index, Fed, beta vs SMH)
+- Sentiment gauge + intraday & international session (side by side)
+- The week ahead (earnings/FOMC calendar, 6 days forward)
+- Book composition tier: **allocation treemap** (squarified, color by cluster, red outline = over risk cap) ·
+  clusters (equity% and book% side by side, target-band meter) · **risk-cap breaches** (from `compute_risk.json`'s
+  real ATR-based caps, not a qualitative flag match) · full positions table (ticker, cluster, qty, price, value,
+  weight, ATR20, beta, stop, stop price, cap, headroom)
+- Diagnostics tier, collapsed: thesis map (grouped by status) · signal history (grouped bullish/bearish, struck-through
+  for no-longer-held tickers) · open (non-closed) data gaps · **Historical charts** (the 4 original SVG charts —
+  book value & cash, drawdown ladder, book vs SMH, weights vs cap — as their own collapsed panel, not the always-open
+  KPI tier those used to live in)
 
-GENERATED, NOT HAND-WRITTEN (changed 2026-07-26). Do NOT author dashboard HTML yourself — the same compute-first rule that governs arithmetic governs the dashboard. Run:
-- `python3 scripts/smith_dashboard.py --base-dir .` → rewrites `dashboard.html` from state.json/policy.json/ledger.csv/proposals.json plus `narrative.json`, embedding four inline-SVG charts produced by `scripts/smith_charts.py` (book value + cash stacked area, drawdown-vs-trim-ladder meter, per-period book-vs-SMH diverging bars, position weights vs cap).
+GENERATED, NOT HAND-WRITTEN (changed 2026-07-26; extended 2026-07-29 per G34). Do NOT author dashboard HTML yourself — the same compute-first rule that governs arithmetic governs the dashboard. Compute pipeline order matters: `book → risk → drift → rotation → sentiment → proposals → validate` (both `risk` and `rotation` are new `smith_math.py` subcommands — `risk` needs `compute_book.json` in the run-dir first, `rotation` needs `compute_risk.json`). Then run:
+- `python3 scripts/smith_dashboard.py --base-dir .` → rewrites `dashboard.html` from state.json/policy.json/ledger.csv/proposals.json plus `narrative.json`, embedding five inline-SVG charts produced by `scripts/smith_charts.py` (book value + cash stacked area, drawdown-vs-trim-ladder meter, per-period book-vs-SMH diverging bars, position weights vs cap, and the allocation treemap).
 
-Before running it, write `narrative.json` — `{"session_read": "...", "macro": "..."}` — with this run's judgment prose (both optional; omit a key and its panel is skipped). That file is the ONLY place narrative belongs; everything else the builder derives.
+Before running it, write `narrative.json` — `{"session_read": "..."}` — with this run's judgment prose (optional; omit the key and the "the read" panel is skipped). The macro strip next to it is NOT narrative — it's pulled straight from `market_inputs.json`/`state.fomc_cache`/`compute_book.json`, never hand-typed.
 
-STRUCTURE the builder enforces, and the reason for it: the old layout was 16 flat sections at equal weight, 3,164 words, ~14 min of reading, with proposals buried at section 11 and zero charts. It was the chat briefing transcribed into HTML. Three tiers now: **DECISIONS** (breaches + open proposals, always open, first), **BOOK STATE** (KPI row + the four charts, always open), **DIAGNOSTICS** (thesis map, signal history, data gaps — collapsed `<details>`). Prose rule: one sentence inline, anything longer inside `<details>`. Don't reintroduce narrative panels — the briefing in chat already carries the narrative.
+STRUCTURE the builder enforces, and the reason for it: the old 16-flat-section layout (3,164 words, proposals buried at section 11, zero charts) was replaced 2026-07-26 with a leaner 3-tier design, which was itself found 2026-07-29 (G34) to have fallen behind a richer version that got hand-authored once and never ported into the generator. The current structure is the richer one, generated properly this time: **DECISIONS** (proposals, catalysts, rotation, the read — always open, first), a sentiment/session pair, a week-ahead calendar, **BOOK COMPOSITION** (treemap, clusters, risk caps, positions — always open), **DIAGNOSTICS** (thesis, signals, gaps, plus historical charts — collapsed). Prose rule: one sentence inline, anything longer inside `<details>`. The chat briefing still carries the narrative — the dashboard's own prose stays to "the read" and macro numbers, not a second copy of the full briefing.
 
 Charts follow the `dataviz` skill: validated palette (blue/yellow/red passed the six checks in both modes), one axis per chart and never a dual axis, direct labels on the light-mode yellow (sub-3:1, relief rule), `<title>` hover on every mark. If you change chart code, re-run `scripts/validate_palette.js` and re-render to look at it before shipping.
 

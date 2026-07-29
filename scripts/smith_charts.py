@@ -17,6 +17,7 @@ Usage:
   smith_charts.py relative  --base-dir DIR
   smith_charts.py drawdown  --base-dir DIR
   smith_charts.py weights   --base-dir DIR
+  smith_charts.py treemap   --base-dir DIR
 """
 import argparse
 import csv
@@ -25,7 +26,27 @@ import os
 import sys
 from datetime import datetime
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import smith_risk
+
 DEFAULT_BASE = "/Users/yb/Claude/AgentSmith"
+
+# Cluster name (policy.json's cluster_targets keys) -> CSS custom property.
+# Colors for the 6 clusters with historical nonzero weight are carried from the
+# archived 2026-07-28 reference render (visually reasonable, already seen live);
+# the 2 currently-zero-weight clusters (diversified/software) and ALL 8 dark-mode
+# variants are new and have NOT been run through the dataviz skill's six-check
+# contrast validation yet -- flagged here rather than silently shipped as final.
+CLUSTER_COLOR_VAR = {
+    "AI Semis/Fabs": "--cl-semis",
+    "AI Memory/Storage": "--cl-memory",
+    "AI Networking/Optics": "--cl-networking",
+    "AI Power/Cooling/DC Infra": "--cl-power",
+    "Compute/Hyperscaler OEM": "--cl-compute-oem",
+    "Compute/Hyperscaler": "--cl-hyperscaler",
+    "Diversified/Regional ETF": "--cl-diversified",
+    "Enterprise Software": "--cl-software",
+}
 
 # --- validated palette roles (see module docstring) -------------------------
 # Emitted as CSS vars so light/dark swap in one place and marks reference roles.
@@ -34,17 +55,26 @@ PALETTE_CSS = """
       --ink-1:#14181c; --ink-2:#4a5157; --ink-3:#7c8389;
       --equity:#2a78d6; --cash:#eda100; --pos:#2a78d6; --neg:#d03b3b;
       --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
-      --muted:#b6bbbd; }
+      --muted:#b6bbbd;
+      --cl-semis:#5b8fa8; --cl-memory:#b8862b; --cl-networking:#7a6ca8;
+      --cl-power:#3f8f6b; --cl-compute-oem:#a86f5b; --cl-hyperscaler:#4a6fa5;
+      --cl-diversified:#6b7c8f; --cl-software:#8a8a4a; }
 @media (prefers-color-scheme: dark){ :root:where(:not([data-theme="light"])) .viz{
       --surface-1:#171a1d; --grid:#262a2e; --axis:#3a4045;
       --ink-1:#e8eaec; --ink-2:#a7adb2; --ink-3:#71787d;
       --equity:#3987e5; --cash:#c98500; --pos:#3987e5; --neg:#d03b3b;
-      --muted:#4d5457; } }
+      --muted:#4d5457;
+      --cl-semis:#7fb0c9; --cl-memory:#d9a34f; --cl-networking:#9a8cc8;
+      --cl-power:#5fb08b; --cl-compute-oem:#c98f7b; --cl-hyperscaler:#6a8fc5;
+      --cl-diversified:#8b9cad; --cl-software:#aaaa6a; } }
 :root[data-theme="dark"] .viz{
       --surface-1:#171a1d; --grid:#262a2e; --axis:#3a4045;
       --ink-1:#e8eaec; --ink-2:#a7adb2; --ink-3:#71787d;
       --equity:#3987e5; --cash:#c98500; --pos:#3987e5; --neg:#d03b3b;
-      --muted:#4d5457; }
+      --muted:#4d5457;
+      --cl-semis:#7fb0c9; --cl-memory:#d9a34f; --cl-networking:#9a8cc8;
+      --cl-power:#5fb08b; --cl-compute-oem:#c98f7b; --cl-hyperscaler:#6a8fc5;
+      --cl-diversified:#8b9cad; --cl-software:#aaaa6a; }
 .viz text{ font-family:ui-monospace,"SF Mono",Consolas,monospace; }
 .viz .lbl{ font-family:-apple-system,"Segoe UI",Inter,Roboto,sans-serif; }
 .viz .mark{ transition:opacity .12s; }
@@ -421,8 +451,143 @@ def chart_weights(base):
             "note": (f"Breaching: {', '.join(br)}." if br else "No position breaches the cap.")}
 
 
+# ---------------------------------------------------------------------------
+# 5. ALLOCATION TREEMAP -- squarified layout (Bruls/Huizing/van Wijk), sized by
+#    weight, colored by cluster, red outline where a position is over its ATR
+#    risk cap. G34: was hand-authored once with baked-in rect coordinates,
+#    never a generator; this is the from-scratch layout algorithm.
+# ---------------------------------------------------------------------------
+def _squarify_worst(row, length):
+    if not row:
+        return float("inf")
+    s = sum(row)
+    row_max, row_min = max(row), min(row)
+    side2 = (s / length) ** 2 if length else float("inf")
+    if row_min <= 0 or side2 <= 0:
+        return float("inf")
+    return max(side2 / row_min, row_max / side2)
+
+
+def _squarify_row_rects(row, x, y, w, h, horizontal):
+    row_sum = sum(row)
+    rects = []
+    if horizontal:
+        thickness = row_sum / w if w else 0
+        cx = x
+        for s in row:
+            rw = s / thickness if thickness else 0
+            rects.append((cx, y, rw, thickness))
+            cx += rw
+    else:
+        thickness = row_sum / h if h else 0
+        cy = y
+        for s in row:
+            rh = s / thickness if thickness else 0
+            rects.append((x, cy, thickness, rh))
+            cy += rh
+    return rects, thickness
+
+
+def squarify(sizes, x, y, w, h):
+    """sizes: positive floats (already area-normalized to sum(sizes) == w*h,
+    sorted descending by caller). Returns rects [(x,y,w,h), ...] in the same
+    order as sizes. Standard squarified-treemap algorithm, no dependencies."""
+    sizes = list(sizes)
+    if not sizes:
+        return []
+    rects, row = [], []
+    rx, ry, rw, rh = x, y, w, h
+    i = 0
+    while i < len(sizes):
+        horizontal = rw >= rh
+        length = rw if horizontal else rh
+        if not row:
+            row = [sizes[i]]
+            i += 1
+            continue
+        candidate = row + [sizes[i]]
+        if _squarify_worst(candidate, length) <= _squarify_worst(row, length):
+            row = candidate
+            i += 1
+        else:
+            row_rects, thickness = _squarify_row_rects(row, rx, ry, rw, rh, horizontal)
+            rects.extend(row_rects)
+            if horizontal:
+                ry, rh = ry + thickness, rh - thickness
+            else:
+                rx, rw = rx + thickness, rw - thickness
+            row = []
+    if row:
+        horizontal = rw >= rh
+        row_rects, _ = _squarify_row_rects(row, rx, ry, rw, rh, horizontal)
+        rects.extend(row_rects)
+    return rects
+
+
+def chart_treemap(base):
+    state = json.load(open(os.path.join(base, "state.json")))
+    policy = json.load(open(os.path.join(base, "policy.json")))
+    us = state.get("us", {})
+    value_usd = us.get("value_usd") or 0
+    wallet_usd = us.get("wallet_usd") or 0
+    total_book_usd = value_usd + wallet_usd
+    sector_map = state.get("sector_map", {})
+    atr_cache = state.get("data_cache", {}).get("atr20", {}).get("values_pct", {})
+
+    holdings = sorted(state.get("holdings", []), key=lambda h: -(h.get("weight_pct") or 0))
+    if not holdings or not value_usd:
+        return {"svg": "", "note": "no holdings/equity in state"}
+
+    W, H = 760, 320
+    items = []
+    for hd in holdings:
+        ticker, w_pct, qty = hd["ticker"], hd.get("weight_pct") or 0, hd.get("qty")
+        if w_pct <= 0:
+            continue
+        market_value_usd = w_pct / 100 * value_usd
+        price_usd = (market_value_usd / qty) if qty else None
+        r = smith_risk.stop_and_cap(atr_cache.get(ticker), price_usd, qty, total_book_usd, policy)
+        cluster = sector_map.get(ticker, "Unclassified")
+        items.append({"ticker": ticker, "weight_pct": w_pct, "market_value_usd": market_value_usd,
+                      "cluster": cluster, "over_cap": r["over_cap"]})
+
+    total_w = sum(it["weight_pct"] for it in items) or 1.0
+    areas = [it["weight_pct"] / total_w * (W * H) for it in items]
+    rects = squarify(areas, 0, 0, W, H)
+
+    s = [f'<svg class="viz-svg" viewBox="0 0 {W} {H}" width="100%" '
+         f'preserveAspectRatio="xMidYMid meet" role="img" '
+         f'aria-label="Position allocation treemap, size by weight, color by cluster">']
+    clusters_seen = []
+    for it, (rx, ry, rw, rh) in zip(items, rects):
+        var = CLUSTER_COLOR_VAR.get(it["cluster"], "--muted")
+        if it["cluster"] not in clusters_seen:
+            clusters_seen.append(it["cluster"])
+        stroke = ('stroke="var(--critical)" stroke-width="2.5"' if it["over_cap"]
+                  else 'stroke="var(--surface-1)" stroke-width="1.5"')
+        cap_note = "  (OVER RISK CAP)" if it["over_cap"] else ""
+        s.append(f'<rect class="mark" x="{rx:.1f}" y="{ry:.1f}" width="{max(rw,0):.1f}" '
+                 f'height="{max(rh,0):.1f}" fill="var({var})" fill-opacity="0.85" {stroke}>'
+                 f'<title>{esc(it["ticker"])} &#8212; {it["weight_pct"]:.2f}% of equity &#8212; '
+                 f'${it["market_value_usd"]:,.0f} &#8212; {esc(it["cluster"])}{cap_note}</title></rect>')
+        if rw > 34 and rh > 20:
+            s.append(f'<text x="{rx+6:.1f}" y="{ry+17:.1f}" font-size="12" font-weight="700" '
+                     f'fill="#fff">{esc(it["ticker"])}</text>')
+        if rw > 34 and rh > 32:
+            s.append(f'<text x="{rx+6:.1f}" y="{ry+32:.1f}" font-size="10" fill="#ffffffcc">'
+                     f'{it["weight_pct"]:.1f}%</text>')
+    s.append("</svg>")
+
+    legend = [(f"var({CLUSTER_COLOR_VAR.get(c, '--muted')})", c) for c in clusters_seen]
+    return {"svg": "\n".join(s), "legend": legend,
+            "note": ("Not shown: a correlation heatmap. On a book this concentrated in one factor "
+                     "every pair correlates near 1.0 -- it would render as a wall of red saying "
+                     "nothing a treemap doesn't already say faster.")}
+
+
 CHARTS = {"bookvalue": chart_bookvalue, "relative": chart_relative,
-          "drawdown": chart_drawdown, "weights": chart_weights}
+          "drawdown": chart_drawdown, "weights": chart_weights,
+          "treemap": chart_treemap}
 
 
 def main():

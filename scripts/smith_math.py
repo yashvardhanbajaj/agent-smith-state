@@ -26,6 +26,9 @@ import os
 import sys
 from datetime import date, datetime
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import smith_risk
+
 DEFAULT_BASE = "/Users/yb/Claude/AgentSmith"
 
 # Clusters counted toward the combined "AI-capex chain" factor exposure.
@@ -305,6 +308,65 @@ def cmd_book(args):
         "persist_safe": persist_safe,
         "qty_changes": qty_changes, "est_net_flows_usd": round(est_net_flows_usd, 2),
         "positions": positions,
+        "data_quality": data_quality,
+    })
+
+
+# ---------------------------------------------------------------------------
+# risk -- ATR-based per-name stop/cap/headroom (G34: was hand-authored once,
+# never in scripts/; formula lives in smith_risk.py, shared with the treemap)
+# ---------------------------------------------------------------------------
+def cmd_risk(args):
+    book = load_json(os.path.join(args.run_dir, "compute_book.json"))
+    state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    policy = load_json(os.path.join(args.base_dir, "policy.json"), default={})
+
+    total_book_usd = book.get("total_book_usd")
+    sector_map = state.get("sector_map", {})
+    atr_cache = state.get("data_cache", {}).get("atr20", {}).get("values_pct", {})
+    betas_cache = state.get("data_cache", {}).get("betas", {})
+
+    missing_atr, missing_beta = [], []
+    rows = []
+    agg_open_risk_usd = 0.0
+    for p in book.get("positions", []):
+        ticker = p["ticker"]
+        atr_pct = atr_cache.get(ticker)
+        if atr_pct is None:
+            missing_atr.append(ticker)
+        beta_entry = betas_cache.get(ticker)
+        beta = beta_entry.get("value") if isinstance(beta_entry, dict) else beta_entry
+        if beta is None:
+            missing_beta.append(ticker)
+
+        r = smith_risk.stop_and_cap(atr_pct, p.get("price_usd"), p.get("qty"), total_book_usd, policy)
+        r["ticker"] = ticker
+        r["cluster"] = sector_map.get(ticker, "Unclassified")
+        r["beta"] = beta
+        rows.append(r)
+        if r["position_open_risk_usd"]:
+            agg_open_risk_usd += r["position_open_risk_usd"]
+
+    agg_cap_pct = (policy.get("stop_loss_framework", {}) or {}).get("aggregate_open_risk_cap_pct_of_book",
+                   policy.get("aggregate_open_risk_cap_pct_of_book"))
+    agg_open_risk_pct = round(agg_open_risk_usd / total_book_usd * 100, 3) if total_book_usd else None
+
+    data_quality = []
+    if missing_atr:
+        data_quality.append(f"ATR20 missing for {len(missing_atr)} held names (no data_cache entry): "
+                             f"{', '.join(missing_atr)} -- stop/cap/headroom left null, never estimated")
+    if missing_beta:
+        data_quality.append(f"beta missing for {len(missing_beta)} held names: {', '.join(missing_beta)}")
+
+    emit({
+        "total_book_usd": total_book_usd,
+        "positions": rows,
+        "aggregate_open_risk_usd": round(agg_open_risk_usd, 2),
+        "aggregate_open_risk_pct": agg_open_risk_pct,
+        "aggregate_open_risk_cap_pct": agg_cap_pct,
+        "aggregate_over_cap": bool(agg_cap_pct is not None and agg_open_risk_pct is not None
+                                    and agg_open_risk_pct > agg_cap_pct),
+        "missing_atr": missing_atr, "missing_beta": missing_beta,
         "data_quality": data_quality,
     })
 
@@ -801,6 +863,42 @@ def cmd_drift(args):
 
 
 # ---------------------------------------------------------------------------
+# rotation -- accumulate/rotate-out/trim-risk-cap classification per ticker.
+# Needs risk (compute_risk.json) to have run first in this run-dir.
+# ---------------------------------------------------------------------------
+def cmd_rotation(args):
+    state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    risk = load_json(os.path.join(args.run_dir, "compute_risk.json"), default=None)
+    polarity_table_json = {k: sorted(v) for k, v in smith_risk.SIGNAL_POLARITY.items()}
+
+    if risk is None:
+        emit({"tickers": {}, "polarity_table": polarity_table_json,
+              "data_quality": ["compute_risk.json not found in run-dir -- run `risk` before `rotation`"]})
+        return
+
+    signal_history = state.get("signal_history", {})
+    thesis = state.get("thesis", {})
+    risk_by_ticker = {r["ticker"]: r for r in risk.get("positions", [])}
+
+    tickers = {}
+    for ticker, r in risk_by_ticker.items():
+        body, _, status = (thesis.get(ticker, "") or "").rpartition("|")
+        thesis_status = status.strip().lower() if status else None
+        polarity = smith_risk.classify_signal_polarity(signal_history.get(ticker, []))
+        over_cap = bool(r.get("over_cap"))
+        bucket = smith_risk.rotation_bucket(over_cap, thesis_status, polarity["net"])
+        tickers[ticker] = {
+            "cluster": r.get("cluster"), "thesis_status": thesis_status,
+            "net_signal": polarity["net"], "bullish_buckets": polarity["bullish"],
+            "bearish_buckets": polarity["bearish"],
+            "headroom_usd": r.get("headroom_usd"), "over_cap": over_cap,
+            "cap_multiple": r.get("cap_multiple"), "bucket": bucket,
+        }
+
+    emit({"tickers": tickers, "polarity_table": polarity_table_json, "data_quality": []})
+
+
+# ---------------------------------------------------------------------------
 # sentiment
 # ---------------------------------------------------------------------------
 def cmd_sentiment(args):
@@ -995,7 +1093,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    for name in ("book", "journal", "attribution", "drift"):
+    for name in ("book", "journal", "attribution", "drift", "risk", "rotation"):
         sp = sub.add_parser(name)
         sp.add_argument("--base-dir", default=DEFAULT_BASE)
         sp.add_argument("--run-dir", required=True, help="this run's directory containing holdings.json")
@@ -1021,7 +1119,8 @@ def main():
     args = p.parse_args()
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
-         "drift": cmd_drift, "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals}[args.cmd](args)
+         "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation,
+         "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")
 
