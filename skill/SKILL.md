@@ -21,6 +21,7 @@ Check `/Users/yb/Claude/AgentSmith/.running`. If it exists with a timestamp <30 
 ### 0.5. INTRADAY REFRESHER CHECK (quick mode only, before full MEMORY load)
 Check ledger.csv for a row with today's date. If one exists AND this is a quick invocation (not explicit "deep"/"full"/"fresh sweep"): enter REFRESHER MODE.
 - ONE networth_holdings(US_STOCK) call for live prices only. Build a minimal holdings.json and run `smith_math.py book` + `attribution` against it for fresh deltas — no sub-agent dispatch, reuse the last run's `runs/<ts>/` sub-agent outputs wholesale for everything else.
+- If `book`'s `qty_changes` shows any position not yet in trades.json (same check as step 2.9 below), run TRADE RATIONALE CAPTURE before writing the briefing — a refresher is exactly where same-day trades first surface, this is not full-sweep-only.
 - Briefing = today's earlier analysis + the script's fresh price deltas. One Operator-voiced line marks it: "Same book, fresh prices. Deltas only."
 - NO sub-agent dispatch. NO new ledger row. NO journal changes. Dashboard: refresh only the live numbers.
 - If user explicitly asks for "fresh sweep" even after a same-day run exists, ignore this section and run full flow.
@@ -92,6 +93,26 @@ Measured 2026-07-28: a quick run was costing ~119KB of raw payload (~33k tokens)
 - **Daily bars**: yfinance auto-aggregates to weekly for `period >= 3mo`, and caps rows per symbol when many symbols are requested. To force true daily bars use `period='1mo'` with **at most 3 symbols per call** — that reliably returns ~21 daily rows each. ATR20, beta and RSI14 all depend on this.
 - **Earnings dates**: use `get_earnings` and take the latest quarterly `reportedDate` + ~91 days; cross-check near-dated names against FMP's earnings-calendar range endpoint. yfinance's own earnings-calendar endpoint is unreliable (was G20). FMP's per-symbol `earnings-company` endpoint is plan-blocked.
 - **Betas**: compute vs **SMH**, not SPX. The SPX beta was shown to be actively misleading (predicted +0.075% for a session that delivered -5.06%).
+
+### 2.9. TRADE RATIONALE CAPTURE (added 2026-07-29, interactive sessions only)
+trades.json's own header has always said rationale gets "populated by interactive runs asking 'why'" — this step is that ask, made concrete, because until 2026-07-29 nothing actually asked and six trades sat UNCAPTURED for a full session before a user prompted a manual backfill.
+
+**Trigger:** for every ticker in this run's `compute_book.json.qty_changes`, check whether trades.json already has an entry for that `(ticker, today's date)`. If not, it needs a rationale. **Do not gate this on `likely_corporate_action`** — that heuristic (ratio near a clean integer) false-positives on ordinary same-size adds (two separate +2-share buys were flagged `true` on 2026-07-29 and would have been silently skipped). A genuine split is rare enough, and the question is cheap enough, that asking and letting the user answer "Other: stock split" costs less than a silently mis-skipped real trade.
+
+**Scheduled/non-interactive runs**: skip asking, write `"reason": "UNCAPTURED"` for each new entry exactly as trades.json's schema already documents, and add one data_quality line noting how many trades await rationale. Never block a scheduled run waiting on input that can't arrive.
+
+**Interactive runs**: before finalizing the briefing, use AskUserQuestion — one question per ticker, up to 4 questions per call (batch further calls if more than 4 tickers changed in one run). Each question offers exactly these 4 options, worded to match trades.json's reason enum verbatim so the answer needs no translation:
+
+| Label | Description shown to the user |
+|---|---|
+| Stop-loss | Hit the stop / sized down under the tight stop discipline this book runs on |
+| Thesis-change | Your view on the company or story itself changed |
+| Raise-cash | Trimmed specifically to build dry powder, not a stop or a thesis call |
+| Rebalance | Sizing move — staged deployment, bringing a position/cluster back toward target |
+
+The tool adds a free-text "Other" automatically — if picked, store the user's own words as `reason` verbatim (don't force it into one of the 4 buckets) and put any elaboration in `notes`. For a bucketed answer, write the matching enum value straight to `reason` and put ticker/qty/direction context in `notes` (price_at_trade: use a live quote if you have one this run, clearly caveated as approximate/not a confirmed fill — never invent a fill price).
+
+Append the new entries to trades.json (WRITE SAFETY applies — .bak then tmp-then-mv, same as any other memory-of-record file) before moving to Stage 1, so the rationale is available to embed into the strategist's context this same run, not just logged for next time.
 
 ### 3. STAGE 1 — dispatch analysts IN PARALLEL
 - **QUICK roster**: `smith-signals`, `smith-thesis`, `smith-watchlist` (3 agents — book and scout are script-covered in quick mode, not dispatched).
@@ -191,6 +212,7 @@ WRITE SAFETY (state.json, journal.json, proposals.json — the files whose loss 
 - proposals.json — apply strategist's new proposals {"date":ts,"action":"","size_usd":0,"price_at_proposal":0,"status":"open"}; score past proposals at 30d/90d with outcome_pct + verdict (open|worked|missed). Compute per-proposal and aggregate strategist scorecard.
 - policy.json — write strategist's draft on bootstrap ("confirmed": false). User-confirmed edits set "confirmed": true. Never modify a confirmed policy without explicit instruction.
 - lots.json — orchestrator-maintained per-lot purchase records `{ticker:[{qty,date,price_usd}]}`; if a qty increase is detected (compute_book.json's qty_changes, non-corporate-action) and the user confirms it's a new buy, append a lot. Never auto-invent lot dates.
+- trades.json — new entries from TRADE RATIONALE CAPTURE (step 2.9), already written before Stage 1 dispatch on interactive runs; scheduled runs' `UNCAPTURED` entries land here too, for a later interactive run to fill in.
 - known_gaps — add a new entry (next sequential ID) the first time a data-quality issue is found; do NOT re-add if the ID already exists — agents/strategist just cite it. Remove (or mark resolved) a gap once its underlying cause is fixed (e.g. once lots.json is seeded, close the LTCG gap).
 - PREFERENCES — when user gives feedback in conversation, write to state.json's preferences block; acknowledge once; read at SYNTHESIZE; affects presentation only, never analysis.
 - CACHE HYGIENE — drop data_cache entries for any symbol absent >30 days (track date-of-last-seen per symbol). Ledger and journal-archive keep full history.
