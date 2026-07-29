@@ -879,7 +879,9 @@
       "description": "TRADE RATIONALE CAPTURE's 4 standard buckets (stop-loss/thesis-change/raise-cash/rebalance) don't cover 'dollar-cost-averaging' -- on its first use 2026-07-29, all 5 of the user's same-session add trades (ARM/TER/NBIS/VRT/AMD) were answered via the free-text 'Other' option with that exact reason, 5-for-5. Strong signal it belongs as a 5th standard option, not a recurring manual override. User has not yet been asked whether to add it or which existing bucket (if any) to replace to keep the count at 4.",
       "opened": "2026-07-29",
       "owner": "orchestrator (TRADE RATIONALE CAPTURE)",
-      "status": "open"
+      "status": "closed",
+      "closed": "2026-07-29",
+      "resolution": "User decision 2026-07-29: keep the standard 4 (stop-loss/thesis-change/raise-cash/rebalance) as-is. AskUserQuestion hard-caps at 4 custom options per question (the 5th slot is always a fixed free-text 'Other', not a labeled button), so 'add a 5th option' isn't literally possible without dropping one of the 4 -- user explicitly chose not to drop any. Dollar-cost-averaging stays reachable via 'Other', which already worked cleanly for all 5 of today's trades. No SKILL.md change needed."
     }
   ],
   "sentiment": {
