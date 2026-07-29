@@ -115,8 +115,8 @@
       "action": "exit",
       "qty_change": -6.0,
       "price_at_trade": null,
-      "reason": "UNCAPTURED",
-      "notes": "Detected via qty-diff on the 22:30 IST intraday refresher vs the 05:00 ET pre-open baseline -- not asked live, timing of the actual fill within that window unknown. Left a 0.000762sh dust remainder. Live quote at detection time ~$159.81 (not a confirmed fill price). Funded part of the same-session ARM/TER/NBIS/VRT/AMD adds below."
+      "reason": "stop-loss",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE (retroactive, first use of the new flow) 2026-07-29: stop-loss. Detected via qty-diff on the 22:30 IST intraday refresher vs the 05:00 ET pre-open baseline -- timing of the actual fill within that window unknown. Left a 0.000762sh dust remainder. Live quote at detection time ~$159.81 (not a confirmed fill price). Funded part of the same-session ARM/TER/NBIS/VRT/AMD adds below."
     },
     {
       "date": "2026-07-29",
@@ -124,8 +124,8 @@
       "action": "add",
       "qty_change": 2,
       "price_at_trade": null,
-      "reason": "UNCAPTURED",
-      "notes": "Detected via qty-diff on the 22:30 IST intraday refresher, same session as the QCOM exit and the TER/NBIS/VRT/AMD adds below. Live quote at detection time ~$231.04 (not a confirmed fill price). Now 1.24x over its ATR risk cap post-add."
+      "reason": "dollar-cost-averaging",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other' -- not one of the 4 standard buckets, see G35). Detected via qty-diff on the 22:30 IST intraday refresher, same session as the QCOM exit and the TER/NBIS/VRT/AMD adds below. Live quote at detection time ~$231.04 (not a confirmed fill price). Now 1.24x over its ATR risk cap post-add."
     },
     {
       "date": "2026-07-29",
@@ -133,8 +133,8 @@
       "action": "add",
       "qty_change": 2,
       "price_at_trade": null,
-      "reason": "UNCAPTURED",
-      "notes": "Detected via qty-diff, same session. Live quote at detection time ~$335.16 (not a confirmed fill price; TER was one of the day's few gainers, +4.5%). Now 1.01x over its ATR risk cap post-add."
+      "reason": "dollar-cost-averaging",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Detected via qty-diff, same session. Live quote at detection time ~$335.16 (not a confirmed fill price; TER was one of the day's few gainers, +4.5%). Now 1.01x over its ATR risk cap post-add."
     },
     {
       "date": "2026-07-29",
@@ -142,8 +142,8 @@
       "action": "add",
       "qty_change": 2,
       "price_at_trade": null,
-      "reason": "UNCAPTURED",
-      "notes": "Detected via qty-diff, same session. Live quote at detection time ~$155.53 (not a confirmed fill price). Now 1.24x over its ATR risk cap post-add."
+      "reason": "dollar-cost-averaging",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Detected via qty-diff, same session. Live quote at detection time ~$155.53 (not a confirmed fill price). Now 1.24x over its ATR risk cap post-add."
     },
     {
       "date": "2026-07-29",
@@ -151,8 +151,8 @@
       "action": "add",
       "qty_change": 2,
       "price_at_trade": null,
-      "reason": "UNCAPTURED",
-      "notes": "Detected via qty-diff, same session. Live quote at detection time ~$224.78 (not a confirmed fill price) -- VRT fell 16.6% intraday this session, the book's worst mover by a wide margin; unclear whether the add landed before or after most of that drop. Now 1.09x over its ATR risk cap post-add."
+      "reason": "dollar-cost-averaging",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Detected via qty-diff, same session. Live quote at detection time ~$224.78 (not a confirmed fill price) -- VRT fell 16.6% intraday this session, the book's worst mover by a wide margin; unclear whether the add landed before or after most of that drop. Now 1.09x over its ATR risk cap post-add."
     },
     {
       "date": "2026-07-29",
@@ -160,8 +160,8 @@
       "action": "add",
       "qty_change": 2,
       "price_at_trade": null,
-      "reason": "UNCAPTURED",
-      "notes": "Detected via qty-diff, same session. Live quote at detection time ~$431.60 (not a confirmed fill price). Matches the strategist's AMD stage-in proposal from the 05:00 ET run."
+      "reason": "dollar-cost-averaging",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Detected via qty-diff, same session. Live quote at detection time ~$431.60 (not a confirmed fill price). Matches the strategist's AMD stage-in proposal from the 05:00 ET run, though the user's stated rationale was DCA rather than the proposal's specific sizing logic."
     }
   ],
   "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|'UNCAPTURED'), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time."

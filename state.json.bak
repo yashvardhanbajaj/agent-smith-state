@@ -1,151 +1,151 @@
 {
   "schema_version": 1,
-  "ts": "2026-07-29T14:35:00+05:30",
-  "mode": "quick",
+  "ts": "2026-07-29T22:30:00+05:30",
+  "mode": "quick-refresher",
   "usdinr": 95.62,
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
-  "last_run_dir": "runs/2026-07-29-1435/",
+  "last_run_dir": "runs/2026-07-29-2230/",
   "us": {
-    "value_usd": 28982.27,
+    "value_usd": 29627.86,
     "count": 23,
     "top3": [
       {
         "ticker": "ASML",
-        "weight_pct": 10.9
+        "weight_pct": 10.48
       },
       {
         "ticker": "GOOGL",
-        "weight_pct": 9.192
+        "weight_pct": 9.088
       },
       {
         "ticker": "DRAM",
-        "weight_pct": 8.224
+        "weight_pct": 7.721
       }
     ],
     "pnl_pct": null,
-    "wallet_usd": 9391.37,
-    "usdinr": 95.62,
+    "wallet_usd": 7642.63,
     "peak_value_usd": 41887.33,
     "peak_total_book_usd": 44873.02,
-    "beta": 1.219,
-    "value_note": "2026-07-29 05:00 ET pre-open QUICK run. Gate ESCALATING (SMH -3.45% pre-market, KOSPI -10.8% intraday per catalyst desk, TWII -3.76%; broad VIX/ES/NQ calm). Day-2/3 continuation of the 07-28 CXMT/China-memory shock, now compounded by SK Hynix Q2 earnings miss-on-record-results. NOT FOMC-driven per smith-catalyst (Asia damage predates the 2pm ET FOMC statement by hours). Today also has LRCX (AH)/QCOM/VRT earnings converging with FOMC -- VRT's date corrected from 07-30 to today by smith-watchlist. INDmoney's own per-position feed (networth_holdings) was stale/wrong by up to 39% on individual names this run; holdings repriced from live yfinance quotes cross-validated against INDmoney's own aggregate net-worth total (0.21% match) -- see known_gaps G32. Equity $28,982.27 (23 positions), wallet $9,391.37, total book $38,373.64.",
-    "beta_note": "Portfolio beta 1.219 vs SMH, value-weighted on today's live-repriced positions (post-selloff weights)."
+    "usdinr": 95.637,
+    "beta": 1.181,
+    "value_note": "Intraday QUICK refresher, ~1pm ET (FOMC decision pending same session). Gate ESCALATING (VIX +10.2% intraday to 20.06, SMH -3.54%, both independent triggers). User deployed ~$1,797 net today (ARM/TER/NBIS/VRT/AMD +2sh each, QCOM exited to dust) since the 05:00 ET pre-open run -- captured via qty-diff on this refresher's live snapshot, not yet logged in trades.json (UNCAPTURED, see data_quality). INDmoney's per-position feed (networth_holdings) again diverged from its own aggregate by up to 79.5% on individual names (worst: SNDK) -- G32 recurrence, second time same day; repriced from live yfinance quotes, cross-validated against INDmoney's aggregate net-worth total (row-sum vs aggregate: 0.00% after correction). Equity $29,627.86 (23 positions), wallet $7,642.63, total book $37,270.49.",
+    "beta_note": "Portfolio beta 1.181 vs SMH, value-weighted on today's live-repriced positions."
   },
   "holdings": [
     {
       "ticker": "ASML",
       "qty": 2.000001151,
-      "weight_pct": 10.9
+      "weight_pct": 10.48
     },
     {
       "ticker": "GOOGL",
       "qty": 8,
-      "weight_pct": 9.192
+      "weight_pct": 9.088
     },
     {
       "ticker": "DRAM",
       "qty": 50,
-      "weight_pct": 8.224
+      "weight_pct": 7.721
     },
     {
       "ticker": "SNDK",
       "qty": 2.008131251,
-      "weight_pct": 7.579
+      "weight_pct": 7.0
     },
     {
       "ticker": "NVDA",
       "qty": 10,
-      "weight_pct": 6.783
+      "weight_pct": 6.485
     },
     {
       "ticker": "AVGO",
       "qty": 5,
-      "weight_pct": 6.558
+      "weight_pct": 6.334
     },
     {
       "ticker": "MRVL",
       "qty": 10,
-      "weight_pct": 6.007
+      "weight_pct": 5.602
+    },
+    {
+      "ticker": "VRT",
+      "qty": 7,
+      "weight_pct": 5.311
     },
     {
       "ticker": "MU",
       "qty": 2.000365376,
-      "weight_pct": 5.651
+      "weight_pct": 5.244
     },
     {
-      "ticker": "VRT",
-      "qty": 5,
-      "weight_pct": 4.641
-    },
-    {
-      "ticker": "COHR",
-      "qty": 5,
-      "weight_pct": 4.189
+      "ticker": "AMD",
+      "qty": 3,
+      "weight_pct": 4.37
     },
     {
       "ticker": "EWY",
       "qty": 8,
-      "weight_pct": 4.172
+      "weight_pct": 3.952
     },
     {
       "ticker": "TSM",
       "qty": 3,
-      "weight_pct": 4.052
+      "weight_pct": 3.835
+    },
+    {
+      "ticker": "COHR",
+      "qty": 5,
+      "weight_pct": 3.777
+    },
+    {
+      "ticker": "TER",
+      "qty": 3.002730188,
+      "weight_pct": 3.397
     },
     {
       "ticker": "CLS",
       "qty": 3.003266352,
-      "weight_pct": 3.621
+      "weight_pct": 3.288
     },
     {
-      "ticker": "QCOM",
-      "qty": 6.000761904,
-      "weight_pct": 3.365
+      "ticker": "ARM",
+      "qty": 4,
+      "weight_pct": 3.119
     },
     {
       "ticker": "GEV",
       "qty": 1.004950742,
-      "weight_pct": 3.264
+      "weight_pct": 3.074
     },
     {
       "ticker": "NBIS",
-      "qty": 3,
-      "weight_pct": 1.753
-    },
-    {
-      "ticker": "ARM",
-      "qty": 2,
-      "weight_pct": 1.685
-    },
-    {
-      "ticker": "AMAT",
-      "qty": 1.0081785,
-      "weight_pct": 1.654
+      "qty": 5,
+      "weight_pct": 2.625
     },
     {
       "ticker": "ORCL",
       "qty": 4,
-      "weight_pct": 1.652
+      "weight_pct": 1.602
     },
     {
-      "ticker": "AMD",
-      "qty": 1,
-      "weight_pct": 1.565
+      "ticker": "AMAT",
+      "qty": 1.0081785,
+      "weight_pct": 1.522
     },
     {
       "ticker": "CIEN",
       "qty": 1.008528082,
-      "weight_pct": 1.217
+      "weight_pct": 1.134
     },
     {
       "ticker": "IREN",
       "qty": 10,
-      "weight_pct": 1.168
+      "weight_pct": 1.04
     },
     {
-      "ticker": "TER",
-      "qty": 1.002730188,
-      "weight_pct": 1.107
+      "ticker": "QCOM",
+      "qty": 0.000761904,
+      "weight_pct": 0.0
     }
   ],
   "news_watermark": "2026-07-29",
@@ -851,7 +851,7 @@
     },
     {
       "id": "G32",
-      "description": "INDmoney's networth_holdings (row-level) fed stale/wrong per-position prices on 2026-07-29 pre-open -- up to 39% too high on individual names (e.g. SNDK implied $1854 vs live $1096), causing an 18.15% row-sum-vs-aggregate divergence (compute_book.json persist_safe=false on first pass). This is the OPPOSITE direction from G3 (aggregate lagging rows) -- here the row-level feed lagged the aggregate, which itself matched live yfinance repricing to within 0.21%. Resolved this run by rebuilding holdings.json from live yfinance quotes cross-validated against INDmoney's own aggregate total. Orchestrator should treat a persist_safe=false failure as ambiguous-direction and cross-check against live quotes before assuming which source is stale, not default to trusting row-level over aggregate.",
+      "description": "INDmoney's networth_holdings (row-level) fed stale/wrong per-position prices on 2026-07-29 pre-open -- up to 39% too high on individual names (e.g. SNDK implied $1854 vs live $1096), causing an 18.15% row-sum-vs-aggregate divergence (compute_book.json persist_safe=false on first pass). This is the OPPOSITE direction from G3 (aggregate lagging rows) -- here the row-level feed lagged the aggregate, which itself matched live yfinance repricing to within 0.21%. Resolved this run by rebuilding holdings.json from live yfinance quotes cross-validated against INDmoney's own aggregate total. Orchestrator should treat a persist_safe=false failure as ambiguous-direction and cross-check against live quotes before assuming which source is stale, not default to trusting row-level over aggregate. RECURRED 2026-07-29 intraday (~1pm ET, same day as the original): row-sum vs aggregate divergence 21.9% before correction, up to 79.5% too high on individual names (worst: SNDK). Same workaround applied (live-yfinance repricing cross-checked against INDmoney's aggregate). Two occurrences in one trading day on a day with unusually large intraday moves (VRT -16.6%) suggests the feed may specifically lag during fast-moving sessions, not just at pre-open -- worth testing on a calm day to isolate volatility as the trigger before extending the script's auto-detection.",
       "opened": "2026-07-29",
       "owner": "orchestrator (STALENESS GATE)",
       "status": "open -- workaround applied this run, script's reconciliation logic could be extended to auto-detect direction via live-quote spot-check"
@@ -955,12 +955,7 @@
   },
   "watchlist_scan_cursor": 90,
   "data_quality": [
-    "INDmoney networth_holdings per-position feed stale up to 39% this run (G32) -- corrected via live yfinance cross-validated against INDmoney's own aggregate (0.21% match).",
-    "MU qty_change (+1 share) misflagged likely_corporate_action by script heuristic; price evidence points to a genuine purchase, not a split.",
-    "compute_drift.json AI Memory/Storage row: actual_pct (25.625%, equity-basis) exceeds its band top (20) while breach=false because the ceiling is tested on total-book basis (19.354%, within band) -- correct per the documented dual-basis design, but strategist flagged it as confusing; a labeling/display nit for a future dashboard pass, not a computation error.",
-    "fomc_cache (rate 3.63%, HAWKISH, next_check 2026-09-17) predates today's live FOMC decision (2026-07-29) -- quick mode read it as-is per skill rules; due for refresh on next deep run.",
-    "journal.json bucket_hit_rates/name_bucket_grades empty -- hit-rate readout skipped this run for lack of data.",
-    "Sentiment score (64.5, greed) is stale -- VIX component built on yesterday's close, has not absorbed this morning's selloff."
+    "cmd_book's qty_changes flagged ARM/TER/AMD as likely_corporate_action (ratio exactly 2x/3x) -- false positive, these are ordinary +2-share adds, not splits"
   ],
   "market_closed_run": true,
   "peer_map": {
