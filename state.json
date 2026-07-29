@@ -1,155 +1,154 @@
 {
   "schema_version": 1,
-  "ts": "2026-07-29T00:15:00+05:30",
-  "mode": "deep",
-  "usdinr": 95.842,
+  "ts": "2026-07-29T14:35:00+05:30",
+  "mode": "quick",
+  "usdinr": 95.62,
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
-  "last_run_dir": "runs/2026-07-29-0008/",
+  "last_run_dir": "runs/2026-07-29-1435/",
   "us": {
-    "value_usd": 28141.68,
+    "value_usd": 28982.27,
     "count": 23,
     "top3": [
       {
         "ticker": "ASML",
-        "weight_pct": 11.253
+        "weight_pct": 10.9
       },
       {
         "ticker": "GOOGL",
-        "weight_pct": 9.526
+        "weight_pct": 9.192
       },
       {
         "ticker": "DRAM",
-        "weight_pct": 8.519
+        "weight_pct": 8.224
       }
     ],
     "pnl_pct": null,
-    "wallet_usd": 10198.53,
+    "wallet_usd": 9391.37,
+    "usdinr": 95.62,
     "peak_value_usd": 41887.33,
-    "beta": 1.136,
-    "usdinr": 96.2425,
-    "value_note": "2026-07-28 14:45 ET DEEP run, resumed after a mid-flight pause. Equity $28141.68 across 23 positions, wallet $10198.53, book $38340.21. During the pause the user deployed ~$8,100: NEW NVDA 10sh, NBIS 3sh, IREN 10sh; Memory doubled (SNDK 1.008->2.008, DRAM 25->50, EWY 5->8); added ASML/MRVL/COHR/CIEN/GEV/AMAT; reduced TSM 5.406->3 and AVGO 5.086->5; and swapped GOOG Class C 8.441sh for GOOGL Class A 8sh (different security). Cash fell 47.7%->26.6%, which under the new two-regime band is NO LONGER A BREACH. But ai_capex rose 52.3%->73.4% of total book: the cash that was absorbing factor risk has largely been spent, 0.44pt from the -15% warn rung, on the eve of a no-dot-plot FOMC.",
     "peak_total_book_usd": 44873.02,
-    "peak_total_book_note": "Restored 2026-07-28 after being silently dropped. True historical max from ledger 2026-07-18T13:41 (equity $44,849.74 + wallet $23.28). Loss of this key made cmd_drift report drawdown -0.0% against a real -14.84%.",
-    "beta_note": "Portfolio beta vs SMH = 1.072 on current 20 holdings, value-weighted (2026-07-28). Down from the prior SPX-based 1.491, which cmd_book flagged as misleading. The fall is almost entirely GOOG: its beta to SMH is 0.244 with R2 0.08, and AMZN's is -0.030 with R2 0.00 -- statistically near-independent of the semiconductor complex. That is the quantitative case for the hyperscaler sleeve, and it is now measured rather than asserted."
+    "beta": 1.219,
+    "value_note": "2026-07-29 05:00 ET pre-open QUICK run. Gate ESCALATING (SMH -3.45% pre-market, KOSPI -10.8% intraday per catalyst desk, TWII -3.76%; broad VIX/ES/NQ calm). Day-2/3 continuation of the 07-28 CXMT/China-memory shock, now compounded by SK Hynix Q2 earnings miss-on-record-results. NOT FOMC-driven per smith-catalyst (Asia damage predates the 2pm ET FOMC statement by hours). Today also has LRCX (AH)/QCOM/VRT earnings converging with FOMC -- VRT's date corrected from 07-30 to today by smith-watchlist. INDmoney's own per-position feed (networth_holdings) was stale/wrong by up to 39% on individual names this run; holdings repriced from live yfinance quotes cross-validated against INDmoney's own aggregate net-worth total (0.21% match) -- see known_gaps G32. Equity $28,982.27 (23 positions), wallet $9,391.37, total book $38,373.64.",
+    "beta_note": "Portfolio beta 1.219 vs SMH, value-weighted on today's live-repriced positions (post-selloff weights)."
   },
   "holdings": [
     {
       "ticker": "ASML",
       "qty": 2.000001151,
-      "weight_pct": 11.253
+      "weight_pct": 10.9
     },
     {
       "ticker": "GOOGL",
       "qty": 8,
-      "weight_pct": 9.526
+      "weight_pct": 9.192
     },
     {
       "ticker": "DRAM",
       "qty": 50,
-      "weight_pct": 8.519
+      "weight_pct": 8.224
     },
     {
       "ticker": "SNDK",
       "qty": 2.008131251,
-      "weight_pct": 7.714
+      "weight_pct": 7.579
     },
     {
       "ticker": "NVDA",
       "qty": 10,
-      "weight_pct": 7.011
+      "weight_pct": 6.783
     },
     {
       "ticker": "AVGO",
       "qty": 5,
-      "weight_pct": 6.758
+      "weight_pct": 6.558
     },
     {
       "ticker": "MRVL",
       "qty": 10,
-      "weight_pct": 6.225
+      "weight_pct": 6.007
+    },
+    {
+      "ticker": "MU",
+      "qty": 2.000365376,
+      "weight_pct": 5.651
     },
     {
       "ticker": "VRT",
       "qty": 5,
-      "weight_pct": 4.756
-    },
-    {
-      "ticker": "EWY",
-      "qty": 8,
-      "weight_pct": 4.345
+      "weight_pct": 4.641
     },
     {
       "ticker": "COHR",
       "qty": 5,
-      "weight_pct": 4.286
+      "weight_pct": 4.189
+    },
+    {
+      "ticker": "EWY",
+      "qty": 8,
+      "weight_pct": 4.172
     },
     {
       "ticker": "TSM",
       "qty": 3,
-      "weight_pct": 4.181
+      "weight_pct": 4.052
     },
     {
       "ticker": "CLS",
       "qty": 3.003266352,
-      "weight_pct": 3.554
+      "weight_pct": 3.621
     },
     {
       "ticker": "QCOM",
       "qty": 6.000761904,
-      "weight_pct": 3.516
+      "weight_pct": 3.365
     },
     {
       "ticker": "GEV",
       "qty": 1.004950742,
-      "weight_pct": 3.351
-    },
-    {
-      "ticker": "MU",
-      "qty": 1.000365376,
-      "weight_pct": 2.914
+      "weight_pct": 3.264
     },
     {
       "ticker": "NBIS",
       "qty": 3,
-      "weight_pct": 1.762
+      "weight_pct": 1.753
     },
     {
       "ticker": "ARM",
       "qty": 2,
-      "weight_pct": 1.755
-    },
-    {
-      "ticker": "ORCL",
-      "qty": 4,
-      "weight_pct": 1.716
+      "weight_pct": 1.685
     },
     {
       "ticker": "AMAT",
       "qty": 1.0081785,
-      "weight_pct": 1.704
+      "weight_pct": 1.654
+    },
+    {
+      "ticker": "ORCL",
+      "qty": 4,
+      "weight_pct": 1.652
     },
     {
       "ticker": "AMD",
       "qty": 1,
-      "weight_pct": 1.633
+      "weight_pct": 1.565
     },
     {
       "ticker": "CIEN",
       "qty": 1.008528082,
-      "weight_pct": 1.22
+      "weight_pct": 1.217
     },
     {
       "ticker": "IREN",
       "qty": 10,
-      "weight_pct": 1.19
+      "weight_pct": 1.168
     },
     {
       "ticker": "TER",
       "qty": 1.002730188,
-      "weight_pct": 1.112
+      "weight_pct": 1.107
     }
   ],
-  "news_watermark": "2026-07-27",
+  "news_watermark": "2026-07-29",
   "thesis": {
     "NVDA": "Core AI GPU/accelerator platform leadership | strengthening",
     "ASML": "Sole-source EUV lithography. THESIS DENTED not broken 2026-07-28: China began mass-producing immersion DUV, first units to SMIC/Hua Hong/CXMT. Scale is tiny (5 units 2026, ~20 in 2027 vs ASML's 131 immersion tools in 2025 and 98.7% share), still needs Japanese components, and does NOT touch EUV -- which is the actual moat | watch",
@@ -209,27 +208,28 @@
   "signal_history": {
     "ORCL": [
       "BREAKDOWN",
+      "STRONG DOWNTREND",
       "OVERSOLD BOUNCE",
       "PEER LAGGARD",
-      "STRONG DOWNTREND",
       "TARGET GAP"
     ],
     "ASML": [
-      "PEER LEADER",
-      "STRONG UPTREND",
+      "STRONG DOWNTREND",
+      "NEW HEADWINDS",
       "TARGET GAP"
     ],
     "SNDK": [
-      "PEER LAGGARD",
-      "STRONG DOWNTREND"
+      "STRONG DOWNTREND",
+      "PEER LAGGARD"
     ],
     "TSM": [
       "TARGET GAP"
     ],
     "MU": [
-      "PEER LAGGARD",
       "STRONG DOWNTREND",
-      "TARGET GAP"
+      "PEER LAGGARD",
+      "TARGET GAP",
+      "INSIDER ACTIVITY"
     ],
     "LRCX": [
       "PEER LAGGARD",
@@ -237,69 +237,74 @@
       "TARGET GAP"
     ],
     "MRVL": [
-      "PEER LAGGARD",
       "STRONG DOWNTREND",
+      "PEER LAGGARD",
       "TARGET GAP"
     ],
     "CIEN": [
-      "INSIDER ACTIVITY",
       "STRONG DOWNTREND",
+      "PEER LAGGARD",
       "TARGET GAP"
     ],
     "VRT": [
-      "PEER LAGGARD",
       "STRONG DOWNTREND",
+      "PEER LAGGARD",
       "TARGET GAP"
     ],
     "AMAT": [
-      "STRONG DOWNTREND"
+      "STRONG DOWNTREND",
+      "PEER LAGGARD",
+      "TARGET GAP"
     ],
     "TER": [
-      "PEER LAGGARD",
       "STRONG DOWNTREND",
+      "PEER LAGGARD",
       "TARGET GAP"
     ],
     "AMD": [
-      "STRONG UPTREND",
-      "PEER LEADER"
+      "STRONG DOWNTREND",
+      "TARGET GAP"
     ],
     "STM": [],
     "COHR": [
-      "PEER LAGGARD",
       "STRONG DOWNTREND",
+      "PEER LAGGARD",
       "TARGET GAP"
     ],
     "LITE": [
       "TARGET GAP"
     ],
     "ARM": [
+      "STRONG DOWNTREND",
       "PEER LAGGARD",
-      "STRONG DOWNTREND"
+      "TARGET GAP"
     ],
     "DRAM": [
-      "PEER LAGGARD",
-      "STRONG DOWNTREND"
+      "STRONG DOWNTREND",
+      "PEER LAGGARD"
     ],
     "NVDA": [
-      "NEW TAILWINDS",
       "PEER LEADER",
+      "NEW HEADWINDS",
       "TARGET GAP"
     ],
     "AVGO": [
-      "TARGET GAP",
-      "PEER LEADER"
-    ],
-    "GEV": [
-      "TARGET GAP",
-      "MOMENTUM+VOLUME",
-      "STRONG UPTREND"
-    ],
-    "QCOM": [
+      "PEER LEADER",
       "TARGET GAP"
     ],
-    "CLS": [
-      "PEER LAGGARD",
+    "GEV": [
       "STRONG DOWNTREND",
+      "PEER LAGGARD",
+      "TARGET GAP"
+    ],
+    "QCOM": [
+      "TARGET GAP",
+      "EARNINGS PROXIMITY"
+    ],
+    "CLS": [
+      "STRONG UPTREND",
+      "PEER LEADER",
+      "MOMENTUM+VOLUME",
       "TARGET GAP"
     ],
     "META": [
@@ -314,14 +319,26 @@
       "TARGET GAP"
     ],
     "EWY": [
+      "STRONG DOWNTREND",
+      "PEER LAGGARD"
+    ],
+    "GOOGL": [
+      "TARGET GAP"
+    ],
+    "NBIS": [
+      "STRONG DOWNTREND",
+      "PEER LAGGARD"
+    ],
+    "IREN": [
+      "STRONG DOWNTREND",
       "PEER LAGGARD",
-      "STRONG DOWNTREND"
+      "TARGET GAP"
     ]
   },
   "open_flags": [
     {
       "ticker": "RISK-CAPS",
-      "flag": "FIVE names now exceed their 0.5%-of-book risk cap at 2xATR20: DRAM 2.24x ($2,398 vs $1,069), MRVL 1.75x, SNDK 1.55x, ASML 1.55x, COHR 1.18x. Aggregate excess ~$4,160 \u2014 larger than the entire 10% book risk budget of $3,834. Strategist proposes trims of $1,200/$650/$450 on DRAM/MRVL/SNDK.",
+      "flag": "Five names (DRAM, MRVL, SNDK, ASML, COHR) remained over their 2xATR20 risk cap as of 07-28 (~$4,160 aggregate excess vs $3,834 risk budget); all five declined further pre-market 07-29 (SNDK -14.25%, MRVL -7.77%, ASML -4.37%, COHR -10.31%, DRAM -8.89%) -- excess almost certainly worsened, not yet recomputed with fresh ATR.",
       "opened": "2026-07-28"
     },
     {
@@ -333,6 +350,11 @@
       "ticker": "MEMORY-CLUSTER",
       "flag": "User doubled Memory into the CXMT crash (SNDK, DRAM, EWY). Catalyst 1 partially vindicates it \u2014 CXMT's DDR5 modules price 2.2% ABOVE Samsung/SK Hynix, so the feared price war has not appeared in the only hard data point. But the cluster is now 23.5% of equity and two of its names are the worst risk-cap breaches in the book.",
       "opened": "2026-07-28"
+    },
+    {
+      "ticker": "MU",
+      "flag": "Qty 1.000365376 -> 2.000365376 (+1 share) flagged 'likely_corporate_action' by the script's 2x-ratio heuristic, but price evidence contradicts a split (MU flat day-over-day ~$820, no proportional price adjustment). Reads as a genuine small purchase. Also: MU CEO insider share sale flagged fresh 29-Jul by smith-signals -- unrelated, coincidental timing.",
+      "opened": "2026-07-29"
     }
   ],
   "data_cache": {
@@ -366,7 +388,8 @@
       "Oracle Corp": "ORCL",
       "SERVICENOW, INC.": "NOW",
       "GE Vernova Inc.": "GEV",
-      "Alibaba Group Holding Limited American Depositary Shares, each represents eight Ordinary Shares": "BABA"
+      "Alibaba Group Holding Limited American Depositary Shares, each represents eight Ordinary Shares": "BABA",
+      "Alphabet Inc. Class A Common Stock": "GOOGL"
     },
     "betas": {
       "AMAT": {
@@ -553,15 +576,15 @@
       },
       "CLS": {
         "date": "2026-07-28",
-        "confirmed": false,
-        "source": "cadence",
-        "as_of": "2026-07-28"
+        "confirmed": true,
+        "source": "web",
+        "as_of": "2026-07-29"
       },
       "VRT": {
-        "date": "2026-07-30",
-        "confirmed": false,
-        "source": "cadence",
-        "as_of": "2026-07-28"
+        "date": "2026-07-29",
+        "confirmed": true,
+        "source": "web",
+        "as_of": "2026-07-29"
       },
       "COHR": {
         "date": "2026-08-05",
@@ -825,6 +848,20 @@
       "status": "closed",
       "resolution": "CLOSED 2026-07-29: added sync-from-live.sh to skill/ and ran a full re-sync -- SKILL.md, all 13 sub-agents (including catalyst/cycle/earnings/tax, previously missing from the mirror), and both scheduled-task definitions are now byte-identical to live. README updated to document the drift and the fix. This closes the packaging half of G31; the dashboard-edit-safety half was already fixed same day.",
       "closed": "2026-07-29"
+    },
+    {
+      "id": "G32",
+      "description": "INDmoney's networth_holdings (row-level) fed stale/wrong per-position prices on 2026-07-29 pre-open -- up to 39% too high on individual names (e.g. SNDK implied $1854 vs live $1096), causing an 18.15% row-sum-vs-aggregate divergence (compute_book.json persist_safe=false on first pass). This is the OPPOSITE direction from G3 (aggregate lagging rows) -- here the row-level feed lagged the aggregate, which itself matched live yfinance repricing to within 0.21%. Resolved this run by rebuilding holdings.json from live yfinance quotes cross-validated against INDmoney's own aggregate total. Orchestrator should treat a persist_safe=false failure as ambiguous-direction and cross-check against live quotes before assuming which source is stale, not default to trusting row-level over aggregate.",
+      "opened": "2026-07-29",
+      "owner": "orchestrator (STALENESS GATE)",
+      "status": "open -- workaround applied this run, script's reconciliation logic could be extended to auto-detect direction via live-quote spot-check"
+    },
+    {
+      "id": "G33",
+      "description": "scripts/smith_dashboard.py (the mandated generator, 'GENERATED, NOT HAND-WRITTEN') has no rendering logic at all for Factor Catalysts, Rotation Analysis, Sentiment Gauge, Intraday & International Session, The Week Ahead, or Allocation Treemap -- grep for these terms in the script returns zero hits. The currently-published dashboard.html (git HEAD) has all of these, added by direct hand-edits to the HTML in past sessions (see G31's own restore commit, which patched dashboard.html directly, not the script) -- a violation of the generator-only rule that was never reconciled. Running the script fresh on 2026-07-29 produced a 50,477-byte file vs the published 82,346 bytes (7 h2 sections / 10 details / 4 svg vs 18 h2 / 4 details / 5 svg) -- a real, large regression, caught by the REGRESSION GUARD before publishing and NOT published this run (dashboard.html reverted to git HEAD, artifact left untouched). Needs a real decision: either port the missing panels' logic into smith_dashboard.py properly (real work, not a quick patch), or get explicit user sign-off to permanently retire them (the skill's own 'Prose rule' / 'Don't reintroduce narrative panels' language argues retirement was the intent, but that was never explicitly confirmed against these specific panels, and their prior restoration under G31 argues the opposite). Until resolved, do not run smith_dashboard.py's output straight to publish without this same diff-and-stop check every run.",
+      "opened": "2026-07-29",
+      "owner": "user (design decision: extend script vs retire panels) + orchestrator (implement once decided)",
+      "status": "open"
     }
   ],
   "sentiment": {
@@ -905,12 +942,14 @@
       "clean_diversifier": true
     }
   },
-  "watchlist_scan_cursor": 75,
+  "watchlist_scan_cursor": 90,
   "data_quality": [
-    "2026-07-28 deep run resumed after pause; all figures post-deployment. est_net_flows_usd ($3,156) understates the true ~$8,100 wallet drawdown because the GOOG->GOOGL swap reads as one exit plus one entry rather than a substitution.",
-    "NBIS and IREN ATR20 computed fresh (14.89%, 11.47%); GOOGL ATR and beta proxied from GOOG Class C pending its own 21-bar history.",
-    "smith-strategist tail reports missing hit-rate and proposal-scorecard inputs (not passed in its slice) \u2014 scorecard skipped this run.",
-    "smith-book, smith-scout, smith-watchlist and smith-quality were NOT dispatched this run \u2014 disclosed, not silent. Catalyst/thesis/macro/strategist ran."
+    "INDmoney networth_holdings per-position feed stale up to 39% this run (G32) -- corrected via live yfinance cross-validated against INDmoney's own aggregate (0.21% match).",
+    "MU qty_change (+1 share) misflagged likely_corporate_action by script heuristic; price evidence points to a genuine purchase, not a split.",
+    "compute_drift.json AI Memory/Storage row: actual_pct (25.625%, equity-basis) exceeds its band top (20) while breach=false because the ceiling is tested on total-book basis (19.354%, within band) -- correct per the documented dual-basis design, but strategist flagged it as confusing; a labeling/display nit for a future dashboard pass, not a computation error.",
+    "fomc_cache (rate 3.63%, HAWKISH, next_check 2026-09-17) predates today's live FOMC decision (2026-07-29) -- quick mode read it as-is per skill rules; due for refresh on next deep run.",
+    "journal.json bucket_hit_rates/name_bucket_grades empty -- hit-rate readout skipped this run for lack of data.",
+    "Sentiment score (64.5, greed) is stale -- VIX component built on yesterday's close, has not absorbed this morning's selloff."
   ],
   "market_closed_run": true,
   "peer_map": {
@@ -1025,6 +1064,18 @@
     "CEG": {
       "peer_etf": "XLU",
       "label": "power-generation/nuclear PPA"
+    },
+    "EWY": {
+      "peer_etf": "SMH",
+      "label": "Korea semis (Samsung/SK Hynix) proxy"
+    },
+    "NBIS": {
+      "peer_etf": "XLK",
+      "label": "hyperscaler/compute proxy"
+    },
+    "IREN": {
+      "peer_etf": "XLK",
+      "label": "datacenter/compute proxy"
     }
   },
   "changes": [
