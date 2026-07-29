@@ -732,6 +732,16 @@ def cmd_drift(args):
     for c in cluster_table:
         c["actual_pct_of_equity"] = c["actual_pct"]
         c["actual_pct_of_total_book"] = round(c["actual_pct"] * equity_share_pre, 3)
+        # band_pct is None for a cluster with no policy target (e.g. a brand-new holding not yet
+        # assigned a sector_map cluster) -- there's no band to test against, so skip the breach
+        # test rather than crash the whole subcommand (was a real bug, hit 2026-07-29 by BE).
+        if c["band_pct"] is None:
+            c["breach"] = False
+            c["breach_edge"] = None
+            c["ceiling_tested_on"] = None
+            c["floor_tested_on"] = None
+            c["actual_pct"] = c["actual_pct_of_equity"]
+            continue
         _lo, _hi = c["band_pct"]
         ceil_val = c["actual_pct_of_total_book"] if use_total_book else c["actual_pct_of_equity"]
         floor_val = c["actual_pct_of_equity"]
@@ -762,8 +772,8 @@ def cmd_drift(args):
     cash_regime = "normal"
     regime_reason = "no cash_regimes block in policy; using cash_band_pct"
     if regimes:
-        trig = (regimes.get("post_stop_event") or {}).get("trigger_cash_pct", 20)
         window = (regimes.get("post_stop_event") or {}).get("window_sessions", 15)
+        normal_ceiling = ((regimes.get("normal") or {}).get("band_pct") or [None, None])[1]
         last_stop = state.get("last_stop_event_date")
         sessions_since = None
         if last_stop:
@@ -774,11 +784,24 @@ def cmd_drift(args):
             except ValueError:
                 sessions_since = None
         in_window = sessions_since is not None and sessions_since <= window
-        if in_window and cash_pct > trig:
+        # FIXED 2026-07-30: the regime must persist through the whole window unless cash has
+        # genuinely re-entered the NORMAL band's own ceiling -- re-testing the wider band's entry
+        # trigger (trigger_cash_pct, 20%) every run instead flips the regime back to "normal" the
+        # moment cash dips just under 20%, well before it's anywhere near the tight [5,15]% band's
+        # actual ceiling, manufacturing exactly the false-alarm breach this two-regime system exists
+        # to prevent (the G28 problem, recurring one level down). Found when a same-day partial
+        # redeployment took cash from 20.5% to 19.1% and instantly produced a spurious ceiling breach.
+        # trigger_cash_pct's real job is deciding whether a stop-out was severe enough to SET
+        # last_stop_event_date in the first place -- that happens elsewhere, not in this persistence
+        # check, so it plays no further role here.
+        if in_window and (normal_ceiling is None or cash_pct > normal_ceiling):
             cash_regime = "post_stop_event"
-            regime_reason = f"stop-out on {last_stop}, ~{sessions_since} sessions ago (window {window}), cash {cash_pct}% > {trig}% trigger"
+            regime_reason = (f"stop-out on {last_stop}, ~{sessions_since} sessions ago (window {window}), "
+                              + (f"cash {cash_pct}% has not yet re-entered the normal band (<= {normal_ceiling}%)"
+                                 if normal_ceiling is not None else
+                                 "no normal-band ceiling configured to test re-entry against"))
         elif in_window:
-            regime_reason = f"stop-out {sessions_since} sessions ago but cash {cash_pct}% <= {trig}% trigger"
+            regime_reason = f"stop-out {sessions_since} sessions ago but cash {cash_pct}% has re-entered the normal band (<= {normal_ceiling}%)"
         else:
             regime_reason = f"no stop-out within {window} sessions (last: {last_stop or 'none recorded'})"
     band_src = (regimes.get(cash_regime) or {}).get("band_pct") if regimes else None

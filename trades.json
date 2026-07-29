@@ -114,54 +114,63 @@
       "ticker": "QCOM",
       "action": "exit",
       "qty_change": -6.0,
-      "price_at_trade": null,
+      "price_at_trade": 162.01,
       "reason": "stop-loss",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE (retroactive, first use of the new flow) 2026-07-29: stop-loss. Detected via qty-diff on the 22:30 IST intraday refresher vs the 05:00 ET pre-open baseline -- timing of the actual fill within that window unknown. Left a 0.000762sh dust remainder. Live quote at detection time ~$159.81 (not a confirmed fill price). Funded part of the same-session ARM/TER/NBIS/VRT/AMD adds below."
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: stop-loss -- confirmed by the INDmoney confirmation email itself (Order Type: stop). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T13:30:36Z (19:00:36 IST): $972.06 for 6 shares @ $162.01. Left a 0.000762sh dust remainder. Funded part of the same-session ARM/TER/NBIS/VRT/AMD adds below."
     },
     {
       "date": "2026-07-29",
       "ticker": "ARM",
       "action": "add",
       "qty_change": 2,
-      "price_at_trade": null,
+      "price_at_trade": 228.4,
       "reason": "dollar-cost-averaging",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other' -- not one of the 4 standard buckets, see G35). Detected via qty-diff on the 22:30 IST intraday refresher, same session as the QCOM exit and the TER/NBIS/VRT/AMD adds below. Live quote at detection time ~$231.04 (not a confirmed fill price). Now 1.24x over its ATR risk cap post-add."
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:22:09Z (21:52:09 IST): $458.17 for 2 shares @ $228.40, Market order. Now 1.24x over its ATR risk cap post-add."
     },
     {
       "date": "2026-07-29",
       "ticker": "TER",
       "action": "add",
       "qty_change": 2,
-      "price_at_trade": null,
+      "price_at_trade": 329.32,
       "reason": "dollar-cost-averaging",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Detected via qty-diff, same session. Live quote at detection time ~$335.16 (not a confirmed fill price; TER was one of the day's few gainers, +4.5%). Now 1.01x over its ATR risk cap post-add."
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:06:48Z (21:36:48 IST): $660.62 for 2 shares @ $329.32, Market order. TER was one of the day's few gainers. Now 1.01x over its ATR risk cap post-add."
     },
     {
       "date": "2026-07-29",
       "ticker": "NBIS",
       "action": "add",
       "qty_change": 2,
-      "price_at_trade": null,
+      "price_at_trade": 147.07,
       "reason": "dollar-cost-averaging",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Detected via qty-diff, same session. Live quote at detection time ~$155.53 (not a confirmed fill price). Now 1.24x over its ATR risk cap post-add."
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:19:50Z (21:49:50 IST): $295.03 for 2 shares @ $147.07, Market order. Now 1.24x over its ATR risk cap post-add."
     },
     {
       "date": "2026-07-29",
       "ticker": "VRT",
       "action": "add",
       "qty_change": 2,
-      "price_at_trade": null,
+      "price_at_trade": 226.22,
       "reason": "dollar-cost-averaging",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Detected via qty-diff, same session. Live quote at detection time ~$224.78 (not a confirmed fill price) -- VRT fell 16.6% intraday this session, the book's worst mover by a wide margin; unclear whether the add landed before or after most of that drop. Now 1.09x over its ATR risk cap post-add."
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:24:20Z (21:54:20 IST): $453.78 for ~2.006 shares @ $226.22, Market order -- VRT fell 16.6% intraday this session, the book's worst mover by a wide margin; this fill landed mid-decline, not at the day's worst level. Now 1.09x over its ATR risk cap post-add."
     },
     {
       "date": "2026-07-29",
       "ticker": "AMD",
       "action": "add",
       "qty_change": 2,
-      "price_at_trade": null,
+      "price_at_trade": 425.03,
       "reason": "dollar-cost-averaging",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Detected via qty-diff, same session. Live quote at detection time ~$431.60 (not a confirmed fill price). Matches the strategist's AMD stage-in proposal from the 05:00 ET run, though the user's stated rationale was DCA rather than the proposal's specific sizing logic."
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:08:52Z (21:38:52 IST): $852.61 for ~2.006 shares @ $425.03, Market order. Matches the strategist's AMD stage-in proposal from the 05:00 ET run, though the user's stated rationale was DCA rather than the proposal's specific sizing logic."
+    },
+    {
+      "date": "2026-07-29",
+      "ticker": "BE",
+      "action": "entry",
+      "qty_change": 3,
+      "price_at_trade": 175.0,
+      "reason": "re-entry-after-price-correction",
+      "notes": "Brand new position, first-ever BE holding in this book -- not caught by qty-diff detection since the fill (2026-07-29T18:02:22Z / 23:32:22 IST) postdated the 22:30 IST refresher's holdings snapshot; only surfaced via the INDmoney confirmation email, discovered when the user pointed Agent Smith at the inbox. Exact fill: $526.57 for 3 shares @ $175.00, Market order. User-confirmed rationale via TRADE RATIONALE CAPTURE (chosen via 'Other', not one of the 5 standard buckets): 're-enter asfter price correction' [sic] -- reading this as a deliberate re-entry into a name the user had been watching, now that its price corrected, not a stop-loss/DCA/thesis-change/raise-cash/rebalance in the standard sense. No sector_map/thesis/ATR/beta cache entry yet -- needs smith-thesis classification on the next full sweep (see the new gap opened alongside this entry)."
     }
   ],
   "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out."
