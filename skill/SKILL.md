@@ -101,19 +101,25 @@ trades.json's own header has always said rationale gets "populated by interactiv
 
 **Scheduled/non-interactive runs**: skip asking, write `"reason": "UNCAPTURED"` for each new entry exactly as trades.json's schema already documents, and add one data_quality line noting how many trades await rationale. Never block a scheduled run waiting on input that can't arrive.
 
-**Interactive runs**: before finalizing the briefing, capture rationale per ticker in TWO STEPS, not one — AskUserQuestion hard-caps at 4 custom options per question (5th slot is always a fixed free-text "Other", not a labeled button you control), so 5 standing named reasons plus a true catch-all cannot fit in a single question. Added 2026-07-29 after DCA went 5-for-5 via "Other" on its first day and the user asked for it as a real button, not typed text, without dropping any of the original 4.
+**Interactive runs**: before finalizing the briefing, capture rationale per ticker in TWO STEPS, not one — AskUserQuestion hard-caps at 4 custom options per question (5th slot is always a fixed free-text "Other", not a labeled button you control), so 5 standing named reasons plus a true catch-all cannot fit in a single question. Added 2026-07-29 after DCA went 5-for-5 via "Other" on its first day and the user asked for it as a real button, not typed text, without dropping any of the original 4; extended the same day to be direction-aware after the user pointed out buys and sells have different most-likely reasons.
 
-- **Step 1** (one question per ticker, up to 4 tickers per call): *"Was this dollar-cost-averaging?"* — options `Yes — DCA` / `No — something else`. If DCA: write `"reason": "dollar-cost-averaging"` straight away, done in one click, skip step 2 for that ticker.
-- **Step 2** (only for tickers answered "No" in step 1, same batching rule): the original 4 options, unchanged, worded to match trades.json's reason enum verbatim:
+The 5 standing reasons are `dollar-cost-averaging`, `stop-loss`, `thesis-change`, `raise-cash`, `rebalance`. **Step 1's question depends on the sign of the ticker's `qty_diff`** (not the `action` label — `qty_diff` is unambiguous, `action` strings like "add" vs "entry" have drifted inconsistently across trades.json's history):
+- **`qty_diff > 0` (a buy/add)** → step 1 asks *"Was this dollar-cost-averaging?"* (`Yes — DCA` / `No — something else`).
+- **`qty_diff < 0` (a sell/trim/exit)** → step 1 asks *"Was this a stop-loss?"* (`Yes — stop-loss` / `No — something else`).
+
+If step 1 is "Yes": write that reason straight to `reason`, one click, done — skip step 2 for that ticker.
+
+If step 1 is "No": **step 2 shows the remaining 4 reasons** — whichever one step 1 already asked about (and ruled out) is dropped from the list, so this is always exactly 4 options, never a separate filtering decision:
 
 | Label | Description shown to the user |
 |---|---|
-| Stop-loss | Hit the stop / sized down under the tight stop discipline this book runs on |
+| Dollar-cost-averaging | Buying on a schedule/discipline, not reacting to a specific signal (sell-side step 1 only, since a buy already ruled this out in step 1) |
+| Stop-loss | Hit the stop / sized down under the tight stop discipline this book runs on (buy-side step 1 only, same reason) |
 | Thesis-change | Your view on the company or story itself changed |
 | Raise-cash | Trimmed specifically to build dry powder, not a stop or a thesis call |
 | Rebalance | Sizing move — staged deployment, bringing a position/cluster back toward target |
 
-The tool adds a free-text "Other" automatically on step 2 — if picked, store the user's own words as `reason` verbatim (don't force it into one of the 4 buckets) and put any elaboration in `notes`. For a bucketed answer (from either step), write the matching enum value straight to `reason` and put ticker/qty/direction context in `notes` (price_at_trade: use a live quote if you have one this run, clearly caveated as approximate/not a confirmed fill — never invent a fill price).
+The tool adds a free-text "Other" automatically on step 2 — if picked, store the user's own words as `reason` verbatim (don't force it into one of the 5 buckets) and put any elaboration in `notes`. For a bucketed answer (from either step), write the matching enum value straight to `reason` and put ticker/qty/direction context in `notes` (price_at_trade: use a live quote if you have one this run, clearly caveated as approximate/not a confirmed fill — never invent a fill price).
 
 Append the new entries to trades.json (WRITE SAFETY applies — .bak then tmp-then-mv, same as any other memory-of-record file) before moving to Stage 1, so the rationale is available to embed into the strategist's context this same run, not just logged for next time.
 
