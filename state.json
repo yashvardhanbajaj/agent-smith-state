@@ -881,7 +881,7 @@
       "owner": "orchestrator (TRADE RATIONALE CAPTURE)",
       "status": "closed",
       "closed": "2026-07-29",
-      "resolution": "User decision 2026-07-29: keep the standard 4 (stop-loss/thesis-change/raise-cash/rebalance) as-is. AskUserQuestion hard-caps at 4 custom options per question (the 5th slot is always a fixed free-text 'Other', not a labeled button), so 'add a 5th option' isn't literally possible without dropping one of the 4 -- user explicitly chose not to drop any. Dollar-cost-averaging stays reachable via 'Other', which already worked cleanly for all 5 of today's trades. No SKILL.md change needed."
+      "resolution": "CORRECTED 2026-07-29 (the first close was based on a misread of the user's intent -- they wanted DCA as a real 5th button alongside all 4 originals, not folded into 'Other'). Implemented as a two-step ask instead: step 1 is a single yes/no ('Was this dollar-cost-averaging?'), and only on 'no' does step 2 show the original 4 unchanged. This is the only way to give 5 standing named reasons + a true catch-all when the underlying tool hard-caps at 4 custom options per question. trades.json's reason enum and SKILL.md step 2.9 both updated to match."
     }
   ],
   "sentiment": {

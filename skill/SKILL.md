@@ -101,7 +101,10 @@ trades.json's own header has always said rationale gets "populated by interactiv
 
 **Scheduled/non-interactive runs**: skip asking, write `"reason": "UNCAPTURED"` for each new entry exactly as trades.json's schema already documents, and add one data_quality line noting how many trades await rationale. Never block a scheduled run waiting on input that can't arrive.
 
-**Interactive runs**: before finalizing the briefing, use AskUserQuestion — one question per ticker, up to 4 questions per call (batch further calls if more than 4 tickers changed in one run). Each question offers exactly these 4 options, worded to match trades.json's reason enum verbatim so the answer needs no translation:
+**Interactive runs**: before finalizing the briefing, capture rationale per ticker in TWO STEPS, not one — AskUserQuestion hard-caps at 4 custom options per question (5th slot is always a fixed free-text "Other", not a labeled button you control), so 5 standing named reasons plus a true catch-all cannot fit in a single question. Added 2026-07-29 after DCA went 5-for-5 via "Other" on its first day and the user asked for it as a real button, not typed text, without dropping any of the original 4.
+
+- **Step 1** (one question per ticker, up to 4 tickers per call): *"Was this dollar-cost-averaging?"* — options `Yes — DCA` / `No — something else`. If DCA: write `"reason": "dollar-cost-averaging"` straight away, done in one click, skip step 2 for that ticker.
+- **Step 2** (only for tickers answered "No" in step 1, same batching rule): the original 4 options, unchanged, worded to match trades.json's reason enum verbatim:
 
 | Label | Description shown to the user |
 |---|---|
@@ -110,7 +113,7 @@ trades.json's own header has always said rationale gets "populated by interactiv
 | Raise-cash | Trimmed specifically to build dry powder, not a stop or a thesis call |
 | Rebalance | Sizing move — staged deployment, bringing a position/cluster back toward target |
 
-The tool adds a free-text "Other" automatically — if picked, store the user's own words as `reason` verbatim (don't force it into one of the 4 buckets) and put any elaboration in `notes`. For a bucketed answer, write the matching enum value straight to `reason` and put ticker/qty/direction context in `notes` (price_at_trade: use a live quote if you have one this run, clearly caveated as approximate/not a confirmed fill — never invent a fill price).
+The tool adds a free-text "Other" automatically on step 2 — if picked, store the user's own words as `reason` verbatim (don't force it into one of the 4 buckets) and put any elaboration in `notes`. For a bucketed answer (from either step), write the matching enum value straight to `reason` and put ticker/qty/direction context in `notes` (price_at_trade: use a live quote if you have one this run, clearly caveated as approximate/not a confirmed fill — never invent a fill price).
 
 Append the new entries to trades.json (WRITE SAFETY applies — .bak then tmp-then-mv, same as any other memory-of-record file) before moving to Stage 1, so the rationale is available to embed into the strategist's context this same run, not just logged for next time.
 
