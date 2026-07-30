@@ -1,0 +1,27 @@
+{
+  "ts_refetched": "2026-07-30T20:18:00+05:30",
+  "note_session_gap": "Original fetch at 09:21 IST (23:51 ET Wed) was pre-open data. A long gap elapsed inside this run before the holdings/sanity-gate step; by the time holdings were pulled, wall-clock had advanced to 20:18 IST Thu (10:48 ET Thu) -- US market is now INTRADAY, not pre-open. Market inputs refetched fresh; the 09:21 pre-open snapshot is superseded and not used for gate/session classification.",
+  "usdinr": 95.67,
+  "us10y": 4.661,
+  "vix": 18.23,
+  "vix_prev_close": 20.66,
+  "vix_change_pct": -11.773,
+  "dxy": 100.094,
+  "spx": 7395.4,
+  "spx_change_pct": 1.083,
+  "ndx": 25031.979,
+  "ndx_change_pct": 2.41,
+  "smh": 539.07,
+  "smh_change_pct": 6.912,
+  "market_session": "intraday",
+  "asia_stale_premarket_ref": {
+    "as_of": "2026-07-30T09:21:00+05:30 (stale, pre-open read, not refetched -- US session already well underway and clearly a strong recovery, Asia read no longer decision-relevant)",
+    "nikkei_change_pct": 0.725,
+    "kospi_change_pct": -0.543,
+    "taiwan_change_pct": 0.432,
+    "euro_stoxx50_change_pct": -0.647
+  },
+  "gate_classification": "STABILIZING",
+  "gate_rationale": "VIX change -11.77% (<<+5%), SMH +6.91% (>>-2.5%), stale Asia read calm (no index <=-2%), SPX/NDX cash both up strongly (proxy for ES/NQ>=0%). Strong single-session recovery/relief rally the day after the VIX 20.66 close and 3-day CXMT/SK-Hynix memory selloff -- STABILIZING all four conditions met. smith-rebound SKIPPED per this gate.",
+  "catalyst_trigger": "SMH moved +6.91% (>=3% threshold) -- dispatch smith-catalyst to identify the cause of the reversal."
+}

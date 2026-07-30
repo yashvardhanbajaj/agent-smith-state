@@ -1,159 +1,169 @@
 {
   "schema_version": 1,
-  "ts": "2026-07-29T22:30:00+05:30",
-  "mode": "quick-refresher",
-  "usdinr": 95.62,
+  "ts": "2026-07-30T20:21:00+05:30",
+  "mode": "quick",
+  "usdinr": 95.67,
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
-  "last_run_dir": "runs/2026-07-29-2230/",
+  "last_run_dir": "runs/2026-07-30-0921/",
   "us": {
-    "value_usd": 30137.02,
-    "count": 24,
+    "value_usd": 35433.13,
+    "count": 26,
     "top3": [
       {
         "ticker": "ASML",
-        "weight_pct": 10.303
+        "weight_pct": 9.372
       },
       {
         "ticker": "GOOGL",
-        "weight_pct": 8.935
+        "weight_pct": 7.496
       },
       {
-        "ticker": "DRAM",
-        "weight_pct": 7.59
+        "ticker": "MU",
+        "weight_pct": 7.195
       }
     ],
     "pnl_pct": null,
-    "wallet_usd": 7116.06,
+    "wallet_usd": 4293.55,
     "peak_value_usd": 41887.33,
     "peak_total_book_usd": 44873.02,
-    "usdinr": 95.637,
-    "beta": 1.178,
-    "value_note": "Intraday QUICK refresher, ~1pm ET (FOMC decision pending same session). Gate ESCALATING (VIX +10.2% intraday to 20.06, SMH -3.54%, both independent triggers). User deployed ~$1,797 net today (ARM/TER/NBIS/VRT/AMD +2sh each, QCOM exited to dust) since the 05:00 ET pre-open run -- captured via qty-diff on this refresher's live snapshot, not yet logged in trades.json (UNCAPTURED, see data_quality). INDmoney's per-position feed (networth_holdings) again diverged from its own aggregate by up to 79.5% on individual names (worst: SNDK) -- G32 recurrence, second time same day; repriced from live yfinance quotes, cross-validated against INDmoney's aggregate net-worth total (row-sum vs aggregate: 0.00% after correction). Equity $29,627.86 (23 positions), wallet $7,642.63, total book $37,270.49. | UPDATED same session after discovering a 7th trade (BE, new position, 3sh @ $175, 23:32 IST) via INDmoney confirmation emails -- not caught by the original 22:30 refresher since the fill postdated that snapshot. Equity now $30,137.02 (24 positions), wallet $7,116.06, total book $37,253.08. Cash regime re-evaluated post-fix (see G36): post_stop_event, 19.102% -- stop-out on 2026-07-27, ~2 sessions ago (window 15), cash 19.102% has not yet re-entered the normal band (<= 15%)",
-    "beta_note": "Portfolio beta 1.181 vs SMH, value-weighted on today's live-repriced positions."
+    "usdinr": 95.67,
+    "beta": 1.195,
+    "value_note": "Intraday run 2026-07-30 20:21 IST. INDmoney per-position feed frozen again (G32 3rd recurrence) -- holdings.json rebuilt from live yfinance prices x INDmoney share counts, cross-validated against INDmoney's own aggregate to 0.22% divergence. No real trades since last state (float-noise qty diffs on MU/VRT/AMD only, net flow -$6.88). Total book $39,726.68 (equity $35,433.13 + wallet $4,293.55), +6.5% vs prior state, on SMH +6.91% relief rally.",
+    "beta_note": "Portfolio beta 1.195 vs SMH."
   },
   "holdings": [
     {
       "ticker": "ASML",
       "qty": 2.000001151,
-      "weight_pct": 10.303
+      "weight_pct": 9.372
     },
     {
       "ticker": "GOOGL",
       "qty": 8,
-      "weight_pct": 8.935
+      "weight_pct": 7.496
+    },
+    {
+      "ticker": "MU",
+      "qty": 3.000365376,
+      "weight_pct": 7.195
     },
     {
       "ticker": "DRAM",
       "qty": 50,
-      "weight_pct": 7.59
+      "weight_pct": 7.138
     },
     {
       "ticker": "SNDK",
       "qty": 2.008131251,
-      "weight_pct": 6.882
+      "weight_pct": 7.046
+    },
+    {
+      "ticker": "MRVL",
+      "qty": 12,
+      "weight_pct": 6.162
     },
     {
       "ticker": "NVDA",
       "qty": 10,
-      "weight_pct": 6.375
+      "weight_pct": 5.495
     },
     {
       "ticker": "AVGO",
       "qty": 5,
-      "weight_pct": 6.227
-    },
-    {
-      "ticker": "MRVL",
-      "qty": 10,
-      "weight_pct": 5.507
+      "weight_pct": 5.421
     },
     {
       "ticker": "VRT",
       "qty": 7,
-      "weight_pct": 5.221
-    },
-    {
-      "ticker": "MU",
-      "qty": 2.000365376,
-      "weight_pct": 5.155
+      "weight_pct": 4.556
     },
     {
       "ticker": "AMD",
       "qty": 3,
-      "weight_pct": 4.296
+      "weight_pct": 4.155
     },
     {
       "ticker": "EWY",
       "qty": 8,
-      "weight_pct": 3.885
-    },
-    {
-      "ticker": "TSM",
-      "qty": 3,
-      "weight_pct": 3.771
+      "weight_pct": 3.522
     },
     {
       "ticker": "COHR",
       "qty": 5,
-      "weight_pct": 3.713
+      "weight_pct": 3.476
+    },
+    {
+      "ticker": "TSM",
+      "qty": 3,
+      "weight_pct": 3.395
     },
     {
       "ticker": "TER",
       "qty": 3.002730188,
-      "weight_pct": 3.339
+      "weight_pct": 3.014
     },
     {
       "ticker": "CLS",
       "qty": 3.003266352,
-      "weight_pct": 3.233
-    },
-    {
-      "ticker": "ARM",
-      "qty": 4,
-      "weight_pct": 3.067
+      "weight_pct": 2.964
     },
     {
       "ticker": "GEV",
       "qty": 1.004950742,
-      "weight_pct": 3.022
+      "weight_pct": 2.763
+    },
+    {
+      "ticker": "ARM",
+      "qty": 4,
+      "weight_pct": 2.7
     },
     {
       "ticker": "NBIS",
       "qty": 5,
-      "weight_pct": 2.58
+      "weight_pct": 2.687
+    },
+    {
+      "ticker": "GLW",
+      "qty": 5,
+      "weight_pct": 1.862
     },
     {
       "ticker": "BE",
       "qty": 3,
-      "weight_pct": 1.69
+      "weight_pct": 1.76
     },
     {
-      "ticker": "ORCL",
-      "qty": 4,
-      "weight_pct": 1.575
+      "ticker": "MKSI",
+      "qty": 2,
+      "weight_pct": 1.633
     },
     {
       "ticker": "AMAT",
       "qty": 1.0081785,
-      "weight_pct": 1.496
+      "weight_pct": 1.425
     },
     {
-      "ticker": "CIEN",
-      "qty": 1.008528082,
-      "weight_pct": 1.114
+      "ticker": "ORCL",
+      "qty": 4,
+      "weight_pct": 1.423
+    },
+    {
+      "ticker": "QCOM",
+      "qty": 3.000761904,
+      "weight_pct": 1.266
     },
     {
       "ticker": "IREN",
       "qty": 10,
-      "weight_pct": 1.023
+      "weight_pct": 1.039
     },
     {
-      "ticker": "QCOM",
-      "qty": 0.000761904,
-      "weight_pct": 0.0
+      "ticker": "CIEN",
+      "qty": 1.008528082,
+      "weight_pct": 1.037
     }
   ],
-  "news_watermark": "2026-07-29",
+  "news_watermark": "2026-07-30",
   "thesis": {
     "NVDA": "Core AI GPU/accelerator platform leadership | strengthening",
     "ASML": "Sole-source EUV lithography. THESIS DENTED not broken 2026-07-28: China began mass-producing immersion DUV, first units to SMIC/Hua Hong/CXMT. Scale is tiny (5 units 2026, ~20 in 2027 vs ASML's 131 immersion tools in 2025 and 98.7% share), still needs Japanese components, and does NOT touch EUV -- which is the actual moat | watch",
@@ -166,7 +176,6 @@
     "EWY": "South Korea ETF: >50% Samsung + SK Hynix. On 2026-07-28 Samsung fell 14.4% (worst since Oct 2008) and SK Hynix 14.7%; KOSPI -10.84%, -34% in 25 days after a 300% spike | watch",
     "CIEN": "Optical networking gear for AI datacenter/telco backbone -- trimmed 59%, weak FY guide vs AI PoC win | watch",
     "QCOM": "Diversifying from handsets into AI/datacenter CPUs and auto | strengthening",
-    "LRCX": "Semicap wafer fab equipment geared to leading-edge and memory capex | strengthening",
     "TER": "Semicap automated test equipment geared to AI chip test volume | strengthening",
     "TSM": "Foundry monopoly manufacturing leading-edge AI chips | strengthening",
     "MU": "Memory (DRAM/HBM). THESIS THREAT 2026-07-28: CXMT listed on Shanghai STAR (+400% debut) -- China's domestic DRAM champion is now publicly capitalised, on top of HBM3E ASP -51% from peak. Named, funded competitor where there was none | watch",
@@ -179,12 +188,14 @@
     "GOOG": "Hyperscaler that BUYS AI capex rather than selling it -- the chain's only internal hedge; blowout 2Q26 print, no earnings until ~late Oct | strengthening [POSITION CLOSED 2026-07-28, swapped to GOOGL Class A]",
     "GOOGL": "Alphabet Class A \u2014 replaced the Class C holding 2026-07-28. Hyperscaler that BUYS AI capex; blowout 2Q26 (rev +24%, cloud +82%) but FY26 capex raised to $195-205bn and quarterly FCF went negative -$5.9bn | strengthening",
     "NBIS": "Re-entered 2026-07-28 at 3sh after the 07-24 stop-out. Neocloud GPU-as-a-service; highest ATR in the book at 14.89% | watch",
-    "IREN": "Re-entered 2026-07-28 at 10sh after the 07-24 stop-out. Bitcoin-mining infra pivoted to AI/GPU cloud; ATR 11.47% | watch"
+    "IREN": "Re-entered 2026-07-28 at 10sh after the 07-24 stop-out. Bitcoin-mining infra pivoted to AI/GPU cloud; ATR 11.47% | watch",
+    "BE": "On-site fuel-cell power for AI datacenters (Oracle/Brookfield partnerships, $20B backlog) | strengthening",
+    "GLW": "Optical fiber/connectivity + specialty glass for AI datacenter interconnect (Nvidia partnership) | watch",
+    "MKSI": "Semicap vacuum/laser/photonics & process-control tools for leading-edge + memory fab capex | intact"
   },
   "sector_map": {
     "NVDA": "AI Semis/Fabs",
     "ASML": "AI Semis/Fabs",
-    "LRCX": "AI Semis/Fabs",
     "AMAT": "AI Semis/Fabs",
     "TER": "AI Semis/Fabs",
     "QCOM": "AI Semis/Fabs",
@@ -208,89 +219,80 @@
     "CEG": "AI Power/Cooling/DC Infra",
     "GOOGL": "Compute/Hyperscaler",
     "NBIS": "Compute/Hyperscaler OEM",
-    "IREN": "Compute/Hyperscaler"
+    "IREN": "Compute/Hyperscaler",
+    "BE": "AI Power/Cooling/DC Infra",
+    "GLW": "AI Networking/Optics",
+    "MKSI": "AI Semis/Fabs"
   },
   "signal_history": {
     "ORCL": [
-      "BREAKDOWN",
-      "STRONG DOWNTREND",
       "OVERSOLD BOUNCE",
-      "PEER LAGGARD",
+      "BREAKDOWN",
       "TARGET GAP"
     ],
     "ASML": [
-      "STRONG DOWNTREND",
-      "NEW HEADWINDS",
+      "STRONG UPTREND",
       "TARGET GAP"
     ],
     "SNDK": [
-      "STRONG DOWNTREND",
+      "STRONG UPTREND",
       "PEER LAGGARD"
     ],
     "TSM": [
+      "STRONG UPTREND",
       "TARGET GAP"
     ],
     "MU": [
-      "STRONG DOWNTREND",
-      "PEER LAGGARD",
+      "STRONG UPTREND",
       "TARGET GAP",
-      "INSIDER ACTIVITY"
-    ],
-    "LRCX": [
-      "PEER LAGGARD",
-      "STRONG DOWNTREND",
-      "TARGET GAP"
+      "PEER LAGGARD"
     ],
     "MRVL": [
-      "STRONG DOWNTREND",
-      "PEER LAGGARD",
-      "TARGET GAP"
+      "STRONG UPTREND",
+      "TARGET GAP",
+      "PEER LAGGARD"
     ],
     "CIEN": [
-      "STRONG DOWNTREND",
-      "PEER LAGGARD",
+      "STRONG UPTREND",
       "TARGET GAP"
     ],
     "VRT": [
-      "STRONG DOWNTREND",
       "PEER LAGGARD",
       "TARGET GAP"
     ],
     "AMAT": [
-      "STRONG DOWNTREND",
-      "PEER LAGGARD",
-      "TARGET GAP"
+      "STRONG UPTREND",
+      "TARGET GAP",
+      "PEER LAGGARD"
     ],
     "TER": [
-      "STRONG DOWNTREND",
-      "PEER LAGGARD",
+      "STRONG UPTREND",
       "TARGET GAP"
     ],
     "AMD": [
-      "STRONG DOWNTREND",
+      "STRONG UPTREND",
       "TARGET GAP"
     ],
     "STM": [],
     "COHR": [
-      "STRONG DOWNTREND",
-      "PEER LAGGARD",
-      "TARGET GAP"
+      "STRONG UPTREND",
+      "TARGET GAP",
+      "PEER LAGGARD"
     ],
     "LITE": [
       "TARGET GAP"
     ],
     "ARM": [
-      "STRONG DOWNTREND",
-      "PEER LAGGARD",
-      "TARGET GAP"
+      "STRONG UPTREND",
+      "TARGET GAP",
+      "PEER LAGGARD"
     ],
     "DRAM": [
-      "STRONG DOWNTREND",
+      "STRONG UPTREND",
       "PEER LAGGARD"
     ],
     "NVDA": [
       "PEER LEADER",
-      "NEW HEADWINDS",
       "TARGET GAP"
     ],
     "AVGO": [
@@ -298,18 +300,17 @@
       "TARGET GAP"
     ],
     "GEV": [
-      "STRONG DOWNTREND",
-      "PEER LAGGARD",
-      "TARGET GAP"
+      "STRONG UPTREND",
+      "TARGET GAP",
+      "PEER LAGGARD"
     ],
     "QCOM": [
-      "TARGET GAP",
-      "EARNINGS PROXIMITY"
+      "STRONG DOWNTREND",
+      "NEW HEADWINDS",
+      "TARGET GAP"
     ],
     "CLS": [
       "STRONG UPTREND",
-      "PEER LEADER",
-      "MOMENTUM+VOLUME",
       "TARGET GAP"
     ],
     "META": [
@@ -324,19 +325,37 @@
       "TARGET GAP"
     ],
     "EWY": [
-      "STRONG DOWNTREND",
-      "PEER LAGGARD"
+      "STRONG UPTREND"
     ],
     "GOOGL": [
+      "NEW HEADWINDS",
       "TARGET GAP"
     ],
     "NBIS": [
-      "STRONG DOWNTREND",
+      "STRONG UPTREND",
+      "MOMENTUM+VOLUME",
       "PEER LAGGARD"
     ],
     "IREN": [
-      "STRONG DOWNTREND",
-      "PEER LAGGARD",
+      "STRONG UPTREND",
+      "MOMENTUM+VOLUME",
+      "TARGET GAP",
+      "PEER LAGGARD"
+    ],
+    "BE": [
+      "STRONG UPTREND",
+      "MOMENTUM+VOLUME",
+      "NEW TAILWINDS",
+      "TARGET GAP"
+    ],
+    "GLW": [
+      "STRONG UPTREND",
+      "MOMENTUM+VOLUME",
+      "TARGET GAP"
+    ],
+    "MKSI": [
+      "STRONG UPTREND",
+      "MOMENTUM+VOLUME",
       "TARGET GAP"
     ]
   },
@@ -395,7 +414,8 @@
       "GE Vernova Inc.": "GEV",
       "Alibaba Group Holding Limited American Depositary Shares, each represents eight Ordinary Shares": "BABA",
       "Alphabet Inc. Class A Common Stock": "GOOGL",
-      "Bloom Energy Corporation": "BE"
+      "Bloom Energy Corporation": "BE",
+      "MKS Inc.": "MKSI"
     },
     "betas": {
       "AMAT": {
@@ -541,8 +561,8 @@
       "LRCX": {
         "date": "2026-07-29",
         "confirmed": true,
-        "source": "fmp-calendar",
-        "as_of": "2026-07-28"
+        "source": "reported",
+        "as_of": "2026-07-30"
       },
       "GOOG": {
         "date": "2026-10-21",
@@ -554,13 +574,13 @@
         "date": "2026-07-28",
         "confirmed": true,
         "source": "reported",
-        "as_of": "2026-07-28"
+        "as_of": "2026-07-30"
       },
       "QCOM": {
         "date": "2026-07-29",
         "confirmed": true,
-        "source": "fmp-calendar",
-        "as_of": "2026-07-28"
+        "source": "reported",
+        "as_of": "2026-07-30"
       },
       "AAPL": {
         "date": "2026-07-30",
@@ -583,14 +603,14 @@
       "CLS": {
         "date": "2026-07-28",
         "confirmed": true,
-        "source": "web",
-        "as_of": "2026-07-29"
+        "source": "reported",
+        "as_of": "2026-07-30"
       },
       "VRT": {
         "date": "2026-07-29",
         "confirmed": true,
-        "source": "web",
-        "as_of": "2026-07-29"
+        "source": "reported",
+        "as_of": "2026-07-30"
       },
       "COHR": {
         "date": "2026-08-05",
@@ -857,7 +877,7 @@
     },
     {
       "id": "G32",
-      "description": "INDmoney's networth_holdings (row-level) fed stale/wrong per-position prices on 2026-07-29 pre-open -- up to 39% too high on individual names (e.g. SNDK implied $1854 vs live $1096), causing an 18.15% row-sum-vs-aggregate divergence (compute_book.json persist_safe=false on first pass). This is the OPPOSITE direction from G3 (aggregate lagging rows) -- here the row-level feed lagged the aggregate, which itself matched live yfinance repricing to within 0.21%. Resolved this run by rebuilding holdings.json from live yfinance quotes cross-validated against INDmoney's own aggregate total. Orchestrator should treat a persist_safe=false failure as ambiguous-direction and cross-check against live quotes before assuming which source is stale, not default to trusting row-level over aggregate. RECURRED 2026-07-29 intraday (~1pm ET, same day as the original): row-sum vs aggregate divergence 21.9% before correction, up to 79.5% too high on individual names (worst: SNDK). Same workaround applied (live-yfinance repricing cross-checked against INDmoney's aggregate). Two occurrences in one trading day on a day with unusually large intraday moves (VRT -16.6%) suggests the feed may specifically lag during fast-moving sessions, not just at pre-open -- worth testing on a calm day to isolate volatility as the trigger before extending the script's auto-detection.",
+      "description": "INDmoney's networth_holdings (row-level) fed stale/wrong per-position prices on 2026-07-29 pre-open -- up to 39% too high on individual names (e.g. SNDK implied $1854 vs live $1096), causing an 18.15% row-sum-vs-aggregate divergence (compute_book.json persist_safe=false on first pass). This is the OPPOSITE direction from G3 (aggregate lagging rows) -- here the row-level feed lagged the aggregate, which itself matched live yfinance repricing to within 0.21%. Resolved this run by rebuilding holdings.json from live yfinance quotes cross-validated against INDmoney's own aggregate total. Orchestrator should treat a persist_safe=false failure as ambiguous-direction and cross-check against live quotes before assuming which source is stale, not default to trusting row-level over aggregate. RECURRED 2026-07-29 intraday (~1pm ET, same day as the original): row-sum vs aggregate divergence 21.9% before correction, up to 79.5% too high on individual names (worst: SNDK). Same workaround applied (live-yfinance repricing cross-checked against INDmoney's aggregate). Two occurrences in one trading day on a day with unusually large intraday moves (VRT -16.6%) suggests the feed may specifically lag during fast-moving sessions, not just at pre-open -- worth testing on a calm day to isolate volatility as the trigger before extending the script's auto-detection. RECURRED AGAIN 2026-07-30 (3rd occurrence): per-position feed frozen/byte-identical to a snapshot >10hrs stale despite SMH +6.91% intraday; aggregate again proved live and trustworthy (0.22% divergence vs from-scratch yfinance reconstruction). Pattern is now well-established across 3 separate sessions -- aggregate-trustworthy/rows-stale, not the original G3 direction. Still open pending a script-level auto-detection fix.",
       "opened": "2026-07-29",
       "owner": "orchestrator (STALENESS GATE)",
       "status": "open -- workaround applied this run, script's reconciliation logic could be extended to auto-detect direction via live-quote spot-check"
@@ -909,24 +929,34 @@
     },
     {
       "id": "G38",
-      "description": "BE (Bloom Energy) is a brand-new position (3sh, entered 2026-07-29 23:32 IST) with no sector_map cluster, no thesis, no ATR20/beta cache entry -- currently renders as 'Unclassified' everywhere (treemap, clusters table, rotation analysis) and its risk cap/stop can't be computed (missing_atr). Needs smith-thesis to assign a cluster + write a thesis line on the next full sweep, and smith-book/the ATR refresh path to seed atr20/betas for it. Also worth noting: this position was discovered via INDmoney confirmation emails, not the qty-diff detector, because the trade postdated the run's holdings snapshot -- the qty-diff method only catches trades that happened *before* the snapshot it's diffing against, never ones that happen *during* the analysis window itself. Worth considering whether TRADE RATIONALE CAPTURE (step 2.9) should also check INDmoney transaction emails (from:transactions.indmoney.com since last_run_dir's timestamp) as a second detection path, not just holdings qty-diff.",
+      "description": "BE (Bloom Energy), GLW (Corning, re-entered after full exit 07-24), and MKSI (MKS Instruments, brand new) are all newly (re-)entered positions from the 2026-07-29 evening session (3sh, entered 2026-07-29 23:32 IST) with no sector_map cluster, no thesis, no ATR20/beta cache entry -- currently renders as 'Unclassified' everywhere (treemap, clusters table, rotation analysis) and its risk cap/stop can't be computed (missing_atr). All three need smith-thesis to assign a cluster + write a thesis line on the next full sweep, and smith-book/the ATR refresh path to seed atr20/betas for it. Also worth noting: this position was discovered via INDmoney confirmation emails, not the qty-diff detector, because the trade postdated the run's holdings snapshot -- the qty-diff method only catches trades that happened *before* the snapshot it's diffing against, never ones that happen *during* the analysis window itself. Worth considering whether TRADE RATIONALE CAPTURE (step 2.9) should also check INDmoney transaction emails (from:transactions.indmoney.com since last_run_dir's timestamp) as a second detection path, not just holdings qty-diff.",
       "opened": "2026-07-29",
       "owner": "orchestrator",
+      "status": "closed",
+      "closed": "2026-07-30",
+      "resolution": "CLOSED 2026-07-30: smith-thesis assigned BE->AI Power/Cooling/DC Infra, GLW->AI Networking/Optics, MKSI->AI Semis/Fabs this run; sector_map updated, drift recomputed against the new mapping this same run."
+    },
+    {
+      "id": "G39",
+      "description": "The email pull surfaced 3 more custom trade rationales beyond dollar-cost-averaging (G35): 're-entry-after-price-correction' (BE, GLW), 're-entry' (QCOM same-day buyback -- kept distinct from the price-correction framing since it's a same-day stop/rebuy, not a return after days-to-weeks), and 'new-entry' (MKSI). All three went through 'Other' rather than the 5 standard buckets. Worth a single decision pass on whether any belong as standing buckets, same as the G35 DCA promotion -- not decided unilaterally here.",
+      "opened": "2026-07-29",
+      "owner": "orchestrator (TRADE RATIONALE CAPTURE)",
       "status": "open"
     }
   ],
   "sentiment": {
-    "score": 63.7,
+    "score": 64.5,
     "band": "greed",
     "components": {
-      "vix": 71.5,
-      "ma125": 70.0,
-      "rsi14": 35.81,
-      "pct_off_52w_high": 91.1,
+      "vix": 72.6,
+      "ma125": 50,
+      "rsi14": 50,
+      "pct_off_52w_high": 100.0,
       "yield_trend": 50.0
     },
     "action_hint": null,
-    "note": "proxy composite -- RSI14 corrected to true daily 2026-07-28: 35.81, against 53.12 computed on weekly bars, a 17.3pt overstatement. 52wk-range component proven exact. 125dma still weekly-smoothed (accepted)."
+    "prior_band": "greed",
+    "note": "proxy composite, not CNN's Fear & Greed Index -- equal-weighted VIX-range/125dma/RSI14/52wk-high/yield-trend"
   },
   "diversifier_candidates": {
     "NEM": {
@@ -993,11 +1023,15 @@
       "clean_diversifier": true
     }
   },
-  "watchlist_scan_cursor": 90,
+  "watchlist_scan_cursor": 105,
   "data_quality": [
-    "cmd_book's qty_changes flagged ARM/TER/AMD as likely_corporate_action (ratio exactly 2x/3x) -- false positive, these are ordinary +2-share adds, not splits"
+    "G32 RECURRED (3rd time): INDmoney per-position feed frozen at fetch time despite SMH +6.91% intraday; holdings.json rebuilt from live yfinance prices x INDmoney share counts, cross-validated against INDmoney's aggregate to 0.22% divergence -- aggregate trusted, rows discarded.",
+    "compute_sentiment.json's ma125/rsi14 components defaulted to neutral 50 this run (additional daily-bar fetch for spx_125dma/ndx_rsi14 skipped under quick-mode time budget) -- sentiment score 64.5/greed should be read as directionally soft, not precise.",
+    "LRCX pruned from thesis/sector_map/signal_history/peer_map -- present in prior maps but absent from current 26-name holdings (likely closed position); left in data_cache (betas/atr20/earnings_calendar) caches per normal 30-day cache hygiene, not yet stale enough to drop.",
+    "MU CEO insider-sale flag (opened 07-29) remains unresolved -- FMP insiderTrades tool returned ACCESS DENIED (plan-tier gate) again this run.",
+    "compute_risk.json's per-name numeric cap/headroom values did not carry through cleanly this run (over_cap boolean flag is reliable, dollar figures are not) -- flagged to strategist, no proposal sized off a risk.json dollar figure this run."
   ],
-  "market_closed_run": true,
+  "market_closed_run": false,
   "peer_map": {
     "SNDK": {
       "peer_etf": "SMH",
@@ -1018,10 +1052,6 @@
     "MU": {
       "peer_etf": "SMH",
       "label": "memory"
-    },
-    "LRCX": {
-      "peer_etf": "SMH",
-      "label": "semicap"
     },
     "CLS": {
       "peer_etf": "XLK",
@@ -1122,6 +1152,18 @@
     "IREN": {
       "peer_etf": "XLK",
       "label": "datacenter/compute proxy"
+    },
+    "GLW": {
+      "peer_etf": "XLK",
+      "label": "optical/specialty-materials proxy"
+    },
+    "BE": {
+      "peer_etf": "XLU",
+      "label": "power-infra/fuel-cell"
+    },
+    "MKSI": {
+      "peer_etf": "SMH",
+      "label": "semicap-adjacent equipment"
     }
   },
   "changes": [
@@ -1167,7 +1209,8 @@
           "SNDK",
           "DRAM"
         ],
-        "live_2026_07_28": "China began mass-producing immersion DUV; 5 units 2026, ~20 in 2027, vs ASML 131 immersion tools 2025 and 98.7% share. Does not touch EUV."
+        "live_2026_07_28": "China began mass-producing immersion DUV; 5 units 2026, ~20 in 2027, vs ASML 131 immersion tools 2025 and 98.7% share. Does not touch EUV.",
+        "live_2026_07_30": "De-escalating not resolved: sell-side (Jefferies/Bernstein/UBS) reframes CXMT as 2027+ risk, not immediate share-taking"
       },
       {
         "id": 2,
@@ -1179,7 +1222,8 @@
           "DRAM",
           "EWY"
         ],
-        "live_2026_07_28": "CXMT listed on Shanghai STAR +400% debut. Named, capitalised domestic Chinese competitor where there was none. Hand to HBMTracker."
+        "live_2026_07_28": "CXMT listed on Shanghai STAR +400% debut. Named, capitalised domestic Chinese competitor where there was none. Hand to HBMTracker.",
+        "live_2026_07_30": "Same de-escalation; QCOM flagged as a new cross-factor short on memory-price inflation squeezing handset margins"
       },
       {
         "id": 3,
@@ -1192,7 +1236,8 @@
           "GOOG",
           "ORCL"
         ],
-        "live_2026_07_28": "Nvidia weighing $250bn guarantee for an OpenAI datacentre, part of >$750bn of deals. Goldman: circular revenue could be dilutive to the multiple."
+        "live_2026_07_28": "Nvidia weighing $250bn guarantee for an OpenAI datacentre, part of >$750bn of deals. Goldman: circular revenue could be dilutive to the multiple.",
+        "live_2026_07_30": "Strengthened by MSFT Azure beat 7/29 rebutting capex-financing-without-revenue fear"
       },
       {
         "id": 4,
@@ -1232,71 +1277,77 @@
   },
   "factor_catalysts": [
     {
-      "headline": "SK Hynix Q2 record profit but earnings miss sparks 2nd-day KOSPI rout (-10.8% intraday)",
+      "headline": "Microsoft FQ4 beat, Azure fastest cloud growth in 4yr, rebuts AI-capex-financing fear",
       "date": "2026-07-29",
-      "direction": "threat",
+      "direction": "tailwind",
       "affects": [
         "MU",
         "SNDK",
         "DRAM",
-        "EWY"
-      ],
-      "exposure_pct_equity": 25.63,
-      "magnitude": "Record Q2 revenue/profit still missed estimates; KOSPI -10.8% intraday",
-      "source": "bloomberg.com/news/articles/2026-07-29"
-    },
-    {
-      "headline": "CXMT competitive-threat repricing continues into 3rd session",
-      "date": "2026-07-27",
-      "direction": "threat",
-      "affects": [
+        "EWY",
         "ASML",
-        "AMAT",
         "TER",
-        "MU",
-        "SNDK",
-        "DRAM",
-        "EWY"
-      ],
-      "exposure_pct_equity": 39.29,
-      "magnitude": "CXMT ~8% of 2025 global DRAM shipments vs Samsung/SK Hynix still dominant; leading-edge tool access remains restricted",
-      "source": "cnbc.com/2026/07/27/cxmt-china-market-debut"
-    },
-    {
-      "headline": "SanDisk down >50% in a month, approaching $1,000 support",
-      "date": "2026-07-28",
-      "direction": "threat",
-      "affects": [
-        "SNDK"
-      ],
-      "exposure_pct_equity": 7.58,
-      "magnitude": "Fell from ~$2,350 (late June) toward $1,000; next catalyst is 08-05 earnings",
-      "source": "tradingkey.com/news/market-movers/262059553"
-    },
-    {
-      "headline": "Nebius asset-light infra pivot reignites AI-financing-structure skepticism",
-      "date": "2026-07-24",
-      "direction": "threat",
-      "affects": [
-        "NBIS",
-        "VRT",
+        "AMD",
+        "TSM",
+        "ORCL",
+        "MRVL",
+        "COHR",
+        "CIEN",
         "GEV",
+        "NBIS",
+        "BE",
         "IREN"
       ],
-      "exposure_pct_equity": 10.83,
-      "magnitude": "NBIS down ~38% from its June 22 ATH",
-      "source": "ts2.tech AI-plan-shifts-capex-burden"
+      "exposure_pct_equity": 89.1,
+      "magnitude": "Nasdaq100 +3% next session; MSFT not a Smith holding, bellwether only",
+      "source": "thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-july-30-2026"
     },
     {
-      "headline": "FOMC decision 2pm ET today -- not the cause of today's Asia-led selloff",
+      "headline": "FOMC holds rates steady (3 dissents for hike), VIX unwinds from spike",
       "date": "2026-07-29",
-      "direction": "ambiguous",
+      "direction": "tailwind",
       "affects": [
         "ALL"
       ],
-      "exposure_pct_equity": 100,
-      "magnitude": "CME 64% hold odds at 3.50-3.75%; Asia session closed hours before the statement",
-      "source": "fool.com/investing/2026/07/27"
+      "exposure_pct_equity": 89.1,
+      "magnitude": "VIX -11.91% to 18.20, largely technical/short-covering not new fundamental info",
+      "source": "kiplinger.com/investing/live/fed-meeting-updates-and-commentary-july-2026"
+    },
+    {
+      "headline": "Sell-side walks back CXMT as near-term threat: Jefferies/Bernstein constructive, UBS initiates SK Hynix Buy",
+      "date": "2026-07-29",
+      "direction": "tailwind",
+      "affects": [
+        "MU",
+        "SNDK",
+        "DRAM",
+        "EWY"
+      ],
+      "exposure_pct_equity": 24.9,
+      "magnitude": "CXMT ~8% global DRAM share vs Samsung 36%/SK Hynix 29%/Micron 24%; CXMT tech does not yet meet AI-grade demand per Jefferies",
+      "source": "investing.com/news/stock-market-news/memory-chip-stocks-slide-as-cxmts-ipo-stokes-competition-fears-buy-the-dip-93CH-4816372"
+    },
+    {
+      "headline": "QCOM FQ3 miss, guidance cut explicitly blamed on memory cost inflation squeezing handset margins",
+      "date": "2026-07-29",
+      "direction": "threat",
+      "affects": [
+        "QCOM"
+      ],
+      "exposure_pct_equity": 1.266,
+      "magnitude": "handset rev -20% YoY to $5.1bn; EPS guide $2.05-2.25 vs $2.36 est; stock -7.6% AH -- QCOM is short the same memory rally lifting MU/SNDK/DRAM elsewhere in this book",
+      "source": "benzinga.com/trading-ideas/movers/26/07/60791225/rising-memory-costs-are-hurting-smartphones-qualcomm-warns"
+    },
+    {
+      "headline": "GOOGL still digesting 7/23 capex-overhang print, no fresh 7/29-30 catalyst (catch-down not new news)",
+      "date": "2026-07-23",
+      "direction": "ambiguous",
+      "affects": [
+        "GOOGL"
+      ],
+      "exposure_pct_equity": 7.496,
+      "magnitude": "FY26 capex raised to $195-205bn, FCF -$5.86bn; today's -1.16% is rotation not new information",
+      "source": "tradingkey.com/analysis/stocks/us-stocks/262052134-why-alphabet-googl-still-falling-after-record-q2-beat-july-24-2026-tradingkey"
     }
   ]
 }
