@@ -1112,17 +1112,228 @@ def cmd_proposals(args):
           "written": True})
 
 
+# ---------------------------------------------------------------------------
+# derisk -- the De-risk Queue (added 2026-07-31)
+#
+# Ranks every holding by how much damage it can do IF a drawdown comes, not by
+# any attempt to predict one. Three transparent sub-scores, never a black box:
+#
+#   FRAGILITY  dollars-at-risk share (already embeds ATR x size) x how far the
+#              position sits over its own 2xATR cap. "How hard does this hit."
+#   STRETCH    1-month return RELATIVE TO SMH, positive side only. A name that
+#              has run ahead of its own sector has something to give back; a
+#              name lagging SMH has already been punished and is NOT a trim
+#              candidate on stretch grounds. Deliberately relative, not
+#              absolute: in a ~100% single-factor book an absolute RSI/52wk
+#              screen flags all-or-nothing (2026-07-31: sentiment read "greed"
+#              while 20 of 27 names sat >20% below their own 52wk highs, and the
+#              only name an absolute screen flagged was DRAM -- on a known bad
+#              52wk-low of $0. That is the failure mode this design avoids.)
+#   FRICTION   cost of acting: LTCG proximity from lots.json (never trim a lot
+#              weeks from its 24-month boundary when a comparable one is far
+#              away), plus a dust-position discount.
+#
+# Sentiment is an URGENCY DIAL on the whole queue, never a trigger. Extreme
+# greed raises the ranking; extreme fear damps it (do not sell into panic).
+# It cannot manufacture stretch that does not exist per-name.
+# ---------------------------------------------------------------------------
+BAND_URGENCY = {"extreme_greed": 1.25, "greed": 1.0, "neutral": 0.9,
+                "fear": 0.75, "extreme_fear": 0.5}
+LTCG_MONTHS_DEFAULT = 24          # India: US-listed foreign shares
+LTCG_DEFER_WINDOW_MONTHS = 6.0    # inside this, trimming forfeits a near boundary
+DUST_USD_DEFAULT = 400.0
+
+
+def _months_between(d_iso, today):
+    try:
+        d = datetime.strptime(d_iso, "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        return None
+    return (today.year - d.year) * 12 + (today.month - d.month) + (today.day - d.day) / 30.44
+
+
+def cmd_derisk(args):
+    risk = load_json(os.path.join(args.run_dir, "compute_risk.json"))
+    book = load_json(os.path.join(args.run_dir, "compute_book.json"))
+    sent = load_json(os.path.join(args.run_dir, "compute_sentiment.json"), default={})
+    state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    policy = load_json(os.path.join(args.base_dir, "policy.json"), default={})
+    lots = load_json(os.path.join(args.base_dir, "lots.json"), default={})
+
+    today = date.fromisoformat(args.today) if args.today else date.today()
+    ltcg_months = (policy.get("mandate") or {}).get("ltcg_months", LTCG_MONTHS_DEFAULT)
+    dust_usd = (policy.get("mandate") or {}).get("dust_position_usd", DUST_USD_DEFAULT)
+
+    rel_cache = state.get("data_cache", {}).get("rel_strength_1m", {}) or {}
+    rel_vals = rel_cache.get("values_pp", {}) or {}
+    abs_vals = rel_cache.get("values_abs_pct", {}) or {}
+    sector_map = state.get("sector_map", {})
+    thesis = state.get("thesis", {})
+
+    agg_risk = risk.get("aggregate_open_risk_usd") or 0.0
+    positions = risk.get("positions", [])
+    dq, missing_rel = [], []
+
+    raw = []
+    for p in positions:
+        t = p["ticker"]
+        mv = p.get("market_value_usd") or 0.0
+        open_risk = p.get("position_open_risk_usd")
+        cap_x = p.get("cap_multiple")
+
+        # --- fragility -------------------------------------------------
+        if open_risk is None or not agg_risk:
+            frag_raw, frag_note = None, "no open-risk figure (ATR missing upstream)"
+        else:
+            risk_share = open_risk / agg_risk * 100.0
+            frag_raw = risk_share * max(cap_x or 1.0, 1.0)
+            frag_note = None
+
+        # --- stretch (relative to SMH AND absolutely up) ----------------
+        # Both gates required. Beating a benchmark that is itself down just
+        # means "fell less" -- there is no gain to give back, so it is not a
+        # trim candidate. (2026-07-31: 9 names cleared rel>0 while sitting
+        # -2.5% to -17% absolute; only CEG/AVGO were genuinely up.)
+        rel_pp = rel_vals.get(t)
+        abs_pct = abs_vals.get(t)
+        if rel_pp is None:
+            missing_rel.append(t)
+            stretch_raw = None
+        elif abs_pct is not None and abs_pct <= 0:
+            stretch_raw = 0.0
+        else:
+            stretch_raw = max(rel_pp, 0.0)
+
+        # --- friction --------------------------------------------------
+        friction, fr_reasons = 0.0, []
+        tlots = lots.get(t) or []
+        oldest = None       # FIFO sells the oldest lot first
+        unknown_date_qty = 0.0
+        for lot in tlots:
+            if lot.get("date"):
+                m = _months_between(lot["date"], today)
+                if m is not None and (oldest is None or m > oldest):
+                    oldest = m
+            else:
+                unknown_date_qty += lot.get("qty") or 0.0
+        if oldest is not None:
+            to_ltcg = ltcg_months - oldest
+            if to_ltcg <= 0:
+                pass                                    # already long-term, free to trim
+            elif to_ltcg <= LTCG_DEFER_WINDOW_MONTHS:
+                f = 100.0 * (LTCG_DEFER_WINDOW_MONTHS - to_ltcg) / LTCG_DEFER_WINDOW_MONTHS
+                friction += f
+                fr_reasons.append(f"{to_ltcg:.1f}mo to LTCG boundary")
+        if unknown_date_qty > 0:
+            friction += 25.0
+            fr_reasons.append("lot date unknown (predates email history, G1)")
+        if mv < dust_usd:
+            friction += 30.0
+            fr_reasons.append(f"position below ${dust_usd:g} dust threshold")
+        friction = clamp(friction)
+
+        raw.append({"ticker": t, "market_value_usd": round(mv, 2),
+                    "cluster": sector_map.get(t), "thesis_status": (thesis.get(t, "") or "").split("|")[-1].strip() or None,
+                    "cap_multiple": cap_x, "atr20_pct": p.get("atr20_pct"),
+                    "stop_price_usd": p.get("stop_price_usd"),
+                    "risk_share_pct": round(open_risk / agg_risk * 100.0, 2) if (open_risk and agg_risk) else None,
+                    "rel_strength_1m_pp": rel_pp, "abs_return_1m_pct": abs_pct,
+                    "_frag_raw": frag_raw, "_stretch_raw": stretch_raw,
+                    "friction_score": round(friction, 1),
+                    "friction_reasons": fr_reasons, "_frag_note": frag_note})
+
+    # normalise fragility / stretch to 0-100 across the book
+    fmax = max([r["_frag_raw"] for r in raw if r["_frag_raw"] is not None] or [0]) or 1.0
+    smax = max([r["_stretch_raw"] for r in raw if r["_stretch_raw"] is not None] or [0])
+    band = (sent.get("band") or "neutral").lower()
+    urgency = BAND_URGENCY.get(band, 1.0)
+
+    rows = []
+    for r in raw:
+        frag = round(r["_frag_raw"] / fmax * 100.0, 1) if r["_frag_raw"] is not None else None
+        if r["_stretch_raw"] is None:
+            stretch = None
+        elif smax <= 0:
+            stretch = 0.0
+        else:
+            stretch = round(r["_stretch_raw"] / smax * 100.0, 1)
+        if frag is None:
+            score = None
+        else:
+            score = frag * (1.0 + (stretch or 0.0) / 100.0) * (1.0 - r["friction_score"] / 200.0) * urgency
+            score = round(score, 1)
+        r.pop("_frag_raw"); r.pop("_stretch_raw")
+        note = r.pop("_frag_note")
+        if note:
+            dq.append(f"{r['ticker']}: {note}")
+        rows.append({**r, "fragility_score": frag, "stretch_score": stretch, "derisk_score": score})
+
+    rows.sort(key=lambda x: -(x["derisk_score"] or -1))
+    for i, r in enumerate(rows, 1):
+        r["rank"] = i
+
+    stretched = [r["ticker"] for r in rows
+                 if (r["rel_strength_1m_pp"] or 0) > 0 and (r["abs_return_1m_pct"] or 0) > 0]
+    beat_but_down = [r["ticker"] for r in rows
+                     if (r["rel_strength_1m_pp"] or 0) > 0 and (r["abs_return_1m_pct"] or 0) <= 0]
+    top = [r for r in rows if r["derisk_score"] is not None][:5]
+
+    caveat = (f" ({len(beat_but_down)} more beat SMH but are still down absolutely -- fell less, "
+              f"nothing to give back, deliberately not counted as stretched.)") if beat_but_down else ""
+    if not stretched:
+        queue_state = "no_stretch"
+        headline = ("Nothing is stretched -- no holding is both ahead of SMH and up on the month. "
+                    "Queue is ordered by fragility alone: a sizing reference, not a sell signal." + caveat)
+    elif len(stretched) <= 3:
+        queue_state = "narrow_stretch"
+        headline = (f"Only {len(stretched)} name(s) both ahead of SMH and actually up ({', '.join(stretched)}). "
+                    "Selective single-name profit-taking, not a book-wide de-risking event." + caveat)
+    else:
+        queue_state = "broad_stretch"
+        headline = (f"{len(stretched)} names both ahead of SMH and up on the month -- broad strength. "
+                    "This is the regime the queue is built for; work the top of it." + caveat)
+
+    if missing_rel:
+        dq.append(f"rel_strength_1m missing for {len(missing_rel)} name(s): {', '.join(missing_rel[:8])}"
+                  f"{'...' if len(missing_rel) > 8 else ''} -- stretch scored as null, never estimated")
+    if not rel_vals:
+        dq.append("rel_strength_1m cache absent entirely -- queue is fragility-only this run")
+
+    emit({
+        "as_of": today.isoformat(),
+        "benchmark": rel_cache.get("benchmark", "SMH"),
+        "benchmark_return_1m_pct": rel_cache.get("benchmark_return_1m_pct"),
+        "rel_strength_as_of": rel_cache.get("as_of"),
+        "sentiment_band": band, "urgency_multiplier": urgency,
+        "ltcg_months": ltcg_months,
+        "queue_state": queue_state, "headline": headline,
+        "names_stretched": stretched,
+        "names_beat_benchmark_but_down": beat_but_down,
+        "aggregate_open_risk_pct": risk.get("aggregate_open_risk_pct"),
+        "aggregate_open_risk_cap_pct": risk.get("aggregate_open_risk_cap_pct"),
+        "queue": rows,
+        "shadow_new": [{"date": today.isoformat(), "ticker": r["ticker"], "rank": r["rank"],
+                        "derisk_score": r["derisk_score"], "queue_state": queue_state,
+                        "price_at_flag": (round(r["market_value_usd"] / q, 4)
+                                          if (q := next((h.get("qty") for h in state.get("holdings", [])
+                                                         if h.get("ticker") == r["ticker"]), None)) else None),
+                        "scored": False}
+                       for r in top],
+        "data_quality": dq,
+    })
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    for name in ("book", "journal", "attribution", "drift", "risk", "rotation"):
+    for name in ("book", "journal", "attribution", "drift", "risk", "rotation", "derisk"):
         sp = sub.add_parser(name)
         sp.add_argument("--base-dir", default=DEFAULT_BASE)
         sp.add_argument("--run-dir", required=True, help="this run's directory containing holdings.json")
         if name == "book":
             sp.add_argument("--lots", default=None)
-        if name == "journal":
+        if name in ("journal", "derisk"):
             sp.add_argument("--today", default=None)
 
     sp = sub.add_parser("sentiment")
@@ -1142,7 +1353,7 @@ def main():
     args = p.parse_args()
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
-         "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation,
+         "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "date": "2026-07-31",
+      "ticker": "SNDK",
+      "rank": 1,
+      "derisk_score": 87.5,
+      "queue_state": "narrow_stretch",
+      "price_at_flag": 1354.8019,
+      "scored": false
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "DRAM",
+      "rank": 2,
+      "derisk_score": 33.0,
+      "queue_state": "narrow_stretch",
+      "price_at_flag": 53.6,
+      "scored": false
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "MU",
+      "rank": 3,
+      "derisk_score": 31.3,
+      "queue_state": "narrow_stretch",
+      "price_at_flag": 902.88,
+      "scored": false
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "MRVL",
+      "rank": 4,
+      "derisk_score": 26.1,
+      "queue_state": "narrow_stretch",
+      "price_at_flag": 195.3,
+      "scored": false
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "ASML",
+      "rank": 5,
+      "derisk_score": 14.3,
+      "queue_state": "narrow_stretch",
+      "price_at_flag": 1683.959,
+      "scored": false
+    }
+  ],
+  "hit_rate": {},
+  "note": "Shadow log for the De-risk Queue (added 2026-07-31). Every deep run records the top-ranked names WITHOUT acting on them; each entry is scored at 30d/90d on what the name actually did afterwards. The queue does NOT feed strategist proposals until it has a real hit rate -- the desk's existing signal buckets still have zero scored entries, so a new signal class earns its vote before it gets one.",
+  "last_run": "2026-07-31",
+  "queue_state_history": [
+    {
+      "date": "2026-07-31",
+      "state": "narrow_stretch",
+      "stretched": [
+        "AVGO",
+        "CEG"
+      ],
+      "band": "greed"
+    }
+  ]
+}

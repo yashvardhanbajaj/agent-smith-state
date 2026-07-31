@@ -308,6 +308,17 @@ details>summary:hover{color:var(--accent)}
 details>summary .c{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:400;margin-left:7px}
 details .body{padding:2px 0 17px;font-size:12.5px;color:var(--ink-2);line-height:1.6}
 
+/* ============ de-risk queue meters ============ */
+.mbar{display:inline-block;width:52px;height:6px;border-radius:3px;background:var(--grid);
+  vertical-align:middle;overflow:hidden}
+.mbar i{display:block;height:100%;border-radius:3px}
+.mbar i.f{background:var(--critical)}
+.mbar i.s{background:var(--warning)}
+.mbar i.x{background:var(--ink-3)}
+.pill.warn{color:var(--warning);border-color:var(--warning)}
+.pill.bad{color:var(--critical);border-color:var(--critical)}
+.pill.good{color:var(--good);border-color:var(--good)}
+
 /* ============ misc ============ */
 .note{font-size:12.5px;color:var(--ink-3);line-height:1.55}
 .note b{color:var(--ink-2)}
@@ -359,6 +370,7 @@ def build(base, out):
     market_inputs = run_file("market_inputs.json")
     risk = run_file("compute_risk.json")
     rotation = run_file("compute_rotation.json")
+    derisk = run_file("compute_derisk.json")
     book_compute = run_file("compute_book.json")
 
     us = state.get("us", {})
@@ -484,6 +496,62 @@ def build(base, out):
                  'moves in either direction by their own definition, so neither is unambiguously bullish '
                  'or bearish.</p>'
                  f'<div class="rgrid">{rgrid}</div></div></section>')
+
+    # -- de-risk queue --
+    if derisk and derisk.get("queue"):
+        q = derisk["queue"]
+        st = derisk.get("queue_state")
+        st_cls = {"broad_stretch": "bad", "narrow_stretch": "warn", "no_stretch": "good"}.get(st, "")
+        st_lbl = {"broad_stretch": "BROAD STRETCH", "narrow_stretch": "NARROW STRETCH",
+                  "no_stretch": "NO STRETCH"}.get(st, (st or "").upper())
+        shown = [r for r in q if r.get("derisk_score") is not None][:10]
+
+        def bar(v, cls):
+            w = max(0.0, min(100.0, v or 0.0))
+            return f'<span class="mbar"><i class="{cls}" style="width:{w:.0f}%"></i></span>'
+
+        body = "".join(
+            f'<tr><td class="num">{r["rank"]}</td><td><b>{esc(r["ticker"])}</b></td>'
+            f'<td class="num"><b>{r["derisk_score"]:.0f}</b></td>'
+            f'<td>{bar(r.get("fragility_score"), "f")}</td>'
+            f'<td>{bar(r.get("stretch_score"), "s")}</td>'
+            f'<td>{bar(r.get("friction_score"), "x")}</td>'
+            f'<td class="num">{(f"{r["abs_return_1m_pct"]:+.1f}%" if r.get("abs_return_1m_pct") is not None else "&mdash;")}</td>'
+            f'<td class="num">{(f"{r["rel_strength_1m_pp"]:+.1f}" if r.get("rel_strength_1m_pp") is not None else "&mdash;")}</td>'
+            f'<td class="num">{(f"{r["cap_multiple"]:.2f}x" if r.get("cap_multiple") else "&mdash;")}</td>'
+            f'<td class="num">${r["market_value_usd"]:,.0f}</td>'
+            f'<td class="sub">{esc("; ".join(r.get("friction_reasons") or []) or "-")}</td></tr>'
+            for r in shown)
+
+        H.append(
+            '<section class="panel"><div class="phead"><h2>De-risk queue'
+            '<span class="sub">ranked by damage-if-a-drawdown-comes, not by prediction</span></h2>'
+            f'<span class="pill {st_cls}">{esc(st_lbl)}</span></div><div class="pbody">'
+            f'<p class="note">{esc(derisk.get("headline",""))}</p>'
+            '<div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Name</th><th>Score</th>'
+            '<th>Fragility</th><th>Stretch</th><th>Friction</th><th>1m abs</th><th>vs SMH</th>'
+            '<th>cap</th><th>Value</th><th>Friction reason</th></tr></thead>'
+            f'<tbody>{body}</tbody></table></div>'
+            '<details><summary>How this is scored</summary><div class="body">'
+            '<b>Fragility</b> &mdash; share of the book&rsquo;s total open risk (already embeds ATR &times; '
+            'position size) multiplied by how far the position sits over its own 2&times;ATR cap. '
+            'This is <i>how hard it hits</i>, and it is the dominant term.<br>'
+            '<b>Stretch</b> &mdash; 1-month return relative to SMH, but <i>only counted when the name is '
+            'also up in absolute terms</i>. Beating a benchmark that is itself falling means the name '
+            'merely fell less; there is no gain to give back, so it is not a trim candidate. '
+            'Relative rather than absolute deliberately: in a ~100% single-factor book an absolute '
+            'RSI/52-week screen flags all-or-nothing.<br>'
+            '<b>Friction</b> &mdash; cost of acting: proximity to the 24-month LTCG boundary (from '
+            'lots.json), unknown lot dates, and a dust-position discount. Higher friction pushes a '
+            'name down the queue.<br>'
+            '<b>Sentiment</b> is an urgency dial on the whole queue '
+            f'(band <b>{esc(derisk.get("sentiment_band","-"))}</b> &rarr; &times;'
+            f'{derisk.get("urgency_multiplier","-")}), never a trigger. It cannot manufacture stretch '
+            'that does not exist per name.<br><br>'
+            '<b>This queue is shadow-scored and does not drive proposals.</b> Each deep run logs its '
+            'top names to derisk_journal.json and scores them at 30/90d. It earns a vote in sizing '
+            'decisions only once it has a real hit rate.'
+            '</div></details></div></section>')
 
     # -- the read + macro strip --
     session_text = narr.get("session_read")
