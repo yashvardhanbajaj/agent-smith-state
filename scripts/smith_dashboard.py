@@ -365,8 +365,16 @@ def build(base, out):
     equity = us.get("value_usd") or 0
     cash = us.get("wallet_usd") or 0
     total = equity + cash
-    peak = us.get("peak_total_book_usd") or total
-    dd = (total - peak) / peak * 100 if peak else 0
+    # peak_total_book_usd/drawdown_pct are computed fresh each run in compute_book.json /
+    # compute_drift.json -- state["us"] only ever carries peak_value_usd (equity peak, not
+    # total-book peak), so falling back to that key here silently zeroed drawdown out.
+    peak = (drift.get("peak_total_book_usd") or book_compute.get("peak_total_book_usd")
+            or us.get("peak_value_usd") or total)
+    dd = drift.get("drawdown_pct")
+    if dd is None:
+        dd = book_compute.get("drawdown_pct")
+    if dd is None:
+        dd = (total - peak) / peak * 100 if peak else 0
     cash_pct = cash / total * 100 if total else 0
     cash_band = drift.get("cash_band_pct") or policy.get("cash_band_pct", [3, 15])
     cash_breach = drift.get("cash_breach")
