@@ -982,6 +982,15 @@
       "opened": "2026-07-29",
       "owner": "orchestrator (TRADE RATIONALE CAPTURE)",
       "status": "open"
+    },
+    {
+      "id": "G40",
+      "description": "smith_dashboard.py's status_strip and smith_charts.py's chart_drawdown both read state['us']['peak_total_book_usd'] to compute drawdown, but PERSIST never actually wrote that key -- only 'peak_value_usd' (equity peak) was ever persisted, per the documented state.json schema. This silently rendered Drawdown as 0.00% on the dashboard and produced an empty drawdown-ladder chart (4 svg instead of 5) on every run since the G34 rich-dashboard port, undetected because the REGRESSION GUARD only checks byte-size/section-count, not per-field correctness.",
+      "opened": "2026-07-31",
+      "owner": "orchestrator (smith_dashboard.py / smith_charts.py)",
+      "status": "closed",
+      "closed": "2026-07-31",
+      "resolution": "Fixed both scripts' fallback chain (dashboard.py now also checks compute_drift.json/compute_book.json; PERSIST now writes peak_total_book_usd + drawdown_pct + total_book_usd into state['us'] every run, which chart_drawdown reads directly). Verified: dashboard now shows Drawdown -8.35% and 5/5 charts render."
     }
   ],
   "sentiment": {

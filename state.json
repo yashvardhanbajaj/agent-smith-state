@@ -793,10 +793,11 @@
   "known_gaps": [
     {
       "id": "G1",
-      "description": "LTCG per-lot purchase dates. Partially seeded: the 2026-07-28 buys (GOOG/AVGO/TSM/ASML) now carry exact dates and fills in lots.json, sourced from trades.json. Pre-07-28 lots remain unknown and need INDmoney order history.",
+      "description": "LTCG per-lot purchase dates. SUBSTANTIALLY CLOSED 2026-07-31: full backfill from INDmoney transaction-confirmation emails (2025-04-30 through 2026-07-30, ~655-660 non-cancelled transactions processed via Gmail search_threads + get_thread) with FIFO applied per ticker. 12 of 27 currently-held tickers are FULLY covered (BE, NBIS, NVDA, GLW, CIEN, TSM, MKSI, ORCL, GOOGL, CEG, IREN, EWY -- every open lot has a real date and fill, cross-checked to match state.json holdings[].qty exactly). The remaining 15 (ASML, MU, CLS, DRAM, AMD, AVGO, GEV, VRT, AMAT, TER, SNDK, MRVL, QCOM, COHR, ARM) are PARTIALLY covered: the most recent lot(s) are exact, and any un-reconstructed older quantity is recorded as a synthetic lot with date/price both null and note 'predates available email history, real date unknown' -- never a fabricated date. QCOM and AMAT's plugs are sub-1% dust, effectively full. See runs/2026-07-31-1302/lots_backfill_report.md for full methodology, corrections found (3 trades.json entries had wrong reconstructed qty/price vs their own confirmation email: AVGO, TSM, ASML 07-28 clips), and the GOOG->GOOGL swap tax-treatment caveat (kept as separate lot arrays; taxable-exit-vs-like-kind is an open question for the user/CPA, not resolved here). Repeatable process documented in SKILL.md so future trades close this gap incrementally via TRADE RATIONALE CAPTURE writing directly into lots.json, not just trades.json.",
       "opened": "2026-07-12",
-      "owner": "orchestrator/user (needs INDmoney order history)",
-      "status": "open -- PARTIALLY SEEDED 2026-07-28"
+      "owner": "orchestrator (repeatable via SKILL.md going forward) / user-CPA (GOOG->GOOGL swap tax treatment)",
+      "status": "substantially closed 2026-07-31 -- 12 of 27 tickers fully covered, 15 partially covered with unknown-predates-history lots",
+      "closed": "2026-07-31"
     },
     {
       "id": "G3",

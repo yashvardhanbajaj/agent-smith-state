@@ -216,6 +216,33 @@
       "price_at_trade": 788.81,
       "reason": "dollar-cost-averaging",
       "notes": "User-confirmed via TRADE RATIONALE CAPTURE: dollar-cost-averaging. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:55:10Z (2026-07-30T00:25:10 IST): $791.18 for ~1.003 shares @ $788.81, Market order."
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "NVDA",
+      "action": "add",
+      "qty_change": 5,
+      "price_at_trade": 196.82,
+      "reason": "added more to deploy the cash",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-31 (free-text 'Other' to the DCA question, not one of the 5 standard buckets -- closest in spirit to 'rebalance'/staged deployment but kept verbatim per protocol). Qty 10->15sh. price_at_trade is this run's live ext_hr_live_price ($196.82), NOT a confirmed fill -- approximate."
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "QCOM",
+      "action": "add",
+      "qty_change": 2,
+      "price_at_trade": 153.15,
+      "reason": "dollar-cost-averaging",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-31: Yes -- DCA. Qty ~3.0008->5.0008sh. price_at_trade is this run's live ext_hr_live_price ($153.15), NOT a confirmed fill -- approximate."
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "CEG",
+      "action": "entry",
+      "qty_change": 3,
+      "price_at_trade": 266.6,
+      "reason": "new entry as per the proposal",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-31 (free-text 'Other' -- references an earlier strategist proposal to deploy into CEG as a diversifier/cluster-fill; verify against proposals.json history). Brand new position, first-ever CEG holding in this book. price_at_trade is this run's live ext_hr_live_price ($266.60), NOT a confirmed fill -- approximate. No sector_map/thesis/ATR/beta cache entry yet -- needs smith-thesis classification this run."
     }
   ],
   "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out."
