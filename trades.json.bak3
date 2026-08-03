@@ -295,8 +295,8 @@
       "action": "add",
       "qty_change": 2,
       "price_at_trade": 405.2,
-      "reason": "dollar-cost-averaging",
-      "notes": "CONFIRMED via email 2026-07-31T19:08:34Z: Market BUY, 2sh @ $405.20 = $812.83. Part of an evening burst of 5 deliberate buys (TSM/META/AMZN/QBTS/BABA, 19:08-19:46 UTC = ~3:08-3:46pm ET) distinct in character from the morning's reactive stop-loss activity. Rationale (DCA/thesis-change/raise-cash/rebalance/other) not yet captured -- ask user. USER-CONFIRMED 2026-08-03: dollar-cost-averaging into diversification -- deliberate push to reduce single-factor AI-capex concentration, not a reaction to any specific signal."
+      "reason": "PENDING_USER_INPUT",
+      "notes": "CONFIRMED via email 2026-07-31T19:08:34Z: Market BUY, 2sh @ $405.20 = $812.83. Part of an evening burst of 5 deliberate buys (TSM/META/AMZN/QBTS/BABA, 19:08-19:46 UTC = ~3:08-3:46pm ET) distinct in character from the morning's reactive stop-loss activity. Rationale (DCA/thesis-change/raise-cash/rebalance/other) not yet captured -- ask user."
     },
     {
       "date": "2026-07-31",
@@ -304,8 +304,8 @@
       "action": "entry",
       "qty_change": 1,
       "price_at_trade": 552.84,
-      "reason": "dollar-cost-averaging",
-      "notes": "CONFIRMED via email 2026-07-31T19:20:20Z: Market BUY, 1sh @ $552.84 = $554.50. New first-ever position. Size roughly matches the 07-30 quick-run's proposed 'META token tranche ($450)' -- may be that proposal being acted on late. Rationale not yet captured -- ask user. USER-CONFIRMED 2026-08-03: dollar-cost-averaging into diversification -- deliberate push to reduce single-factor AI-capex concentration, not a reaction to any specific signal."
+      "reason": "PENDING_USER_INPUT",
+      "notes": "CONFIRMED via email 2026-07-31T19:20:20Z: Market BUY, 1sh @ $552.84 = $554.50. New first-ever position. Size roughly matches the 07-30 quick-run's proposed 'META token tranche ($450)' -- may be that proposal being acted on late. Rationale not yet captured -- ask user."
     },
     {
       "date": "2026-07-31",
@@ -313,8 +313,8 @@
       "action": "entry",
       "qty_change": 25,
       "price_at_trade": 18.14,
-      "reason": "dollar-cost-averaging",
-      "notes": "CONFIRMED via email 2026-07-31T19:33:10Z: Market BUY, 25sh @ $18.14 = $454.74. New first-ever position. Ticker corrected this run: an abandoned 2026-08-01 run had mislabeled this holding 'DVWR' -- confirmed via yfinance search_stocks that D-Wave Quantum Inc.'s real ticker is QBTS. Rationale not yet captured -- ask user. USER-CONFIRMED 2026-08-03: dollar-cost-averaging into diversification -- deliberate push to reduce single-factor AI-capex concentration, not a reaction to any specific signal."
+      "reason": "PENDING_USER_INPUT",
+      "notes": "CONFIRMED via email 2026-07-31T19:33:10Z: Market BUY, 25sh @ $18.14 = $454.74. New first-ever position. Ticker corrected this run: an abandoned 2026-08-01 run had mislabeled this holding 'DVWR' -- confirmed via yfinance search_stocks that D-Wave Quantum Inc.'s real ticker is QBTS. Rationale not yet captured -- ask user."
     },
     {
       "date": "2026-07-31",
@@ -322,8 +322,8 @@
       "action": "entry",
       "qty_change": 2,
       "price_at_trade": 271.77,
-      "reason": "dollar-cost-averaging",
-      "notes": "CONFIRMED via email 2026-07-31T19:34:14Z: Market BUY, 2sh @ $271.77 = $545.16. New first-ever position. Rationale not yet captured -- ask user. USER-CONFIRMED 2026-08-03: dollar-cost-averaging into diversification -- deliberate push to reduce single-factor AI-capex concentration, not a reaction to any specific signal."
+      "reason": "PENDING_USER_INPUT",
+      "notes": "CONFIRMED via email 2026-07-31T19:34:14Z: Market BUY, 2sh @ $271.77 = $545.16. New first-ever position. Rationale not yet captured -- ask user."
     },
     {
       "date": "2026-07-31",
@@ -331,8 +331,8 @@
       "action": "entry",
       "qty_change": 1,
       "price_at_trade": 121.78,
-      "reason": "dollar-cost-averaging",
-      "notes": "CONFIRMED via email 2026-07-31T19:46:12Z: Market BUY, 1sh @ $121.78 = $122.15. New first-ever position, first non-US-domiciled diversifier in the book. Rationale not yet captured -- ask user. USER-CONFIRMED 2026-08-03: dollar-cost-averaging into diversification -- deliberate push to reduce single-factor AI-capex concentration, not a reaction to any specific signal."
+      "reason": "PENDING_USER_INPUT",
+      "notes": "CONFIRMED via email 2026-07-31T19:46:12Z: Market BUY, 1sh @ $121.78 = $122.15. New first-ever position, first non-US-domiciled diversifier in the book. Rationale not yet captured -- ask user."
     }
   ],
   "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out."
