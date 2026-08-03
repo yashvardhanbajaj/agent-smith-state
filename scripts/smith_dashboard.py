@@ -210,13 +210,13 @@ td.blank{color:var(--ink-3)}
 .band .mk.bad{background:var(--bad)}
 
 /* ============ decision/proposal rows ============ */
-.pr{display:grid;grid-template-columns:96px 1fr auto;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft);align-items:baseline}
+.pr{display:grid;grid-template-columns:76px 1fr auto;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft);align-items:baseline}
 .pr:last-child{border-bottom:none}
 .pr .act2{font-family:var(--mono);font-size:12px;font-weight:700;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
 .pr .why{font-size:12.5px;color:var(--ink-2);line-height:1.45}
 .pr .amt{font-family:var(--mono);font-weight:700;color:var(--action)}
-.pr .rep{display:block;font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--ink-3);margin-top:3px}
-.pr .pid{display:block;font-family:var(--mono);font-size:10px;font-weight:400;color:var(--ink-3)}
+.pr .meta{display:block;font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--ink-3);margin-top:5px}
+.pr .meta .pid{margin-left:8px}
 /* direction badge -- same visual language as the factor-catalyst .cb badges below */
 .dirb{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px}
 .dirb.BUY{background:var(--good-soft);color:var(--good)}
@@ -224,11 +224,18 @@ td.blank{color:var(--ink-3)}
 .dirb.TRIM{background:var(--warn-soft);color:var(--warn)}
 .dirb.HOLD{background:var(--surface-2);color:var(--ink-3)}
 .pr .amt.BUY{color:var(--good)} .pr .amt.SELL{color:var(--bad)} .pr .amt.TRIM{color:var(--warn)}
-.pgrp{margin:18px 0 10px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--ink-3);display:flex;align-items:center;gap:8px}
-.pgrp:first-child{margin-top:0}
-.pgrp .n{background:var(--surface-2);color:var(--ink-2);border-radius:10px;padding:1px 8px;font-family:var(--mono)}
-.pgrp.HIGH{color:var(--bad)} .pgrp.MEDIUM{color:var(--warn)} .pgrp.LOW{color:var(--ink-3)}
+/* priority groups -- collapsible, reusing the details/summary idiom used elsewhere on this
+   dashboard (see "tiers / details" above) rather than inventing a second expand pattern */
+details.pgrp{border-top:1px solid var(--line-soft)}
+details.pgrp:first-of-type{border-top:none}
+details.pgrp>summary{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;padding:12px 0}
+details.pgrp.HIGH>summary{color:var(--bad)}
+details.pgrp.MEDIUM>summary{color:var(--warn)}
+details.pgrp.LOW>summary{color:var(--ink-3)}
+details.pgrp>summary .n{background:var(--surface-2);color:var(--ink-2);border-radius:10px;padding:1px 8px;
+  font-family:var(--mono);margin-left:8px;text-transform:none;letter-spacing:normal;font-weight:400}
+details.pgrp>.body{padding:0 0 4px}
 .pr .clus{font-family:var(--sans);font-size:10px;color:var(--ink-3);font-weight:500}
 
 /* ============ factor catalysts ============ */
@@ -453,20 +460,25 @@ def build(base, out):
             bucket = p.get("direction_bucket", "HOLD")
             pid = p.get("id", "")
             rc = p.get("repeat_count", 1)
-            rep = (f'<span class="rep">recommended {rc}&times;'
-                   + (f' since {esc(str(p["history"][0].get("date",""))[:10])}' if p.get("history") else "")
-                   + '</span>') if rc > 1 else ""
+            rep = (f'recommended {rc}&times;'
+                   + (f' since {esc(str(p["history"][0].get("date",""))[:10])}' if p.get("history") else "")) \
+                  if rc > 1 else ""
             pid_s = f'<span class="pid">{esc(pid)}</span>' if pid else ""
+            # rep/id live with the rationale (middle column), not the left label column --
+            # stacking them under the badge made that column taller than the row needed.
+            meta = f'<span class="meta">{rep}{pid_s}</span>' if (rep or pid_s) else ""
             clus_s = f'<span class="clus">{esc(p["cluster"])}</span>' if p.get("cluster") else ""
             return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
-                    f'{esc(p.get("action",""))}{clus_s}{rep}{pid_s}</span>'
-                    f'<span class="why">{esc(short)}{more}</span>'
+                    f'{esc(p.get("action",""))}{clus_s}</span>'
+                    f'<span class="why">{esc(short)}{more}{meta}</span>'
                     f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
 
         # -- grouped by priority (HIGH first), computed by smith_math.py's `proposals`
         # lifecycle pass from live risk-cap/cluster-breach/repeat-count data, not a guess.
         # Anything predating that field (or if the compute step didn't run this cycle)
-        # falls back to LOW rather than disappearing or crashing the build.
+        # falls back to LOW rather than disappearing or crashing the build. Each tier is
+        # a native <details> so it collapses -- HIGH starts open (it's the one that needs
+        # eyes every run), MEDIUM/LOW start closed.
         by_priority = {"HIGH": [], "MEDIUM": [], "LOW": []}
         for p in open_props:
             by_priority.setdefault(p.get("priority", "LOW"), by_priority["LOW"]).append(p)
@@ -474,8 +486,10 @@ def build(base, out):
             items = sorted(by_priority[tier], key=lambda p: -p.get("priority_score", 0))
             if not items:
                 continue
-            rows.append(f'<div class="pgrp {tier}">{tier} PRIORITY <span class="n">{len(items)}</span></div>')
-            rows.extend(prop_row(p) for p in items)
+            open_attr = " open" if tier == "HIGH" else ""
+            rows.append(f'<details class="pgrp {tier}"{open_attr}><summary>{tier} PRIORITY'
+                        f'<span class="n">{len(items)}</span></summary>'
+                        f'<div class="body">{"".join(prop_row(p) for p in items)}</div></details>')
 
         H.append('<section class="panel act"><div class="phead"><h2>Open proposals</h2>'
                  '<span class="pill a">For review &mdash; never executed</span></div>'

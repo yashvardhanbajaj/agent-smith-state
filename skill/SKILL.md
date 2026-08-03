@@ -206,10 +206,13 @@ someone's work — stop and merge instead of overwriting.** The dashboard is cum
 REQUIRED SECTIONS (a rebuild missing any of these is incomplete — revised 2026-07-29, G34: the prior list described an
 older, leaner 3-tier design; this one matches what the generator actually produces now):
 - Masthead · Status strip (6 cells: total book, equity, cash%+band, drawdown, open risk%+cap, AI-capex%)
-- Decisions tier: open proposals, **grouped HIGH/MEDIUM/LOW priority** (added 2026-08-03, G47 — see §7's
-  proposals.json entry for the deterministic scoring rule), each row carrying a BUY/TRIM/SELL/HOLD color badge on
-  BOTH the action label and the dollar amount (same visual language as the factor-catalyst TAILWIND/THREAT/AMBIGUOUS
-  badges), its cluster tag, its stable `id`, and, when repeated, a "recommended N&times; since DATE" line
+- Decisions tier: open proposals, **grouped into collapsible HIGH/MEDIUM/LOW priority `<details>` sections**
+  (added 2026-08-03, G47 — see §7's proposals.json entry for the deterministic scoring rule; HIGH starts expanded,
+  MEDIUM/LOW start collapsed), each row carrying a BUY/TRIM/SELL/HOLD color badge on BOTH the action label and the
+  dollar amount (same visual language as the factor-catalyst TAILWIND/THREAT/AMBIGUOUS badges) plus its cluster tag
+  in the left label column, while its stable `id` and (when repeated) "recommended N&times; since DATE" sit as a
+  small meta line under the rationale in the middle column, not stacked in the left column — keeping that column
+  a fixed narrow width regardless of how much repeat/id metadata a proposal carries
   · factor catalysts · **rotation analysis** (accumulate / rotate out / trim — risk cap,
   rule-based per `scripts/smith_risk.py`'s `SIGNAL_POLARITY` table) · the read · macro strip (10-yr, VIX, SMH, worst
   Asia index, Fed, beta vs SMH)
