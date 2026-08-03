@@ -1,0 +1,41 @@
+# US Macro Desk — 2026-08-03 Deep Review (pre-open)
+
+## 1. Fed Funds & Stance
+- Effective Fed funds target: 3.63% (upper bound), per cache.
+- Stance: HAWKISH — cached, no new FOMC meeting since last check; next_check_date 2026-09-17 not yet reached. Reused verbatim, no re-search performed.
+
+## 2. Options Sentiment — Market Level
+- SPY (Barchart): put/call OI ratio 1.88, put/call volume ratio 1.98, total OI 15.71M (10.25M puts / 5.46M calls).
+- QQQ (Barchart): put/call OI ratio 1.23, put/call volume ratio 1.33, total OI 10.31M (5.69M puts / 4.62M calls).
+- Trend vs prior run (07-31): SPY OI ratio eased slightly (1.98→1.88) but SPY volume ratio jumped sharply (1.43→1.98) — fresh put buying accelerated into this session, not just carried OI. QQQ shows the same pattern, smaller (OI 1.22→1.23, volume 1.11→1.33).
+- VIX context (from market_inputs.json, not refetched): 15.99, -6.4% on the day, calm, lower half of 52w range [13.38, 35.3].
+- Read: low/falling VIX + elevated and *rising* put volume ratios = hedged complacency intensifying, not easing. Consistent with pre-positioning ahead of AMD's earnings tomorrow (08-04) and the live Asia-specific KOSPI stress hitting the memory/AI-capex supply chain overnight. Options market is buying protection into a tape that otherwise looks calm.
+- Max pain: NOT COMPUTABLE — known gap G18 (wont_fix); yfinance get_options has returned openInterest=0 across all strikes/expiries for SPY/QQQ on prior runs. Not re-chased this run per orchestrator guidance; Barchart PCR stands alone.
+
+## 3. Calendar
+- Next FOMC decision: 2026-09-16 (cache-implied; next_check_date 2026-09-17 = day after).
+- Next CPI print: 2026-08-12 (July 2026 CPI) — confirmed via search this run.
+- Next NFP: 2026-08-07 (July 2026 Employment Situation) — confirmed via search this run.
+- Mega-cap/"Mag-7"-adjacent earnings window: effectively still active — strict mid-Jul-through-end-of-month band has technically lapsed (today is 08-03), but confirmed book-relevant earnings continue landing this week (AMD 08-04, COHR 08-05 unconfirmed, CEG 08-06), so treat this as the tail-end extension of the same window, not a clean exit.
+- Within-5-trading-day flag: YES, and stacked — AMD (08-04, confirmed, 3.57% weight) is 1 trading day out; NFP (08-07) lands exactly on trading day 5. CPI (08-12) sits outside the window. This is a dense catalyst stretch: a live binary AI-capex-chain print plus a jobs report inside the same 5-day band.
+
+## 4. Regime Read
+Domestic surface indicators read risk-on: SPX 7489.72 (+0.70%, ~1.2% off its 52w high of 7580.06), NDX +1.00% with RSI14 a moderate 43.45 (not overbought despite proximity to highs), VIX 15.99 and falling, sentiment composite at 73.4 (greed). But two cross-currents argue against calling this clean risk-on. First, the 10-yr has broken higher to 4.75% (prevclose 4.66%, +32.7bps over the trailing month) under an unchanged hawkish Fed — duration cost is rising independent of the day's up-tape, a standing headwind for long-duration growth names. Second, the live KOSPI -5.17% intraday shock (gate=ESCALATING) is Asia-specific but strikes directly at the Korean memory/semi supply chain (SK Hynix, Samsung) that underpins this book's HBM/AI-capex thesis — SMH and NQ futures are calm for now (+0.30%/+0.83%), but the rising SPY/QQQ put-volume ratios suggest the options market is already hedging against this spreading, layered on top of AMD's print tomorrow. Call the regime neutral-tilting-fragile: greed-tape optics dressed over a book-relevant regional shock and a stacked binary-catalyst week.
+- AI-capex chain: most exposed cluster this week — KOSPI stress hits its supply-chain backbone (Korean memory/HBM names) even as SMH/NQ stay calm pre-open; AMD (08-04), COHR (08-05), CEG (08-06) sit inside the 5-day window as unresolved binary risk directly in the book's dominant factor. Rising put positioning is consistent with hedging this cluster specifically.
+- Rate-sensitive / long-duration growth: pressured — 10yr's fresh break to 4.75% under a still-hawkish Fed keeps compressing forward multiples regardless of the day's equity tape; this is the disconnect between "SPX near highs" and "financing conditions still tightening at the margin."
+- Defensives/diversifier bench: unfavored by the greed-reading domestic tape (VIX low, sentiment 73.4) but this is precisely the setup — optical calm plus a live regional shock plus a binary-earnings gauntlet — where the bench is the release valve if KOSPI stress spreads or AMD disappoints. The four new non-pure-AI-capex adds this week (META, AMZN, BABA, QBTS, ~4.2% combined weight) give the book a small amount of built-in ballast it didn't have in the 07-31 read.
+
+## Data Quality
+- SPY/QQQ max-pain unavailable (G18, wont_fix) — not re-chased this run per orchestrator guidance, PCR reported from Barchart only.
+- next_fomc (2026-09-16) still inferred from cached next_check_date, not independently re-confirmed (per caching rule, correctly not re-searched).
+- Mega-cap earnings-season window flagged true on a judgment call (tail-end extension) since today falls just past the strict mid-Jul-through-end-of-month band but confirmed book earnings are still landing this week.
+
+```json
+{"fed_funds_pct":3.63,"fomc_stance":"hawkish",
+ "fomc_cache_update":{"rate_pct":3.63,"stance":"HAWKISH","next_check_date":"2026-09-17"},
+ "spy_pcr":1.88,"spy_max_pain":null,"qqq_pcr":1.23,"qqq_max_pain":null,
+ "calendar":{"next_fomc":"2026-09-16","next_cpi":"2026-08-12","next_nfp":"2026-08-07","earnings_season_window":true},
+ "regime":"neutral","regime_note":"SPX near 52w highs/VIX 15.99/sentiment 73.4 greed reads risk-on on the surface, but 10yr broke to 4.75% (+32.7bps/mo) under unchanged hawkish Fed, and a live KOSPI -5.17% intraday shock (gate=ESCALATING) hits the Korean memory/HBM supply chain underpinning the book's AI-capex thesis. SPY/QQQ put-volume ratios rose sharply session-over-session (SPY 1.43->1.98) ahead of AMD (08-04) plus COHR/CEG this week and NFP landing on trading day 5 - hedged-into-strength, not clean risk-on.",
+ "cluster_impact":{"ai_capex_chain":"most exposed this week - KOSPI stress hits the Korean memory/HBM supply backbone even as SMH/NQ stay calm pre-open; AMD/COHR/CEG earnings inside the 5-day window are unresolved binary risk directly in the book's core factor; rising put positioning consistent with hedging this cluster","rate_sensitive":"pressured - 10yr's fresh break to 4.75% under a still-hawkish Fed keeps compressing forward multiples regardless of the day's equity tape","defensives":"unfavored by the greed-reading domestic tape but the natural release valve if KOSPI stress spreads or AMD disappoints; new META/AMZN/BABA/QBTS adds (~4.2%) give the book slightly more built-in ballast than the 07-31 read"},
+ "data_quality":["SPY/QQQ max-pain unavailable - G18 wont_fix, not re-chased this run per orchestrator guidance","next_fomc date inferred from cached next_check_date per caching rule, not independently re-confirmed","earnings_season_window=true is a judgment call - today is just past the strict mid-Jul-through-end-of-month band but AMD/COHR/CEG earnings are still live this week"]}
+```

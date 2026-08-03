@@ -1,0 +1,92 @@
+# Smith Book & Risk Narrator — 2026-08-03 deep run
+
+## INCOME
+- Portfolio trailing dividend yield (weighted across all 30 positions, non-payers=0): ~0.27%
+- Payers (yfinance dividendYield): ASML 0.56%, NVDA 0.50%, MU 0.06%, AVGO 0.67%, VRT 0.10%,
+  TSM 0.94%, GEV 0.20%, CEG 0.65%, QCOM 2.49%, GLW 0.81%, AMAT 0.42%, ORCL 1.54%
+- Non-payers (0%, excluded): SNDK, GOOGL, DRAM, MRVL, AMD, EWY, COHR, TER, CLS, NBIS, ARM,
+  BE, MKSI, IREN(exited), CIEN, META, AMZN, BABA, QBTS
+- Upcoming ex-dividend within 30 days:
+  - **AMAT — 2026-08-20 (17 days out)**
+  - **GLW — 2026-08-31 (28 days out)** — was 31 days out (just outside window) on 07-31 run;
+    now inside the window.
+- Just outside window: QCOM — 2026-09-03 (31 days out — flag for next run)
+- Already passed this cycle: ASML 07-28, ORCL 07-10, MU 07-06, AVGO 06-22, NVDA 06-04,
+  VRT 06-15, GEV 06-16, CEG 05-15. TSM's next ex-date is 2026-09-16 (44 days out, not near).
+
+## LTCG NARRATIVE
+- compute_book.json returns `ltcg_flags: []` — no positions within 6 months of, or past,
+  the 24-month Indian LTCG boundary. This is a real read now, not a data gap: lots.json's
+  12 fully-reconstructed tickers all carry real dates, but every dated lot in the file is
+  from 2026-07-28 through 2026-07-30 (3-6 days old) — nowhere near the 24-month mark, so
+  an empty flag list is the correct output for that dated portion of the book.
+- The remaining synthetic null-date lots (pre-email-history legacy quantity on ASML, MU,
+  CLS, DRAM, AMD, AVGO, GEV, VRT, AMAT, TER, SNDK, MRVL, QCOM, COHR, ARM) have unknown true
+  purchase dates. Per instruction, no holding-period estimate is attempted for these from
+  price/qty history — they simply cannot be LTCG-flagged either way this run.
+- **Data mismatch, not a new lot**: lots.json's TSM entry is 3sh @ $382.25 (2026-07-28),
+  but compute_book.json's current TSM qty is 5sh (qty_changes: prior_qty 3 -> current_qty 5,
+  trade_reason "rebalance"). The +2sh add this run has no confirmed fill price/date in
+  lots.json — flagged below, no synthetic lot fabricated for it.
+
+## BETA CACHE REFRESH
+compute_book.json flagged META, QBTS, BABA as defaulted to beta 1.0 (no cache entry).
+Per this run's explicit instruction, all 4 brand-new positions (META, AMZN, BABA, QBTS —
+AMZN also has no cache entry despite not appearing in the script's flag list) were computed
+directly from get_stock_history, ≤3 symbols/call, period=1mo interval=1d, to avoid weekly
+aggregation. Beta = daily-return covariance vs SMH / SMH variance over the same 21-session
+window (2026-07-01 to 2026-07-31); ATR20 = mean daily true range over the last 20 sessions,
+as % of last close.
+
+| Ticker | Beta vs SMH | ATR20 % |
+|---|---|---|
+| META | 0.022 | 4.74% |
+| AMZN | 0.252 | 3.09% |
+| BABA | 0.264 | 3.28% |
+| QBTS | 1.210 | 8.01% |
+
+Caveat: a 21-session window is thin and this month was dominated by idiosyncratic
+earnings-day moves decoupled from SMH (e.g. META fell -7.95% on 07-30 the same session SMH
+rallied +6.88% off its 07-29 low) — this single day pulls META's beta toward ~0, likely
+understating its longer-run co-movement with broad tech/semis. All four values are within
+the 0-3.5 plausibility band and are reported as computed, per instruction, with this caveat
+attached rather than adjusted.
+
+## RISK NARRATIVE
+Portfolio beta is 1.275 against the SOX/SMH benchmark's 1.19 — running only modestly hot
+now, down from 1.349 on 07-31 (SPX secondary beta 1.491 remains the misleading read; SOX/SMH
+is the correct lens per the book's own benchmark note). Risk-weighted concentration is still
+memory/compute-driven: SNDK (6.10% weight, beta 2.92) throws off 14.0% of book risk — more
+than double its capital share, the single largest risk/capital mismatch — followed by DRAM
+(6.30% weight -> 10.24% risk, beta 2.07) and MU (6.18% weight -> 9.47% risk, beta 1.95).
+MRVL (5.63% weight -> 7.40% risk, beta 1.68) repeats the pattern. ASML remains the book's
+ballast at the other extreme: 8.15% weight but only 5.92% risk share on a 0.93 beta.
+Drawdown has deepened to -10.62% from the total-book peak ($44,873 -> $40,106), worse than
+the -8.35% recorded on 07-31 three days ago — not yet at a typical hard policy-breach level
+(commonly 15-20% territory) but the trend is accelerating, not stabilizing. The standout
+number this run is cash: wallet is down to **$38.02, or 0.095% of total book** — essentially
+zero, well below the prior run's already-thin 5.4% and far under any normal 5-15% dry-powder
+band. There is no capacity left to buy the next dip without selling something first; any
+further drawdown, especially in the risk-heavy SNDK/DRAM/MU/MRVL cluster, would have to be
+absorbed entirely by existing positions.
+
+## DATA QUALITY
+- TSM: lots.json shows 3sh (2026-07-28 @ $382.25) vs current holding qty 5sh — a +2sh
+  rebalance add this run with no exact fill captured in lots.json; not backfilled with a
+  synthetic lot per the "never fabricate a date/price" rule.
+- QCOM ex-dividend 2026-09-03 is 31 days out — just outside the 30-day window, watch next run.
+- New-position betas/ATR (META, AMZN, BABA, QBTS) computed via 1mo/daily get_stock_history
+  vs SMH rather than yfinance's built-in (longer-window, SPX-relative) beta field, per this
+  run's explicit instruction; treat META's near-zero beta as noisy given the single
+  dominant earnings-day divergence noted above, not a stable estimate.
+- Cash at 0.095% of total book ($38.02) is a material change from 07-31's 5.4% — flagging
+  for the strategist as a hard constraint on any further redeployment sizing.
+
+```json
+{"div_yield_pct":0.27,"ex_dates":[{"ticker":"AMAT","ex_dividend_date":"2026-08-20","days_out":17},{"ticker":"GLW","ex_dividend_date":"2026-08-31","days_out":28}],
+ "ltcg_narrative":[{"ticker":null,"months_to_ltcg":null,"note":"ltcg_flags empty and correct: all 12 dated lots are 3-6 days old (2026-07-28/29/30); remaining legacy quantity carries unknown null-date lots that cannot be estimated or flagged either way"},{"ticker":"TSM","months_to_ltcg":null,"note":"lots.json qty (3sh) vs holdings qty (5sh) mismatch -- +2sh rebalance add this run has no confirmed lot; not fabricated"}],
+ "refreshed_betas":{"META":0.022,"AMZN":0.252,"BABA":0.264,"QBTS":1.210},
+ "new_betas_atr":{"META":{"beta":0.022,"atr20_pct":4.74,"source":"computed_1mo_daily_vs_smh"},"AMZN":{"beta":0.252,"atr20_pct":3.09,"source":"computed_1mo_daily_vs_smh"},"BABA":{"beta":0.264,"atr20_pct":3.28,"source":"computed_1mo_daily_vs_smh"},"QBTS":{"beta":1.210,"atr20_pct":8.01,"source":"computed_1mo_daily_vs_smh"}},
+ "risk_narrative":"Portfolio beta 1.275 vs SOX/SMH 1.19 -- modestly hot, down from 1.349 on 07-31. Risk concentration still memory-driven: SNDK (6.10% weight, 14.0% risk, beta 2.92), DRAM (6.30% weight, 10.24% risk, beta 2.07), MU (6.18% weight, 9.47% risk, beta 1.95), MRVL (5.63% weight, 7.40% risk, beta 1.68) all carry risk shares well above capital weight; ASML (8.15% weight, 5.92% risk, beta 0.93) is the ballast. Drawdown deepened to -10.62% from total-book peak ($44,873->$40,106), worse than -8.35% three days ago -- accelerating, though not yet at a typical 15-20% policy-breach level. Cash is the critical flag: $38.02, 0.095% of total book, effectively zero dry powder -- far below the prior 5.4% and any normal 5-15% band, meaning no capacity to buy further weakness without selling existing risk-heavy positions first.",
+ "data_quality":["TSM lots.json qty (3) vs holdings qty (5) mismatch -- +2sh rebalance add this run has no confirmed lot, not fabricated","QCOM ex-date 2026-09-03 is 31 days out -- just outside 30-day window, watch next run","META/AMZN/BABA/QBTS betas computed via 1mo/daily vs SMH per this run's instruction, not yfinance's default longer-window SPX beta -- META's ~0 beta is noisy, dominated by a single earnings-day divergence from SMH","cash collapsed to 0.095% of total book ($38.02) from 5.4% on 07-31 -- hard constraint on redeployment sizing this run"]}
+```

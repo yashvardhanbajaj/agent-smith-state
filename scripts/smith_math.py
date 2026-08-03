@@ -214,7 +214,7 @@ def cmd_book(args):
             for lot in lot_list:
                 try:
                     lot_date = datetime.strptime(lot["date"], "%Y-%m-%d").date()
-                except (KeyError, ValueError):
+                except (KeyError, ValueError, TypeError):
                     continue
                 months_held = (today.year - lot_date.year) * 12 + (today.month - lot_date.month)
                 months_to_ltcg = ltcg_boundary_months - months_held

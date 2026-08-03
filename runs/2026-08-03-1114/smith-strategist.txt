@@ -1,0 +1,83 @@
+AGENT SMITH — PORTFOLIO STRATEGIST — US BOOK — DEEP RUN
+Run: 2026-08-03-1114 | Today: 2026-08-03, pre-open | Mode: deep
+
+POLICY STATUS
+policy.json is present but confirmed:false (as_of 2026-07-28). Policy draft awaiting confirmation — run Agent Smith interactively to confirm. All drift analysis below is provisional — draft policy. No bootstrap needed (policy already exists); nothing in this run required redrafting it.
+
+======================================================================
+CRITICAL CONTEXT — CASH IS THE STORY THIS RUN
+======================================================================
+Cash is $38.02 (0.095% of a $40,106.34 book) against a normal-regime floor of 5% ($2,005). This is the opposite problem from recent weeks (post-stop-event spikes to 45-60%) — there is effectively zero dry powder, drawdown has accelerated to -10.62% (from -8.35% three sessions ago), and AMD reports tomorrow (08-04) with NFP three days out (08-07). Every proposal below is built around this constraint: no unfunded deployment is proposed; deployment is either trim-funded and named, or explicitly deferred.
+
+PROPOSALS (2026-08-03)
+
+1. HOLD FIRE on smith-rebound's four average-in candidates (CLS $1,207, BE $692, NBIS $739, MRVL $963 — $3,601 total). All are unfunded against a $38.02 wallet; none should be executed as sized. MRVL is vetoed outright, not merely deferred: smith-quality's first-ever audit found MRVL's interest coverage collapsed from ~8.1x to ~1.4x this quarter (interest expense quintupled to $256M on a fresh ~$2.0B debt draw) — the sharpest credit deterioration in the book. Averaging in on a "STRENGTHENING" technical thesis (Nvidia/Trainium narrative) while ignoring a fresh balance-sheet red flag would be sizing on stale information; the credit flag governs until next quarter's print clarifies whether the coverage drop is transitory. CLS/BE/NBIS remain technically timing-eligible per rebound's own gate and can be revisited once cash is rebuilt below — they are deferred on funding grounds only, not vetoed on setup.
+
+2. Trim SNDK ~$700 (approx. 0.58 sh at $1,217.64) — cures the AI Memory/Storage cluster breach (21.72% vs [10,20] band, over by 1.72pt of invested equity, ≈$691) and continues a pattern flagged in five of the last six deep reviews (1.35x-4.13x its ATR risk cap on nearly every pass since 07-28). Thesis is WATCH, not broken (catalyst desk's CXMT DUV-cap spec-gap read supports "dented, not resolved" on Memory), so this is a risk-sizing and cluster-band trim, not a thesis exit. Proceeds routed to cash rebuild.
+
+3. Trim MU ~$500 (approx. 0.61 sh at $824.93) — same Memory/Storage cluster, WATCH thesis reaffirmed (HBM3E ASP margin-mix headwind unresolved until Aug earnings — signals tail shows MU still a signal-history-changed name this run with no fresh resolving catalyst), and persistent risk-cap excess in the proposal log (07-30, 07-31 both flagged MU 2.47x-plus its cap). Proceeds routed to cash rebuild.
+
+4. Exit ORCL (full remaining stake) ~$520 (4 sh at $130.17) — smith-thesis reaffirmed WATCH this run (correcting the task brief's inherited claim of BROKEN — the actual baseline map shows WATCH throughout, not BROKEN across 3 reviews as previously assumed). Even on the corrected, less severe WATCH read, this is the fourth consecutive deep review (07-22, 07-23, 07-27, 07-31) recommending the same exit on a position that is only 1.3% of book — persistence across four independent reads outweighs the correction on severity. Tiny opportunity cost to close; proceeds routed to cash rebuild.
+
+5. Light trim MRVL ~$400 (approx. 2.1 sh at $187.99) — independent of item 1's veto on adding: MRVL is already a 5.63%-weight, beta-1.68 position, and the fresh interest-coverage collapse (8.1x→1.4x, see item 1) is a new, material negative signal that argues for shrinking exposure now rather than waiting for confirmation. Sized as a light trim (not an exit) because the operating thesis is still STRENGTHENING (Nvidia/Trainium, record revenue) and the credit flag is one-quarter-old with no going-concern language — proportionate caution, not panic. Proceeds routed to cash rebuild.
+
+Net effect of proposals 2-5: raises ~$2,120 in cash, taking the wallet from $38.02 (0.095%) to roughly $2,158 (~5.4% of book) — back inside the policy's normal cash band, funds a partial AMD-earnings buffer for tomorrow, and cures the one cluster ceiling breach (Memory/Storage) without touching AI Semis/Fabs (34.09%, already near its 35% ceiling — no room there) or the underweight Compute/Hyperscaler cluster (9.79% vs [15,25] band, -5.2pt under floor, ≈$2,089 short).
+
+STRUCTURAL NOTE (not sized, no capital action): Compute/Hyperscaler is the book's largest cluster underweight and none of this run's trims touch it (trimming further-underweight clusters would compound the problem). Policy's confirmed monthly-contribution rule (August's $1,000 external cash, effective this month) already directs new capital to "the cluster furthest below target" — that is currently Compute/Hyperscaler (GOOGL/AMZN). No new decision is required to execute that; flagging only because a near-zero-cash, accelerating-drawdown week is a reasonable moment for the user to weigh keeping some of August's contribution as buffer instead of fully deploying it — a judgment call for the user, not a policy override proposed here.
+
+LTCG CHECK: lots.json is populated (backfilled 07-31 from INDmoney confirmation emails), not empty, so the standard "empty lots" gap doesn't apply — but it is NOT clean for this purpose. All dated lots behind today's trim candidates (SNDK, MU, ORCL) are 3-8 days old, nowhere near the 24-month LTCG boundary. However SNDK, MU, and DRAM each also carry a residual lot with date: null ("predates available email history, real date unknown") — these could be anywhere from ~15 months to several years old, meaning they might already be past the 24-month LTCG boundary or might still be 6-9 months short of it; the data cannot distinguish the two. Recommendation: when executing the SNDK/MU trims above, prefer selling the null-date (oldest-inferred) lots first if the broker's lot-selection tooling allows FIFO or specific-lot choice — this maximizes the chance of LTCG treatment without being able to confirm it precisely. Flagged in data_quality; no defer-to-date proposal is possible without a resolved date.
+
+RISK-OFF STATUS: NORMAL (compute_drift.json risk_off_status = "normal"; drawdown -10.62% is below the 15% policy warn threshold and well below the 25% risk-off threshold). Not tightened to a defensive-lead posture. That said, the drawdown has accelerated (-8.35% → -10.62% in three sessions) and cash is simultaneously at an all-time-low proportion — the combination argues for the same practical outcome as a warn-level tightening (no new deployment, trim-fund only) even though the formal status doesn't require it. Treat proposals 2-5 as the risk-appropriate response given that combination, not as a status escalation.
+
+SENTIMENT: score 73.4 (greed band), action_hint null — 1.6 points shy of the 75 extreme_greed threshold. Per the rule, neutral/greed (non-extreme) bands take no special sentiment framing — proposals above are drift/thesis/credit-driven, not sentiment-led. Worth naming only because a jump above 75 next session (score components show VIX-range and 52wk-high proximity already at 88-95) would flip the playbook toward profit-booking on the largest breaches (SNDK/MU are already first in line if that happens).
+
+======================================================================
+STRESS TABLE (approximate, macro-anchored where possible — labeled)
+======================================================================
+1. AI-capex pause: combined AI-capex-chain exposure is 97.08% of total book (compute_drift.json ai_capex_pct_of_total_book). Applying an assumed -20% cluster move (static assumption — smith-macro's tail did not surface a resolvable cluster_impact.ai_capex_chain multiplier in the data handed to this run, flagged in data_quality) gives an estimated portfolio impact of roughly -19.4% / -$7,790. Most exposed: ASML (8.15%, largest position), SNDK (beta 2.92, WATCH), MU/DRAM (Memory cluster over band), MRVL (credit-flagged, beta 1.68).
+
+2. Rates +100bp: anchored to smith-macro's live read (10-yr at 4.75%, +32.7bp/month, Fed 3.63% hawkish-unchanged) rather than a blind +100bp from an arbitrary base — the marginal move lands on a book already repricing under sustained hawkish-hold pressure, so treat the -10% assumed move as applying to the high-beta / long-duration / debt-financed sleeve rather than the whole book. That sleeve (QBTS 1.13%, NBIS 2.38%, BE 1.55%, ARM 2.40%, plus MRVL 5.63% given its fresh debt draw) is ~13% of book; -10% on that slice ≈ -1.3% / -$520. MRVL is doubly exposed here (rate-sensitive AND freshly levered) — reinforces proposal 5 above.
+
+3. Tariff/export-control escalation: China-revenue-exposed sleeve (ASML 8.15% + TSM 5.06% + AVGO 4.87% + AMAT 1.28% + BABA 0.31% ≈ 19.7% of book) at an assumed -15% move ≈ -2.95% / -$1,183. Catalyst desk's CXMT/DUV note (LPDDR6 capped at 12.8Gbps vs 14.4Gbps EUV) is a structural, not resolving, factor here — it dents but doesn't remove the medium-term China-substitution risk to this sleeve.
+
+4. USD/INR ±3%: ~0% impact on the USD-reported book (this is the correct expectation for a USD-denominated portfolio). In INR terms, the effect is direct and roughly linear: a 3% INR depreciation vs USD adds ~3% (~$1,203-equivalent) to the INR value of the user's net worth from this book alone; a 3% INR appreciation subtracts the same. Current USD/INR is 95.2, drifting -0.23% — not a live trigger either way this run.
+
+5. Asia-chip-complex idiosyncratic shock (context, not a standard stress line but material this week): KOSPI -5.17% (Samsung -8.2%, SK Hynix -7.9%) is catalyst-desk-confirmed mechanical giveback of Friday's +17.9% melt-up, not a new fundamental catalyst — TAIEX/Nikkei calm corroborates Korea-specific, not regional. EWY (3.14% weight) is the direct read-through and the live gap-risk name into Monday's open; no proposal attached, flagged for awareness only.
+
+6. AMD earnings (08-04, tomorrow) as a binary catalyst: AMD is 3.57% of book, thesis STRENGTHENING, no dedicated hedge or trim proposed here given the position is already sub-4% and the cash-rebuild trims above are prioritized on larger, WATCH-thesis names instead. Noted as the nearest live single-name binary risk, not sized as a stress scenario.
+
+======================================================================
+HIT-RATE READOUT
+======================================================================
+No bucket has reached the 30-day scoring threshold yet. compute_journal.json shows 38 signal-history entries logged 07-12 through 07-31, all still 3-22 days old (verdict: open); bucket_hit_rates and name_bucket_grades are both empty this run by design — scoring begins once entries cross 30 days, which starts arriving ~2026-08-12 (07-12 cohort) through ~2026-08-14 (07-14 cohort). Nothing to de-emphasize this run; revisit at the next deep review once the first cohort scores.
+
+======================================================================
+PROPOSAL-OUTCOME SCORECARD
+======================================================================
+Still no proposals in the 30d/90d scoring window. The earliest open proposal (2026-07-13, three TSM/LRCX/CRDO/VRT entries, all marked executed) turns 30 days old on 2026-08-12 — 9 days from today. proposals.json's own running scorecard note confirms this has been true at every review since 07-18; nothing has changed this run except the countdown. trim_accuracy_30d / add_accuracy_30d / overall_accuracy_30d remain null. Will be scoreable starting the 2026-08-12 run.
+
+======================================================================
+DATA QUALITY / GAPS THIS RUN
+======================================================================
+- AI-capex-pause stress scenario used a static -20% assumption; smith-macro's tail did not surface a resolvable cluster_impact.ai_capex_chain multiplier to temper it — flagged rather than silently treated as precise.
+- Rates scenario anchored qualitatively (10-yr 4.75%, Fed hawkish-unchanged) rather than quantitatively tempered — no numeric beta-to-10yr sensitivity was available in the tails handed to this run.
+- SNDK/MU/DRAM each carry a null-date "predates available email history" lot of unknown age (could be short of or past the 24-month LTCG boundary) — cannot resolve LTCG lot-priority precisely; recommend oldest-inferred-lot-first selection at execution if the broker supports specific-lot sale.
+- betas defaulted to 1.0 for META/QBTS/BABA (compute_book.json data_quality) — not used as inputs to any sized proposal above, only descriptively.
+- bucket_hit_rates/name_bucket_grades empty this run (38 entries, all <30 days old) — not a defect, scoring hasn't started yet.
+- smith-rebound vs orchestrator Gate v2 divergence (rebound's internal gate read STABILIZING off its own VIX/futures check; orchestrator's official ESCALATING call was driven by Gate v2's Asia-index term, which rebound's gate output doesn't appear to implement) is noted here as received — not resolved by this agent, per instruction. This does not change the proposals above, which are driven by cash/cluster/credit facts independent of the gate dispute.
+- Policy draft remains unconfirmed (confirmed:false, as_of 2026-07-28) — all drift/band figures cited above are provisional pending user confirmation.
+
+```json
+{"policy_draft":null,
+ "proposals":[
+   {"action":"Hold fire on smith-rebound average-ins (CLS/BE/NBIS/MRVL, $3,601 total) -- unfunded; MRVL vetoed outright on credit flag","size_usd":0,"price_at_proposal":null,"rationale":"Wallet is $38.02; none of the four are fundable as sized. MRVL specifically vetoed: smith-quality found interest coverage collapsed 8.1x->1.4x on a fresh ~$2.0B debt draw, overriding the STRENGTHENING technical thesis for sizing purposes. CLS/BE/NBIS remain timing-eligible per rebound's gate, deferred on funding only."},
+   {"action":"Trim SNDK","size_usd":700,"price_at_proposal":1217.6373,"rationale":"Cures AI Memory/Storage cluster breach (21.72% vs [10,20] band, ~$691 over); WATCH thesis, 5th-6th consecutive review flagging risk-cap excess (1.35x-4.13x cap since 07-28); proceeds fund cash rebuild."},
+   {"action":"Trim MU","size_usd":500,"price_at_proposal":824.932,"rationale":"Same cluster breach; WATCH thesis reaffirmed (HBM3E ASP headwind unresolved pre-earnings); persistent risk-cap excess in 07-30/07-31 proposals; proceeds fund cash rebuild."},
+   {"action":"Exit ORCL (full remaining stake)","size_usd":520,"price_at_proposal":130.1701,"rationale":"WATCH thesis (corrected from task brief's inherited BROKEN claim -- baseline map shows WATCH throughout); 4th consecutive deep review (07-22,07-23,07-27,07-31) recommending this exact exit; tiny 1.3% weight; proceeds fund cash rebuild."},
+   {"action":"Light trim MRVL","size_usd":400,"price_at_proposal":187.9934,"rationale":"Fresh interest-coverage collapse (8.1x->1.4x) is a new material risk despite STRENGTHENING technical thesis (Nvidia/Trainium); proportionate light trim, not exit, pending next quarter's print; also directly informs the veto in proposal 1; proceeds fund cash rebuild."}
+ ],
+ "proposal_outcomes":[],
+ "scorecard":{"trim_accuracy_30d":null,"add_accuracy_30d":null,"overall_accuracy_30d":null},
+ "deemphasize_buckets":[],
+ "data_quality":["AI-capex pause scenario used static -20% assumption, macro cluster_impact multiplier not resolvable from provided tail","rates scenario anchored qualitatively to 10yr 4.75%/Fed hawkish-unchanged, not quantitatively tempered","SNDK/MU/DRAM null-date lots of unknown age prevent precise LTCG boundary check","betas defaulted to 1.0 for META/QBTS/BABA, not used in sized proposals","bucket_hit_rates/name_bucket_grades empty -- 38 entries all under 30 days old, not a defect","smith-rebound/orchestrator Gate v2 divergence received as flagged, not resolved by this agent","policy.json still unconfirmed (confirmed:false) -- all drift figures provisional"]}
+```

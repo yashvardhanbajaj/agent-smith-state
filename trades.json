@@ -87,7 +87,7 @@
       "ticker": "AVGO",
       "action": "add",
       "qty_change": 3,
-      "price_at_trade": 375.50,
+      "price_at_trade": 375.5,
       "reason": "rebalance",
       "notes": "Clip 2 of 4. Stop 343.61. EXACT FILL CONFIRMED VIA EMAIL RECONCILIATION 2026-07-31: transactions@transactions.indmoney.com, 2026-07-28T14:28:09Z, $1129.82 for 3 shares @ $375.50, Market order -- corrects the prior placeholder (3.086sh @ $372.68), which did not match the confirmation email."
     },
@@ -243,6 +243,60 @@
       "price_at_trade": 267.72,
       "reason": "new entry as per the proposal",
       "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-31 (free-text 'Other' -- references an earlier strategist proposal to deploy into CEG as a diversifier/cluster-fill; verify against proposals.json history). Brand new position, first-ever CEG holding in this book. EXACT FILL CONFIRMED VIA EMAIL RECONCILIATION 2026-07-31: transactions@transactions.indmoney.com, 2026-07-30T16:42:06Z, $805.57 for 3 shares @ $267.72, Market order. Date corrected from 07-31 to the actual fill date 07-30; price corrected from the prior approximate live-quote placeholder ($266.60). No sector_map/thesis/ATR/beta cache entry yet -- needs smith-thesis classification this run."
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "TSM",
+      "action": "add",
+      "qty_change": 2,
+      "price_at_trade": null,
+      "reason": "UNCAPTURED",
+      "notes": "Detected via qty-diff (3->5) on 2026-08-03 deep run; last successful full sweep was 2026-07-31 13:02 IST (pre-trade) and the next attempted run (2026-08-01 11:47 IST, quick, never completed -- stale lockfile) already shows qty=5, so this executed during the intervening window (most likely the 2026-07-31 US session). No confirmation email checked this run -- scheduled/non-interactive, rationale not askable. Exact fill unknown."
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "IREN",
+      "action": "exit",
+      "qty_change": -10,
+      "price_at_trade": null,
+      "reason": "UNCAPTURED",
+      "notes": "Full exit detected via qty-diff (10->0) on 2026-08-03 deep run. Same discovery window as the TSM/META/AMZN/QBTS/BABA changes below -- see TSM note. This is IREN's SECOND full-exit event (first was the 2026-07-24 mass stop-out at qty 25; position was rebuilt to 10 by 2026-07-31, now exited again). Exact fill/trigger unknown, not live-verified."
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "META",
+      "action": "entry",
+      "qty_change": 1,
+      "price_at_trade": null,
+      "reason": "UNCAPTURED",
+      "notes": "New position detected via qty-diff (0->1) on 2026-08-03 deep run. 2026-07-30 quick-run notes proposed a 'META token tranche ($450, standout oversold-bounce diversifier)' -- this is likely that proposal being executed, but not confirmed against an email this run. Needs sector_map/thesis assignment (no prior classification -- same gap class as G38)."
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "AMZN",
+      "action": "entry",
+      "qty_change": 2,
+      "price_at_trade": null,
+      "reason": "UNCAPTURED",
+      "notes": "New position detected via qty-diff (0->2) on 2026-08-03 deep run. First-ever AMZN hold. Needs sector_map/thesis assignment, ticker AMZN newly added to data_cache.ticker_map this run (unambiguous, cross-checked via yfinance search_stocks)."
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "QBTS",
+      "action": "entry",
+      "qty_change": 25,
+      "price_at_trade": null,
+      "reason": "UNCAPTURED",
+      "notes": "New position detected via qty-diff (0->25) on 2026-08-03 deep run. IMPORTANT CORRECTION: the abandoned 2026-08-01 11:47 IST run (never completed) had auto-labeled this holding's ticker as 'DVWR' in its holdings.json -- WRONG. Verified via yfinance search_stocks this run: D-Wave Quantum Inc. Common Stock's real ticker is QBTS. Cached correctly to data_cache.ticker_map as QBTS, not DVWR. This is exactly the ticker-mislabeling risk flagged by the 2026-07-13 MEM/DRAM incident and TICKER INTEGRITY hard rule -- caught before it propagated into state.json."
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "BABA",
+      "action": "entry",
+      "qty_change": 1,
+      "price_at_trade": null,
+      "reason": "UNCAPTURED",
+      "notes": "New position detected via qty-diff (0->1) on 2026-08-03 deep run. First-ever BABA hold -- first non-AI-capex, non-US-domiciled diversifier in the book (Chinese e-commerce). Needs sector_map/thesis assignment."
     }
   ],
   "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out."

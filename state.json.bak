@@ -804,9 +804,38 @@
         "TSM": 2.29,
         "AVGO": 20.51
       },
-      "note": "Name 1m return minus SMH 1m return, in percentage points. Positive = running ahead of the semis benchmark. Owned by smith-signals; refresh on deep runs alongside ATR/beta.",
+      "note": "Name 1m return minus SMH 1m return, in pp (values_pp), plus the name's own absolute 1m return (values_abs_pct). Stretch scoring requires BOTH rel>0 and abs>0 -- in a falling sector 'beat the benchmark' just means 'fell less', which is not something that can be given back. Owned by smith-signals; refresh on deep runs with ATR/beta.",
       "ttl_days": 7,
-      "refresh_after": "2026-08-07"
+      "refresh_after": "2026-08-07",
+      "values_abs_pct": {
+        "ASML": -16.99,
+        "NVDA": -2.52,
+        "SNDK": -43.71,
+        "ORCL": -12.96,
+        "QCOM": -17.96,
+        "GEV": -16.42,
+        "NBIS": -31.77,
+        "IREN": -16.34,
+        "CEG": 6.12,
+        "GLW": -47.06,
+        "BE": -31.58,
+        "MKSI": -34.06,
+        "MU": -24.23,
+        "GOOGL": -6.63,
+        "DRAM": -29.13,
+        "MRVL": -38.47,
+        "COHR": -36.86,
+        "AMD": -16.44,
+        "VRT": -32.05,
+        "TER": -24.46,
+        "EWY": -20.15,
+        "CLS": -3.35,
+        "AMAT": -30.6,
+        "ARM": -31.88,
+        "CIEN": -24.15,
+        "TSM": -15.55,
+        "AVGO": 2.67
+      }
     }
   },
   "fomc_cache": {
