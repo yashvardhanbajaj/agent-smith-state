@@ -101,25 +101,26 @@ trades.json's own header has always said rationale gets "populated by interactiv
 
 **Scheduled/non-interactive runs**: skip asking, write `"reason": "UNCAPTURED"` for each new entry exactly as trades.json's schema already documents, and add one data_quality line noting how many trades await rationale. Never block a scheduled run waiting on input that can't arrive.
 
-**Interactive runs**: before finalizing the briefing, capture rationale per ticker in TWO STEPS, not one — AskUserQuestion hard-caps at 4 custom options per question (5th slot is always a fixed free-text "Other", not a labeled button you control), so 5 standing named reasons plus a true catch-all cannot fit in a single question. Added 2026-07-29 after DCA went 5-for-5 via "Other" on its first day and the user asked for it as a real button, not typed text, without dropping any of the original 4; extended the same day to be direction-aware after the user pointed out buys and sells have different most-likely reasons.
+**Interactive runs**: before finalizing the briefing, capture rationale per ticker in TWO STEPS, not one — AskUserQuestion hard-caps at 4 custom options per question (5th slot is always a fixed free-text "Other", not a labeled button you control), so 7 standing named reasons plus a true catch-all cannot fit in a single question. Added 2026-07-29 after DCA went 5-for-5 via "Other" on its first day and the user asked for it as a real button, not typed text, without dropping any of the original 4; extended the same day to be direction-aware after the user pointed out buys and sells have different most-likely reasons. Extended again 2026-08-03: `re-entry-after-stop` and `dca-into-diversification` promoted to standing buttons after both recurred multiple times via "Other" (a same-day MU stop-loss/rebuy whipsaw pair, and a five-ticker weekend diversification buy confirmed by the user as "DCA into diversification") — this pushed the buy side from 1 relevant reason to 3, so buy-side step 1 changed shape (see below) to keep every question within the 4-custom-option cap.
 
-The 5 standing reasons are `dollar-cost-averaging`, `stop-loss`, `thesis-change`, `raise-cash`, `rebalance`. **Step 1's question depends on the sign of the ticker's `qty_diff`** (not the `action` label — `qty_diff` is unambiguous, `action` strings like "add" vs "entry" have drifted inconsistently across trades.json's history):
-- **`qty_diff > 0` (a buy/add)** → step 1 asks *"Was this dollar-cost-averaging?"* (`Yes — DCA` / `No — something else`).
-- **`qty_diff < 0` (a sell/trim/exit)** → step 1 asks *"Was this a stop-loss?"* (`Yes — stop-loss` / `No — something else`).
+The 7 standing reasons are `dollar-cost-averaging`, `dca-into-diversification`, `re-entry-after-stop`, `stop-loss`, `thesis-change`, `raise-cash`, `rebalance`. **Step 1's question depends on the sign of the ticker's `qty_diff`** (not the `action` label — `qty_diff` is unambiguous, `action` strings like "add" vs "entry" have drifted inconsistently across trades.json's history):
 
-If step 1 is "Yes": write that reason straight to `reason`, one click, done — skip step 2 for that ticker.
+- **`qty_diff > 0` (a buy/add)** → step 1 is a 4-option question, *"What kind of buy was this?"*: `DCA` / `DCA into diversification` / `Re-entry after a stop` / `Something else`. Picking one of the first three writes that reason straight to `reason`, one click, done — skip step 2. Picking "Something else" (or the tool's own free-text Other, if used directly at step 1) proceeds as below.
+- **`qty_diff < 0` (a sell/trim/exit)** → step 1 stays a yes/no: *"Was this a stop-loss?"* (`Yes — stop-loss` / `No — something else`). "Yes" writes `stop-loss` straight to `reason`, one click, done.
 
-If step 1 is "No": **step 2 shows the remaining 4 reasons** — whichever one step 1 already asked about (and ruled out) is dropped from the list, so this is always exactly 4 options, never a separate filtering decision:
+If step 1 didn't resolve it (a sell's "No", or a buy's "Something else"): **step 2 shows the remaining 4 reasons** — whichever ones step 1 already tested are dropped, so this is always exactly 4 options, never a separate filtering decision:
 
-| Label | Description shown to the user |
-|---|---|
-| Dollar-cost-averaging | Buying on a schedule/discipline, not reacting to a specific signal (sell-side step 1 only, since a buy already ruled this out in step 1) |
-| Stop-loss | Hit the stop / sized down under the tight stop discipline this book runs on (buy-side step 1 only, same reason) |
-| Thesis-change | Your view on the company or story itself changed |
-| Raise-cash | Trimmed specifically to build dry powder, not a stop or a thesis call |
-| Rebalance | Sizing move — staged deployment, bringing a position/cluster back toward target |
+| Label | Description shown to the user | Shown in step 2 for |
+|---|---|---|
+| Dollar-cost-averaging | Buying on a schedule/discipline, not reacting to a specific signal | sells only (buys resolve this in step 1) |
+| Stop-loss | Hit the stop / sized down under the tight stop discipline this book runs on | buys only (sells resolve this in step 1) |
+| Thesis-change | Your view on the company or story itself changed | both |
+| Raise-cash | Trimmed specifically to build dry powder, not a stop or a thesis call | both |
+| Rebalance | Sizing move — staged deployment, bringing a position/cluster back toward target | both |
 
-The tool adds a free-text "Other" automatically on step 2 — if picked, store the user's own words as `reason` verbatim (don't force it into one of the 5 buckets) and put any elaboration in `notes`. For a bucketed answer (from either step), write the matching enum value straight to `reason` and put ticker/qty/direction context in `notes` (price_at_trade: use a live quote if you have one this run, clearly caveated as approximate/not a confirmed fill — never invent a fill price).
+(`dca-into-diversification` and `re-entry-after-stop` never appear in step 2 — they're buy-only and already offered directly in buy-side step 1.)
+
+The tool adds a free-text "Other" automatically on every question — if picked, store the user's own words as `reason` verbatim (don't force it into one of the 7 buckets) and put any elaboration in `notes`. For a bucketed answer (from either step), write the matching enum value straight to `reason` and put ticker/qty/direction context in `notes` (price_at_trade: use a live quote if you have one this run, clearly caveated as approximate/not a confirmed fill — never invent a fill price).
 
 Append the new entries to trades.json (WRITE SAFETY applies — .bak then tmp-then-mv, same as any other memory-of-record file) before moving to Stage 1, so the rationale is available to embed into the strategist's context this same run, not just logged for next time.
 
@@ -147,7 +148,7 @@ A standing, always-visible ranking of every holding by **how much damage it does
 
 Embed in EVERY prompt (slices only — never point an agent at whole state files it must Read itself): mode, today's date, the holdings.json PATH, output_file path, `{usdinr, us10y, vix, dxy, spx, ndx, market_session, gate_classification}` inline, this agent's own PRIOR JSON tail (from state.json / last run — embedded inline, not just a file path, so prior-self context survives even if yesterday's run dir is incomplete), the compact `known_gaps` list (agents cite a gap ID instead of re-explaining a standing issue), and:
 - smith-book (deep only): `compute_book.json` inline (value/weights/concentration/beta/drawdown/cash already computed — this agent now only adds dividends, ex-dates, LTCG narrative from lots.json, and refreshes any beta whose cache entry has expired)
-- smith-signals: `compute_journal.json` inline (journal entries already scored — this agent judges news/buckets and consumes the pre-scored verdicts, not the arithmetic), news_watermark, signal_history, `peer_map` (may be empty on first run — this agent seeds/maintains it), open_flags, per-name×bucket signal history
+- smith-signals: `compute_journal.json` inline (journal entries already scored — this agent judges news/buckets and consumes the pre-scored verdicts, not the arithmetic), news_watermark, signal_history, `peer_map` (may be empty on first run — this agent seeds/maintains it), `data_cache.atr20.values_pct` (the per-name volatility normalizer its move-based buckets scale by — embed on EVERY run including quick; without it the agent silently falls back to legacy absolute thresholds and the whole normalization is inert), open_flags, per-name×bucket signal history
 - smith-thesis: thesis map, sector_map, news_watermark, ETF constituent cache (from data_cache, 30-day TTL)
 - smith-watchlist: `compute_attribution.json` inline (FX/flow/residual decomposition and rolling windows already computed — this agent scans for entry setups and owns the earnings_calendar cache and watchlist_scan_cursor, not the math), news_watermark
 - smith-rebound (if gate is ESCALATING/AMBIGUOUS): normal mode (no explicit instruction needed — it will diff holdings vs state.json and compute redeployment candidates), dispatch with holdings.json + state.json + policy.json slices inline
