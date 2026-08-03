@@ -983,21 +983,95 @@ def cmd_sentiment(args):
 
 
 # ---------------------------------------------------------------------------
+# Canonical 4-way bucket every proposal verb collapses to, for both dedup-matching and the
+# dashboard's color coding. Deliberately coarse: "Stage AMD", "Deploy GOOGL", "Top up GOOGL",
+# "Initiate META" and "ADD MRVL" are all different staging language for the same underlying
+# idea (put more money into this name), and "Light trim X" is the same idea as "Trim X" --
+# treating them as different directions was why near-identical proposals (see G46) weren't
+# recognized as duplicates of each other. Longest phrase first so multi-word keywords are
+# matched before a shorter keyword nested inside a longer action string would win instead.
+DIRECTION_KEYWORDS = [
+    ("DEPLOY INTO", "BUY"), ("TOP UP", "BUY"), ("LIGHT TRIM", "TRIM"), ("HOLD FIRE", "HOLD"),
+    ("REBUILD", "HOLD"), ("STAGE", "BUY"), ("INITIATE", "BUY"), ("DEPLOY", "BUY"),
+    ("BUILD", "BUY"), ("BUY", "BUY"), ("ADD", "BUY"), ("TRIM", "TRIM"), ("REDUCE", "TRIM"),
+    ("EXIT", "SELL"), ("SELL", "SELL"), ("HOLD", "HOLD"),
+]
+DIRECTION_BUCKET = {"BUY": "BUY", "TRIM": "TRIM", "SELL": "SELL", "HOLD": "HOLD"}
+
+
+def _proposal_direction(action):
+    """Returns one of BUY/TRIM/SELL/HOLD. Coarser than the old per-verb token on purpose --
+    see DIRECTION_KEYWORDS. One consequence: an "ADD X" proposal (which presupposes X is
+    already held) now buckets identically to a fresh "BUY X" (which doesn't) for dedup and
+    the holds_presupposed/auto-void check below no longer distinguishes them -- a stale ADD
+    for an exited ticker won't be immediately auto-voided the way it used to be. That's an
+    acceptable trade: the 7-day auto-expiry below is still a backstop, so the cost is a few
+    extra days of visible clutter, not a silently-corrupted proposal."""
+    a = (action or "").upper()
+    for kw, bucket in DIRECTION_KEYWORDS:
+        if kw in a:
+            return bucket
+    return "HOLD"
+
+
+def _proposal_infer_ticker(pr):
+    if pr.get("ticker"):
+        return pr["ticker"]
+    # backfill from the action text: last all-caps token 2-5 chars is almost always the symbol
+    words = (pr.get("action") or "").replace("(", " ").replace(")", " ").split()
+    for w in reversed(words):
+        wc = w.strip(".,")
+        if wc.isupper() and 2 <= len(wc) <= 5 and wc not in ("BUY", "TRIM", "EXIT", "ADD", "HOLD", "NO"):
+            return wc
+    return None
+
+
+def _proposal_parse_date(raw):
+    if not raw:
+        return None
+    try:
+        return datetime.fromisoformat(raw).date()
+    except ValueError:
+        pass
+    for fmt in ("%Y-%m-%dT%H:%M", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(raw, fmt).date()
+        except ValueError:
+            continue
+    return None
+
+
 def cmd_proposals(args):
-    """Apply lifecycle rules to proposals.json: auto-supersede duplicates, auto-expire old,
-    auto-void when cited breach clears or position changes materially.
+    """Apply lifecycle rules to proposals.json: cross-run supersede-on-repeat, auto-expire
+    old, auto-void when position changes materially. Also assigns each proposal a stable
+    `id` (P-###, never reassigned) so a proposal can be referenced precisely -- by the
+    dashboard, by a chat "dismiss P-014" request, or by a future automation -- without
+    fragile string matching on the action text.
     FIXED 2026-07-26 (1.6): Tier 1 defect -- proposals accumulated as stale duplicates.
     FIXED 2026-07-29 (four compounding bugs found via a user-spotted duplicate CEG proposal):
       (a) this function computed supersessions but NEVER WROTE proposals.json back -- every prior
           "cleanup" run was a silent no-op, which is why the file had drifted this far;
       (b) the dedup key did exact string match on `action`, so "BUY CEG" and "BUY CEG (new position)"
           were treated as different proposals instead of the same trade -- normalize to a
-          (date, ticker, direction) key instead, where direction is the leading verb;
+          (ticker, direction) key instead, where direction is the leading verb;
       (c) six proposals were missing their `ticker` field entirely, silently disabling the
           void-on-exit check -- backfill ticker from the action text when absent;
       (d) the date parser only tried two exact formats and silently gave up on an ISO string with
           seconds and a UTC offset, disabling auto-expiry for that whole batch -- try
           datetime.fromisoformat first, with the old formats as fallback.
+    FIXED 2026-08-03 (G46, user-reported: "the open proposal keeps on increasing"): the dedup
+    key included `date`, so the SAME idea proposed on different calendar days (the actual,
+    common case -- e.g. "Exit ORCL" recommended 07-22, 07-27 AND 07-31, all three still open
+    simultaneously) was never recognized as a duplicate; only accidental same-day double-asks
+    were ever merged, and 32 of 51 proposals had piled up open as a result. Key is now
+    (ticker, direction) with no date component, so ANY currently-open proposal for the same
+    ticker+direction merges into one running entry regardless of how many days apart the
+    restatements were. The merge keeps the CHRONOLOGICALLY LATEST occurrence's numbers/date
+    (freshest pricing and rationale, not the longest-winded one) and rolls every earlier
+    occurrence into a `history` list with a `repeat_count`, so "recommended 4x since 07-22"
+    is one compact row instead of four, while the repeat count itself stays visible and the
+    7-day expiry clock resets off the latest restatement (a proposal the strategist keeps
+    reiterating should stay alive; one it stops mentioning should lapse).
     """
     p_path = os.path.join(args.base_dir, "proposals.json")
     proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
@@ -1007,44 +1081,20 @@ def cmd_proposals(args):
     props = proposals.get("proposals", [])
     today_date = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
     current_tickers = {h["ticker"] for h in holdings.get("holdings_inr", [])}
-    live_breaches = {c["cluster"] for c in drift.get("cluster_table", []) if c.get("breach")}
+    direction = _proposal_direction
+    infer_ticker = _proposal_infer_ticker
+    parse_date = _proposal_parse_date
 
-    VERBS = ["BUY", "TRIM", "EXIT", "ADD", "DEPLOY INTO", "HOLD"]
-
-    def direction(action):
-        a = (action or "").upper()
-        for v in VERBS:
-            if a.startswith(v):
-                return v
-        return a.split()[0] if a.split() else ""
-
-    def infer_ticker(pr):
-        if pr.get("ticker"):
-            return pr["ticker"]
-        # backfill from the action text: last all-caps token 2-5 chars is almost always the symbol
-        words = (pr.get("action") or "").replace("(", " ").replace(")", " ").split()
-        for w in reversed(words):
-            wc = w.strip(".,")
-            if wc.isupper() and 2 <= len(wc) <= 5 and wc not in ("BUY", "TRIM", "EXIT", "ADD", "HOLD", "NO"):
-                return wc
-        return None
-
-    def parse_date(raw):
-        if not raw:
-            return None
-        try:
-            return datetime.fromisoformat(raw).date()
-        except ValueError:
-            pass
-        for fmt in ("%Y-%m-%dT%H:%M", "%Y-%m-%d"):
-            try:
-                return datetime.strptime(raw, fmt).date()
-            except ValueError:
-                continue
-        return None
-
-    seen = {}  # (date, ticker, direction) -> index of first (most detailed) occurrence
-    to_supersede = set()
+    # -- stable IDs: assign once, never reassign or reuse --
+    max_id = 0
+    for pr in props:
+        pid = pr.get("id", "")
+        if pid.startswith("P-") and pid[2:].isdigit():
+            max_id = max(max_id, int(pid[2:]))
+    for pr in props:
+        if not pr.get("id"):
+            max_id += 1
+            pr["id"] = f"P-{max_id:03d}"
 
     # backfill ticker before the main pass so every later check sees it
     for pr in props:
@@ -1053,25 +1103,59 @@ def cmd_proposals(args):
             if inferred:
                 pr["ticker"] = inferred
                 pr["note"] = (pr.get("note", "") + " | ticker backfilled from action text (2026-07-29 fix)").strip(" |")
+        pr.setdefault("direction_bucket", DIRECTION_BUCKET.get(direction(pr.get("action")), "HOLD"))
+
+    seen = {}  # (ticker, direction) -> index of the current running survivor
+    to_supersede = set()
 
     for i, pr in enumerate(props):
         if pr.get("status") != "open":
             continue
         prop_date = parse_date(pr.get("date", ""))
-        key = (prop_date, pr.get("ticker"), direction(pr.get("action")))
-        if key in seen and key[1] is not None:
+        key = (pr.get("ticker"), direction(pr.get("action")))
+        if key in seen and key[0] is not None:
             j = seen[key]
-            # keep whichever of the pair has the longer rationale; supersede the other
-            len_i = len(pr.get("rationale", "") or "")
-            len_j = len(props[j].get("rationale", "") or "")
-            loser = j if len_i > len_j else i
-            if loser == j:
-                seen[key] = i
+            date_i, date_j = prop_date, parse_date(props[j].get("date", ""))
+            # keep whichever occurrence is chronologically LATEST (freshest price/rationale);
+            # on an exact date tie, keep the longer rationale as the original heuristic did.
+            if date_i and date_j and date_i != date_j:
+                survivor, loser = (i, j) if date_i > date_j else (j, i)
+            elif date_i and not date_j:
+                survivor, loser = i, j
+            elif date_j and not date_i:
+                survivor, loser = j, i
+            else:
+                len_i = len(pr.get("rationale", "") or "")
+                len_j = len(props[j].get("rationale", "") or "")
+                survivor, loser = (i, j) if len_i >= len_j else (j, i)
+
+            history = props[survivor].setdefault("history", [])
+            # fold the loser's own history (if it was itself already a merged survivor once) in first,
+            # oldest-first, then the loser's own top-level occurrence.
+            history.extend(props[loser].get("history", []))
+            history.append({
+                "date": props[loser].get("date"),
+                "size_usd": props[loser].get("size_usd"),
+                "price_at_proposal": props[loser].get("price_at_proposal"),
+                "rationale": props[loser].get("rationale"),
+            })
+            history.sort(key=lambda h: parse_date(h.get("date", "")) or date.min)
+            props[survivor]["repeat_count"] = len(history) + 1
+            first_date = history[0].get("date") if history else props[survivor].get("date")
+            props[survivor]["note"] = (
+                props[survivor].get("note", "").replace(" | auto-superseded 2026-07-29 -- duplicate of another open", "")
+                + f" | recommended {len(history) + 1}x since {first_date}, still open"
+            ).strip(" |")
+
+            seen[key] = survivor
             to_supersede.add(loser)
-            if "note" not in props[loser] or "duplicate" not in props[loser]["note"]:
+            if "duplicate" not in props[loser].get("note", ""):
                 props[loser]["note"] = (props[loser].get("note", "")
-                                        + " | auto-superseded 2026-07-29 -- duplicate of another open %s %s proposal same day"
-                                        % (key[1], key[2])).strip(" |")
+                                        + f" | auto-superseded 2026-08-03 -- folded into {props[survivor]['id']}"
+                                        " as a repeat of the same open proposal").strip(" |")
+            i = survivor  # re-point so the expiry/void checks below use the surviving row
+            pr = props[survivor]
+            prop_date = parse_date(pr.get("date", ""))
         else:
             seen[key] = i
 
@@ -1094,7 +1178,7 @@ def cmd_proposals(args):
         # proposes OPENING a position, so "not currently held" is the normal, expected state for those,
         # not a staleness signal. Conflating the two (found 2026-07-29) voided a same-day CEG buy
         # proposal on the grounds that CEG "had been exited" when it had simply never been bought yet.
-        holds_presupposed = direction(pr.get("action")) in ("TRIM", "EXIT", "ADD", "HOLD")
+        holds_presupposed = direction(pr.get("action")) in ("TRIM", "SELL", "HOLD")
         if holds_presupposed and pr.get("ticker") and pr.get("ticker") not in current_tickers:
             to_supersede.add(i)
             if "auto-voided" not in pr.get("note", ""):
@@ -1110,6 +1194,32 @@ def cmd_proposals(args):
 
     emit({"proposals_count": len(props), "superseded_count": len(to_supersede), "changes_made": len(to_supersede),
           "written": True})
+
+
+def cmd_dismiss(args):
+    """Mark one proposal dismissed_by_user by its stable id (see cmd_proposals). This is the
+    write path behind a chat request like "dismiss P-014" -- the user's way of saying "don't
+    keep proposing this" without the strategist re-adding it next run, since dismissed_by_user
+    is a terminal status the dedup pass never reopens or merges into.
+    """
+    p_path = os.path.join(args.base_dir, "proposals.json")
+    proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
+    props = proposals.get("proposals", [])
+    for pr in props:
+        if pr.get("id") == args.id:
+            if pr.get("status") not in ("open",):
+                fail(f"proposal {args.id} is status={pr.get('status')!r}, not open -- nothing to dismiss")
+            pr["status"] = "dismissed_by_user"
+            stamp = f" | dismissed by user {datetime.now().isoformat(timespec='minutes')}"
+            if args.reason:
+                stamp += f": {args.reason}"
+            pr["note"] = (pr.get("note", "") + stamp).strip(" |")
+            proposals["proposals"] = props
+            json.dump(proposals, open(p_path + ".tmp", "w"), indent=2)
+            os.replace(p_path + ".tmp", p_path)
+            emit({"dismissed": args.id, "action": pr.get("action"), "written": True})
+            return
+    fail(f"no proposal with id {args.id}")
 
 
 # ---------------------------------------------------------------------------
@@ -1350,11 +1460,17 @@ def main():
     sp.add_argument("--run-dir", required=True, help="this run's directory containing compute_drift.json and holdings.json")
     sp.add_argument("--today", default=None, help="reference date for expiry (YYYY-MM-DD); default today")
 
+    sp = sub.add_parser("dismiss")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--id", required=True, help="stable proposal id, e.g. P-014")
+    sp.add_argument("--reason", default=None, help="optional free-text note on why the user dismissed it")
+
     args = p.parse_args()
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
-         "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals}[args.cmd](args)
+         "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
+         "dismiss": cmd_dismiss}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")
 

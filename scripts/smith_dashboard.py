@@ -212,9 +212,17 @@ td.blank{color:var(--ink-3)}
 /* ============ decision/proposal rows ============ */
 .pr{display:grid;grid-template-columns:96px 1fr auto;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft);align-items:baseline}
 .pr:last-child{border-bottom:none}
-.pr .act2{font-family:var(--mono);font-size:12px;font-weight:700}
+.pr .act2{font-family:var(--mono);font-size:12px;font-weight:700;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
 .pr .why{font-size:12.5px;color:var(--ink-2);line-height:1.45}
 .pr .amt{font-family:var(--mono);font-weight:700;color:var(--action)}
+.pr .rep{display:block;font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--ink-3);margin-top:3px}
+.pr .pid{display:block;font-family:var(--mono);font-size:10px;font-weight:400;color:var(--ink-3)}
+/* direction badge -- same visual language as the factor-catalyst .cb badges below */
+.db{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px}
+.db.BUY{background:var(--good-soft);color:var(--good)}
+.db.SELL{background:var(--bad-soft);color:var(--bad)}
+.db.TRIM{background:var(--warn-soft);color:var(--warn)}
+.db.HOLD{background:var(--surface-2);color:var(--ink-3)}
 
 /* ============ factor catalysts ============ */
 .ci{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
@@ -434,12 +442,23 @@ def build(base, out):
             short, rest = trim_lead(p.get("rationale", ""))
             more = (f'<details><summary>full rationale</summary><div class="body">{esc(rest)}</div></details>'
                     if len(rest) > 40 else "")
-            rows.append(f'<div class="pr"><span class="act2">{esc(p.get("action",""))}</span>'
+            bucket = p.get("direction_bucket", "HOLD")
+            pid = p.get("id", "")
+            rc = p.get("repeat_count", 1)
+            rep = (f'<span class="rep">recommended {rc}&times;'
+                   + (f' since {esc(str(p["history"][0].get("date",""))[:10])}' if p.get("history") else "")
+                   + '</span>') if rc > 1 else ""
+            pid_s = f'<span class="pid">{esc(pid)}</span>' if pid else ""
+            rows.append(f'<div class="pr"><span class="act2"><span class="db {bucket}">{bucket}</span>'
+                        f'{esc(p.get("action",""))}{rep}{pid_s}</span>'
                         f'<span class="why">{esc(short)}{more}</span>'
                         f'<span class="amt">${p.get("size_usd",0):,.0f}</span></div>')
         H.append('<section class="panel act"><div class="phead"><h2>Open proposals</h2>'
                  '<span class="pill a">For review &mdash; never executed</span></div>'
-                 f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
+                 f'<div class="pbody"><div>{"".join(rows)}</div>'
+                 '<p class="note">To drop a proposal you don\'t want to act on, just tell '
+                 'Agent Smith &mdash; e.g. "dismiss P-014" &mdash; citing the id shown under '
+                 'its action. It will not be re-proposed.</p></div></section>')
 
     # -- factor catalysts --
     catalysts = state.get("factor_catalysts", [])
