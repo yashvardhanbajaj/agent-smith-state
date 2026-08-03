@@ -236,7 +236,13 @@
         "stop_loss_framework 2xATR20"
       ],
       "id": "P-018",
-      "direction_bucket": "BUY"
+      "direction_bucket": "BUY",
+      "priority_score": -1,
+      "priority": "LOW",
+      "priority_reasons": [
+        "discretionary add -- no active breach behind it"
+      ],
+      "cluster": "AI Power/Cooling/DC Infra"
     },
     {
       "date": "2026-07-28",
@@ -305,7 +311,13 @@
       "ticker": "AMD",
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-024",
-      "direction_bucket": "BUY"
+      "direction_bucket": "BUY",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "AMD at 1.19x its ATR risk cap"
+      ],
+      "cluster": "AI Semis/Fabs"
     },
     {
       "date": "2026-07-29",
@@ -317,7 +329,13 @@
       "ticker": "AMAT",
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-025",
-      "direction_bucket": "BUY"
+      "direction_bucket": "BUY",
+      "priority_score": -1,
+      "priority": "LOW",
+      "priority_reasons": [
+        "discretionary add -- no active breach behind it"
+      ],
+      "cluster": "AI Semis/Fabs"
     },
     {
       "date": "2026-07-29",
@@ -341,7 +359,13 @@
       "ticker": "GEV",
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-027",
-      "direction_bucket": "BUY"
+      "direction_bucket": "BUY",
+      "priority_score": -1,
+      "priority": "LOW",
+      "priority_reasons": [
+        "discretionary add -- no active breach behind it"
+      ],
+      "cluster": "AI Power/Cooling/DC Infra"
     },
     {
       "date": "2026-07-29",
@@ -439,7 +463,13 @@
       "rationale": "Standout watchlist oversold-bounce (35.4% upside), still falling -8.6% today despite SMH +6.9% rally -- idiosyncratic not beta; addresses 100% AI-capex-chain concentration flagged by smith-thesis with cash well below historical hedge level; sized as token first tranche per staged-deployment/DCA discipline given continued weakness.",
       "ticker": "META",
       "id": "P-033",
-      "direction_bucket": "BUY"
+      "direction_bucket": "BUY",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "Compute/Hyperscaler under band (-7.7pt)"
+      ],
+      "cluster": "Compute/Hyperscaler"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -514,7 +544,15 @@
           "rationale": "Completes ~$1,500 of the cluster's ~$1,947 band-overage close, deliberately leaving it mildly over band given constructive CXMT walk-back; ETF/basket exposure, smallest tranche."
         }
       ],
-      "repeat_count": 3
+      "repeat_count": 3,
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "DRAM at 1.46x its ATR risk cap",
+        "AI Memory/Storage over band (+6.1pt)",
+        "recommended 3x, still unactioned"
+      ],
+      "cluster": "AI Memory/Storage"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -526,7 +564,11 @@
       "ticker": "ASML",
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-037",
-      "direction_bucket": "TRIM"
+      "direction_bucket": "TRIM",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [],
+      "cluster": "AI Semis/Fabs"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -538,7 +580,13 @@
       "ticker": "COHR",
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-038",
-      "direction_bucket": "TRIM"
+      "direction_bucket": "TRIM",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "COHR at 1.40x its ATR risk cap"
+      ],
+      "cluster": "AI Networking/Optics"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -571,7 +619,13 @@
       "ticker": "VRT",
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-040",
-      "direction_bucket": "TRIM"
+      "direction_bucket": "TRIM",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "VRT at 1.52x its ATR risk cap"
+      ],
+      "cluster": "AI Power/Cooling/DC Infra"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -583,7 +637,13 @@
       "ticker": "NVDA",
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-041",
-      "direction_bucket": "TRIM"
+      "direction_bucket": "TRIM",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "NVDA at 1.16x its ATR risk cap"
+      ],
+      "cluster": "AI Semis/Fabs"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -595,7 +655,13 @@
       "ticker": "AMD",
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-042",
-      "direction_bucket": "TRIM"
+      "direction_bucket": "TRIM",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "AMD at 1.19x its ATR risk cap"
+      ],
+      "cluster": "AI Semis/Fabs"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -607,7 +673,13 @@
       "ticker": "NBIS",
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-043",
-      "direction_bucket": "TRIM"
+      "direction_bucket": "TRIM",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "NBIS at 1.22x its ATR risk cap"
+      ],
+      "cluster": "Compute/Hyperscaler OEM"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -655,7 +727,14 @@
           "rationale": "Compute/Hyperscaler cluster 5.0pt under band floor, largest underweight in book; catalyst tail frames today's GOOGL -1.3% as rotation/catch-down not a fresh miss (unlike QCOM); MSFT peer already ran hard today making GOOGL the less-chased fill; sized as tranche 1 only pending NEW HEADWINDS signal clearing."
         }
       ],
-      "repeat_count": 3
+      "repeat_count": 3,
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "Compute/Hyperscaler under band (-7.7pt)",
+        "recommended 3x, still unactioned"
+      ],
+      "cluster": "Compute/Hyperscaler"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -665,7 +744,10 @@
       "status": "open",
       "rationale": "Cash 5.4% at low end of [5,15]% band, AMD 08-04 binary earnings is the live catalyst risk with thin dry powder.",
       "id": "P-046",
-      "direction_bucket": "HOLD"
+      "direction_bucket": "HOLD",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": []
     },
     {
       "date": "2026-08-03T11:14:00+05:30",
@@ -675,7 +757,10 @@
       "status": "open",
       "rationale": "Wallet is $38.02; none of the four are fundable as sized. MRVL specifically vetoed: smith-quality found interest coverage collapsed 8.1x->1.4x on a fresh ~$2.0B debt draw, overriding the STRENGTHENING technical thesis for sizing purposes. CLS/BE/NBIS remain timing-eligible per rebound's gate, deferred on funding only.",
       "id": "P-047",
-      "direction_bucket": "HOLD"
+      "direction_bucket": "HOLD",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": []
     },
     {
       "date": "2026-08-03T11:14:00+05:30",
@@ -708,7 +793,15 @@
           "rationale": "4.13x risk cap (largest excess $2,061.54), ATR20 15.6% highest-vol name in book, WATCH thesis, peer laggard -25.9pp vs SMH, zero resolving fact per catalyst, cures part of Memory/Storage cluster +9.2pt breach."
         }
       ],
-      "repeat_count": 4
+      "repeat_count": 4,
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "SNDK at 3.79x its ATR risk cap",
+        "AI Memory/Storage over band (+6.1pt)",
+        "recommended 4x, still unactioned"
+      ],
+      "cluster": "AI Memory/Storage"
     },
     {
       "date": "2026-08-03T11:14:00+05:30",
@@ -735,7 +828,15 @@
           "rationale": "2.47x risk cap, WATCH thesis, peer laggard, HBM3E ASP still -51% from peak with no fresher print."
         }
       ],
-      "repeat_count": 3
+      "repeat_count": 3,
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "MU at 2.31x its ATR risk cap",
+        "AI Memory/Storage over band (+6.1pt)",
+        "recommended 3x, still unactioned"
+      ],
+      "cluster": "AI Memory/Storage"
     },
     {
       "date": "2026-08-03T11:14:00+05:30",
@@ -762,7 +863,14 @@
           "rationale": "Thesis BROKEN, third consecutive deep review recommending this exit (07-22, 07-23, 07-27), tiny 1.33% weight."
         }
       ],
-      "repeat_count": 3
+      "repeat_count": 3,
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "Compute/Hyperscaler under band (-7.7pt)",
+        "recommended 3x, still unactioned"
+      ],
+      "cluster": "Compute/Hyperscaler"
     },
     {
       "date": "2026-08-03T11:14:00+05:30",
@@ -789,7 +897,14 @@
           "rationale": "2.25x risk cap but thesis upgraded to STRENGTHENING today (Nvidia/Trainium, record revenue) -- sized lighter than mechanical-bounce group."
         }
       ],
-      "repeat_count": 3
+      "repeat_count": 3,
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "MRVL at 2.21x its ATR risk cap",
+        "recommended 3x, still unactioned"
+      ],
+      "cluster": "AI Networking/Optics"
     }
   ],
   "retracted": [

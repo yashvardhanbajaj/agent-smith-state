@@ -218,11 +218,18 @@ td.blank{color:var(--ink-3)}
 .pr .rep{display:block;font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--ink-3);margin-top:3px}
 .pr .pid{display:block;font-family:var(--mono);font-size:10px;font-weight:400;color:var(--ink-3)}
 /* direction badge -- same visual language as the factor-catalyst .cb badges below */
-.db{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px}
-.db.BUY{background:var(--good-soft);color:var(--good)}
-.db.SELL{background:var(--bad-soft);color:var(--bad)}
-.db.TRIM{background:var(--warn-soft);color:var(--warn)}
-.db.HOLD{background:var(--surface-2);color:var(--ink-3)}
+.dirb{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px}
+.dirb.BUY{background:var(--good-soft);color:var(--good)}
+.dirb.SELL{background:var(--bad-soft);color:var(--bad)}
+.dirb.TRIM{background:var(--warn-soft);color:var(--warn)}
+.dirb.HOLD{background:var(--surface-2);color:var(--ink-3)}
+.pr .amt.BUY{color:var(--good)} .pr .amt.SELL{color:var(--bad)} .pr .amt.TRIM{color:var(--warn)}
+.pgrp{margin:18px 0 10px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);display:flex;align-items:center;gap:8px}
+.pgrp:first-child{margin-top:0}
+.pgrp .n{background:var(--surface-2);color:var(--ink-2);border-radius:10px;padding:1px 8px;font-family:var(--mono)}
+.pgrp.HIGH{color:var(--bad)} .pgrp.MEDIUM{color:var(--warn)} .pgrp.LOW{color:var(--ink-3)}
+.pr .clus{font-family:var(--sans);font-size:10px;color:var(--ink-3);font-weight:500}
 
 /* ============ factor catalysts ============ */
 .ci{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
@@ -438,7 +445,8 @@ def build(base, out):
             rows.append(f'<div class="pr"><span class="act2">Breach</span>'
                         f'<span class="why">{esc(b)} &mdash; bring it inside the band or record why '
                         f'the breach is accepted.</span><span class="amt">&mdash;</span></div>')
-        for p in open_props:
+
+        def prop_row(p):
             short, rest = trim_lead(p.get("rationale", ""))
             more = (f'<details><summary>full rationale</summary><div class="body">{esc(rest)}</div></details>'
                     if len(rest) > 40 else "")
@@ -449,10 +457,26 @@ def build(base, out):
                    + (f' since {esc(str(p["history"][0].get("date",""))[:10])}' if p.get("history") else "")
                    + '</span>') if rc > 1 else ""
             pid_s = f'<span class="pid">{esc(pid)}</span>' if pid else ""
-            rows.append(f'<div class="pr"><span class="act2"><span class="db {bucket}">{bucket}</span>'
-                        f'{esc(p.get("action",""))}{rep}{pid_s}</span>'
-                        f'<span class="why">{esc(short)}{more}</span>'
-                        f'<span class="amt">${p.get("size_usd",0):,.0f}</span></div>')
+            clus_s = f'<span class="clus">{esc(p["cluster"])}</span>' if p.get("cluster") else ""
+            return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
+                    f'{esc(p.get("action",""))}{clus_s}{rep}{pid_s}</span>'
+                    f'<span class="why">{esc(short)}{more}</span>'
+                    f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
+
+        # -- grouped by priority (HIGH first), computed by smith_math.py's `proposals`
+        # lifecycle pass from live risk-cap/cluster-breach/repeat-count data, not a guess.
+        # Anything predating that field (or if the compute step didn't run this cycle)
+        # falls back to LOW rather than disappearing or crashing the build.
+        by_priority = {"HIGH": [], "MEDIUM": [], "LOW": []}
+        for p in open_props:
+            by_priority.setdefault(p.get("priority", "LOW"), by_priority["LOW"]).append(p)
+        for tier in ("HIGH", "MEDIUM", "LOW"):
+            items = sorted(by_priority[tier], key=lambda p: -p.get("priority_score", 0))
+            if not items:
+                continue
+            rows.append(f'<div class="pgrp {tier}">{tier} PRIORITY <span class="n">{len(items)}</span></div>')
+            rows.extend(prop_row(p) for p in items)
+
         H.append('<section class="panel act"><div class="phead"><h2>Open proposals</h2>'
                  '<span class="pill a">For review &mdash; never executed</span></div>'
                  f'<div class="pbody"><div>{"".join(rows)}</div>'

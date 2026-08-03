@@ -1188,12 +1188,70 @@ def cmd_proposals(args):
         if props[i].get("status") == "open":
             props[i]["status"] = "superseded"
 
+    # -- priority scoring (added 2026-08-03, G47: user asked "which proposal is what
+    # priority" for the Open Proposals panel). Deterministic and score-able off data this
+    # function already has or can cheaply load -- never a vibe-based HIGH/MEDIUM/LOW guess:
+    #   +3  the ticker's own position is over its ATR risk cap (compute_risk.json)
+    #   +2  the ticker's cluster is outside its policy band (compute_drift.json cluster_table)
+    #   +2  a TRIM/SELL proposal when cash itself sits outside its normal band (raising cash
+    #       is doing double duty, not just optional profit-taking)
+    #   +2  reiterated 3+ times unactioned, +1 if reiterated exactly twice (repeat_count)
+    #   +1  a SELL (full exit) skews more urgent than a partial trim, all else equal
+    #   -1  a BUY that triggers none of the above -- a discretionary add, not a fix for
+    #       anything currently broken
+    # Thresholds: score >= 4 -> HIGH, 2-3 -> MEDIUM, otherwise LOW. Cluster is attached from
+    # the same risk lookup so the dashboard can show/group by it alongside priority.
+    risk = load_json(os.path.join(args.run_dir, "compute_risk.json"), default={})
+    risk_by_ticker = {p["ticker"]: p for p in risk.get("positions", [])}
+    cluster_breach = {c["cluster"]: c for c in drift.get("cluster_table", []) if c.get("breach")}
+    cash_tight = bool(drift.get("cash_breach_vs_normal") or drift.get("cash_breach"))
+
+    for pr in props:
+        if pr.get("status") != "open":
+            continue
+        score, reasons = 0, []
+        ticker, bucket, rc = pr.get("ticker"), pr.get("direction_bucket", "HOLD"), pr.get("repeat_count", 1)
+        rpos = risk_by_ticker.get(ticker) if ticker else None
+        cluster = rpos.get("cluster") if rpos else pr.get("cluster")
+        if rpos and rpos.get("over_cap"):
+            score += 3
+            reasons.append(f"{ticker} at {rpos.get('cap_multiple', 0):.2f}x its ATR risk cap")
+        if cluster and cluster in cluster_breach:
+            cb = cluster_breach[cluster]
+            score += 2
+            reasons.append(f"{cluster} {'over' if cb.get('breach_edge')=='over' else 'under'} band "
+                            f"({cb.get('drift_pt', 0):+.1f}pt)")
+        if cash_tight and bucket in ("TRIM", "SELL"):
+            score += 2
+            reasons.append("cash outside its normal band -- this also rebuilds it")
+        if rc >= 3:
+            score += 2
+            reasons.append(f"recommended {rc}x, still unactioned")
+        elif rc == 2:
+            score += 1
+            reasons.append(f"recommended {rc}x, still unactioned")
+        if bucket == "SELL":
+            score += 1
+        if bucket == "BUY" and score == 0:
+            score -= 1
+            reasons.append("discretionary add -- no active breach behind it")
+        pr["priority_score"] = score
+        pr["priority"] = "HIGH" if score >= 4 else "MEDIUM" if score >= 2 else "LOW"
+        pr["priority_reasons"] = reasons
+        if cluster:
+            pr["cluster"] = cluster
+
     proposals["proposals"] = props
     json.dump(proposals, open(p_path + ".tmp", "w"), indent=2)
     os.replace(p_path + ".tmp", p_path)
 
+    open_now = [pr for pr in props if pr.get("status") == "open"]
+    priority_counts = {"HIGH": 0, "MEDIUM": 0, "LOW": 0}
+    for pr in open_now:
+        priority_counts[pr.get("priority", "LOW")] += 1
+
     emit({"proposals_count": len(props), "superseded_count": len(to_supersede), "changes_made": len(to_supersede),
-          "written": True})
+          "open_count": len(open_now), "priority_counts": priority_counts, "written": True})
 
 
 def cmd_dismiss(args):
