@@ -246,93 +246,57 @@
     },
     {
       "date": "2026-07-31",
-      "ticker": "IREN",
-      "action": "exit",
-      "qty_change": -10,
-      "price_at_trade": 35.99,
-      "reason": "stop-loss",
-      "notes": "CONFIRMED via INDmoney email 2026-07-31T14:08:25Z: SELL order, order type 'stop', 10sh @ $35.99 = $359.90. Second full-exit event for IREN (first was 07-24 mass stop-out, position rebuilt to 10sh, now stopped out again). Objectively a stop-loss per order type field, not inferred."
-    },
-    {
-      "date": "2026-07-31",
-      "ticker": "MU",
-      "action": "trim",
-      "qty_change": -1,
-      "price_at_trade": 832.0,
-      "reason": "stop-loss",
-      "notes": "CONFIRMED via email 2026-07-31T14:08:40Z: SELL order, order type 'stop', 1sh @ $832. First of two same-day MU stop-loss whipsaws (see next entries)."
-    },
-    {
-      "date": "2026-07-31",
-      "ticker": "MU",
-      "action": "add",
-      "qty_change": 1,
-      "price_at_trade": 850.79,
-      "reason": "re-entry",
-      "notes": "CONFIRMED via email 2026-07-31T14:27:59Z: Market BUY, 1sh @ $850.79 -- rebought 19 minutes after the $832 stop-sell, at a HIGHER price. Whipsaw cost $18.79 for zero net position change. Matches the tight-stop whipsaw pattern flagged in the user's stop-loss-style memory (stops at recent-low levels on high-ATR names are near-certain whipsaws)."
-    },
-    {
-      "date": "2026-07-31",
-      "ticker": "MU",
-      "action": "trim",
-      "qty_change": -1,
-      "price_at_trade": 824.87,
-      "reason": "stop-loss",
-      "notes": "CONFIRMED via email 2026-07-31T15:25:34Z: SELL order, order type 'stop', 1sh @ $824.87. Second same-day MU stop-loss whipsaw."
-    },
-    {
-      "date": "2026-07-31",
-      "ticker": "MU",
-      "action": "add",
-      "qty_change": 1,
-      "price_at_trade": 849.49,
-      "reason": "re-entry",
-      "notes": "CONFIRMED via email 2026-07-31T17:41:55Z: Market BUY, 1sh @ $849.49 -- rebought ~2h16m after the $824.87 stop-sell, again at a HIGHER price. Whipsaw cost $24.62. Combined with the first whipsaw: $43.41 total round-trip slippage on 07-31 for a MU position that ended the day at the exact same quantity (3.000365376) it started with."
-    },
-    {
-      "date": "2026-07-31",
       "ticker": "TSM",
       "action": "add",
       "qty_change": 2,
-      "price_at_trade": 405.2,
-      "reason": "PENDING_USER_INPUT",
-      "notes": "CONFIRMED via email 2026-07-31T19:08:34Z: Market BUY, 2sh @ $405.20 = $812.83. Part of an evening burst of 5 deliberate buys (TSM/META/AMZN/QBTS/BABA, 19:08-19:46 UTC = ~3:08-3:46pm ET) distinct in character from the morning's reactive stop-loss activity. Rationale (DCA/thesis-change/raise-cash/rebalance/other) not yet captured -- ask user."
+      "price_at_trade": null,
+      "reason": "UNCAPTURED",
+      "notes": "Detected via qty-diff (3->5) on 2026-08-03 deep run; last successful full sweep was 2026-07-31 13:02 IST (pre-trade) and the next attempted run (2026-08-01 11:47 IST, quick, never completed -- stale lockfile) already shows qty=5, so this executed during the intervening window (most likely the 2026-07-31 US session). No confirmation email checked this run -- scheduled/non-interactive, rationale not askable. Exact fill unknown."
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "IREN",
+      "action": "exit",
+      "qty_change": -10,
+      "price_at_trade": null,
+      "reason": "UNCAPTURED",
+      "notes": "Full exit detected via qty-diff (10->0) on 2026-08-03 deep run. Same discovery window as the TSM/META/AMZN/QBTS/BABA changes below -- see TSM note. This is IREN's SECOND full-exit event (first was the 2026-07-24 mass stop-out at qty 25; position was rebuilt to 10 by 2026-07-31, now exited again). Exact fill/trigger unknown, not live-verified."
     },
     {
       "date": "2026-07-31",
       "ticker": "META",
       "action": "entry",
       "qty_change": 1,
-      "price_at_trade": 552.84,
-      "reason": "PENDING_USER_INPUT",
-      "notes": "CONFIRMED via email 2026-07-31T19:20:20Z: Market BUY, 1sh @ $552.84 = $554.50. New first-ever position. Size roughly matches the 07-30 quick-run's proposed 'META token tranche ($450)' -- may be that proposal being acted on late. Rationale not yet captured -- ask user."
-    },
-    {
-      "date": "2026-07-31",
-      "ticker": "QBTS",
-      "action": "entry",
-      "qty_change": 25,
-      "price_at_trade": 18.14,
-      "reason": "PENDING_USER_INPUT",
-      "notes": "CONFIRMED via email 2026-07-31T19:33:10Z: Market BUY, 25sh @ $18.14 = $454.74. New first-ever position. Ticker corrected this run: an abandoned 2026-08-01 run had mislabeled this holding 'DVWR' -- confirmed via yfinance search_stocks that D-Wave Quantum Inc.'s real ticker is QBTS. Rationale not yet captured -- ask user."
+      "price_at_trade": null,
+      "reason": "UNCAPTURED",
+      "notes": "New position detected via qty-diff (0->1) on 2026-08-03 deep run. 2026-07-30 quick-run notes proposed a 'META token tranche ($450, standout oversold-bounce diversifier)' -- this is likely that proposal being executed, but not confirmed against an email this run. Needs sector_map/thesis assignment (no prior classification -- same gap class as G38)."
     },
     {
       "date": "2026-07-31",
       "ticker": "AMZN",
       "action": "entry",
       "qty_change": 2,
-      "price_at_trade": 271.77,
-      "reason": "PENDING_USER_INPUT",
-      "notes": "CONFIRMED via email 2026-07-31T19:34:14Z: Market BUY, 2sh @ $271.77 = $545.16. New first-ever position. Rationale not yet captured -- ask user."
+      "price_at_trade": null,
+      "reason": "UNCAPTURED",
+      "notes": "New position detected via qty-diff (0->2) on 2026-08-03 deep run. First-ever AMZN hold. Needs sector_map/thesis assignment, ticker AMZN newly added to data_cache.ticker_map this run (unambiguous, cross-checked via yfinance search_stocks)."
+    },
+    {
+      "date": "2026-07-31",
+      "ticker": "QBTS",
+      "action": "entry",
+      "qty_change": 25,
+      "price_at_trade": null,
+      "reason": "UNCAPTURED",
+      "notes": "New position detected via qty-diff (0->25) on 2026-08-03 deep run. IMPORTANT CORRECTION: the abandoned 2026-08-01 11:47 IST run (never completed) had auto-labeled this holding's ticker as 'DVWR' in its holdings.json -- WRONG. Verified via yfinance search_stocks this run: D-Wave Quantum Inc. Common Stock's real ticker is QBTS. Cached correctly to data_cache.ticker_map as QBTS, not DVWR. This is exactly the ticker-mislabeling risk flagged by the 2026-07-13 MEM/DRAM incident and TICKER INTEGRITY hard rule -- caught before it propagated into state.json."
     },
     {
       "date": "2026-07-31",
       "ticker": "BABA",
       "action": "entry",
       "qty_change": 1,
-      "price_at_trade": 121.78,
-      "reason": "PENDING_USER_INPUT",
-      "notes": "CONFIRMED via email 2026-07-31T19:46:12Z: Market BUY, 1sh @ $121.78 = $122.15. New first-ever position, first non-US-domiciled diversifier in the book. Rationale not yet captured -- ask user."
+      "price_at_trade": null,
+      "reason": "UNCAPTURED",
+      "notes": "New position detected via qty-diff (0->1) on 2026-08-03 deep run. First-ever BABA hold -- first non-AI-capex, non-US-domiciled diversifier in the book (Chinese e-commerce). Needs sector_map/thesis assignment."
     }
   ],
   "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out."

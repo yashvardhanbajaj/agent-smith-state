@@ -398,18 +398,18 @@
   },
   "open_flags": [
     {
-      "ticker": "IREN",
-      "flag": "CORRECTED 2026-08-03: email confirms the 07-31 full exit (10sh @ $35.99) was order type 'stop' -- an objective stop-loss, not the 'deliberate rotation, IDIO_WEAK' read smith-rebound guessed from price action alone. Second full stop-out for this name (first was 07-24). Worth asking the user whether they want to keep IREN on the re-entry watchlist or consider it done for now.",
-      "opened": "2026-08-03"
-    },
-    {
       "ticker": "META/AMZN/BABA/QBTS",
       "flag": "4 new positions entered over the weekend, all self-funded, all UNCAPTURED trade rationale (scheduled run, no interactive capture possible). Combined ~4.2% of book. sector_map/thesis assigned this run by smith-thesis; betas/ATR20 computed fresh by smith-book. Confirm rationale with user at next interactive run.",
       "opened": "2026-08-03"
     },
     {
       "ticker": "MRVL",
-      "flag": "CORRECTED 2026-08-03: smith-quality's '8.1x->1.4x interest coverage collapse, $256M interest expense' claim does NOT match MRVL's own Q1 FY2027 10-Q ($52.8M actual quarterly interest expense, +8.4% YoY -- not a quintupling). A real new $1B 2036 notes issuance occurred, but the collapse framing looks like a data error, likely a misread TTM/annualized figure. The strategist's veto-on-averaging-in and light-trim proposal were built on this now-doubtful premise -- treat with caution pending re-verification at the next quality audit. See G44.",
+      "flag": "smith-quality's first-ever audit found interest coverage collapsed ~8.1x->~1.4x this quarter (interest expense quintupled to $256M on a new ~$2.0B debt draw) -- tightest coverage in the book. Strategist vetoed averaging in on this basis and proposed a light trim instead. Watch next quarter's print before treating as one-off.",
+      "opened": "2026-08-03"
+    },
+    {
+      "ticker": "IREN",
+      "flag": "Second full exit this week (10->0), classified IDIO_WEAK by smith-rebound (-6.76% vs Compute/Hyperscaler peer median +3.56%) -- reads as deliberate rotation not a fresh stop-out, but UNCAPTURED (scheduled run). Confirm intent with user.",
       "opened": "2026-08-03"
     },
     {
@@ -764,39 +764,7 @@
         "as_of": "2026-07-28"
       }
     },
-    "etf_constituents": {
-      "DRAM": {
-        "as_of": "2026-08-03",
-        "source": "web (stockanalysis.com / Yahoo Finance)",
-        "holdings": [
-          {
-            "name": "US Treasury Bill 09/08/2026",
-            "weight_pct": 22.84
-          },
-          {
-            "name": "Samsung Electronics",
-            "weight_pct": 17.27
-          },
-          {
-            "name": "SK hynix",
-            "weight_pct": 16.2
-          },
-          {
-            "name": "Micron Technology (swap, notional)",
-            "weight_pct": 14.1
-          },
-          {
-            "name": "Micron Technology (swap-gold-L, notional)",
-            "weight_pct": 9.8
-          },
-          {
-            "name": "Sandisk Corporation",
-            "weight_pct": 5.21
-          }
-        ],
-        "note": "~24% combined MU-swap notional + ~5% SNDK direct -- real look-through Memory concentration is higher than headline weights: MU true exposure ~6.18% direct + ~1.5% via DRAM ~= 7.7%; SNDK ~6.10% direct + ~0.3% via DRAM ~= 6.4%. Confirms smith-quality's qualitative overlap flag."
-      }
-    },
+    "etf_constituents": {},
     "analyst_targets": {},
     "atr20": {
       "as_of": "2026-08-03 (partial refresh: META/AMZN/BABA/QBTS only, new positions; rest carried forward from 07-31)",
@@ -1169,20 +1137,6 @@
       "opened": "2026-08-03",
       "owner": "orchestrator (TRADE RATIONALE CAPTURE, next interactive run)",
       "status": "open"
-    },
-    {
-      "id": "G44",
-      "description": "smith-quality's 2026-08-03 first-ever audit claimed MRVL interest coverage collapsed ~8.1x->~1.4x on interest expense 'quintupling to $256M' with a new ~$2.0B debt draw. Web verification against MRVL's own Q1 FY2027 10-Q (period ended 2026-05-02) shows ACTUAL interest expense of $52.8M for the quarter (vs $48.7M prior year, +8.4% YoY) -- nowhere near a quintupling, and consistent with healthy coverage, not a collapse. A real new debt issuance did occur ($1B 2036 notes, per the same 10-Q), but the coverage-collapse framing that drove the strategist's veto-on-averaging-in and light-trim proposal appears to be a data error (likely misread TTM/annualized or a wrong line item from an automated financials feed) rather than a genuine credit event. Needs re-verification against the actual 10-Q at the next smith-quality audit before this drives further sizing decisions.",
-      "opened": "2026-08-03",
-      "owner": "orchestrator (smith-quality, next audit)",
-      "status": "open"
-    },
-    {
-      "id": "G45",
-      "description": "2026-08-03 email pull (transactions.indmoney.com, after:2026/07/31) resolved all 6 of this run's UNCAPTURED trades with exact fills: IREN full exit (10sh @ $35.99, order type 'stop' -- objectively a stop-loss, not a guessed rotation) and TWO additional MU stop-loss/rebuy whipsaws same day (SELL 1@$832 stop -> BUY 1@$850.79 market 19min later; SELL 1@$824.87 stop -> BUY 1@$849.49 market 2h16m later) that were completely invisible to the qty-diff detector since MU's net quantity didn't change -- cost $43.41 in round-trip slippage for zero net position change, a concrete instance of the tight-stop whipsaw risk already in preferences.stop_loss_style. Evening burst of 5 deliberate Market-order buys (TSM +2sh @ $405.20, META 1sh @ $552.84, QBTS 25sh @ $18.14, AMZN 2sh @ $271.77, BABA 1sh @ $121.78, all 19:08-19:46 UTC) is distinct in character from the morning's reactive stops -- exact fills now known and lots.json updated, but the WHY (DCA/thesis-change/raise-cash/rebalance/other) is still pending user input, not inferable from email data alone.",
-      "opened": "2026-08-03",
-      "owner": "user (rationale for the 5 deliberate buys) ",
-      "status": "open -- exact fills resolved, rationale for 5 buys still pending"
     }
   ],
   "sentiment": {
