@@ -360,6 +360,33 @@
       "price_at_trade": 50.42,
       "reason": "UNCAPTURED",
       "notes": "Surfaced by 19:48 IST intraday refresher run (scheduled, non-interactive): qty dropped 50 -> 30 vs the 11:14 IST deep run. price_at_trade is this run's live yfinance-derived quote, NOT a confirmed fill -- approximate only. Flag for manual review/rationale capture at next interactive run."
+    },
+    {
+      "date": "2026-08-04",
+      "ticker": "ORCL",
+      "action": "add",
+      "qty_change": 2,
+      "price_at_trade": 139.42,
+      "reason": "dollar-cost-averaging",
+      "notes": "User confirmed 2026-08-04 (interactive run): DCA. Qty 4->6 vs last known state (2026-08-03 19:48 refresher). price_at_trade is this run's INDmoney ext_hr_live_price pre-market quote, NOT a confirmed fill -- approximate only."
+    },
+    {
+      "date": "2026-08-04",
+      "ticker": "BABA",
+      "action": "add",
+      "qty_change": 2,
+      "price_at_trade": 126.59,
+      "reason": "dollar-cost-averaging",
+      "notes": "User confirmed 2026-08-04 (interactive run): DCA. Qty 1->3 vs last known state (2026-08-03 19:48 refresher). price_at_trade is this run's INDmoney ext_hr_live_price pre-market quote, NOT a confirmed fill -- approximate only. NOTE: smith_math.py cmd_book's trade_reason lookup misattributed the stale 2026-08-03 BABA entry's reason to this qty_change (ticker-keyed, not date-scoped) -- flagged as a new gap."
+    },
+    {
+      "date": "2026-08-04",
+      "ticker": "LRCX",
+      "action": "entry",
+      "qty_change": 2,
+      "price_at_trade": 309.75,
+      "reason": "re-entry-after-stop",
+      "notes": "User confirmed 2026-08-04 (interactive run): re-entry after the 2026-07-28 full stop-out (12sh NVDA + 3sh LRCX exited that session). New 2sh position, qty 0->2. price_at_trade is this run's INDmoney ext_hr_live_price pre-market quote, NOT a confirmed fill -- approximate only. NOTE: smith_math.py cmd_book's trade_reason lookup misattributed an old unrelated LRCX trade's reason ('stop-loss') to this new entry (ticker-keyed, not date-scoped) -- flagged as a new gap."
     }
   ],
   "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'dca-into-diversification'|'re-entry-after-stop'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out. | 2026-08-03: 'dca-into-diversification' and 're-entry-after-stop' promoted to standing buy-side reasons (see G45) after both recurred via 'Other' the same day \u2014 a same-day MU stop-loss/rebuy whipsaw pair (re-entry-after-stop) and a five-ticker weekend diversification buy the user confirmed as DCA into diversification. Buy-side step 1 changed shape from a yes/no to a 4-option question (DCA / DCA-into-diversification / Re-entry-after-stop / Something else) to keep 3 buy-relevant reasons within the cap; sell-side step 1 is unchanged."

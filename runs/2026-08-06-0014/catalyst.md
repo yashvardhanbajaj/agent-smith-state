@@ -1,0 +1,29 @@
+# Factor Catalyst Scan — 2026-08-06 (intraday, US 2026-08-05)
+
+## Asia-session hypothesis test
+Prior tail flagged 07-31 KOSPI melt-up / 08-03 giveback as a mechanical oscillation. Today's +3.76% is **not** a repeat of that pattern — it carries a fresh, dated, named catalyst (SK Hynix/SanDisk HBF standard, below) layered on top of mechanical read-through from the prior US close (Nasdaq +2.59% on 08-04). Sequence: US 08-04 close strong → Asia 08-05 session (KOSPI/TAIEX/Nikkei rip, HBF news) → US 08-05 intraday (AMD sell-the-news, GOOGL leadership/capex-FCF selloff) drags Nasdaq -0.53% while SMH round-trips flat. That fully explains the Asia-strong/US-flat-to-red divergence in the trigger.
+
+## Catalysts found
+1. **SK Hynix + SanDisk release first HBF (High Bandwidth Flash) OCP standard at FMS 2026** (2026-08-03, coverage through 08-05). New NAND-based memory tier positioned alongside HBM (8-16x capacity per stack, 0.4-3.0TB/s), Google/Tenstorrent joined OCP consortium. First sampling early 2027 — magnitude: this is a standards announcement, not a shipping product; real revenue is 12+ months out. Structural tailwind for SNDK (7.12%) and EWY/SK Hynix (3.44%). Not a threat to HBM/DRAM (MU, DRAM) — complementary tier, not competing.
+2. **AMD Q2 beat, stock -8% "sell the news"** (reported 08-04, reaction 08-05). Record $11.54bn revenue, Data Center +107% YoY (58% of sales), Q3 guide ~$13bn — beat consensus but priced for a blowout after a 140% YTD run. Noise for the AI-capex demand thesis (fundamentals confirm strength) but immediate/threat for AMD stock (1.23%) and a live datapoint on how little slack the group has for anything less than a blowout.
+3. **Alphabet -3.5% to -4% on AI leadership exodus + capex-driven negative FCF** (2026-08-05). Chief Scientist Jeff Dean and Sanjay Ghemawat departing after 27 years to found an independent AI company; Demis Hassabis expands to Alphabet chief scientist. Separately, 2026 capex guidance raised to $195-205bn, producing Alphabet's first-ever negative quarterly FCF. Structural/ambiguous: threat to GOOGL's AI competitive standing and financing durability (4.57% equity, Compute/Hyperscaler cluster 9.6%); the capex raise itself is a tailwind for the chip/infra suppliers in the book (NVDA, MRVL, AVGO, VRT) since it's demand-side confirmation, not a cut.
+4. China DUV/CXMT complex — checked, no update since 08-03 watermark; all coverage found dates to 07-27/07-28 (already logged in theme table, ASML -8% on the news, 5 units 2026 vs ASML's 131 immersion tools/98.7% share, 28nm-class only, does not touch EUV). No new catalyst to report.
+
+## Theme 2 cross-check (consumer_view.json)
+Read before drafting. No memory-pricing % catalyst found in this scan's searches, so no conflict to resolve. Tracker confirms (for context, not re-reported as new): HBM3E flat within stack-derived basis, DRAM contract +13-30% QoQ guided for Q3-2026, CXMT HBM3 timeline still 2027-not-2026. HBF is a new product-category story, not a pricing one — doesn't touch the corrected series.
+
+## Data quality
+- Total-book cash weight not supplied this run; exposure_pct_book set equal to exposure_pct_equity as a placeholder — orchestrator should override with real cash-adjusted weight.
+- Nvidia/OpenAI $250bn Ohio financing-guarantee story (Theme 3) is real but pre-watermark (07-27); not re-reported as new, no update found since.
+
+```json
+{"catalysts":[
+ {"headline":"SK Hynix and SanDisk release first HBF (High Bandwidth Flash) OCP standard at FMS 2026","date":"2026-08-03","horizon":"structural","direction":"tailwind","affects":["SNDK","EWY"],"exposure_pct_equity":10.56,"exposure_pct_book":10.56,"magnitude":"512GB/stack via 8-16x capacity vs HBM per stack, 0.4-3.0TB/s bandwidth; first AI-inferencing samples not until early 2027 — announcement-stage, not revenue-stage","source":"https://news.skhynix.com/en/hbf-at-fms-2026/","invalidates_proposal":null},
+ {"headline":"AMD Q2 beat but stock falls ~8% on unmet 'blowout' expectations","date":"2026-08-04","horizon":"noise","direction":"ambiguous","affects":["AMD"],"exposure_pct_equity":1.23,"exposure_pct_book":1.23,"magnitude":"record $11.54bn revenue, Data Center +107% YoY = 58% of sales, Q3 guide ~$13bn — beat, not miss; repriced against a 140% YTD run, not against fundamentals","source":"https://www.tradingkey.com/analysis/stocks/us-stocks/262076949-us-stock-amd-ai-sox-advanced-micro-devices-tradingkey","invalidates_proposal":null},
+ {"headline":"Alphabet AI chief scientist exodus + capex guidance raise triggers first-ever negative quarterly FCF","date":"2026-08-05","horizon":"structural","direction":"ambiguous","affects":["GOOGL"],"exposure_pct_equity":4.57,"exposure_pct_book":4.57,"magnitude":"2026 capex guidance raised to $195-205bn; Jeff Dean + Sanjay Ghemawat depart after 27 years; Demis Hassabis expands to chief scientist — threat to GOOGL's AI bench and FCF, but the capex raise itself is demand-side tailwind for NVDA/MRVL/AVGO/VRT","source":"https://www.benzinga.com/trading-ideas/movers/26/08/60960312/alphabet-stock-dives-as-key-ai-leadership-exits","invalidates_proposal":null}
+],
+ "asia_session":{"kospi_pct":3.76,"taiex_pct":2.89,"nikkei_pct":3.66,"named_cause":"mechanical read-through from strong 08-04 US close (Nasdaq +2.59%) plus fresh HBF standard announcement (SK Hynix/SanDisk, FMS 2026) — not a repeat of the 07-31/08-03 pure-oscillation pattern"},
+ "theme_updates":{"2":{"add_watch":"HBF (High Bandwidth Flash) OCP standard — new NAND-based memory tier adjacent to HBM, SK Hynix + SanDisk + Google/Tenstorrent via OCP consortium, first samples early 2027"}},
+ "searches_used":6,
+ "data_quality":["exposure_pct_book placeholder = exposure_pct_equity, real cash-adjusted book weight not supplied this run","NVDA/OpenAI $250bn Ohio guarantee (07-27) is pre-watermark, not re-reported"]}
+```

@@ -307,10 +307,10 @@
       "action": "Stage AMD (tranche 1 of 2, half-size)",
       "size_usd": 200,
       "price_at_proposal": 454.62,
-      "status": "open",
+      "status": "superseded",
       "rationale": "Idio-weak dip -8.15% vs Semis/Fabs peer median -4.22%, thesis strengthening, support $390.18/$306.65; halved pending LRCX after-close print (same semicap theme).",
       "ticker": "AMD",
-      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-expired after 7 calendar days",
       "id": "P-024",
       "direction_bucket": "BUY",
       "priority_score": 3,
@@ -325,10 +325,10 @@
       "action": "Stage AMAT (tranche 1 of 2, half-size)",
       "size_usd": 150,
       "price_at_proposal": 476.46,
-      "status": "open",
+      "status": "superseded",
       "rationale": "Idio-weak dip -7.82% vs peer median -4.22%, thesis strengthening, support $457.11/$367.65; halved pending LRCX after-close print, direct read-through to AMAT thesis.",
       "ticker": "AMAT",
-      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-expired after 7 calendar days",
       "id": "P-025",
       "direction_bucket": "BUY",
       "priority_score": -1,
@@ -355,10 +355,10 @@
       "action": "Stage GEV (token tranche, well under rebound's $250)",
       "size_usd": 100,
       "price_at_proposal": 943.38,
-      "status": "open",
+      "status": "superseded",
       "rationale": "Power cluster 7.1pt under target, macro-driven dip near peer median, but signal flipped STRONG UPTREND to STRONG DOWNTREND today (same pattern as ASML) -- token size pending signal re-confirmation.",
       "ticker": "GEV",
-      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-expired after 7 calendar days",
       "id": "P-027",
       "direction_bucket": "BUY",
       "priority_score": -1,
@@ -468,7 +468,7 @@
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "Compute/Hyperscaler under band (-7.8pt)"
+        "Compute/Hyperscaler under band (-10.4pt)"
       ],
       "cluster": "Compute/Hyperscaler"
     },
@@ -624,7 +624,7 @@
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "VRT at 1.70x its ATR risk cap"
+        "VRT at 1.63x its ATR risk cap"
       ],
       "cluster": "AI Power/Cooling/DC Infra"
     },
@@ -657,11 +657,9 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-042",
       "direction_bucket": "TRIM",
-      "priority_score": 3,
-      "priority": "MEDIUM",
-      "priority_reasons": [
-        "AMD at 1.22x its ATR risk cap"
-      ],
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [],
       "cluster": "AI Semis/Fabs"
     },
     {
@@ -678,7 +676,7 @@
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "NBIS at 1.34x its ATR risk cap"
+        "NBIS at 1.31x its ATR risk cap"
       ],
       "cluster": "Compute/Hyperscaler OEM"
     },
@@ -902,7 +900,7 @@
       "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
-        "MRVL at 2.40x its ATR risk cap",
+        "MRVL at 2.34x its ATR risk cap",
         "recommended 3x, still unactioned"
       ],
       "cluster": "AI Networking/Optics"
@@ -912,7 +910,7 @@
       "action": "Trim MU",
       "size_usd": 600,
       "price_at_proposal": 868.0,
-      "status": "open",
+      "status": "superseded",
       "ticker": "MU",
       "rationale": "Memory/Storage 5.51pt over ceiling (20.51% vs [10,20]). Re-prices stale P-049 at today's rallied level rather than restating it. Thesis WATCH; HBM3E ASP -51.4% off peak. Tranche 1 of 2, sized for stop-out probability per the user's tight-stop style. PROVISIONAL (persist_safe=false).",
       "id": "P-052",
@@ -938,7 +936,7 @@
         }
       ],
       "repeat_count": 4,
-      "note": "recommended 4x since 2026-07-30, still open",
+      "note": "recommended 4x since 2026-07-30, still open | auto-superseded 2026-08-03 -- folded into P-058 as a repeat of the same open proposal",
       "priority_score": 7,
       "priority": "HIGH",
       "priority_reasons": [
@@ -953,7 +951,7 @@
       "action": "Trim SNDK",
       "size_usd": 700,
       "price_at_proposal": 1354.9,
-      "status": "open",
+      "status": "superseded",
       "ticker": "SNDK",
       "rationale": "Same Memory ceiling breach; SNDK is the book's highest-beta name (2.924 vs SMH) and carries the lone EARNINGS PROXIMITY flag at 6.76% weight. Re-prices stale P-048 (rc4). PROVISIONAL.",
       "id": "P-053",
@@ -985,7 +983,7 @@
         }
       ],
       "repeat_count": 5,
-      "note": "recommended 5x since 2026-07-28, still open",
+      "note": "recommended 5x since 2026-07-28, still open | auto-superseded 2026-08-03 -- folded into P-059 as a repeat of the same open proposal",
       "priority_score": 7,
       "priority": "HIGH",
       "priority_reasons": [
@@ -1000,7 +998,7 @@
       "action": "Trim DRAM",
       "size_usd": 500,
       "price_at_proposal": 53.41,
-      "status": "open",
+      "status": "superseded",
       "ticker": "DRAM",
       "rationale": "Third leg of the Memory trim; DRAM's look-through adds ~1.5% MU and ~0.3% SNDK on top of direct weights. Re-prices stale P-036 (rc3). PROVISIONAL.",
       "id": "P-054",
@@ -1026,7 +1024,7 @@
         }
       ],
       "repeat_count": 4,
-      "note": "recommended 4x since 2026-07-28, still open",
+      "note": "recommended 4x since 2026-07-28, still open | auto-superseded 2026-08-03 -- folded into P-060 as a repeat of the same open proposal",
       "priority_score": 7,
       "priority": "HIGH",
       "priority_reasons": [
@@ -1041,7 +1039,7 @@
       "action": "Top up GOOGL",
       "size_usd": 1200,
       "price_at_proposal": 368.44,
-      "status": "open",
+      "status": "superseded",
       "ticker": "GOOGL",
       "rationale": "Compute/Hyperscaler -7.78pt under floor -- the largest single drift on the book. BofA's capex raise to $1.2T/12mo is a direct structural tailwind. Lower-vol mega-cap fill suits the tight-stop discipline better than a high-beta pure-play. Re-affirms P-045 (rc3). PROVISIONAL.",
       "id": "P-055",
@@ -1074,14 +1072,16 @@
         "Compute/Hyperscaler under band (-7.8pt)",
         "recommended 4x, still unactioned"
       ],
-      "cluster": "Compute/Hyperscaler"
+      "cluster": "Compute/Hyperscaler",
+      "superseded_by": "P-061",
+      "superseded_date": "2026-08-06"
     },
     {
       "date": "2026-08-04T18:20:00+05:30",
       "action": "Trim COHR",
       "size_usd": 325,
       "price_at_proposal": 324.6,
-      "status": "open",
+      "status": "fulfilled",
       "ticker": "COHR",
       "rationale": "Up ~24% cumulative with NO identified catalyst after 7 searches; fresh MOMENTUM+VOLUME flag at 2.28x ATR. Partial profit-take into unexplained strength, not a thesis break (thesis stays strengthening). Re-affirms P-038. PROVISIONAL.",
       "id": "P-056",
@@ -1102,7 +1102,9 @@
         "COHR at 1.68x its ATR risk cap",
         "recommended 2x, still unactioned"
       ],
-      "cluster": "AI Networking/Optics"
+      "cluster": "AI Networking/Optics",
+      "fulfilled_date": "2026-08-04",
+      "fulfilled_note": "User's own stop-loss executed this: COHR 2sh @ $323.98, order type stop."
     },
     {
       "date": "2026-08-04T18:20:00+05:30",
@@ -1114,12 +1116,175 @@
       "rationale": "AMD reports after the close TODAY; consensus rev $11.3B/EPS $1.61, guide is the whole event. Do not deploy P-024 into a binary -- stage after the print per tranche discipline. PROVISIONAL.",
       "id": "P-057",
       "direction_bucket": "HOLD",
-      "priority_score": 3,
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [],
+      "cluster": "AI Semis/Fabs"
+    },
+    {
+      "action": "Trim MU",
+      "size_usd": 650,
+      "price_at_proposal": 918.05,
+      "rationale": "AI Memory/Storage cluster over ceiling (21.64% vs 15% target, 10-20 band); MU at 2.38x ATR risk cap (aggregate open risk 13.84% vs 10% cap); thesis WATCH on 2027 CXMT supply-share risk, not the dead -51% ASP artifact; 5th consecutive review; no LTCG boundary proximity",
+      "date": "2026-08-06T00:14:00+05:30",
+      "status": "open",
+      "id": "P-058",
+      "ticker": "MU",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 5x since 2026-07-30, still open",
+      "direction_bucket": "TRIM",
+      "history": [
+        {
+          "date": "2026-07-30",
+          "size_usd": 700,
+          "price_at_proposal": 846.41,
+          "rationale": "AI Memory/Storage cluster 4.9pt over band top (24.901% vs 20% cap); MU +14.5% today on SMH relief rally but signal tail still PEER LAGGARD (1m) and smith-thesis flags today's rally as beta bounce not thesis-confirming, MU stays WATCH; book already had two stop-outs this cycle in this complex, argues for trimming into today's strength."
+        },
+        {
+          "date": "2026-07-31T13:02:00+05:30",
+          "size_usd": 900,
+          "price_at_proposal": null,
+          "rationale": "2.47x risk cap, WATCH thesis, peer laggard, HBM3E ASP still -51% from peak with no fresher print."
+        },
+        {
+          "date": "2026-08-03T11:14:00+05:30",
+          "size_usd": 500,
+          "price_at_proposal": 824.932,
+          "rationale": "Same cluster breach; WATCH thesis reaffirmed (HBM3E ASP headwind unresolved pre-earnings); persistent risk-cap excess in 07-30/07-31 proposals; proceeds fund cash rebuild."
+        },
+        {
+          "date": "2026-08-04T18:20:00+05:30",
+          "size_usd": 600,
+          "price_at_proposal": 868.0,
+          "rationale": "Memory/Storage 5.51pt over ceiling (20.51% vs [10,20]). Re-prices stale P-049 at today's rallied level rather than restating it. Thesis WATCH; HBM3E ASP -51.4% off peak. Tranche 1 of 2, sized for stop-out probability per the user's tight-stop style. PROVISIONAL (persist_safe=false)."
+        }
+      ],
+      "repeat_count": 5,
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "MU at 2.38x its ATR risk cap",
+        "AI Memory/Storage over band (+6.6pt)",
+        "recommended 5x, still unactioned"
+      ],
+      "cluster": "AI Memory/Storage"
+    },
+    {
+      "action": "Trim SNDK",
+      "size_usd": 750,
+      "price_at_proposal": 1405.7,
+      "rationale": "Same cluster breach; largest risk-cap excess in book (4.06x); sole EARNINGS PROXIMITY flag (7.12% weight, not run up into print); 6th consecutive review; no LTCG boundary proximity",
+      "date": "2026-08-06T00:14:00+05:30",
+      "status": "open",
+      "id": "P-059",
+      "ticker": "SNDK",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 6x since 2026-07-28, still open",
+      "direction_bucket": "TRIM",
+      "history": [
+        {
+          "date": "2026-07-28",
+          "size_usd": 450,
+          "price_at_proposal": null,
+          "rationale": "1.55x risk cap, but catalyst 1 (CXMT priced 2.2% above incumbents) supports the thesis \u2014 partial trim only."
+        },
+        {
+          "date": "2026-07-30",
+          "size_usd": 500,
+          "price_at_proposal": 1244.64,
+          "rationale": "Same cluster breach; SNDK +22.5% today, largest single-day move in book; signal shows no TARGET GAP (less runway than MU); partial trim only given sell-side turning constructive on CXMT (Jefferies/Bernstein/UBS)."
+        },
+        {
+          "date": "2026-07-31T13:02:00+05:30",
+          "size_usd": 1300,
+          "price_at_proposal": null,
+          "rationale": "4.13x risk cap (largest excess $2,061.54), ATR20 15.6% highest-vol name in book, WATCH thesis, peer laggard -25.9pp vs SMH, zero resolving fact per catalyst, cures part of Memory/Storage cluster +9.2pt breach."
+        },
+        {
+          "date": "2026-08-03T11:14:00+05:30",
+          "size_usd": 700,
+          "price_at_proposal": 1217.6373,
+          "rationale": "Cures AI Memory/Storage cluster breach (21.72% vs [10,20] band, ~$691 over); WATCH thesis, 5th-6th consecutive review flagging risk-cap excess (1.35x-4.13x cap since 07-28); proceeds fund cash rebuild."
+        },
+        {
+          "date": "2026-08-04T18:20:00+05:30",
+          "size_usd": 700,
+          "price_at_proposal": 1354.9,
+          "rationale": "Same Memory ceiling breach; SNDK is the book's highest-beta name (2.924 vs SMH) and carries the lone EARNINGS PROXIMITY flag at 6.76% weight. Re-prices stale P-048 (rc4). PROVISIONAL."
+        }
+      ],
+      "repeat_count": 6,
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "SNDK at 4.06x its ATR risk cap",
+        "AI Memory/Storage over band (+6.6pt)",
+        "recommended 6x, still unactioned"
+      ],
+      "cluster": "AI Memory/Storage"
+    },
+    {
+      "action": "Trim DRAM",
+      "size_usd": 400,
+      "price_at_proposal": 54.76,
+      "rationale": "Third leg of Memory/Storage cluster cure via look-through exposure; sized light because thesis flags DRAM an upgrade candidate on strong DRAM contract pricing with the original WATCH rationale unavailable to re-confirm (G48)",
+      "date": "2026-08-06T00:14:00+05:30",
+      "status": "open",
+      "id": "P-060",
+      "ticker": "DRAM",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 5x since 2026-07-28, still open",
+      "direction_bucket": "TRIM",
+      "history": [
+        {
+          "date": "2026-07-28",
+          "size_usd": 1200,
+          "price_at_proposal": null,
+          "rationale": "2.24x its ATR risk cap ($2,398 held vs $1,069). Risk-sizing trim, not a thesis exit \u2014 Memory remains WATCH not BROKEN."
+        },
+        {
+          "date": "2026-07-30",
+          "size_usd": 300,
+          "price_at_proposal": 50.55,
+          "rationale": "Completes ~$1,500 of the cluster's ~$1,947 band-overage close, deliberately leaving it mildly over band given constructive CXMT walk-back; ETF/basket exposure, smallest tranche."
+        },
+        {
+          "date": "2026-07-31T13:02:00+05:30",
+          "size_usd": 900,
+          "price_at_proposal": null,
+          "rationale": "2.53x risk cap, WATCH thesis, peer laggard, same Memory/Storage cluster breach as SNDK/MU."
+        },
+        {
+          "date": "2026-08-04T18:20:00+05:30",
+          "size_usd": 500,
+          "price_at_proposal": 53.41,
+          "rationale": "Third leg of the Memory trim; DRAM's look-through adds ~1.5% MU and ~0.3% SNDK on top of direct weights. Re-prices stale P-036 (rc3). PROVISIONAL."
+        }
+      ],
+      "repeat_count": 5,
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "DRAM at 1.47x its ATR risk cap",
+        "AI Memory/Storage over band (+6.6pt)",
+        "recommended 5x, still unactioned"
+      ],
+      "cluster": "AI Memory/Storage"
+    },
+    {
+      "action": "Stage GOOGL (token, conditional on stabilization above ~$365, not today)",
+      "size_usd": 400,
+      "price_at_proposal": 362.26,
+      "rationale": "Replaces P-055 (rc=4, $1200) -- Compute/Hyperscaler -10.41pt under floor is real, but GOOGL is -4.08% one session after its own stop fired at $360, and a structural FCF/talent headwind (Dean+Ghemawat exit, first-ever negative quarterly FCF) is still digesting; buying into a falling stop-name fights this book's stop discipline",
+      "date": "2026-08-06T00:14:00+05:30",
+      "status": "open",
+      "id": "P-061",
+      "ticker": "GOOGL",
+      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "direction_bucket": "BUY",
+      "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "AMD at 1.22x its ATR risk cap"
+        "Compute/Hyperscaler under band (-10.4pt)"
       ],
-      "cluster": "AI Semis/Fabs"
+      "cluster": "Compute/Hyperscaler"
     }
   ],
   "retracted": [
