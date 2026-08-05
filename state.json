@@ -1266,6 +1266,13 @@
    "opened": "2026-08-06",
    "owner": "smith-watchlist",
    "status": "open"
+  },
+  {
+   "id": "G50",
+   "description": "smith-catalyst's returned catalysts were never being persisted into state.factor_catalysts by the orchestrator, so the dashboard's Factor Catalysts panel silently rendered 2026-07-29 events for a week (through the 07-31, 08-03 and 08-04 runs) while fresh catalysts were produced and discarded each run. Found and backfilled 2026-08-06. The PERSIST section of the skill lists no factor_catalysts key -- add it explicitly so this cannot regress.",
+   "opened": "2026-08-06",
+   "owner": "orchestrator (PERSIST step)",
+   "status": "open"
   }
  ],
  "sentiment": {
@@ -1617,77 +1624,41 @@
  },
  "factor_catalysts": [
   {
-   "headline": "Microsoft FQ4 beat, Azure fastest cloud growth in 4yr, rebuts AI-capex-financing fear",
-   "date": "2026-07-29",
+   "date": "2026-08-03",
    "direction": "tailwind",
+   "headline": "SK Hynix and SanDisk release first HBF (High Bandwidth Flash) OCP standard at FMS 2026",
+   "magnitude": "512GB/stack via 8-16x capacity vs HBM per stack, 0.4-3.0TB/s bandwidth; first AI-inferencing samples not until early 2027 -- announcement-stage, not revenue-stage",
    "affects": [
-    "MU",
     "SNDK",
-    "DRAM",
-    "EWY",
-    "ASML",
-    "TER",
-    "AMD",
-    "TSM",
-    "ORCL",
-    "MRVL",
-    "COHR",
-    "CIEN",
-    "GEV",
-    "NBIS",
-    "BE",
-    "IREN"
-   ],
-   "exposure_pct_equity": 89.1,
-   "magnitude": "Nasdaq100 +3% next session; MSFT not a Smith holding, bellwether only",
-   "source": "thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-july-30-2026"
-  },
-  {
-   "headline": "FOMC holds rates steady (3 dissents for hike), VIX unwinds from spike",
-   "date": "2026-07-29",
-   "direction": "tailwind",
-   "affects": [
-    "ALL"
-   ],
-   "exposure_pct_equity": 89.1,
-   "magnitude": "VIX -11.91% to 18.20, largely technical/short-covering not new fundamental info",
-   "source": "kiplinger.com/investing/live/fed-meeting-updates-and-commentary-july-2026"
-  },
-  {
-   "headline": "Sell-side walks back CXMT as near-term threat: Jefferies/Bernstein constructive, UBS initiates SK Hynix Buy",
-   "date": "2026-07-29",
-   "direction": "tailwind",
-   "affects": [
-    "MU",
-    "SNDK",
-    "DRAM",
     "EWY"
    ],
-   "exposure_pct_equity": 24.9,
-   "magnitude": "CXMT ~8% global DRAM share vs Samsung 36%/SK Hynix 29%/Micron 24%; CXMT tech does not yet meet AI-grade demand per Jefferies",
-   "source": "investing.com/news/stock-market-news/memory-chip-stocks-slide-as-cxmts-ipo-stokes-competition-fears-buy-the-dip-93CH-4816372"
+   "exposure_pct_equity": 10.56,
+   "horizon": "structural",
+   "source": "https://news.skhynix.com/en/hbf-at-fms-2026/"
   },
   {
-   "headline": "QCOM FQ3 miss, guidance cut explicitly blamed on memory cost inflation squeezing handset margins",
-   "date": "2026-07-29",
-   "direction": "threat",
-   "affects": [
-    "QCOM"
-   ],
-   "exposure_pct_equity": 1.266,
-   "magnitude": "handset rev -20% YoY to $5.1bn; EPS guide $2.05-2.25 vs $2.36 est; stock -7.6% AH -- QCOM is short the same memory rally lifting MU/SNDK/DRAM elsewhere in this book",
-   "source": "benzinga.com/trading-ideas/movers/26/07/60791225/rising-memory-costs-are-hurting-smartphones-qualcomm-warns"
-  },
-  {
-   "headline": "GOOGL still digesting 7/23 capex-overhang print, no fresh 7/29-30 catalyst (catch-down not new news)",
-   "date": "2026-07-23",
+   "date": "2026-08-05",
    "direction": "ambiguous",
+   "headline": "Alphabet AI chief scientist exodus + capex guidance raise triggers first-ever negative quarterly FCF",
+   "magnitude": "2026 capex guidance raised to $195-205bn; Jeff Dean + Sanjay Ghemawat depart after 27 years; threat to GOOGL's AI bench and FCF, but the capex raise itself is a demand-side tailwind for NVDA/MRVL/AVGO/VRT",
    "affects": [
     "GOOGL"
    ],
-   "exposure_pct_equity": 7.496,
-   "magnitude": "FY26 capex raised to $195-205bn, FCF -$5.86bn; today's -1.16% is rotation not new information",
-   "source": "tradingkey.com/analysis/stocks/us-stocks/262052134-why-alphabet-googl-still-falling-after-record-q2-beat-july-24-2026-tradingkey"
+   "exposure_pct_equity": 4.57,
+   "horizon": "structural",
+   "source": "https://www.benzinga.com/trading-ideas/movers/26/08/60960312/alphabet-stock-dives-as-key-ai-leadership-exits"
+  },
+  {
+   "date": "2026-08-04",
+   "direction": "ambiguous",
+   "headline": "AMD Q2 beat but stock falls ~8% on unmet 'blowout' expectations",
+   "magnitude": "record $11.54bn revenue, Data Center +107% YoY = 58% of sales, Q3 guide ~$13bn -- beat, not miss; repriced against a 140% YTD run, not against fundamentals",
+   "affects": [
+    "AMD"
+   ],
+   "exposure_pct_equity": 1.23,
+   "horizon": "noise",
+   "source": "https://www.tradingkey.com/analysis/stocks/us-stocks/262076949-us-stock-amd-ai-sox-advanced-micro-devices-tradingkey"
   }
  ]
 }
