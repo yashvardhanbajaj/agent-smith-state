@@ -58,6 +58,8 @@ OUTPUT — compact, fact-only
 }
 ```
 
+**The example above is a SHAPE, not an answer — SNDK/MRVL/ARM and every date, quantity, and percentage are placeholders.** Every lot, date, gain%, and harvestable amount must come from `lots.json` and live prices this run — never invented, remembered, or interpolated. This is tax-lot sequencing with real capital-gains consequences if a placeholder ever got treated as a real recommendation; a sibling agent (smith-thesis) already had a hardcoded example figure get treated as a real, load-bearing input to a portfolio decision before it was caught (2026-08-05 correction) — this guardrail, previously absent from this file, exists so the same failure can't recur here with a tax figure. If `lots.json` is empty or a ticker's lots are missing, output `null` for that entry and flag it in `data_quality` — do not estimate a plausible-looking lot.
+
 IMPLEMENTATION NOTES (this run):
 - Skeleton created 2026-07-26 as part of Tier 3 audit completion
 - Unblocked once lots.json is seeded (currently empty; G1)

@@ -43,6 +43,8 @@ OUTPUT — compact, fact-only
 }
 ```
 
+**The example above is a SHAPE, not an answer — QCOM/4.8%/1.2%/2.4% are placeholders, not real figures.** Never invent, remember, or carry forward an implied move, surprise rate, or drift figure — every number here must come from a live options-chain or calendar pull this run. A ticker with no confirmed date or no live options data gets `null` fields and a data_quality note, not a plausible-sounding estimate. This file previously had no such guardrail; a sibling agent (smith-thesis) shipped a hardcoded example figure that got treated as a real, load-bearing input to a thesis downgrade before it was caught (2026-08-05 correction) — this note exists so the same thing can't happen here with an earnings number.
+
 IMPLEMENTATION NOTES (this run):
 - Skeleton created 2026-07-26 as part of Tier 3 audit completion
 - yfinance.get_earnings_calendar() has been unreliable (G20); recommend switching to FMP if available
