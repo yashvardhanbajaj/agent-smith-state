@@ -468,7 +468,7 @@
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "Compute/Hyperscaler under band (-10.4pt)"
+        "Compute/Hyperscaler under band (-7.9pt)"
       ],
       "cluster": "Compute/Hyperscaler"
     },
@@ -566,9 +566,11 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-037",
       "direction_bucket": "TRIM",
-      "priority_score": 0,
-      "priority": "LOW",
-      "priority_reasons": [],
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cash outside its normal band -- this also rebuilds it"
+      ],
       "cluster": "AI Semis/Fabs"
     },
     {
@@ -621,10 +623,11 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-040",
       "direction_bucket": "TRIM",
-      "priority_score": 3,
-      "priority": "MEDIUM",
+      "priority_score": 5,
+      "priority": "HIGH",
       "priority_reasons": [
-        "VRT at 1.63x its ATR risk cap"
+        "VRT at 1.68x its ATR risk cap",
+        "cash outside its normal band -- this also rebuilds it"
       ],
       "cluster": "AI Power/Cooling/DC Infra"
     },
@@ -639,10 +642,11 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-041",
       "direction_bucket": "TRIM",
-      "priority_score": 3,
-      "priority": "MEDIUM",
+      "priority_score": 5,
+      "priority": "HIGH",
       "priority_reasons": [
-        "NVDA at 1.19x its ATR risk cap"
+        "NVDA at 1.23x its ATR risk cap",
+        "cash outside its normal band -- this also rebuilds it"
       ],
       "cluster": "AI Semis/Fabs"
     },
@@ -657,9 +661,11 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-042",
       "direction_bucket": "TRIM",
-      "priority_score": 0,
-      "priority": "LOW",
-      "priority_reasons": [],
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cash outside its normal band -- this also rebuilds it"
+      ],
       "cluster": "AI Semis/Fabs"
     },
     {
@@ -667,10 +673,10 @@
       "action": "Light trim NBIS",
       "size_usd": 100,
       "price_at_proposal": null,
-      "status": "open",
+      "status": "superseded",
       "rationale": "1.24x risk cap, just upgraded to STRENGTHENING (Nvidia 9.3% stake, contract-backed debt raise) -- token trim only.",
       "ticker": "NBIS",
-      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-voided -- position exited",
       "id": "P-043",
       "direction_bucket": "TRIM",
       "priority_score": 3,
@@ -897,10 +903,11 @@
         }
       ],
       "repeat_count": 3,
-      "priority_score": 5,
+      "priority_score": 7,
       "priority": "HIGH",
       "priority_reasons": [
-        "MRVL at 2.34x its ATR risk cap",
+        "MRVL at 2.37x its ATR risk cap",
+        "cash outside its normal band -- this also rebuilds it",
         "recommended 3x, still unactioned"
       ],
       "cluster": "AI Networking/Optics"
@@ -1127,10 +1134,10 @@
       "price_at_proposal": 918.05,
       "rationale": "AI Memory/Storage cluster over ceiling (21.64% vs 15% target, 10-20 band); MU at 2.38x ATR risk cap (aggregate open risk 13.84% vs 10% cap); thesis WATCH on 2027 CXMT supply-share risk, not the dead -51% ASP artifact; 5th consecutive review; no LTCG boundary proximity",
       "date": "2026-08-06T00:14:00+05:30",
-      "status": "open",
+      "status": "dismissed_by_user",
       "id": "P-058",
       "ticker": "MU",
-      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 5x since 2026-07-30, still open",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 5x since 2026-07-30, still open | dismissed by user 2026-08-06T19:44: Cluster breach it was sized to cure resolved itself via today's stop-loss cascade (MU trimmed 3.0004->2.0004 via stop 08-05); Memory/Storage now 16.9% vs 20% ceiling, in-band",
       "direction_bucket": "TRIM",
       "history": [
         {
@@ -1215,8 +1222,8 @@
       "priority_score": 7,
       "priority": "HIGH",
       "priority_reasons": [
-        "SNDK at 4.06x its ATR risk cap",
-        "AI Memory/Storage over band (+6.6pt)",
+        "SNDK at 1.89x its ATR risk cap",
+        "cash outside its normal band -- this also rebuilds it",
         "recommended 6x, still unactioned"
       ],
       "cluster": "AI Memory/Storage"
@@ -1262,8 +1269,8 @@
       "priority_score": 7,
       "priority": "HIGH",
       "priority_reasons": [
-        "DRAM at 1.47x its ATR risk cap",
-        "AI Memory/Storage over band (+6.6pt)",
+        "DRAM at 1.48x its ATR risk cap",
+        "cash outside its normal band -- this also rebuilds it",
         "recommended 5x, still unactioned"
       ],
       "cluster": "AI Memory/Storage"
@@ -1282,7 +1289,7 @@
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "Compute/Hyperscaler under band (-10.4pt)"
+        "Compute/Hyperscaler under band (-7.9pt)"
       ],
       "cluster": "Compute/Hyperscaler"
     }
