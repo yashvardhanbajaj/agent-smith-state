@@ -237,6 +237,13 @@ details.pgrp>summary .n{background:var(--surface-2);color:var(--ink-2);border-ra
   font-family:var(--mono);margin-left:8px;text-transform:none;letter-spacing:normal;font-weight:400}
 details.pgrp>.body{padding:0 0 4px}
 .pr .clus{font-family:var(--sans);font-size:10px;color:var(--ink-3);font-weight:500}
+/* live re-justification -- recomputed every run, visually distinct from the frozen rationale
+   above it so "why this is still here TODAY" never reads as part of the original prose */
+.pr .lives{display:flex;flex-direction:column;gap:3px;margin-top:7px}
+.pr .lv{font-family:var(--mono);font-size:11px;color:var(--good);line-height:1.4}
+.pr .lv::before{content:"live ";color:var(--ink-3);font-weight:700;letter-spacing:.06em}
+.pr .rvf{display:block;font-family:var(--mono);font-size:11px;color:var(--warn);
+  line-height:1.4;margin-top:5px}
 
 /* ============ factor catalysts ============ */
 .ci{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
@@ -468,9 +475,23 @@ def build(base, out):
             # stacking them under the badge made that column taller than the row needed.
             meta = f'<span class="meta">{rep}{pid_s}</span>' if (rep or pid_s) else ""
             clus_s = f'<span class="clus">{esc(p["cluster"])}</span>' if p.get("cluster") else ""
+            # LIVE re-justification (added 2026-08-06). `rationale` is the sentence written the
+            # day the proposal was made and never changes; `still_valid_because` is recomputed
+            # every run by smith_math.py's proposals pass from today's risk caps, cluster bands
+            # and cash position. Showing both, clearly separated, is the difference between a
+            # panel that reads as an archive and one that reads as live: the reader can see at a
+            # glance that a 6-day-old trim is still on the list because the cap is STILL breached
+            # today, not merely because nobody cleaned up. `review_flags` carries the judgement
+            # calls the engine deliberately refuses to auto-action (chiefly: price has moved far
+            # enough since proposal that the dollar size needs redoing before acting).
+            live = p.get("still_valid_because") or []
+            live_s = ("".join(f'<span class="lv">{esc(x)}</span>' for x in live)
+                      and f'<span class="lives">{"".join(f"<span class=\"lv\">{esc(x)}</span>" for x in live)}</span>')
+            flags = p.get("review_flags") or []
+            flag_s = "".join(f'<span class="rvf">&#9888;&#65039; {esc(x)}</span>' for x in flags)
             return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
                     f'{esc(p.get("action",""))}{clus_s}</span>'
-                    f'<span class="why">{esc(short)}{more}{meta}</span>'
+                    f'<span class="why">{esc(short)}{more}{live_s}{flag_s}{meta}</span>'
                     f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
 
         # -- grouped by priority (HIGH first), computed by smith_math.py's `proposals`

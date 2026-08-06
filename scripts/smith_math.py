@@ -1204,7 +1204,17 @@ def cmd_proposals(args):
     risk = load_json(os.path.join(args.run_dir, "compute_risk.json"), default={})
     risk_by_ticker = {p["ticker"]: p for p in risk.get("positions", [])}
     cluster_breach = {c["cluster"]: c for c in drift.get("cluster_table", []) if c.get("breach")}
-    cash_tight = bool(drift.get("cash_breach_vs_normal") or drift.get("cash_breach"))
+    # DIRECTIONAL cash check (fixed 2026-08-06). `cash_breach_vs_normal` is a bare boolean that
+    # fires on BOTH edges -- too little cash and too much. The scorer previously treated any
+    # breach as a reason to favour trimming ("this also rebuilds cash"), which inverts on the
+    # high side: on 2026-08-06 cash sat at 25.3% against a [5,15] band, and every trim proposal
+    # was being awarded +2 and captioned "cash outside its normal band -- this also rebuilds it"
+    # while the book was in fact drowning in idle cash. Split the two edges: a trim earns the
+    # bonus only when cash is genuinely SHORT, and a buy earns one when cash is in EXCESS.
+    _cash_pct = drift.get("cash_pct")
+    _cash_band = drift.get("cash_band_normal_pct") or drift.get("cash_band_pct") or [None, None]
+    cash_short = bool(_cash_pct is not None and _cash_band[0] is not None and _cash_pct < _cash_band[0])
+    cash_excess = bool(_cash_pct is not None and _cash_band[1] is not None and _cash_pct > _cash_band[1])
 
     for pr in props:
         if pr.get("status") != "open":
@@ -1221,9 +1231,14 @@ def cmd_proposals(args):
             score += 2
             reasons.append(f"{cluster} {'over' if cb.get('breach_edge')=='over' else 'under'} band "
                             f"({cb.get('drift_pt', 0):+.1f}pt)")
-        if cash_tight and bucket in ("TRIM", "SELL"):
+        if cash_short and bucket in ("TRIM", "SELL"):
             score += 2
-            reasons.append("cash outside its normal band -- this also rebuilds it")
+            reasons.append(f"cash short at {_cash_pct:.1f}% vs a [{_cash_band[0]},{_cash_band[1]}]% band "
+                           "-- this also rebuilds it")
+        if cash_excess and bucket == "BUY":
+            score += 2
+            reasons.append(f"cash in excess at {_cash_pct:.1f}% vs a [{_cash_band[0]},{_cash_band[1]}]% band "
+                           "-- deploying is the live problem, not raising more")
         if rc >= 3:
             score += 2
             reasons.append(f"recommended {rc}x, still unactioned")
@@ -1241,6 +1256,113 @@ def cmd_proposals(args):
         if cluster:
             pr["cluster"] = cluster
 
+    # -- CONDITION-BASED AUTO-RETIREMENT (added 2026-08-06, user-reported: "the dashboard is
+    # not live and dynamic... under low priority proposals it is showing rebuild cash buffer"
+    # while cash sat at 25.3%, three times its normal band ceiling).
+    #
+    # Root cause was three compounding gaps, not one:
+    #   (a) the only automatic cleanup was a 7-day *calendar* expiry -- a blunt instrument that
+    #       says nothing about whether the proposal's REASON still holds. On 2026-08-06 the six
+    #       stalest proposals were all 6 days old, i.e. one day short of lapsing, so every one
+    #       of them still rendered as live advice.
+    #   (b) the breach-cleared void was DISABLED in 2026-07-29 (see the comment above) because
+    #       it tried to parse free-text rationale and false-positived. That reasoning was right,
+    #       and the fix is not to re-enable text parsing -- it is to stop reading prose entirely.
+    #   (c) nothing ever checked the non-cluster premises: cash already rebuilt, an "initiate X"
+    #       whose X is now held, a HOLD gated on an earnings print that has since happened.
+    #
+    # The fix reuses the SAME structural signals the priority scorer already computes above
+    # (over_cap from compute_risk, cluster breach from compute_drift, cash band from
+    # compute_drift). Those are typed enums and numbers, never prose, so this cannot repeat the
+    # 2026-07-29 false-positive class. A proposal is retired only when its objective trigger is
+    # verifiably gone; anything requiring judgement is FLAGGED for the strategist instead, and
+    # left open. Status is `auto_retired`, deliberately distinct from `superseded` (folded into
+    # a duplicate) and from `dismissed_by_user` (terminal, user's own call) so the audit trail
+    # shows who retired what -- and so a genuinely re-emerging condition is free to be proposed
+    # afresh under a new id rather than being permanently suppressed.
+    HOLD_MAX_AGE_DAYS = 2  # HOLDs are tactical ("hold fire until tonight's print") and go off fast
+    retired = []
+    for pr in props:
+        if pr.get("status") != "open":
+            continue
+        ticker = pr.get("ticker")
+        bucket = pr.get("direction_bucket", "HOLD")
+        rpos = risk_by_ticker.get(ticker) if ticker else None
+        cluster = pr.get("cluster")
+        cl = cluster_breach.get(cluster) if cluster else None
+        over_cap = bool(rpos and rpos.get("over_cap"))
+        age = (today_date - (parse_date(pr.get("date", "")) or today_date)).days
+        why = None
+
+        action_l = (pr.get("action") or "").lower()
+        is_cash_proposal = ticker is None and ("cash" in action_l)
+
+        if is_cash_proposal:
+            # "Rebuild cash buffer" is satisfied the moment cash re-enters (or overshoots) its
+            # normal band -- which is exactly what a stop-loss cascade does for free.
+            cash_pct = drift.get("cash_pct")
+            band = drift.get("cash_band_normal_pct") or drift.get("cash_band_pct") or [None, None]
+            if cash_pct is not None and band[0] is not None and cash_pct >= band[0]:
+                why = (f"cash is {cash_pct:.2f}% vs a normal band of [{band[0]},{band[1]}]% -- "
+                       "the buffer this proposed to rebuild is already rebuilt")
+        elif bucket in ("TRIM", "SELL"):
+            # A trim exists to cure one of exactly two structural problems: a position over its
+            # own ATR risk cap, or a cluster outside its policy band. If NEITHER is true today,
+            # the trim has nothing left to fix.
+            if not over_cap and not cl:
+                why = (f"neither trigger is live: {ticker} is within its ATR risk cap"
+                       + (f" and {cluster} is inside its policy band" if cluster else "")
+                       + " -- the structural reason for this trim has cleared")
+        elif bucket == "BUY":
+            # An "initiate"/"new position" buy is self-evidently done once the name is held.
+            if ticker and ticker in current_tickers and any(
+                    w in action_l for w in ("initiate", "new position", "open a position")):
+                why = f"{ticker} is now held -- this proposed initiating a position that already exists"
+            # A cluster-fill buy is done once the cluster is back inside its band.
+            elif cluster and not cl and any(w in action_l for w in ("top up", "fill", "stage", "deploy")):
+                why = f"{cluster} is back inside its policy band -- the underweight this filled has cleared"
+        elif bucket == "HOLD":
+            if ticker and ticker not in current_tickers:
+                why = f"{ticker} is no longer held -- the position this advised holding on is gone"
+            elif age >= HOLD_MAX_AGE_DAYS:
+                why = (f"tactical HOLD is {age} days old -- hold-fire advice is time-bound by nature "
+                       "and is not carried forward as standing guidance")
+
+        if why:
+            pr["status"] = "auto_retired"
+            pr["retired_on"] = str(today_date)
+            pr["retired_reason"] = why
+            pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {why}").strip(" |")
+            retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": why})
+
+    # -- LIVE RE-JUSTIFICATION (same change). Every proposal still open after the pass above
+    # carries a freshly recomputed `still_valid_because` and a re-priced `price_drift_pct`, so
+    # the dashboard renders TODAY's reason a proposal survives rather than a frozen sentence
+    # written days ago against conditions that may no longer exist. This is what makes the
+    # panel read as live: the rationale is history, this field is current.
+    price_now_by_ticker = {}
+    for h in holdings.get("holdings_inr", []):
+        if h.get("price_usd") is not None:
+            price_now_by_ticker[h["ticker"]] = h["price_usd"]
+
+    for pr in props:
+        if pr.get("status") != "open":
+            continue
+        live = list(pr.get("priority_reasons") or [])
+        flags = []
+        p0, pnow = pr.get("price_at_proposal"), price_now_by_ticker.get(pr.get("ticker"))
+        if p0 and pnow:
+            dp = (pnow - p0) / p0 * 100
+            pr["price_now"] = round(pnow, 2)
+            pr["price_drift_pct"] = round(dp, 2)
+            if abs(dp) >= 10:
+                flags.append(f"price has moved {dp:+.1f}% since proposed (${p0:.2f} -> ${pnow:.2f}) -- re-size before acting")
+        if not live:
+            live.append("no active structural trigger -- kept open on the strategist's judgement, not a breach")
+        pr["still_valid_because"] = live
+        pr["review_flags"] = flags
+        pr["revalidated_on"] = str(today_date)
+
     proposals["proposals"] = props
     json.dump(proposals, open(p_path + ".tmp", "w"), indent=2)
     os.replace(p_path + ".tmp", p_path)
@@ -1251,6 +1373,7 @@ def cmd_proposals(args):
         priority_counts[pr.get("priority", "LOW")] += 1
 
     emit({"proposals_count": len(props), "superseded_count": len(to_supersede), "changes_made": len(to_supersede),
+          "auto_retired_count": len(retired), "auto_retired": retired,
           "open_count": len(open_now), "priority_counts": priority_counts, "written": True})
 
 

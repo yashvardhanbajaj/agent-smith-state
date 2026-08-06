@@ -1263,6 +1263,15 @@
    "opened": "2026-08-06",
    "owner": "user (stop levels) / next deep run (CLS stop check)",
    "status": "open"
+  },
+  {
+   "id": "G52",
+   "description": "Proposal staleness: before 2026-08-06 the only automatic cleanup was a 7-day CALENDAR expiry, which says nothing about whether a proposal's reason still holds; the condition-based breach-cleared voider had been disabled since 2026-07-29 after it false-positived on free-text rationale parsing. Result: on 2026-08-06 six of eleven open proposals were objectively dead (cash-rebuild while cash sat at 25.3% vs a [5,15] band; a HOLD gated on AMD earnings that had already reported; an 'initiate META' for a position already held; trims for risk caps and cluster breaches that had since cleared) yet all still rendered as live advice, because every one of them was 6 days old -- one day short of lapsing. RESOLVED same day: cmd_proposals now re-tests each open proposal against today's typed structural signals (over_cap, cluster breach, cash band) and sets status auto_retired with a reason, never parsing prose; judgement calls (>=10% price drift) are flagged for review rather than auto-actioned. Also fixed a directional bug in the priority scorer that awarded every TRIM +2 for 'cash outside its normal band -- this also rebuilds it' when cash was in EXCESS, not short.",
+   "opened": "2026-08-06",
+   "owner": "resolved",
+   "status": "closed",
+   "closed": "2026-08-06",
+   "resolution": "Implemented in scripts/smith_math.py cmd_proposals (auto-retirement + still_valid_because + directional cash) and scripts/smith_dashboard.py (renders live re-justification distinct from frozen rationale). Verified on a copy before applying: 6 retired, 5 survivors all correct, DRAM correctly surviving on its risk-cap trigger after its cluster trigger cleared."
   }
  ],
  "sentiment": {

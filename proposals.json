@@ -460,17 +460,21 @@
       "action": "Initiate META (token tranche)",
       "size_usd": 450,
       "price_at_proposal": 535.23,
-      "status": "open",
+      "status": "auto_retired",
       "rationale": "Standout watchlist oversold-bounce (35.4% upside), still falling -8.6% today despite SMH +6.9% rally -- idiosyncratic not beta; addresses 100% AI-capex-chain concentration flagged by smith-thesis with cash well below historical hedge level; sized as token first tranche per staged-deployment/DCA discipline given continued weakness.",
       "ticker": "META",
       "id": "P-033",
       "direction_bucket": "BUY",
-      "priority_score": 2,
-      "priority": "MEDIUM",
+      "priority_score": 4,
+      "priority": "HIGH",
       "priority_reasons": [
-        "Compute/Hyperscaler under band (-7.9pt)"
+        "Compute/Hyperscaler under band (-7.9pt)",
+        "cash in excess at 25.3% vs a [5,15]% band -- deploying is the live problem, not raising more"
       ],
-      "cluster": "Compute/Hyperscaler"
+      "cluster": "Compute/Hyperscaler",
+      "retired_on": "2026-08-06",
+      "retired_reason": "META is now held -- this proposed initiating a position that already exists",
+      "note": "auto-retired 2026-08-06: META is now held -- this proposed initiating a position that already exists"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -560,18 +564,18 @@
       "action": "Trim ASML",
       "size_usd": 700,
       "price_at_proposal": null,
-      "status": "open",
+      "status": "auto_retired",
       "rationale": "1.67x risk cap, WATCH thesis, peer laggard, cluster in-band so pure name-level risk discipline.",
       "ticker": "ASML",
-      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-retired 2026-08-06: neither trigger is live: ASML is within its ATR risk cap and AI Semis/Fabs is inside its policy band -- the structural reason for this trim has cleared",
       "id": "P-037",
       "direction_bucket": "TRIM",
-      "priority_score": 2,
-      "priority": "MEDIUM",
-      "priority_reasons": [
-        "cash outside its normal band -- this also rebuilds it"
-      ],
-      "cluster": "AI Semis/Fabs"
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [],
+      "cluster": "AI Semis/Fabs",
+      "retired_on": "2026-08-06",
+      "retired_reason": "neither trigger is live: ASML is within its ATR risk cap and AI Semis/Fabs is inside its policy band -- the structural reason for this trim has cleared"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -623,13 +627,17 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-040",
       "direction_bucket": "TRIM",
-      "priority_score": 5,
-      "priority": "HIGH",
+      "priority_score": 3,
+      "priority": "MEDIUM",
       "priority_reasons": [
-        "VRT at 1.68x its ATR risk cap",
-        "cash outside its normal band -- this also rebuilds it"
+        "VRT at 1.68x its ATR risk cap"
       ],
-      "cluster": "AI Power/Cooling/DC Infra"
+      "cluster": "AI Power/Cooling/DC Infra",
+      "still_valid_because": [
+        "VRT at 1.68x its ATR risk cap"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-06"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -642,31 +650,35 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-041",
       "direction_bucket": "TRIM",
-      "priority_score": 5,
-      "priority": "HIGH",
+      "priority_score": 3,
+      "priority": "MEDIUM",
       "priority_reasons": [
-        "NVDA at 1.23x its ATR risk cap",
-        "cash outside its normal band -- this also rebuilds it"
+        "NVDA at 1.23x its ATR risk cap"
       ],
-      "cluster": "AI Semis/Fabs"
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "NVDA at 1.23x its ATR risk cap"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-06"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
       "action": "Light trim AMD",
       "size_usd": 100,
       "price_at_proposal": null,
-      "status": "open",
+      "status": "auto_retired",
       "rationale": "1.22x risk cap, STRENGTHENING thesis but 08-04 binary earnings in 4 trading days -- reduce single-name risk into a known catalyst.",
       "ticker": "AMD",
-      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-retired 2026-08-06: neither trigger is live: AMD is within its ATR risk cap and AI Semis/Fabs is inside its policy band -- the structural reason for this trim has cleared",
       "id": "P-042",
       "direction_bucket": "TRIM",
-      "priority_score": 2,
-      "priority": "MEDIUM",
-      "priority_reasons": [
-        "cash outside its normal band -- this also rebuilds it"
-      ],
-      "cluster": "AI Semis/Fabs"
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [],
+      "cluster": "AI Semis/Fabs",
+      "retired_on": "2026-08-06",
+      "retired_reason": "neither trigger is live: AMD is within its ATR risk cap and AI Semis/Fabs is inside its policy band -- the structural reason for this trim has cleared"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -746,26 +758,32 @@
       "action": "Rebuild cash buffer",
       "size_usd": 4380,
       "price_at_proposal": null,
-      "status": "open",
+      "status": "auto_retired",
       "rationale": "Cash 5.4% at low end of [5,15]% band, AMD 08-04 binary earnings is the live catalyst risk with thin dry powder.",
       "id": "P-046",
       "direction_bucket": "HOLD",
       "priority_score": 0,
       "priority": "LOW",
-      "priority_reasons": []
+      "priority_reasons": [],
+      "retired_on": "2026-08-06",
+      "retired_reason": "cash is 25.33% vs a normal band of [5,15]% -- the buffer this proposed to rebuild is already rebuilt",
+      "note": "auto-retired 2026-08-06: cash is 25.33% vs a normal band of [5,15]% -- the buffer this proposed to rebuild is already rebuilt"
     },
     {
       "date": "2026-08-03T11:14:00+05:30",
       "action": "Hold fire on smith-rebound average-ins (CLS/BE/NBIS/MRVL, $3,601 total)",
       "size_usd": 0,
       "price_at_proposal": null,
-      "status": "open",
+      "status": "auto_retired",
       "rationale": "Wallet is $38.02; none of the four are fundable as sized. MRVL specifically vetoed: smith-quality found interest coverage collapsed 8.1x->1.4x on a fresh ~$2.0B debt draw, overriding the STRENGTHENING technical thesis for sizing purposes. CLS/BE/NBIS remain timing-eligible per rebound's gate, deferred on funding only.",
       "id": "P-047",
       "direction_bucket": "HOLD",
       "priority_score": 0,
       "priority": "LOW",
-      "priority_reasons": []
+      "priority_reasons": [],
+      "retired_on": "2026-08-06",
+      "retired_reason": "tactical HOLD is 3 days old -- hold-fire advice is time-bound by nature and is not carried forward as standing guidance",
+      "note": "auto-retired 2026-08-06: tactical HOLD is 3 days old -- hold-fire advice is time-bound by nature and is not carried forward as standing guidance"
     },
     {
       "date": "2026-08-03T11:14:00+05:30",
@@ -903,14 +921,23 @@
         }
       ],
       "repeat_count": 3,
-      "priority_score": 7,
+      "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
         "MRVL at 2.37x its ATR risk cap",
-        "cash outside its normal band -- this also rebuilds it",
         "recommended 3x, still unactioned"
       ],
-      "cluster": "AI Networking/Optics"
+      "cluster": "AI Networking/Optics",
+      "price_now": 211.4,
+      "price_drift_pct": 12.45,
+      "still_valid_because": [
+        "MRVL at 2.37x its ATR risk cap",
+        "recommended 3x, still unactioned"
+      ],
+      "review_flags": [
+        "price has moved +12.5% since proposed ($187.99 -> $211.40) -- re-size before acting"
+      ],
+      "revalidated_on": "2026-08-06"
     },
     {
       "date": "2026-08-04T18:20:00+05:30",
@@ -1118,7 +1145,7 @@
       "action": "Hold AMD tranche 1 until after tonight's print",
       "size_usd": 200,
       "price_at_proposal": 503.51,
-      "status": "open",
+      "status": "auto_retired",
       "ticker": "AMD",
       "rationale": "AMD reports after the close TODAY; consensus rev $11.3B/EPS $1.61, guide is the whole event. Do not deploy P-024 into a binary -- stage after the print per tranche discipline. PROVISIONAL.",
       "id": "P-057",
@@ -1126,7 +1153,10 @@
       "priority_score": 0,
       "priority": "LOW",
       "priority_reasons": [],
-      "cluster": "AI Semis/Fabs"
+      "cluster": "AI Semis/Fabs",
+      "retired_on": "2026-08-06",
+      "retired_reason": "tactical HOLD is 2 days old -- hold-fire advice is time-bound by nature and is not carried forward as standing guidance",
+      "note": "auto-retired 2026-08-06: tactical HOLD is 2 days old -- hold-fire advice is time-bound by nature and is not carried forward as standing guidance"
     },
     {
       "action": "Trim MU",
@@ -1181,10 +1211,10 @@
       "price_at_proposal": 1405.7,
       "rationale": "Same cluster breach; largest risk-cap excess in book (4.06x); sole EARNINGS PROXIMITY flag (7.12% weight, not run up into print); 6th consecutive review; no LTCG boundary proximity",
       "date": "2026-08-06T00:14:00+05:30",
-      "status": "open",
+      "status": "dismissed_by_user",
       "id": "P-059",
       "ticker": "SNDK",
-      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 6x since 2026-07-28, still open",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 6x since 2026-07-28, still open | dismissed by user 2026-08-06T19:51: Memory/Storage breach it was sized to cure resolved via 08-06 stop cascade (SNDK trimmed 2.008->1.008); cluster now 16.9% vs 20% ceiling, in-band",
       "direction_bucket": "TRIM",
       "history": [
         {
@@ -1266,14 +1296,21 @@
         }
       ],
       "repeat_count": 5,
-      "priority_score": 7,
+      "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
         "DRAM at 1.48x its ATR risk cap",
-        "cash outside its normal band -- this also rebuilds it",
         "recommended 5x, still unactioned"
       ],
-      "cluster": "AI Memory/Storage"
+      "cluster": "AI Memory/Storage",
+      "price_now": 53.74,
+      "price_drift_pct": -1.86,
+      "still_valid_because": [
+        "DRAM at 1.48x its ATR risk cap",
+        "recommended 5x, still unactioned"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-06"
     },
     {
       "action": "Stage GOOGL (token, conditional on stabilization above ~$365, not today)",
@@ -1286,12 +1323,21 @@
       "ticker": "GOOGL",
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "direction_bucket": "BUY",
-      "priority_score": 2,
-      "priority": "MEDIUM",
+      "priority_score": 4,
+      "priority": "HIGH",
       "priority_reasons": [
-        "Compute/Hyperscaler under band (-7.9pt)"
+        "Compute/Hyperscaler under band (-7.9pt)",
+        "cash in excess at 25.3% vs a [5,15]% band -- deploying is the live problem, not raising more"
       ],
-      "cluster": "Compute/Hyperscaler"
+      "cluster": "Compute/Hyperscaler",
+      "price_now": 363.05,
+      "price_drift_pct": 0.22,
+      "still_valid_because": [
+        "Compute/Hyperscaler under band (-7.9pt)",
+        "cash in excess at 25.3% vs a [5,15]% band -- deploying is the live problem, not raising more"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-06"
     }
   ],
   "retracted": [
