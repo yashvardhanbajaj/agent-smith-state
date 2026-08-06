@@ -441,6 +441,114 @@
    "price_at_trade": 116.93,
    "reason": "dca-into-diversification",
    "notes": "Email-confirmed fill: INDmoney BUY confirmation 2026-08-05T18:35Z, $586.40 / 5sh @ $116.93, Market. NEW POSITION - ServiceNow, enterprise software. Reason per user at 2026-08-06 interactive capture."
+  },
+  {
+   "date": "2026-08-05",
+   "ticker": "SNDK",
+   "action": "trim",
+   "qty_diff": -1,
+   "price_at_trade": 1365.23,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-05T19:54Z, $1365.23/1sh, Order Type: stop. SNDK 2.008->1.008. (A prior SNDK stop had been cancelled the same session at 19:54:22Z before this one filled.)"
+  },
+  {
+   "date": "2026-08-05",
+   "ticker": "MU",
+   "action": "trim",
+   "qty_diff": -1,
+   "price_at_trade": 898.8,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-05T19:57Z, $898.80/1sh, Order Type: stop. MU 3.0004->2.0004."
+  },
+  {
+   "date": "2026-08-05",
+   "ticker": "SKHY",
+   "action": "entry",
+   "qty_diff": 5,
+   "price_at_trade": 151.94,
+   "reason": "thesis-change",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-05T19:55Z, $761.98/5sh, Market. NEW POSITION -- SK Hynix ADR direct. User-confirmed at interactive capture 2026-08-06: wanted direct SK Hynix exposure instead of the diluted EWY basket (SK Hynix ~ half of EWY's ~50% Samsung+SK Hynix weight). Funded partly by same-session SNDK/MU trims. Ticker SKHY (NMS), not 'SK' (an unrelated ~$18 ETF) or 'HXSCF' (no data) -- resolved via yfinance search_stocks."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "EWY",
+   "action": "exit",
+   "qty_diff": -8,
+   "price_at_trade": 161.82,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:30:10Z, $1294.56/8sh, Order Type: stop. FULL EXIT. Fired within 3sec of market open (9:30:10 ET) -- first of a 7-position stop cascade triggered by the memory-sector selloff (SanDisk's Q1 FY27 guide miss cascading into Korea overnight: KOSPI -5% intraday, Samsung -6%, SK Hynix -8-10%)."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "NBIS",
+   "action": "exit",
+   "qty_diff": -5,
+   "price_at_trade": 206.23,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:30:13Z, $1031.13/5sh, Order Type: stop. FULL EXIT. Part of the market-open stop cascade."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "TER",
+   "action": "trim",
+   "qty_diff": -3,
+   "price_at_trade": 381.72,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:30:20Z, $1145.16/3sh, Order Type: stop. TER 3.0027->0.0027 (dust remains). Part of the market-open stop cascade; filled near the session open, TER continued falling to a $370 low afterward (whipsaw risk realized)."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "QBTS",
+   "action": "exit",
+   "qty_diff": -25,
+   "price_at_trade": 18.99,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:30:27Z, $474.75/25sh, Order Type: stop. FULL EXIT. QBTS reported Q2 earnings today and gapped down ~14% at the open (day low $18.33 vs $21.39 prev close); this stop fired near the session low, before a partial recovery to ~$19.44 (-9%) by mid-morning."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "CIEN",
+   "action": "trim",
+   "qty_diff": -1,
+   "price_at_trade": 392.09,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:31:42Z, $392.09/1sh, Order Type: stop. CIEN 1.0085->0.0085 (dust remains). Part of the market-open stop cascade."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "GLW",
+   "action": "exit",
+   "qty_diff": -5,
+   "price_at_trade": 150.84,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:32:04Z, $754.20/5sh, Order Type: stop. FULL EXIT. Filled near the session's $150.73 low; stock recovered to $157.82+ by mid-morning."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "COHR",
+   "action": "exit",
+   "qty_diff": -3,
+   "price_at_trade": 311.07,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:32:33Z, $933.21/3sh, Order Type: stop. FULL EXIT (remaining shares after yesterday's 5->3 trim). Filled near the session's $309.19 low; stock recovered to $324.73+ by mid-morning, 4.4% above the stop price -- classic whipsaw."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "MP",
+   "action": "add",
+   "qty_diff": 5,
+   "price_at_trade": 48.02,
+   "reason": "rebalance",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T13:43Z, $240.82/5sh. Second tranche (10->15sh). User-confirmed 'rebalance' at interactive capture, distinct from yesterday's first 10sh (dca-into-diversification)."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "BE",
+   "action": "add",
+   "qty_diff": 1,
+   "price_at_trade": 229.63,
+   "reason": "rebalance",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T13:42Z, $230.32/1sh. BE 3->4sh. User-confirmed 'rebalance' at interactive capture."
   }
  ],
  "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'dca-into-diversification'|'re-entry-after-stop'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out. | 2026-08-03: 'dca-into-diversification' and 're-entry-after-stop' promoted to standing buy-side reasons (see G45) after both recurred via 'Other' the same day \u2014 a same-day MU stop-loss/rebuy whipsaw pair (re-entry-after-stop) and a five-ticker weekend diversification buy the user confirmed as DCA into diversification. Buy-side step 1 changed shape from a yes/no to a 4-option question (DCA / DCA-into-diversification / Re-entry-after-stop / Something else) to keep 3 buy-relevant reasons within the cap; sell-side step 1 is unchanged."

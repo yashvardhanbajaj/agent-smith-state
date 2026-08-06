@@ -21,19 +21,30 @@
    "price_usd": 193.48
   }
  ],
- "GLW": [],
- "NBIS": [],
+ "GLW": [
+  {
+   "qty": 5,
+   "date": "2026-07-29",
+   "price_usd": 128.86
+  }
+ ],
+ "NBIS": [
+  {
+   "qty": 3,
+   "date": "2026-07-28",
+   "price_usd": 166.16
+  },
+  {
+   "qty": 2,
+   "date": "2026-07-29",
+   "price_usd": 147.07
+  }
+ ],
  "BE": [
   {
    "qty": 3,
    "date": "2026-07-29",
    "price_usd": 175.0
-  },
-  {
-   "qty": 1,
-   "date": "2026-08-06",
-   "price_usd": 229.63,
-   "note": "email-confirmed fill (INDmoney BUY confirmation 2026-08-06T13:42Z, $230.32 / 1sh). Reason 'rebalance' per user at interactive capture."
   }
  ],
  "MKSI": [
@@ -51,7 +62,23 @@
    "note": "Exact fill confirmed via email reconciliation 2026-07-31; corrects trades.json's 07-31 approximate $266.60 entry -- same trade, exact fill was $267.72 on 2026-07-30."
   }
  ],
- "EWY": [],
+ "EWY": [
+  {
+   "qty": 1,
+   "date": "2026-07-08",
+   "price_usd": 177.82
+  },
+  {
+   "qty": 4,
+   "date": "2026-07-13",
+   "price_usd": 167.99
+  },
+  {
+   "qty": 3,
+   "date": "2026-07-28",
+   "price_usd": 152.04
+  }
+ ],
  "TSM": [
   {
    "qty": 3,
@@ -88,7 +115,12 @@
  ],
  "CIEN": [
   {
-   "qty": 0.00852799999999998,
+   "qty": 0.388528,
+   "date": "2026-07-17",
+   "price_usd": 384.94
+  },
+  {
+   "qty": 0.62,
    "date": "2026-07-28",
    "price_usd": 339.51
   }
@@ -109,10 +141,16 @@
  ],
  "MU": [
   {
-   "qty": 0.0003653760000000483,
+   "qty": 0.003005,
    "date": "2026-07-29",
    "price_usd": 788.81,
    "note": "remainder after FIFO-consuming 1sh into the 07-31 10:25am ET stop-sell @ $824.87"
+  },
+  {
+   "qty": 0.997360376,
+   "date": null,
+   "price_usd": null,
+   "note": "predates available email history, real date unknown"
   },
   {
    "qty": 1,
@@ -210,9 +248,15 @@
  ],
  "TER": [
   {
-   "qty": 0.0027301879999999112,
+   "qty": 2,
    "date": "2026-07-29",
    "price_usd": 329.32
+  },
+  {
+   "qty": 1.002730188,
+   "date": null,
+   "price_usd": null,
+   "note": "predates available email history, real date unknown"
   }
  ],
  "SNDK": [
@@ -222,7 +266,7 @@
    "price_usd": 1079.59
   },
   {
-   "qty": 0.008131251000000006,
+   "qty": 1.008131251,
    "date": null,
    "price_usd": null,
    "note": "predates available email history, real date unknown"
@@ -265,7 +309,19 @@
    "note": "Exact fill confirmed via email reconciliation 2026-07-31; corrects trades.json's 07-31 approximate $153.15 entry -- same trade, exact fill was $153.24 on 2026-07-30."
   }
  ],
- "COHR": [],
+ "COHR": [
+  {
+   "qty": 2,
+   "date": "2026-07-28",
+   "price_usd": 240.04
+  },
+  {
+   "qty": 1,
+   "date": null,
+   "price_usd": null,
+   "note": "predates available email history, real date unknown"
+  }
+ ],
  "ARM": [],
  "META": [
   {
@@ -297,7 +353,14 @@
    "note": "approximate, not a confirmed fill -- live ext_hr quote at time of capture, DCA per user"
   }
  ],
- "QBTS": [],
+ "QBTS": [
+  {
+   "qty": 25,
+   "date": "2026-07-31",
+   "price_usd": 18.14,
+   "note": "Market order, confirmed via email 2026-07-31T19:33:10Z"
+  }
+ ],
  "LRCX": [
   {
    "qty": 2,
@@ -326,20 +389,6 @@
    "date": "2026-08-05",
    "price_usd": 47.47,
    "note": "email-confirmed fill (INDmoney BUY confirmation 2026-08-05T17:34Z, $476.13 / 10sh)"
-  },
-  {
-   "qty": 5,
-   "date": "2026-08-06",
-   "price_usd": 48.02,
-   "note": "email-confirmed fill (INDmoney BUY confirmation 2026-08-06T13:43Z, $240.82 / 5sh). Second tranche -- reason 'rebalance' per user at interactive capture (distinct from yesterday's first 10sh, dca-into-diversification)."
-  }
- ],
- "SKHY": [
-  {
-   "qty": 5,
-   "date": "2026-08-05",
-   "price_usd": 151.94,
-   "note": "email-confirmed fill (INDmoney BUY confirmation 2026-08-05T19:55Z, $761.98 / 5sh, Market). NEW POSITION. Ticker resolved via yfinance search_stocks (INDmoney display name 'SK HYNIX INC - ADR' -> SKHY, NMS exchange, confirmed distinct from the unrelated ETF ticker 'SK')."
   }
  ]
 }
