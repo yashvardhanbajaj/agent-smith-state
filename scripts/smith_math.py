@@ -132,12 +132,25 @@ def cmd_book(args):
             "ticker": r["ticker"], "weight_pct": round(w, 3),
             "market_value_usd": round(r["market_value_inr"] / usdinr, 2),
             "qty": r.get("qty"), "price_usd": price_usd,
+            "day_chg_pct": r.get("day_chg_pct"),
             "market_cap": r.get("market_cap", ""),
         })
     positions.sort(key=lambda p: -p["weight_pct"])
 
     top3 = [{"ticker": p["ticker"], "weight_pct": p["weight_pct"]} for p in positions[:3]]
     top5_pct = round(sum(p["weight_pct"] for p in positions[:5]), 3)
+
+    # Weighted day-change (added 2026-08-06, dashboard feature review): holdings.json's
+    # day_chg_pct is OPTIONAL per position -- an orchestrator fetching from a source without
+    # per-name day-change (e.g. a refresher using only INDmoney's row-level market_value, no
+    # yfinance overlay) simply omits it, and this degrades to None rather than a wrong number.
+    # Weight is renormalized to only the positions that DO carry a day_chg_pct, so a partial
+    # supply doesn't silently understate the true day move.
+    dchg_weight = sum(p["weight_pct"] for p in positions if p.get("day_chg_pct") is not None)
+    day_chg_pct_weighted = (
+        round(sum(p["weight_pct"] * p["day_chg_pct"] for p in positions if p.get("day_chg_pct") is not None)
+              / dchg_weight, 3)
+        if dchg_weight else None)
     top10_pct = round(sum(p["weight_pct"] for p in positions[:10]), 3)
 
     data_cache = state.get("data_cache", {})
@@ -291,7 +304,8 @@ def cmd_book(args):
         data_quality.append("lots.json absent/empty -- LTCG flags unavailable (standing gap)")
 
     emit({
-        "value_usd": value_usd, "pnl_pct": pnl_pct, "count": count,
+        "value_usd": value_usd, "pnl_pct": pnl_pct, "day_chg_pct_weighted": day_chg_pct_weighted,
+        "count": count,
         "usdinr": usdinr, "usdinr_drift_pct": usdinr_drift_pct,
         "top3": top3, "top5_pct": top5_pct, "top10_pct": top10_pct,
         "over_10pct": over_10pct, "beta": portfolio_beta, "primary_benchmark": primary_benchmark,
@@ -1363,6 +1377,29 @@ def cmd_proposals(args):
         pr["review_flags"] = flags
         pr["revalidated_on"] = str(today_date)
 
+        # Forward-looking retirement condition (added 2026-08-06, same change as
+        # auto-retirement above). `still_valid_because` says why the proposal survived TODAY;
+        # `retires_when` says what would make it NOT survive tomorrow -- the inverse condition
+        # of the retirement checks earlier in this function, kept in sync by construction since
+        # both read the same rpos/cl/bucket signals rather than being independently authored.
+        # This is what makes the automation legible instead of mysterious: the reader can see
+        # the actual bar a proposal has to clear, not just that "the system decides".
+        ticker = pr.get("ticker")
+        bucket = pr.get("direction_bucket", "HOLD")  # NOT the leaked loop var from the scorer above
+        rpos = risk_by_ticker.get(ticker) if ticker else None
+        cl = cluster_breach.get(pr.get("cluster")) if pr.get("cluster") else None
+        retires_when = None
+        if bucket in ("TRIM", "SELL"):
+            conds = []
+            if rpos and rpos.get("over_cap"):
+                conds.append(f"{ticker} drops under its ATR risk cap")
+            if cl:
+                conds.append(f"{pr.get('cluster')} re-enters its policy band")
+            retires_when = " OR ".join(conds) + " (both must clear -- either alone keeps it open)" if len(conds) > 1 else (conds[0] if conds else None)
+        elif bucket == "BUY" and pr.get("cluster") and cl:
+            retires_when = f"{pr.get('cluster')} re-enters its policy band"
+        pr["retires_when"] = retires_when
+
     proposals["proposals"] = props
     json.dump(proposals, open(p_path + ".tmp", "w"), indent=2)
     os.replace(p_path + ".tmp", p_path)
@@ -1375,6 +1412,135 @@ def cmd_proposals(args):
     emit({"proposals_count": len(props), "superseded_count": len(to_supersede), "changes_made": len(to_supersede),
           "auto_retired_count": len(retired), "auto_retired": retired,
           "open_count": len(open_now), "priority_counts": priority_counts, "written": True})
+
+
+def cmd_stops(args):
+    """Stop-loss efficacy: for every stop-loss trade with a known fill price, measure whether
+    the stop helped or hurt versus simply holding through -- using PRICE, not narrative.
+    Added 2026-08-06 (dashboard feature review): trades.json had 24 stop-loss fills with exact
+    prices and was referenced by the dashboard generator exactly zero times. Manually computed
+    once, this data showed a real, non-obvious pattern: stops that fired in a same-day cluster
+    of 3+ (an "opening cascade" -- market-open liquidity gaps triggering several stops within
+    minutes of each other) recovered +2.82% on average, while deliberate, isolated stops fired
+    mid-session averaged -1.92% (i.e. correctly avoided further downside). This command makes
+    that comparison a standing, auto-updating artifact instead of a one-off calculation.
+
+    Cohort tagging deliberately does NOT hardcode "9:30-9:40 ET" as the open -- that drifts
+    with DST and this book has both US and (via ADRs) implicit Asia-session exposure. Instead:
+    group same-day stop-loss fills that carry a fill_time_utc, and any fill with >=2 OTHER
+    same-day fills within a +/-5-minute window is tagged "cascade"; everything else (isolated
+    fills, or fills lacking a captured time) is "deliberate" or "unknown" respectively. This is
+    the same "typed signal, not text parsing" discipline as the proposals auto-retirement engine.
+
+    --prices-json is a flat {"TICKER": price_usd} map the ORCHESTRATOR must supply (fetched via
+    yfinance at sweep time) for every ticker with an unscored stop -- this script has no network
+    access by design (compute-first: fetching is a judgment/tool-use step, this file is pure
+    arithmetic on data already on disk). A stop whose ticker isn't in the map that run simply
+    stays unscored until a future run supplies it; nothing is silently dropped, see data_quality.
+
+    Output is a standing file at base_dir/stops_analysis.json (NOT run-dir scoped, unlike
+    compute_book.json etc) because run dirs get pruned to the last 10 and this needs the FULL
+    trade history to be useful -- recomputed from scratch each call, so pruning is harmless.
+    """
+    trades = load_json(os.path.join(args.base_dir, "trades.json"), default={"trades": []})
+    prices = load_json(args.prices_json, default={}) if args.prices_json else {}
+    today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+
+    all_stops = [t for t in trades.get("trades", []) if t.get("reason") == "stop-loss"]
+    no_fill_price = [t for t in all_stops if not t.get("price_at_trade")]
+    candidates = [t for t in all_stops if t.get("price_at_trade")]
+
+    # -- cohort tagging: cluster same-day fills within a +/-5-minute window --
+    by_date = {}
+    for t in candidates:
+        by_date.setdefault(t.get("date"), []).append(t)
+    cohort = {}  # id(trade) -> "cascade" | "deliberate" | "unknown"
+    for d, day_trades in by_date.items():
+        timed = [t for t in day_trades if t.get("fill_time_utc")]
+        for t in day_trades:
+            if not t.get("fill_time_utc"):
+                cohort[id(t)] = "unknown"
+                continue
+            try:
+                t_dt = datetime.strptime(t["fill_time_utc"], "%Y-%m-%dT%H:%M:%SZ")
+            except ValueError:
+                cohort[id(t)] = "unknown"
+                continue
+            nearby = 0
+            for o in timed:
+                if o is t:
+                    continue
+                try:
+                    o_dt = datetime.strptime(o["fill_time_utc"], "%Y-%m-%dT%H:%M:%SZ")
+                except ValueError:
+                    continue
+                if abs((t_dt - o_dt).total_seconds()) <= 300:
+                    nearby += 1
+            cohort[id(t)] = "cascade" if nearby >= 2 else "deliberate"
+
+    scored, unscored_missing_price = [], []
+    for t in candidates:
+        ticker = t.get("ticker")
+        fill = t.get("price_at_trade")
+        now = prices.get(ticker)
+        if now is None:
+            unscored_missing_price.append(ticker)
+            continue
+        try:
+            trade_date = datetime.strptime(t.get("date", ""), "%Y-%m-%d").date()
+            days_since = (today - trade_date).days
+        except ValueError:
+            days_since = None
+        move_pct = round((now - fill) / fill * 100, 2)
+        qty_abs = abs(t.get("qty_change") or 0)
+        dollar_impact = round((now - fill) * qty_abs, 2)
+        verdict = "hurt" if move_pct > 1.0 else ("saved" if move_pct < -1.0 else "flat")
+        scored.append({
+            "ticker": ticker, "date": t.get("date"), "fill_time_utc": t.get("fill_time_utc"),
+            "days_since": days_since, "fill_price": fill, "price_now": now,
+            "move_pct": move_pct, "qty": qty_abs, "dollar_impact": dollar_impact,
+            "verdict": verdict, "cohort": cohort.get(id(t), "unknown"),
+        })
+    scored.sort(key=lambda r: r.get("date") or "", reverse=True)
+
+    def summarize(rows):
+        if not rows:
+            return None
+        n = len(rows)
+        avg_move = round(sum(r["move_pct"] for r in rows) / n, 2)
+        net_impact = round(sum(r["dollar_impact"] for r in rows), 2)
+        saved = sum(1 for r in rows if r["verdict"] == "saved")
+        hurt = sum(1 for r in rows if r["verdict"] == "hurt")
+        win_rate = round(saved / (saved + hurt) * 100, 1) if (saved + hurt) else None
+        return {"count": n, "avg_move_pct": avg_move, "net_dollar_impact": net_impact,
+                "saved": saved, "hurt": hurt, "flat": n - saved - hurt, "win_rate_pct": win_rate}
+
+    overall = summarize(scored)
+    by_cohort = {c: summarize([r for r in scored if r["cohort"] == c])
+                 for c in ("cascade", "deliberate", "unknown")}
+    by_cohort = {k: v for k, v in by_cohort.items() if v}
+
+    dq = []
+    if no_fill_price:
+        dq.append(f"{len(no_fill_price)} stop-loss trades have no captured fill price "
+                   f"(pre-dates live email capture, G26) and can never be scored: "
+                   + ", ".join(sorted({t['ticker'] for t in no_fill_price})))
+    if unscored_missing_price:
+        dq.append(f"{len(set(unscored_missing_price))} tickers had no current price supplied "
+                   f"this run, stays unscored until provided: " + ", ".join(sorted(set(unscored_missing_price))))
+    untimed = sum(1 for r in scored if r["cohort"] == "unknown")
+    if untimed:
+        dq.append(f"{untimed} scored stops lack a fill_time_utc so cannot be cohort-tagged "
+                   "(pre-dates the 2026-08-06 timestamp backfill)")
+
+    out = {
+        "as_of": today.isoformat(), "overall": overall, "by_cohort": by_cohort,
+        "stops": scored, "data_quality": dq,
+    }
+    out_path = args.out or os.path.join(args.base_dir, "stops_analysis.json")
+    json.dump(out, open(out_path + ".tmp", "w"), indent=2)
+    os.replace(out_path + ".tmp", out_path)
+    emit({"written": out_path, "scored_count": len(scored), "overall": overall, "by_cohort": by_cohort})
 
 
 def cmd_dismiss(args):
@@ -1646,12 +1812,18 @@ def main():
     sp.add_argument("--id", required=True, help="stable proposal id, e.g. P-014")
     sp.add_argument("--reason", default=None, help="optional free-text note on why the user dismissed it")
 
+    sp = sub.add_parser("stops")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--prices-json", required=True, help='{"TICKER":price_usd} for tickers with an unscored stop')
+    sp.add_argument("--today", default=None)
+    sp.add_argument("--out", default=None, help="default: base_dir/stops_analysis.json")
+
     args = p.parse_args()
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
-         "dismiss": cmd_dismiss}[args.cmd](args)
+         "dismiss": cmd_dismiss, "stops": cmd_stops}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")
 

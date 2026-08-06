@@ -54,7 +54,7 @@ Compare today against state.json's `us_market_holidays` list (seeded at first ru
    - portfolio value within ±15% of the last ledger row unless compute_book.json's qty_changes explains it (real flows/corporate actions) — a >15% unexplained jump is more likely a bad price feed than a real move
 2. TICKER RESOLUTION (never infer a ticker from a holding's name): look up each holding's name in `state.json.data_cache.ticker_map` (name → ticker, long TTL). For any name not in the cache, resolve it properly — a real ticker-lookup tool or a yfinance symbol search, never a guessed abbreviation — cache the result, and add a one-line "new ticker auto-resolved: NAME → TICKER, verify" flag to this run's briefing. This is the control that prevents a repeat of the 2026-07-13 MEM/DRAM mislabeling incident (an inferred ticker silently pointed at the wrong instrument for a run).
 2.5. PRE-MARKET PRICE OVERLAY (confirmed 2026-07-20, closes most of G3): US pre-market runs from 4am ET, which is 1:30pm IST on standard EDT offset — a full hour before this skill's own 2:30pm IST daily trigger. Whenever `market_session` is `pre-open` (or `intraday`/`post-close` before the close print lands) AND current time is at/after 1:30pm IST, do not trust networth_holdings' per-position price as current — it reflects the prior regular-session close until the US cash session actually prints. Instead, call `get_us_stocks_details` (INDmoney; batch in groups of ≤10 symbols, the tool's own hard cap) for every holding and use its `ext_hr_live_price` field (extended-hours/pre-market price) in place of the snapshot's price for that position's `market_value_inr` in `holdings.json` — cite `ext_hr_live_price` + `ext_hr_prev_close` so the delta is auditable. Cross-validated 2026-07-20 against FMP's `batch-aftermarket-quote` (bid/ask) on 5 names, agreement within cents — that endpoint is an acceptable second-source spot-check if `get_us_stocks_details` looks suspect, not a required double-fetch every run. This still does not fix the AGGREGATE `networth_snapshot`/`networth_holdings` totals themselves (those lag independently) — the per-name overlay is layered on top of the existing STALENESS GATE live-quote crosscheck in the HARD RULES, it doesn't replace it.
-3. Create the run directory `runs/<YYYY-MM-DD-HHMM>/` and write `holdings.json` (resolved-ticker rows + usdinr + macro_strip + benchmarks + market_session).
+3. Create the run directory `runs/<YYYY-MM-DD-HHMM>/` and write `holdings.json` (resolved-ticker rows + usdinr + macro_strip + benchmarks + market_session). Each row in `holdings_inr` MAY carry an optional `day_chg_pct` (added 2026-08-06 — a per-position day-change percentage from a live-quote overlay, e.g. yfinance `changePct`; INDmoney's own `networth_holdings` snapshot has no day-change field, only invested-vs-current). `smith_math.py book` aggregates any rows that carry it into `day_chg_pct_weighted`, renormalized to only the positions supplying it — a partial overlay degrades gracefully rather than either crashing or silently understating the true day move. Omit the field entirely on a run that didn't fetch live quotes (e.g. an INDmoney-row-only rebuild) and the dashboard's "Today" status-strip cell simply doesn't render that run, rather than showing a stale number.
 4. Run the compute script for every subcommand and save each result into the run directory:
    - `python3 scripts/smith_math.py book --run-dir runs/<ts> --lots lots.json` → `compute_book.json`
    - `python3 scripts/smith_math.py journal --run-dir runs/<ts>` → `compute_journal.json`
@@ -203,33 +203,55 @@ dropped four SVG charts and the entire Diagnostics tier, regressing work done in
 diff the new file against the last published version: if section count or byte size falls materially, you are deleting
 someone's work — stop and merge instead of overwriting.** The dashboard is cumulative; sections are added, not replaced.
 
-REQUIRED SECTIONS (a rebuild missing any of these is incomplete — revised 2026-07-29, G34: the prior list described an
-older, leaner 3-tier design; this one matches what the generator actually produces now):
-- Masthead · Status strip (6 cells: total book, equity, cash%+band, drawdown, open risk%+cap, AI-capex%)
+REQUIRED SECTIONS (a rebuild missing any of these is incomplete — revised 2026-08-06, dashboard feature review: added
+stop-loss efficacy, P&L/day-change, factor themes, diversifier bench, LTCG watch, execution log, data-quality caveats,
+and forward-looking proposal retirement text; the 2026-07-29/G34 list below this line predates those):
+- Masthead · Status strip, **8 cells when the run supplies the data, 6 minimum**: total book, equity, **P&L%** (from
+  `compute_book.json`'s `pnl_pct`, INDmoney's own invested-vs-current — renders only when non-null), **Today**
+  (`day_chg_pct_weighted`, a book-weighted day-change — renders only when the run's `holdings.json` rows carried a
+  `day_chg_pct` overlay; see §2's holdings.json schema note), cash%+band, drawdown, open risk%+cap,
+  AI-capex%
 - Decisions tier: open proposals, **grouped into collapsible HIGH/MEDIUM/LOW priority `<details>` sections**
   (added 2026-08-03, G47 — see §7's proposals.json entry for the deterministic scoring rule; HIGH starts expanded,
   MEDIUM/LOW start collapsed), each row carrying a BUY/TRIM/SELL/HOLD color badge on BOTH the action label and the
   dollar amount (same visual language as the factor-catalyst TAILWIND/THREAT/AMBIGUOUS badges) plus its cluster tag
   in the left label column, while its stable `id` and (when repeated) "recommended N&times; since DATE" sit as a
   small meta line under the rationale in the middle column, not stacked in the left column — keeping that column
-  a fixed narrow width regardless of how much repeat/id metadata a proposal carries
-  · factor catalysts · **rotation analysis** (accumulate / rotate out / trim — risk cap,
-  rule-based per `scripts/smith_risk.py`'s `SIGNAL_POLARITY` table) · the read · macro strip (10-yr, VIX, SMH, worst
+  a fixed narrow width regardless of how much repeat/id metadata a proposal carries. Since 2026-08-06 each surviving
+  row also carries `still_valid_because` (live, recomputed reasons), `review_flags` (price drifted ≥10% since
+  proposed — re-size before acting), and a forward-looking `retires_when` line ("MRVL drops under its ATR risk cap")
+  so the auto-retirement logic in §7's proposals.json entry reads as legible, not mysterious
+  · factor catalysts · **factor themes** (added 2026-08-06 — the standing structural watch list each catalyst gets
+  checked against; companion to catalysts above, which are event-driven) · **diversifier bench** (added 2026-08-06 —
+  smith-scout's priced non-AI-capex candidates from `state.diversifier_candidates`, green chip = clean diversifier,
+  amber = has AI-adjacent overlap; not a proposal to buy, a bench of what a real hedge would look like) ·
+  **rotation analysis** (accumulate / rotate out / trim — risk cap, rule-based per `scripts/smith_risk.py`'s
+  `SIGNAL_POLARITY` table) · **de-risk queue** (ranked fragility × stretch × friction, shadow-scored, see 2.9c) ·
+  **stop-loss efficacy** (added 2026-08-06 — see the `stops` subcommand note in §6; cascade-vs-deliberate cohort
+  comparison of every stop-loss fill against its current price) · the read · macro strip (10-yr, VIX, SMH, worst
   Asia index, Fed, beta vs SMH)
 - Sentiment gauge + intraday & international session (side by side)
 - The week ahead (earnings/FOMC calendar, 6 days forward)
 - Book composition tier: **allocation treemap** (squarified, color by cluster, red outline = over risk cap) ·
-  clusters (equity% and book% side by side, target-band meter) · **de-risk queue** (ranked fragility ×
-  stretch × friction, shadow-scored, see 2.9c) · **risk-cap breaches** (from `compute_risk.json`'s
-  real ATR-based caps, not a qualitative flag match) · full positions table (ticker, cluster, qty, price, value,
-  weight, ATR20, beta, stop, stop price, cap, headroom)
-- Diagnostics tier, collapsed: thesis map (grouped by status) · signal history (grouped bullish/bearish, struck-through
-  for no-longer-held tickers) · open (non-closed) data gaps · **Historical charts** (the 4 original SVG charts —
-  book value & cash, drawdown ladder, book vs SMH, weights vs cap — as their own collapsed panel, not the always-open
-  KPI tier those used to live in)
+  clusters (equity% and book% side by side, target-band meter) · risk-cap breaches (from `compute_risk.json`'s
+  real ATR-based caps, not a qualitative flag match) · **LTCG watch** (added 2026-08-06 — lots within 6 months of
+  the policy's LTCG boundary from `compute_book.json`'s `ltcg_flags`; an empty result renders an explicit "clear"
+  pill, not a vanished section, since the empty state is itself a real, positive statement) · full positions table
+  (ticker, cluster, qty, price, value, weight, ATR20, beta, stop, stop price, cap, headroom)
+- Diagnostics tier, collapsed: thesis map (grouped by status, **filtered to currently-held tickers only** — fixed
+  2026-08-06 after the panel claimed "36 held" while the book held 28; stale theses for exited names stay in
+  `state.thesis` for history but no longer render as if current) · signal history (grouped bullish/bearish,
+  struck-through for no-longer-held tickers) · open (non-closed) data gaps · **execution log** (added 2026-08-06 —
+  `trades.json`'s full captured-rationale history, most recent 25 shown, "why" not just "what") ·
+  **data quality caveats** (added 2026-08-06 — every compute step's self-reported `data_quality` array plus
+  `state.data_quality`, unioned; a dashboard hiding its own uncertainty invites more trust than the numbers earn) ·
+  **Historical charts** (the 4 original SVG charts — book value & cash, drawdown ladder, book vs SMH, weights vs cap
+  — as their own collapsed panel; the book-value chart now marks every date with scored stop-loss fills, see the
+  `stops` subcommand note in §6 — as their own collapsed panel, not the always-open KPI tier those used to live in)
 
-GENERATED, NOT HAND-WRITTEN (changed 2026-07-26; extended 2026-07-29 per G34). Do NOT author dashboard HTML yourself — the same compute-first rule that governs arithmetic governs the dashboard. Compute pipeline order matters: `book → risk → drift → rotation → sentiment → derisk → proposals → validate` (`risk`, `rotation` and `derisk` are `smith_math.py` subcommands — `risk` needs `compute_book.json` in the run-dir first, `rotation` needs `compute_risk.json`, and `derisk` needs both `compute_risk.json` and `compute_sentiment.json`, so it runs after sentiment). Then run:
-- `python3 scripts/smith_dashboard.py --base-dir .` → rewrites `dashboard.html` from state.json/policy.json/ledger.csv/proposals.json plus `narrative.json`, embedding five inline-SVG charts produced by `scripts/smith_charts.py` (book value + cash stacked area, drawdown-vs-trim-ladder meter, per-period book-vs-SMH diverging bars, position weights vs cap, and the allocation treemap).
+GENERATED, NOT HAND-WRITTEN (changed 2026-07-26; extended 2026-07-29 per G34, and 2026-08-06 with the `stops` step). Do NOT author dashboard HTML yourself — the same compute-first rule that governs arithmetic governs the dashboard. Compute pipeline order matters: `book → risk → drift → rotation → sentiment → derisk → proposals → stops → validate` (`risk`, `rotation` and `derisk` are `smith_math.py` subcommands — `risk` needs `compute_book.json` in the run-dir first, `rotation` needs `compute_risk.json`, and `derisk` needs both `compute_risk.json` and `compute_sentiment.json`, so it runs after sentiment). Then run:
+- `python3 scripts/smith_math.py stops --base-dir . --prices-json <tickers.json> --today <date>` — writes the standing `stops_analysis.json` (NOT run-dir scoped, unlike the others, so run-pruning to the last 10 never loses it). `--prices-json` is a flat `{"TICKER": price_usd}` map YOU must fetch (this script has no network access by design) for every ticker with a stop-loss fill in `trades.json` that isn't already scored — run `python3 scripts/smith_math.py stops --base-dir . --prices-json /dev/null --today <date>` first if unsure which tickers need prices; unscored tickers are listed in the output's `data_quality`, not silently dropped. Skippable if `trades.json` has no new unscored stop-loss fills since the last run (the file is idempotent to re-run with the same prices).
+- `python3 scripts/smith_dashboard.py --base-dir .` → rewrites `dashboard.html` from state.json/policy.json/ledger.csv/proposals.json/trades.json/stops_analysis.json plus `narrative.json`, embedding five inline-SVG charts produced by `scripts/smith_charts.py` (book value + cash stacked area — now with a small red triangle on any date that had a scored stop-loss fill, hover for tickers — drawdown-vs-trim-ladder meter, per-period book-vs-SMH diverging bars, position weights vs cap, and the allocation treemap).
 
 Before running it, write `narrative.json` — `{"session_read": "..."}` — with this run's judgment prose (optional; omit the key and the "the read" panel is skipped). The macro strip next to it is NOT narrative — it's pulled straight from `market_inputs.json`/`state.fomc_cache`/`compute_book.json`, never hand-typed.
 

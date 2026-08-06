@@ -244,6 +244,44 @@ details.pgrp>.body{padding:0 0 4px}
 .pr .lv::before{content:"live ";color:var(--ink-3);font-weight:700;letter-spacing:.06em}
 .pr .rvf{display:block;font-family:var(--mono);font-size:11px;color:var(--warn);
   line-height:1.4;margin-top:5px}
+.pr .rtw{display:block;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);
+  line-height:1.4;margin-top:5px;font-style:italic}
+
+/* ============ stop-loss efficacy ============ */
+.stops-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:4px}
+.stops-sum .c{background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.stops-sum .c .k{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.stops-sum .c .v{font-family:var(--mono);font-size:16px;font-weight:640}
+.stops-sum .c .v.pos{color:var(--good)} .stops-sum .c .v.neg{color:var(--bad)}
+.cohort-row{display:flex;gap:18px;flex-wrap:wrap;padding:9px 0;border-bottom:1px solid var(--line-soft);
+  font-size:12.5px;align-items:baseline}
+.cohort-row:last-child{border-bottom:none}
+.cohort-row b{font-family:var(--mono);text-transform:uppercase;font-size:11px;letter-spacing:.06em;
+  color:var(--ink-2);min-width:82px;display:inline-block}
+.cohort-row .m{color:var(--ink-3)}
+td.verd-hurt{color:var(--bad);font-weight:640} td.verd-saved{color:var(--good);font-weight:640}
+td.verd-flat{color:var(--ink-3)}
+.cohort-tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  padding:1px 5px;border-radius:3px;background:var(--surface-2);color:var(--ink-3)}
+.cohort-tag.cascade{background:var(--bad-soft);color:var(--bad)}
+
+/* ============ execution log ============ */
+.exec-row{display:grid;grid-template-columns:78px 46px 1fr auto;gap:10px;padding:7px 0;
+  border-bottom:1px solid var(--line-soft);align-items:baseline;font-size:12px}
+.exec-row:last-child{border-bottom:none}
+.exec-row .d{font-family:var(--mono);color:var(--ink-3);font-size:11px}
+.exec-row .t{font-family:var(--mono);font-weight:700}
+.exec-row .rsn{color:var(--ink-2)}
+.exec-row .px{font-family:var(--mono);text-align:right}
+.exec-row .px.buy{color:var(--good)} .exec-row .px.sell{color:var(--bad)}
+
+/* ============ LTCG watch ============ */
+.ltcg-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;
+  border-bottom:1px solid var(--line-soft);font-size:12.5px;align-items:baseline}
+.ltcg-row:last-child{border-bottom:none}
+.ltcg-row .past{color:var(--bad);font-weight:640}
+.ltcg-row .soon{color:var(--warn);font-weight:640}
 
 /* ============ factor catalysts ============ */
 .ci{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
@@ -357,7 +395,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direc
 """
 
 
-def status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift):
+def status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift, book_compute):
     ai_capex_pct = drift.get("ai_capex_pct")
     prior_ai = drift.get("ai_capex_pct_prior")  # optional, not always present
     open_risk_pct = risk.get("aggregate_open_risk_pct")
@@ -367,6 +405,21 @@ def status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift):
     cells = []
     cells.append(("", "Total book", f'${(us.get("value_usd",0) or 0)+(us.get("wallet_usd",0) or 0):,.0f}', "equity + wallet"))
     cells.append(("", "Equity", f'${us.get("value_usd",0) or 0:,.0f}', f'{us.get("count","-")} positions'))
+    # P&L / day-change (added 2026-08-06, dashboard feature review: the status strip had six
+    # cells and NONE of them was return -- book/cash/drawdown/risk/AI-capex all describe the
+    # book's shape, nothing said how it's doing). pnl_pct is INDmoney's own invested-vs-current
+    # aggregate (compute_book.json, already computed, never rendered). day_chg_pct_weighted is
+    # optional -- only present when the run's holdings.json carried a day_chg_pct per position
+    # (a live-quote overlay, not always fetched) -- so this cell simply doesn't render rather
+    # than showing a stale or fabricated number when that data wasn't gathered this run.
+    pnl_pct = book_compute.get("pnl_pct")
+    if pnl_pct is not None:
+        cells.append(("okc" if pnl_pct >= 0 else "flag", "P&L",
+                      f'{pnl_pct:+.2f}%', "vs invested"))
+    day_chg = book_compute.get("day_chg_pct_weighted")
+    if day_chg is not None:
+        cells.append(("okc" if day_chg >= 0 else "flag", "Today",
+                      f'{day_chg:+.2f}%', "book-weighted"))
     cells.append(("okc" if not cash_breach else "flag", "Cash",
                   f'{cash_pct:.1f}%', f'band [{cash_band[0]},{cash_band[1]}]'))
     cells.append(("flag" if abs(dd) >= 15 else "", "Drawdown", f'{dd:.2f}%',
@@ -388,6 +441,8 @@ def build(base, out):
     policy = load(os.path.join(base, "policy.json"), {}) or {}
     props = load(os.path.join(base, "proposals.json"), {}) or {}
     narr = load(os.path.join(base, "narrative.json"), {}) or {}
+    stops_data = load(os.path.join(base, "stops_analysis.json"), {}) or {}
+    trades_data = load(os.path.join(base, "trades.json"), {}) or {}
     ch = charts(base)
 
     last_run_dir = state.get("last_run_dir", "")
@@ -439,7 +494,7 @@ def build(base, out):
              f'<br>USD/INR {us.get("usdinr","-")} &middot; stops on ATR20 &middot; betas vs SMH</div></header>')
 
     # ---------------- status strip ----------------
-    H.append(status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift))
+    H.append(status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift, book_compute))
 
     # ================= TIER: DECISIONS =================
     H.append('<div class="tier"><h2>Decisions</h2><div class="ln"></div></div>')
@@ -489,9 +544,14 @@ def build(base, out):
                       and f'<span class="lives">{"".join(f"<span class=\"lv\">{esc(x)}</span>" for x in live)}</span>')
             flags = p.get("review_flags") or []
             flag_s = "".join(f'<span class="rvf">&#9888;&#65039; {esc(x)}</span>' for x in flags)
+            # forward-looking retirement condition (added 2026-08-06, same change) -- the
+            # inverse of still_valid_because: what specifically has to happen for this row to
+            # auto-retire on a future run. Makes the automation legible, not just present.
+            retires = p.get("retires_when")
+            retires_s = f'<span class="rtw">retires when: {esc(retires)}</span>' if retires else ""
             return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
                     f'{esc(p.get("action",""))}{clus_s}</span>'
-                    f'<span class="why">{esc(short)}{more}{live_s}{flag_s}{meta}</span>'
+                    f'<span class="why">{esc(short)}{more}{live_s}{flag_s}{retires_s}{meta}</span>'
                     f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
 
         # -- grouped by priority (HIGH first), computed by smith_math.py's `proposals`
@@ -534,6 +594,47 @@ def build(base, out):
                         f'<div class="aa">{esc(affects)}{exp_s}</div></div></div>')
         H.append('<section class="panel"><div class="phead"><h2>Factor catalysts</h2></div>'
                  f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
+
+    # -- factor themes (added 2026-08-06, dashboard feature review). Standing structural view,
+    # companion to Factor catalysts above: catalysts are event-driven (this week's news),
+    # themes are the persistent watch list each catalyst gets checked against. state.factor_themes
+    # was populated and updated every run by smith-catalyst and rendered nowhere.
+    themes = (state.get("factor_themes") or {}).get("themes", [])
+    if themes:
+        rows = []
+        for th in themes[:8]:
+            maps = " &middot; ".join(th.get("maps_to", [])[:10])
+            live_keys = sorted([k for k in th if k.startswith("live_")], reverse=True)
+            latest_live = th.get(live_keys[0]) if live_keys else None
+            live_s = (f'<div class="mm">{esc(latest_live)}</div>' if latest_live else "")
+            rows.append(f'<div class="ci"><span class="cb AMBIGUOUS">WATCH</span><div>'
+                        f'<div class="hh">{esc(th.get("name",""))}</div>'
+                        f'<div class="mm" style="font-style:italic">{esc(th.get("watch",""))}</div>'
+                        f'{live_s}<div class="aa">{esc(maps)}</div></div></div>')
+        H.append('<section class="panel"><div class="phead"><h2>Factor themes'
+                 '<span class="sub">the standing watch list catalysts get checked against</span></h2></div>'
+                 f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
+
+    # -- diversifier bench (added 2026-08-06, dashboard feature review). smith-scout's bench of
+    # non-AI-capex candidates, priced every run, rendered nowhere -- for a book whose mandate is
+    # explicitly a concentrated single-factor bet, the list of what a genuine hedge would even
+    # look like is directly relevant, not a footnote.
+    divs = {k: v for k, v in (state.get("diversifier_candidates") or {}).items()
+            if v.get("status") == "active"}
+    if divs:
+        rows = sorted(divs.items(), key=lambda kv: -(kv[1].get("upside_pct") or 0))
+        chips = "".join(
+            f'<span class="rchip {"g" if v.get("clean_diversifier") else "w"}" '
+            f'title="{esc(v.get("thesis",""))} | target ${v.get("target_usd","-")} '
+            f'({v.get("upside_pct","-")}% upside)">{esc(tk)}<i>{v.get("upside_pct","-")}%</i></span>'
+            for tk, v in rows)
+        H.append('<section class="panel"><div class="phead"><h2>Diversifier bench'
+                 '<span class="sub">non-AI-capex candidates, not held</span></h2>'
+                 '<span class="pill">green = clean diversifier &middot; amber = has AI-adjacent overlap</span>'
+                 f'</div><div class="pbody"><div class="chips">{chips}</div>'
+                 '<p class="note">Priced by smith-scout each deep run; not a proposal to buy, a bench '
+                 'of what a genuine hedge to this book\'s single-factor concentration would look like.</p>'
+                 '</div></section>')
 
     # -- rotation analysis --
     rtickers = rotation.get("tickers", {})
@@ -630,6 +731,69 @@ def build(base, out):
             'top names to derisk_journal.json and scores them at 30/90d. It earns a vote in sizing '
             'decisions only once it has a real hit rate.'
             '</div></details></div></section>')
+
+    # -- stop-loss efficacy (added 2026-08-06, dashboard feature review) --
+    # trades.json had 24 stop-loss fills with exact prices and was referenced by this generator
+    # zero times. The computation (smith_math.py cmd_stops, writes stops_analysis.json) measures
+    # whether each stop helped or hurt vs simply holding through, split into "cascade" (3+ stops
+    # firing within a 5-minute window -- typically a market-open liquidity gap) vs "deliberate"
+    # (isolated, mid-session) cohorts. First real finding from this: cascade-fired stops in this
+    # book have recovered on average, deliberate ones have on average correctly avoided further
+    # downside -- exactly the kind of pattern that stays invisible without a standing panel.
+    overall = stops_data.get("overall")
+    if overall:
+        by_cohort = stops_data.get("by_cohort") or {}
+        rows_s = stops_data.get("stops") or []
+
+        def cohort_line(name, label):
+            c = by_cohort.get(name)
+            if not c:
+                return ""
+            sign = "pos" if c["net_dollar_impact"] <= 0 else "neg"  # negative $ impact = stop SAVED money
+            return (f'<div class="cohort-row"><b>{esc(label)}</b>'
+                    f'<span>{c["count"]} stops, avg {c["avg_move_pct"]:+.1f}% since fill</span>'
+                    f'<span class="{sign}">${c["net_dollar_impact"]:+,.0f} net</span>'
+                    f'<span class="m">{c["saved"]} saved &middot; {c["hurt"]} hurt'
+                    + (f' &middot; {c["flat"]} flat' if c.get("flat") else "") + '</span></div>')
+
+        net_cls = "pos" if overall["net_dollar_impact"] <= 0 else "neg"
+        summary_cells = (
+            f'<div class="stops-sum">'
+            f'<div class="c"><span class="k">Scored</span><span class="v">{overall["count"]}</span></div>'
+            f'<div class="c"><span class="k">Win rate</span><span class="v">'
+            f'{overall["win_rate_pct"]:.0f}%</span></div>' if overall.get("win_rate_pct") is not None else
+            f'<div class="stops-sum"><div class="c"><span class="k">Scored</span><span class="v">{overall["count"]}</span></div>')
+        summary_cells += (f'<div class="c"><span class="k">Net impact</span>'
+                          f'<span class="v {net_cls}">${overall["net_dollar_impact"]:+,.0f}</span></div>'
+                          f'<div class="c"><span class="k">Avg move</span>'
+                          f'<span class="v">{overall["avg_move_pct"]:+.1f}%</span></div></div>')
+
+        cohort_rows = (cohort_line("cascade", "Cascade") + cohort_line("deliberate", "Deliberate")
+                      + cohort_line("unknown", "Untimed"))
+
+        recent_rows = "".join(
+            f'<tr><td class="name">{esc(r["ticker"])}</td><td class="blank">{esc(r["date"])}</td>'
+            f'<td>${r["fill_price"]:,.2f}</td><td>${r["price_now"]:,.2f}</td>'
+            f'<td class="{"pos" if r["move_pct"]>=0 else "neg"}">{r["move_pct"]:+.1f}%</td>'
+            f'<td class="verd-{r["verdict"]}">{r["verdict"].upper()}</td>'
+            f'<td><span class="cohort-tag {r["cohort"]}">{esc(r["cohort"])}</span></td></tr>'
+            for r in rows_s[:12])
+
+        dq_s = ("".join(f'<p class="note">{esc(x)}</p>' for x in (stops_data.get("data_quality") or [])))
+
+        H.append(
+            '<section class="panel"><div class="phead"><h2>Stop-loss efficacy'
+            '<span class="sub">did the stop help or hurt, vs simply holding through</span></h2>'
+            f'<span class="pill">as of {esc(stops_data.get("as_of",""))}</span></div>'
+            f'<div class="pbody">{summary_cells}<div>{cohort_rows}</div>'
+            '<div class="scroll"><table><thead><tr><th>Name</th><th>Date</th><th>Fill</th>'
+            '<th>Now</th><th>Move</th><th>Verdict</th><th>Cohort</th></tr></thead>'
+            f'<tbody>{recent_rows}</tbody></table></div>'
+            '<p class="note"><b>Cascade</b> = 3+ stops fired within a 5-minute window (typically '
+            'a market-open liquidity gap). <b>Deliberate</b> = an isolated, mid-session stop. '
+            '<b>Verdict</b>: HURT means the price is now above the fill (holding through would '
+            'have been worth more); SAVED means it fell further after the stop fired.</p>'
+            f'{dq_s}</div></section>')
 
     # -- the read + macro strip --
     session_text = narr.get("session_read")
@@ -815,6 +979,32 @@ def build(base, out):
     if clusters_html or riskcap_html:
         H.append(f'<div class="grid2">{clusters_html}{riskcap_html}</div>')
 
+    # -- LTCG watch (added 2026-08-06, dashboard feature review). compute_book.json computes
+    # ltcg_flags every run from lots.json (now fully populated with email-confirmed dates) and
+    # renders nowhere, despite `friction` in the De-risk queue already consuming it internally.
+    # Only lots within 6 months of the 24-month LTCG boundary are flagged by the compute step,
+    # so an empty list here is a real, positive statement ("nothing near the boundary"), not a
+    # missing feature -- rendered as such rather than the section silently vanishing.
+    ltcg_flags = book_compute.get("ltcg_flags", [])
+    ltcg_months = load(os.path.join(base, "policy.json"), {}).get("ltcg_boundary_months", 24)
+    if ltcg_flags:
+        rows = "".join(
+            f'<div class="ltcg-row"><span>{esc(f["ticker"])} &middot; {f.get("qty","-")}sh</span>'
+            f'<span class="{"past" if f["months_to_ltcg"]<=0 else "soon"}">'
+            f'{("past boundary by " + str(abs(f["months_to_ltcg"])) + "mo") if f["months_to_ltcg"]<=0 else (str(f["months_to_ltcg"]) + "mo to go")}'
+            f'</span></div>'
+            for f in sorted(ltcg_flags, key=lambda f: f["months_to_ltcg"]))
+        H.append(f'<section class="panel"><div class="phead"><h2>LTCG watch'
+                 f'<span class="sub">lots within 6mo of the {ltcg_months}-month boundary</span></h2>'
+                 f'<span class="pill w">{len(ltcg_flags)} lots</span></div>'
+                 f'<div class="pbody">{rows}</div></section>')
+    elif os.path.exists(os.path.join(base, "lots.json")):
+        H.append(f'<section class="panel"><div class="phead"><h2>LTCG watch'
+                 f'<span class="sub">lots within 6mo of the {ltcg_months}-month boundary</span></h2>'
+                 '<span class="pill g">clear</span></div>'
+                 '<div class="pbody"><p class="note">No lot sits within 6 months of the '
+                 f'{ltcg_months}-month LTCG boundary right now.</p></div></section>')
+
     risk_by_ticker = {r["ticker"]: r for r in risk.get("positions", [])}
     holdings = sorted(state.get("holdings", []), key=lambda h: -(h.get("weight_pct") or 0))
     if holdings:
@@ -871,7 +1061,13 @@ def build(base, out):
     H.append('<div class="t3">')
 
     # -- thesis map, grouped by status --
-    thesis = state.get("thesis", {})
+    # FIXED 2026-08-06 (dashboard feature review, user-reported): thesis carries entries for
+    # every ticker EVER analysed, including names exited long ago (the panel was captioned
+    # "36 held" while the book held 28 -- eight of those theses were for EWY/COHR/ARM/GOOG/
+    # NBIS/IREN/GLW/QBTS, several exited that very morning). Filter to currently-held tickers
+    # so the count and the map are both actually true; stale entries simply age out of view
+    # here rather than needing manual pruning from state.json (they stay there for history).
+    thesis = {tk: v for tk, v in (state.get("thesis") or {}).items() if tk in held_tickers}
     if thesis:
         groups = {"strengthening": [], "watch": [], "broken": []}
         other = []
@@ -902,7 +1098,7 @@ def build(base, out):
                 for tk, body in sorted(other))
             blocks.append(f'<div class="grp-h">Other</div>'
                           f'<div class="chips" style="margin-bottom:12px">{chips}</div>')
-        H.append(f'<details><summary>Thesis map<span class="c">{len(thesis)} held</span></summary>'
+        H.append(f'<details><summary>Thesis map<span class="c">{len(thesis)} of {len(held_tickers)} held</span></summary>'
                  f'<div class="body">{"".join(blocks)}'
                  f'<p class="note" style="margin-top:8px">Hover any ticker for its thesis.</p></div></details>')
 
@@ -946,6 +1142,43 @@ def build(base, out):
                        f'<span style="font-size:12.5px;color:var(--ink-2)">{esc(g.get("description",""))[:280]}</span></div>'
                        for g in gaps)
         H.append(f'<details><summary>Open data gaps<span class="c">{len(gaps)} open</span></summary>'
+                 f'<div class="body">{rows}</div></details>')
+
+    # -- execution log (added 2026-08-06, dashboard feature review). trades.json holds 61
+    # trades with captured rationale ("why", not just "what") and had never been rendered.
+    exec_trades = sorted(trades_data.get("trades", []), key=lambda t: t.get("date") or "", reverse=True)
+    if exec_trades:
+        rows = []
+        for t in exec_trades[:25]:
+            act = (t.get("action") or "").upper()
+            side = "sell" if act in ("EXIT", "TRIM", "SELL") else "buy"
+            price = t.get("price_at_trade")
+            price_s = f'${price:,.2f}' if price is not None else "&mdash;"
+            qty = t.get("qty_change")
+            qty_s = f'{qty:+g}sh' if qty is not None else ""
+            rows.append(f'<div class="exec-row"><span class="d">{esc(t.get("date",""))}</span>'
+                        f'<span class="t">{esc(act)}</span>'
+                        f'<span class="rsn"><b>{esc(t.get("ticker",""))}</b> {qty_s} &middot; '
+                        f'{esc((t.get("reason") or "").replace("-"," "))}</span>'
+                        f'<span class="px {side}">{price_s}</span></div>')
+        H.append(f'<details><summary>Execution log<span class="c">{len(exec_trades)} trades, '
+                 f'most recent 25 shown</span></summary><div class="body">{"".join(rows)}'
+                 '<p class="note" style="margin-top:8px">Every entry carries the rationale '
+                 'captured at the time -- hover the notes in trades.json for the full text.</p>'
+                 '</div></details>')
+
+    # -- data quality (added 2026-08-06, dashboard feature review). Every compute step already
+    # self-reports its own caveats (stale feeds, defaulted betas, missing coverage) into
+    # data_quality arrays that were computed and never surfaced -- a dashboard that hides its
+    # own uncertainty invites more trust in a number than the number earns.
+    dq_all = list(state.get("data_quality") or [])
+    for src in (book_compute, risk, drift, derisk):
+        dq_all.extend(src.get("data_quality") or [])
+    if dq_all:
+        rows = "".join(f'<div class="srow"><span class="slab"></span>'
+                       f'<span style="font-size:12.5px;color:var(--ink-2)">{esc(x)}</span></div>'
+                       for x in dq_all)
+        H.append(f'<details><summary>Data quality caveats<span class="c">{len(dq_all)} this run</span></summary>'
                  f'<div class="body">{rows}</div></details>')
 
     H.append('</div>')  # /t3

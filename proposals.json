@@ -630,14 +630,15 @@
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "VRT at 1.68x its ATR risk cap"
+        "VRT at 1.65x its ATR risk cap"
       ],
       "cluster": "AI Power/Cooling/DC Infra",
       "still_valid_because": [
-        "VRT at 1.68x its ATR risk cap"
+        "VRT at 1.65x its ATR risk cap"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-06"
+      "revalidated_on": "2026-08-06",
+      "retires_when": "VRT drops under its ATR risk cap"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -653,14 +654,15 @@
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "NVDA at 1.23x its ATR risk cap"
+        "NVDA at 1.20x its ATR risk cap"
       ],
       "cluster": "AI Semis/Fabs",
       "still_valid_because": [
-        "NVDA at 1.23x its ATR risk cap"
+        "NVDA at 1.20x its ATR risk cap"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-06"
+      "revalidated_on": "2026-08-06",
+      "retires_when": "NVDA drops under its ATR risk cap"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -924,20 +926,21 @@
       "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
-        "MRVL at 2.37x its ATR risk cap",
+        "MRVL at 2.36x its ATR risk cap",
         "recommended 3x, still unactioned"
       ],
       "cluster": "AI Networking/Optics",
-      "price_now": 211.4,
-      "price_drift_pct": 12.45,
+      "price_now": 210.85,
+      "price_drift_pct": 12.16,
       "still_valid_because": [
-        "MRVL at 2.37x its ATR risk cap",
+        "MRVL at 2.36x its ATR risk cap",
         "recommended 3x, still unactioned"
       ],
       "review_flags": [
-        "price has moved +12.5% since proposed ($187.99 -> $211.40) -- re-size before acting"
+        "price has moved +12.2% since proposed ($187.99 -> $210.85) -- re-size before acting"
       ],
-      "revalidated_on": "2026-08-06"
+      "revalidated_on": "2026-08-06",
+      "retires_when": "MRVL drops under its ATR risk cap"
     },
     {
       "date": "2026-08-04T18:20:00+05:30",
@@ -1303,14 +1306,15 @@
         "recommended 5x, still unactioned"
       ],
       "cluster": "AI Memory/Storage",
-      "price_now": 53.74,
-      "price_drift_pct": -1.86,
+      "price_now": 53.7,
+      "price_drift_pct": -1.94,
       "still_valid_because": [
         "DRAM at 1.48x its ATR risk cap",
         "recommended 5x, still unactioned"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-06"
+      "revalidated_on": "2026-08-06",
+      "retires_when": "DRAM drops under its ATR risk cap"
     },
     {
       "action": "Stage GOOGL (token, conditional on stabilization above ~$365, not today)",
@@ -1326,18 +1330,19 @@
       "priority_score": 4,
       "priority": "HIGH",
       "priority_reasons": [
-        "Compute/Hyperscaler under band (-7.9pt)",
-        "cash in excess at 25.3% vs a [5,15]% band -- deploying is the live problem, not raising more"
+        "Compute/Hyperscaler under band (-5.2pt)",
+        "cash in excess at 20.5% vs a [5,15]% band -- deploying is the live problem, not raising more"
       ],
       "cluster": "Compute/Hyperscaler",
-      "price_now": 363.05,
-      "price_drift_pct": 0.22,
+      "price_now": 362.14,
+      "price_drift_pct": -0.03,
       "still_valid_because": [
-        "Compute/Hyperscaler under band (-7.9pt)",
-        "cash in excess at 25.3% vs a [5,15]% band -- deploying is the live problem, not raising more"
+        "Compute/Hyperscaler under band (-5.2pt)",
+        "cash in excess at 20.5% vs a [5,15]% band -- deploying is the live problem, not raising more"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-06"
+      "revalidated_on": "2026-08-06",
+      "retires_when": "Compute/Hyperscaler re-enters its policy band"
     }
   ],
   "retracted": [

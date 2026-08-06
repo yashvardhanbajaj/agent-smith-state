@@ -134,10 +134,30 @@ def nice_ceil(x):
 #    shows total book AND the cash proportion without a second scale, which is
 #    why it beats a dual-axis value/cash% chart.
 # ---------------------------------------------------------------------------
+def load_stops_by_date(base):
+    """date -> [ticker,...] for every scored stop-loss fill, from stops_analysis.json (see
+    smith_math.py cmd_stops). Added 2026-08-06 so the book-value chart can mark the session a
+    stop cascade fired -- seeing several stops cluster on one candle is worth more than reading
+    it off a table."""
+    p = os.path.join(base, "stops_analysis.json")
+    if not os.path.exists(p):
+        return {}
+    try:
+        d = json.load(open(p))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    by_date = {}
+    for r in d.get("stops", []):
+        if r.get("date"):
+            by_date.setdefault(r["date"], []).append(r["ticker"])
+    return by_date
+
+
 def chart_bookvalue(base):
     rows = load_ledger(base)
     if len(rows) < 2:
         return {"svg": "", "note": "ledger has <2 rows -- no time series yet"}
+    stops_by_date = load_stops_by_date(base)
 
     W, H = 720, 260
     ML, MR, MT, MB = 62, 76, 16, 34
@@ -196,6 +216,23 @@ def chart_bookvalue(base):
                      f'stroke="var(--neg)" stroke-width="2"><title>'
                      f'{esc(r["date"])} ${r["total"]:,.0f} - EXCLUDED ({esc(r["trust"])}: '
                      f'price-feed gap, not a real value)</title></circle>')
+
+    # stop-loss markers -- one small triangle above the plot per ledger date that had scored
+    # stop-loss fills that day (added 2026-08-06). Triangle count is capped visually at 3 marks
+    # (no benefit to drawing 7 overlapping glyphs); the tooltip always lists every ticker.
+    for i, r in enumerate(rows):
+        tks = stops_by_date.get(r["date"])
+        if not tks:
+            continue
+        x = X(i)
+        n_shown = min(len(tks), 3)
+        for k in range(n_shown):
+            dx = (k - (n_shown - 1) / 2) * 6
+            s.append(f'<path d="M{x+dx:.1f},{MT-2} l4,7 l-8,0 Z" fill="var(--neg)" '
+                     f'fill-opacity="0.85"/>')
+        s.append(f'<rect class="mark" x="{x-10:.1f}" y="{MT-10}" width="20" height="12" '
+                 f'fill="transparent"><title>{esc(r["date"])}: {len(tks)} stop-loss fill'
+                 f'{"s" if len(tks)!=1 else ""} ({esc(", ".join(sorted(set(tks))))})</title></rect>')
 
     # hover targets, every point
     for i, r in enumerate(rows):
