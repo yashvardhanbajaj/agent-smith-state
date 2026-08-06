@@ -55,3 +55,5 @@ Relay smith-rebound's one-line return (`PRIMED: N tickers, gate {classification}
 ```
 
 **Known risk, tested and resolved on 2026-07-14**: the `create_scheduled_task` tool description warns it "shows the user an approval prompt," raising the question of whether that blocks headless firing from inside a non-interactive scheduled-task run with nobody present to click it. Directly tested: it does **not** block — a test one-shot `fireAt` task was created successfully and fired automatically at its scheduled time with no hang and no click required. The actual constraint found in testing was the `notifyOnCompletion` session-lifecycle issue described in step 6 above, not an approval-prompt hang. No fallback cron task is needed as a result — the dynamic self-scheduling design in this section works as designed, minus the direct-notification convenience.
+
+*(This file is now hook-synced to the agent-smith-state mirror on every edit — 2026-08-06.)*
