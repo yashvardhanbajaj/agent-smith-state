@@ -402,6 +402,7 @@ def cmd_journal(args):
     updates = []
     bucket_scores = {}  # bucket -> [worked/failed/neutral bools at 30d]
     name_bucket_scores = {}  # (ticker,bucket) -> list
+    bucket_scores_7d = {}  # same, at 7d -- interim read, see bucket_hit_rates_7d below
 
     for e in journal.get("entries", []):
         try:
@@ -420,6 +421,18 @@ def cmd_journal(args):
         pct_move = round((current_price - e["price_at_flag"]) / e["price_at_flag"] * 100, 3)
         if days_old >= 7:
             out["outcome_7d_pct"] = pct_move
+            # 7d interim verdict (added 2026-08-06, rotation-proposal feature review): same
+            # direction-aware signed-move logic as the 30d verdict below, just usable 23 days
+            # sooner. Kept in a SEPARATE dict (bucket_scores_7d, never bucket_scores) so it can
+            # never contaminate the validated 30d hit rate -- proposal scoring may read the 7d
+            # number, but it must always be visibly labelled interim/lower-confidence, never
+            # presented as the same thing as a matured 30d verdict.
+            direction_7d = BUCKET_DIRECTION.get(e["bucket"])
+            if direction_7d is not None:
+                signed_7d = pct_move if direction_7d == "up" else -pct_move
+                v7 = ("worked" if signed_7d > VERDICT_THRESHOLD_PCT
+                      else "failed" if signed_7d < -VERDICT_THRESHOLD_PCT else "neutral")
+                bucket_scores_7d.setdefault(e["bucket"], []).append(v7)
         if days_old >= 30:
             out["outcome_30d_pct"] = pct_move
             direction = BUCKET_DIRECTION.get(e["bucket"])
@@ -444,6 +457,16 @@ def cmd_journal(args):
             bucket_hit_rates[bucket] = {
                 "n": len(scored),
                 "hit_rate_pct": round(sum(1 for v in scored if v == "worked") / len(scored) * 100, 1),
+            }
+
+    bucket_hit_rates_7d = {}
+    for bucket, verdicts in bucket_scores_7d.items():
+        scored = [v for v in verdicts if v in ("worked", "failed")]
+        if len(scored) >= 3:  # same n>=3 floor as name_bucket_grades below -- don't grade on n=1
+            bucket_hit_rates_7d[bucket] = {
+                "n": len(scored),
+                "hit_rate_pct": round(sum(1 for v in scored if v == "worked") / len(scored) * 100, 1),
+                "interim": True,
             }
 
     def grade(hit_rate_pct):
@@ -476,6 +499,7 @@ def cmd_journal(args):
     emit({
         "journal_updates": updates,
         "bucket_hit_rates": bucket_hit_rates,
+        "bucket_hit_rates_7d": bucket_hit_rates_7d,
         "name_bucket_grades": name_bucket_grades,
         "data_quality": dq,
     })
@@ -1218,6 +1242,28 @@ def cmd_proposals(args):
     risk = load_json(os.path.join(args.run_dir, "compute_risk.json"), default={})
     risk_by_ticker = {p["ticker"]: p for p in risk.get("positions", [])}
     cluster_breach = {c["cluster"]: c for c in drift.get("cluster_table", []) if c.get("breach")}
+    book = load_json(os.path.join(args.run_dir, "compute_book.json"), default={})
+    equity_usd = book.get("value_usd")
+    total_book_usd = book.get("total_book_usd")
+
+    # -- rotation / stretch / signal-conviction (added 2026-08-06, user-reported: proposals were
+    # "all ATR risk correction... nothing about rotating capital toward what's likely to rally").
+    # Two new, DETERMINISTIC scoring dimensions, same discipline as everything else in this
+    # scorer -- typed numbers from compute files, never narrative judgment:
+    #   stretch: is this TRIM candidate actually ahead of its sector and up (real profit to
+    #     take), not just "fell less than everything else"? Reuses compute_derisk.json's
+    #     stretch_score, which already encodes exactly that distinction (see its own docstring).
+    #   signal_conviction: does this BUY candidate's bullish signal have a MEASURED track record
+    #     in this book, not just "the rotation chip says accumulate"? Reads journal.json's
+    #     bucket_hit_rates_7d (added this same session) -- an INTERIM, direction-aware hit rate
+    #     from 7-day outcomes, always labelled interim since the validated 30d table isn't
+    #     populated yet. A bar of >55% with n>=3 is deliberately modest given the small samples.
+    derisk = load_json(os.path.join(args.run_dir, "compute_derisk.json"), default={})
+    stretch_by_ticker = {r["ticker"]: r for r in derisk.get("queue", [])}
+    rotation = load_json(os.path.join(args.run_dir, "compute_rotation.json"), default={})
+    rotation_by_ticker = rotation.get("tickers", {})
+    journal = load_json(os.path.join(args.base_dir, "journal.json"), default={})
+    hit_rates_7d = journal.get("bucket_hit_rates_7d", {})
     # DIRECTIONAL cash check (fixed 2026-08-06). `cash_breach_vs_normal` is a bare boolean that
     # fires on BOTH edges -- too little cash and too much. The scorer previously treated any
     # breach as a reason to favour trimming ("this also rebuilds cash"), which inverts on the
@@ -1253,6 +1299,27 @@ def cmd_proposals(args):
             score += 2
             reasons.append(f"cash in excess at {_cash_pct:.1f}% vs a [{_cash_band[0]},{_cash_band[1]}]% band "
                            "-- deploying is the live problem, not raising more")
+        if bucket in ("TRIM", "SELL") and ticker:
+            dr = stretch_by_ticker.get(ticker)
+            # names_stretched is the authoritative "ahead of sector AND up" list computed by
+            # cmd_derisk -- do not re-derive it from stretch_score>0 here, that would silently
+            # diverge from derisk's own "beat a falling benchmark ≠ stretched" distinction.
+            if dr and ticker in (derisk.get("names_stretched") or []):
+                score += 2
+                reasons.append(f"{ticker} genuinely stretched: +{dr.get('abs_return_1m_pct',0):.1f}% "
+                               f"1m, {dr.get('rel_strength_1m_pp',0):+.1f}pp vs SMH -- real profit "
+                               "to take, not just a smaller loss")
+        if bucket == "BUY" and ticker:
+            rtk = rotation_by_ticker.get(ticker, {})
+            best_hr = None
+            for bkt in rtk.get("bullish_buckets", []):
+                hr = hit_rates_7d.get(bkt)
+                if hr and hr["hit_rate_pct"] > 55 and (best_hr is None or hr["hit_rate_pct"] > best_hr[1]):
+                    best_hr = (bkt, hr["hit_rate_pct"], hr["n"])
+            if best_hr:
+                score += 2
+                reasons.append(f"bullish signal '{best_hr[0]}' has a {best_hr[1]:.0f}% INTERIM 7d hit "
+                               f"rate (n={best_hr[2]}, not yet 30d-validated) in this book")
         if rc >= 3:
             score += 2
             reasons.append(f"recommended {rc}x, still unactioned")
@@ -1269,6 +1336,41 @@ def cmd_proposals(args):
         pr["priority_reasons"] = reasons
         if cluster:
             pr["cluster"] = cluster
+
+        # -- honest sizing (added 2026-08-06, user-reported: "seems ATR risk correction is the
+        # only thing these proposals are suggesting" and sizes were small relative to the
+        # breach). full_cure_usd is what it would actually take to clear whichever trigger is
+        # live -- the position's own risk-cap excess (compute_risk's headroom_usd, exact) and/or
+        # the cluster's dollar overage (derived here: ceiling breaches are tested against
+        # total_book_usd per compute_drift's own denominator choice, floor breaches against
+        # equity_usd -- using the WRONG denominator would silently mis-state the cure amount).
+        # When a proposal cites both triggers, the binding one is whichever needs the larger
+        # trim -- curing the smaller one first would still leave the position non-compliant on
+        # the other. This DISPLAYS the gap, it does not auto-resize size_usd -- resizing a
+        # proposal is a judgment call for the strategist/user, not something this lifecycle
+        # pass should do silently.
+        if bucket in ("TRIM", "SELL"):
+            cures = []
+            if rpos and rpos.get("over_cap") and rpos.get("headroom_usd") is not None:
+                cures.append(("risk cap", abs(rpos["headroom_usd"])))
+            if cluster and cluster in cluster_breach:
+                cb = cluster_breach[cluster]
+                if cb.get("breach_edge") == "over" and total_book_usd:
+                    over_pct = cb.get("actual_pct_of_total_book", 0) - (cb.get("band_pct") or [0, 100])[1]
+                    if over_pct > 0:
+                        cures.append(("cluster ceiling", over_pct / 100 * total_book_usd))
+            if cures:
+                basis, cure_usd = max(cures, key=lambda c: c[1])
+                pr["full_cure_usd"] = round(cure_usd, 0)
+                pr["cure_basis"] = basis
+                sz = pr.get("size_usd") or 0
+                pr["cure_pct"] = round(sz / cure_usd * 100, 0) if cure_usd else None
+                if pr["cure_pct"] is not None and pr["cure_pct"] < 90:
+                    n_tranches = max(1, -(-round(cure_usd) // sz)) if sz else None  # ceil div
+                    pr["tranche_note"] = (f"cures {pr['cure_pct']:.0f}% of the {basis} excess "
+                                          f"(${cure_usd:,.0f}) -- roughly {n_tranches} tranches "
+                                          f"this size to fully clear it" if n_tranches else
+                                          f"cures {pr['cure_pct']:.0f}% of the {basis} excess (${cure_usd:,.0f})")
 
     # -- CONDITION-BASED AUTO-RETIREMENT (added 2026-08-06, user-reported: "the dashboard is
     # not live and dynamic... under low priority proposals it is showing rebuild cash buffer"
@@ -1320,13 +1422,25 @@ def cmd_proposals(args):
                 why = (f"cash is {cash_pct:.2f}% vs a normal band of [{band[0]},{band[1]}]% -- "
                        "the buffer this proposed to rebuild is already rebuilt")
         elif bucket in ("TRIM", "SELL"):
-            # A trim exists to cure one of exactly two structural problems: a position over its
-            # own ATR risk cap, or a cluster outside its policy band. If NEITHER is true today,
-            # the trim has nothing left to fix.
-            if not over_cap and not cl:
-                why = (f"neither trigger is live: {ticker} is within its ATR risk cap"
-                       + (f" and {cluster} is inside its policy band" if cluster else "")
-                       + " -- the structural reason for this trim has cleared")
+            # A trim exists to cure one of exactly three structural problems now (added a third,
+            # 2026-08-06, for rotation/pair-trade proposals): a position over its own ATR risk
+            # cap, a cluster outside its policy band, or -- when the proposal was explicitly
+            # created as a stretch-based profit-take (trigger_type=="stretch", see the pair-trade
+            # generation in §6/§7) -- the ticker no longer sitting in compute_derisk's
+            # names_stretched list. Checking stretch ONLY when trigger_type says so, never as a
+            # blanket rule, matters: most trims are cap/cluster driven and were never claiming
+            # the position was a "winner" to begin with, so testing stretch on those would be a
+            # non-sequitur retirement reason.
+            is_stretch_trigger = pr.get("trigger_type") == "stretch"
+            stretch_ok = (ticker in (derisk.get("names_stretched") or [])) if is_stretch_trigger else True
+            if not over_cap and not cl and (not is_stretch_trigger or not stretch_ok):
+                if is_stretch_trigger:
+                    why = (f"{ticker} is no longer in the stretched cohort (ahead of sector AND "
+                           "up) -- the profit-taking rationale for this trim has cleared")
+                else:
+                    why = (f"neither trigger is live: {ticker} is within its ATR risk cap"
+                           + (f" and {cluster} is inside its policy band" if cluster else "")
+                           + " -- the structural reason for this trim has cleared")
         elif bucket == "BUY":
             # An "initiate"/"new position" buy is self-evidently done once the name is held.
             if ticker and ticker in current_tickers and any(
@@ -1335,6 +1449,21 @@ def cmd_proposals(args):
             # A cluster-fill buy is done once the cluster is back inside its band.
             elif cluster and not cl and any(w in action_l for w in ("top up", "fill", "stage", "deploy")):
                 why = f"{cluster} is back inside its policy band -- the underweight this filled has cleared"
+            # A signal-conviction buy (added 2026-08-06, pair-trade proposals) retires once the
+            # measured edge that justified it is gone -- either the signal no longer fires on
+            # this ticker, or its interim 7d hit rate has fallen out of the >55% bar the
+            # proposal was sized against. Checked ONLY for proposals explicitly created this way
+            # (trigger_type=="signal_conviction"), same discipline as the stretch check above.
+            elif pr.get("trigger_type") == "signal_conviction" and pr.get("trigger_bucket"):
+                tb = pr["trigger_bucket"]
+                rtk = rotation_by_ticker.get(ticker, {}) if ticker else {}
+                hr = hit_rates_7d.get(tb)
+                if tb not in rtk.get("bullish_buckets", []):
+                    why = f"{ticker} no longer carries the '{tb}' signal -- the edge this buy was sized against is gone"
+                elif not hr or hr.get("hit_rate_pct", 0) <= 55:
+                    why = (f"'{tb}'s interim 7d hit rate has fallen to "
+                           f"{hr.get('hit_rate_pct') if hr else 'unmeasured'}% (was >55% when proposed) "
+                           "-- the measured edge behind this buy no longer clears the bar")
         elif bucket == "HOLD":
             if ticker and ticker not in current_tickers:
                 why = f"{ticker} is no longer held -- the position this advised holding on is gone"
@@ -1389,13 +1518,17 @@ def cmd_proposals(args):
         rpos = risk_by_ticker.get(ticker) if ticker else None
         cl = cluster_breach.get(pr.get("cluster")) if pr.get("cluster") else None
         retires_when = None
-        if bucket in ("TRIM", "SELL"):
+        if bucket in ("TRIM", "SELL") and pr.get("trigger_type") == "stretch":
+            retires_when = f"{ticker} drops out of the stretched cohort (no longer ahead of sector AND up)"
+        elif bucket in ("TRIM", "SELL"):
             conds = []
             if rpos and rpos.get("over_cap"):
                 conds.append(f"{ticker} drops under its ATR risk cap")
             if cl:
                 conds.append(f"{pr.get('cluster')} re-enters its policy band")
             retires_when = " OR ".join(conds) + " (both must clear -- either alone keeps it open)" if len(conds) > 1 else (conds[0] if conds else None)
+        elif bucket == "BUY" and pr.get("trigger_type") == "signal_conviction":
+            retires_when = f"'{pr.get('trigger_bucket')}' signal drops off {ticker} or its 7d hit rate falls to/below 55%"
         elif bucket == "BUY" and pr.get("cluster") and cl:
             retires_when = f"{pr.get('cluster')} re-enters its policy band"
         pr["retires_when"] = retires_when

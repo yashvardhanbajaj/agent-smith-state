@@ -246,6 +246,22 @@ details.pgrp>.body{padding:0 0 4px}
   line-height:1.4;margin-top:5px}
 .pr .rtw{display:block;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);
   line-height:1.4;margin-top:5px;font-style:italic}
+.pr .tranche{display:block;font-family:var(--mono);font-size:11px;color:var(--action);
+  line-height:1.4;margin-top:5px}
+
+/* ============ rotation ideas (paired trim+buy proposals) ============ */
+.rotgrp{border-top:1px solid var(--line-soft);padding-top:2px;margin-bottom:2px}
+.rotgrp-h{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent);padding:12px 0 8px}
+.rotgrp-h .n{background:var(--accent-soft);color:var(--accent);border-radius:10px;padding:1px 8px;
+  font-family:var(--mono);margin-left:8px;text-transform:none;letter-spacing:normal;font-weight:400}
+.rotcard{display:grid;grid-template-columns:1fr 28px 1fr;gap:4px;align-items:center;
+  padding:10px;margin-bottom:10px;border:1px solid var(--accent-line);border-radius:var(--r);
+  background:var(--accent-soft)}
+.rotleg{background:var(--surface);border-radius:5px;padding:2px 10px}
+.rotleg .pr{border-bottom:none;padding:9px 0}
+.rotarrow{text-align:center;font-size:18px;color:var(--accent);font-weight:700}
+@media (max-width:640px){.rotcard{grid-template-columns:1fr}.rotarrow{transform:rotate(90deg)}}
 
 /* ============ stop-loss efficacy ============ */
 .stops-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;
@@ -549,19 +565,60 @@ def build(base, out):
             # auto-retire on a future run. Makes the automation legible, not just present.
             retires = p.get("retires_when")
             retires_s = f'<span class="rtw">retires when: {esc(retires)}</span>' if retires else ""
+            # honest sizing (added 2026-08-06, user-reported: sizes looked small vs the breach
+            # they claimed to cure). tranche_note only appears when smith_math.py's proposals
+            # pass computed a cure_pct under 90% -- a proposal that already cures the bulk of
+            # its trigger says nothing extra, this is specifically the "27% of a $1,457 excess"
+            # case made visible instead of a bare $400 sitting next to no context.
+            tranche = p.get("tranche_note")
+            tranche_s = f'<span class="tranche">{esc(tranche)}</span>' if tranche else ""
             return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
                     f'{esc(p.get("action",""))}{clus_s}</span>'
-                    f'<span class="why">{esc(short)}{more}{live_s}{flag_s}{retires_s}{meta}</span>'
+                    f'<span class="why">{esc(short)}{more}{live_s}{flag_s}{tranche_s}{retires_s}{meta}</span>'
                     f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
+
+        # -- rotation ideas: paired trim+buy proposals sharing a pair_id (added 2026-08-06,
+        # user-reported: proposals were "only ATR risk correction," never capital rotation from
+        # a stretched winner toward a name with rally tendency). Pulled OUT of the normal
+        # priority-tier grouping below and rendered together, because a pair's two legs can and
+        # do land in different tiers (the sell leg is often only MEDIUM while the buy leg scores
+        # HIGH on signal conviction) -- splitting them across tiers would visually sever a single
+        # rotation idea into two unrelated-looking rows, defeating the entire point of proposing
+        # them as a pair. Legs are matched by pair_id and shown side by side with a connecting
+        # arrow; a leg whose partner already got dismissed/retired independently (pair_id no
+        # longer has 2 open members) falls back to rendering as an ordinary single proposal in
+        # its priority tier rather than being silently dropped.
+        by_pair = {}
+        for p in open_props:
+            if p.get("pair_id"):
+                by_pair.setdefault(p["pair_id"], []).append(p)
+        complete_pairs = {pid: legs for pid, legs in by_pair.items() if len(legs) == 2}
+        paired_ids = {p["id"] for legs in complete_pairs.values() for p in legs}
+
+        def pair_card(legs):
+            sell = next((p for p in legs if p.get("pair_role") == "sell"), legs[0])
+            buy = next((p for p in legs if p.get("pair_role") == "buy"), legs[1])
+            return (f'<div class="rotcard">'
+                    f'<div class="rotleg sell">{prop_row(sell)}</div>'
+                    f'<div class="rotarrow">&rarr;</div>'
+                    f'<div class="rotleg buy">{prop_row(buy)}</div></div>')
+
+        if complete_pairs:
+            rows.append('<div class="rotgrp"><div class="rotgrp-h">ROTATION IDEAS'
+                        f'<span class="n">{len(complete_pairs)}</span></div>'
+                        + "".join(pair_card(legs) for legs in complete_pairs.values()) + '</div>')
 
         # -- grouped by priority (HIGH first), computed by smith_math.py's `proposals`
         # lifecycle pass from live risk-cap/cluster-breach/repeat-count data, not a guess.
         # Anything predating that field (or if the compute step didn't run this cycle)
         # falls back to LOW rather than disappearing or crashing the build. Each tier is
         # a native <details> so it collapses -- HIGH starts open (it's the one that needs
-        # eyes every run), MEDIUM/LOW start closed.
+        # eyes every run), MEDIUM/LOW start closed. Paired proposals rendered above are
+        # excluded here so they don't appear twice.
         by_priority = {"HIGH": [], "MEDIUM": [], "LOW": []}
         for p in open_props:
+            if p["id"] in paired_ids:
+                continue
             by_priority.setdefault(p.get("priority", "LOW"), by_priority["LOW"]).append(p)
         for tier in ("HIGH", "MEDIUM", "LOW"):
             items = sorted(by_priority[tier], key=lambda p: -p.get("priority_score", 0))

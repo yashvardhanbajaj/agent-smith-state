@@ -638,7 +638,11 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-06",
-      "retires_when": "VRT drops under its ATR risk cap"
+      "retires_when": "VRT drops under its ATR risk cap",
+      "full_cure_usd": 769.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 20.0,
+      "tranche_note": "cures 20% of the risk cap excess ($769) -- roughly 6 tranches this size to fully clear it"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -662,7 +666,11 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-06",
-      "retires_when": "NVDA drops under its ATR risk cap"
+      "retires_when": "NVDA drops under its ATR risk cap",
+      "full_cure_usd": 553.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 27.0,
+      "tranche_note": "cures 27% of the risk cap excess ($553) -- roughly 4 tranches this size to fully clear it"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -940,7 +948,11 @@
         "price has moved +12.2% since proposed ($187.99 -> $210.85) -- re-size before acting"
       ],
       "revalidated_on": "2026-08-06",
-      "retires_when": "MRVL drops under its ATR risk cap"
+      "retires_when": "MRVL drops under its ATR risk cap",
+      "full_cure_usd": 1457.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 27.0,
+      "tranche_note": "cures 27% of the risk cap excess ($1,457) -- roughly 4 tranches this size to fully clear it"
     },
     {
       "date": "2026-08-04T18:20:00+05:30",
@@ -1314,7 +1326,11 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-06",
-      "retires_when": "DRAM drops under its ATR risk cap"
+      "retires_when": "DRAM drops under its ATR risk cap",
+      "full_cure_usd": 520.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 77.0,
+      "tranche_note": "cures 77% of the risk cap excess ($520) -- roughly 2 tranches this size to fully clear it"
     },
     {
       "action": "Stage GOOGL (token, conditional on stabilization above ~$365, not today)",
@@ -1343,6 +1359,67 @@
       "review_flags": [],
       "revalidated_on": "2026-08-06",
       "retires_when": "Compute/Hyperscaler re-enters its policy band"
+    },
+    {
+      "id": "P-062",
+      "pair_id": "PAIR-001",
+      "pair_role": "sell",
+      "date": "2026-08-06",
+      "ticker": "CEG",
+      "action": "Trim CEG (rotation funding leg)",
+      "direction_bucket": "TRIM",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "size_usd": 380,
+      "price_at_proposal": 264.78,
+      "status": "open",
+      "trigger_type": "stretch",
+      "rationale": "CEG is genuinely stretched -- +6.1% 1m, +24.0pp vs SMH, stretch score 100/100 -- while its own thesis sits at WATCH with a live STRONG DOWNTREND signal flag: real profit sitting on mixed conviction, the textbook case for taking some off rather than either holding blind or exiting outright. Not over its risk cap and not a cluster-breach cure -- this is a discretionary profit-take, sized as a partial trim (~48% of the $795 position) funding the paired QCOM add below.",
+      "note": "rotation pair leg 1/2 -- see PAIR-001",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "CEG genuinely stretched: +6.1% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss"
+      ],
+      "price_now": 264.91,
+      "price_drift_pct": 0.05,
+      "still_valid_because": [
+        "CEG genuinely stretched: +6.1% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-06",
+      "retires_when": "CEG drops out of the stretched cohort (no longer ahead of sector AND up)"
+    },
+    {
+      "id": "P-063",
+      "pair_id": "PAIR-001",
+      "pair_role": "buy",
+      "date": "2026-08-06",
+      "ticker": "QCOM",
+      "action": "Add QCOM (rotation destination leg)",
+      "direction_bucket": "BUY",
+      "cluster": "AI Semis/Fabs",
+      "size_usd": 380,
+      "price_at_proposal": 159.75,
+      "status": "open",
+      "trigger_type": "signal_conviction",
+      "trigger_bucket": "OVERSOLD BOUNCE",
+      "rationale": "QCOM carries an OVERSOLD BOUNCE signal with a 100% interim 7d hit rate in this book (n=3, not yet 30d-validated) and a strengthening thesis. Sized to $380, just under QCOM's own $396 risk-cap headroom -- adding more would immediately create a new risk-cap breach next run. Funded by the paired CEG trim above rather than fresh cash, so this rotates capital rather than deploying more of it.",
+      "note": "rotation pair leg 2/2 -- see PAIR-001",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash in excess at 20.5% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "bullish signal 'OVERSOLD BOUNCE' has a 100% INTERIM 7d hit rate (n=3, not yet 30d-validated) in this book"
+      ],
+      "price_now": 157.41,
+      "price_drift_pct": -1.47,
+      "still_valid_because": [
+        "cash in excess at 20.5% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "bullish signal 'OVERSOLD BOUNCE' has a 100% INTERIM 7d hit rate (n=3, not yet 30d-validated) in this book"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-06",
+      "retires_when": "'OVERSOLD BOUNCE' signal drops off QCOM or its 7d hit rate falls to/below 55%"
     }
   ],
   "retracted": [
