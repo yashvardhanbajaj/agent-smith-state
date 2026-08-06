@@ -1287,7 +1287,9 @@
    "description": "Rotation-proposal feature (2026-08-06, user-requested): built full_cure_usd/cure_pct/tranche_note honest sizing, stretch- and signal-conviction-based priority scoring, journal.json's new interim 7d bucket_hit_rates_7d, and the first rotation-pair proposal (P-062/P-063, PAIR-001: trim CEG $380 -> add QCOM $380). One judgment call surfaced and deliberately NOT auto-resolved: AVGO is simultaneously in compute_derisk.json's names_stretched (stretch_score 85.6, +2.67% 1m, +20.5pp vs SMH -- a genuine winner) AND in compute_rotation.json's accumulate bucket (thesis strengthening, PEER LEADER + NEW TAILWINDS signals) -- trimming a name whose own thesis argues for adding more would be internally contradictory, so no sell-leg proposal was generated for it. This is a real tension between 'take some profit' and 'the thesis says add more,' not a bug -- flagged for the user's own read, not resolved by the desk.",
    "opened": "2026-08-06",
    "owner": "user (AVGO trim-vs-hold call)",
-   "status": "open"
+   "status": "closed",
+   "closed": "2026-08-06",
+   "resolution": "User confirmed 2026-08-06: not trimming AVGO despite its stretch score was the right call, given the strengthening thesis and accumulate-bucket signals. No further tracking needed -- this was surfaced for a read, not left open pending a decision."
   }
  ],
  "sentiment": {
