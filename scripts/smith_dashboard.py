@@ -802,61 +802,104 @@ def build(base, out):
                  'or bearish.</p>'
                  f'<div class="rgrid">{rgrid}</div></div></section>')
 
-    # -- de-risk queue --
-    if derisk and derisk.get("queue"):
-        q = derisk["queue"]
-        st = derisk.get("queue_state")
-        st_cls = {"broad_stretch": "bad", "narrow_stretch": "warn", "no_stretch": "good"}.get(st, "")
-        st_lbl = {"broad_stretch": "BROAD STRETCH", "narrow_stretch": "NARROW STRETCH",
-                  "no_stretch": "NO STRETCH"}.get(st, (st or "").upper())
-        shown = [r for r in q if r.get("derisk_score") is not None][:10]
+    # -- clusters (moved 2026-08-07: swapped position with de-risk queue, per user request --
+    # user wanted Clusters surfaced as a decision-relevant section, not buried after the
+    # composition treemap) --
+    cluster_table = drift.get("cluster_table", [])
+    if cluster_table:
+        # -- per-cluster member holdings (added 2026-08-08, user-requested: "make modification
+        # so that I can open/expand a particular cluster and see the stock in that cluster and
+        # some relevant info of these stocks. May be add which stock is peer leader and
+        # otherwise"). Cluster -> held tickers, from sector_map (the same source of truth the
+        # thesis map and risk pipeline already use, not a re-derivation). sector_map is a
+        # superset that also retains exited/tracked-only tickers (2026-08-07: rendered as
+        # struck-through "no longer held" chips per member table, reusing the .tick.gone
+        # convention from the Signal History section).
+        holdings_by_ticker = {h["ticker"]: h for h in state.get("holdings", [])}
+        cluster_members = {}
+        cluster_ghosts = {}
+        for tk, cl in sector_map.items():
+            if not cl:
+                continue
+            (cluster_members if tk in held_tickers else cluster_ghosts).setdefault(cl, []).append(tk)
+        signal_history = state.get("signal_history") or {}
+        thesis = state.get("thesis") or {}
+        thesis_dot = {"strengthening": "dot-g", "watch": "dot-w", "broken": "dot-b"}
 
-        def bar(v, cls):
-            w = max(0.0, min(100.0, v or 0.0))
-            return f'<span class="mbar"><i class="{cls}" style="width:{w:.0f}%"></i></span>'
+        def member_rows(cluster_name):
+            members = cluster_members.get(cluster_name, [])
+            members = sorted(members, key=lambda tk: -(holdings_by_ticker.get(tk, {}).get("weight_pct") or 0))
+            out = []
+            for tk in members:
+                h = holdings_by_ticker.get(tk, {})
+                rpos = risk_by_ticker.get(tk, {})
+                qty, mv = h.get("qty"), rpos.get("market_value_usd")
+                price = (mv / qty) if (mv and qty) else None
+                st = thesis_status(thesis.get(tk))
+                st_s = (f'<span class="{thesis_dot.get(st,"dot-w")}" style="display:inline-block;'
+                       f'width:7px;height:7px;border-radius:50%;margin-right:5px"></span>{esc(st)}'
+                       if st else '<span style="color:var(--ink-3)">&mdash;</span>')
+                buckets = signal_history.get(tk) or []
+                peer_s = ""
+                if "PEER LEADER" in buckets:
+                    peer_s = '<span class="peer-tag lead">PEER LEADER</span>'
+                elif "PEER LAGGARD" in buckets:
+                    peer_s = '<span class="peer-tag lag">PEER LAGGARD</span>'
+                other_tags = "".join(
+                    f'<span class="tick {"g" if b in smith_risk.SIGNAL_POLARITY["bullish"] else "b" if b in smith_risk.SIGNAL_POLARITY["bearish"] else ""}" '
+                    f'style="margin-left:4px">{esc(b)}</span>'
+                    for b in buckets if b not in ("PEER LEADER", "PEER LAGGARD"))
+                cap_s = (f'<span class="neg" title="{rpos.get("cap_multiple",0):.2f}x its ATR risk cap">&#9888;&#65039;</span>'
+                        if rpos.get("over_cap") else "")
+                out.append(
+                    f'<tr><td class="name">{esc(tk)}</td>'
+                    f'<td>{h.get("weight_pct",0):.2f}%</td>'
+                    f'<td>{f"${price:,.2f}" if price is not None else "&mdash;"}</td>'
+                    f'<td class="txt">{st_s}</td>'
+                    f'<td class="txt">{peer_s}{other_tags}</td>'
+                    f'<td>{cap_s}</td></tr>')
+            return "".join(out)
 
-        body = "".join(
-            f'<tr><td class="num">{r["rank"]}</td><td><b>{esc(r["ticker"])}</b></td>'
-            f'<td class="num"><b>{r["derisk_score"]:.0f}</b></td>'
-            f'<td>{bar(r.get("fragility_score"), "f")}</td>'
-            f'<td>{bar(r.get("stretch_score"), "s")}</td>'
-            f'<td>{bar(r.get("friction_score"), "x")}</td>'
-            f'<td class="num">{(f"{r["abs_return_1m_pct"]:+.1f}%" if r.get("abs_return_1m_pct") is not None else "&mdash;")}</td>'
-            f'<td class="num">{(f"{r["rel_strength_1m_pp"]:+.1f}" if r.get("rel_strength_1m_pp") is not None else "&mdash;")}</td>'
-            f'<td class="num">{(f"{r["cap_multiple"]:.2f}x" if r.get("cap_multiple") else "&mdash;")}</td>'
-            f'<td class="num">${r["market_value_usd"]:,.0f}</td>'
-            f'<td class="sub">{esc("; ".join(r.get("friction_reasons") or []) or "-")}</td></tr>'
-            for r in shown)
-
+        rows = []
+        for c in sorted(cluster_table, key=lambda r: -r.get("actual_pct_of_equity", r.get("actual_pct", 0))):
+            cname = c.get("cluster", "")
+            band_c = c.get("band_pct") or [0, 100]
+            lo, hi = band_c[0] or 0, band_c[1] or 100
+            actual = c.get("actual_pct_of_equity", c.get("actual_pct", 0))
+            tgt = c.get("target_pct") or 0
+            scale = max(hi, actual, tgt, 1) * 1.15
+            pc = lambda v: max(0, min(100, v / scale * 100))
+            breach = c.get("breach")
+            n_members = len(cluster_members.get(cname, []))
+            body_rows = member_rows(cname)
+            ghosts = sorted(cluster_ghosts.get(cname, []))
+            ghost_html = (
+                '<p class="note" style="margin-top:8px">No longer held / tracked only: '
+                + "".join(f'<span class="tick gone" style="margin-right:4px">{esc(tk)}</span>' for tk in ghosts)
+                + '</p>') if ghosts else ""
+            body = ((f'<div class="scroll"><table><thead><tr><th>Name</th><th>Wt</th><th>Price</th>'
+                    f'<th>Thesis</th><th>Signals</th><th></th></tr></thead>'
+                    f'<tbody>{body_rows}</tbody></table></div>' if body_rows else
+                    '<p class="note">No held ticker maps to this cluster.</p>') + ghost_html)
+            rows.append(
+                # the row's 5 cells are wrapped in a nested div.clus-summary-grid, NOT styled
+                # directly on <summary> -- see the CSS fix note in the stylesheet above
+                f'<details class="clus-row"{" open" if breach else ""}><summary><div class="clus-summary-grid">'
+                f'<span class="name">{esc(cname)}<i>{n_members} held</i></span>'
+                f'<span class="num">{actual:.2f}%</span>'
+                f'<span class="num {"neg" if breach else "pos"}">{c.get("actual_pct_of_total_book",0):.2f}%</span>'
+                f'<span class="num blank">[{lo:g},{hi:g}]</span>'
+                f'<div class="band"><div class="ok" style="left:{pc(lo):.1f}%;width:{pc(hi)-pc(lo):.1f}%"></div>'
+                f'<div class="tgt" style="left:{pc(tgt):.1f}%"></div>'
+                f'<div class="mk{" bad" if breach else ""}" style="left:{pc(actual):.1f}%"></div></div>'
+                f'</div></summary><div class="body">{body}</div></details>')
         H.append(
-            '<section class="panel"><div class="phead"><h2>De-risk queue'
-            '<span class="sub">ranked by damage-if-a-drawdown-comes, not by prediction</span></h2>'
-            f'<span class="pill {st_cls}">{esc(st_lbl)}</span></div><div class="pbody">'
-            f'<p class="note">{esc(derisk.get("headline",""))}</p>'
-            '<div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Name</th><th>Score</th>'
-            '<th>Fragility</th><th>Stretch</th><th>Friction</th><th>1m abs</th><th>vs SMH</th>'
-            '<th>cap</th><th>Value</th><th>Friction reason</th></tr></thead>'
-            f'<tbody>{body}</tbody></table></div>'
-            '<details><summary>How this is scored</summary><div class="body">'
-            '<b>Fragility</b> &mdash; share of the book&rsquo;s total open risk (already embeds ATR &times; '
-            'position size) multiplied by how far the position sits over its own 2&times;ATR cap. '
-            'This is <i>how hard it hits</i>, and it is the dominant term.<br>'
-            '<b>Stretch</b> &mdash; 1-month return relative to SMH, but <i>only counted when the name is '
-            'also up in absolute terms</i>. Beating a benchmark that is itself falling means the name '
-            'merely fell less; there is no gain to give back, so it is not a trim candidate. '
-            'Relative rather than absolute deliberately: in a ~100% single-factor book an absolute '
-            'RSI/52-week screen flags all-or-nothing.<br>'
-            '<b>Friction</b> &mdash; cost of acting: proximity to the 24-month LTCG boundary (from '
-            'lots.json), unknown lot dates, and a dust-position discount. Higher friction pushes a '
-            'name down the queue.<br>'
-            '<b>Sentiment</b> is an urgency dial on the whole queue '
-            f'(band <b>{esc(derisk.get("sentiment_band","-"))}</b> &rarr; &times;'
-            f'{derisk.get("urgency_multiplier","-")}), never a trigger. It cannot manufacture stretch '
-            'that does not exist per name.<br><br>'
-            '<b>This queue is shadow-scored and does not drive proposals.</b> Each deep run logs its '
-            'top names to derisk_journal.json and scores them at 30/90d. It earns a vote in sizing '
-            'decisions only once it has a real hit rate.'
-            '</div></details></div></section>')
+            '<section class="panel"><div class="phead"><h2>Clusters</h2>'
+            '<span class="pill">ceiling on book &middot; floor on equity &middot; click a cluster to see its holdings</span></div>'
+            f'<div class="pbody" style="gap:0"><div class="clus-hdr"><span></span>'
+            '<span class="num">Equity</span><span class="num">Book</span>'
+            '<span class="num">Band</span><span></span></div>'
+            f'{"".join(rows)}</div></section>')
 
     # -- stop-loss efficacy (added 2026-08-06, dashboard feature review) --
     # trades.json had 24 stop-loss fills with exact prices and was referenced by this generator
@@ -1061,92 +1104,61 @@ def build(base, out):
     H.append(fig(ch.get("treemap"), "Allocation treemap",
                  "size = weight · color = cluster · red outline = over risk cap"))
 
-    cluster_table = drift.get("cluster_table", [])
-    clusters_html = ""
-    if cluster_table:
-        # -- per-cluster member holdings (added 2026-08-08, user-requested: "make modification
-        # so that I can open/expand a particular cluster and see the stock in that cluster and
-        # some relevant info of these stocks. May be add which stock is peer leader and
-        # otherwise"). Cluster -> held tickers, from sector_map (the same source of truth the
-        # thesis map and risk pipeline already use, not a re-derivation).
-        holdings_by_ticker = {h["ticker"]: h for h in state.get("holdings", [])}
-        cluster_members = {}
-        for tk in held_tickers:
-            cl = sector_map.get(tk)
-            if cl:
-                cluster_members.setdefault(cl, []).append(tk)
-        signal_history = state.get("signal_history") or {}
-        thesis = state.get("thesis") or {}
-        thesis_dot = {"strengthening": "dot-g", "watch": "dot-w", "broken": "dot-b"}
+    # -- de-risk queue (moved 2026-08-07: swapped position with clusters, per user request) --
+    if derisk and derisk.get("queue"):
+        q = derisk["queue"]
+        st = derisk.get("queue_state")
+        st_cls = {"broad_stretch": "bad", "narrow_stretch": "warn", "no_stretch": "good"}.get(st, "")
+        st_lbl = {"broad_stretch": "BROAD STRETCH", "narrow_stretch": "NARROW STRETCH",
+                  "no_stretch": "NO STRETCH"}.get(st, (st or "").upper())
+        shown = [r for r in q if r.get("derisk_score") is not None][:10]
 
-        def member_rows(cluster_name):
-            members = cluster_members.get(cluster_name, [])
-            members = sorted(members, key=lambda tk: -(holdings_by_ticker.get(tk, {}).get("weight_pct") or 0))
-            out = []
-            for tk in members:
-                h = holdings_by_ticker.get(tk, {})
-                rpos = risk_by_ticker.get(tk, {})
-                qty, mv = h.get("qty"), rpos.get("market_value_usd")
-                price = (mv / qty) if (mv and qty) else None
-                st = thesis_status(thesis.get(tk))
-                st_s = (f'<span class="{thesis_dot.get(st,"dot-w")}" style="display:inline-block;'
-                       f'width:7px;height:7px;border-radius:50%;margin-right:5px"></span>{esc(st)}'
-                       if st else '<span style="color:var(--ink-3)">&mdash;</span>')
-                buckets = signal_history.get(tk) or []
-                peer_s = ""
-                if "PEER LEADER" in buckets:
-                    peer_s = '<span class="peer-tag lead">PEER LEADER</span>'
-                elif "PEER LAGGARD" in buckets:
-                    peer_s = '<span class="peer-tag lag">PEER LAGGARD</span>'
-                other_tags = "".join(
-                    f'<span class="tick {"g" if b in smith_risk.SIGNAL_POLARITY["bullish"] else "b" if b in smith_risk.SIGNAL_POLARITY["bearish"] else ""}" '
-                    f'style="margin-left:4px">{esc(b)}</span>'
-                    for b in buckets if b not in ("PEER LEADER", "PEER LAGGARD"))
-                cap_s = (f'<span class="neg" title="{rpos.get("cap_multiple",0):.2f}x its ATR risk cap">&#9888;&#65039;</span>'
-                        if rpos.get("over_cap") else "")
-                out.append(
-                    f'<tr><td class="name">{esc(tk)}</td>'
-                    f'<td>{h.get("weight_pct",0):.2f}%</td>'
-                    f'<td>{f"${price:,.2f}" if price is not None else "&mdash;"}</td>'
-                    f'<td class="txt">{st_s}</td>'
-                    f'<td class="txt">{peer_s}{other_tags}</td>'
-                    f'<td>{cap_s}</td></tr>')
-            return "".join(out)
+        def bar(v, cls):
+            w = max(0.0, min(100.0, v or 0.0))
+            return f'<span class="mbar"><i class="{cls}" style="width:{w:.0f}%"></i></span>'
 
-        rows = []
-        for c in sorted(cluster_table, key=lambda r: -r.get("actual_pct_of_equity", r.get("actual_pct", 0))):
-            cname = c.get("cluster", "")
-            band_c = c.get("band_pct") or [0, 100]
-            lo, hi = band_c[0] or 0, band_c[1] or 100
-            actual = c.get("actual_pct_of_equity", c.get("actual_pct", 0))
-            tgt = c.get("target_pct") or 0
-            scale = max(hi, actual, tgt, 1) * 1.15
-            pc = lambda v: max(0, min(100, v / scale * 100))
-            breach = c.get("breach")
-            n_members = len(cluster_members.get(cname, []))
-            body_rows = member_rows(cname)
-            body = (f'<div class="scroll"><table><thead><tr><th>Name</th><th>Wt</th><th>Price</th>'
-                   f'<th>Thesis</th><th>Signals</th><th></th></tr></thead>'
-                   f'<tbody>{body_rows}</tbody></table></div>' if body_rows else
-                   '<p class="note">No held ticker maps to this cluster.</p>')
-            rows.append(
-                # the row's 5 cells are wrapped in a nested div.clus-summary-grid, NOT styled
-                # directly on <summary> -- see the CSS fix note above this block's rule
-                f'<details class="clus-row"{" open" if breach else ""}><summary><div class="clus-summary-grid">'
-                f'<span class="name">{esc(cname)}<i>{n_members} held</i></span>'
-                f'<span class="num">{actual:.2f}%</span>'
-                f'<span class="num {"neg" if breach else "pos"}">{c.get("actual_pct_of_total_book",0):.2f}%</span>'
-                f'<span class="num blank">[{lo:g},{hi:g}]</span>'
-                f'<div class="band"><div class="ok" style="left:{pc(lo):.1f}%;width:{pc(hi)-pc(lo):.1f}%"></div>'
-                f'<div class="tgt" style="left:{pc(tgt):.1f}%"></div>'
-                f'<div class="mk{" bad" if breach else ""}" style="left:{pc(actual):.1f}%"></div></div>'
-                f'</div></summary><div class="body">{body}</div></details>')
-        clusters_html = ('<section class="panel"><div class="phead"><h2>Clusters</h2>'
-                         '<span class="pill">ceiling on book &middot; floor on equity &middot; click a cluster to see its holdings</span></div>'
-                         f'<div class="pbody" style="gap:0"><div class="clus-hdr"><span></span>'
-                         '<span class="num">Equity</span><span class="num">Book</span>'
-                         '<span class="num">Band</span><span></span></div>'
-                         f'{"".join(rows)}</div></section>')
+        body = "".join(
+            f'<tr><td class="num">{r["rank"]}</td><td><b>{esc(r["ticker"])}</b></td>'
+            f'<td class="num"><b>{r["derisk_score"]:.0f}</b></td>'
+            f'<td>{bar(r.get("fragility_score"), "f")}</td>'
+            f'<td>{bar(r.get("stretch_score"), "s")}</td>'
+            f'<td>{bar(r.get("friction_score"), "x")}</td>'
+            f'<td class="num">{(f"{r["abs_return_1m_pct"]:+.1f}%" if r.get("abs_return_1m_pct") is not None else "&mdash;")}</td>'
+            f'<td class="num">{(f"{r["rel_strength_1m_pp"]:+.1f}" if r.get("rel_strength_1m_pp") is not None else "&mdash;")}</td>'
+            f'<td class="num">{(f"{r["cap_multiple"]:.2f}x" if r.get("cap_multiple") else "&mdash;")}</td>'
+            f'<td class="num">${r["market_value_usd"]:,.0f}</td>'
+            f'<td class="sub">{esc("; ".join(r.get("friction_reasons") or []) or "-")}</td></tr>'
+            for r in shown)
+
+        H.append(
+            '<section class="panel"><div class="phead"><h2>De-risk queue'
+            '<span class="sub">ranked by damage-if-a-drawdown-comes, not by prediction</span></h2>'
+            f'<span class="pill {st_cls}">{esc(st_lbl)}</span></div><div class="pbody">'
+            f'<p class="note">{esc(derisk.get("headline",""))}</p>'
+            '<div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Name</th><th>Score</th>'
+            '<th>Fragility</th><th>Stretch</th><th>Friction</th><th>1m abs</th><th>vs SMH</th>'
+            '<th>cap</th><th>Value</th><th>Friction reason</th></tr></thead>'
+            f'<tbody>{body}</tbody></table></div>'
+            '<details><summary>How this is scored</summary><div class="body">'
+            '<b>Fragility</b> &mdash; share of the book&rsquo;s total open risk (already embeds ATR &times; '
+            'position size) multiplied by how far the position sits over its own 2&times;ATR cap. '
+            'This is <i>how hard it hits</i>, and it is the dominant term.<br>'
+            '<b>Stretch</b> &mdash; 1-month return relative to SMH, but <i>only counted when the name is '
+            'also up in absolute terms</i>. Beating a benchmark that is itself falling means the name '
+            'merely fell less; there is no gain to give back, so it is not a trim candidate. '
+            'Relative rather than absolute deliberately: in a ~100% single-factor book an absolute '
+            'RSI/52-week screen flags all-or-nothing.<br>'
+            '<b>Friction</b> &mdash; cost of acting: proximity to the 24-month LTCG boundary (from '
+            'lots.json), unknown lot dates, and a dust-position discount. Higher friction pushes a '
+            'name down the queue.<br>'
+            '<b>Sentiment</b> is an urgency dial on the whole queue '
+            f'(band <b>{esc(derisk.get("sentiment_band","-"))}</b> &rarr; &times;'
+            f'{derisk.get("urgency_multiplier","-")}), never a trigger. It cannot manufacture stretch '
+            'that does not exist per name.<br><br>'
+            '<b>This queue is shadow-scored and does not drive proposals.</b> Each deep run logs its '
+            'top names to derisk_journal.json and scores them at 30/90d. It earns a vote in sizing '
+            'decisions only once it has a real hit rate.'
+            '</div></details></div></section>')
 
     risk_rows = sorted([r for r in risk.get("positions", []) if r.get("over_cap")],
                        key=lambda r: (r.get("headroom_usd") or 0))
@@ -1166,10 +1178,6 @@ def build(base, out):
                         '<p class="note">Cap = 0.5% of book &divide; that name\'s 2&times;ATR20 stop.</p>'
                         '</div></section>')
 
-    # Clusters moved out of the grid2 pairing (2026-08-08) -- expandable member-holdings rows
-    # need full width, a 50%-width column would cramp the nested per-ticker table badly.
-    if clusters_html:
-        H.append(clusters_html)
     if riskcap_html:
         H.append(riskcap_html)
 

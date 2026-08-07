@@ -229,20 +229,26 @@ and forward-looking proposal retirement text; the 2026-07-29/G34 list below this
   smith-scout's priced non-AI-capex candidates from `state.diversifier_candidates`, green chip = clean diversifier,
   amber = has AI-adjacent overlap; not a proposal to buy, a bench of what a real hedge would look like) ·
   **rotation analysis** (accumulate / rotate out / trim — risk cap, rule-based per `scripts/smith_risk.py`'s
-  `SIGNAL_POLARITY` table) · **de-risk queue** (ranked fragility × stretch × friction, shadow-scored, see 2.9c) ·
-  **stop-loss efficacy** (added 2026-08-06 — see the `stops` subcommand note in §6; cascade-vs-deliberate cohort
-  comparison of every stop-loss fill against its current price) · the read · macro strip (10-yr, VIX, SMH, worst
-  Asia index, Fed, beta vs SMH)
+  `SIGNAL_POLARITY` table) · **clusters** (moved here 2026-08-07, swapped with de-risk queue, per user request —
+  a decision-relevant section belongs in Decisions, not buried after the composition treemap; equity% and book%
+  side by side, target-band meter; **expandable** since 2026-08-08 — each cluster is a `<details>` row, click to
+  see its member holdings: ticker, weight%, price, thesis status dot, and signal tags including a distinct badge
+  for PEER LEADER/PEER LAGGARD from `state.signal_history`, plus a warning icon if the name is over its own risk
+  cap — a plain `<table>` couldn't do this without JS, which this dashboard deliberately has none of, so it's
+  built from the same `<details>/<summary>` idiom the priority tiers and Diagnostics already use; own full-width
+  panel, pulled out of the risk-cap-breaches grid2 pairing since the expanded member table needs the width.
+  **Struck-through "no longer held" tickers** (added 2026-08-07, same user request) — each cluster's expanded
+  body also lists any ticker `sector_map` still maps to that cluster but that isn't in `held_tickers` (exited
+  positions, or names only ever tracked), rendered as `<span class="tick gone">` chips under a "No longer held /
+  tracked only:" line — the same `.tick.gone{opacity:.42;text-decoration:line-through}` convention the Signal
+  History panel already used, not a new visual language) · **stop-loss efficacy** (added 2026-08-06 — see the
+  `stops` subcommand note in §6; cascade-vs-deliberate cohort comparison of every stop-loss fill against its
+  current price) · the read · macro strip (10-yr, VIX, SMH, worst Asia index, Fed, beta vs SMH)
 - Sentiment gauge + intraday & international session (side by side)
 - The week ahead (earnings/FOMC calendar, 6 days forward)
 - Book composition tier: **allocation treemap** (squarified, color by cluster, red outline = over risk cap) ·
-  **clusters** (equity% and book% side by side, target-band meter; **expandable** since 2026-08-08 — each cluster
-  is a `<details>` row, click to see its member holdings: ticker, weight%, price, thesis status dot, and signal
-  tags including a distinct badge for PEER LEADER/PEER LAGGARD from `state.signal_history`, plus a ⚠️ if the name
-  is over its own risk cap — a plain `<table>` couldn't do this without JS, which this dashboard deliberately has
-  none of, so it's built from the same `<details>/<summary>` idiom the priority tiers and Diagnostics already use;
-  own full-width panel now, pulled out of the risk-cap-breaches grid2 pairing since the expanded member table needs
-  the width) · risk-cap breaches (from `compute_risk.json`'s
+  **de-risk queue** (moved here 2026-08-07, swapped with clusters, per user request — ranked fragility × stretch
+  × friction, shadow-scored, see 2.9c) · risk-cap breaches (from `compute_risk.json`'s
   real ATR-based caps, not a qualitative flag match) · **LTCG watch** (added 2026-08-06 — lots within 6 months of
   the policy's LTCG boundary from `compute_book.json`'s `ltcg_flags`; an empty result renders an explicit "clear"
   pill, not a vanished section, since the empty state is itself a real, positive statement) · full positions table
