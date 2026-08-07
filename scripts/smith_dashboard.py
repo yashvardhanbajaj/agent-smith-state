@@ -219,24 +219,39 @@ td.blank{color:var(--ink-3)}
 
 /* ============ expandable cluster rows (added 2026-08-08, user-requested: expand a cluster to
    see its member holdings and which are peer leaders/laggards) ============ */
+/* FIXED 2026-08-08 (user-reported: rows rendering as unstyled overlapping text with the band
+   meter dropping to its own full-width line below). Root cause: `display:grid` set DIRECTLY on
+   a <summary> element is unreliable across browsers -- <summary> has special UA-stylesheet/
+   marker-box handling per the HTML rendering rules, and several engines silently ignore or only
+   partially apply an author `display: grid`/`flex` on it, falling back toward block flow (spans
+   collapse to inline-in-block and wrap/overlap; the sibling <div class="band"> forces its own
+   line since divs are block-level by default). The fix used throughout the ecosystem for this
+   exact quirk: never style <summary> itself as grid/flex -- wrap the row's content in a plain
+   child <div> and apply the grid to THAT div instead. <summary> keeps simple default styling
+   (cursor, padding, list-style removal), which every engine handles correctly. -->*/
 .clus-hdr{display:grid;grid-template-columns:1fr 70px 70px 90px 150px;gap:12px;padding:0 0 8px;
   align-items:baseline}
 .clus-hdr .num{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
   color:var(--ink-3);text-align:right}
 details.clus-row{border-top:1px solid var(--line-soft)}
 details.clus-row:first-of-type{border-top:none}
-details.clus-row>summary{display:grid;grid-template-columns:1fr 70px 70px 90px 150px;gap:12px;
-  align-items:center;padding:11px 0;cursor:pointer;list-style:none;font-family:var(--sans)}
+details.clus-row>summary{cursor:pointer;list-style:none;list-style-type:none;padding:11px 0;
+  font-family:var(--sans)}
 details.clus-row>summary::-webkit-details-marker{display:none}
+details.clus-row>summary::marker{content:"";display:none}
 details.clus-row>summary::before{content:"";}
-details.clus-row .name{font-weight:640;letter-spacing:-.01em;display:flex;align-items:baseline;gap:7px}
-details.clus-row .name i{font-style:normal;font-family:var(--mono);font-size:11px;font-weight:400;
+/* the actual grid lives here, one level in -- see the fix note above */
+.clus-summary-grid{display:grid;grid-template-columns:1fr 70px 70px 90px 150px;gap:12px;
+  align-items:center}
+.clus-summary-grid .name{font-weight:640;letter-spacing:-.01em;display:flex;align-items:baseline;gap:7px}
+.clus-summary-grid .name i{font-style:normal;font-family:var(--mono);font-size:11px;font-weight:400;
   color:var(--ink-3)}
-details.clus-row .name::before{content:"▸";color:var(--ink-3);font-family:var(--sans);width:10px;
-  display:inline-block}
-details.clus-row[open] .name::before{content:"▾"}
-details.clus-row .num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
-details.clus-row .num.blank{color:var(--ink-3)}
+.clus-summary-grid .name::before{content:"▸";color:var(--ink-3);font-family:var(--sans);width:10px;
+  display:inline-block;flex-shrink:0}
+details.clus-row[open] .clus-summary-grid .name::before{content:"▾"}
+.clus-summary-grid .num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.clus-summary-grid .num.blank{color:var(--ink-3)}
+.clus-summary-grid .band{min-width:0}
 details.clus-row>.body{padding:0 0 14px}
 .peer-tag{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
   padding:2px 6px;border-radius:4px;white-space:nowrap}
@@ -1115,7 +1130,9 @@ def build(base, out):
                    f'<tbody>{body_rows}</tbody></table></div>' if body_rows else
                    '<p class="note">No held ticker maps to this cluster.</p>')
             rows.append(
-                f'<details class="clus-row"{" open" if breach else ""}><summary>'
+                # the row's 5 cells are wrapped in a nested div.clus-summary-grid, NOT styled
+                # directly on <summary> -- see the CSS fix note above this block's rule
+                f'<details class="clus-row"{" open" if breach else ""}><summary><div class="clus-summary-grid">'
                 f'<span class="name">{esc(cname)}<i>{n_members} held</i></span>'
                 f'<span class="num">{actual:.2f}%</span>'
                 f'<span class="num {"neg" if breach else "pos"}">{c.get("actual_pct_of_total_book",0):.2f}%</span>'
@@ -1123,7 +1140,7 @@ def build(base, out):
                 f'<div class="band"><div class="ok" style="left:{pc(lo):.1f}%;width:{pc(hi)-pc(lo):.1f}%"></div>'
                 f'<div class="tgt" style="left:{pc(tgt):.1f}%"></div>'
                 f'<div class="mk{" bad" if breach else ""}" style="left:{pc(actual):.1f}%"></div></div>'
-                f'</summary><div class="body">{body}</div></details>')
+                f'</div></summary><div class="body">{body}</div></details>')
         clusters_html = ('<section class="panel"><div class="phead"><h2>Clusters</h2>'
                          '<span class="pill">ceiling on book &middot; floor on equity &middot; click a cluster to see its holdings</span></div>'
                          f'<div class="pbody" style="gap:0"><div class="clus-hdr"><span></span>'
