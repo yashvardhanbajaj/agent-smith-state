@@ -630,19 +630,19 @@
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "VRT at 1.65x its ATR risk cap"
+        "VRT at 1.18x its ATR risk cap"
       ],
       "cluster": "AI Power/Cooling/DC Infra",
       "still_valid_because": [
-        "VRT at 1.65x its ATR risk cap"
+        "VRT at 1.18x its ATR risk cap"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-06",
+      "revalidated_on": "2026-08-07",
       "retires_when": "VRT drops under its ATR risk cap",
-      "full_cure_usd": 769.0,
+      "full_cure_usd": 210.0,
       "cure_basis": "risk cap",
-      "cure_pct": 20.0,
-      "tranche_note": "cures 20% of the risk cap excess ($769) -- roughly 6 tranches this size to fully clear it"
+      "cure_pct": 71.0,
+      "tranche_note": "cures 71% of the risk cap excess ($210) -- roughly 2 tranches this size to fully clear it"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -658,19 +658,19 @@
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "NVDA at 1.20x its ATR risk cap"
+        "NVDA at 1.21x its ATR risk cap"
       ],
       "cluster": "AI Semis/Fabs",
       "still_valid_because": [
-        "NVDA at 1.20x its ATR risk cap"
+        "NVDA at 1.21x its ATR risk cap"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-06",
+      "revalidated_on": "2026-08-07",
       "retires_when": "NVDA drops under its ATR risk cap",
-      "full_cure_usd": 553.0,
+      "full_cure_usd": 575.0,
       "cure_basis": "risk cap",
-      "cure_pct": 27.0,
-      "tranche_note": "cures 27% of the risk cap excess ($553) -- roughly 4 tranches this size to fully clear it"
+      "cure_pct": 26.0,
+      "tranche_note": "cures 26% of the risk cap excess ($575) -- roughly 4 tranches this size to fully clear it"
     },
     {
       "date": "2026-07-31T13:02:00+05:30",
@@ -910,11 +910,11 @@
       "action": "Light trim MRVL",
       "size_usd": 400,
       "price_at_proposal": 187.9934,
-      "status": "open",
+      "status": "auto_retired",
       "rationale": "Fresh interest-coverage collapse (8.1x->1.4x) is a new material risk despite STRENGTHENING technical thesis (Nvidia/Trainium); proportionate light trim, not exit, pending next quarter's print; also directly informs the veto on the rebound average-in; proceeds fund cash rebuild.",
       "id": "P-051",
       "ticker": "MRVL",
-      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 3x since 2026-07-28, still open",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 3x since 2026-07-28, still open | auto-retired 2026-08-07: neither trigger is live: MRVL is within its ATR risk cap, though AI Networking/Optics is now UNDER its floor (-5.8pt) -- a separate live issue, just not one a trim addresses -- the structural reason for this trim has cleared",
       "direction_bucket": "TRIM",
       "history": [
         {
@@ -931,28 +931,29 @@
         }
       ],
       "repeat_count": 3,
-      "priority_score": 5,
-      "priority": "HIGH",
+      "priority_score": 2,
+      "priority": "MEDIUM",
       "priority_reasons": [
-        "MRVL at 2.36x its ATR risk cap",
         "recommended 3x, still unactioned"
       ],
       "cluster": "AI Networking/Optics",
-      "price_now": 210.85,
-      "price_drift_pct": 12.16,
+      "price_now": 210.46,
+      "price_drift_pct": 11.95,
       "still_valid_because": [
-        "MRVL at 2.36x its ATR risk cap",
+        "AI Networking/Optics under band (-5.8pt)",
         "recommended 3x, still unactioned"
       ],
       "review_flags": [
-        "price has moved +12.2% since proposed ($187.99 -> $210.85) -- re-size before acting"
+        "price has moved +11.9% since proposed ($187.99 -> $210.46) -- re-size before acting"
       ],
-      "revalidated_on": "2026-08-06",
-      "retires_when": "MRVL drops under its ATR risk cap",
+      "revalidated_on": "2026-08-07",
+      "retires_when": "AI Networking/Optics re-enters its policy band",
       "full_cure_usd": 1457.0,
       "cure_basis": "risk cap",
       "cure_pct": 27.0,
-      "tranche_note": "cures 27% of the risk cap excess ($1,457) -- roughly 4 tranches this size to fully clear it"
+      "tranche_note": "cures 27% of the risk cap excess ($1,457) -- roughly 4 tranches this size to fully clear it",
+      "retired_on": "2026-08-07",
+      "retired_reason": "neither trigger is live: MRVL is within its ATR risk cap, though AI Networking/Optics is now UNDER its floor (-5.8pt) -- a separate live issue, just not one a trim addresses -- the structural reason for this trim has cleared"
     },
     {
       "date": "2026-08-04T18:20:00+05:30",
@@ -1314,23 +1315,23 @@
       "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
-        "DRAM at 1.48x its ATR risk cap",
+        "DRAM at 1.43x its ATR risk cap",
         "recommended 5x, still unactioned"
       ],
       "cluster": "AI Memory/Storage",
-      "price_now": 53.7,
-      "price_drift_pct": -1.94,
+      "price_now": 51.42,
+      "price_drift_pct": -6.1,
       "still_valid_because": [
-        "DRAM at 1.48x its ATR risk cap",
+        "DRAM at 1.43x its ATR risk cap",
         "recommended 5x, still unactioned"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-06",
+      "revalidated_on": "2026-08-07",
       "retires_when": "DRAM drops under its ATR risk cap",
-      "full_cure_usd": 520.0,
+      "full_cure_usd": 462.0,
       "cure_basis": "risk cap",
-      "cure_pct": 77.0,
-      "tranche_note": "cures 77% of the risk cap excess ($520) -- roughly 2 tranches this size to fully clear it"
+      "cure_pct": 87.0,
+      "tranche_note": "cures 87% of the risk cap excess ($462) -- roughly 2 tranches this size to fully clear it"
     },
     {
       "action": "Stage GOOGL (token, conditional on stabilization above ~$365, not today)",
@@ -1338,16 +1339,15 @@
       "price_at_proposal": 362.26,
       "rationale": "Replaces P-055 (rc=4, $1200) -- Compute/Hyperscaler -10.41pt under floor is real, but GOOGL is -4.08% one session after its own stop fired at $360, and a structural FCF/talent headwind (Dean+Ghemawat exit, first-ever negative quarterly FCF) is still digesting; buying into a falling stop-name fights this book's stop discipline",
       "date": "2026-08-06T00:14:00+05:30",
-      "status": "open",
+      "status": "auto_retired",
       "id": "P-061",
       "ticker": "GOOGL",
-      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-retired 2026-08-07: Compute/Hyperscaler is back inside its policy band -- the underweight this filled has cleared",
       "direction_bucket": "BUY",
-      "priority_score": 4,
-      "priority": "HIGH",
+      "priority_score": 2,
+      "priority": "MEDIUM",
       "priority_reasons": [
-        "Compute/Hyperscaler under band (-5.2pt)",
-        "cash in excess at 20.5% vs a [5,15]% band -- deploying is the live problem, not raising more"
+        "cash in excess at 18.6% vs a [5,15]% band -- deploying is the live problem, not raising more"
       ],
       "cluster": "Compute/Hyperscaler",
       "price_now": 362.14,
@@ -1358,7 +1358,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-06",
-      "retires_when": "Compute/Hyperscaler re-enters its policy band"
+      "retires_when": "Compute/Hyperscaler re-enters its policy band",
+      "retired_on": "2026-08-07",
+      "retired_reason": "Compute/Hyperscaler is back inside its policy band -- the underweight this filled has cleared"
     },
     {
       "id": "P-062",
@@ -1380,13 +1382,13 @@
       "priority_reasons": [
         "CEG genuinely stretched: +6.1% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss"
       ],
-      "price_now": 264.91,
-      "price_drift_pct": 0.05,
+      "price_now": 261.0,
+      "price_drift_pct": -1.43,
       "still_valid_because": [
         "CEG genuinely stretched: +6.1% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-06",
+      "revalidated_on": "2026-08-07",
       "retires_when": "CEG drops out of the stretched cohort (no longer ahead of sector AND up)"
     },
     {
@@ -1408,17 +1410,17 @@
       "priority_score": 4,
       "priority": "HIGH",
       "priority_reasons": [
-        "cash in excess at 20.5% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "cash in excess at 18.6% vs a [5,15]% band -- deploying is the live problem, not raising more",
         "bullish signal 'OVERSOLD BOUNCE' has a 100% INTERIM 7d hit rate (n=3, not yet 30d-validated) in this book"
       ],
-      "price_now": 157.41,
-      "price_drift_pct": -1.47,
+      "price_now": 160.33,
+      "price_drift_pct": 0.36,
       "still_valid_because": [
-        "cash in excess at 20.5% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "cash in excess at 18.6% vs a [5,15]% band -- deploying is the live problem, not raising more",
         "bullish signal 'OVERSOLD BOUNCE' has a 100% INTERIM 7d hit rate (n=3, not yet 30d-validated) in this book"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-06",
+      "revalidated_on": "2026-08-07",
       "retires_when": "'OVERSOLD BOUNCE' signal drops off QCOM or its 7d hit rate falls to/below 55%"
     }
   ],

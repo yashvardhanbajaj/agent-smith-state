@@ -1276,6 +1276,21 @@ def cmd_proposals(args):
     cash_short = bool(_cash_pct is not None and _cash_band[0] is not None and _cash_pct < _cash_band[0])
     cash_excess = bool(_cash_pct is not None and _cash_band[1] is not None and _cash_pct > _cash_band[1])
 
+    def directional_breach(cluster, bucket):
+        """The cluster's breach entry, but ONLY if its edge matches a trade in this bucket's
+        direction -- over-ceiling for TRIM/SELL, under-floor for BUY. Shared by the scorer, the
+        auto-retirement pass, and retires_when so all three agree by construction (fixed
+        2026-08-07: previously each read cluster_breach directly with no direction check, so a
+        TRIM could survive/score on a cluster that had fallen UNDER its floor -- citing an
+        underweight as the reason to trim MORE of it, which deepens the underweight)."""
+        cb = cluster_breach.get(cluster) if cluster else None
+        if not cb:
+            return None
+        edge = cb.get("breach_edge")
+        if (edge == "over" and bucket in ("TRIM", "SELL")) or (edge == "under" and bucket == "BUY"):
+            return cb
+        return None
+
     for pr in props:
         if pr.get("status") != "open":
             continue
@@ -1286,11 +1301,17 @@ def cmd_proposals(args):
         if rpos and rpos.get("over_cap"):
             score += 3
             reasons.append(f"{ticker} at {rpos.get('cap_multiple', 0):.2f}x its ATR risk cap")
-        if cluster and cluster in cluster_breach:
-            cb = cluster_breach[cluster]
+        # DIRECTIONAL cluster-breach check (fixed 2026-08-07, found live: MRVL's 08-06 trim cured
+        # its own risk cap, but the AI Networking/Optics cluster had meanwhile fallen UNDER its
+        # floor from the same trim plus several stops in the same cluster -- the untested version
+        # of this check kept citing that under-floor breach as justification to trim MORE, which
+        # is backwards: trimming a name inside an underweight cluster deepens the underweight.
+        # See directional_breach() above -- shared with the retirement pass and retires_when.
+        db = directional_breach(cluster, bucket)
+        if db:
             score += 2
-            reasons.append(f"{cluster} {'over' if cb.get('breach_edge')=='over' else 'under'} band "
-                            f"({cb.get('drift_pt', 0):+.1f}pt)")
+            reasons.append(f"{cluster} {'over' if db.get('breach_edge')=='over' else 'under'} band "
+                            f"({db.get('drift_pt', 0):+.1f}pt)")
         if cash_short and bucket in ("TRIM", "SELL"):
             score += 2
             reasons.append(f"cash short at {_cash_pct:.1f}% vs a [{_cash_band[0]},{_cash_band[1]}]% band "
@@ -1405,7 +1426,7 @@ def cmd_proposals(args):
         bucket = pr.get("direction_bucket", "HOLD")
         rpos = risk_by_ticker.get(ticker) if ticker else None
         cluster = pr.get("cluster")
-        cl = cluster_breach.get(cluster) if cluster else None
+        cl = directional_breach(cluster, bucket)
         over_cap = bool(rpos and rpos.get("over_cap"))
         age = (today_date - (parse_date(pr.get("date", "")) or today_date)).days
         why = None
@@ -1438,9 +1459,21 @@ def cmd_proposals(args):
                     why = (f"{ticker} is no longer in the stretched cohort (ahead of sector AND "
                            "up) -- the profit-taking rationale for this trim has cleared")
                 else:
+                    # Be honest about WHY the cluster stopped counting: it may be genuinely
+                    # in-band, or it may have flipped to an under-floor breach that a trim
+                    # would only worsen -- "inside its policy band" is false in the second case
+                    # and would misreport a real, live problem as resolved.
+                    raw_cb = cluster_breach.get(cluster) if cluster else None
+                    if raw_cb and raw_cb.get("breach_edge") == "under":
+                        cluster_note = (f", though {cluster} is now UNDER its floor "
+                                        f"({raw_cb.get('drift_pt', 0):+.1f}pt) -- a separate live issue, "
+                                        "just not one a trim addresses")
+                    elif cluster:
+                        cluster_note = f" and {cluster} is inside its policy band"
+                    else:
+                        cluster_note = ""
                     why = (f"neither trigger is live: {ticker} is within its ATR risk cap"
-                           + (f" and {cluster} is inside its policy band" if cluster else "")
-                           + " -- the structural reason for this trim has cleared")
+                           + cluster_note + " -- the structural reason for this trim has cleared")
         elif bucket == "BUY":
             # An "initiate"/"new position" buy is self-evidently done once the name is held.
             if ticker and ticker in current_tickers and any(
@@ -1516,7 +1549,7 @@ def cmd_proposals(args):
         ticker = pr.get("ticker")
         bucket = pr.get("direction_bucket", "HOLD")  # NOT the leaked loop var from the scorer above
         rpos = risk_by_ticker.get(ticker) if ticker else None
-        cl = cluster_breach.get(pr.get("cluster")) if pr.get("cluster") else None
+        cl = directional_breach(pr.get("cluster"), bucket)
         retires_when = None
         if bucket in ("TRIM", "SELL") and pr.get("trigger_type") == "stretch":
             retires_when = f"{ticker} drops out of the stretched cohort (no longer ahead of sector AND up)"
