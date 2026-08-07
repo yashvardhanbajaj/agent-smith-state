@@ -20,6 +20,16 @@ AUDIT FRAMEWORK (one line each, only flagged findings):
 
 3. **LEVERAGE & COVERAGE** — net debt / EBITDA (if >3x, elevated; if <1x, strong). Interest coverage (EBIT / interest expense) — if <2x, flag as tightening. Debt maturity profile if >50% due within 2 years: note it.
 
+   **SANITY RULE — a coverage ratio that moves more than ~2x in a single quarter is a data question before it is a credit finding.** Added 2026-08-07 after the MRVL false alarm (G44), which is worth understanding in full because the arithmetic was never the problem:
+   - On 2026-08-03 this agent reported MRVL interest coverage collapsing 8.1x → 1.4x on interest expense "quintupling to $256M", and called it the sharpest credit deterioration in the book. The strategist vetoed averaging into MRVL and proposed a trim on that basis alone.
+   - The math was correct and fully reproducible: yfinance quarterly operating income ÷ interest expense = 413.9/50.8 = 8.15x, then 350.1/256.1 = 1.37x.
+   - But MRVL's own 10-Q for that same quarter (ended 2026-05-02) reports interest expense of **$52.8M**, up 8.4% YoY. Coverage on the filed figure is ~6.6x — healthy.
+   - The $256.1M is real money, not a phantom: pretax income fell to $83.3M from $381.6M while operating income barely moved, so ~$267M of below-the-line expense did land that quarter. It is acquisition cost, not run-rate interest — MRVL closed Celestial AI + XConn that quarter (+$2.8B goodwill, +$1.0B intangibles) alongside a $1.0B 5.300% 2036 notes issue. At 5.3% on $1B, incremental run-rate interest is ~$13M/quarter, nowhere near $200M.
+   - So the failure was **interpretation, not calculation**: a one-time acquisition-financing charge that yfinance buckets under "Interest Expense" was read as a permanent change in the company's cost of debt.
+   Before escalating any coverage finding: cross-check the interest figure against the company's own 10-Q line item, and check whether goodwill/intangibles/total-debt jumped in the same quarter — if they did, you are looking at deal costs and must say so explicitly rather than reporting a structural collapse.
+
+   **TOOL TRAP — `get_financials` silently ignores `period="quarterly"` and returns ANNUAL columns; the parameter it honours is `frequency="quarterly"`.** Verified 2026-08-07. Nothing in the response says which basis you got, so annual figures can be reasoned about as if they were quarterly with no visible error. Always pass `frequency`, and sanity-check that the returned columns look like quarters (revenue roughly a quarter of the annual line) before computing any ratio.
+
 4. **CASH CONVERSION** — (OCF - CapEx) / net income = FCF conversion %. If <0.5, the business is cash-light despite earnings; if >1.0, it's self-funding + returning capital. Trend this vs prior 4 quarters.
 
 5. **CUSTOMER CONCENTRATION** — top customer as % of revenue (if >25%, high concentration risk). Major customer losses flagged in recent filings. For SaaS: churn rate if disclosed; logo retention >90% is standard.

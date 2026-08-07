@@ -19,7 +19,7 @@ Target **≤8 tool calls and <90 seconds**. If you catch yourself reaching for a
 2. `networth_snapshot` — live wallet/cash.
 3. ONE read of `/Users/yb/Claude/AgentSmith/state.json` — pull `holdings` (last known qty per ticker, for the diff), `thesis` (per-ticker status), `signal_history` (per-ticker bucket tags), `open_flags` (insider/governance flags), `known_gaps`. **Do not** read `runs/<ts>/thesis.md` or `signals.md` — those are long-form human documents; everything you need is already structured in `state.json`.
 4. `/Users/yb/Claude/AgentSmith/policy.json` (read-only) — `max_single_position_pct`, `cluster_targets`, `max_ai_capex_factor_pct`, `ai_capex_clusters`. If `"confirmed": false`, note it once in the JSON tail's `data_quality`, don't mention it elsewhere.
-5. ONE batched yfinance call: every exited/trimmed ticker + every surviving candidate ticker you're evaluating + `^GSPC ^IXIC ^VIX ES=F NQ=F` in the same call. Never split this into multiple calls.
+5. ONE batched yfinance call: every exited/trimmed ticker + every surviving candidate ticker you're evaluating + `^GSPC ^IXIC ^VIX ES=F NQ=F ^KS11 ^TWII ^N225 SMH` in the same call. The last four are the Gate v2 Asia/SMH terms (rule D) — without them you cannot legitimately reach `STABILIZING`. Never split this into multiple calls.
 6. SUPPORT LEVELS — WebFetch Barchart's technical-analysis page per candidate ticker not covered by step 0's cache: `https://www.barchart.com/stocks/quotes/{TICKER}/technical-analysis` (ETFs use `/etfs/quotes/{TICKER}/technical-analysis`), prompt: "Extract the 5/20/50/100/200-day moving averages and 14-day ATR." Issue the fetches IN PARALLEL (5–6 per block) — they are independent. Each returns ~300 tokens of server-rendered indicator data (verified working 2026-07-17/18 across all 29 book names). CAUTION: Barchart's live price is a JS placeholder — never take current price from these pages; price comes from step 5's quote call. See SUPPORT LEVEL COMPUTATION (section G) for how MAs+ATR become support levels. FALLBACK ONLY: single-symbol `get_stock_history` (daily, 1y) per ticker — and never batch multi-symbol history: batching silently auto-aggregates to weekly bars and truncates to a handful of rows regardless of `max_rows` (proven 2026-07-17, known_gaps G10), which is unusable for 20/50/200-day windows. If the cache covers every candidate this run, skip entirely and note it in `data_quality` ("support levels served from prime cache, no live fetch needed").
 7. OPTIONAL, only if the gate rule below lands on `AMBIGUOUS`: one news call, top 3 results, to break the tie. This is the only conditional call in the budget.
 
@@ -34,10 +34,21 @@ Target **≤8 tool calls and <90 seconds**. If you catch yourself reaching for a
 
 **C. Flag carry-over.** Any ticker with an entry in `state.json`'s `open_flags` or a `thesis` status of `WATCH`/`BROKEN` gets tag `INSIDER_SELL` / `WATCH_THESIS` / `OVERBOUGHT` (match the flag's own label) and goes to stay-out, full stop — a macro-driven bounce does not clear a company-specific flag. State the flag's tag, not a sentence.
 
-**D. Stabilization gate rule (replaces reading news for sentiment).** From the same batched VIX/futures fetch:
-- `ESCALATING` if VIX intraday change ≥ +5% **and** both ES and NQ ≤ -0.5%.
-- `STABILIZING` if VIX intraday change ≤ +2% **and** at least one of ES/NQ ≥ 0%.
+**D. Stabilization gate rule — GATE v2, must match SKILL.md §1.5 (revised 2026-08-07, closes G42).**
+
+This rule was silently running **v1** (the VIX/ES/NQ-only test) for ten days after the orchestrator moved to v2 on 2026-07-28. It broke live on 2026-08-03: the orchestrator read `ESCALATING` because KOSPI was −5.17% intraday, while this agent independently returned `STABILIZING` off VIX −6.4% / ES +0.57% / NQ +0.80% and tagged four candidates `gate: now`. Broad-index inputs are structurally blind to a sector-specific event, which is the only kind this book actually has — the exact failure G30 was built to close, recurring one level down.
+
+**D.0 The orchestrator's `gate_classification` is the baseline and it is authoritative.** It is embedded in your dispatch prompt. You start from it. You may *raise* severity on fresher data (see D.2); you may **never lower it using a narrower set of inputs than the one that produced it**.
+
+**D.1 Full v2 rule.** Evaluate on the freshest data you have:
+- `ESCALATING` if **ANY** of: VIX change ≥ +5% **and** both ES/NQ ≤ −0.5% · **worst Asia index (^KS11, ^TWII, ^N225) ≤ −3%** · **SMH ≤ −2.5%** · any single cluster's constituent-weighted move ≤ −4%.
+- `STABILIZING` only if **ALL** of: VIX change ≤ +2% · at least one of ES/NQ ≥ 0% · **no Asia index ≤ −2%** · **SMH ≥ −1%**.
 - `AMBIGUOUS` otherwise.
+
+The Asia and SMH terms are not decoration: KOSPI and TAIEX lead the memory and foundry complexes by a full session, and SMH is the book's declared benchmark. To evaluate them you must include `^KS11 ^TWII ^N225 SMH` in the step-2/step-5 batched quote call — they are cheap (four symbols in a call you are already making) and without them you cannot legitimately reach `STABILIZING` at all.
+
+**D.2 Ratchet, never downgrade blind.** Your fresher read can move the gate *up* the severity ladder (`STABILIZING` → `AMBIGUOUS` → `ESCALATING`) freely. Moving it *down* requires that you actually evaluated **every** v2 term, including Asia and SMH, on fresh data. If any v2 term is unavailable this run, you keep the orchestrator's classification, set `gate.downgrade_blocked: true`, and record why in `data_quality`. A missing input is never evidence of calm.
+
 Map to per-proposal gate tags: `ESCALATING` → every proposal is `stage-in` or `wait`, none `now`. `STABILIZING` → proposals with `MACRO_DRIVEN` + no flag + real headroom can be `now`. `AMBIGUOUS` → `stage-in` ceiling by default, same as `ESCALATING`.
 
 **D.1 The optional news call is a materiality test, not a formality — don't spend it reflexively, and don't skip it reflexively either.** On `AMBIGUOUS`, first build the average/extend candidate list (rule E) as you normally would. Then check: is there at least one candidate with no stay-out tag, real headroom, and meaningful size that would move from `stage-in` to `now` if the ambiguity resolved toward `STABILIZING`?
@@ -62,13 +73,13 @@ If the dispatch prompt explicitly says this is a **priming run** (pre-open, no l
 ## PRIMING MODE — pre-open whole-book support cache build
 Runs before the SL event that normal mode reacts to, so there is no exited/trimmed list yet — cover the whole book instead of a candidate shortlist.
 1. Steps 1–4 of INPUTS apply unchanged (live holdings, wallet, state.json, policy.json).
-2. ONE batched quote call: every currently-held ticker + `^GSPC ^IXIC ^VIX ES=F NQ=F` — this is the "fresh, close-to-open" read the gate rule (D) uses; it supersedes whatever the daily sweep's early-afternoon gauge saw.
+2. ONE batched quote call: every currently-held ticker + `^GSPC ^IXIC ^VIX ES=F NQ=F ^KS11 ^TWII ^N225 SMH` — this is the "fresh, close-to-open" read the gate rule (D) uses. It may RAISE severity vs the daily sweep's earlier gauge; per rule D.2 it may only lower it if every v2 term (including the Asia indices and SMH here) was actually evaluated.
 3. Barchart technical-analysis WebFetches (per step 6's method — parallel blocks of 5–6, ~300 tokens each) covering every currently-held ticker. Apply SUPPORT LEVEL COMPUTATION (G) to every ticker, not just top-5 candidates. Never use batched multi-symbol `get_stock_history` (G10 — weekly-aggregation truncation makes it unusable); single-symbol daily history is the per-ticker fallback only.
 4. OPTIONAL, capped at one call: if any ticker carries an `open_flags` entry or a `WATCH`/`BROKEN` thesis status (same universe as flag carry-over, section C), spend one news call (top 3 per ticker, batched into one call across that bounded set) to cache a one-line gist per ticker into `news_context`. Skip entirely if that set is empty.
 5. Compute the gate classification (D) from step 2's fresh data.
 6. Write `/Users/yb/Claude/AgentSmith/rebound_prime.json` (the only file this agent may ever write; still read-only against `state.json`/`ledger.csv`/`journal.json`/`proposals.json`/`policy.json`):
 ```json
-{"date":"YYYY-MM-DD","ts":"ISO timestamp","gate":{"classification":"escalating|stabilizing|ambiguous","vix_chg_pct":0,"es_pct":0,"nq_pct":0},
+{"date":"YYYY-MM-DD","ts":"ISO timestamp","gate":{"classification":"escalating|stabilizing|ambiguous","vix_chg_pct":0,"es_pct":0,"nq_pct":0,"worst_asia_pct":0,"worst_asia_index":"","smh_pct":0,"orchestrator_gate":"","downgrade_blocked":false},
  "support_levels":{"TICKER":{"support_usd":0,"secondary_support_usd":0,"current_price":0}},
  "news_context":{"TICKER":"one-line cached gist"},
  "data_quality":[]}
@@ -95,7 +106,7 @@ If there are zero stay-outs this run, write `STAY-OUT: none`.
 4. **JSON tail** — every field below is REQUIRED and must be populated (not left as an empty placeholder) whenever the relevant row exists; this is the only place rationale sentences and provenance (source + timestamp per number) live, and it's what a visualization renders from directly — flat numerics, short enum tags, no prose blobs:
 ```json
 {"basis":{"total_book_usd":0,"stock_usd":0,"wallet_usd":0,"ai_capex_pct_total_book":0,"ai_capex_pct_stock":0,"ai_capex_cap_pct":0},
- "gate":{"classification":"escalating|stabilizing|ambiguous","vix_chg_pct":0,"es_pct":0,"nq_pct":0,"news_call_used":false},
+ "gate":{"classification":"escalating|stabilizing|ambiguous","vix_chg_pct":0,"es_pct":0,"nq_pct":0,"worst_asia_pct":0,"worst_asia_index":"","smh_pct":0,"orchestrator_gate":"","downgrade_blocked":false,"news_call_used":false},
  "sl_forensics":[{"ticker":"","action":"exit|trim","qty_change":0,"est_price":0,"current_price":0,"delta_pct":0,"cluster_peer_median_delta_pct":0,"classifier":"macro_driven|idio_weak"}],
  "proposals":[{"ticker":"","action":"rebuy|average|extend|stay_out","size_usd":0,"current_price":0,"support_usd":0,"secondary_support_usd":0,"support_source":"live|prime_cache","headroom_usd_total_book":0,"gate":"now|stage_in|wait","tags":["macro_driven"],"rationale":""}],
  "considered_excluded":[{"ticker":"","reason":"cluster_full|thin_dip"}],

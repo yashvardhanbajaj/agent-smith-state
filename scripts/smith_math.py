@@ -60,6 +60,40 @@ def load_json(path, default=None):
         return json.load(f)
 
 
+def _prior_run_prices(base_dir, run_dir, state):
+    """Last-known price per ticker from the PREVIOUS run's compute_book.json.
+
+    Used to price full exits (the row is gone from the current snapshot, so there is no
+    live price for it) -- see G41. Deliberately defensive, because two ways of getting
+    this wrong were both hit for real on 2026-08-07:
+      (a) SELF-REFERENCE: state.last_run_dir can already point at the run currently being
+          computed. Reading the file we are about to overwrite is meaningless at best, and
+          if a shell redirect truncated it first, json.load raises and takes the whole
+          subcommand down. Skip when the paths resolve to the same directory.
+      (b) UNPARSEABLE PRIOR: a truncated/partial compute_book.json from an interrupted run
+          must degrade to "no prior prices" (exits then land in exits_unpriced and are
+          reported), never crash the run.
+    """
+    if not run_dir:
+        return {}
+    prior_dir = os.path.join(base_dir, run_dir)
+    try:
+        if os.path.realpath(prior_dir) == os.path.realpath(getattr(_prior_run_prices, "_current", "")):
+            return {}
+    except OSError:
+        pass
+    path = os.path.join(prior_dir, "compute_book.json")
+    if not os.path.exists(path) or os.path.getsize(path) == 0:
+        return {}
+    try:
+        with open(path) as f:
+            prior_book = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return {}
+    return {pp["ticker"]: pp["price_usd"]
+            for pp in prior_book.get("positions", []) if pp.get("price_usd")}
+
+
 def emit(obj):
     print(json.dumps(obj, indent=None, sort_keys=False))
 
@@ -109,6 +143,65 @@ def cmd_book(args):
             recon.setdefault("breaches", []).append(
                 f"{label} differs from row-level sum by {div:.2f}% (tolerance 3%) -- G3 pattern")
     recon["persist_safe"] = persist_safe
+
+    # ADDED 2026-08-07 (G32): when rows and aggregate disagree, say WHICH ONE IS WRONG.
+    # Until now the script only reported *that* they diverged and blocked the persist, leaving the
+    # orchestrator to guess. The guess has direction risk: G3 was aggregate-lags-rows, but the three
+    # 2026-07-29/30 recurrences were the OPPOSITE (rows stale up to 79.5% on a name, aggregate live
+    # and within 0.22% of a from-scratch reconstruction). Defaulting to either source is wrong half
+    # the time. This script is stdlib-only and cannot fetch quotes, so the orchestrator passes what
+    # it already pulled in step 2.5/2.5b as holdings.json["live_quotes"] = {TICKER: price_usd}, and
+    # the arbitration is done here deterministically instead of by narrative judgement.
+    live_quotes = holdings.get("live_quotes") or {}
+    if live_quotes and row_sum_inr:
+        priced, unpriced, live_sum_inr = [], [], 0.0
+        for r in rows:
+            px, qty = live_quotes.get(r["ticker"]), r.get("qty")
+            if px and qty:
+                live_sum_inr += qty * px * usdinr
+                priced.append(r["ticker"])
+            else:
+                unpriced.append(r["ticker"])
+        coverage = len(priced) / len(rows) * 100 if rows else 0.0
+        arb = {"live_sum_inr": round(live_sum_inr, 2), "coverage_pct": round(coverage, 1),
+               "unpriced": unpriced}
+        if coverage >= 90.0 and live_sum_inr:
+            d_rows = abs(row_sum_inr - live_sum_inr) / live_sum_inr * 100
+            arb["rows_vs_live_pct"] = round(d_rows, 3)
+            if aggregate_inr:
+                d_agg = abs(aggregate_inr - live_sum_inr) / live_sum_inr * 100
+                arb["aggregate_vs_live_pct"] = round(d_agg, 3)
+                # whichever source tracks live is the trustworthy one
+                if abs(d_rows - d_agg) < 1.0:
+                    if max(d_rows, d_agg) <= recon["tolerance_pct"]:
+                        arb["verdict"] = "both_agree_with_live"
+                        arb["note"] = "rows and aggregate both track live within tolerance -- healthy"
+                    else:
+                        arb["verdict"] = "inconclusive"
+                        arb["note"] = ("rows and aggregate are about equally far from live -- the "
+                                       "divergence is not a one-sided stale feed; investigate "
+                                       "before persisting")
+                elif d_rows < d_agg:
+                    arb["verdict"] = "aggregate_stale"
+                    arb["trust"] = "rows"
+                else:
+                    arb["verdict"] = "rows_stale"
+                    arb["trust"] = "aggregate"
+            else:
+                arb["verdict"] = "rows_only_checked"
+                arb["trust"] = "rows" if d_rows <= 3.0 else "neither"
+        else:
+            arb["verdict"] = "insufficient_coverage"
+            arb["note"] = (f"live quotes cover only {coverage:.0f}% of rows (need >=90%) -- "
+                           "not enough to arbitrate; no direction inferred")
+        recon["live_arbitration"] = arb
+        # A confident arbitration turns a blocked persist into a usable one, but ONLY by telling the
+        # orchestrator which source to rebuild from -- it never silently re-enables the write.
+        if not persist_safe and arb.get("trust") in ("rows", "aggregate"):
+            recon.setdefault("breaches", []).append(
+                f"ARBITRATED: {arb['verdict']} -- rebuild holdings.json from '{arb['trust']}' "
+                f"(or from live quotes directly) and re-run; persist stays blocked until the "
+                f"row-vs-aggregate divergence is actually resolved, not merely explained")
 
     value_usd = round(totals["current_value_inr_from_snapshot"] / usdinr, 2)
     wallet_usd = round(totals.get("wallet_inr", 0) / usdinr, 2)
@@ -266,21 +359,53 @@ def cmd_book(args):
         if not is_split_like and p["price_usd"]:
             est_net_flows_usd += qty_diff * p["price_usd"]
 
-    # track full exits (in prior, not in current)
+    # FIXED 2026-08-07 (G41): the two loops below append to qty_changes but historically never
+    # touched est_net_flows_usd, so only qty changes on CONTINUING holdings were counted as flow.
+    # Verified against the 2026-08-03 run: est_net_flows_usd read $810.37, which is exactly the
+    # TSM +2sh add and nothing else -- the four new entries (META/AMZN/BABA/QBTS, ~$1,678 out)
+    # and IREN's full exit (~$360 in) were both silently dropped into
+    # compute_attribution.json's residual_market_move_usd, misattributing cash movement as
+    # market performance. New entries are exactly priceable (they're in `positions`); exits are
+    # not (the row is gone), so exit proceeds fall back to the LAST KNOWN price from the prior
+    # run's compute_book.json and are labelled as such -- never estimated or interpolated.
+    _prior_run_prices._current = args.run_dir
+    prior_prices = _prior_run_prices(args.base_dir, state.get("last_run_dir"), state)
+
+    flow_components = {"adds_trims_usd": round(est_net_flows_usd, 2), "new_entries_usd": 0.0,
+                       "exits_usd": 0.0, "exits_unpriced": [], "exit_price_basis": "last_known_price_prior_run"}
+
+    # track full exits (in prior, not in current) -- proceeds are a cash INFLOW (negative net flow)
     for prior in state.get("holdings", []):
         if prior["ticker"] not in current_holdings:
-            qty_changes.append({
+            exit_qty = prior.get("qty") or 0.0
+            exit_px = prior_prices.get(prior["ticker"])
+            entry = {
                 "ticker": prior["ticker"], "prior_qty": prior.get("qty"), "current_qty": 0.0,
                 "ratio": 0.0, "likely_corporate_action": False,
-            })
+            }
+            if exit_px and exit_qty:
+                proceeds = exit_qty * exit_px
+                est_net_flows_usd -= proceeds
+                flow_components["exits_usd"] = round(flow_components["exits_usd"] - proceeds, 2)
+                entry["est_proceeds_usd"] = round(proceeds, 2)
+                entry["price_basis"] = "last_known_price_prior_run"
+            else:
+                flow_components["exits_unpriced"].append(prior["ticker"])
+            qty_changes.append(entry)
 
-    # track new entries (in current, not in prior)
+    # track new entries (in current, not in prior) -- purchases are a cash OUTFLOW (positive net flow)
     for p in positions:
         if p["ticker"] not in prior_holdings:
-            qty_changes.append({
+            entry = {
                 "ticker": p["ticker"], "prior_qty": 0.0, "current_qty": p["qty"],
                 "ratio": None, "likely_corporate_action": False,
-            })
+            }
+            if p["price_usd"] and p["qty"]:
+                cost = p["qty"] * p["price_usd"]
+                est_net_flows_usd += cost
+                flow_components["new_entries_usd"] = round(flow_components["new_entries_usd"] + cost, 2)
+                entry["est_cost_usd"] = round(cost, 2)
+            qty_changes.append(entry)
 
     # load trade rationales from trades.json if present (FIXED 1.2: 2026-07-26)
     trades = load_json(os.path.join(args.base_dir, "trades.json"), default={})
@@ -302,6 +427,11 @@ def cmd_book(args):
         data_quality.append(f"betas defaulted to 1.0 for {len(beta_missing)} names (no data_cache entry): {', '.join(beta_missing[:8])}{'...' if len(beta_missing) > 8 else ''}")
     if not lots:
         data_quality.append("lots.json absent/empty -- LTCG flags unavailable (standing gap)")
+    if flow_components["exits_unpriced"]:
+        data_quality.append(
+            "est_net_flows_usd EXCLUDES proceeds for fully-exited "
+            f"{', '.join(flow_components['exits_unpriced'])} -- no last-known price in the prior run's "
+            "compute_book.json, and an exit price is never estimated (G41)")
 
     emit({
         "value_usd": value_usd, "pnl_pct": pnl_pct, "day_chg_pct_weighted": day_chg_pct_weighted,
@@ -321,6 +451,7 @@ def cmd_book(args):
         "reconciliation": recon,
         "persist_safe": persist_safe,
         "qty_changes": qty_changes, "est_net_flows_usd": round(est_net_flows_usd, 2),
+        "flow_components": flow_components,
         "positions": positions,
         "data_quality": data_quality,
     })
@@ -535,24 +666,72 @@ def cmd_attribution(args):
     value_at_current_fx = value_inr_current / usdinr
     fx_effect = value_at_current_fx - value_at_prior_fx
 
+    # FIXED 2026-08-07 (G41): this loop used to `continue` past any ticker absent from prior
+    # holdings, so a brand-new position's purchase cost never reached flow_usd, and full exits
+    # (absent from `rows` entirely) were never visited at all. Both leaked into `residual`,
+    # which the briefing reports as "market move" -- so cash movement was being narrated as
+    # performance. Verified on the 2026-08-03 book: flow read $810.37 when true flow was
+    # $2,093.66, overstating residual market move by ~$1,283 on a $40k book.
     prior_holdings = {h["ticker"]: h for h in state.get("holdings", [])}
     rows = {r["ticker"]: r for r in holdings["holdings_inr"]}
     flow_usd = 0.0
     qty_changes = []
+    flow_components = {"adds_trims_usd": 0.0, "new_entries_usd": 0.0, "exits_usd": 0.0,
+                       "exits_unpriced": [], "exit_price_basis": "last_known_price_prior_run"}
+
     for ticker, r in rows.items():
         prior = prior_holdings.get(ticker)
-        if prior is None or prior.get("qty") is None or not r.get("qty"):
+        if not r.get("qty"):
+            continue
+        price_usd = r["market_value_inr"] / r["qty"] / usdinr
+        if prior is None:
+            # brand-new position: full cost is a cash outflow
+            cost = r["qty"] * price_usd
+            flow_usd += cost
+            flow_components["new_entries_usd"] = round(flow_components["new_entries_usd"] + cost, 2)
+            qty_changes.append({"ticker": ticker, "qty_diff": round(r["qty"], 6),
+                                "likely_corporate_action": False, "new_entry": True,
+                                "est_cost_usd": round(cost, 2)})
+            continue
+        if prior.get("qty") is None:
             continue
         qty_diff = r["qty"] - prior["qty"]
         if abs(qty_diff) < 1e-6:
             continue
         ratio = r["qty"] / prior["qty"] if prior["qty"] else None
         is_split_like = ratio is not None and abs(ratio - round(ratio)) < 0.02 and round(ratio) != 1
-        price_usd = r["market_value_inr"] / r["qty"] / usdinr
         entry = {"ticker": ticker, "qty_diff": round(qty_diff, 6), "likely_corporate_action": bool(is_split_like)}
         qty_changes.append(entry)
         if not is_split_like:
             flow_usd += qty_diff * price_usd
+            flow_components["adds_trims_usd"] = round(
+                flow_components["adds_trims_usd"] + qty_diff * price_usd, 2)
+
+    # full exits: gone from `rows`, so priced off the prior run's last-known price, never estimated
+    _prior_run_prices._current = args.run_dir
+    prior_prices = _prior_run_prices(args.base_dir, state.get("last_run_dir"), state)
+    for ticker, prior in prior_holdings.items():
+        if ticker in rows:
+            continue
+        exit_qty = prior.get("qty") or 0.0
+        exit_px = prior_prices.get(ticker)
+        entry = {"ticker": ticker, "qty_diff": round(-exit_qty, 6),
+                 "likely_corporate_action": False, "full_exit": True}
+        if exit_px and exit_qty:
+            proceeds = exit_qty * exit_px
+            flow_usd -= proceeds
+            flow_components["exits_usd"] = round(flow_components["exits_usd"] - proceeds, 2)
+            entry["est_proceeds_usd"] = round(proceeds, 2)
+            entry["price_basis"] = "last_known_price_prior_run"
+        else:
+            flow_components["exits_unpriced"].append(ticker)
+        qty_changes.append(entry)
+
+    if flow_components["exits_unpriced"]:
+        result["data_quality"].append(
+            "flow_usd EXCLUDES proceeds for fully-exited "
+            f"{', '.join(flow_components['exits_unpriced'])} -- no last-known price available; "
+            "residual_market_move_usd absorbs it and is overstated by that amount (G41)")
 
     residual = value_delta - fx_effect - flow_usd
 
@@ -562,6 +741,7 @@ def cmd_attribution(args):
         "flow_usd": round(flow_usd, 2),
         "residual_market_move_usd": round(residual, 2),
         "qty_changes": qty_changes,
+        "flow_components": flow_components,
     })
 
     if os.path.exists(ledger_path):
