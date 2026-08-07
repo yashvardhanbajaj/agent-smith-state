@@ -171,6 +171,14 @@ p{margin:0}
 .phead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
   padding:13px 17px;border-bottom:1px solid var(--line-soft)}
 .phead h2{font-size:14.5px}
+/* FIXED 2026-08-08 (user-reported: "Factor themesthe standing watch list..." ran together with
+   no space) -- .sub was used as a class on <span> throughout (h2 subtitles) AND on <td> (muted
+   table-cell text) but never had a CSS rule at all, so h2 subtitles inherited zero spacing and
+   ran directly into the heading text. Base rule mutes both contexts; the nested h2 override adds
+   the spacing that only makes sense next to a heading, without touching td.sub's table layout. */
+.sub{color:var(--ink-3)}
+h2 .sub{display:inline-block;margin-left:8px;font-family:var(--sans);font-weight:400;
+  font-size:12px;letter-spacing:0;vertical-align:middle}
 .pbody{padding:17px;display:flex;flex-direction:column;gap:14px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:26px;align-items:start}
 
@@ -208,6 +216,32 @@ td.blank{color:var(--ink-3)}
 .band .tgt{position:absolute;top:0;bottom:0;width:2px;background:var(--accent-line)}
 .band .mk{position:absolute;top:3px;bottom:3px;width:3px;border-radius:2px;background:var(--ink)}
 .band .mk.bad{background:var(--bad)}
+
+/* ============ expandable cluster rows (added 2026-08-08, user-requested: expand a cluster to
+   see its member holdings and which are peer leaders/laggards) ============ */
+.clus-hdr{display:grid;grid-template-columns:1fr 70px 70px 90px 150px;gap:12px;padding:0 0 8px;
+  align-items:baseline}
+.clus-hdr .num{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);text-align:right}
+details.clus-row{border-top:1px solid var(--line-soft)}
+details.clus-row:first-of-type{border-top:none}
+details.clus-row>summary{display:grid;grid-template-columns:1fr 70px 70px 90px 150px;gap:12px;
+  align-items:center;padding:11px 0;cursor:pointer;list-style:none;font-family:var(--sans)}
+details.clus-row>summary::-webkit-details-marker{display:none}
+details.clus-row>summary::before{content:"";}
+details.clus-row .name{font-weight:640;letter-spacing:-.01em;display:flex;align-items:baseline;gap:7px}
+details.clus-row .name i{font-style:normal;font-family:var(--mono);font-size:11px;font-weight:400;
+  color:var(--ink-3)}
+details.clus-row .name::before{content:"▸";color:var(--ink-3);font-family:var(--sans);width:10px;
+  display:inline-block}
+details.clus-row[open] .name::before{content:"▾"}
+details.clus-row .num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+details.clus-row .num.blank{color:var(--ink-3)}
+details.clus-row>.body{padding:0 0 14px}
+.peer-tag{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 6px;border-radius:4px;white-space:nowrap}
+.peer-tag.lead{background:var(--good-soft);color:var(--good)}
+.peer-tag.lag{background:var(--bad-soft);color:var(--bad)}
 
 /* ============ decision/proposal rows ============ */
 .pr{display:grid;grid-template-columns:76px 1fr auto;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft);align-items:baseline}
@@ -496,6 +530,19 @@ def build(base, out):
     ts = state.get("ts", "")
     sector_map = state.get("sector_map", {})
     held_tickers = {h["ticker"] for h in state.get("holdings", [])}
+    # moved up from the positions-table section (2026-08-08) so the cluster-expand feature below
+    # can use it too -- single definition, both call sites read the same dict.
+    risk_by_ticker = {r["ticker"]: r for r in risk.get("positions", [])}
+
+    def thesis_status(txt):
+        """('strengthening'|'watch'|'broken'|None). Same rpartition("|") convention the thesis
+        map already used -- extracted here so the cluster-expand feature can share it exactly
+        rather than re-deriving a second, possibly-divergent parse of the same field."""
+        if not txt:
+            return None
+        _, _, status = txt.rpartition("|")
+        st_raw = status.strip().lower() if status else ""
+        return next((k for k in ("strengthening", "watch", "broken") if st_raw.startswith(k)), None)
 
     H = []
     H.append(f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
@@ -642,13 +689,19 @@ def build(base, out):
         rows = []
         for c in catalysts[:6]:
             dirn = {"threat": "THREAT", "tailwind": "TAILWIND"}.get(c.get("direction", ""), "AMBIGUOUS")
-            affects = " &middot; ".join(c.get("affects", []))
+            # FIXED 2026-08-08 (user-reported: "&middot" rendering as literal text): affects was
+            # joined with the RAW "&middot;" entity, then the whole joined string was passed
+            # through esc(), which escapes the "&" a second time into "&amp;middot;" -- browsers
+            # render that as the literal text "&middot;", not a dot. Escape each ticker
+            # individually first, THEN join with the raw (already-safe) entity separator, same
+            # fix applied to `maps` below.
+            affects = " &middot; ".join(esc(x) for x in c.get("affects", []))
             exp = c.get("exposure_pct_equity")
             exp_s = f' &mdash; {exp:.1f}% equity' if isinstance(exp, (int, float)) else ""
             rows.append(f'<div class="ci"><span class="cb {dirn}">{dirn}</span><div>'
                         f'<div class="hh">{esc(c.get("headline",""))}</div>'
                         f'<div class="mm">{esc(c.get("magnitude",""))}</div>'
-                        f'<div class="aa">{esc(affects)}{exp_s}</div></div></div>')
+                        f'<div class="aa">{affects}{exp_s}</div></div></div>')
         H.append('<section class="panel"><div class="phead"><h2>Factor catalysts</h2></div>'
                  f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
 
@@ -660,14 +713,15 @@ def build(base, out):
     if themes:
         rows = []
         for th in themes[:8]:
-            maps = " &middot; ".join(th.get("maps_to", [])[:10])
+            # same double-escape fix as `affects` above
+            maps = " &middot; ".join(esc(x) for x in th.get("maps_to", [])[:10])
             live_keys = sorted([k for k in th if k.startswith("live_")], reverse=True)
             latest_live = th.get(live_keys[0]) if live_keys else None
             live_s = (f'<div class="mm">{esc(latest_live)}</div>' if latest_live else "")
             rows.append(f'<div class="ci"><span class="cb AMBIGUOUS">WATCH</span><div>'
                         f'<div class="hh">{esc(th.get("name",""))}</div>'
                         f'<div class="mm" style="font-style:italic">{esc(th.get("watch",""))}</div>'
-                        f'{live_s}<div class="aa">{esc(maps)}</div></div></div>')
+                        f'{live_s}<div class="aa">{maps}</div></div></div>')
         H.append('<section class="panel"><div class="phead"><h2>Factor themes'
                  '<span class="sub">the standing watch list catalysts get checked against</span></h2></div>'
                  f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
@@ -986,14 +1040,67 @@ def build(base, out):
     # ================= TIER: BOOK COMPOSITION =================
     H.append('<div class="tier"><h2>Book composition</h2><div class="ln"></div></div>')
 
+    # FIXED 2026-08-08: fig()'s `sub` param is passed through esc() internally (see its
+    # definition above), so it needs the literal "·" character here, not the "&middot;" HTML
+    # entity -- esc() would escape the "&" a second time into the literal text "&middot;".
     H.append(fig(ch.get("treemap"), "Allocation treemap",
-                 "size = weight &middot; color = cluster &middot; red outline = over risk cap"))
+                 "size = weight · color = cluster · red outline = over risk cap"))
 
     cluster_table = drift.get("cluster_table", [])
     clusters_html = ""
     if cluster_table:
+        # -- per-cluster member holdings (added 2026-08-08, user-requested: "make modification
+        # so that I can open/expand a particular cluster and see the stock in that cluster and
+        # some relevant info of these stocks. May be add which stock is peer leader and
+        # otherwise"). Cluster -> held tickers, from sector_map (the same source of truth the
+        # thesis map and risk pipeline already use, not a re-derivation).
+        holdings_by_ticker = {h["ticker"]: h for h in state.get("holdings", [])}
+        cluster_members = {}
+        for tk in held_tickers:
+            cl = sector_map.get(tk)
+            if cl:
+                cluster_members.setdefault(cl, []).append(tk)
+        signal_history = state.get("signal_history") or {}
+        thesis = state.get("thesis") or {}
+        thesis_dot = {"strengthening": "dot-g", "watch": "dot-w", "broken": "dot-b"}
+
+        def member_rows(cluster_name):
+            members = cluster_members.get(cluster_name, [])
+            members = sorted(members, key=lambda tk: -(holdings_by_ticker.get(tk, {}).get("weight_pct") or 0))
+            out = []
+            for tk in members:
+                h = holdings_by_ticker.get(tk, {})
+                rpos = risk_by_ticker.get(tk, {})
+                qty, mv = h.get("qty"), rpos.get("market_value_usd")
+                price = (mv / qty) if (mv and qty) else None
+                st = thesis_status(thesis.get(tk))
+                st_s = (f'<span class="{thesis_dot.get(st,"dot-w")}" style="display:inline-block;'
+                       f'width:7px;height:7px;border-radius:50%;margin-right:5px"></span>{esc(st)}'
+                       if st else '<span style="color:var(--ink-3)">&mdash;</span>')
+                buckets = signal_history.get(tk) or []
+                peer_s = ""
+                if "PEER LEADER" in buckets:
+                    peer_s = '<span class="peer-tag lead">PEER LEADER</span>'
+                elif "PEER LAGGARD" in buckets:
+                    peer_s = '<span class="peer-tag lag">PEER LAGGARD</span>'
+                other_tags = "".join(
+                    f'<span class="tick {"g" if b in smith_risk.SIGNAL_POLARITY["bullish"] else "b" if b in smith_risk.SIGNAL_POLARITY["bearish"] else ""}" '
+                    f'style="margin-left:4px">{esc(b)}</span>'
+                    for b in buckets if b not in ("PEER LEADER", "PEER LAGGARD"))
+                cap_s = (f'<span class="neg" title="{rpos.get("cap_multiple",0):.2f}x its ATR risk cap">&#9888;&#65039;</span>'
+                        if rpos.get("over_cap") else "")
+                out.append(
+                    f'<tr><td class="name">{esc(tk)}</td>'
+                    f'<td>{h.get("weight_pct",0):.2f}%</td>'
+                    f'<td>{f"${price:,.2f}" if price is not None else "&mdash;"}</td>'
+                    f'<td class="txt">{st_s}</td>'
+                    f'<td class="txt">{peer_s}{other_tags}</td>'
+                    f'<td>{cap_s}</td></tr>')
+            return "".join(out)
+
         rows = []
         for c in sorted(cluster_table, key=lambda r: -r.get("actual_pct_of_equity", r.get("actual_pct", 0))):
+            cname = c.get("cluster", "")
             band_c = c.get("band_pct") or [0, 100]
             lo, hi = band_c[0] or 0, band_c[1] or 100
             actual = c.get("actual_pct_of_equity", c.get("actual_pct", 0))
@@ -1001,19 +1108,28 @@ def build(base, out):
             scale = max(hi, actual, tgt, 1) * 1.15
             pc = lambda v: max(0, min(100, v / scale * 100))
             breach = c.get("breach")
+            n_members = len(cluster_members.get(cname, []))
+            body_rows = member_rows(cname)
+            body = (f'<div class="scroll"><table><thead><tr><th>Name</th><th>Wt</th><th>Price</th>'
+                   f'<th>Thesis</th><th>Signals</th><th></th></tr></thead>'
+                   f'<tbody>{body_rows}</tbody></table></div>' if body_rows else
+                   '<p class="note">No held ticker maps to this cluster.</p>')
             rows.append(
-                f'<tr><td class="name">{esc(c.get("cluster",""))}</td>'
-                f'<td>{actual:.2f}%</td>'
-                f'<td class="{"neg" if breach else "pos"}">{c.get("actual_pct_of_total_book",0):.2f}%</td>'
-                f'<td class="blank">[{lo:g},{hi:g}]</td>'
-                f'<td><div class="band"><div class="ok" style="left:{pc(lo):.1f}%;width:{pc(hi)-pc(lo):.1f}%"></div>'
+                f'<details class="clus-row"{" open" if breach else ""}><summary>'
+                f'<span class="name">{esc(cname)}<i>{n_members} held</i></span>'
+                f'<span class="num">{actual:.2f}%</span>'
+                f'<span class="num {"neg" if breach else "pos"}">{c.get("actual_pct_of_total_book",0):.2f}%</span>'
+                f'<span class="num blank">[{lo:g},{hi:g}]</span>'
+                f'<div class="band"><div class="ok" style="left:{pc(lo):.1f}%;width:{pc(hi)-pc(lo):.1f}%"></div>'
                 f'<div class="tgt" style="left:{pc(tgt):.1f}%"></div>'
-                f'<div class="mk{" bad" if breach else ""}" style="left:{pc(actual):.1f}%"></div></div></td></tr>')
+                f'<div class="mk{" bad" if breach else ""}" style="left:{pc(actual):.1f}%"></div></div>'
+                f'</summary><div class="body">{body}</div></details>')
         clusters_html = ('<section class="panel"><div class="phead"><h2>Clusters</h2>'
-                         '<span class="pill">ceiling on book &middot; floor on equity</span></div>'
-                         '<div class="pbody"><div class="scroll"><table><thead><tr><th>Cluster</th>'
-                         '<th>Equity</th><th>Book</th><th>Band</th><th style="width:150px"></th></tr></thead>'
-                         f'<tbody>{"".join(rows)}</tbody></table></div></div></section>')
+                         '<span class="pill">ceiling on book &middot; floor on equity &middot; click a cluster to see its holdings</span></div>'
+                         f'<div class="pbody" style="gap:0"><div class="clus-hdr"><span></span>'
+                         '<span class="num">Equity</span><span class="num">Book</span>'
+                         '<span class="num">Band</span><span></span></div>'
+                         f'{"".join(rows)}</div></section>')
 
     risk_rows = sorted([r for r in risk.get("positions", []) if r.get("over_cap")],
                        key=lambda r: (r.get("headroom_usd") or 0))
@@ -1033,8 +1149,12 @@ def build(base, out):
                         '<p class="note">Cap = 0.5% of book &divide; that name\'s 2&times;ATR20 stop.</p>'
                         '</div></section>')
 
-    if clusters_html or riskcap_html:
-        H.append(f'<div class="grid2">{clusters_html}{riskcap_html}</div>')
+    # Clusters moved out of the grid2 pairing (2026-08-08) -- expandable member-holdings rows
+    # need full width, a 50%-width column would cramp the nested per-ticker table badly.
+    if clusters_html:
+        H.append(clusters_html)
+    if riskcap_html:
+        H.append(riskcap_html)
 
     # -- LTCG watch (added 2026-08-06, dashboard feature review). compute_book.json computes
     # ltcg_flags every run from lots.json (now fully populated with email-confirmed dates) and
@@ -1062,7 +1182,6 @@ def build(base, out):
                  '<div class="pbody"><p class="note">No lot sits within 6 months of the '
                  f'{ltcg_months}-month LTCG boundary right now.</p></div></section>')
 
-    risk_by_ticker = {r["ticker"]: r for r in risk.get("positions", [])}
     holdings = sorted(state.get("holdings", []), key=lambda h: -(h.get("weight_pct") or 0))
     if holdings:
         tot_value = sum((risk_by_ticker.get(h["ticker"], {}).get("market_value_usd") or 0) for h in holdings)

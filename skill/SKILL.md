@@ -236,7 +236,13 @@ and forward-looking proposal retirement text; the 2026-07-29/G34 list below this
 - Sentiment gauge + intraday & international session (side by side)
 - The week ahead (earnings/FOMC calendar, 6 days forward)
 - Book composition tier: **allocation treemap** (squarified, color by cluster, red outline = over risk cap) ·
-  clusters (equity% and book% side by side, target-band meter) · risk-cap breaches (from `compute_risk.json`'s
+  **clusters** (equity% and book% side by side, target-band meter; **expandable** since 2026-08-08 — each cluster
+  is a `<details>` row, click to see its member holdings: ticker, weight%, price, thesis status dot, and signal
+  tags including a distinct badge for PEER LEADER/PEER LAGGARD from `state.signal_history`, plus a ⚠️ if the name
+  is over its own risk cap — a plain `<table>` couldn't do this without JS, which this dashboard deliberately has
+  none of, so it's built from the same `<details>/<summary>` idiom the priority tiers and Diagnostics already use;
+  own full-width panel now, pulled out of the risk-cap-breaches grid2 pairing since the expanded member table needs
+  the width) · risk-cap breaches (from `compute_risk.json`'s
   real ATR-based caps, not a qualitative flag match) · **LTCG watch** (added 2026-08-06 — lots within 6 months of
   the policy's LTCG boundary from `compute_book.json`'s `ltcg_flags`; an empty result renders an explicit "clear"
   pill, not a vanished section, since the empty state is itself a real, positive statement) · full positions table
@@ -261,6 +267,10 @@ Before running it, write `narrative.json` — `{"session_read": "..."}` — with
 STRUCTURE the builder enforces, and the reason for it: the old 16-flat-section layout (3,164 words, proposals buried at section 11, zero charts) was replaced 2026-07-26 with a leaner 3-tier design, which was itself found 2026-07-29 (G34) to have fallen behind a richer version that got hand-authored once and never ported into the generator. The current structure is the richer one, generated properly this time: **DECISIONS** (proposals, catalysts, rotation, the read — always open, first), a sentiment/session pair, a week-ahead calendar, **BOOK COMPOSITION** (treemap, clusters, risk caps, positions — always open), **DIAGNOSTICS** (thesis, signals, gaps, plus historical charts — collapsed). Prose rule: one sentence inline, anything longer inside `<details>`. The chat briefing still carries the narrative — the dashboard's own prose stays to "the read" and macro numbers, not a second copy of the full briefing.
 
 Charts follow the `dataviz` skill: validated palette (blue/yellow/red passed the six checks in both modes), one axis per chart and never a dual axis, direct labels on the light-mode yellow (sub-3:1, relief rule), `<title>` hover on every mark. If you change chart code, re-run `scripts/validate_palette.js` and re-render to look at it before shipping.
+
+TWO RENDERING BUGS FOUND 2026-08-08 (user-reported: literal "&middot" text visible on the page, and heading subtitles running into the heading with no space) — both are landmines worth naming explicitly since they're easy to reintroduce:
+- **Never join a list with an HTML entity separator (`" &middot; ".join(items)`) and then pass the WHOLE joined string through `esc()`.** `esc()` escapes every `&` it sees, so `&middot;` becomes the literal text `&amp;middot;`, which renders on the page as the visible string "&middot;" instead of a dot. Escape each item individually first (`" &middot; ".join(esc(x) for x in items)`), or use the literal `·` Unicode character instead of the entity wherever the string is headed through `esc()` — that's what `fig()`'s `sub` parameter needed, since `esc()` doesn't need to touch a plain Unicode character. Found in three places this run: the Factor catalysts `affects` field, Factor themes `maps_to` field, and the treemap's `fig()` sub-text.
+- **Every CSS class used in the generator's HTML must have a matching rule in `CSS`** — `<span class="sub">` had been used as a heading-subtitle class throughout the file (Factor themes, Diversifier bench, Stop-loss efficacy, LTCG watch, Positions, De-risk queue) with **zero CSS definition anywhere**, so it inherited no spacing and ran directly into the heading text. Fixed with a base `.sub{color:var(--ink-3)}` (covers `td.sub` too) plus a `h2 .sub{margin-left:8px;...}` override scoped to the heading context only. When adding a new `<span class="...">` or `<td class="...">`, grep the CSS block first to confirm the class actually exists — an undefined class fails silently, there's no browser warning.
 
 HONESTY CONSTRAINTS baked into the charts, do not "fix" them by making the numbers look cleaner: (a) ledger rows whose `value_trust` is not `ok` are drawn ringed/hatched and EXCLUDED from scales and win/loss counts — a corrupt price-feed reading is never allowed to set an axis or count as performance; (b) cumulative book-vs-SMH is deliberately NOT plotted while `external_flow_usd` is unpopulated, because a cumulative line would mix deposits with returns — only per-period relative performance is shown.
 
