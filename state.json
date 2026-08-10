@@ -1503,6 +1503,12 @@
       "closed": "2026-08-10",
       "resolution": "Reconciled same day: -29.8% is the correct 30-calendar-day return (confirmed by an independent from-scratch calc against yfinance daily closes, exact match). The -43.7% de-risk-queue figure was measuring from a mid-June local price peak (~06-15 to 06-22 range), not a rolling 1-month window -- a peak-to-current framing mislabeled as '1-month'. De-risk queue's stretch/fragility scoring should be re-checked for the same mislabeling on other names next run.",
       "closed_by": "user-flagged correction 2026-08-10"
+    },
+    {
+      "id": "G58",
+      "description": "Qualitative claims from sub-agent news reads are not source-verified before propagating into sized proposals or the user-facing briefing -- only deterministic arithmetic (weights/drift/concentration) goes through the compute-first script guardrail. Root-caused 2026-08-10: smith-thesis characterized SNDK's FQ1'27 guide (below Street's own estimate, but still ~17-23% sequential growth) as 'a real demand-guide miss' from a single negative headline, without checking the same earnings release's beat/record-margin/$93.9B-agreements details. The orchestrator propagated this framing into P-064's rationale and the chat briefing without independently checking the primary source. FIX GOING FORWARD: before a sub-agent's qualitative characterization (miss/beat/broken/deteriorating) drives a sized proposal, the orchestrator should spot-check it against a primary source (earnings release, 8-K) if it wasn't already sourced that way -- same discipline already applied to numeric discrepancies (see G57), just not yet to qualitative framing.",
+      "opened": "2026-08-10",
+      "owner": "orchestrator"
     }
   ],
   "sentiment": {
