@@ -1434,7 +1434,7 @@
       "status": "open",
       "trigger_type": "risk_cap",
       "trigger_bucket": null,
-      "rationale": "2.80x ATR risk cap, the largest excess in the book (~$1,222 headroom deficit). Thesis WATCH-elevated on a real FY1Q27 demand-guide miss (2026-08-05), not just beta noise. Extreme-greed sentiment (80.2) favors profit-booking. The -43.7% (de-risk queue) vs -29.8% (yfinance calendar) 1-month-return discrepancy is unreconciled -- flagged for the user, not resolved.",
+      "rationale": "2.80x ATR risk cap, the largest excess in the book (~$1,222 headroom deficit) -- this trigger is independent of the earnings framing below and holds regardless. CORRECTED 2026-08-10 (user-flagged): FQ4 FY2026 (reported 08-05) was a BEAT -- revenue/EPS both topped consensus, record 84.6% gross margin, Data Center revenue +437% YoY, $93.9B in new multi-year agreements covering ~50% of 2027 bit production. The stock fell because FQ1 FY2027 guide came in below the Street's own elevated estimate, not because of a demand miss -- the 2-day post-earnings reaction was -10.2%, the rest of the ~-29.8% 1-month decline (G57, resolved) is late-July CXMT-selloff carryover shared across the whole Memory cluster. This is a sizing trim on a volatile, oversized position with genuinely strong underlying fundamentals -- not a vote against the business.",
       "id": "P-064",
       "priority_score": 3,
       "priority": "MEDIUM",
@@ -1450,7 +1450,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-10",
-      "retires_when": "SNDK drops under its ATR risk cap"
+      "retires_when": "SNDK drops under its ATR risk cap",
+      "note": "rationale corrected 2026-08-10 -- see G57"
     },
     {
       "date": "2026-08-10",

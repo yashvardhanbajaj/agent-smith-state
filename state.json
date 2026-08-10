@@ -187,7 +187,7 @@
     "TER": "Semicap automated test equipment geared to AI chip test volume | strengthening",
     "TSM": "Foundry monopoly manufacturing leading-edge AI chips | strengthening",
     "MU": "Memory (DRAM/HBM); WATCH driven by CXMT structural/funding risk, not ASP -- HBM3E flat within basis, corrected -51% figure stays dead | watch",
-    "SNDK": "AI NAND/enterprise-SSD supercycle | watch (elevated -- FY1Q27 rev guide miss 08-05, not HBM-comparable)",
+    "SNDK": "AI NAND/enterprise-SSD supercycle. CORRECTED 2026-08-10 (user-flagged): FQ4 FY2026 results (reported 2026-08-05 after close) were a BEAT, not a miss -- revenue $8.79-8.97B (vs ~$8.64B consensus), non-GAAP EPS $39.25 (vs ~$34.37 est), record gross margin 84.6%, Data Center revenue +437% YoY, and 10 new multi-year 'NBM' agreements worth $93.9B+ covering ~50% of 2027 bit production. The stock fell because FQ1 FY2027 guide ($10.3-10.8B) came in below the Street's own elevated $11.16B estimate -- real, but a guide-below-lofty-expectations story, not a demand collapse. Price math confirms: the 2-day post-earnings reaction was only -10.2% (08-05 close to 08-07 close); the rest of the ~-29.8% 1-month decline (the correct figure, see G57 resolution) is the carryover from the broader late-July CXMT/memory-sector selloff that hit the whole cluster, not an SNDK-specific deterioration. Watch status stands on its own separate grounds: highest beta in book (2.924), running 2.80x its ATR risk cap -- a sizing problem, not a thesis problem.",
     "AMAT": "Semicap deposition/etch equipment for AI chip fabs (position cut to dust, 0.012% weight -- sizing only, thesis unaffected) | strengthening",
     "COHR": "Photonics/optical components for datacenter interconnect | strengthening",
     "ARM": "Chip architecture/IP licensing; re-entry reaffirmed, data-center growth vs smartphone-royalty/valuation overhang | watch",
@@ -1490,16 +1490,19 @@
       "owner": "smith-macro",
       "status": "closed",
       "description": "Provenance conflict found during the 2026-08-07 gap audit: smith-macro's 2026-08-03 output reported 'SPY PCR 1.88 (OI) / 1.98 (volume)' and 'QQQ 1.23 / 1.33', i.e. an OPEN-INTEREST-based put/call ratio. But yfinance's options endpoint returns open interest of exactly 0 on every strike sampled (re-verified 2026-08-07 across three SPY expiries, ~14 strikes each) -- which is the whole basis of G18. An OI-based ratio cannot be computed from an all-zero OI field. So either smith-macro used a second source it did not cite, or it computed the ratio from volume and labelled one of the two figures 'OI' incorrectly. Either way a number that gates regime read-outs is carrying a provenance label that does not survive checking. Not a large error in itself -- the volume-based PCR is probably the real signal and is directionally fine -- but the label must match the source. Next smith-macro dispatch should state the actual field it read for each figure, and drop the OI variant entirely if OI is unavailable rather than reporting a derived-but-mislabelled number.",
-      "closed": "2026-08-07",
-      "closed_by": "auto-audit 2026-08-07 (self-corrected)",
+      "closed": "2026-08-10",
+      "closed_by": "user-flagged correction 2026-08-10",
       "original_claim_was_wrong": true,
-      "resolution": "CLOSED 2026-08-07, and the original claim was WRONG -- recorded in full because the error is instructive. G57 asserted that smith-macro's 'SPY PCR 1.88 (OI)' could not be real because yfinance returns open interest of 0 on every strike. That inference assumed yfinance was the source. It is not: smith-macro.md's TOOLS line and task 2 both name Barchart's put/call-ratios page as the PRIMARY PCR source, with yfinance only as a fallback. Barchart publishes genuine open interest -- verified 2026-08-07 by fetching it directly: SPY total put OI 13,911,974 vs call OI 6,065,745, ratio 2.29, alongside a volume ratio of 1.24. So the 08-03 figure was legitimate and correctly labelled, and the gap was a false alarm raised by the audit itself. TWO REAL DEFECTS SURVIVED THE FALSE ALARM AND ARE NOW FIXED IN smith-macro.md: (1) PROVENANCE -- the output never stated which source each options figure came from, which is precisely why a correct number could not be defended when questioned; the agent must now emit spy_pcr_oi_source / spy_pcr_vol_source (and QQQ equivalents) and say the source inline. (2) UNSAFE FALLBACK -- the documented fallback ('compute PCR from the same single-expiry chain') is not equivalent to the primary and would fail silently: yfinance OI is 0 on every strike and every expiry (re-verified across near-dated weeklies AND a 43-DTE standard monthly; bid/ask are also 0), so an OI-based PCR computes as 0/0, and a single-expiry volume PCR is not comparable to Barchart's whole-chain figure (SPY whole-chain put volume ~1.97M vs one expiry's small skewed slice). The agent must now emit null rather than a zero or a mislabelled volume figure, and must not trend a fallback number against prior Barchart runs. This also confirms why G18 (max-pain) stays wont_fix: max-pain needs PER-STRIKE OI, and Barchart's page publishes aggregate totals only."
+      "resolution": "Reconciled same day: -29.8% is the correct 30-calendar-day return (confirmed by an independent from-scratch calc against yfinance daily closes, exact match). The -43.7% de-risk-queue figure was measuring from a mid-June local price peak (~06-15 to 06-22 range), not a rolling 1-month window -- a peak-to-current framing mislabeled as '1-month'. De-risk queue's stretch/fragility scoring should be re-checked for the same mislabeling on other names next run."
     },
     {
       "id": "G57",
       "description": "SNDK 1-month return reported two ways this run and not reconciled: -43.7% (compute_derisk.json's de-risk queue) vs -29.8% (smith-signals' yfinance calendar pull). Both sub-agents flagged it rather than picking one. Likely a basis/window mismatch (e.g. one measures from a different start date or includes/excludes the 08-05 guide-miss gap differently) -- needs a from-scratch reconciliation of both calculations' exact date windows next run.",
       "opened": "2026-08-10",
-      "owner": "smith-signals / smith-book (de-risk queue)"
+      "owner": "smith-signals / smith-book (de-risk queue)",
+      "closed": "2026-08-10",
+      "resolution": "Reconciled same day: -29.8% is the correct 30-calendar-day return (confirmed by an independent from-scratch calc against yfinance daily closes, exact match). The -43.7% de-risk-queue figure was measuring from a mid-June local price peak (~06-15 to 06-22 range), not a rolling 1-month window -- a peak-to-current framing mislabeled as '1-month'. De-risk queue's stretch/fragility scoring should be re-checked for the same mislabeling on other names next run.",
+      "closed_by": "user-flagged correction 2026-08-10"
     }
   ],
   "sentiment": {
@@ -1590,7 +1593,7 @@
   },
   "watchlist_scan_cursor": 30,
   "data_quality": [
-    "G57 (new): SNDK 1-month return reported two ways (-43.7% de-risk queue vs -29.8% yfinance calendar), unreconciled -- see known_gaps.",
+    "G57 CLOSED 2026-08-10: SNDK's -43.7% de-risk-queue figure was a mislabeled peak-to-current (mid-June) move, not a real 1-month return; -29.8% (yfinance calendar) confirmed correct via independent recompute. SNDK thesis text corrected -- FQ4 was a beat (rev+EPS+margin+$93.9B new agreements), the selloff is guide-vs-lofty-Street-estimate plus late-July CXMT carryover, not a demand miss.",
     "AI-capex concentration reported on two bases this run: 93.623% of equity (compute_drift.json, policy-aligned) vs 94.9% of book (smith-thesis's own broader sub-cluster count) -- not merged, policy-aligned figure is authoritative for drift purposes.",
     "smith-thesis rebuilt sector_map with cluster names that don't match policy.json's cluster_targets (e.g. 'Memory/HBM-DRAM' vs policy's 'AI Memory/Storage') -- orchestrator did NOT merge the renamed map; only the INTC->'AI Semis/Fabs' classification decision was applied, using the policy-aligned name.",
     "rel_strength_1m cache still as_of 2026-07-31 (10 days old, 7-day TTL) -- not refreshed by smith-signals this deep run; de-risk queue's stretch scoring for names without fresh data may be marginally stale.",
