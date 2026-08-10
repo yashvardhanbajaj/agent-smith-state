@@ -1,0 +1,760 @@
+{
+ "schema_version": 1,
+ "trades": [
+  {
+   "date": "2026-07-24",
+   "ticker": "GLW",
+   "action": "exit",
+   "qty_change": -10,
+   "price_at_trade": null,
+   "reason": "stop-loss",
+   "notes": "Mass stop-out event #1. Reconstructed from wallet-cash reconciliation; not live-captured (G26)."
+  },
+  {
+   "date": "2026-07-24",
+   "ticker": "IREN",
+   "action": "exit",
+   "qty_change": -25,
+   "price_at_trade": null,
+   "reason": "stop-loss",
+   "notes": "Mass stop-out event #1, reconstructed."
+  },
+  {
+   "date": "2026-07-24",
+   "ticker": "NBIS",
+   "action": "exit",
+   "qty_change": -6,
+   "price_at_trade": null,
+   "reason": "stop-loss",
+   "notes": "Mass stop-out event #1, reconstructed."
+  },
+  {
+   "date": "2026-07-24",
+   "ticker": "MULTI",
+   "action": "trim",
+   "qty_change": null,
+   "price_at_trade": null,
+   "reason": "stop-loss",
+   "notes": "SNDK/DRAM/TSM/CLS/LRCX/MU/TER/CIEN each roughly halved in the same session. Reconstructed, per-name fills unknown."
+  },
+  {
+   "date": "2026-07-27",
+   "ticker": "NVDA",
+   "action": "exit",
+   "qty_change": -12,
+   "price_at_trade": 196.51,
+   "reason": "stop-loss",
+   "notes": "Stop-out event #2. Fired on Monday's -4.99%. NOTE: under the ATR20 framework adopted 2026-07-28 (2x3.37%=6.74%) this stop would NOT have fired -- the exit was an artifact of an over-tight stop. Basis of the 07-28 re-entry proposal."
+  },
+  {
+   "date": "2026-07-27",
+   "ticker": "LRCX",
+   "action": "exit",
+   "qty_change": -3,
+   "price_at_trade": 291.61,
+   "reason": "stop-loss",
+   "notes": "Stop-out event #2."
+  },
+  {
+   "date": "2026-07-27",
+   "ticker": "GEV",
+   "action": "trim",
+   "qty_change": -1.0,
+   "price_at_trade": 996.57,
+   "reason": "stop-loss",
+   "notes": "Stop-out event #2. 1.395 -> 0.395 sh. Left Power/DC under its 10% floor."
+  },
+  {
+   "date": "2026-07-27",
+   "ticker": "EWY",
+   "action": "trim",
+   "qty_change": -5,
+   "price_at_trade": 161.2,
+   "reason": "stop-loss",
+   "notes": "Stop-out event #2. 10 -> 5 sh, into the KOSPI -10.84% overnight crash."
+  },
+  {
+   "date": "2026-07-28",
+   "ticker": "GOOG",
+   "action": "entry",
+   "qty_change": 8.441,
+   "price_at_trade": 325.79,
+   "reason": "rebalance",
+   "notes": "$5,000 redeployment, clip 1 of 4. Fixes Compute/Hyperscaler at 3.13% vs 20% target. Stop 303.25 (2xATR20 6.9%)."
+  },
+  {
+   "date": "2026-07-28",
+   "ticker": "AVGO",
+   "action": "add",
+   "qty_change": 3,
+   "price_at_trade": 375.5,
+   "reason": "rebalance",
+   "notes": "Clip 2 of 4. Stop 343.61. EXACT FILL CONFIRMED VIA EMAIL RECONCILIATION 2026-07-31: transactions@transactions.indmoney.com, 2026-07-28T14:28:09Z, $1129.82 for 3 shares @ $375.50, Market order -- corrects the prior placeholder (3.086sh @ $372.68), which did not match the confirmation email.",
+   "fill_time_utc": "2026-07-28T14:28:09Z"
+  },
+  {
+   "date": "2026-07-28",
+   "ticker": "TSM",
+   "action": "add",
+   "qty_change": 3,
+   "price_at_trade": 382.25,
+   "reason": "rebalance",
+   "notes": "Clip 3 of 4. Stop 349.23. EXACT FILL CONFIRMED VIA EMAIL RECONCILIATION 2026-07-31: transactions@transactions.indmoney.com, 2026-07-28T14:31:03Z, $1150.12 for 3 shares @ $382.25, Market order -- corrects the prior placeholder (2.406sh @ $384.45), which did not match the confirmation email. Note: an earlier same-day TSM SELL (13:30:27Z, 3sh @ $385.15, likely closing a pre-existing lot from the 07-24 partial trim) preceded this buy; net TSM qty unchanged across the two.",
+   "fill_time_utc": "2026-07-28T14:31:03Z"
+  },
+  {
+   "date": "2026-07-28",
+   "ticker": "ASML",
+   "action": "add",
+   "qty_change": 1,
+   "price_at_trade": 1569.01,
+   "reason": "rebalance",
+   "notes": "Clip 4 of 4, balance of the $5,000. Stop 1,423.79. EXACT FILL CONFIRMED VIA EMAIL RECONCILIATION 2026-07-31: transactions@transactions.indmoney.com, 2026-07-28T14:30:32Z, $1573.64 for 1 share @ $1569.01, Market order -- corrects the prior placeholder (0.111sh @ $1571.16), which did not match the confirmation email.",
+   "fill_time_utc": "2026-07-28T14:30:32Z"
+  },
+  {
+   "date": "2026-07-29",
+   "ticker": "QCOM",
+   "action": "exit",
+   "qty_change": -6.0,
+   "price_at_trade": 162.01,
+   "reason": "stop-loss",
+   "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: stop-loss -- confirmed by the INDmoney confirmation email itself (Order Type: stop). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T13:30:36Z (19:00:36 IST): $972.06 for 6 shares @ $162.01. Left a 0.000762sh dust remainder. Funded part of the same-session ARM/TER/NBIS/VRT/AMD adds below.",
+   "fill_time_utc": "2026-07-29T13:30:36Z"
+  },
+  {
+   "date": "2026-07-29",
+   "ticker": "ARM",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 228.4,
+   "reason": "dollar-cost-averaging",
+   "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:22:09Z (21:52:09 IST): $458.17 for 2 shares @ $228.40, Market order. Now 1.24x over its ATR risk cap post-add.",
+   "fill_time_utc": "2026-07-29T16:22:09Z"
+  },
+  {
+   "date": "2026-07-29",
+   "ticker": "TER",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 329.32,
+   "reason": "dollar-cost-averaging",
+   "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:06:48Z (21:36:48 IST): $660.62 for 2 shares @ $329.32, Market order. TER was one of the day's few gainers. Now 1.01x over its ATR risk cap post-add.",
+   "fill_time_utc": "2026-07-29T16:06:48Z"
+  },
+  {
+   "date": "2026-07-29",
+   "ticker": "NBIS",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 147.07,
+   "reason": "dollar-cost-averaging",
+   "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:19:50Z (21:49:50 IST): $295.03 for 2 shares @ $147.07, Market order. Now 1.24x over its ATR risk cap post-add.",
+   "fill_time_utc": "2026-07-29T16:19:50Z"
+  },
+  {
+   "date": "2026-07-29",
+   "ticker": "VRT",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 226.22,
+   "reason": "dollar-cost-averaging",
+   "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:24:20Z (21:54:20 IST): $453.78 for ~2.006 shares @ $226.22, Market order -- VRT fell 16.6% intraday this session, the book's worst mover by a wide margin; this fill landed mid-decline, not at the day's worst level. Now 1.09x over its ATR risk cap post-add.",
+   "fill_time_utc": "2026-07-29T16:24:20Z"
+  },
+  {
+   "date": "2026-07-29",
+   "ticker": "AMD",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 425.03,
+   "reason": "dollar-cost-averaging",
+   "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:08:52Z (21:38:52 IST): $852.61 for ~2.006 shares @ $425.03, Market order. Matches the strategist's AMD stage-in proposal from the 05:00 ET run, though the user's stated rationale was DCA rather than the proposal's specific sizing logic.",
+   "fill_time_utc": "2026-07-29T16:08:52Z"
+  },
+  {
+   "date": "2026-07-29",
+   "ticker": "BE",
+   "action": "entry",
+   "qty_change": 3,
+   "price_at_trade": 175.0,
+   "reason": "re-entry-after-price-correction",
+   "notes": "Brand new position, first-ever BE holding in this book -- not caught by qty-diff detection since the fill (2026-07-29T18:02:22Z / 23:32:22 IST) postdated the 22:30 IST refresher's holdings snapshot; only surfaced via the INDmoney confirmation email, discovered when the user pointed Agent Smith at the inbox. Exact fill: $526.57 for 3 shares @ $175.00, Market order. User-confirmed rationale via TRADE RATIONALE CAPTURE (chosen via 'Other', not one of the 5 standard buckets): 're-enter asfter price correction' [sic] -- reading this as a deliberate re-entry into a name the user had been watching, now that its price corrected, not a stop-loss/DCA/thesis-change/raise-cash/rebalance in the standard sense. No sector_map/thesis/ATR/beta cache entry yet -- needs smith-thesis classification on the next full sweep (see G38).",
+   "fill_time_utc": "2026-07-29T18:02:22Z"
+  },
+  {
+   "date": "2026-07-29",
+   "ticker": "GLW",
+   "action": "entry",
+   "qty_change": 5,
+   "price_at_trade": 128.86,
+   "reason": "re-entry-after-price-correction",
+   "notes": "Re-entered after the full stop-out exit on 2026-07-24 (10sh sold @ $151.90). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:50:14Z (2026-07-30T00:20:14 IST): $646.23 for 5 shares @ $128.86, Market order -- about 15% below the exit price. Discovered via the full email pull, not qty-diff (postdated all prior snapshots this session). User-confirmed rationale (chosen via 'Other'): 're-enter after correction'. No sector_map/thesis/ATR/beta cache entry -- needs smith-thesis classification (see G38).",
+   "fill_time_utc": "2026-07-29T18:50:14Z"
+  },
+  {
+   "date": "2026-07-29",
+   "ticker": "QCOM",
+   "action": "entry",
+   "qty_change": 3,
+   "price_at_trade": 163.51,
+   "reason": "re-entry",
+   "notes": "Bought back a few hours after the same-day stop-out (6sh sold 13:30:36Z @ $162.01, this fill 18:51:11Z / 2026-07-30T00:21:11 IST @ $163.51, essentially flat to the stop price). Net today: -6+3 = -3sh vs this morning's baseline. Exact fill: $492.00 for 3 shares, Market order. User-confirmed rationale (chosen via 'Other'): 're-enter' -- distinct from the GLW/BE 're-entry-after-price-correction' answers since this is a same-day re-entry after a stop, not a return to a name exited days/weeks earlier; kept as a separate reason string rather than merged, pending a decision on whether it deserves its own bucket."
+  },
+  {
+   "date": "2026-07-29",
+   "ticker": "MKSI",
+   "action": "entry",
+   "qty_change": 2,
+   "price_at_trade": 272.72,
+   "reason": "new-entry",
+   "notes": "Brand new position, first-ever MKSI (MKS Instruments) holding in this book. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:54:23Z (2026-07-30T00:24:23 IST): $547.08 for 2 shares @ $272.72, Market order. User-confirmed rationale (chosen via 'Other'): 'new entry' -- distinct from the DCA/re-entry answers since this is a genuinely first-time position, not adding to or returning to anything. No sector_map/thesis/ATR/beta cache entry -- needs smith-thesis classification (see G38).",
+   "fill_time_utc": "2026-07-29T18:54:23Z"
+  },
+  {
+   "date": "2026-07-29",
+   "ticker": "MRVL",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 175.59,
+   "reason": "dollar-cost-averaging",
+   "notes": "User-confirmed via TRADE RATIONALE CAPTURE: dollar-cost-averaging. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:54:58Z (2026-07-30T00:24:58 IST): $352.24 for 2 shares @ $175.59, Market order.",
+   "fill_time_utc": "2026-07-29T18:54:58Z"
+  },
+  {
+   "date": "2026-07-29",
+   "ticker": "MU",
+   "action": "add",
+   "qty_change": 1.003005,
+   "price_at_trade": 788.81,
+   "reason": "dollar-cost-averaging",
+   "notes": "User-confirmed via TRADE RATIONALE CAPTURE: dollar-cost-averaging. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:55:10Z (2026-07-30T00:25:10 IST): $791.18 for ~1.003 shares @ $788.81, Market order.",
+   "fill_time_utc": "2026-07-29T18:55:10Z"
+  },
+  {
+   "date": "2026-07-30",
+   "ticker": "NVDA",
+   "action": "add",
+   "qty_change": 5,
+   "price_at_trade": 193.48,
+   "reason": "added more to deploy the cash",
+   "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-31 (free-text 'Other' to the DCA question, not one of the 5 standard buckets -- closest in spirit to 'rebalance'/staged deployment but kept verbatim per protocol). Qty 10->15sh. EXACT FILL CONFIRMED VIA EMAIL RECONCILIATION 2026-07-31: transactions@transactions.indmoney.com, 2026-07-30T16:49:32Z, $970.31 for 5 shares @ $193.48, Market order. Date corrected from 07-31 to the actual fill date 07-30; price corrected from the prior approximate live-quote placeholder ($196.82).",
+   "fill_time_utc": "2026-07-30T16:49:32Z"
+  },
+  {
+   "date": "2026-07-30",
+   "ticker": "QCOM",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 153.24,
+   "reason": "dollar-cost-averaging",
+   "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-31: Yes -- DCA. Qty ~3.0008->5.0008sh. EXACT FILL CONFIRMED VIA EMAIL RECONCILIATION 2026-07-31: transactions@transactions.indmoney.com, 2026-07-30T16:47:21Z, $307.40 for 2 shares @ $153.24, Market order. Date corrected from 07-31 to the actual fill date 07-30; price corrected from the prior approximate live-quote placeholder ($153.15).",
+   "fill_time_utc": "2026-07-30T16:47:21Z"
+  },
+  {
+   "date": "2026-07-30",
+   "ticker": "CEG",
+   "action": "entry",
+   "qty_change": 3,
+   "price_at_trade": 267.72,
+   "reason": "new entry as per the proposal",
+   "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-31 (free-text 'Other' -- references an earlier strategist proposal to deploy into CEG as a diversifier/cluster-fill; verify against proposals.json history). Brand new position, first-ever CEG holding in this book. EXACT FILL CONFIRMED VIA EMAIL RECONCILIATION 2026-07-31: transactions@transactions.indmoney.com, 2026-07-30T16:42:06Z, $805.57 for 3 shares @ $267.72, Market order. Date corrected from 07-31 to the actual fill date 07-30; price corrected from the prior approximate live-quote placeholder ($266.60). No sector_map/thesis/ATR/beta cache entry yet -- needs smith-thesis classification this run.",
+   "fill_time_utc": "2026-07-30T16:42:06Z"
+  },
+  {
+   "date": "2026-07-31",
+   "ticker": "IREN",
+   "action": "exit",
+   "qty_change": -10,
+   "price_at_trade": 35.99,
+   "reason": "stop-loss",
+   "notes": "CONFIRMED via INDmoney email 2026-07-31T14:08:25Z: SELL order, order type 'stop', 10sh @ $35.99 = $359.90. Second full-exit event for IREN (first was 07-24 mass stop-out, position rebuilt to 10sh, now stopped out again). Objectively a stop-loss per order type field, not inferred.",
+   "fill_time_utc": "2026-07-31T14:08:25Z"
+  },
+  {
+   "date": "2026-07-31",
+   "ticker": "MU",
+   "action": "trim",
+   "qty_change": -1,
+   "price_at_trade": 832.0,
+   "reason": "stop-loss",
+   "notes": "CONFIRMED via email 2026-07-31T14:08:40Z: SELL order, order type 'stop', 1sh @ $832. First of two same-day MU stop-loss whipsaws (see next entries).",
+   "fill_time_utc": "2026-07-31T14:08:40Z"
+  },
+  {
+   "date": "2026-07-31",
+   "ticker": "MU",
+   "action": "add",
+   "qty_change": 1,
+   "price_at_trade": 850.79,
+   "reason": "re-entry",
+   "notes": "CONFIRMED via email 2026-07-31T14:27:59Z: Market BUY, 1sh @ $850.79 -- rebought 19 minutes after the $832 stop-sell, at a HIGHER price. Whipsaw cost $18.79 for zero net position change. Matches the tight-stop whipsaw pattern flagged in the user's stop-loss-style memory (stops at recent-low levels on high-ATR names are near-certain whipsaws).",
+   "fill_time_utc": "2026-07-31T14:27:59Z"
+  },
+  {
+   "date": "2026-07-31",
+   "ticker": "MU",
+   "action": "trim",
+   "qty_change": -1,
+   "price_at_trade": 824.87,
+   "reason": "stop-loss",
+   "notes": "CONFIRMED via email 2026-07-31T15:25:34Z: SELL order, order type 'stop', 1sh @ $824.87. Second same-day MU stop-loss whipsaw.",
+   "fill_time_utc": "2026-07-31T15:25:34Z"
+  },
+  {
+   "date": "2026-07-31",
+   "ticker": "MU",
+   "action": "add",
+   "qty_change": 1,
+   "price_at_trade": 849.49,
+   "reason": "re-entry",
+   "notes": "CONFIRMED via email 2026-07-31T17:41:55Z: Market BUY, 1sh @ $849.49 -- rebought ~2h16m after the $824.87 stop-sell, again at a HIGHER price. Whipsaw cost $24.62. Combined with the first whipsaw: $43.41 total round-trip slippage on 07-31 for a MU position that ended the day at the exact same quantity (3.000365376) it started with.",
+   "fill_time_utc": "2026-07-31T17:41:55Z"
+  },
+  {
+   "date": "2026-07-31",
+   "ticker": "TSM",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 405.2,
+   "reason": "dollar-cost-averaging",
+   "notes": "CONFIRMED via email 2026-07-31T19:08:34Z: Market BUY, 2sh @ $405.20 = $812.83. Part of an evening burst of 5 deliberate buys (TSM/META/AMZN/QBTS/BABA, 19:08-19:46 UTC = ~3:08-3:46pm ET) distinct in character from the morning's reactive stop-loss activity. Rationale (DCA/thesis-change/raise-cash/rebalance/other) not yet captured -- ask user. USER-CONFIRMED 2026-08-03: dollar-cost-averaging into diversification -- deliberate push to reduce single-factor AI-capex concentration, not a reaction to any specific signal.",
+   "fill_time_utc": "2026-07-31T19:08:34Z"
+  },
+  {
+   "date": "2026-07-31",
+   "ticker": "META",
+   "action": "entry",
+   "qty_change": 1,
+   "price_at_trade": 552.84,
+   "reason": "dollar-cost-averaging",
+   "notes": "CONFIRMED via email 2026-07-31T19:20:20Z: Market BUY, 1sh @ $552.84 = $554.50. New first-ever position. Size roughly matches the 07-30 quick-run's proposed 'META token tranche ($450)' -- may be that proposal being acted on late. Rationale not yet captured -- ask user. USER-CONFIRMED 2026-08-03: dollar-cost-averaging into diversification -- deliberate push to reduce single-factor AI-capex concentration, not a reaction to any specific signal.",
+   "fill_time_utc": "2026-07-31T19:20:20Z"
+  },
+  {
+   "date": "2026-07-31",
+   "ticker": "QBTS",
+   "action": "entry",
+   "qty_change": 25,
+   "price_at_trade": 18.14,
+   "reason": "dollar-cost-averaging",
+   "notes": "CONFIRMED via email 2026-07-31T19:33:10Z: Market BUY, 25sh @ $18.14 = $454.74. New first-ever position. Ticker corrected this run: an abandoned 2026-08-01 run had mislabeled this holding 'DVWR' -- confirmed via yfinance search_stocks that D-Wave Quantum Inc.'s real ticker is QBTS. Rationale not yet captured -- ask user. USER-CONFIRMED 2026-08-03: dollar-cost-averaging into diversification -- deliberate push to reduce single-factor AI-capex concentration, not a reaction to any specific signal.",
+   "fill_time_utc": "2026-07-31T19:33:10Z"
+  },
+  {
+   "date": "2026-07-31",
+   "ticker": "AMZN",
+   "action": "entry",
+   "qty_change": 2,
+   "price_at_trade": 271.77,
+   "reason": "dollar-cost-averaging",
+   "notes": "CONFIRMED via email 2026-07-31T19:34:14Z: Market BUY, 2sh @ $271.77 = $545.16. New first-ever position. Rationale not yet captured -- ask user. USER-CONFIRMED 2026-08-03: dollar-cost-averaging into diversification -- deliberate push to reduce single-factor AI-capex concentration, not a reaction to any specific signal.",
+   "fill_time_utc": "2026-07-31T19:34:14Z"
+  },
+  {
+   "date": "2026-07-31",
+   "ticker": "BABA",
+   "action": "entry",
+   "qty_change": 1,
+   "price_at_trade": 121.78,
+   "reason": "dollar-cost-averaging",
+   "notes": "CONFIRMED via email 2026-07-31T19:46:12Z: Market BUY, 1sh @ $121.78 = $122.15. New first-ever position, first non-US-domiciled diversifier in the book. Rationale not yet captured -- ask user. USER-CONFIRMED 2026-08-03: dollar-cost-averaging into diversification -- deliberate push to reduce single-factor AI-capex concentration, not a reaction to any specific signal.",
+   "fill_time_utc": "2026-07-31T19:46:12Z"
+  },
+  {
+   "date": "2026-08-03",
+   "ticker": "ARM",
+   "action": "exit",
+   "qty_change": -4,
+   "price_at_trade": null,
+   "reason": "UNCAPTURED",
+   "notes": "Surfaced by 19:48 IST intraday refresher run (scheduled, non-interactive): ARM present at 4sh in the 11:14 IST deep run, absent entirely from this run's live networth_holdings fetch. Full-position exit, ~2.4% of book at time of last observation. No confirmation email pulled this run -- price_at_trade left null rather than invented. Flag for manual review/rationale capture at next interactive run."
+  },
+  {
+   "date": "2026-08-03",
+   "ticker": "ASML",
+   "action": "trim",
+   "qty_change": -1,
+   "price_at_trade": 1630.59,
+   "reason": "UNCAPTURED",
+   "notes": "Surfaced by 19:48 IST intraday refresher run (scheduled, non-interactive): qty dropped 2.000001151 -> 1.000001151 vs the 11:14 IST deep run. price_at_trade is this run's live yfinance-derived quote, NOT a confirmed fill -- approximate only. Flag for manual review/rationale capture at next interactive run."
+  },
+  {
+   "date": "2026-08-03",
+   "ticker": "DRAM",
+   "action": "trim",
+   "qty_change": -20,
+   "price_at_trade": 50.42,
+   "reason": "UNCAPTURED",
+   "notes": "Surfaced by 19:48 IST intraday refresher run (scheduled, non-interactive): qty dropped 50 -> 30 vs the 11:14 IST deep run. price_at_trade is this run's live yfinance-derived quote, NOT a confirmed fill -- approximate only. Flag for manual review/rationale capture at next interactive run."
+  },
+  {
+   "date": "2026-08-04",
+   "ticker": "ORCL",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 139.42,
+   "reason": "dollar-cost-averaging",
+   "notes": "User confirmed 2026-08-04 (interactive run): DCA. Qty 4->6 vs last known state (2026-08-03 19:48 refresher). price_at_trade is this run's INDmoney ext_hr_live_price pre-market quote, NOT a confirmed fill -- approximate only."
+  },
+  {
+   "date": "2026-08-04",
+   "ticker": "BABA",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 126.59,
+   "reason": "dollar-cost-averaging",
+   "notes": "User confirmed 2026-08-04 (interactive run): DCA. Qty 1->3 vs last known state (2026-08-03 19:48 refresher). price_at_trade is this run's INDmoney ext_hr_live_price pre-market quote, NOT a confirmed fill -- approximate only. NOTE: smith_math.py cmd_book's trade_reason lookup misattributed the stale 2026-08-03 BABA entry's reason to this qty_change (ticker-keyed, not date-scoped) -- flagged as a new gap."
+  },
+  {
+   "date": "2026-08-04",
+   "ticker": "LRCX",
+   "action": "entry",
+   "qty_change": 2,
+   "price_at_trade": 309.75,
+   "reason": "re-entry-after-stop",
+   "notes": "User confirmed 2026-08-04 (interactive run): re-entry after the 2026-07-28 full stop-out (12sh NVDA + 3sh LRCX exited that session). New 2sh position, qty 0->2. price_at_trade is this run's INDmoney ext_hr_live_price pre-market quote, NOT a confirmed fill -- approximate only. NOTE: smith_math.py cmd_book's trade_reason lookup misattributed an old unrelated LRCX trade's reason ('stop-loss') to this new entry (ticker-keyed, not date-scoped) -- flagged as a new gap."
+  },
+  {
+   "date": "2026-08-04",
+   "ticker": "COHR",
+   "action": "trim",
+   "price_at_trade": 323.98,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed fill: INDmoney SELL confirmation 2026-08-04T19:59Z, $647.96 / 2sh @ $323.98, Order Type: stop. Reason set objectively from order type. COHR 5->3.",
+   "fill_time_utc": "2026-08-04T19:59:00Z",
+   "qty_change": -2
+  },
+  {
+   "date": "2026-08-05",
+   "ticker": "AMD",
+   "action": "trim",
+   "price_at_trade": 482.5,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed fill: INDmoney SELL confirmation 2026-08-05T13:30Z, $965.00 / 2sh @ $482.50. Order type not shown in snippet; reason stop-loss per user at 2026-08-06 interactive capture. An earlier AMD stop order was CANCELLED 2026-08-04T21:11Z before this one filled. AMD 3->1, two sessions after its 08-04 earnings.",
+   "fill_time_utc": "2026-08-05T13:30:00Z",
+   "qty_change": -2
+  },
+  {
+   "date": "2026-08-05",
+   "ticker": "GOOGL",
+   "action": "trim",
+   "price_at_trade": 360.0,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed fill: INDmoney SELL confirmation 2026-08-05T16:09Z, $1080.00 / 3sh @ $360.00, Order Type: stop. Reason set objectively from order type and corroborated by user. GOOGL 8->5.",
+   "fill_time_utc": "2026-08-05T16:09:00Z",
+   "qty_change": -3
+  },
+  {
+   "date": "2026-08-05",
+   "ticker": "LRCX",
+   "action": "add",
+   "price_at_trade": 311.86,
+   "reason": "re-entry-after-stop",
+   "notes": "Email-confirmed fill: INDmoney BUY confirmation 2026-08-05T17:38Z, $312.80 / 1sh @ $311.86. Tops up the 2sh bought 2026-08-03 @ $293.45 to 3sh total. Re-entry after the 2026-07-28 stop-out.",
+   "fill_time_utc": "2026-08-05T17:38:00Z",
+   "qty_change": 1
+  },
+  {
+   "date": "2026-08-05",
+   "ticker": "MP",
+   "action": "entry",
+   "price_at_trade": 47.47,
+   "reason": "dca-into-diversification",
+   "notes": "Email-confirmed fill: INDmoney BUY confirmation 2026-08-05T17:34Z, $476.13 / 10sh @ $47.47. NEW POSITION - MP Materials, rare earths. First non-AI-capex materials exposure in the book. Reason per user at 2026-08-06 interactive capture.",
+   "fill_time_utc": "2026-08-05T17:34:00Z",
+   "qty_change": 10
+  },
+  {
+   "date": "2026-08-05",
+   "ticker": "NOW",
+   "action": "entry",
+   "price_at_trade": 116.93,
+   "reason": "dca-into-diversification",
+   "notes": "Email-confirmed fill: INDmoney BUY confirmation 2026-08-05T18:35Z, $586.40 / 5sh @ $116.93, Market. NEW POSITION - ServiceNow, enterprise software. Reason per user at 2026-08-06 interactive capture.",
+   "fill_time_utc": "2026-08-05T18:35:00Z",
+   "qty_change": 5
+  },
+  {
+   "date": "2026-08-05",
+   "ticker": "SNDK",
+   "action": "trim",
+   "price_at_trade": 1365.23,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-05T19:54Z, $1365.23/1sh, Order Type: stop. SNDK 2.008->1.008. (A prior SNDK stop had been cancelled the same session at 19:54:22Z before this one filled.)",
+   "fill_time_utc": "2026-08-05T19:54:00Z",
+   "qty_change": -1
+  },
+  {
+   "date": "2026-08-05",
+   "ticker": "MU",
+   "action": "trim",
+   "price_at_trade": 898.8,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-05T19:57Z, $898.80/1sh, Order Type: stop. MU 3.0004->2.0004.",
+   "fill_time_utc": "2026-08-05T19:57:00Z",
+   "qty_change": -1
+  },
+  {
+   "date": "2026-08-05",
+   "ticker": "SKHY",
+   "action": "entry",
+   "price_at_trade": 151.94,
+   "reason": "thesis-change",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-05T19:55Z, $761.98/5sh, Market. NEW POSITION -- SK Hynix ADR direct. User-confirmed at interactive capture 2026-08-06: wanted direct SK Hynix exposure instead of the diluted EWY basket (SK Hynix ~ half of EWY's ~50% Samsung+SK Hynix weight). Funded partly by same-session SNDK/MU trims. Ticker SKHY (NMS), not 'SK' (an unrelated ~$18 ETF) or 'HXSCF' (no data) -- resolved via yfinance search_stocks.",
+   "fill_time_utc": "2026-08-05T19:55:00Z",
+   "qty_change": 5
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "EWY",
+   "action": "exit",
+   "price_at_trade": 161.82,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:30:10Z, $1294.56/8sh, Order Type: stop. FULL EXIT. Fired within 3sec of market open (9:30:10 ET) -- first of a 7-position stop cascade triggered by the memory-sector selloff (SanDisk's Q1 FY27 guide miss cascading into Korea overnight: KOSPI -5% intraday, Samsung -6%, SK Hynix -8-10%).",
+   "fill_time_utc": "2026-08-06T13:30:10Z",
+   "qty_change": -8
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "NBIS",
+   "action": "exit",
+   "price_at_trade": 206.23,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:30:13Z, $1031.13/5sh, Order Type: stop. FULL EXIT. Part of the market-open stop cascade.",
+   "fill_time_utc": "2026-08-06T13:30:13Z",
+   "qty_change": -5
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "TER",
+   "action": "trim",
+   "price_at_trade": 381.72,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:30:20Z, $1145.16/3sh, Order Type: stop. TER 3.0027->0.0027 (dust remains). Part of the market-open stop cascade; filled near the session open, TER continued falling to a $370 low afterward (whipsaw risk realized).",
+   "fill_time_utc": "2026-08-06T13:30:20Z",
+   "qty_change": -3
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "QBTS",
+   "action": "exit",
+   "price_at_trade": 18.99,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:30:27Z, $474.75/25sh, Order Type: stop. FULL EXIT. QBTS reported Q2 earnings today and gapped down ~14% at the open (day low $18.33 vs $21.39 prev close); this stop fired near the session low, before a partial recovery to ~$19.44 (-9%) by mid-morning.",
+   "fill_time_utc": "2026-08-06T13:30:27Z",
+   "qty_change": -25
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "CIEN",
+   "action": "trim",
+   "price_at_trade": 392.09,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:31:42Z, $392.09/1sh, Order Type: stop. CIEN 1.0085->0.0085 (dust remains). Part of the market-open stop cascade.",
+   "fill_time_utc": "2026-08-06T13:31:42Z",
+   "qty_change": -1
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "GLW",
+   "action": "exit",
+   "price_at_trade": 150.84,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:32:04Z, $754.20/5sh, Order Type: stop. FULL EXIT. Filled near the session's $150.73 low; stock recovered to $157.82+ by mid-morning.",
+   "fill_time_utc": "2026-08-06T13:32:04Z",
+   "qty_change": -5
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "COHR",
+   "action": "exit",
+   "price_at_trade": 311.07,
+   "reason": "stop-loss",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T13:32:33Z, $933.21/3sh, Order Type: stop. FULL EXIT (remaining shares after yesterday's 5->3 trim). Filled near the session's $309.19 low; stock recovered to $324.73+ by mid-morning, 4.4% above the stop price -- classic whipsaw.",
+   "fill_time_utc": "2026-08-06T13:32:33Z",
+   "qty_change": -3
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "MP",
+   "action": "add",
+   "price_at_trade": 48.02,
+   "reason": "rebalance",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T13:43Z, $240.82/5sh. Second tranche (10->15sh). User-confirmed 'rebalance' at interactive capture, distinct from yesterday's first 10sh (dca-into-diversification).",
+   "fill_time_utc": "2026-08-06T13:43:00Z",
+   "qty_change": 5
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "BE",
+   "action": "add",
+   "price_at_trade": 229.63,
+   "reason": "rebalance",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T13:42Z, $230.32/1sh. BE 3->4sh. User-confirmed 'rebalance' at interactive capture.",
+   "fill_time_utc": "2026-08-06T13:42:00Z",
+   "qty_change": 1
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "QCOM",
+   "action": "add",
+   "qty_change": 5,
+   "price_at_trade": 161.07,
+   "reason": "UNCAPTURED",
+   "fill_time_utc": "2026-08-06T14:13:51Z",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T14:13:51Z, $807.75/5sh, Market. QCOM 5.0008->10.0008. Discovered incidentally while fetching live data for dashboard-feature work, not during a portfolio sweep -- reason UNCAPTURED per existing precedent (3 other entries), rationale not yet asked."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "META",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 589.84,
+   "reason": "UNCAPTURED",
+   "fill_time_utc": "2026-08-06T14:16:36Z",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T14:16:36Z, $1183.22/2sh, Market. META 1->3. Rationale not yet asked -- part of an 11-trade deliberate batch 08-06 14:16-19:56 UTC discovered while preparing a fresh dashboard, not asked to avoid derailing a simple request."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "MKSI",
+   "action": "exit",
+   "qty_change": -2,
+   "price_at_trade": 303.19,
+   "reason": "UNCAPTURED",
+   "fill_time_utc": "2026-08-06T15:36:13Z",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T15:36:13Z, $606.38/2sh, Market (NOT stop). FULL EXIT. Rationale not yet asked."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "MRVL",
+   "action": "trim",
+   "qty_change": -4,
+   "price_at_trade": 213.97,
+   "reason": "stop-loss",
+   "fill_time_utc": "2026-08-06T15:44:47Z",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T15:44:47Z, $855.86/4sh, Order Type: stop."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "CLS",
+   "action": "add",
+   "qty_change": 1,
+   "price_at_trade": 319.33,
+   "reason": "UNCAPTURED",
+   "fill_time_utc": "2026-08-06T15:53:07Z",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T15:53:07Z, $320.29/1sh, Market. Rationale not yet asked."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "MRVL",
+   "action": "trim",
+   "qty_change": -3,
+   "price_at_trade": 211.68,
+   "reason": "UNCAPTURED",
+   "fill_time_utc": "2026-08-06T16:34:13Z",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T16:34:13Z, $635.03/3sh, Market (NOT stop -- deliberate, 49min after the stop-triggered sell above). Rationale not yet asked -- likely continuing risk-cap cure."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "AMD",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 495.09,
+   "reason": "UNCAPTURED",
+   "fill_time_utc": "2026-08-06T16:59:36Z",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T16:59:36Z, $993.15/2sh, Market. Rationale not yet asked."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "AMD",
+   "action": "add",
+   "qty_change": 1,
+   "price_at_trade": 495.39,
+   "reason": "UNCAPTURED",
+   "fill_time_utc": "2026-08-06T17:00:18Z",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T17:00:18Z, $496.87/1sh, Market (42sec after the prior AMD buy). AMD 1->4 total across both. Rationale not yet asked."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "BABA",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 126.18,
+   "reason": "UNCAPTURED",
+   "fill_time_utc": "2026-08-06T17:08:00Z",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T17:08:00Z, $253.10/2sh, Market. Rationale not yet asked."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "NBIS",
+   "action": "entry",
+   "qty_change": 3,
+   "price_at_trade": 199.99,
+   "reason": "UNCAPTURED",
+   "fill_time_utc": "2026-08-06T17:14:04Z",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T17:14:04Z, $601.78/3sh, Market. RE-ENTRY (stopped out 08-06 morning cascade at $206.23). Rationale not yet asked."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "AMZN",
+   "action": "add",
+   "qty_change": 2,
+   "price_at_trade": 271.96,
+   "reason": "UNCAPTURED",
+   "fill_time_utc": "2026-08-06T17:22:50Z",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T17:22:50Z, $545.55/2sh, Market. Rationale not yet asked."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "MSFT",
+   "action": "entry",
+   "qty_change": 2,
+   "price_at_trade": 495.97,
+   "reason": "UNCAPTURED",
+   "fill_time_utc": "2026-08-06T17:34:37Z",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T17:34:37Z, $994.92/2sh, Market. BRAND NEW POSITION -- first-ever Microsoft holding in this book. Rationale not yet asked, notably not previously covered by any sector_map/thesis entry."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "SKHY",
+   "action": "add",
+   "qty_change": 1,
+   "price_at_trade": 143.02,
+   "reason": "UNCAPTURED",
+   "fill_time_utc": "2026-08-06T17:57:04Z",
+   "notes": "Email-confirmed: INDmoney BUY 2026-08-06T17:57:04Z, $143.45/1sh, Market. Rationale not yet asked."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "NBIS",
+   "action": "exit",
+   "qty_change": -3,
+   "price_at_trade": 190.87,
+   "reason": "stop-loss",
+   "fill_time_utc": "2026-08-06T19:37:51Z",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T19:37:51Z, $572.61/3sh, Order Type: stop. FULL EXIT -- same-day round trip: bought 17:14:04Z @ $199.99, stopped 19:37:51Z @ $190.87, a -4.56% round-trip loss on ~$601 in 2h24m."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "VRT",
+   "action": "trim",
+   "qty_change": -2,
+   "price_at_trade": 274.92,
+   "reason": "stop-loss",
+   "fill_time_utc": "2026-08-06T19:47:15Z",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T19:47:15Z, $549.84/2sh, Order Type: stop."
+  },
+  {
+   "date": "2026-08-06",
+   "ticker": "BE",
+   "action": "trim",
+   "qty_change": -1,
+   "price_at_trade": 229.0,
+   "reason": "stop-loss",
+   "fill_time_utc": "2026-08-06T19:55:56Z",
+   "notes": "Email-confirmed: INDmoney SELL 2026-08-06T19:55:56Z, $229.00/1sh, Order Type: stop."
+  }
+ ],
+ "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'dca-into-diversification'|'re-entry-after-stop'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out. | 2026-08-03: 'dca-into-diversification' and 're-entry-after-stop' promoted to standing buy-side reasons (see G45) after both recurred via 'Other' the same day \u2014 a same-day MU stop-loss/rebuy whipsaw pair (re-entry-after-stop) and a five-ticker weekend diversification buy the user confirmed as DCA into diversification. Buy-side step 1 changed shape from a yes/no to a 4-option question (DCA / DCA-into-diversification / Re-entry-after-stop / Something else) to keep 3 buy-relevant reasons within the cap; sell-side step 1 is unchanged."
+}

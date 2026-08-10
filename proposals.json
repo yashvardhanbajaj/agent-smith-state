@@ -621,10 +621,10 @@
       "action": "Light trim VRT",
       "size_usd": 150,
       "price_at_proposal": null,
-      "status": "open",
+      "status": "superseded",
       "rationale": "1.43x risk cap, STRENGTHENING thesis but peer laggard signal, fresh 39.5% target-gap upside.",
       "ticker": "VRT",
-      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-expired after 7 calendar days",
       "id": "P-040",
       "direction_bucket": "TRIM",
       "priority_score": 3,
@@ -649,10 +649,10 @@
       "action": "Light trim NVDA",
       "size_usd": 150,
       "price_at_proposal": null,
-      "status": "open",
+      "status": "superseded",
       "rationale": "1.11x risk cap, peer leader +15.3pp vs SMH -- trim is cap-cure only, not a signal on the name.",
       "ticker": "NVDA",
-      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-expired after 7 calendar days | auto-superseded 2026-08-03 -- folded into P-066 as a repeat of the same open proposal",
       "id": "P-041",
       "direction_bucket": "TRIM",
       "priority_score": 3,
@@ -1315,23 +1315,23 @@
       "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
-        "DRAM at 1.43x its ATR risk cap",
+        "DRAM at 1.48x its ATR risk cap",
         "recommended 5x, still unactioned"
       ],
       "cluster": "AI Memory/Storage",
       "price_now": 51.42,
       "price_drift_pct": -6.1,
       "still_valid_because": [
-        "DRAM at 1.43x its ATR risk cap",
+        "DRAM at 1.48x its ATR risk cap",
         "recommended 5x, still unactioned"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-07",
+      "revalidated_on": "2026-08-10",
       "retires_when": "DRAM drops under its ATR risk cap",
-      "full_cure_usd": 462.0,
+      "full_cure_usd": 525.0,
       "cure_basis": "risk cap",
-      "cure_pct": 87.0,
-      "tranche_note": "cures 87% of the risk cap excess ($462) -- roughly 2 tranches this size to fully clear it"
+      "cure_pct": 76.0,
+      "tranche_note": "cures 76% of the risk cap excess ($525) -- roughly 2 tranches this size to fully clear it"
     },
     {
       "action": "Stage GOOGL (token, conditional on stabilization above ~$365, not today)",
@@ -1373,10 +1373,10 @@
       "cluster": "AI Power/Cooling/DC Infra",
       "size_usd": 380,
       "price_at_proposal": 264.78,
-      "status": "open",
+      "status": "dismissed_by_user",
       "trigger_type": "stretch",
       "rationale": "CEG is genuinely stretched -- +6.1% 1m, +24.0pp vs SMH, stretch score 100/100 -- while its own thesis sits at WATCH with a live STRONG DOWNTREND signal flag: real profit sitting on mixed conviction, the textbook case for taking some off rather than either holding blind or exiting outright. Not over its risk cap and not a cluster-breach cure -- this is a discretionary profit-take, sized as a partial trim (~48% of the $795 position) funding the paired QCOM add below.",
-      "note": "rotation pair leg 1/2 -- see PAIR-001",
+      "note": "rotation pair leg 1/2 -- see PAIR-001 | dismissed by user 2026-08-10T09:11: Strategist 2026-08-10: cited STRONG DOWNTREND basis has reversed to REVERSAL-BUY-WATCH this run; CEG is not on the risk-cap over_cap list; its cluster (AI Power/Cooling/DC Infra) is -6.73pt UNDER floor, so trimming it would deepen an underweight, not cure a breach. No live trigger remains. QCOM funding resolved independently via a new AMD-funded rotation (PAIR-002) instead.",
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
@@ -1402,11 +1402,11 @@
       "cluster": "AI Semis/Fabs",
       "size_usd": 380,
       "price_at_proposal": 159.75,
-      "status": "open",
+      "status": "superseded",
       "trigger_type": "signal_conviction",
       "trigger_bucket": "OVERSOLD BOUNCE",
       "rationale": "QCOM carries an OVERSOLD BOUNCE signal with a 100% interim 7d hit rate in this book (n=3, not yet 30d-validated) and a strengthening thesis. Sized to $380, just under QCOM's own $396 risk-cap headroom -- adding more would immediately create a new risk-cap breach next run. Funded by the paired CEG trim above rather than fresh cash, so this rotates capital rather than deploying more of it.",
-      "note": "rotation pair leg 2/2 -- see PAIR-001",
+      "note": "rotation pair leg 2/2 -- see PAIR-001 | auto-superseded 2026-08-03 -- folded into P-068 as a repeat of the same open proposal",
       "priority_score": 4,
       "priority": "HIGH",
       "priority_reasons": [
@@ -1421,6 +1421,178 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-07",
+      "retires_when": "'OVERSOLD BOUNCE' signal drops off QCOM or its 7d hit rate falls to/below 55%"
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "SNDK",
+      "action": "Trim SNDK",
+      "direction_bucket": "TRIM",
+      "cluster": "AI Memory/Storage",
+      "size_usd": 900,
+      "price_at_proposal": 1212.38,
+      "status": "open",
+      "trigger_type": "risk_cap",
+      "trigger_bucket": null,
+      "rationale": "2.80x ATR risk cap, the largest excess in the book (~$1,222 headroom deficit). Thesis WATCH-elevated on a real FY1Q27 demand-guide miss (2026-08-05), not just beta noise. Extreme-greed sentiment (80.2) favors profit-booking. The -43.7% (de-risk queue) vs -29.8% (yfinance calendar) 1-month-return discrepancy is unreconciled -- flagged for the user, not resolved.",
+      "id": "P-064",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "SNDK at 2.80x its ATR risk cap"
+      ],
+      "full_cure_usd": 1222.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 74.0,
+      "tranche_note": "cures 74% of the risk cap excess ($1,222) -- roughly 2 tranches this size to fully clear it",
+      "still_valid_because": [
+        "SNDK at 2.80x its ATR risk cap"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-10",
+      "retires_when": "SNDK drops under its ATR risk cap"
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "SKHY",
+      "action": "Trim SKHY",
+      "direction_bucket": "TRIM",
+      "cluster": "AI Memory/Storage",
+      "size_usd": 500,
+      "price_at_proposal": 138.07,
+      "status": "open",
+      "trigger_type": "risk_cap",
+      "trigger_bucket": null,
+      "rationale": "1.87x ATR risk cap (~$733 headroom deficit). Thesis WATCH-elevated on an unexplained ~9.2% decline since the 08-05 entry despite dominant 60-70% HBM4 Vera Rubin allocation share. Already whipsawed by a same-day stop-out/re-buy this week (sold 5@$135, bought 10@$138.07). SK Hynix's $38bn plant announcement is 2027+ capacity relief, not a reason to hold size now.",
+      "id": "P-065",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "SKHY at 1.87x its ATR risk cap"
+      ],
+      "full_cure_usd": 733.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 68.0,
+      "tranche_note": "cures 68% of the risk cap excess ($733) -- roughly 2 tranches this size to fully clear it",
+      "still_valid_because": [
+        "SKHY at 1.87x its ATR risk cap"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-10",
+      "retires_when": "SKHY drops under its ATR risk cap"
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "NVDA",
+      "action": "Trim NVDA",
+      "direction_bucket": "TRIM",
+      "cluster": "AI Semis/Fabs",
+      "size_usd": 650,
+      "price_at_proposal": 195.0,
+      "status": "open",
+      "trigger_type": "risk_cap",
+      "trigger_bucket": null,
+      "rationale": "Extreme-greed sentiment (80.2, action_hint: profit-booking on overweight/breach names) leads with the book's largest position. 1.21x ATR risk cap (~$562 deficit) AND AI Semis/Fabs cluster over its ceiling (+6.91pt vs [25,35] band) are both cured directionally by the same trim -- no conflict between triggers here.",
+      "id": "P-066",
+      "history": [
+        {
+          "date": "2026-07-31T13:02:00+05:30",
+          "size_usd": 150,
+          "price_at_proposal": null,
+          "rationale": "1.11x risk cap, peer leader +15.3pp vs SMH -- trim is cap-cure only, not a signal on the name."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-07-31T13:02:00+05:30, still open",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "NVDA at 1.21x its ATR risk cap",
+        "AI Semis/Fabs over band (+6.9pt)",
+        "recommended 2x, still unactioned"
+      ],
+      "full_cure_usd": 562.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 116.0,
+      "still_valid_because": [
+        "NVDA at 1.21x its ATR risk cap",
+        "AI Semis/Fabs over band (+6.9pt)",
+        "recommended 2x, still unactioned"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-10",
+      "retires_when": "NVDA drops under its ATR risk cap OR AI Semis/Fabs re-enters its policy band (both must clear -- either alone keeps it open)"
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "AMD",
+      "action": "Trim AMD (rotation funding leg)",
+      "direction_bucket": "TRIM",
+      "cluster": "AI Semis/Fabs",
+      "size_usd": 700,
+      "price_at_proposal": 495.39,
+      "status": "open",
+      "trigger_type": "risk_cap",
+      "trigger_bucket": null,
+      "pair_id": "PAIR-002",
+      "pair_role": "sell",
+      "rationale": "1.55x ATR risk cap (~$691 deficit). De-risk queue flags this as fragility-driven, not thesis-driven -- thesis remains STRENGTHENING. Funds the paired QCOM add within the same cluster (AI Semis/Fabs), so the cluster-ceiling breach doesn't move either direction from this rotation.",
+      "note": "rotation pair leg 1/2 -- see PAIR-002. Replaces the CEG-funded rotation (P-062/P-063, PAIR-001) after CEG's own trigger went stale this run.",
+      "id": "P-067",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "AMD at 1.54x its ATR risk cap",
+        "AI Semis/Fabs over band (+6.9pt)"
+      ],
+      "full_cure_usd": 691.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 101.0,
+      "still_valid_because": [
+        "AMD at 1.54x its ATR risk cap",
+        "AI Semis/Fabs over band (+6.9pt)"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-10",
+      "retires_when": "AMD drops under its ATR risk cap OR AI Semis/Fabs re-enters its policy band (both must clear -- either alone keeps it open)"
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "QCOM",
+      "action": "Add QCOM (rotation destination leg)",
+      "direction_bucket": "BUY",
+      "cluster": "AI Semis/Fabs",
+      "size_usd": 380,
+      "price_at_proposal": 160.33,
+      "status": "open",
+      "trigger_type": "signal_conviction",
+      "trigger_bucket": "OVERSOLD BOUNCE",
+      "pair_id": "PAIR-002",
+      "pair_role": "buy",
+      "rationale": "OVERSOLD BOUNCE signal, 100% interim 7d hit rate (n=3-4, not yet 30d-validated). Sized to QCOM's own risk-cap headroom. Cluster-neutral against the paired AMD trim -- both AI Semis/Fabs, so the cluster ceiling breach is unaffected by this rotation, unlike the retired CEG-funded version which would have deepened the AI Power/Cooling/DC Infra underweight.",
+      "note": "rotation pair leg 2/2 -- see PAIR-002. Supersedes P-063 (same ticker+direction, folded via dedup). | recommended 2x since 2026-08-06, still open",
+      "id": "P-068",
+      "history": [
+        {
+          "date": "2026-08-06",
+          "size_usd": 380,
+          "price_at_proposal": 159.75,
+          "rationale": "QCOM carries an OVERSOLD BOUNCE signal with a 100% interim 7d hit rate in this book (n=3, not yet 30d-validated) and a strengthening thesis. Sized to $380, just under QCOM's own $396 risk-cap headroom -- adding more would immediately create a new risk-cap breach next run. Funded by the paired CEG trim above rather than fresh cash, so this rotates capital rather than deploying more of it."
+        }
+      ],
+      "repeat_count": 2,
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "bullish signal 'OVERSOLD BOUNCE' has a 100% INTERIM 7d hit rate (n=3, not yet 30d-validated) in this book",
+        "recommended 2x, still unactioned"
+      ],
+      "still_valid_because": [
+        "bullish signal 'OVERSOLD BOUNCE' has a 100% INTERIM 7d hit rate (n=3, not yet 30d-validated) in this book",
+        "recommended 2x, still unactioned"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-10",
       "retires_when": "'OVERSOLD BOUNCE' signal drops off QCOM or its 7d hit rate falls to/below 55%"
     }
   ],
