@@ -174,7 +174,43 @@
   "news_watermark": "2026-08-10",
   "thesis": {
     "NVDA": "Core AI GPU/accelerator platform leadership | strengthening",
-    "ASML": "Sole-source EUV lithography; no new deterioration since 07-28 China-DUV dent, EPS ests rising, BofA calls selloff overreaction | watch",
+    "ASML": {
+      "status": "watch",
+      "thesis": "Sole-source EUV lithography; the EUV moat is untouched by China's DUV progress.",
+      "evidence_for": [
+        {
+          "claim": "no new deterioration since the 2026-07-28 China-DUV dent; EPS estimates revised +20.4%",
+          "date": "2026-07-31",
+          "source": "smith-thesis news scan"
+        },
+        {
+          "claim": "BofA calls the selloff an overreaction; price recovered near highs",
+          "date": "2026-07-31",
+          "source": "smith-thesis news scan"
+        },
+        {
+          "claim": "China's DUV entry is real but tiny: 5 units in 2026 vs ASML's 131 immersion tools and 98.7% share; does not touch EUV",
+          "date": "2026-07-28",
+          "source": "smith-catalyst magnitude check"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "the structural China buildout is a MULTI-YEAR risk that is NOT resolved -- only un-escalated; scale rises to ~20 units in 2027",
+          "date": "2026-07-28",
+          "source": "smith-thesis 2026-08-10 prose (dropped from that run's tail)"
+        },
+        {
+          "claim": "status deliberately NOT upgraded to strengthening despite the improving tone",
+          "date": "2026-08-10",
+          "source": "smith-thesis 2026-08-10"
+        }
+      ],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "RESTORED 2026-08-10 (G58 audit). The tail kept only the improving-tone half, so the record read as if the China risk had resolved. It has not."
+    },
     "GEV": "Grid/power-gen equipment for AI datacenter electrification; Q2 rev +22%, raised guidance, $11B grid capex | strengthening",
     "CLS": "EMS/AI ASIC builder; Q2 beat+raised guide, 08-06 -12.9% dilutive-offering hit was capital-structure not demand | strengthening",
     "DRAM": "Thematic memory ETF (Samsung/SK Hynix/Micron); diverged negative vs Fri SMH rally, same CXMT overhang as MU | watch",
@@ -187,7 +223,43 @@
     "TER": "Semicap automated test equipment geared to AI chip test volume | strengthening",
     "TSM": "Foundry monopoly manufacturing leading-edge AI chips | strengthening",
     "MU": "Memory (DRAM/HBM); WATCH driven by CXMT structural/funding risk, not ASP -- HBM3E flat within basis, corrected -51% figure stays dead | watch",
-    "SNDK": "AI NAND/enterprise-SSD supercycle. CORRECTED 2026-08-10 (user-flagged): FQ4 FY2026 results (reported 2026-08-05 after close) were a BEAT, not a miss -- revenue $8.79-8.97B (vs ~$8.64B consensus), non-GAAP EPS $39.25 (vs ~$34.37 est), record gross margin 84.6%, Data Center revenue +437% YoY, and 10 new multi-year 'NBM' agreements worth $93.9B+ covering ~50% of 2027 bit production. The stock fell because FQ1 FY2027 guide ($10.3-10.8B) came in below the Street's own elevated $11.16B estimate -- real, but a guide-below-lofty-expectations story, not a demand collapse. Price math confirms: the 2-day post-earnings reaction was only -10.2% (08-05 close to 08-07 close); the rest of the ~-29.8% 1-month decline (the correct figure, see G57 resolution) is the carryover from the broader late-July CXMT/memory-sector selloff that hit the whole cluster, not an SNDK-specific deterioration. Watch status stands on its own separate grounds: highest beta in book (2.924), running 2.80x its ATR risk cap -- a sizing problem, not a thesis problem.",
+    "SNDK": {
+      "status": "watch",
+      "thesis": "AI NAND/enterprise-SSD supercycle. WATCH rests on sizing/volatility (highest beta in book, 2.80x its ATR risk cap), NOT on a demand problem.",
+      "evidence_for": [
+        {
+          "claim": "FQ4 FY2026 beat: revenue $8.79-8.97B vs ~$8.64B consensus, non-GAAP EPS $39.25 vs ~$34.37 est",
+          "date": "2026-08-05",
+          "source": "SEC 8-K 2026-08-05 (FMP secFilings) + WebSearch"
+        },
+        {
+          "claim": "record gross margin 84.6%; Data Center revenue +437% YoY",
+          "date": "2026-08-05",
+          "source": "FQ4 earnings release"
+        },
+        {
+          "claim": "10 multi-year 'NBM' agreements worth $93.9B+, covering ~50% of 2027 bit production",
+          "date": "2026-08-05",
+          "source": "FQ4 earnings release"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "FQ1 FY2027 guide $10.3-10.8B is guide_below_consensus vs the Street's ~$11.16B (NOT a miss -- it still implies ~17-23% sequential growth)",
+          "date": "2026-08-05",
+          "source": "FQ4 earnings release / WebSearch"
+        },
+        {
+          "claim": "highest beta in the book (2.924 vs SMH) running 2.80x its ATR risk cap -- a sizing problem independent of the thesis",
+          "date": "2026-08-10",
+          "source": "compute_risk.json"
+        }
+      ],
+      "verified": "primary",
+      "verified_against": "SEC 8-K filed 2026-08-05 (confirmed via FMP secFilings) + stockanalysis.com + WebSearch",
+      "verified_on": "2026-08-10",
+      "note": "CORRECTED 2026-08-10 (user-flagged, G58). Prior text called this 'a real demand-guide miss' -- wrong on both counts. Migrated to the evidence schema so neither side can be dropped again."
+    },
     "AMAT": "Semicap deposition/etch equipment for AI chip fabs (position cut to dust, 0.012% weight -- sizing only, thesis unaffected) | strengthening",
     "COHR": "Photonics/optical components for datacenter interconnect | strengthening",
     "ARM": "Chip architecture/IP licensing; re-entry reaffirmed, data-center growth vs smartphone-royalty/valuation overhang | watch",
@@ -210,7 +282,48 @@
     "NOW": "Enterprise ITSM/workflow platform pivoting to agentic AI (AI ACV >$1bn), OpenAI competitive-disruption overhang vs -35% trailing-year decline | watch",
     "SKHY": "Direct SK Hynix ADR; down ~9.2% since 08-05 entry despite dominant 60-70% HBM4 Vera Rubin allocation, no adverse news found | watch",
     "MSFT": "Brand-new position (08-06, 2sh @ $495.97) -- Azure/OpenAI-linked hyperscaler capex spender, classified into Compute/Hyperscaler alongside GOOGL/AMZN/META by the same logic. No dedicated thesis research done yet (rationale for the buy itself also UNCAPTURED, see trades.json) -- this is a classification only, not a researched verdict. | watch",
-    "INTC": "IDM/foundry pivot capturing AI-driven CPU pricing power + IFS foundry wins (Fortinet, Leixlip expansion, SoftBank stake); NEW 08-07, thin track record | watch"
+    "INTC": {
+      "status": "watch",
+      "thesis": "IDM/foundry pivot aiming to capture AI-driven CPU pricing power; thin track record, brand-new position (5sh, 2026-08-07).",
+      "evidence_for": [
+        {
+          "claim": "Q2 revenue +25% YoY; server/laptop CPU price hikes on AI demand",
+          "date": "2026-08-09",
+          "source": "smith-thesis news scan 2026-08-10"
+        },
+        {
+          "claim": "IFS foundry client wins (Fortinet), $5.7B Leixlip AI-capacity expansion, SoftBank stake",
+          "date": "2026-08-09",
+          "source": "smith-thesis news scan 2026-08-10"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "currently LOSS-MAKING: trailing EPS -$2.09, profit margin -19.8%",
+          "date": "2026-08-10",
+          "source": "yfinance get_key_stats, verified 2026-08-10"
+        },
+        {
+          "claim": "-4.9% trailing annual sales decline and negative cash-flow concern flagged in the same 08-09 coverage that carried the bull points above",
+          "date": "2026-08-09",
+          "source": "smith-thesis news scan 2026-08-10"
+        },
+        {
+          "claim": "expensive on forward numbers: forward P/E 49.4, price/book 5.86, beta 2.24",
+          "date": "2026-08-10",
+          "source": "yfinance get_key_stats, verified 2026-08-10"
+        },
+        {
+          "claim": "buy rationale UNCAPTURED -- position entered 2026-08-07 with no recorded reason (G55)",
+          "date": "2026-08-07",
+          "source": "trades.json"
+        }
+      ],
+      "verified": "secondary",
+      "verified_against": "yfinance get_key_stats 2026-08-10 (loss-making + valuation confirmed independently)",
+      "verified_on": "2026-08-10",
+      "note": "RESTORED 2026-08-10 (G58 audit). smith-thesis's prose flagged 'Mixed: -4.9% trailing annual sales decline / negative cash-flow concern' but its JSON tail kept only the bull case, so the permanent record on a 3-day-old position read one-sided. The negative half is real and was verified independently."
+    }
   },
   "sector_map": {
     "NVDA": "AI Semis/Fabs",
@@ -1496,19 +1609,20 @@
       "resolution": "Reconciled same day: -29.8% is the correct 30-calendar-day return (confirmed by an independent from-scratch calc against yfinance daily closes, exact match). The -43.7% de-risk-queue figure was measuring from a mid-June local price peak (~06-15 to 06-22 range), not a rolling 1-month window -- a peak-to-current framing mislabeled as '1-month'. De-risk queue's stretch/fragility scoring should be re-checked for the same mislabeling on other names next run."
     },
     {
-      "id": "G57",
-      "description": "SNDK 1-month return reported two ways this run and not reconciled: -43.7% (compute_derisk.json's de-risk queue) vs -29.8% (smith-signals' yfinance calendar pull). Both sub-agents flagged it rather than picking one. Likely a basis/window mismatch (e.g. one measures from a different start date or includes/excludes the 08-05 guide-miss gap differently) -- needs a from-scratch reconciliation of both calculations' exact date windows next run.",
-      "opened": "2026-08-10",
-      "owner": "smith-signals / smith-book (de-risk queue)",
-      "closed": "2026-08-10",
-      "resolution": "Reconciled same day: -29.8% is the correct 30-calendar-day return (confirmed by an independent from-scratch calc against yfinance daily closes, exact match). The -43.7% de-risk-queue figure was measuring from a mid-June local price peak (~06-15 to 06-22 range), not a rolling 1-month window -- a peak-to-current framing mislabeled as '1-month'. De-risk queue's stretch/fragility scoring should be re-checked for the same mislabeling on other names next run.",
-      "closed_by": "user-flagged correction 2026-08-10"
-    },
-    {
       "id": "G58",
       "description": "Qualitative claims from sub-agent news reads are not source-verified before propagating into sized proposals or the user-facing briefing -- only deterministic arithmetic (weights/drift/concentration) goes through the compute-first script guardrail. Root-caused 2026-08-10: smith-thesis characterized SNDK's FQ1'27 guide (below Street's own estimate, but still ~17-23% sequential growth) as 'a real demand-guide miss' from a single negative headline, without checking the same earnings release's beat/record-margin/$93.9B-agreements details. The orchestrator propagated this framing into P-064's rationale and the chat briefing without independently checking the primary source. FIX GOING FORWARD: before a sub-agent's qualitative characterization (miss/beat/broken/deteriorating) drives a sized proposal, the orchestrator should spot-check it against a primary source (earnings release, 8-K) if it wasn't already sourced that way -- same discipline already applied to numeric discrepancies (see G57), just not yet to qualitative framing.",
       "opened": "2026-08-10",
       "owner": "orchestrator"
+    },
+    {
+      "id": "G59",
+      "description": "Primary-source verification tooling, probed 2026-08-10 so future runs don't re-discover it. WORKS: FMP `secFilings` endpoint search-by-symbol (returned SNDK's 2026-08-05 8-K plus the press-release link; never called before this date) and WebFetch stockanalysis.com/stocks/{ticker}/ (already allow-listed, proven in G49/G19; on SNDK it returned 'better-than-expected fiscal fourth-quarter results... the stock declined because its outlook was disappointing, not the actual earnings numbers', which settles a reported-vs-guide question on its own). BLOCKED, do not retry: FMP `statements` and FMP `earningsTranscript` are both ACCESS DENIED on this plan tier; direct WebFetch of sec.gov returns HTTP 403 (SEC requires an identifying User-Agent). Net: filing existence/date via FMP metadata, characterization via stockanalysis.com, exact actual-vs-consensus via WebSearch.",
+      "opened": "2026-08-10",
+      "owner": "orchestrator",
+      "status": "closed",
+      "closed": "2026-08-10",
+      "resolution": "Opened and closed the same day -- this is a capability record, not an outstanding defect. The working recipe is written into smith-thesis.md task 3 and smith-quality.md's generalised SANITY RULE.",
+      "closed_by": "G58 implementation 2026-08-10"
     }
   ],
   "sentiment": {

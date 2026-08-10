@@ -1713,6 +1713,28 @@ def cmd_proposals(args):
             pr["price_drift_pct"] = round(dp, 2)
             if abs(dp) >= 10:
                 flags.append(f"price has moved {dp:+.1f}% since proposed (${p0:.2f} -> ${pnow:.2f}) -- re-size before acting")
+        # EVIDENCE GATE (added 2026-08-10, G58). The strategist's standing rule is "cite at least
+        # two inputs" -- that counts inputs, it does not test them, so two unverified qualitative
+        # claims satisfy it. On 2026-08-10 a sized SNDK trim shipped citing a thesis WATCH that
+        # rested on a mischaracterized earnings headline (the quarter was a beat; only the forward
+        # guide was light). Three days earlier a strategist veto rested on a quality finding that
+        # MRVL's own 10-Q contradicted (G44). Same shape twice: an unverified word outranking
+        # verified arithmetic -- smith-strategist.md literally says thesis WATCH/BROKEN "outrank
+        # pure drift breaches as trim candidates".
+        #
+        # This reads the TYPED counts the strategist supplies, never the rationale prose. Parsing
+        # prose is what made the breach-cleared voider false-positive and get disabled in
+        # 2026-07-29; that lesson holds. A proposal with no evidence_quality block is simply not
+        # assessed (older rows stay untouched) rather than being flagged on an absent field.
+        eq = pr.get("evidence_quality")
+        if isinstance(eq, dict):
+            n_ver = eq.get("verified") or 0
+            n_unver = eq.get("unverified") or 0
+            n_comp = eq.get("computed") or 0
+            if (n_ver + n_comp) == 0 and n_unver > 0:
+                flags.append(
+                    f"sole basis is {n_unver} unverified qualitative claim(s) -- no verified or "
+                    f"computed input backs this; confirm the underlying claim before acting (G58)")
         if not live:
             live.append("no active structural trigger -- kept open on the strategist's judgement, not a breach")
         pr["still_valid_because"] = live

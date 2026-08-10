@@ -552,12 +552,35 @@ def build(base, out):
     def thesis_status(txt):
         """('strengthening'|'watch'|'broken'|None). Same rpartition("|") convention the thesis
         map already used -- extracted here so the cluster-expand feature can share it exactly
-        rather than re-deriving a second, possibly-divergent parse of the same field."""
+        rather than re-deriving a second, possibly-divergent parse of the same field.
+
+        EXTENDED 2026-08-10 (G58): a thesis entry is now either a legacy bare string
+        ("one-liner | watch") or the new object carrying evidence_for/evidence_against and a
+        `verified` tag. Both shapes coexist during migration -- older names keep their string
+        until smith-thesis next touches them -- so every reader goes through this shim rather
+        than assuming a type. Returning None on an unexpected shape is deliberate: an
+        unparseable status renders as 'no status' rather than crashing the whole build."""
         if not txt:
             return None
-        _, _, status = txt.rpartition("|")
-        st_raw = status.strip().lower() if status else ""
+        if isinstance(txt, dict):
+            st_raw = str(txt.get("status") or "").strip().lower()
+        else:
+            _, _, status = str(txt).rpartition("|")
+            st_raw = status.strip().lower() if status else ""
         return next((k for k in ("strengthening", "watch", "broken") if st_raw.startswith(k)), None)
+
+    def thesis_text(v):
+        """The human-readable one-liner, from either schema shape (G58)."""
+        if isinstance(v, dict):
+            return v.get("thesis") or ""
+        return str(v or "")
+
+    def thesis_evidence(v):
+        """(evidence_for, evidence_against, verified) -- empty/'' for legacy string entries."""
+        if isinstance(v, dict):
+            return (v.get("evidence_for") or [], v.get("evidence_against") or [],
+                    v.get("verified") or "")
+        return ([], [], "")
 
     H = []
     H.append(f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
@@ -1261,6 +1284,48 @@ def build(base, out):
     H.append('<div class="tier"><h2>Diagnostics</h2><div class="ln"></div></div>')
     H.append('<div class="t3">')
 
+    def _thesis_chips(items):
+        """Render thesis chips with both evidence sides in the tooltip (G58, 2026-08-10).
+
+        The chip's hover text used to be the bare one-liner -- which is exactly the artifact
+        that lost 'despite Q4 EPS beat' on SNDK. Now the tooltip carries FOR / AGAINST
+        explicitly, and an entry with a non-empty `evidence_against` gets a visible marker so
+        a contested verdict is legible without hovering at all. Legacy string entries render
+        as before, tagged unverified, so migration is visible rather than silent."""
+        out = []
+        for tk, body, raw in sorted(items, key=lambda i: i[0]):
+            ef, ea, ver = thesis_evidence(raw)
+            tip = [body[:200]] if body else []
+            if ef:
+                tip.append("FOR: " + " · ".join(str(e.get("claim", ""))[:90] for e in ef[:3]))
+            if ea:
+                tip.append("AGAINST: " + " · ".join(str(e.get("claim", ""))[:90] for e in ea[:3]))
+            if isinstance(raw, dict):
+                tip.append(f"verified: {ver or 'unverified'}"
+                           + (f" ({raw.get('verified_against')})" if raw.get("verified_against") else ""))
+            else:
+                tip.append("pre-G58 entry -- single-sided, treated as unverified")
+            # a dagger marks a contested verdict (both sides non-empty); a degree sign marks
+            # an entry that has not been migrated to the evidence schema at all.
+            mark = ""
+            if isinstance(raw, dict):
+                if ef and ea:
+                    mark = '<sup title="contested -- evidence on both sides">&dagger;</sup>'
+                elif ver in ("primary", "secondary"):
+                    mark = '<sup title="source-verified">&check;</sup>'
+            else:
+                mark = '<sup title="pre-G58, single-sided">&deg;</sup>'
+            # NOTE: .chip is `display:inline-flex; flex-direction:column`, so every DIRECT child
+            # becomes its own row. The ticker and its marker must therefore be wrapped in a
+            # single child element -- emitting a bare <sup> alongside the text would drop the
+            # marker onto its own line between the ticker and the sector label. Same family of
+            # trap as the 2026-08-08 <summary>-as-grid bug: valid markup, wrong layout, and
+            # invisible to any tag-balance check.
+            out.append(f'<span class="chip" title="{esc(" | ".join(tip))}">'
+                       f'<span>{esc(tk)}{mark}</span>'
+                       f'<i>{esc(sector_map.get(tk, "-"))}</i></span>')
+        return "".join(out)
+
     # -- thesis map, grouped by status --
     # FIXED 2026-08-06 (dashboard feature review, user-reported): thesis carries entries for
     # every ticker EVER analysed, including names exited long ago (the panel was captioned
@@ -1273,35 +1338,47 @@ def build(base, out):
         groups = {"strengthening": [], "watch": [], "broken": []}
         other = []
         for tk, txt in thesis.items():
-            body, _, status = txt.rpartition("|")
+            # G58 (2026-08-10): entries are now either a legacy bare string or the evidence
+            # object. Route both through the shared shims so this panel never re-derives a
+            # second, divergent parse -- and so an unmigrated name still renders.
+            st = thesis_status(txt)
+            if isinstance(txt, dict):
+                body = thesis_text(txt)
+            else:
+                body, _, _status = str(txt).rpartition("|")
+                body = body.strip()
             # status is usually a bare keyword but sometimes carries a bracketed note
-            # (e.g. "strengthening [position closed ...]") -- match by prefix, not equality,
-            # membership-check the dict (not `groups.get(st) or other` -- an empty list is
+            # (e.g. "strengthening [position closed ...]") -- thesis_status matches by prefix.
+            # Membership-check the dict (not `groups.get(st) or other` -- an empty list is
             # falsy, so that pattern silently sent every ticker to `other` on every run).
-            st_raw = status.strip().lower() if status else ""
-            st = next((k for k in groups if st_raw.startswith(k)), None)
-            target = groups[st] if st else other
-            target.append((tk, body.strip()))
+            target = groups[st] if st in groups else other
+            target.append((tk, body, txt))
         dotcls = {"strengthening": "dot-g", "watch": "dot-w", "broken": "dot-b"}
         blocks = []
         for st in ("strengthening", "watch", "broken"):
             items = groups[st]
             if not items:
                 continue
-            chips = "".join(
-                f'<span class="chip" title="{esc(body[:220])}">{esc(tk)}<i>{esc(sector_map.get(tk,"-"))}</i></span>'
-                for tk, body in sorted(items))
             blocks.append(f'<div class="grp-h"><span class="{dotcls[st]}"></span>{st.title()}</div>'
-                          f'<div class="chips" style="margin-bottom:12px">{chips}</div>')
+                          f'<div class="chips" style="margin-bottom:12px">{_thesis_chips(items)}</div>')
         if other:
-            chips = "".join(
-                f'<span class="chip" title="{esc(body[:220])}">{esc(tk)}<i>{esc(sector_map.get(tk,"-"))}</i></span>'
-                for tk, body in sorted(other))
             blocks.append(f'<div class="grp-h">Other</div>'
-                          f'<div class="chips" style="margin-bottom:12px">{chips}</div>')
+                          f'<div class="chips" style="margin-bottom:12px">{_thesis_chips(other)}</div>')
+        # G58: count how many held names still lack two-sided evidence, and say so plainly.
+        # A dashboard that hides its own coverage gap invites more trust than the data earns --
+        # same reasoning as the data-quality panel added 2026-08-06.
+        n_two_sided = sum(1 for _tk, _b, raw in
+                          [i for grp in list(groups.values()) + [other] for i in grp]
+                          if isinstance(raw, dict)
+                          and raw.get("evidence_for") is not None
+                          and raw.get("evidence_against") is not None)
+        cov = (f'<p class="note" style="margin-top:8px">Hover any ticker for its thesis, '
+               f'evidence on both sides, and how it was verified. '
+               f'<b>{n_two_sided} of {len(thesis)}</b> carry two-sided evidence (G58); the rest are '
+               f'pre-migration entries still holding a single-sided one-liner and are treated as '
+               f'<i>unverified</i> until smith-thesis next revisits them.</p>')
         H.append(f'<details><summary>Thesis map<span class="c">{len(thesis)} of {len(held_tickers)} held</span></summary>'
-                 f'<div class="body">{"".join(blocks)}'
-                 f'<p class="note" style="margin-top:8px">Hover any ticker for its thesis.</p></div></details>')
+                 f'<div class="body">{"".join(blocks)}{cov}</div></details>')
 
     # -- signal history, grouped bullish/bearish --
     signal_history = {k: v for k, v in (state.get("signal_history") or {}).items() if v}

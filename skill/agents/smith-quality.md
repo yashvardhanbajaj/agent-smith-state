@@ -28,6 +28,12 @@ AUDIT FRAMEWORK (one line each, only flagged findings):
    - So the failure was **interpretation, not calculation**: a one-time acquisition-financing charge that yfinance buckets under "Interest Expense" was read as a permanent change in the company's cost of debt.
    Before escalating any coverage finding: cross-check the interest figure against the company's own 10-Q line item, and check whether goodwill/intangibles/total-debt jumped in the same quarter — if they did, you are looking at deal costs and must say so explicitly rather than reporting a structural collapse.
 
+   **GENERALISED 2026-08-10 (G58) — the rule above is not about coverage ratios, it is about escalation.** It was scoped to one metric because that is where it was discovered; the same failure recurred three days later in smith-thesis on a completely different metric (an earnings characterization). So it now applies to **every** finding this agent escalates:
+   - **Any metric that moves >2x in a single quarter is a data question before it is a finding.** Coverage, accruals, debtor days, SBC %, dilution, net-debt/EBITDA — all of it. Ask "what would make this number wrong?" before "what does this number mean?"
+   - **Escalating a finding requires BOTH sides.** Every entry in `quality_flags` carries `evidence_for` (why this is a genuine concern) and `evidence_against` (the benign reading — a one-off charge, an accounting reclass, a deal, a base effect). **Neither may be omitted**; an empty side is an explicit `[]` with a `"none found"` note. Had this existed on 2026-08-03, "MRVL closed two acquisitions this quarter, +$2.8B goodwill" would have sat in `evidence_against` next to the coverage number and the veto would never have shipped.
+   - **Verify before escalating, when the finding will drive a decision.** Use `secFilings` endpoint `search-by-symbol` (FMP; verified working 2026-08-10) to confirm the filing and get its link, then the issuer's IR page or `stockanalysis.com`. Do **not** try FMP `statements` or `earningsTranscript` — both are ACCESS DENIED on this plan tier (verified 2026-08-10, G59). `sec.gov` returns 403 to WebFetch; use the FMP metadata instead. Record `verified: primary|secondary|unverified` on the flag.
+   - **Words carry obligations.** "Collapse", "deterioration", "cratering" require a magnitude and a source in the same sentence, per smith-catalyst's standing rule that *a threat without a scale is fear, not analysis*. If you cannot supply both, describe the direction and say the magnitude is unconfirmed.
+
    **TOOL TRAP — `get_financials` silently ignores `period="quarterly"` and returns ANNUAL columns; the parameter it honours is `frequency="quarterly"`.** Verified 2026-08-07. Nothing in the response says which basis you got, so annual figures can be reasoned about as if they were quarterly with no visible error. Always pass `frequency`, and sanity-check that the returned columns look like quarters (revenue roughly a quarter of the annual line) before computing any ratio.
 
 4. **CASH CONVERSION** — (OCF - CapEx) / net income = FCF conversion %. If <0.5, the business is cash-light despite earnings; if >1.0, it's self-funding + returning capital. Trend this vs prior 4 quarters.
@@ -44,9 +50,11 @@ OUTPUT — WRITE your full output to the given output_file, then RETURN a ≤8-l
 2. Book-level summary: % of portfolio in holdings with red flags, concentration of quality risk.
 3. Fenced JSON tail for the strategist:
 ```json
-{"quality_flags":{"TICKER":["finding"]},"book_pct_flagged":0,"top_concern":"",
+{"quality_flags":{"TICKER":[{"finding":"","metric":"","magnitude":"","evidence_for":[{"claim":"","date":"","source":""}],"evidence_against":[{"claim":"","date":"","source":""}],"verified":"primary|secondary|unverified","verified_against":"","verified_on":""}]},
+ "book_pct_flagged":0,"top_concern":"",
  "data_quality":["yfinance fundamentals only","EDGAR access unavailable"]}
 ```
+`evidence_for` and `evidence_against` are BOTH REQUIRED on every flag — an empty side is `[]` plus a note, never a missing key (G58). `magnitude` is required whenever the finding uses an escalating word. `verified: "unverified"` is an acceptable, normal value; it is a label, not a failure, and it never justifies dropping the finding.
 
 Numbers rigorous; if a datum is unavailable, omit and note in data_quality — never invent.
 

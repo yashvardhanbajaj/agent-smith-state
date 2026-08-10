@@ -1283,7 +1283,7 @@
       "status": "open",
       "id": "P-060",
       "ticker": "DRAM",
-      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 5x since 2026-07-28, still open",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 5x since 2026-07-28, still open | evidence_quality backfilled 2026-08-10 (G58) from this run's actual triggers",
       "direction_bucket": "TRIM",
       "history": [
         {
@@ -1331,7 +1331,12 @@
       "full_cure_usd": 525.0,
       "cure_basis": "risk cap",
       "cure_pct": 76.0,
-      "tranche_note": "cures 76% of the risk cap excess ($525) -- roughly 2 tranches this size to fully clear it"
+      "tranche_note": "cures 76% of the risk cap excess ($525) -- roughly 2 tranches this size to fully clear it",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 1
+      }
     },
     {
       "action": "Stage GOOGL (token, conditional on stabilization above ~$365, not today)",
@@ -1451,7 +1456,12 @@
       "review_flags": [],
       "revalidated_on": "2026-08-10",
       "retires_when": "SNDK drops under its ATR risk cap",
-      "note": "rationale corrected 2026-08-10 -- see G57"
+      "note": "rationale corrected 2026-08-10 -- see G57 | evidence_quality backfilled 2026-08-10 (G58) from this run's actual triggers",
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 1,
+        "unverified": 0
+      }
     },
     {
       "date": "2026-08-10",
@@ -1480,7 +1490,13 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-10",
-      "retires_when": "SKHY drops under its ATR risk cap"
+      "retires_when": "SKHY drops under its ATR risk cap",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 1
+      },
+      "note": "evidence_quality backfilled 2026-08-10 (G58) from this run's actual triggers"
     },
     {
       "date": "2026-08-10",
@@ -1504,7 +1520,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-07-31T13:02:00+05:30, still open",
+      "note": "recommended 2x since 2026-07-31T13:02:00+05:30, still open | evidence_quality backfilled 2026-08-10 (G58) from this run's actual triggers",
       "priority_score": 6,
       "priority": "HIGH",
       "priority_reasons": [
@@ -1522,7 +1538,12 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-10",
-      "retires_when": "NVDA drops under its ATR risk cap OR AI Semis/Fabs re-enters its policy band (both must clear -- either alone keeps it open)"
+      "retires_when": "NVDA drops under its ATR risk cap OR AI Semis/Fabs re-enters its policy band (both must clear -- either alone keeps it open)",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 3,
+        "unverified": 0
+      }
     },
     {
       "date": "2026-08-10",
@@ -1538,7 +1559,7 @@
       "pair_id": "PAIR-002",
       "pair_role": "sell",
       "rationale": "1.55x ATR risk cap (~$691 deficit). De-risk queue flags this as fragility-driven, not thesis-driven -- thesis remains STRENGTHENING. Funds the paired QCOM add within the same cluster (AI Semis/Fabs), so the cluster-ceiling breach doesn't move either direction from this rotation.",
-      "note": "rotation pair leg 1/2 -- see PAIR-002. Replaces the CEG-funded rotation (P-062/P-063, PAIR-001) after CEG's own trigger went stale this run.",
+      "note": "rotation pair leg 1/2 -- see PAIR-002. Replaces the CEG-funded rotation (P-062/P-063, PAIR-001) after CEG's own trigger went stale this run. | evidence_quality backfilled 2026-08-10 (G58) from this run's actual triggers",
       "id": "P-067",
       "priority_score": 5,
       "priority": "HIGH",
@@ -1555,7 +1576,12 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-10",
-      "retires_when": "AMD drops under its ATR risk cap OR AI Semis/Fabs re-enters its policy band (both must clear -- either alone keeps it open)"
+      "retires_when": "AMD drops under its ATR risk cap OR AI Semis/Fabs re-enters its policy band (both must clear -- either alone keeps it open)",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 0
+      }
     },
     {
       "date": "2026-08-10",
@@ -1571,7 +1597,7 @@
       "pair_id": "PAIR-002",
       "pair_role": "buy",
       "rationale": "OVERSOLD BOUNCE signal, 100% interim 7d hit rate (n=3-4, not yet 30d-validated). Sized to QCOM's own risk-cap headroom. Cluster-neutral against the paired AMD trim -- both AI Semis/Fabs, so the cluster ceiling breach is unaffected by this rotation, unlike the retired CEG-funded version which would have deepened the AI Power/Cooling/DC Infra underweight.",
-      "note": "rotation pair leg 2/2 -- see PAIR-002. Supersedes P-063 (same ticker+direction, folded via dedup). | recommended 2x since 2026-08-06, still open",
+      "note": "rotation pair leg 2/2 -- see PAIR-002. Supersedes P-063 (same ticker+direction, folded via dedup). | recommended 2x since 2026-08-06, still open | evidence_quality backfilled 2026-08-10 (G58) from this run's actual triggers",
       "id": "P-068",
       "history": [
         {
@@ -1585,16 +1611,21 @@
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "bullish signal 'OVERSOLD BOUNCE' has a 100% INTERIM 7d hit rate (n=3, not yet 30d-validated) in this book",
+        "bullish signal 'OVERSOLD BOUNCE' has a 100% INTERIM 7d hit rate (n=4, not yet 30d-validated) in this book",
         "recommended 2x, still unactioned"
       ],
       "still_valid_because": [
-        "bullish signal 'OVERSOLD BOUNCE' has a 100% INTERIM 7d hit rate (n=3, not yet 30d-validated) in this book",
+        "bullish signal 'OVERSOLD BOUNCE' has a 100% INTERIM 7d hit rate (n=4, not yet 30d-validated) in this book",
         "recommended 2x, still unactioned"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-10",
-      "retires_when": "'OVERSOLD BOUNCE' signal drops off QCOM or its 7d hit rate falls to/below 55%"
+      "retires_when": "'OVERSOLD BOUNCE' signal drops off QCOM or its 7d hit rate falls to/below 55%",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 1
+      }
     }
   ],
   "retracted": [
