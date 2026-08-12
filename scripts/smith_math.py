@@ -50,6 +50,49 @@ BUCKET_DIRECTION = {
 }
 VERDICT_THRESHOLD_PCT = 2.0  # move must exceed this to call worked/failed vs neutral
 
+# ---------------------------------------------------------------------------
+# Trigger thresholds (added 2026-08-12, user-reported: "still most of the proposals are based
+# on ATR risk-cap... I prefer oversold/overbought proposals to catch a bounce back for the good
+# stocks... book profit if something had a good enough run and put my money on another stock
+# which is yet to run").
+#
+# Diagnosis behind these numbers, all verified against the live book that day:
+#   (a) the priority scorer gave over_cap +3, the largest single weight, and PENALISED a BUY
+#       carrying no breach (-1) -- so "buy the good stock that is merely oversold" was
+#       structurally the lowest-priority thing the engine could emit;
+#   (b) rel_strength_1m was 12 days stale against its own 7-day TTL and missing 10 of 28 names,
+#       starving the one existing profit-take trigger (names_stretched was just [AVGO, CEG]);
+#   (c) no per-name RSI existed anywhere in data_cache, so overbought/oversold could not be
+#       computed deterministically at all -- OVERBOUGHT PULLBACK had fired ONCE in 69 journal
+#       entries, while OVERSOLD BOUNCE carried the book's best interim 7d hit rate (100%, n=4)
+#       and was almost never flagged.
+#
+# Entry and exit thresholds deliberately differ (hysteresis): a setup that triggers at RSI<35
+# is not un-triggered the moment it ticks to 36. Without the gap a proposal would flip between
+# open and auto_retired on noise, which is exactly the churn the retirement pass exists to avoid.
+RSI_OVERSOLD = 35.0
+RSI_OVERSOLD_EXIT = 50.0
+RSI_OVERBOUGHT = 70.0
+RSI_OVERBOUGHT_EXIT = 60.0
+# A live trigger may never fire off a stale technical read. 10 days is deliberately looser than
+# the 7-day cache TTL (a 1-day overrun should not blind the desk) but far tighter than the 12-day
+# staleness that was found in production -- past this, the lists come back empty with a flag
+# rather than acting on numbers that no longer describe the market. Never estimate.
+TRIGGER_CACHE_MAX_AGE_DAYS = 10
+LAGGARD_PCTILE = 25.0            # bottom quartile of 1m relative strength = "yet to run"
+RATCHET_MIN_GAIN_PCT = 15.0      # gain before a stop is worth ratcheting to breakeven
+LADDER_TIERS_PCT = [25.0, 50.0]  # scale-out rungs, each selling LADDER_FRACTION of the position
+LADDER_FRACTION = 1.0 / 3.0
+OVERBOUGHT_TRIM_FRACTION = 0.25  # profit-take slice on an overbought name
+MAX_SINGLE_DEPLOY_FRACTION = 0.25  # cap one buy suggestion at this share of deployable cash
+# A technical dip on an intact thesis is a bounce setup; a technical dip alongside a FUNDAMENTAL
+# negative is a falling knife. Only the latter disqualifies -- requiring net-bullish signals
+# would disqualify every oversold name by definition, since being oversold IS bearish price action.
+FUNDAMENTAL_HEADWIND_BUCKETS = {"NEW HEADWINDS"}
+HEALTHY_THESIS = {"intact", "strengthening"}
+LIVE_TRIGGERS = {"oversold_reversion", "overbought_distribution"}
+SHADOW_TRIGGERS = {"laggard_rotation", "profit_ratchet", "scale_out_ladder"}
+
 
 def load_json(path, default=None):
     if not os.path.exists(path):
@@ -1452,6 +1495,24 @@ def cmd_proposals(args):
     rotation_by_ticker = rotation.get("tickers", {})
     journal = load_json(os.path.join(args.base_dir, "journal.json"), default={})
     hit_rates_7d = journal.get("bucket_hit_rates_7d", {})
+    # compute_triggers.json (added 2026-08-12): deterministic candidate lists for the five
+    # non-ATR triggers. Only the LIVE ones score here -- a shadow trigger that somehow reached
+    # a proposal is flagged, not rewarded, so the "earns its vote first" rule can't be bypassed
+    # by the strategist simply writing the trigger_type onto a proposal.
+    triggers = load_json(os.path.join(args.run_dir, "compute_triggers.json"), default={})
+    trigger_live_sets = {tt: {c["ticker"] for c in (triggers.get(tt) or [])}
+                         for tt in LIVE_TRIGGERS}
+    trigger_rows = {tt: {c["ticker"]: c for c in (triggers.get(tt) or [])}
+                    for tt in LIVE_TRIGGERS | SHADOW_TRIGGERS}
+    # Already staleness-gated by cmd_triggers -- empty dicts when the cache is too old, which makes
+    # every RSI-based retirement check below untestable and therefore a no-op (proposal stays open).
+    trig_rsi = triggers.get("rsi_values") or {}
+    trig_abs = triggers.get("abs_return_1m_pct_values") or {}
+    # Thesis map, for the oversold_reversion retirement check only: that trigger's premise is
+    # "healthy name, technical dip", so a thesis leaving intact/strengthening invalidates it
+    # regardless of where RSI sits. Read defensively -- a missing state.json degrades to "cannot
+    # test", never to a retirement on absent data.
+    state_thesis = load_json(os.path.join(args.base_dir, "state.json"), default={}).get("thesis", {}) or {}
     # DIRECTIONAL cash check (fixed 2026-08-06). `cash_breach_vs_normal` is a bare boolean that
     # fires on BOTH edges -- too little cash and too much. The scorer previously treated any
     # breach as a reason to favour trimming ("this also rebuilds cash"), which inverts on the
@@ -1487,7 +1548,13 @@ def cmd_proposals(args):
         rpos = risk_by_ticker.get(ticker) if ticker else None
         cluster = rpos.get("cluster") if rpos else pr.get("cluster")
         if rpos and rpos.get("over_cap"):
-            score += 3
+            # DEMOTED +3 -> +2 on 2026-08-12 (user decision). At +3 this was the largest single
+            # weight in the scorer and, combined with the repeat bonus below, the only trigger
+            # that reliably reached HIGH -- so the open list was structurally almost all ATR
+            # trims. Risk discipline is unchanged (an over-cap name still always surfaces, and
+            # cmd_risk still computes the cap identically); what changes is that a genuine
+            # profit-take or a measured oversold entry can now outrank it.
+            score += 2
             reasons.append(f"{ticker} at {rpos.get('cap_multiple', 0):.2f}x its ATR risk cap")
         # DIRECTIONAL cluster-breach check (fixed 2026-08-07, found live: MRVL's 08-06 trim cured
         # its own risk cap, but the AI Networking/Optics cluster had meanwhile fallen UNDER its
@@ -1529,7 +1596,35 @@ def cmd_proposals(args):
                 score += 2
                 reasons.append(f"bullish signal '{best_hr[0]}' has a {best_hr[1]:.0f}% INTERIM 7d hit "
                                f"rate (n={best_hr[2]}, not yet 30d-validated) in this book")
-        if rc >= 3:
+        # -- non-ATR triggers (added 2026-08-12). Weighted +3 so either can reach MEDIUM alone and
+        # HIGH with any one supporting term -- deliberately ABOVE the now-demoted ATR weight of
+        # +2, because the whole point of the change is that "this ran, book some" and "this good
+        # name is oversold, add" should be able to outrank "this position is 1.2x a volatility cap".
+        # Both are gated on the ticker actually appearing in compute_triggers.json's LIVE list this
+        # run, so a trigger_type written onto a proposal whose condition has since cleared scores
+        # nothing rather than coasting on a label.
+        tt = pr.get("trigger_type")
+        if tt in LIVE_TRIGGERS and ticker in trigger_live_sets.get(tt, set()):
+            row = trigger_rows[tt][ticker]
+            score += 3
+            reasons.append(f"{tt}: " + "; ".join(row.get("reasons") or []))
+            for b in row.get("blockers") or []:
+                reasons.append(f"caveat -- {b}")
+        elif tt in SHADOW_TRIGGERS:
+            reasons.append(f"{tt} is SHADOW-SCORED, not yet voting -- this trigger has no measured "
+                           "hit rate in this book, so it contributes 0 to priority by design")
+        elif tt in LIVE_TRIGGERS:
+            reasons.append(f"{tt} was the stated trigger but {ticker} is not in this run's "
+                           f"{tt} candidate list -- condition is no longer live")
+
+        # Repeat bonus, with a DECAY (added 2026-08-12). A proposal restated 5+ times and never
+        # actioned is not more urgent -- in practice it has been declined, and the old uncapped
+        # +2 was promoting exactly those to HIGH and crowding out fresh ideas (DRAM sat at rc=6).
+        # Past the decay point it earns nothing and says so, which is also the cue to dismiss it.
+        if rc >= 5:
+            reasons.append(f"recommended {rc}x and never actioned -- treated as implicitly declined "
+                           f"(no priority bonus); consider `dismiss {pr.get('id')}` to clear it")
+        elif rc >= 3:
             score += 2
             reasons.append(f"recommended {rc}x, still unactioned")
         elif rc == 2:
@@ -1537,9 +1632,12 @@ def cmd_proposals(args):
             reasons.append(f"recommended {rc}x, still unactioned")
         if bucket == "SELL":
             score += 1
-        if bucket == "BUY" and score == 0:
+        # The old penalty fired on any BUY with score==0, which punished precisely the trade this
+        # book was missing: a well-founded add on a healthy name that happens to breach nothing.
+        # It now only applies to a buy with NO typed trigger at all -- genuinely discretionary.
+        if bucket == "BUY" and score <= 0 and tt not in (LIVE_TRIGGERS | SHADOW_TRIGGERS):
             score -= 1
-            reasons.append("discretionary add -- no active breach behind it")
+            reasons.append("discretionary add -- no active breach or typed trigger behind it")
         pr["priority_score"] = score
         pr["priority"] = "HIGH" if score >= 4 else "MEDIUM" if score >= 2 else "LOW"
         pr["priority_reasons"] = reasons
@@ -1640,28 +1738,48 @@ def cmd_proposals(args):
             # blanket rule, matters: most trims are cap/cluster driven and were never claiming
             # the position was a "winner" to begin with, so testing stretch on those would be a
             # non-sequitur retirement reason.
-            is_stretch_trigger = pr.get("trigger_type") == "stretch"
-            stretch_ok = (ticker in (derisk.get("names_stretched") or [])) if is_stretch_trigger else True
-            if not over_cap and not cl and (not is_stretch_trigger or not stretch_ok):
-                if is_stretch_trigger:
-                    why = (f"{ticker} is no longer in the stretched cohort (ahead of sector AND "
-                           "up) -- the profit-taking rationale for this trim has cleared")
-                else:
-                    # Be honest about WHY the cluster stopped counting: it may be genuinely
-                    # in-band, or it may have flipped to an under-floor breach that a trim
-                    # would only worsen -- "inside its policy band" is false in the second case
-                    # and would misreport a real, live problem as resolved.
-                    raw_cb = cluster_breach.get(cluster) if cluster else None
-                    if raw_cb and raw_cb.get("breach_edge") == "under":
-                        cluster_note = (f", though {cluster} is now UNDER its floor "
-                                        f"({raw_cb.get('drift_pt', 0):+.1f}pt) -- a separate live issue, "
-                                        "just not one a trim addresses")
-                    elif cluster:
-                        cluster_note = f" and {cluster} is inside its policy band"
+            # An overbought_distribution trim (added 2026-08-12) is deliberately CAP-INDEPENDENT --
+            # it exists to book profit on a name that ran, not to cure a breach -- so it must be
+            # tested on its OWN condition and must never be retired merely for being within its
+            # ATR cap. Hysteresis: triggered above RSI_OVERBOUGHT, retires below the lower exit
+            # threshold, so a name oscillating around 70 doesn't churn open/retired every run.
+            if pr.get("trigger_type") == "overbought_distribution":
+                rsi_now = trig_rsi.get(ticker)
+                abs_now = trig_abs.get(ticker)
+                if rsi_now is None:
+                    pass  # cannot test (cache stale/absent) -- keep open rather than guess
+                elif rsi_now < RSI_OVERBOUGHT_EXIT:
+                    why = (f"{ticker} RSI14 has cooled to {rsi_now:.1f} (below the "
+                           f"{RSI_OVERBOUGHT_EXIT:g} exit) -- the overbought condition this "
+                           "profit-take was sized against has cleared")
+                elif abs_now is not None and abs_now <= 0:
+                    why = (f"{ticker} is no longer up on the month ({abs_now:+.1f}%) -- there is no "
+                           "longer a gain to protect, so this is not a profit-take any more")
+            elif pr.get("trigger_type") in SHADOW_TRIGGERS:
+                pass  # shadow triggers are logged, not lifecycle-managed as live proposals
+            else:
+                is_stretch_trigger = pr.get("trigger_type") == "stretch"
+                stretch_ok = (ticker in (derisk.get("names_stretched") or [])) if is_stretch_trigger else True
+                if not over_cap and not cl and (not is_stretch_trigger or not stretch_ok):
+                    if is_stretch_trigger:
+                        why = (f"{ticker} is no longer in the stretched cohort (ahead of sector AND "
+                               "up) -- the profit-taking rationale for this trim has cleared")
                     else:
-                        cluster_note = ""
-                    why = (f"neither trigger is live: {ticker} is within its ATR risk cap"
-                           + cluster_note + " -- the structural reason for this trim has cleared")
+                        # Be honest about WHY the cluster stopped counting: it may be genuinely
+                        # in-band, or it may have flipped to an under-floor breach that a trim
+                        # would only worsen -- "inside its policy band" is false in the second case
+                        # and would misreport a real, live problem as resolved.
+                        raw_cb = cluster_breach.get(cluster) if cluster else None
+                        if raw_cb and raw_cb.get("breach_edge") == "under":
+                            cluster_note = (f", though {cluster} is now UNDER its floor "
+                                            f"({raw_cb.get('drift_pt', 0):+.1f}pt) -- a separate live issue, "
+                                            "just not one a trim addresses")
+                        elif cluster:
+                            cluster_note = f" and {cluster} is inside its policy band"
+                        else:
+                            cluster_note = ""
+                        why = (f"neither trigger is live: {ticker} is within its ATR risk cap"
+                               + cluster_note + " -- the structural reason for this trim has cleared")
         elif bucket == "BUY":
             # An "initiate"/"new position" buy is self-evidently done once the name is held.
             if ticker and ticker in current_tickers and any(
@@ -1675,6 +1793,23 @@ def cmd_proposals(args):
             # this ticker, or its interim 7d hit rate has fallen out of the >55% bar the
             # proposal was sized against. Checked ONLY for proposals explicitly created this way
             # (trigger_type=="signal_conviction"), same discipline as the stretch check above.
+            # An oversold_reversion buy (added 2026-08-12) is a TIMING setup, not a structural one:
+            # it is consumed the moment the dip it was built on mean-reverts. Retiring on the
+            # hysteresis exit (RSI back above RSI_OVERSOLD_EXIT) rather than the entry threshold
+            # keeps a name hovering at 35-36 from flipping every run. A thesis that leaves
+            # intact/strengthening kills it outright -- the quality gate was the whole premise.
+            elif pr.get("trigger_type") == "oversold_reversion":
+                rsi_now = trig_rsi.get(ticker)
+                th_now = _thesis_status(state_thesis.get(ticker))
+                if th_now is not None and th_now not in HEALTHY_THESIS:
+                    why = (f"{ticker}'s thesis is now '{th_now}' -- an oversold entry is only a dip-buy "
+                           "while the thesis is intact; without that it is a falling knife")
+                elif rsi_now is None:
+                    pass  # cannot test (cache stale/absent) -- keep open rather than guess
+                elif rsi_now > RSI_OVERSOLD_EXIT:
+                    why = (f"{ticker} RSI14 has recovered to {rsi_now:.1f} (above the "
+                           f"{RSI_OVERSOLD_EXIT:g} exit) -- the oversold setup this buy was timed "
+                           "against has been consumed")
             elif pr.get("trigger_type") == "signal_conviction" and pr.get("trigger_bucket"):
                 tb = pr["trigger_bucket"]
                 rtk = rotation_by_ticker.get(ticker, {}) if ticker else {}
@@ -1761,7 +1896,18 @@ def cmd_proposals(args):
         rpos = risk_by_ticker.get(ticker) if ticker else None
         cl = directional_breach(pr.get("cluster"), bucket)
         retires_when = None
-        if bucket in ("TRIM", "SELL") and pr.get("trigger_type") == "stretch":
+        _tt = pr.get("trigger_type")
+        if _tt == "overbought_distribution":
+            retires_when = (f"{ticker} RSI14 falls below {RSI_OVERBOUGHT_EXIT:g} or it is no longer "
+                            "up on the month (cap-independent -- staying inside the ATR cap does "
+                            "NOT retire this)")
+        elif _tt == "oversold_reversion":
+            retires_when = (f"{ticker} RSI14 recovers above {RSI_OVERSOLD_EXIT:g} (setup consumed) "
+                            "or its thesis leaves intact/strengthening")
+        elif _tt in SHADOW_TRIGGERS:
+            retires_when = (f"n/a -- {_tt} is shadow-scored, tracked in trigger_journal.json rather "
+                            "than lifecycle-managed here")
+        elif bucket in ("TRIM", "SELL") and pr.get("trigger_type") == "stretch":
             retires_when = f"{ticker} drops out of the stretched cohort (no longer ahead of sector AND up)"
         elif bucket in ("TRIM", "SELL"):
             conds = []
@@ -2164,17 +2310,280 @@ def cmd_derisk(args):
     })
 
 
+# ---------------------------------------------------------------------------
+# triggers
+# ---------------------------------------------------------------------------
+def _parse_as_of(raw):
+    """Cache as_of dates are not always bare ISO strings -- atr20's carries a trailing note
+    ("2026-08-10 (partial refresh: INTC added...)"). Take the leading date, ignore the prose."""
+    if not raw or not isinstance(raw, str):
+        return None
+    try:
+        return date.fromisoformat(raw.strip()[:10])
+    except ValueError:
+        return None
+
+
+def _thesis_status(entry):
+    """Newer evidence-schema entries carry status as an explicit key; older ones as a trailing
+    '| status' suffix on a bare string (see G58). Both shapes are live in state.json."""
+    if isinstance(entry, dict):
+        return (entry.get("status") or "").strip().lower() or None
+    return ((entry or "").rpartition("|")[2].strip().lower()) or None
+
+
+def _avg_cost_from_lots(tlots):
+    """Weighted average cost over lots with a REAL price. Returns
+    (avg_cost_usd, priced_qty, unpriced_qty). Synthetic null-price lots from the 2.9b backfill
+    (quantity that predates available email history) are counted separately, never imputed --
+    a ratchet computed against a guessed basis would move a real stop on a fabricated number."""
+    cost, priced_qty, unpriced_qty = 0.0, 0.0, 0.0
+    for lot in tlots or []:
+        q = lot.get("qty") or 0.0
+        px = lot.get("price_usd")
+        if px is None:
+            unpriced_qty += q
+        else:
+            cost += q * px
+            priced_qty += q
+    avg = (cost / priced_qty) if priced_qty else None
+    return avg, priced_qty, unpriced_qty
+
+
+def cmd_triggers(args):
+    """Deterministic candidate generation for the five non-ATR proposal triggers.
+
+    This does NOT create proposals -- it hands the strategist typed, pre-screened candidate lists
+    so it no longer has to invent non-ATR ideas from narrative judgment. Same compute-first
+    contract as every other subcommand: every gate is a number from a compute file or a cache,
+    never a prose reading, and a missing input yields an empty list plus a data_quality line
+    rather than an estimate.
+
+    vote=="live"   (oversold_reversion, overbought_distribution) may become sized proposals now.
+    vote=="shadow" (laggard_rotation, profit_ratchet, scale_out_ladder) are logged with
+                   price_at_flag and scored at 7/30d first -- the same "a new signal class earns
+                   its vote before it gets one" rule the de-risk queue (2.9c) runs under. The two
+                   live triggers are exempted because OVERSOLD BOUNCE already carries a measured
+                   record in this book's own journal; the other three are genuinely unmeasured.
+    """
+    risk = load_json(os.path.join(args.run_dir, "compute_risk.json"))
+    book = load_json(os.path.join(args.run_dir, "compute_book.json"))
+    drift = load_json(os.path.join(args.run_dir, "compute_drift.json"), default={})
+    rotation = load_json(os.path.join(args.run_dir, "compute_rotation.json"), default={})
+    state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    lots = load_json(os.path.join(args.base_dir, "lots.json"), default={})
+
+    today = date.fromisoformat(args.today) if args.today else date.today()
+    dc = state.get("data_cache", {}) or {}
+    thesis = state.get("thesis", {}) or {}
+    rotation_by_ticker = rotation.get("tickers", {}) or {}
+    risk_by_ticker = {r["ticker"]: r for r in risk.get("positions", [])}
+    price_by_ticker = {p["ticker"]: p.get("price_usd") for p in book.get("positions", [])}
+    dq = []
+
+    # --- technical caches, with an explicit staleness gate ----------------------
+    rsi_cache = dc.get("rsi14", {}) or {}
+    rsi_vals = rsi_cache.get("values", {}) or {}
+    rsi_as_of = _parse_as_of(rsi_cache.get("as_of"))
+    rsi_age = (today - rsi_as_of).days if rsi_as_of else None
+    rsi_usable = bool(rsi_vals) and rsi_age is not None and rsi_age <= TRIGGER_CACHE_MAX_AGE_DAYS
+    if not rsi_vals:
+        dq.append("rsi14 cache absent -- oversold_reversion and overbought_distribution cannot be "
+                  "computed this run (never estimated); seed it from the same daily bars ATR20 uses")
+    elif not rsi_usable:
+        dq.append(f"rsi14 cache is {rsi_age}d old (max {TRIGGER_CACHE_MAX_AGE_DAYS}d for a live "
+                  f"trigger) -- RSI-based triggers suppressed this run rather than fired on stale data")
+
+    rel_cache = dc.get("rel_strength_1m", {}) or {}
+    rel_vals = rel_cache.get("values_pp", {}) or {}
+    abs_vals = rel_cache.get("values_abs_pct", {}) or {}
+    rel_as_of = _parse_as_of(rel_cache.get("as_of"))
+    rel_age = (today - rel_as_of).days if rel_as_of else None
+    rel_usable = bool(rel_vals) and rel_age is not None and rel_age <= TRIGGER_CACHE_MAX_AGE_DAYS
+    if not rel_usable:
+        dq.append(f"rel_strength_1m unusable (age={rel_age}d, n={len(rel_vals)}) -- laggard_rotation "
+                  "suppressed and overbought_distribution's 'genuinely up' gate degrades to price-only")
+
+    # --- deployable cash: only the excess over the normal band's top ------------
+    # Sizing a buy off total cash would recommend spending the liquidity floor itself. The
+    # deployable figure is the overshoot, which is what the drift table already flags as the
+    # live problem when cash_breach_vs_normal fires on the high side.
+    total_book = book.get("total_book_usd") or 0.0
+    cash_usd = book.get("wallet_usd") or 0.0
+    band = drift.get("cash_band_normal_pct") or drift.get("cash_band_pct") or [None, None]
+    if band[1] is not None and total_book:
+        deployable = max(0.0, cash_usd - (band[1] / 100.0 * total_book))
+    else:
+        deployable = 0.0
+    max_single = deployable * MAX_SINGLE_DEPLOY_FRACTION if deployable else 0.0
+
+    oversold, overbought, laggard, ratchet, ladder = [], [], [], [], []
+
+    rel_ranked = sorted((t for t in risk_by_ticker if rel_vals.get(t) is not None),
+                        key=lambda t: rel_vals[t])
+    laggard_cut = int(len(rel_ranked) * LAGGARD_PCTILE / 100.0) if rel_ranked else 0
+    laggard_set = set(rel_ranked[:max(laggard_cut, 1)]) if rel_ranked else set()
+
+    for ticker, r in risk_by_ticker.items():
+        status = _thesis_status(thesis.get(ticker))
+        rtk = rotation_by_ticker.get(ticker, {})
+        bearish = set(rtk.get("bearish_buckets") or [])
+        mv = r.get("market_value_usd") or 0.0
+        price = price_by_ticker.get(ticker)
+        over_cap = bool(r.get("over_cap"))
+        headroom = r.get("headroom_usd")
+        rsi = rsi_vals.get(ticker)
+        rel_pp = rel_vals.get(ticker)
+        abs_pct = abs_vals.get(ticker)
+        healthy = status in HEALTHY_THESIS
+        fundamental_headwind = bool(bearish & FUNDAMENTAL_HEADWIND_BUCKETS)
+        base = {"ticker": ticker, "cluster": r.get("cluster"), "thesis_status": status,
+                "rsi14": rsi, "rel_strength_1m_pp": rel_pp, "abs_return_1m_pct": abs_pct,
+                "price_usd": price, "market_value_usd": round(mv, 2)}
+
+        # --- A. oversold_reversion (BUY, live) ---------------------------------
+        if rsi_usable and rsi is not None and rsi < RSI_OVERSOLD and healthy \
+                and not over_cap and (headroom or 0) > 0 and not fundamental_headwind:
+            size = min(headroom, max_single) if max_single else 0.0
+            oversold.append({**base, "trigger_type": "oversold_reversion", "direction": "BUY",
+                             "vote": "live",
+                             "headroom_usd": round(headroom, 2),
+                             "suggested_size_usd": round(size, 2),
+                             "retires_when": f"{ticker} RSI14 recovers above {RSI_OVERSOLD_EXIT:g} "
+                                             "(setup consumed) or its thesis leaves intact/strengthening",
+                             "reasons": [f"RSI14 {rsi:.1f} < {RSI_OVERSOLD:g} (oversold)",
+                                         f"thesis {status} -- technical dip, not a fundamental break",
+                                         f"within ATR risk cap with ${headroom:,.0f} headroom"],
+                             "blockers": ([] if size > 0 else
+                                          ["no deployable cash above the band ceiling -- setup valid, "
+                                           "funding is not"])})
+        elif rsi_usable and rsi is not None and rsi < RSI_OVERSOLD and not healthy:
+            dq.append(f"{ticker} is oversold (RSI {rsi:.1f}) but thesis is '{status}' -- deliberately "
+                      "not a bounce candidate (falling knife, not a dip)")
+
+        # --- B. overbought_distribution (TRIM, live) ---------------------------
+        # Deliberately INDEPENDENT of over_cap: booking profit on a name that ran is the point,
+        # and gating it on a risk-cap breach is precisely what made every trim an ATR trim.
+        if rsi_usable and rsi is not None and rsi > RSI_OVERBOUGHT:
+            genuinely_up = (abs_pct is not None and abs_pct > 0) if rel_usable else None
+            if genuinely_up is not False:
+                size = mv * OVERBOUGHT_TRIM_FRACTION
+                reasons = [f"RSI14 {rsi:.1f} > {RSI_OVERBOUGHT:g} (overbought)"]
+                if genuinely_up:
+                    reasons.append(f"up {abs_pct:+.1f}% on the month -- real gain to protect")
+                blockers = []
+                if genuinely_up is None:
+                    blockers.append("1m return unavailable (stale rel_strength) -- 'genuinely up' "
+                                    "gate unverified, confirm the position is actually in profit")
+                overbought.append({**base, "trigger_type": "overbought_distribution",
+                                   "direction": "TRIM", "vote": "live",
+                                   "suggested_size_usd": round(size, 2),
+                                   "trim_fraction": OVERBOUGHT_TRIM_FRACTION,
+                                   "over_cap_independent": True,
+                                   "retires_when": f"{ticker} RSI14 falls below {RSI_OVERBOUGHT_EXIT:g} "
+                                                   "or it is no longer up on the month",
+                                   "reasons": reasons, "blockers": blockers})
+
+        # --- C. laggard_rotation (BUY, shadow) --------------------------------
+        if rel_usable and ticker in laggard_set and healthy and not over_cap \
+                and (headroom or 0) > 0 and not fundamental_headwind:
+            laggard.append({**base, "trigger_type": "laggard_rotation", "direction": "BUY",
+                            "vote": "shadow",
+                            "headroom_usd": round(headroom, 2),
+                            "suggested_size_usd": round(min(headroom, max_single), 2) if max_single else 0.0,
+                            "reasons": [f"bottom-quartile 1m relative strength ({rel_pp:+.1f}pp vs "
+                                        f"{rel_cache.get('benchmark', 'SMH')}) -- has not run yet",
+                                        f"thesis {status}", "within ATR risk cap"],
+                            "blockers": []})
+
+        # --- D/E. profit_ratchet + scale_out_ladder (shadow) -------------------
+        avg_cost, priced_qty, unpriced_qty = _avg_cost_from_lots(lots.get(ticker))
+        if avg_cost and price:
+            gain_pct = (price - avg_cost) / avg_cost * 100.0
+            stop = r.get("stop_price_usd")
+            basis_note = ([f"{unpriced_qty:g} share(s) have no known cost (G1 synthetic lot) -- "
+                           "average is over the priced portion only"] if unpriced_qty else [])
+            if gain_pct >= RATCHET_MIN_GAIN_PCT and stop is not None and stop < avg_cost:
+                ratchet.append({**base, "trigger_type": "profit_ratchet", "direction": "STOP_RAISE",
+                                "vote": "shadow",
+                                "avg_cost_usd": round(avg_cost, 4), "gain_pct": round(gain_pct, 2),
+                                "current_stop_usd": round(stop, 4),
+                                "suggested_stop_usd": round(avg_cost, 4),
+                                "gain_at_risk_usd": round((avg_cost - stop) * (priced_qty or 0), 2),
+                                "reasons": [f"up {gain_pct:+.1f}% vs a ${avg_cost:,.2f} basis",
+                                            f"stop sits at ${stop:,.2f}, BELOW breakeven -- a "
+                                            "retracement turns this winner into a realised loss"],
+                                "blockers": basis_note})
+            tiers = [{"gain_pct": t, "triggered": gain_pct >= t,
+                      "slice_usd": round(mv * LADDER_FRACTION, 2)} for t in LADDER_TIERS_PCT]
+            if any(t["triggered"] for t in tiers):
+                hit = [t for t in tiers if t["triggered"]]
+                rungs = ", ".join("+%g%%" % t["gain_pct"] for t in hit)
+                ladder.append({**base, "trigger_type": "scale_out_ladder", "direction": "TRIM",
+                               "vote": "shadow",
+                               "avg_cost_usd": round(avg_cost, 4), "gain_pct": round(gain_pct, 2),
+                               "tiers": tiers,
+                               "suggested_size_usd": hit[-1]["slice_usd"],
+                               "reasons": [f"up {gain_pct:+.1f}% vs basis -- "
+                                           f"{len(hit)} of {len(tiers)} scale-out rung(s) reached "
+                                           f"({rungs})"],
+                               "blockers": basis_note})
+        elif ticker in laggard_set or (rsi is not None and rsi > RSI_OVERBOUGHT):
+            if not lots.get(ticker):
+                dq.append(f"{ticker} has no lots.json entry -- profit_ratchet/scale_out_ladder "
+                          "cannot be computed (no cost basis)")
+
+    oversold.sort(key=lambda x: x["rsi14"])
+    overbought.sort(key=lambda x: -x["rsi14"])
+    laggard.sort(key=lambda x: x["rel_strength_1m_pp"])
+    ratchet.sort(key=lambda x: -(x["gain_at_risk_usd"] or 0))
+    ladder.sort(key=lambda x: -x["gain_pct"])
+
+    live_counts = {"oversold_reversion": len(oversold), "overbought_distribution": len(overbought)}
+    shadow_counts = {"laggard_rotation": len(laggard), "profit_ratchet": len(ratchet),
+                     "scale_out_ladder": len(ladder)}
+
+    # Shadow entries mirror cmd_derisk's shadow_new contract: price_at_flag now, scored later.
+    shadow_new = [{"date": today.isoformat(), "ticker": c["ticker"],
+                   "trigger_type": c["trigger_type"], "price_at_flag": c.get("price_usd"),
+                   "rsi14": c.get("rsi14"), "gain_pct": c.get("gain_pct"),
+                   "rel_strength_1m_pp": c.get("rel_strength_1m_pp"), "scored": False}
+                  for c in laggard + ratchet + ladder]
+
+    emit({
+        "as_of": today.isoformat(),
+        "rsi_as_of": rsi_cache.get("as_of"), "rsi_age_days": rsi_age, "rsi_usable": rsi_usable,
+        "rel_as_of": rel_cache.get("as_of"), "rel_age_days": rel_age, "rel_usable": rel_usable,
+        "deployable_cash_usd": round(deployable, 2),
+        "max_single_deploy_usd": round(max_single, 2),
+        "thresholds": {"rsi_oversold": RSI_OVERSOLD, "rsi_overbought": RSI_OVERBOUGHT,
+                       "laggard_pctile": LAGGARD_PCTILE, "ratchet_min_gain_pct": RATCHET_MIN_GAIN_PCT,
+                       "ladder_tiers_pct": LADDER_TIERS_PCT},
+        "live_counts": live_counts, "shadow_counts": shadow_counts,
+        "oversold_reversion": oversold, "overbought_distribution": overbought,
+        "laggard_rotation": laggard, "profit_ratchet": ratchet, "scale_out_ladder": ladder,
+        "shadow_new": shadow_new,
+        # Published for cmd_proposals' retirement pass so it tests RSI-triggered proposals against
+        # the SAME gated numbers this subcommand used, rather than re-reading the cache and
+        # possibly disagreeing about staleness. Empty when rsi_usable is false -- the retirement
+        # pass then cannot test the condition and keeps the proposal open, the safe direction.
+        "rsi_values": (rsi_vals if rsi_usable else {}),
+        "abs_return_1m_pct_values": (abs_vals if rel_usable else {}),
+        "data_quality": dq,
+    })
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    for name in ("book", "journal", "attribution", "drift", "risk", "rotation", "derisk"):
+    for name in ("book", "journal", "attribution", "drift", "risk", "rotation", "derisk", "triggers"):
         sp = sub.add_parser(name)
         sp.add_argument("--base-dir", default=DEFAULT_BASE)
         sp.add_argument("--run-dir", required=True, help="this run's directory containing holdings.json")
         if name == "book":
             sp.add_argument("--lots", default=None)
-        if name in ("journal", "derisk"):
+        if name in ("journal", "derisk", "triggers"):
             sp.add_argument("--today", default=None)
 
     sp = sub.add_parser("sentiment")
@@ -2206,6 +2615,7 @@ def main():
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
+         "triggers": cmd_triggers,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "dismiss": cmd_dismiss, "stops": cmd_stops}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully

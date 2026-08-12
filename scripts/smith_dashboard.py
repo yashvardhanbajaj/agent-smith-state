@@ -197,6 +197,14 @@ h2 .sub{display:inline-block;margin-left:8px;font-family:var(--sans);font-weight
 
 /* ============ tables ============ */
 .scroll{overflow-x:auto}
+/* FIXED 2026-08-12: `.tw` is the horizontal-scroll wrapper used around every wide table in this
+   file (de-risk queue, positions, stop-loss efficacy, trade triggers -- ~16 call sites) and it had
+   NEVER been defined, so none of those tables could actually scroll and a wide one pushed the page
+   into horizontal overflow instead. Exactly the silent-failure class SKILL.md warns about: an
+   undefined class produces no browser warning, and a static tag-balance check cannot see it.
+   `.tbl` is also used-but-undefined and is left that way deliberately -- the bare `table`/`th`/`td`
+   element selectors below already style it, so it is a genuine no-op rather than a missing rule. */
+.tw{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:13px}
 th{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
   text-align:right;padding:0 10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -520,6 +528,7 @@ def build(base, out):
     risk = run_file("compute_risk.json")
     rotation = run_file("compute_rotation.json")
     derisk = run_file("compute_derisk.json")
+    triggers = run_file("compute_triggers.json")
     book_compute = run_file("compute_book.json")
 
     us = state.get("us", {})
@@ -742,6 +751,90 @@ def build(base, out):
                         f'<div class="aa">{affects}{exp_s}</div></div></div>')
         H.append('<section class="panel"><div class="phead"><h2>Factor catalysts</h2></div>'
                  f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
+
+    # -- trade triggers (added 2026-08-12, user-reported: "still most of the proposals are based on
+    # ATR risk-cap... I prefer oversold/overbought proposals to catch a bounce back for the good
+    # stocks... book profit if something had a good enough run and put my money of another stock
+    # which is yet to run"). These are compute_triggers.json's five deterministic candidate screens
+    # -- the raw material the strategist turns into proposals, shown here so the reader can see WHAT
+    # was available this run, not only what got proposed. A trigger firing is not a proposal.
+    if triggers and (triggers.get("live_counts") or triggers.get("shadow_counts")):
+        TRIG_META = {
+            "oversold_reversion":      ("OVERSOLD &rarr; BUY", "b", "RSI14 &lt; 35, thesis intact/strengthening, inside ATR cap, no fundamental headwind"),
+            "overbought_distribution": ("OVERBOUGHT &rarr; TRIM", "a", "RSI14 &gt; 70 and genuinely up on the month &mdash; deliberately independent of the ATR risk cap"),
+            "laggard_rotation":        ("LAGGARD &rarr; BUY", "b", "bottom-quartile 1m relative strength with a healthy thesis &mdash; the &ldquo;yet to run&rdquo; destination leg"),
+            "profit_ratchet":          ("RATCHET STOP", "g", "up enough that the stop should be raised to at least breakeven"),
+            "scale_out_ladder":        ("SCALE OUT", "g", "gain has reached a scale-out rung"),
+        }
+        blocks = []
+        for key, (label, cls, how) in TRIG_META.items():
+            rows_t = triggers.get(key) or []
+            if not rows_t:
+                continue
+            vote = (rows_t[0].get("vote") or "live").upper()
+            vote_cls = "" if vote == "LIVE" else "warn"
+            trs = []
+            for c in rows_t:
+                if key == "profit_ratchet":
+                    amt = (f'${c["current_stop_usd"]:,.2f} &rarr; <b>${c["suggested_stop_usd"]:,.2f}</b>')
+                else:
+                    sz = c.get("suggested_size_usd")
+                    amt = f'<b>${sz:,.0f}</b>' if sz else "&mdash;"
+                rsi = c.get("rsi14")
+                gain = c.get("gain_pct")
+                secondary = (f"{gain:+.1f}% vs basis" if gain is not None
+                             else (f"{c['abs_return_1m_pct']:+.1f}% 1m" if c.get("abs_return_1m_pct") is not None else "&mdash;"))
+                # esc() each item BEFORE joining with an entity separator -- joining first and then
+                # escaping turns "&middot;" into the literal visible text "&middot;" (see SKILL §6).
+                why = " &middot; ".join(esc(r) for r in (c.get("reasons") or []))
+                blk = "".join(f'<div class="note">! {esc(b)}</div>' for b in (c.get("blockers") or []))
+                trs.append(f'<tr><td><b>{esc(c["ticker"])}</b></td>'
+                           f'<td class="sub">{esc(c.get("cluster") or "-")}</td>'
+                           f'<td class="num">{(f"{rsi:.1f}" if rsi is not None else "&mdash;")}</td>'
+                           f'<td class="num">{secondary}</td>'
+                           f'<td class="num">{amt}</td>'
+                           f'<td class="sub">{why}{blk}</td></tr>')
+            blocks.append(
+                f'<div class="phead" style="border:0;padding:10px 0 4px"><h2 style="font-size:.82rem">'
+                f'{label}<span class="sub">{how}</span></h2>'
+                f'<span class="pill {vote_cls}">{esc(vote)}</span></div>'
+                '<div class="tw"><table class="tbl"><thead><tr><th>Name</th><th>Cluster</th>'
+                '<th>RSI14</th><th>Move</th><th>Size</th><th>Why</th></tr></thead>'
+                f'<tbody>{"".join(trs)}</tbody></table></div>')
+        if blocks:
+            stale = (not triggers.get("rsi_usable")) or (not triggers.get("rel_usable"))
+            hdr_pill = ('<span class="pill bad">STALE INPUTS</span>' if stale else
+                        f'<span class="pill good">RSI {triggers.get("rsi_as_of","-")}</span>')
+            dq = "".join(f'<li>{esc(x)}</li>' for x in (triggers.get("data_quality") or []))
+            H.append(
+                '<section class="panel act"><div class="phead"><h2>Trade triggers'
+                '<span class="sub">non-ATR candidate screens &mdash; what was available, not what was proposed</span></h2>'
+                f'{hdr_pill}</div><div class="pbody">'
+                + "".join(blocks) +
+                '<details><summary>How to read this / why it exists</summary><div class="body">'
+                'Until 2026-08-12 essentially every proposal this desk produced was an <b>ATR risk-cap '
+                'trim</b>. Five compounding causes: the scorer weighted <code>over_cap</code> highest '
+                'and <i>penalised</i> a buy with no breach; the relative-strength cache was 12 days '
+                'stale with a benchmark return <b>18.6pp wrong</b>, starving the only profit-take '
+                'trigger; per-name RSI did not exist at all, so <code>OVERBOUGHT PULLBACK</code> had '
+                'fired <b>once in 69</b> journal entries; the book ran on its two weakest signals '
+                'while <code>OVERSOLD BOUNCE</code> (100% interim 7d, n=4) sat dormant; and '
+                '<code>repeat_count</code> promoted proposals that had in effect been declined.<br><br>'
+                '<b>LIVE</b> triggers may be sized into proposals now. <b>SHADOW</b> triggers are '
+                'logged to trigger_journal.json with a flag price and scored at 7/30d first &mdash; '
+                'they contribute <b>zero</b> to proposal priority until they earn a measured hit '
+                'rate, the same rule the de-risk queue runs under.<br><br>'
+                '<b>Overbought&rarr;trim is deliberately cap-independent.</b> A name comfortably '
+                'inside its risk cap is still a valid profit-take; gating profit-taking on a breach '
+                'is exactly what made every trim an ATR trim.<br>'
+                '<b>Thresholds use hysteresis</b> &mdash; oversold fires below 35 and retires above '
+                '50, overbought fires above 70 and retires below 60 &mdash; so a name hovering at a '
+                'threshold does not flip between open and retired on noise.<br>'
+                '<b>The quality gate for a dip-buy is the thesis, not the signal.</b> Requiring '
+                'net-bullish signals would disqualify every oversold name by definition. Only a '
+                'fundamental negative disqualifies.'
+                + (f'<br><br><b>Data quality this run:</b><ul>{dq}</ul>' if dq else "")
+                + '</div></details></div></section>')
 
     # -- factor themes (added 2026-08-06, dashboard feature review). Standing structural view,
     # companion to Factor catalysts above: catalysts are event-driven (this week's news),
