@@ -340,7 +340,43 @@
     "GLW": "Optical fiber/connectivity + specialty glass for AI datacenter interconnect (Nvidia partnership) | watch",
     "MKSI": "Semicap vacuum/laser/photonics & process-control tools for leading-edge + memory fab capex | intact",
     "CEG": "Nuclear/clean-power generation for AI datacenters (Calpine acquisition, Walmart PPA); generation-cluster fill, fresh leverage concerns | watch",
-    "META": "Mega-cap hyperscaler buying AI capex while ads fund it; Q2 mixed (ad beat, FCF down, 11% post-earnings drop) | watch",
+    "META": {
+      "status": "intact",
+      "thesis": "Hyperscaler ad-funded AI capex spender; resolved WATCH->INTACT, no new deterioration since 07-29 Q2 print, oversold RSI is technical not fundamental",
+      "evidence_for": [
+        {
+          "claim": "no new negative catalyst since 07-29 Q2 (-11% post-earnings, already priced in)",
+          "date": "2026-08-12",
+          "source": "stockanalysis.com/stocks/META"
+        },
+        {
+          "claim": "Strong Buy consensus, PT $756.95, +29.8% upside vs $583.02",
+          "date": "2026-08-12",
+          "source": "stockanalysis.com/stocks/META"
+        },
+        {
+          "claim": "RSI14 34.1, book's only oversold name -- price signal not thesis signal",
+          "date": "2026-08-12",
+          "source": "compute_risk.json"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "FCF-down-vs-capex-up tension from Q2 is structural and untested until next print",
+          "date": "2026-08-12",
+          "source": "embed_thesis.json prior + this run"
+        },
+        {
+          "claim": "stockanalysis.com page lacked granular Q2/Q3 consensus breakdown this run",
+          "date": "2026-08-12",
+          "source": "stockanalysis.com/stocks/META tool limitation"
+        }
+      ],
+      "verified": "secondary",
+      "verified_against": "stockanalysis.com/stocks/META",
+      "verified_on": "2026-08-12",
+      "note": "status change unlocks oversold-reversion dip-buy trigger"
+    },
     "AMZN": "Hyperscaler AI-capex spender + AWS, funded by retail cash flow; Q2 beat, capex raised to $220B | strengthening",
     "BABA": "First non-US diversifier; Chinese e-commerce/cloud monetizing Qwen AI via Apple deal; not a China-semi hedge, just uncorrelated, carries own regulatory risk | watch",
     "QBTS": "D-Wave quantum annealing; genuine different-tech-cycle diversifier, no GPU/HBM dependency; AT&T deal real but Aug 6 earnings binary and unproven | watch",
@@ -468,6 +504,60 @@
       "verified_against": "",
       "verified_on": "",
       "note": "No valuation/leverage check done yet."
+    },
+    "STM": {
+      "status": "watch",
+      "thesis": "Analog/industrial semis; Q2 beat but Q3 guide_below_consensus drove a sharp selloff -- guide, not the print, is the live concern",
+      "evidence_for": [
+        {
+          "claim": "Q2 2026 revenue $3.49B beat consensus $3.47B; EPS $0.31 beat $0.27",
+          "date": "2026-07-23",
+          "source": "stockanalysis.com/stocks/STM"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "Q3 guide $3.7B is guide_below_consensus vs Street $3.78B; stock -15-17% post-print on the guide",
+          "date": "2026-07-23",
+          "source": "stockanalysis.com/stocks/STM"
+        },
+        {
+          "claim": "GS PT cut 67.50->60.50, TD Cowen 70->55",
+          "date": "2026-07-27",
+          "source": "stockanalysis.com/stocks/STM"
+        },
+        {
+          "claim": "worst laggard in book, 1m rel -15.48pp vs SMH, -1.61sigma own dispersion",
+          "date": "2026-08-12",
+          "source": "compute_risk.json"
+        }
+      ],
+      "verified": "primary",
+      "verified_against": "stockanalysis.com/stocks/STM",
+      "verified_on": "2026-08-12",
+      "note": "first thesis, brand-new position"
+    },
+    "TXN": {
+      "status": "watch",
+      "thesis": "Analog/embedded semis; lowest beta in book (0.599 vs SMH), most AI-capex-decoupled name held",
+      "evidence_for": [
+        {
+          "claim": "beta vs SMH 0.599 -- lowest in book",
+          "date": "2026-08-12",
+          "source": "compute_risk.json"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "RSI14 42.4, rel -4.88pp vs SMH, mild underperformance, no catalyst check done",
+          "date": "2026-08-12",
+          "source": "compute_risk.json"
+        }
+      ],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "first thesis, no discrete corporate event to verify against this run"
     }
   },
   "sector_map": {
@@ -702,6 +792,11 @@
       "ticker": "STM/TXN",
       "opened": "2026-08-12",
       "flag": "PROVISIONAL cluster assignment made by the ORCHESTRATOR, not smith-thesis, which failed twice on API 529 this run. STM (20sh) and TXN (3sh) were left Unclassified by the entry, which made ~$1,955 of the book invisible to the drift table and inflated every other cluster's share. Assigned to a NEW 'Analog/Industrial Semis' cluster following the Enterprise Software / Critical Minerals precedent for non-AI-capex satellites. NO POLICY BAND CREATED -- per the Critical Minerals rationale, the band is a user decision, not an inferred one. Two things still owed: (1) smith-thesis must write first theses for both and confirm or correct this cluster; (2) the user must set a band (suggest 0%/[0,5] mirroring the other satellites, but that is their call). Until banded, this cluster shows in drift as unbanded and cannot breach."
+    },
+    {
+      "ticker": "IREN",
+      "opened": "2026-08-12",
+      "flag": "smith-watchlist call 2026-08-12: CHASE, NOT ENTRY. $42.33-43.37 (+6.5 to +9.1% on the session), mean target $81.73 (13 analysts, 92% Buy) = +48.21% upside, down ~3pt from +51.36% purely on price, not target cuts. NO news since the 08-12 watermark explains the pop -- last sourced catalysts are the $2.8B AI-cloud contract (20 Jul) and the Anthropic rally (06 Jul), both stale; move attributed to sector beta (SMH +2.32%), INFERRED not confirmed. Standing re-entry interest REMAINS OPEN -- the better trigger is a pullback or a confirmed new catalyst, not today's candle. Cash at 7.33% is inside its band, i.e. operating buffer, not dry powder."
     }
   ],
   "data_cache": {
@@ -1865,6 +1960,18 @@
       "description": "Two real bugs found and fixed live during the 2026-08-12 quick run: (1) cmd_rotation and cmd_derisk both assumed state.thesis[ticker] is always a 'text | status' string via .rpartition('|')/.split('|'), crashing with AttributeError on the newer evidence-schema dict entries (ASML/SNDK/INTC, see G58) -- fixed to branch on dict vs string. (2) DIRECTION_KEYWORDS in cmd_proposals had no entry for 'RE-ENTER'/'RE-ACCUMULATE' phrasing, so those actions defaulted to direction_bucket=HOLD, which then tripped the holds_presupposed auto-void check and silently killed a fresh 'Re-enter VRT' proposal the moment it was created (VRT is legitimately not held post-stop -- that's the whole point of a re-entry proposal). Added RE-ENTER/RE-ENTRY/REENTER/RE-ACCUMULATE/ACCUMULATE to the keyword table. Caught only because the open_count (5) didn't match the 6 proposals the strategist actually wrote -- worth an explicit count-reconciliation check in a future PERSIST pass rather than relying on noticing a mismatch by eye.",
       "opened": "2026-08-12",
       "owner": "orchestrator"
+    },
+    {
+      "id": "G61",
+      "opened": "2026-08-12",
+      "owner": "smith-catalyst",
+      "description": "CIEN +10.45% on 2026-08-12 has no named cause -- catalyst scope was narrowed to NBIS only after two API-529 deaths, and the third authorized search went unspent. CIEN went from a 0.008sh dust position to a real 2.008sh holding today, so its move is unexplained on a position that was just materially increased. Re-dispatch smith-catalyst for CIEN on the next run."
+    },
+    {
+      "id": "G62",
+      "opened": "2026-08-12",
+      "owner": "smith-signals / smith_math.py cmd_triggers",
+      "description": "FUNDAMENTAL_HEADWIND_BUCKETS has NO staleness or decay rule, so a news-flow flag in signal_history can outlive the news indefinitely and silently veto a live trigger. Found live 2026-08-12: META resolved WATCH->INTACT by smith-thesis with a verified Strong Buy consensus and RSI 34.1, yet oversold_reversion stayed empty because a NEW HEADWINDS entry from an earlier run still tripped the veto -- and the only agent that can clear it (smith-signals) had failed. A fresher, verified thesis judgement lost to a stale, unrefreshable one. Two candidate fixes, both a user call: (a) timestamp signal_history entries and expire headwind buckets after N days, or (b) let an explicitly-verified thesis status (verified != unverified, verified_on within N days) outrank a stale bucket. Do NOT fix by hand-editing signal_history."
     }
   ],
   "sentiment": {
@@ -1952,14 +2059,14 @@
       "clean_diversifier": true
     }
   },
-  "watchlist_scan_cursor": 30,
+  "watchlist_scan_cursor": 45,
   "data_quality": [
-    "DEGRADED RUN: all four Stage-1 sub-agents (signals, thesis, watchlist, catalyst) failed TWICE on API 529 server overload; one retry each was used per the SKILL failure rule. smith-strategist was NOT dispatched as a result -- no new proposals were generated this run.",
-    "signal_history deliberately NOT overwritten: the inline fallback evaluated only move-based, peer-relative and RSI buckets. Merging that partial view would DELETE pos-based, TARGET GAP, news, earnings and insider buckets that exist but were not evaluated.",
-    "thesis map and factor_catalysts left untouched (no agent output). STM and TXN still have NO thesis.",
-    "STM/TXN cluster assignment is ORCHESTRATOR-PROVISIONAL, not smith-thesis: new 'Analog/Industrial Semis' cluster, UNBANDED -- band is a user decision (see open_flags).",
-    "compute_attribution flagged AVGO(+2) and AMAT(+1) likely_corporate_action=true -- both FALSE POSITIVES of the clean-ratio heuristic, disproved by INDmoney confirmation emails. Ordinary buys.",
-    "Three clusters totalling 7.33% of equity are UNBANDED (Analog/Industrial Semis 4.90%, Alternative Asset Manager/Diversifier 1.81%, China Internet/Diversifier 0.62%) -- the entire genuinely non-AI-capex sleeve sits outside policy."
+    "RECOVERED: all four Stage-1 agents plus smith-strategist completed on a third attempt after two rounds of platform-wide API 529. This run is NOT degraded on thesis, catalyst, watchlist or strategy.",
+    "smith-signals remains the one partial section: buckets were computed inline covering only move-based, peer-relative and RSI tests. pos-based, TARGET GAP, news, earnings-proximity and insider buckets were NOT evaluated -- ABSENT, not empty. signal_history deliberately NOT overwritten, since merging a partial view would delete the unevaluated buckets.",
+    "META unblock is INCOMPLETE BY DESIGN: thesis resolved WATCH->INTACT and it is the book's only oversold name, but a stale NEW HEADWINDS entry in signal_history still trips FUNDAMENTAL_HEADWIND_BUCKETS and blocks oversold_reversion. Only a successful smith-signals run can legitimately clear it; signal_history was not hand-edited to force the trade. P-078/P-079 (the MSFT->META pair) are therefore filed CONDITIONAL - do not fire.",
+    "STM/TXN cluster 'Analog/Industrial Semis' CONFIRMED by smith-thesis but still UNBANDED in policy.json -- the band is a user decision. Three unbanded clusters total 7.33% of equity.",
+    "compute_attribution flagged AVGO(+2) and AMAT(+1) likely_corporate_action=true -- both FALSE POSITIVES of the clean-ratio heuristic, disproved by INDmoney confirmation emails.",
+    "CIEN +10.45% on 08-12 unexplained (G61) -- catalyst scope was narrowed to NBIS after two 529 deaths, on a position materially increased the same day."
   ],
   "market_closed_run": false,
   "peer_map": {
@@ -2260,30 +2367,47 @@
   },
   "factor_catalysts": [
     {
-      "date": "2026-08-11",
+      "date": "2026-08-12",
       "direction": "tailwind",
-      "horizon": "mechanical",
-      "headline": "Korea Aug 1-10 exports hit record, semiconductor exports +155.4% YoY to ~$10bn",
+      "horizon": "structural",
+      "headline": "Nebius Q2 2026 earnings beat: revenue $582.3M +454% YoY, adj. EBITDA turns positive $236.2M, ARR $3.0B (+58% QoQ), capacity target raised to 5GW for end-2026",
+      "magnitude": "beat consensus ~$570-580M revenue; EBITDA swung from -$21M to +$236.2M YoY; GAAP net loss still -$190.4M -- a real re-rating, not yet a profitable company",
       "affects": [
-        "SKHY",
-        "MU",
-        "DRAM"
+        "NBIS"
       ],
-      "exposure_pct_equity": 16.505,
-      "magnitude": "Chip exports ~$10bn in first 10 days of Aug, largest ever for the period vs prior record $15.6bn (2022 full-month comp); overall exports +45.3% YoY to $21.3bn. SAME rally Theme 6 logged 08-10 as momentum continuation, not new information. AI Memory/Storage cluster inside [10,20] band, unbreached.",
-      "source": "sedaily.com 2026-08-11"
+      "exposure_pct_equity": 3.504,
+      "source": "https://www.tradingkey.com/news/earnings/262099252-tradingkey",
+      "verified": "secondary"
     },
     {
-      "date": "2026-08-01",
-      "direction": "threat",
-      "horizon": "noise",
-      "headline": "Goldman Sachs removes Broadcom (AVGO) from Conviction List",
+      "date": "2026-08-12",
+      "direction": "tailwind",
+      "horizon": "structural",
+      "headline": "Nebius signs >$1bn multi-year compute-capacity deal with Reflection AI through 2029",
+      "magnitude": "~4pp of the premarket move ahead of the earnings print; NBIS is high-beta and retail-followed, which amplifies reaction size beyond the fundamentals alone",
       "affects": [
-        "AVGO"
+        "NBIS"
       ],
-      "exposure_pct_equity": 2.617,
-      "magnitude": "Analyst-list removal, not new fundamental data; sits atop a stale (June 2026) AI-chip guidance miss and an EU antitrust loss on VMware discovery. Does not explain the 08-11 stop-loss trim specifically.",
-      "source": "tikr.com 2026-08-01"
+      "exposure_pct_equity": 3.504,
+      "source": "https://stockstotrade.com/news/nebius-group-nv-nbis-news-2026_08_12-2/",
+      "verified": "secondary"
+    },
+    {
+      "date": "2026-08-12",
+      "direction": "ambiguous",
+      "horizon": "mechanical",
+      "headline": "Broad memory/Korea complex melt-up (SNDK +8.18%, SKHY +7.62%, DRAM +7.27%, MU +6.08%) judged mechanical continuation, NOT a fresh catalyst",
+      "magnitude": "KOSPI +3.65% traced to Korea's Aug 1-10 chip-export data (+155.4% YoY) already logged as factor_themes theme 6 on 08-10; no new cause found",
+      "affects": [
+        "SNDK",
+        "SKHY",
+        "DRAM",
+        "MU"
+      ],
+      "exposure_pct_equity": 14.68,
+      "source": "state.factor_themes theme 6 (carried forward, not re-searched this run)",
+      "verified": "unverified"
     }
-  ]
+  ],
+  "ai_capex_pct": 92.67
 }

@@ -1642,18 +1642,19 @@
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "MU at 1.53x its ATR risk cap"
+        "MU at 1.60x its ATR risk cap"
       ],
       "cluster": "AI Memory/Storage",
-      "full_cure_usd": 599.0,
+      "full_cure_usd": 693.0,
       "cure_basis": "risk cap",
-      "cure_pct": 100.0,
+      "cure_pct": 87.0,
       "still_valid_because": [
-        "MU at 1.53x its ATR risk cap"
+        "MU at 1.60x its ATR risk cap"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-12",
-      "retires_when": "MU drops under its ATR risk cap"
+      "retires_when": "MU drops under its ATR risk cap",
+      "tranche_note": "cures 87% of the risk cap excess ($693) -- roughly 2 tranches this size to fully clear it"
     },
     {
       "date": "2026-08-12",
@@ -1678,20 +1679,21 @@
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "SKHY at 1.76x its ATR risk cap",
+        "SKHY at 1.94x its ATR risk cap",
         "recommended 2x, still unactioned"
       ],
       "cluster": "AI Memory/Storage",
-      "full_cure_usd": 645.0,
+      "full_cure_usd": 813.0,
       "cure_basis": "risk cap",
-      "cure_pct": 105.0,
+      "cure_pct": 83.0,
       "still_valid_because": [
-        "SKHY at 1.76x its ATR risk cap",
+        "SKHY at 1.94x its ATR risk cap",
         "recommended 2x, still unactioned"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-12",
-      "retires_when": "SKHY drops under its ATR risk cap"
+      "retires_when": "SKHY drops under its ATR risk cap",
+      "tranche_note": "cures 83% of the risk cap excess ($813) -- roughly 2 tranches this size to fully clear it"
     },
     {
       "date": "2026-08-12",
@@ -1740,20 +1742,21 @@
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "DRAM at 1.37x its ATR risk cap",
+        "DRAM at 1.48x its ATR risk cap",
         "recommended 6x and never actioned -- treated as implicitly declined (no priority bonus); consider `dismiss P-071` to clear it"
       ],
       "cluster": "AI Memory/Storage",
-      "full_cure_usd": 404.0,
+      "full_cure_usd": 528.0,
       "cure_basis": "risk cap",
-      "cure_pct": 99.0,
+      "cure_pct": 76.0,
       "still_valid_because": [
-        "DRAM at 1.37x its ATR risk cap",
+        "DRAM at 1.48x its ATR risk cap",
         "recommended 6x and never actioned -- treated as implicitly declined (no priority bonus); consider `dismiss P-071` to clear it"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-12",
-      "retires_when": "DRAM drops under its ATR risk cap"
+      "retires_when": "DRAM drops under its ATR risk cap",
+      "tranche_note": "cures 76% of the risk cap excess ($528) -- roughly 2 tranches this size to fully clear it"
     },
     {
       "date": "2026-08-12",
@@ -1781,25 +1784,27 @@
       ],
       "repeat_count": 3,
       "note": "recommended 3x since 2026-07-31T13:02:00+05:30, still open",
-      "priority_score": 6,
+      "priority_score": 8,
       "priority": "HIGH",
       "priority_reasons": [
-        "NVDA at 1.20x its ATR risk cap",
+        "NVDA at 1.21x its ATR risk cap",
+        "AI Semis/Fabs over band (+7.4pt)",
         "NVDA genuinely stretched: +8.1% 1m, +7.4pp vs SMH -- real profit to take, not just a smaller loss",
         "recommended 3x, still unactioned"
       ],
       "cluster": "AI Semis/Fabs",
-      "full_cure_usd": 547.0,
+      "full_cure_usd": 576.0,
       "cure_basis": "risk cap",
-      "cure_pct": 101.0,
+      "cure_pct": 95.0,
       "still_valid_because": [
-        "NVDA at 1.20x its ATR risk cap",
+        "NVDA at 1.21x its ATR risk cap",
+        "AI Semis/Fabs over band (+7.4pt)",
         "NVDA genuinely stretched: +8.1% 1m, +7.4pp vs SMH -- real profit to take, not just a smaller loss",
         "recommended 3x, still unactioned"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-12",
-      "retires_when": "NVDA drops under its ATR risk cap"
+      "retires_when": "NVDA drops under its ATR risk cap OR AI Semis/Fabs re-enters its policy band (both must clear -- either alone keeps it open)"
     },
     {
       "date": "2026-08-12",
@@ -1814,14 +1819,15 @@
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "cash in excess at 22.5% vs a [5,15]% band -- deploying is the live problem, not raising more"
+        "AI Power/Cooling/DC Infra under band (-10.3pt)"
       ],
       "still_valid_because": [
-        "cash in excess at 22.5% vs a [5,15]% band -- deploying is the live problem, not raising more"
+        "AI Power/Cooling/DC Infra under band (-10.3pt)"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-12",
-      "retires_when": null
+      "retires_when": "AI Power/Cooling/DC Infra re-enters its policy band",
+      "cluster": "AI Power/Cooling/DC Infra"
     },
     {
       "date": "2026-08-12",
@@ -1832,20 +1838,18 @@
       "status": "open",
       "rationale": "compute_rotation.json accumulate bucket (computed) + signals' zero-negative-news/peer-leader read + catalyst confirms stale Goldman note predates and doesn't explain the stop",
       "id": "P-074",
-      "priority_score": 4,
-      "priority": "HIGH",
+      "priority_score": -1,
+      "priority": "LOW",
       "priority_reasons": [
-        "AI Networking/Optics under band (-9.1pt)",
-        "cash in excess at 22.5% vs a [5,15]% band -- deploying is the live problem, not raising more"
+        "discretionary add -- no active breach or typed trigger behind it"
       ],
       "cluster": "AI Networking/Optics",
       "still_valid_because": [
-        "AI Networking/Optics under band (-9.1pt)",
-        "cash in excess at 22.5% vs a [5,15]% band -- deploying is the live problem, not raising more"
+        "discretionary add -- no active breach or typed trigger behind it"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-12",
-      "retires_when": "AI Networking/Optics re-enters its policy band",
+      "retires_when": null,
       "direction_bucket": "BUY"
     }
   ],

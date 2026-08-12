@@ -2383,6 +2383,11 @@ def cmd_triggers(args):
     rotation = load_json(os.path.join(args.run_dir, "compute_rotation.json"), default={})
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
     lots = load_json(os.path.join(args.base_dir, "lots.json"), default={})
+    # Cluster state, for the overbought cluster-tension check further down. Both default to empty so
+    # a missing/failed drift step degrades to "no tension detected" rather than raising -- consistent
+    # with how rsi_usable / rel_usable degrade elsewhere in this function.
+    cluster_rows = {c.get("cluster"): c for c in (drift.get("cluster_table") or [])}
+    sector_map = state.get("sector_map", {}) or {}
 
     today = date.fromisoformat(args.today) if args.today else date.today()
     dc = state.get("data_cache", {}) or {}
@@ -2486,11 +2491,33 @@ def cmd_triggers(args):
                 if genuinely_up is None:
                     blockers.append("1m return unavailable (stale rel_strength) -- 'genuinely up' "
                                     "gate unverified, confirm the position is actually in profit")
+                # CLUSTER TENSION (added 2026-08-12). The trim itself stays cap-independent and
+                # cluster-independent -- "this name ran, book some" is a valid standalone reason and
+                # gating it on cluster state would recreate the ATR-only monoculture in a new form.
+                # But a trim of a name whose cluster is UNDER its floor makes that underweight worse,
+                # and the G56 family of bugs is exactly this: a cluster figure cited in the wrong
+                # direction. Found live on 2026-08-12 -- MSFT tripped overbought while
+                # Compute/Hyperscaler sat 7.74pt UNDER floor. So: flag it, never silently allow a
+                # downstream proposal to cite the cluster as support, and name the intra-cluster
+                # rotation that resolves it (sell the extended name, buy the lagging one in the SAME
+                # cluster -> books the gain, leaves the cluster weight untouched).
+                cl_row = cluster_rows.get(sector_map.get(ticker)) if cluster_rows else None
+                cl_drift = cl_row.get("drift_pt") if cl_row else None
+                cluster_tension = cl_drift is not None and cl_drift < 0
+                if cluster_tension:
+                    blockers.append(
+                        f"cluster {sector_map.get(ticker)} is {cl_drift:+.2f}pt UNDER its floor -- this "
+                        f"trim deepens an existing underweight. The stretch reason stands on its own, "
+                        f"but do NOT cite the cluster as support (G56). Prefer an intra-cluster "
+                        f"rotation: sell this extended name, buy a lagging one in the same cluster, "
+                        f"leaving the cluster weight unchanged.")
                 overbought.append({**base, "trigger_type": "overbought_distribution",
                                    "direction": "TRIM", "vote": "live",
                                    "suggested_size_usd": round(size, 2),
                                    "trim_fraction": OVERBOUGHT_TRIM_FRACTION,
                                    "over_cap_independent": True,
+                                   "cluster_tension": cluster_tension,
+                                   "cluster_drift_pt": cl_drift,
                                    "retires_when": f"{ticker} RSI14 falls below {RSI_OVERBOUGHT_EXIT:g} "
                                                    "or it is no longer up on the month",
                                    "reasons": reasons, "blockers": blockers})

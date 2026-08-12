@@ -1701,7 +1701,7 @@
       "action": "Trim DRAM",
       "size_usd": 400,
       "price_at_proposal": 50.89,
-      "status": "open",
+      "status": "dismissed_by_user",
       "rationale": "ATR risk-cap 1.37x (computed) + extreme-greed profit-booking hint (computed)",
       "id": "P-071",
       "direction_bucket": "TRIM",
@@ -1738,7 +1738,7 @@
         }
       ],
       "repeat_count": 6,
-      "note": "recommended 6x since 2026-07-28, still open",
+      "note": "recommended 6x since 2026-07-28, still open | dismissed by user 2026-08-12T21:23: 6th consecutive unactioned recommendation -- treated as implicitly declined by the user; strategist recommended dismissal 2026-08-12 rather than a 7th restatement. DRAM's 1.48x ATR breach remains real and will be re-surfaced by the risk panel, but it will no longer occupy a proposal slot.",
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
@@ -1835,7 +1835,7 @@
       "action": "Re-accumulate AVGO",
       "size_usd": 1250,
       "price_at_proposal": 416.08,
-      "status": "open",
+      "status": "dismissed_by_user",
       "rationale": "compute_rotation.json accumulate bucket (computed) + signals' zero-negative-news/peer-leader read + catalyst confirms stale Goldman note predates and doesn't explain the stop",
       "id": "P-074",
       "priority_score": -1,
@@ -1850,7 +1850,216 @@
       "review_flags": [],
       "revalidated_on": "2026-08-12",
       "retires_when": null,
-      "direction_bucket": "BUY"
+      "direction_bucket": "BUY",
+      "note": "dismissed by user 2026-08-12T21:23: Rationale expired: proposed to fill an AI Networking/Optics underweight that the user's own 2026-08-12 buys (AVGO 2->4, CIEN, COHR, MRVL) cured outright -- cluster back in band. Scored LOW/-1 as a discretionary add with no live trigger. Strategist recommended dismissal."
+    },
+    {
+      "id": "P-075",
+      "date": "2026-08-12T20:25:00+05:30",
+      "status": "open",
+      "action": "Trim BX",
+      "ticker": "BX",
+      "direction": "TRIM",
+      "size_usd": 180.51,
+      "price_at_proposal": 144.41,
+      "rationale": "RSI14 71.1 (>70), +16.5% on the month, in derisk names_stretched, cluster unbanded so no conflict -- book profit on a name that ran, ask (2)/(3)",
+      "trigger_type": "overbought_distribution",
+      "price_source": "yfinance get_stock_price, intraday 2026-08-12 10:55 ET",
+      "pair_id": "R1-BX-GEV",
+      "pair_role": "sell_leg",
+      "direction_bucket": "TRIM",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "BX genuinely stretched: +16.5% 1m, +15.8pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 71.1 > 70 (overbought); up +16.5% on the month -- real gain to protect"
+      ],
+      "cluster": "Alternative Asset Manager/Diversifier",
+      "still_valid_because": [
+        "BX genuinely stretched: +16.5% 1m, +15.8pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 71.1 > 70 (overbought); up +16.5% on the month -- real gain to protect"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-12",
+      "retires_when": "BX RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "id": "P-076",
+      "date": "2026-08-12T20:25:00+05:30",
+      "status": "open",
+      "action": "Buy GEV",
+      "ticker": "GEV",
+      "direction": "BUY",
+      "size_usd": 180.51,
+      "price_at_proposal": null,
+      "rationale": "Deepest cluster underweight in book (AI Power/Cooling -10.27pt), -4.85pp vs SMH (hasn't run), thesis strengthening, $537.75 headroom -- funded entirely by BX sell leg, ask (2)",
+      "trigger_type": null,
+      "price_source": "yfinance get_stock_price, intraday 2026-08-12 10:55 ET",
+      "pair_id": "R1-BX-GEV",
+      "pair_role": "buy_leg",
+      "direction_bucket": "BUY",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "AI Power/Cooling/DC Infra under band (-10.3pt)"
+      ],
+      "cluster": "AI Power/Cooling/DC Infra",
+      "still_valid_because": [
+        "AI Power/Cooling/DC Infra under band (-10.3pt)"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-12",
+      "retires_when": "AI Power/Cooling/DC Infra re-enters its policy band"
+    },
+    {
+      "id": "P-077",
+      "date": "2026-08-12T20:25:00+05:30",
+      "status": "open",
+      "action": "Buy QCOM",
+      "ticker": "QCOM",
+      "direction": "BUY",
+      "size_usd": 388.88,
+      "price_at_proposal": 161.655,
+      "rationale": "-6.69pp vs SMH (shadow laggard_rotation, thesis strengthening), $388.88 headroom, funded by existing P-072 NVDA trim proceeds; same cluster as NVDA so also nets down the AI Semis/Fabs +7.42pt overweight, ask (2)",
+      "trigger_type": "laggard_rotation",
+      "price_source": "yfinance get_stock_price, intraday 2026-08-12 10:55 ET",
+      "pair_id": "R2-NVDA-QCOM",
+      "pair_role": "buy_leg",
+      "direction_bucket": "BUY",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "bullish signal 'OVERSOLD BOUNCE' has a 100% INTERIM 7d hit rate (n=4, not yet 30d-validated) in this book",
+        "laggard_rotation is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design"
+      ],
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "bullish signal 'OVERSOLD BOUNCE' has a 100% INTERIM 7d hit rate (n=4, not yet 30d-validated) in this book",
+        "laggard_rotation is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-12",
+      "retires_when": "n/a -- laggard_rotation is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
+    },
+    {
+      "id": "P-078",
+      "date": "2026-08-12T20:25:00+05:30",
+      "status": "open",
+      "action": "Trim MSFT",
+      "ticker": "MSFT",
+      "direction": "TRIM",
+      "size_usd": 371.21,
+      "price_at_proposal": 494.95,
+      "rationale": "RSI14 78.8, +24.7% on the month, most extended reading in book -- cluster -7.74pt under so paired intra-cluster with META instead of trimmed to cash, per trigger engine's own blocker guidance. CONDITIONAL -- see buy leg",
+      "trigger_type": "overbought_distribution",
+      "price_source": "yfinance get_stock_price, intraday 2026-08-12 10:55 ET",
+      "pair_id": "R3-MSFT-META-CONDITIONAL",
+      "pair_role": "sell_leg",
+      "direction_bucket": "TRIM",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 78.8 > 70 (overbought); up +24.7% on the month -- real gain to protect",
+        "caveat -- cluster Compute/Hyperscaler is -7.74pt UNDER its floor -- this trim deepens an existing underweight. The stretch reason stands on its own, but do NOT cite the cluster as support (G56). Prefer an intra-cluster rotation: sell this extended name, buy a lagging one in the same cluster, leaving the cluster weight unchanged."
+      ],
+      "cluster": "Compute/Hyperscaler",
+      "still_valid_because": [
+        "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 78.8 > 70 (overbought); up +24.7% on the month -- real gain to protect",
+        "caveat -- cluster Compute/Hyperscaler is -7.74pt UNDER its floor -- this trim deepens an existing underweight. The stretch reason stands on its own, but do NOT cite the cluster as support (G56). Prefer an intra-cluster rotation: sell this extended name, buy a lagging one in the same cluster, leaving the cluster weight unchanged."
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-12",
+      "retires_when": "MSFT RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "id": "P-079",
+      "date": "2026-08-12T20:25:00+05:30",
+      "status": "open",
+      "action": "Buy META",
+      "ticker": "META",
+      "direction": "BUY",
+      "size_usd": 371.21,
+      "price_at_proposal": null,
+      "rationale": "RSI 34.1 (oversold), thesis WATCH->INTACT this run (Strong Buy consensus PT $756.95, verified), $1,106 headroom -- HOLD, do not fire: blocked from formal oversold_reversion list by a stale NEW HEADWINDS flag that smith-signals failed to clear (API 529 x2); recommend waiting for next signals refresh rather than hand-clearing",
+      "trigger_type": null,
+      "price_source": "yfinance get_stock_price, intraday 2026-08-12 10:55 ET",
+      "pair_id": "R3-MSFT-META-CONDITIONAL",
+      "pair_role": "buy_leg",
+      "direction_bucket": "BUY",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "Compute/Hyperscaler under band (-7.7pt)"
+      ],
+      "cluster": "Compute/Hyperscaler",
+      "still_valid_because": [
+        "Compute/Hyperscaler under band (-7.7pt)"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-12",
+      "retires_when": "Compute/Hyperscaler re-enters its policy band"
+    },
+    {
+      "id": "P-080",
+      "date": "2026-08-12T20:25:00+05:30",
+      "status": "open",
+      "action": "Raise stop NBIS",
+      "ticker": "NBIS",
+      "direction": "STOP_RAISE",
+      "size_usd": 0,
+      "price_at_proposal": 233.055,
+      "rationale": "Up +18.9% vs $196.01 basis, stop at $173.30 is below breakeven -- $136.26 of gain at risk to a retracement; backed by verified Q2 beat + Reflection AI deal, ask (3), zero cash cost",
+      "trigger_type": "profit_ratchet",
+      "price_source": "yfinance get_stock_price, intraday 2026-08-12 10:55 ET",
+      "pair_id": null,
+      "pair_role": null,
+      "direction_bucket": "HOLD",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "NBIS at 1.66x its ATR risk cap",
+        "profit_ratchet is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design"
+      ],
+      "cluster": "Compute/Hyperscaler OEM",
+      "still_valid_because": [
+        "NBIS at 1.66x its ATR risk cap",
+        "profit_ratchet is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-12",
+      "retires_when": "n/a -- profit_ratchet is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
+    },
+    {
+      "id": "P-081",
+      "date": "2026-08-12T20:25:00+05:30",
+      "status": "open",
+      "action": "Raise stop MRVL",
+      "ticker": "MRVL",
+      "direction": "STOP_RAISE",
+      "size_usd": 0,
+      "price_at_proposal": 220.1458,
+      "rationale": "Up +16.9% vs $188.30 basis, stop at $176.65 is below breakeven -- $81.62 of gain at risk, ask (3), zero cash cost",
+      "trigger_type": "profit_ratchet",
+      "price_source": "yfinance get_stock_price, intraday 2026-08-12 10:55 ET",
+      "pair_id": null,
+      "pair_role": null,
+      "direction_bucket": "HOLD",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "MRVL at 1.41x its ATR risk cap",
+        "profit_ratchet is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design"
+      ],
+      "cluster": "AI Networking/Optics",
+      "still_valid_because": [
+        "MRVL at 1.41x its ATR risk cap",
+        "profit_ratchet is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-12",
+      "retires_when": "n/a -- profit_ratchet is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
     }
   ],
   "retracted": [
