@@ -1512,7 +1512,17 @@ def cmd_proposals(args):
     # "healthy name, technical dip", so a thesis leaving intact/strengthening invalidates it
     # regardless of where RSI sits. Read defensively -- a missing state.json degrades to "cannot
     # test", never to a retirement on absent data.
-    state_thesis = load_json(os.path.join(args.base_dir, "state.json"), default={}).get("thesis", {}) or {}
+    _state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    state_thesis = _state.get("thesis", {}) or {}
+    # Cluster fallback for NON-HELD tickers (added 2026-08-12). `cluster` was resolved only from
+    # compute_risk.json, which contains held positions ONLY -- so a BUY proposal for a ticker the
+    # book does not currently hold had cluster=None and could never earn the directional
+    # cluster-breach bonus. Found live: "Re-enter VRT" scored -1 "discretionary add -- no active
+    # breach" while AI Power/Cooling/DC Infra sat 10.27pt UNDER its floor and VRT was the exact
+    # name that would fill it. Same directional-logic family as G56, mirrored: G56 stopped a trim
+    # citing an underweight, this stops an underweight from justifying the buy that cures it.
+    # sector_map retains exited names, which is precisely what makes it the right fallback.
+    state_sector_map = _state.get("sector_map", {}) or {}
     # DIRECTIONAL cash check (fixed 2026-08-06). `cash_breach_vs_normal` is a bare boolean that
     # fires on BOTH edges -- too little cash and too much. The scorer previously treated any
     # breach as a reason to favour trimming ("this also rebuilds cash"), which inverts on the
@@ -1546,7 +1556,8 @@ def cmd_proposals(args):
         score, reasons = 0, []
         ticker, bucket, rc = pr.get("ticker"), pr.get("direction_bucket", "HOLD"), pr.get("repeat_count", 1)
         rpos = risk_by_ticker.get(ticker) if ticker else None
-        cluster = rpos.get("cluster") if rpos else pr.get("cluster")
+        cluster = (rpos.get("cluster") if rpos
+                   else (pr.get("cluster") or state_sector_map.get(ticker)))
         if rpos and rpos.get("over_cap"):
             # DEMOTED +3 -> +2 on 2026-08-12 (user decision). At +3 this was the largest single
             # weight in the scorer and, combined with the repeat bonus below, the only trigger
@@ -2494,7 +2505,15 @@ def cmd_triggers(args):
                             "reasons": [f"bottom-quartile 1m relative strength ({rel_pp:+.1f}pp vs "
                                         f"{rel_cache.get('benchmark', 'SMH')}) -- has not run yet",
                                         f"thesis {status}", "within ATR risk cap"],
-                            "blockers": []})
+                            # Same honesty as oversold_reversion: a $0 size means the SETUP is valid and
+                            # the FUNDING is not. Without this the row rendered "$0" with no explanation,
+                            # which reads as "the screen found nothing worth sizing" -- the opposite of
+                            # what it means. It is also the normal state once cash re-enters its band,
+                            # so it will be seen often; a rotation pair funds it from a sell leg instead.
+                            "blockers": ([] if max_single else
+                                         ["no deployable cash above the band ceiling -- setup valid, "
+                                          "funding is not; fund it from a sell leg (rotation pair) "
+                                          "rather than from the wallet"])})
 
         # --- D/E. profit_ratchet + scale_out_ladder (shadow) -------------------
         avg_cost, priced_qty, unpriced_qty = _avg_cost_from_lots(lots.get(ticker))
