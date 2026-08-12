@@ -1123,8 +1123,14 @@ def cmd_rotation(args):
 
     tickers = {}
     for ticker, r in risk_by_ticker.items():
-        body, _, status = (thesis.get(ticker, "") or "").rpartition("|")
-        thesis_status = status.strip().lower() if status else None
+        entry = thesis.get(ticker, "")
+        if isinstance(entry, dict):
+            # newer evidence-schema entries carry status as an explicit key rather than
+            # a trailing "| status" suffix on a bare string (see G58) -- read it directly.
+            thesis_status = (entry.get("status") or "").strip().lower() or None
+        else:
+            _, _, status = (entry or "").rpartition("|")
+            thesis_status = status.strip().lower() if status else None
         polarity = smith_risk.classify_signal_polarity(signal_history.get(ticker, []))
         over_cap = bool(r.get("over_cap"))
         bucket = smith_risk.rotation_bucket(over_cap, thesis_status, polarity["net"])
@@ -1210,7 +1216,9 @@ def cmd_sentiment(args):
 # matched before a shorter keyword nested inside a longer action string would win instead.
 DIRECTION_KEYWORDS = [
     ("DEPLOY INTO", "BUY"), ("TOP UP", "BUY"), ("LIGHT TRIM", "TRIM"), ("HOLD FIRE", "HOLD"),
-    ("REBUILD", "HOLD"), ("STAGE", "BUY"), ("INITIATE", "BUY"), ("DEPLOY", "BUY"),
+    ("REBUILD", "HOLD"), ("RE-ENTER", "BUY"), ("RE-ENTRY", "BUY"), ("REENTER", "BUY"),
+    ("RE-ACCUMULATE", "BUY"), ("ACCUMULATE", "BUY"),
+    ("STAGE", "BUY"), ("INITIATE", "BUY"), ("DEPLOY", "BUY"),
     ("BUILD", "BUY"), ("BUY", "BUY"), ("ADD", "BUY"), ("TRIM", "TRIM"), ("REDUCE", "TRIM"),
     ("EXIT", "SELL"), ("SELL", "SELL"), ("HOLD", "HOLD"),
 ]
@@ -2057,8 +2065,16 @@ def cmd_derisk(args):
             fr_reasons.append(f"position below ${dust_usd:g} dust threshold")
         friction = clamp(friction)
 
+        t_entry = thesis.get(t, "")
+        if isinstance(t_entry, dict):
+            # newer evidence-schema entries carry status as an explicit key rather than
+            # a trailing "| status" suffix on a bare string (see G58) -- read it directly.
+            t_status = (t_entry.get("status") or "").strip().lower() or None
+        else:
+            t_status = (t_entry or "").split("|")[-1].strip() or None
+
         raw.append({"ticker": t, "market_value_usd": round(mv, 2),
-                    "cluster": sector_map.get(t), "thesis_status": (thesis.get(t, "") or "").split("|")[-1].strip() or None,
+                    "cluster": sector_map.get(t), "thesis_status": t_status,
                     "cap_multiple": cap_x, "atr20_pct": p.get("atr20_pct"),
                     "stop_price_usd": p.get("stop_price_usd"),
                     "risk_share_pct": round(open_risk / agg_risk * 100.0, 2) if (open_risk and agg_risk) else None,

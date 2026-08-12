@@ -826,6 +826,105 @@
       "price_at_trade": 101.56,
       "reason": "UNCAPTURED",
       "notes": "email-confirmed (Order Type: Limit), $509.33 cost. NEW POSITION, ticker resolved from 'Intel Corporation Common Stock'. Scheduled run, rationale not yet asked."
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "AMD",
+      "action": "exit",
+      "qty_change": -4,
+      "price_at_trade": 470.7,
+      "reason": "stop-loss",
+      "notes": "email-confirmed (Order Type: stop), $1882.80 proceeds. FULL EXIT."
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "VRT",
+      "action": "exit",
+      "qty_change": -5,
+      "price_at_trade": 267.87,
+      "reason": "stop-loss",
+      "notes": "email-confirmed (Order Type: stop), $1339.35 proceeds. FULL EXIT."
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "BABA",
+      "action": "add",
+      "qty_change": 2,
+      "price_at_trade": 130.71,
+      "reason": "UNCAPTURED",
+      "notes": "email-confirmed (Order Type: Market), $262.20 cost. Scheduled run, rationale not yet asked."
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "MSFT",
+      "action": "add",
+      "qty_change": 1,
+      "price_at_trade": 509.86,
+      "reason": "UNCAPTURED",
+      "notes": "email-confirmed (Order Type: Market), $511.39 cost. Scheduled run, rationale not yet asked."
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "FLTW",
+      "action": "entry",
+      "qty_change": 10,
+      "price_at_trade": 98.8,
+      "reason": "UNCAPTURED",
+      "notes": "email-confirmed (Order Type: Market), $990.96 cost. NEW POSITION, ticker resolved from 'Franklin FTSE Taiwan ETF'. Scheduled run, rationale not yet asked."
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "NBIS",
+      "action": "add",
+      "qty_change": 2,
+      "price_at_trade": 188.23,
+      "reason": "UNCAPTURED",
+      "notes": "email-confirmed (Order Type: Market), $377.58 cost. Scheduled run, rationale not yet asked."
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "BX",
+      "action": "entry",
+      "qty_change": 5,
+      "price_at_trade": 139.38,
+      "reason": "UNCAPTURED",
+      "notes": "email-confirmed (Order Type: Market), $698.97 cost. NEW POSITION, ticker resolved from 'Blackstone Inc.'. Scheduled run, rationale not yet asked."
+    },
+    {
+      "date": "2026-08-10",
+      "ticker": "SNDK",
+      "action": "trim",
+      "qty_change": -1,
+      "price_at_trade": 1236.6,
+      "reason": "stop-loss",
+      "notes": "email-confirmed (Order Type: stop), $1236.60 proceeds."
+    },
+    {
+      "date": "2026-08-11",
+      "ticker": "AVGO",
+      "action": "trim",
+      "qty_change": -3,
+      "price_at_trade": 419.0,
+      "reason": "stop-loss",
+      "notes": "email-confirmed (Order Type: stop), $1257.00 proceeds."
+    },
+    {
+      "date": "2026-08-11",
+      "ticker": "MP",
+      "action": "exit",
+      "qty_change": -15,
+      "price_at_trade": 53.96,
+      "reason": "stop-loss",
+      "notes": "email-confirmed (Order Type: stop), $809.39 proceeds. FULL EXIT."
+    },
+    {
+      "date": "2026-08-11",
+      "ticker": "GOOGL",
+      "action": "exit",
+      "qty_change": -5,
+      "price_at_trade": 351.95,
+      "reason": "stop-loss",
+      "notes": "email-confirmed (Order Type: stop), $1759.75 proceeds. FULL EXIT."
     }
   ],
   "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'dca-into-diversification'|'re-entry-after-stop'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out. | 2026-08-03: 'dca-into-diversification' and 're-entry-after-stop' promoted to standing buy-side reasons (see G45) after both recurred via 'Other' the same day \u2014 a same-day MU stop-loss/rebuy whipsaw pair (re-entry-after-stop) and a five-ticker weekend diversification buy the user confirmed as DCA into diversification. Buy-side step 1 changed shape from a yes/no to a 4-option question (DCA / DCA-into-diversification / Re-entry-after-stop / Something else) to keep 3 buy-relevant reasons within the cap; sell-side step 1 is unchanged."
