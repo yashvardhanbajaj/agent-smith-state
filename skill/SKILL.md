@@ -102,7 +102,32 @@ Measured 2026-07-28: a quick run was costing ~119KB of raw payload (~33k tokens)
 - **Betas**: compute vs **SMH**, not SPX. The SPX beta was shown to be actively misleading (predicted +0.075% for a session that delivered -5.06%).
 
 ### 2.9. TRADE RATIONALE CAPTURE (added 2026-07-29, interactive sessions only)
-trades.json's own header has always said rationale gets "populated by interactive runs asking 'why'" — this step is that ask, made concrete, because until 2026-07-29 nothing actually asked and six trades sat UNCAPTURED for a full session before a user prompted a manual backfill.
+
+> **FILL EXTRACTION IS NOW `smith-ledger`'S JOB, NOT THE ORCHESTRATOR'S (added 2026-08-13, closes G64).**
+> Whenever `compute_book.json.qty_changes` is non-empty, **dispatch `smith-ledger`** (agent file:
+> `/Users/yb/.claude/agents/smith-ledger.md`) instead of running email searches inline. It owns the
+> INDmoney confirmation pipeline end to end — pull, extract exact qty/price/order-type/timestamp,
+> repair `trades.json`, FIFO-rebuild `lots.json`, and verify `sum(lots[t].qty) == holdings_qty` for
+> every held ticker. Embed: the date range since the last run's `ts`, current holdings quantities,
+> `data_cache.ticker_map`, and any rows you suspect. It runs in parallel with Stage 1 and its output
+> must land before the strategist is dispatched, because a wrong fill price silently poisons P&L.
+>
+> **Why this moved out of the orchestrator.** Doing it inline meant fills were often *reconstructed*
+> from quantity diffs rather than read from confirmations. On 2026-08-13 a full pull proved four
+> 2026-07-27 rows wrong — NVDA was **two** sells (7sh @ $201.01 + 5sh @ $197.51, weighted $199.55)
+> recorded as one 12sh fill @ $196.51; GEV $973.57 as $996.57; LRCX $295.74 as $291.61; EWY $161.99
+> as $161.20. Those errors reached `stops_analysis.json` and overstated the measured cost of the
+> user's stop-loss discipline by ~$402 — enough that two consecutive briefings gave a wrong verdict
+> on their own strategy, and the third had to retract both.
+>
+> **The structural guard that catches the next one:** every trades.json row carries
+> `price_source: "email_confirmed" | "reconstructed"`. `smith_math.py stops` **excludes** any
+> `reconstructed` row from scoring and reports it as quarantined, and it reports what share of the
+> surviving result carries no provenance tag at all. Arithmetic on an unverified price is no longer
+> allowed to look like a fact. When adding any future P&L computation over trades.json, honour the
+> same quarantine — provenance is a property of the data, not of one subcommand.
+
+trades.json's own header has always said rationale gets "populated by interactive runs asking 'why'" — this step is that ask, made concrete, because until 2026-07-29 nothing actually asked and six trades sat UNCAPTURED for a full session before a user prompted a manual backfill. The *reason* still comes from the user (or from an objective `Order Type: stop`); `smith-ledger` supplies the *facts* it attaches to.
 
 **Trigger:** for every ticker in this run's `compute_book.json.qty_changes`, check whether trades.json already has an entry for that `(ticker, today's date)`. If not, it needs a rationale. **Do not gate this on `likely_corporate_action`** — that heuristic (ratio near a clean integer) false-positives on ordinary same-size adds (two separate +2-share buys were flagged `true` on 2026-07-29 and would have been silently skipped). A genuine split is rare enough, and the question is cheap enough, that asking and letting the user answer "Other: stock split" costs less than a silently mis-skipped real trade.
 

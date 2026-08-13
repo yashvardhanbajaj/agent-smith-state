@@ -1,13 +1,13 @@
 {
   "as_of": "2026-08-13",
   "overall": {
-    "count": 31,
-    "avg_move_pct": 7.58,
-    "net_dollar_impact": 2000.97,
+    "count": 30,
+    "avg_move_pct": 7.36,
+    "net_dollar_impact": 1670.01,
     "saved": 4,
-    "hurt": 22,
+    "hurt": 21,
     "flat": 5,
-    "win_rate_pct": 15.4
+    "win_rate_pct": 16.0
   },
   "by_cohort": {
     "cascade": {
@@ -29,13 +29,13 @@
       "win_rate_pct": 18.2
     },
     "unknown": {
-      "count": 13,
-      "avg_move_pct": 5.67,
-      "net_dollar_impact": 902.97,
+      "count": 12,
+      "avg_move_pct": 4.98,
+      "net_dollar_impact": 572.01,
       "saved": 2,
-      "hurt": 8,
+      "hurt": 7,
       "flat": 3,
-      "win_rate_pct": 20.0
+      "win_rate_pct": 22.2
     }
   },
   "stops": [
@@ -404,19 +404,6 @@
       "cohort": "deliberate"
     },
     {
-      "ticker": "NVDA",
-      "date": "2026-07-27",
-      "fill_time_utc": null,
-      "days_since": 17,
-      "fill_price": 196.51,
-      "price_now": 224.09,
-      "move_pct": 14.03,
-      "qty": 12,
-      "dollar_impact": 330.96,
-      "verdict": "hurt",
-      "cohort": "unknown"
-    },
-    {
       "ticker": "LRCX",
       "date": "2026-07-27",
       "fill_time_utc": null,
@@ -445,7 +432,9 @@
   ],
   "data_quality": [
     "4 stop-loss trades have no captured fill price (pre-dates live email capture, G26) and can never be scored: GLW, IREN, MULTI, NBIS",
+    "QUARANTINED (G64): 1 stop-loss trades carry price_source='reconstructed' -- a fill price inferred from a quantity diff, not an email confirmation. EXCLUDED from every figure in this file. They re-enter scoring automatically once smith-ledger confirms them: NVDA",
+    "33 of 33 scored stops carry NO price_source tag (predate the 2026-08-13 provenance convention). They are scored, because dropping them would blank most of the history -- but that means 100% of this result still rests on prices no one has verified against a confirmation.",
     "2 tickers had no current price supplied this run, stays unscored until provided: EWY, QBTS",
-    "13 scored stops lack a fill_time_utc so cannot be cohort-tagged (pre-dates the 2026-08-06 timestamp backfill)"
+    "12 scored stops lack a fill_time_utc so cannot be cohort-tagged (pre-dates the 2026-08-06 timestamp backfill)"
   ]
 }

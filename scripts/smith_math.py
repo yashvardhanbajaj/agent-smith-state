@@ -1981,7 +1981,22 @@ def cmd_stops(args):
 
     all_stops = [t for t in trades.get("trades", []) if t.get("reason") == "stop-loss"]
     no_fill_price = [t for t in all_stops if not t.get("price_at_trade")]
-    candidates = [t for t in all_stops if t.get("price_at_trade")]
+    # PROVENANCE QUARANTINE (added 2026-08-13, G64). A fill price reconstructed from a quantity
+    # diff is a guess, and guesses were silently scored here for weeks: NVDA 2026-07-27 was really
+    # TWO sells (7sh @ $201.01 + 5sh @ $197.51, weighted $199.55) recorded as one 12sh fill @
+    # $196.51; GEV was $973.57 recorded as $996.57; LRCX $295.74 as $291.61. Those errors flowed
+    # into this file and overstated the measured cost of the user's stop-loss discipline by ~$402
+    # -- enough to invert the desk's verdict on their own strategy across two briefings.
+    # So: only an email-confirmed price is scoreable. A row explicitly tagged "reconstructed" is
+    # EXCLUDED and surfaced in data_quality; it is quarantined, never deleted, and re-enters
+    # scoring the moment smith-ledger confirms it. Rows with NO price_source predate the tagging
+    # convention -- they are scored (removing them would blank the whole history) but counted and
+    # reported, so the share of the result resting on unverified prices is always visible.
+    reconstructed = [t for t in all_stops
+                     if t.get("price_at_trade") and t.get("price_source") == "reconstructed"]
+    candidates = [t for t in all_stops
+                  if t.get("price_at_trade") and t.get("price_source") != "reconstructed"]
+    untagged = [t for t in candidates if not t.get("price_source")]
 
     # -- cohort tagging: cluster same-day fills within a +/-5-minute window --
     by_date = {}
@@ -2058,6 +2073,18 @@ def cmd_stops(args):
         dq.append(f"{len(no_fill_price)} stop-loss trades have no captured fill price "
                    f"(pre-dates live email capture, G26) and can never be scored: "
                    + ", ".join(sorted({t['ticker'] for t in no_fill_price})))
+    if reconstructed:
+        dq.append(f"QUARANTINED (G64): {len(reconstructed)} stop-loss trades carry "
+                  f"price_source='reconstructed' -- a fill price inferred from a quantity diff, not "
+                  f"an email confirmation. EXCLUDED from every figure in this file. They re-enter "
+                  f"scoring automatically once smith-ledger confirms them: "
+                  + ", ".join(sorted({t['ticker'] for t in reconstructed})))
+    if untagged:
+        dq.append(f"{len(untagged)} of {len(candidates)} scored stops carry NO price_source tag "
+                  f"(predate the 2026-08-13 provenance convention). They are scored, because "
+                  f"dropping them would blank most of the history -- but that means "
+                  f"{len(untagged)/max(1,len(candidates))*100:.0f}% of this result still rests on "
+                  f"prices no one has verified against a confirmation.")
     if unscored_missing_price:
         dq.append(f"{len(set(unscored_missing_price))} tickers had no current price supplied "
                    f"this run, stays unscored until provided: " + ", ".join(sorted(set(unscored_missing_price))))
