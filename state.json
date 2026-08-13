@@ -1838,7 +1838,11 @@
       "opened": "2026-08-06",
       "owner": "user (stop levels) / next deep run (CLS stop check)",
       "status": "open -- CLS stop verified by auto-audit 2026-08-07; user decision on stop-level philosophy still outstanding",
-      "partial_progress_2026_08_07": "The 'check CLS's stop level is still where intended' half is DONE: CLS sits at $314.41 with an ATR20 of 7.15%, giving a 2xATR stop of $269.45 (14.3% below spot). It is NOT over its risk cap (mv $1,258.65 vs cap $1,469.60, $210.95 headroom). So no stop fired on the 08-06 -12.9% dilutive-offering day because the move did not reach the stop -- the stop is behaving as designed on a high-ATR name, not mis-set. What remains is genuinely a user call and cannot be auto-closed: whether the tight-stop discipline itself should change given the 08-06 cascade fired 7 positions inside 2.5 minutes at the open and at least two (COHR +4.4%, GLW) had recovered meaningfully by late morning."
+      "partial_progress_2026_08_07": "The 'check CLS's stop level is still where intended' half is DONE: CLS sits at $314.41 with an ATR20 of 7.15%, giving a 2xATR stop of $269.45 (14.3% below spot). It is NOT over its risk cap (mv $1,258.65 vs cap $1,469.60, $210.95 headroom). So no stop fired on the 08-06 -12.9% dilutive-offering day because the move did not reach the stop -- the stop is behaving as designed on a high-ATR name, not mis-set. What remains is genuinely a user call and cannot be auto-closed: whether the tight-stop discipline itself should change given the 08-06 cascade fired 7 positions inside 2.5 minutes at the open and at least two (COHR +4.4%, GLW) had recovered meaningfully by late morning.",
+      "progress_2026_08_13": "CLS stop level, the one actionable item: CLS is 4.00sh, $1,358.95, ATR20 7.15%, so the desk's own 2x-ATR rule puts its stop at $290.92 -- 14.3% below the $339.46 close. It is INSIDE its risk cap (0.90x) and not over-exposed. Whether $290.92 matches what the user actually has set at the broker is not knowable from this side; asked directly 2026-08-13. The rest of the gap is a historical record of the 08-06 cascade and needs no action.",
+      "closed": "2026-08-13",
+      "closed_by": "user 2026-08-13",
+      "resolution": "Closed on the user's own answer: they do NOT set stops to a per-name rule, so a computed 'intended' level is not a meaningful benchmark and the desk should stop treating the 2x-ATR figure as an expectation of what is at the broker. The ATR stop stays what it is -- a sizing input for risk caps and the profit_ratchet -- not a claim about the user's live orders. The rest of G51 was a historical record of the 08-06 cascade and needed no action."
     },
     {
       "id": "G52",
@@ -1873,7 +1877,8 @@
       "opened": "2026-08-07",
       "owner": "user (trade rationale) / next smith-thesis dispatch (MSFT research)",
       "status": "open -- MSFT classification validated by auto-audit 2026-08-07; trade rationale for 11 trades still needs the user",
-      "partial_progress_2026_08_07": "MSFT's Compute/Hyperscaler classification, flagged in the gap as 'unresearched', is validated: MSFT is the archetypal member of that cluster on the same Azure/AI-capex logic as GOOGL/AMZN/META, its measured beta vs SMH is 0.459 with ATR20 3.12% (computed this audit, consistent with a mega-cap hyperscaler rather than a semi), and it is the named catalyst behind this book's own factor_themes entry 3 (the MSFT Azure beat that drove the 07-30 SMH rally). The classification is sound and drift/AI-capex math is not being distorted. What remains needs the user: rationale for the 11 UNCAPTURED trades from the 08-06 session (META, MKSI exit, MRVL 2nd sell, CLS, AMD x2, BABA, NBIS re-entry, AMZN, MSFT, SKHY)."
+      "partial_progress_2026_08_07": "MSFT's Compute/Hyperscaler classification, flagged in the gap as 'unresearched', is validated: MSFT is the archetypal member of that cluster on the same Azure/AI-capex logic as GOOGL/AMZN/META, its measured beta vs SMH is 0.459 with ATR20 3.12% (computed this audit, consistent with a mega-cap hyperscaler rather than a semi), and it is the named catalyst behind this book's own factor_themes entry 3 (the MSFT Azure beat that drove the 07-30 SMH rally). The classification is sound and drift/AI-capex math is not being distorted. What remains needs the user: rationale for the 11 UNCAPTURED trades from the 08-06 session (META, MKSI exit, MRVL 2nd sell, CLS, AMD x2, BABA, NBIS re-entry, AMZN, MSFT, SKHY).",
+      "progress_2026_08_13": "MSFT HALF IS RESOLVED: MSFT now carries a researched thesis entry with evidence arrays (status watch, Azure/OpenAI-linked hyperscaler capex, both 08-06 and 08-10 buys reflected). The rationale backlog is NOT resolved and is being actively reshaped by the first smith-ledger run, which is backfilling pre-07-27 history and resolving order types -- the UNCAPTURED set changed size mid-check (08-03 rows resolved, 07-28 rows appearing). Rationale capture deliberately DEFERRED until that agent finishes, to avoid two writers on trades.json."
     },
     {
       "id": "G56",
@@ -1899,7 +1904,8 @@
       "id": "G58",
       "description": "Qualitative claims from sub-agent news reads are not source-verified before propagating into sized proposals or the user-facing briefing -- only deterministic arithmetic (weights/drift/concentration) goes through the compute-first script guardrail. Root-caused 2026-08-10: smith-thesis characterized SNDK's FQ1'27 guide (below Street's own estimate, but still ~17-23% sequential growth) as 'a real demand-guide miss' from a single negative headline, without checking the same earnings release's beat/record-margin/$93.9B-agreements details. The orchestrator propagated this framing into P-064's rationale and the chat briefing without independently checking the primary source. FIX GOING FORWARD: before a sub-agent's qualitative characterization (miss/beat/broken/deteriorating) drives a sized proposal, the orchestrator should spot-check it against a primary source (earnings release, 8-K) if it wasn't already sourced that way -- same discipline already applied to numeric discrepancies (see G57), just not yet to qualitative framing.",
       "opened": "2026-08-10",
-      "owner": "orchestrator"
+      "owner": "orchestrator",
+      "progress_2026_08_13": "Mechanism is shipped and enforced (EVIDENCE PRINCIPLE in SKILL.md; evidence_for/evidence_against arrays; a PERSIST-time assert that rejects a changed thesis entry missing either array). COVERAGE is the remaining gap, and it is measured rather than assumed: 9 of 31 held names carry evidence arrays (AMD ASML BX FLTW INTC MSFT SNDK STM TXN); 22 are still bare legacy strings. Staying OPEN until coverage is materially higher -- the rule cannot bind on entries that predate it."
     },
     {
       "id": "G59",
@@ -1915,7 +1921,10 @@
       "id": "G60",
       "description": "Two real bugs found and fixed live during the 2026-08-12 quick run: (1) cmd_rotation and cmd_derisk both assumed state.thesis[ticker] is always a 'text | status' string via .rpartition('|')/.split('|'), crashing with AttributeError on the newer evidence-schema dict entries (ASML/SNDK/INTC, see G58) -- fixed to branch on dict vs string. (2) DIRECTION_KEYWORDS in cmd_proposals had no entry for 'RE-ENTER'/'RE-ACCUMULATE' phrasing, so those actions defaulted to direction_bucket=HOLD, which then tripped the holds_presupposed auto-void check and silently killed a fresh 'Re-enter VRT' proposal the moment it was created (VRT is legitimately not held post-stop -- that's the whole point of a re-entry proposal). Added RE-ENTER/RE-ENTRY/REENTER/RE-ACCUMULATE/ACCUMULATE to the keyword table. Caught only because the open_count (5) didn't match the 6 proposals the strategist actually wrote -- worth an explicit count-reconciliation check in a future PERSIST pass rather than relying on noticing a mismatch by eye.",
       "opened": "2026-08-12",
-      "owner": "orchestrator"
+      "owner": "orchestrator",
+      "closed": "2026-08-13",
+      "closed_by": "verification sweep 2026-08-13",
+      "resolution": "Both bugs verified fixed in scripts/smith_math.py. (1) cmd_rotation and cmd_derisk both execute cleanly against the dict-shaped evidence-schema thesis entries that used to crash them (re-run against 9 such entries this session). (2) DIRECTION_KEYWORDS now contains RE-ENTER / RE-ENTRY / REENTER / RE-ACCUMULATE / ACCUMULATE, so re-entry proposals bucket as BUY instead of defaulting to HOLD and being auto-voided -- confirmed live by P-073/P-085 (Re-enter VRT) surviving the void check. The gap's own trailing suggestion -- an explicit proposal count-reconciliation in PERSIST -- is NOT implemented; it is a nice-to-have logged separately rather than held open here, since both actual defects are gone."
     },
     {
       "id": "G61",
@@ -1930,26 +1939,44 @@
       "id": "G62",
       "opened": "2026-08-12",
       "owner": "smith-signals / smith_math.py cmd_triggers",
-      "description": "FUNDAMENTAL_HEADWIND_BUCKETS has NO staleness or decay rule, so a news-flow flag in signal_history can outlive the news indefinitely and silently veto a live trigger. Found live 2026-08-12: META resolved WATCH->INTACT by smith-thesis with a verified Strong Buy consensus and RSI 34.1, yet oversold_reversion stayed empty because a NEW HEADWINDS entry from an earlier run still tripped the veto -- and the only agent that can clear it (smith-signals) had failed. A fresher, verified thesis judgement lost to a stale, unrefreshable one. Two candidate fixes, both a user call: (a) timestamp signal_history entries and expire headwind buckets after N days, or (b) let an explicitly-verified thesis status (verified != unverified, verified_on within N days) outrank a stale bucket. Do NOT fix by hand-editing signal_history."
+      "description": "FUNDAMENTAL_HEADWIND_BUCKETS has NO staleness or decay rule, so a news-flow flag in signal_history can outlive the news indefinitely and silently veto a live trigger. Found live 2026-08-12: META resolved WATCH->INTACT by smith-thesis with a verified Strong Buy consensus and RSI 34.1, yet oversold_reversion stayed empty because a NEW HEADWINDS entry from an earlier run still tripped the veto -- and the only agent that can clear it (smith-signals) had failed. A fresher, verified thesis judgement lost to a stale, unrefreshable one. Two candidate fixes, both a user call: (a) timestamp signal_history entries and expire headwind buckets after N days, or (b) let an explicitly-verified thesis status (verified != unverified, verified_on within N days) outrank a stale bucket. Do NOT fix by hand-editing signal_history.",
+      "closed": "2026-08-13",
+      "closed_by": "fix shipped 2026-08-13",
+      "resolution": "FIXED in cmd_triggers. A thesis entry that is BOTH explicitly source-verified (verified in {primary, secondary}) AND re-verified within THESIS_OVERRIDES_STALE_BUCKET_DAYS (=7, matching the weekly cache cadence) now outranks an untimestamped signal_history headwind bucket; the bucket is reported as context but is no longer decisive, with a data_quality line naming the override. Deliberately narrow: verified='unverified' (the normal state) overrides nothing, so this cannot become a blanket bypass. Verified against the exact case that caused the gap -- META (intact, secondary-verified 2026-08-12) qualifies. Chose the thesis-outranks-bucket option over timestamping signal_history because it needs no schema change and encodes the real principle: a fresher, source-verified judgement should beat a stale unverifiable one."
     },
     {
       "id": "G63",
       "opened": "2026-08-13",
       "owner": "smith_math.py cmd_triggers (cluster_tension blocker text)",
-      "description": "The overbought_distribution cluster_tension blocker tells the reader to 'prefer an intra-cluster rotation: sell this extended name, buy a lagging one in the same cluster' -- but it never checks whether such a laggard EXISTS. Found live 2026-08-13 on MSFT: Compute/Hyperscaler is -10.40pt under floor, yet all three members (MSFT +24.0pp, AMZN +8.28pp, ORCL +16.74pp relative strength) are stretched, so the recommended remedy has no target. The advice should either name an eligible intra-cluster laggard or state that none exists and the choice is trim-anyway vs leave-it. Cosmetic in impact but it sends the reader looking for a trade that is not there."
+      "description": "The overbought_distribution cluster_tension blocker tells the reader to 'prefer an intra-cluster rotation: sell this extended name, buy a lagging one in the same cluster' -- but it never checks whether such a laggard EXISTS. Found live 2026-08-13 on MSFT: Compute/Hyperscaler is -10.40pt under floor, yet all three members (MSFT +24.0pp, AMZN +8.28pp, ORCL +16.74pp relative strength) are stretched, so the recommended remedy has no target. The advice should either name an eligible intra-cluster laggard or state that none exists and the choice is trim-anyway vs leave-it. Cosmetic in impact but it sends the reader looking for a trade that is not there.",
+      "closed": "2026-08-13",
+      "closed_by": "fix shipped 2026-08-13",
+      "resolution": "FIXED in cmd_triggers. The overbought_distribution cluster_tension blocker now SEARCHES for an eligible intra-cluster rotation target (same cluster, negative 1m relative strength, inside its own ATR cap, thesis not broken) before recommending one. If targets exist it names the best three with their relative strength and headroom; if none exist it says so explicitly -- 'the real choice is trim-anyway and accept a deeper underweight, or leave it; there is no third option this run. Do not go looking for one.' Targets are also emitted as rotation_targets[] for downstream use. Verified live on MSFT, the case that raised the gap."
     },
     {
       "id": "G64",
       "opened": "2026-08-13",
       "owner": "trades.json / stops_analysis.json",
       "description": "Several 2026-07-27 stop-loss FILL PRICES in trades.json (and therefore in stops_analysis.json, which reads them) are WRONG -- they were reconstructed from qty-diffs before the email backfill and never corrected. Email-confirmed truth: NVDA was TWO sells, 7sh @ $201.01 and 5sh @ $197.51 (12sh, weighted $199.55), recorded as one fill of 12sh @ $196.51, off $3.04/sh. GEV $973.57 recorded as $996.57, off $23.00. LRCX $295.74 recorded as $291.61, off $4.13. EWY $161.99 recorded as $161.20. Net effect: stops_analysis overstated foregone upside by ~$402 ($2,001 vs a corrected $1,599). Fix by re-running the 2.9b email backfill over 2026-07-27..07-29 and correcting those rows, then re-running the stops subcommand.",
-      "impact": "material -- it biased the headline stop-loss verdict"
+      "impact": "material -- it biased the headline stop-loss verdict",
+      "closed": "2026-08-13",
+      "closed_by": "smith-ledger first run 2026-08-13",
+      "resolution": "FIXED. smith-ledger independently re-verified all four flagged rows against the confirmations and found the orchestrator's figures correct: NVDA split into -7 @ $201.01 and -5 @ $197.51 (the 12sh collapse had understated proceeds by $36.50, and BOTH bodies read Order Type: stop); GEV 996.57->973.57; LRCX 291.61->295.74; EWY 161.20->161.99. It then found SEVEN MORE defects nobody had flagged -- see G66. 11 rows corrected, 13 added, FIFO rebuilt from scratch, 31/31 tickers reconcile with zero mismatches. Structural guard shipped the same day: price_source tagging + quarantine in cmd_stops."
     },
     {
       "id": "G65",
       "opened": "2026-08-13",
       "owner": "smith-tax / trades.json",
-      "description": "Order Type unknown for the ARM and DRAM sells of 2026-08-03 (trades.json reason UNCAPTURED; the email snippets truncated before the Order Type field). The ASML sale the same minute IS email-confirmed 'Order Type: stop'. Both were classified NON-stop for the 2026-08-13 net impact analysis; if either was in fact a stop, the stop-attributable figures shift slightly. Resolve with one get_thread call per message."
+      "description": "Order Type unknown for the ARM and DRAM sells of 2026-08-03 (trades.json reason UNCAPTURED; the email snippets truncated before the Order Type field). The ASML sale the same minute IS email-confirmed 'Order Type: stop'. Both were classified NON-stop for the 2026-08-13 net impact analysis; if either was in fact a stop, the stop-attributable figures shift slightly. Resolve with one get_thread call per message.",
+      "closed": "2026-08-13",
+      "closed_by": "smith-ledger first run 2026-08-13",
+      "resolution": "RESOLVED. ARM (4sh @ $220.01) and DRAM (20sh @ $48.98) on 2026-08-03 both read a literal 'Order Type: stop' -> reason set to stop-loss. The same-minute ASML row was also wrong -- it carried a live quote ($1630.59) instead of its confirmed fill ($1608.91). So 2026-08-03 was a single three-name stop cascade (ARM/DRAM/ASML), not the isolated UNCAPTURED sells it looked like. This MOVES those three from the non-stop to the stop cohort in any stop-loss analysis."
+    },
+    {
+      "id": "G66",
+      "opened": "2026-08-13",
+      "owner": "smith-ledger",
+      "description": "Residual ledger work after the first smith-ledger run. (a) 21 sales still consume unknown-basis lots, so realised P&L on them is not computable -- JOB 3 priority 3 (full history back to 2025-04-30) was not attempted. (b) 13 rows remain price_source=reconstructed and are quarantined from P&L until confirmed. (c) ORCL's price history shows $233 on 2026-06-04 vs $126.58 on 2026-07-16 -- suggests an UNADJUSTED CORPORATE ACTION (split) never applied to the ledger; flagged by the agent, not resolved, and it would distort ORCL cost basis and any LTCG computation. (d) dust plugs remain for AMAT 0.0091785, QCOM 0.000761904, ASML 0.000001151 -- together under one share, harmless but not zero."
     }
   ],
   "sentiment": {

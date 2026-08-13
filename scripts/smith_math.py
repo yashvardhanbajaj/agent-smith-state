@@ -89,6 +89,11 @@ MAX_SINGLE_DEPLOY_FRACTION = 0.25  # cap one buy suggestion at this share of dep
 # negative is a falling knife. Only the latter disqualifies -- requiring net-bullish signals
 # would disqualify every oversold name by definition, since being oversold IS bearish price action.
 FUNDAMENTAL_HEADWIND_BUCKETS = {"NEW HEADWINDS"}
+
+# G62: how recently a thesis must have been source-verified to outrank a stale, untimestamped
+# signal_history headwind bucket. 7d ties it to the same weekly cadence the ATR/beta/rel caches
+# use, so an override always rests on evidence from the current week.
+THESIS_OVERRIDES_STALE_BUCKET_DAYS = 7
 HEALTHY_THESIS = {"intact", "strengthening"}
 LIVE_TRIGGERS = {"oversold_reversion", "overbought_distribution"}
 SHADOW_TRIGGERS = {"laggard_rotation", "profit_ratchet", "scale_out_ladder"}
@@ -2480,6 +2485,29 @@ def cmd_triggers(args):
         abs_pct = abs_vals.get(ticker)
         healthy = status in HEALTHY_THESIS
         fundamental_headwind = bool(bearish & FUNDAMENTAL_HEADWIND_BUCKETS)
+        # G62: a signal_history bucket carries NO timestamp, so a news-flow flag can outlive the
+        # news indefinitely and silently veto a live trigger. Found 2026-08-12: META was resolved
+        # WATCH->INTACT by smith-thesis against a verified source, was the book's only oversold
+        # name, and still produced zero oversold_reversion candidates because a NEW HEADWINDS entry
+        # from an earlier run kept tripping this veto -- and the only agent that can clear that
+        # entry (smith-signals) had failed that run. A fresher, source-verified judgement lost to a
+        # stale unverifiable one.
+        # Fix: a thesis entry that is BOTH explicitly verified against a source AND re-verified
+        # within THESIS_OVERRIDES_STALE_BUCKET_DAYS outranks the bucket. Deliberately narrow --
+        # `verified: "unverified"` (the normal state) does NOT override anything, so this cannot
+        # become a blanket bypass. The bucket is still reported, just no longer decisive.
+        thesis_override = False
+        if fundamental_headwind and healthy:
+            te = thesis.get(ticker)
+            if isinstance(te, dict) and te.get("verified") in ("primary", "secondary"):
+                von = _parse_as_of(te.get("verified_on"))
+                if von and (today - von).days <= THESIS_OVERRIDES_STALE_BUCKET_DAYS:
+                    thesis_override = True
+                    fundamental_headwind = False
+                    dq.append(f"{ticker}: stale {sorted(bearish & FUNDAMENTAL_HEADWIND_BUCKETS)} "
+                              f"bucket OVERRIDDEN by a {te['verified']}-verified thesis re-checked "
+                              f"{(today - von).days}d ago ({te.get('verified_on')}) -- G62. The "
+                              f"bucket stands as context; it is no longer decisive.")
         base = {"ticker": ticker, "cluster": r.get("cluster"), "thesis_status": status,
                 "rsi14": rsi, "rel_strength_1m_pp": rel_pp, "abs_return_1m_pct": abs_pct,
                 "price_usd": price, "market_value_usd": round(mv, 2)}
@@ -2531,13 +2559,43 @@ def cmd_triggers(args):
                 cl_row = cluster_rows.get(sector_map.get(ticker)) if cluster_rows else None
                 cl_drift = cl_row.get("drift_pt") if cl_row else None
                 cluster_tension = cl_drift is not None and cl_drift < 0
+                rotation_targets = []
                 if cluster_tension:
-                    blockers.append(
-                        f"cluster {sector_map.get(ticker)} is {cl_drift:+.2f}pt UNDER its floor -- this "
-                        f"trim deepens an existing underweight. The stretch reason stands on its own, "
-                        f"but do NOT cite the cluster as support (G56). Prefer an intra-cluster "
-                        f"rotation: sell this extended name, buy a lagging one in the same cluster, "
-                        f"leaving the cluster weight unchanged.")
+                    # G63: only recommend an intra-cluster rotation if a target actually EXISTS.
+                    # Found live 2026-08-13 on MSFT -- Compute/Hyperscaler was 10.40pt under floor,
+                    # yet all three members (MSFT/AMZN/ORCL) were stretched, so the advice sent the
+                    # reader hunting for a trade that was not there. Eligible = same cluster, not
+                    # this ticker, negative 1m relative strength (genuinely hasn't run), inside its
+                    # own ATR cap, and thesis not broken.
+                    my_cluster = sector_map.get(ticker)
+                    for ot, orow in risk_by_ticker.items():
+                        if ot == ticker or sector_map.get(ot) != my_cluster:
+                            continue
+                        orel = rel_vals.get(ot)
+                        if orel is None or orel >= 0 or orow.get("over_cap"):
+                            continue
+                        if _thesis_status(thesis.get(ot)) == "broken":
+                            continue
+                        rotation_targets.append({"ticker": ot, "rel_pp": round(orel, 2),
+                                                 "headroom_usd": orow.get("headroom_usd")})
+                    rotation_targets.sort(key=lambda x: x["rel_pp"])
+                    base_msg = (f"cluster {my_cluster} is {cl_drift:+.2f}pt UNDER its floor -- this "
+                                f"trim deepens an existing underweight. The stretch reason stands on "
+                                f"its own, but do NOT cite the cluster as support (G56).")
+                    if rotation_targets:
+                        tgt = ", ".join(f"{t['ticker']} ({t['rel_pp']:+.1f}pp, "
+                                        f"${(t['headroom_usd'] or 0):,.0f} headroom)"
+                                        for t in rotation_targets[:3])
+                        blockers.append(f"{base_msg} Resolve it as an INTRA-CLUSTER ROTATION into: "
+                                        f"{tgt} -- books the gain and leaves the cluster weight "
+                                        f"unchanged.")
+                    else:
+                        blockers.append(f"{base_msg} NO intra-cluster rotation is available: every "
+                                        f"other name in {my_cluster} has already run (none has "
+                                        f"negative 1m relative strength while inside its ATR cap). "
+                                        f"So the real choice is trim-anyway and accept a deeper "
+                                        f"underweight, or leave it -- there is no third option this "
+                                        f"run. Do not go looking for one.")
                 overbought.append({**base, "trigger_type": "overbought_distribution",
                                    "direction": "TRIM", "vote": "live",
                                    "suggested_size_usd": round(size, 2),
@@ -2545,6 +2603,7 @@ def cmd_triggers(args):
                                    "over_cap_independent": True,
                                    "cluster_tension": cluster_tension,
                                    "cluster_drift_pt": cl_drift,
+                                   "rotation_targets": rotation_targets,
                                    "retires_when": f"{ticker} RSI14 falls below {RSI_OVERBOUGHT_EXIT:g} "
                                                    "or it is no longer up on the month",
                                    "reasons": reasons, "blockers": blockers})
