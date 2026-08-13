@@ -1937,6 +1937,19 @@
       "opened": "2026-08-13",
       "owner": "smith_math.py cmd_triggers (cluster_tension blocker text)",
       "description": "The overbought_distribution cluster_tension blocker tells the reader to 'prefer an intra-cluster rotation: sell this extended name, buy a lagging one in the same cluster' -- but it never checks whether such a laggard EXISTS. Found live 2026-08-13 on MSFT: Compute/Hyperscaler is -10.40pt under floor, yet all three members (MSFT +24.0pp, AMZN +8.28pp, ORCL +16.74pp relative strength) are stretched, so the recommended remedy has no target. The advice should either name an eligible intra-cluster laggard or state that none exists and the choice is trim-anyway vs leave-it. Cosmetic in impact but it sends the reader looking for a trade that is not there."
+    },
+    {
+      "id": "G64",
+      "opened": "2026-08-13",
+      "owner": "trades.json / stops_analysis.json",
+      "description": "Several 2026-07-27 stop-loss FILL PRICES in trades.json (and therefore in stops_analysis.json, which reads them) are WRONG -- they were reconstructed from qty-diffs before the email backfill and never corrected. Email-confirmed truth: NVDA was TWO sells, 7sh @ $201.01 and 5sh @ $197.51 (12sh, weighted $199.55), recorded as one fill of 12sh @ $196.51, off $3.04/sh. GEV $973.57 recorded as $996.57, off $23.00. LRCX $295.74 recorded as $291.61, off $4.13. EWY $161.99 recorded as $161.20. Net effect: stops_analysis overstated foregone upside by ~$402 ($2,001 vs a corrected $1,599). Fix by re-running the 2.9b email backfill over 2026-07-27..07-29 and correcting those rows, then re-running the stops subcommand.",
+      "impact": "material -- it biased the headline stop-loss verdict"
+    },
+    {
+      "id": "G65",
+      "opened": "2026-08-13",
+      "owner": "smith-tax / trades.json",
+      "description": "Order Type unknown for the ARM and DRAM sells of 2026-08-03 (trades.json reason UNCAPTURED; the email snippets truncated before the Order Type field). The ASML sale the same minute IS email-confirmed 'Order Type: stop'. Both were classified NON-stop for the 2026-08-13 net impact analysis; if either was in fact a stop, the stop-attributable figures shift slightly. Resolve with one get_thread call per message."
     }
   ],
   "sentiment": {
