@@ -839,25 +839,36 @@
       "outcome_30d_pct": null,
       "days_old": 0,
       "verdict": "open"
+    },
+    {
+      "date": "2026-08-13",
+      "ticker": "NBIS",
+      "bucket": "MOMENTUM+VOLUME",
+      "price_at_flag": 259.2,
+      "analyst_target": null,
+      "day_atr_mult": 2.66,
+      "rel_sigma": null,
+      "normalized": true
     }
   ],
   "bucket_hit_rates": {
     "MOMENTUM+VOLUME": {
-      "n": 1,
-      "hit_rate_pct": 100.0
+      "n": 5,
+      "hit_rate_pct": 60.0
     },
     "OVERSOLD BOUNCE": {
       "n": 1,
       "hit_rate_pct": 100.0
     },
     "TARGET GAP": {
-      "n": 5,
-      "hit_rate_pct": 40.0
+      "n": 6,
+      "hit_rate_pct": 50.0
     }
   },
   "name_bucket_grades": {
     "NVDA": {
-      "MOMENTUM+VOLUME": "ungraded"
+      "MOMENTUM+VOLUME": "ungraded",
+      "TARGET GAP": "ungraded"
     },
     "NOW": {
       "OVERSOLD BOUNCE": "ungraded"
@@ -872,7 +883,8 @@
       "EARNINGS PROXIMITY": "ungraded"
     },
     "MU": {
-      "TARGET GAP": "ungraded"
+      "TARGET GAP": "ungraded",
+      "MOMENTUM+VOLUME": "ungraded"
     },
     "AVGO": {
       "TARGET GAP": "ungraded"
@@ -884,24 +896,34 @@
       "TARGET GAP": "ungraded"
     },
     "TER": {
-      "TARGET GAP": "ungraded"
+      "TARGET GAP": "ungraded",
+      "MOMENTUM+VOLUME": "ungraded"
+    },
+    "LRCX": {
+      "EARNINGS PROXIMITY": "ungraded"
+    },
+    "SNDK": {
+      "MOMENTUM+VOLUME": "ungraded"
+    },
+    "NBIS": {
+      "MOMENTUM+VOLUME": "ungraded"
     }
   },
   "note": "Still building toward 30d hit-rate scoring; no bucket has >=3 scored entries yet (2026-07-31).",
   "bucket_hit_rates_7d": {
     "MOMENTUM+VOLUME": {
-      "n": 14,
-      "hit_rate_pct": 57.1,
+      "n": 15,
+      "hit_rate_pct": 60.0,
       "interim": true
     },
     "OVERSOLD BOUNCE": {
-      "n": 4,
+      "n": 5,
       "hit_rate_pct": 100.0,
       "interim": true
     },
     "TARGET GAP": {
-      "n": 17,
-      "hit_rate_pct": 64.7,
+      "n": 16,
+      "hit_rate_pct": 68.8,
       "interim": true
     }
   }

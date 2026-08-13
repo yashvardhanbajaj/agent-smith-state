@@ -1051,6 +1051,15 @@
       "price_at_trade": 591.18,
       "reason": "stop-loss",
       "notes": "Email-confirmed: INDmoney SELL 2026-08-12T13:54:14Z, $591.18/1sh. A standing META stop order shows 'is cancelled' 1s later (13:54:15Z) -- excluded per the cancelled-order rule; user confirms this sell was the stop discipline. User rationale captured interactively: stop-loss."
+    },
+    {
+      "date": "2026-08-12",
+      "ticker": "META",
+      "action": "exit",
+      "qty_diff": -2,
+      "price_at_trade": 581.83,
+      "reason": "raise-cash",
+      "notes": "Email-confirmed: INDmoney SELL 2026-08-12T15:40:05Z, $1163.67/2sh, Price $581.83. FULL EXIT. A standing stop order shows 'cancelled' at 15:39:49Z, 16s prior -- same signature as the earlier 13:54 META sale, so the email alone could not distinguish a stop firing from a manual sale. User confirmed interactively: RAISE CASH, not a stop and not a thesis change. META's thesis therefore REMAINS INTACT (upgraded WATCH->INTACT earlier the same day); the position was closed for liquidity, not conviction."
     }
   ],
   "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'dca-into-diversification'|'re-entry-after-stop'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out. | 2026-08-03: 'dca-into-diversification' and 're-entry-after-stop' promoted to standing buy-side reasons (see G45) after both recurred via 'Other' the same day \u2014 a same-day MU stop-loss/rebuy whipsaw pair (re-entry-after-stop) and a five-ticker weekend diversification buy the user confirmed as DCA into diversification. Buy-side step 1 changed shape from a yes/no to a 4-option question (DCA / DCA-into-diversification / Re-entry-after-stop / Something else) to keep 3 buy-relevant reasons within the cap; sell-side step 1 is unchanged."

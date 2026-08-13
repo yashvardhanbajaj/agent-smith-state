@@ -1,0 +1,116 @@
+{
+ "policy_draft": null,
+ "proposals": [
+  {
+   "action": "TRIM",
+   "ticker": "MSFT",
+   "size_usd": 370,
+   "price_at_proposal": 492.43,
+   "rationale": "RSI14 78.8, +3.35sigma peer-relative (most extended in book), +24.7% 1m -- protect real unrealised gain. Standalone: no intra-cluster laggard exists to rotate into (checked MSFT/AMZN/ORCL, all stretched); cluster tension noted, not cited as support for the trim, per G56.",
+   "trigger_type": "overbought_distribution",
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 2,
+    "unverified": 1
+   }
+  },
+  {
+   "action": "TRIM",
+   "ticker": "NBIS",
+   "size_usd": 710,
+   "price_at_proposal": 259.2,
+   "rationale": "Integrated recommendation: 1.846x ATR cap (largest excess after SKHY, -$712.55 headroom deficit) sized to fully cure the cap AND clears scale_out_ladder rung 1 ($518.40 suggested) in one action instead of two.",
+   "trigger_type": "scale_out_ladder",
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 2,
+    "unverified": 1
+   }
+  },
+  {
+   "action": "STOP_RAISE",
+   "ticker": "NBIS",
+   "size_usd": 0,
+   "price_at_proposal": 259.2,
+   "rationale": "Raise stop 192.74 -> 196.01 (breakeven+). Ratchet only, never tightened. Most of this ratchet already self-executed via the ATR trail -- only $19.61 of gain remains at risk pre-trim, effectively none post-trim. Supersedes P-080.",
+   "trigger_type": "profit_ratchet",
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 2,
+    "unverified": 0
+   }
+  },
+  {
+   "action": "TRIM",
+   "ticker": "DRAM",
+   "size_usd": 500,
+   "price_at_proposal": 54.8,
+   "rationale": "1.479x ATR cap, laggard on 1m relative strength (-8.0pp vs SMH) despite a fresh 52wk high off a weak base. Partial cure (94%) resolves breakout-vs-cap tension without fighting the still-running Korea memory tailwind. Pure risk-cap trim, no profit/rotation trigger -- deliberately secondary this run.",
+   "trigger_type": null,
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 3,
+    "unverified": 1
+   }
+  },
+  {
+   "action": "BUY",
+   "ticker": "VRT",
+   "size_usd": 600,
+   "price_at_proposal": 296.67,
+   "rationale": "Re-entry, resized down from $850 -- price ran +5.3% since last priced ($281.81->$296.67). Fills AI Power/Cooling -10.16pt underweight, second-deepest hole in the book. Funded from trim proceeds, not the wallet.",
+   "trigger_type": null,
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 2,
+    "unverified": 1
+   }
+  },
+  {
+   "action": "BUY",
+   "ticker": "CEG",
+   "size_usd": 450,
+   "price_at_proposal": 278.68,
+   "rationale": "TARGET GAP + REVERSAL-BUY WATCH, $2,467.56 headroom (most room of any name in the cluster), fills the same -10.16pt Power/Cooling hole as VRT/GEV. Sized modestly given an open, unresolved leverage-concern thesis WATCH flag from a prior run.",
+   "trigger_type": null,
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 3,
+    "unverified": 1
+   }
+  }
+ ],
+ "proposal_outcomes": [],
+ "scorecard": {
+  "trim_accuracy_30d": null,
+  "add_accuracy_30d": null,
+  "overall_accuracy_30d": null
+ },
+ "deemphasize_buckets": [],
+ "data_quality": [
+  "DRAM/SKHY 52wk_low=0 (data gap) inflates range-position stat to 1.0 -- BREAKOUT call unaffected, rests on live>=52wk_high independently",
+  "NBIS/SNDK analyst_forecast empty -- TARGET GAP not computable for either this run",
+  "CIEN G61 resolved per catalyst (Lumentum FQ4 beat read-through) -- signals' 'still unresolved' flag is stale within this same run",
+  "CEG leverage-concern thesis WATCH open/pending from a prior run, not re-investigated this sweep -- CEG buy sized modestly for this reason",
+  "lots.json populated (42 tickers) -- checked MSFT/BX/NBIS/MRVL, all lots <5 weeks old, none within 6 months of the 24-month LTCG boundary; not a live constraint this run",
+  "proposal_outcomes/scorecard intentionally empty -- this is a quick sweep, not deep-mode or monthly; task 6 is deep/monthly-gated"
+ ]
+}
