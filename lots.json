@@ -1,454 +1,454 @@
 {
- "schema_version": 1,
- "_note": "Backfilled 2026-07-31 from INDmoney transaction-confirmation emails (transactions@transactions.indmoney.com), full history 2025-04-30 through 2026-07-30 pulled via Gmail search_threads + get_thread. FIFO applied per ticker. Many positions were fully flattened by a stop-out/full-exit event during this window (07-24 mass stop-out, 07-27 stop-out #2, or an earlier round-trip) -- for those tickers every lot dated on/after the flattening event is exact and FULL coverage is achieved without needing to trace further back, since anything before a full flatten is economically irrelevant (already sold). Tickers that were only ever TRIMMED (never fully flattened) within the reconstructed window carry a residual synthetic lot dated null (qty = current holdings minus the reconstructed recent lots) per the 'never fabricate a date/price' rule. See runs/2026-07-31-1302/lots_backfill_report.md for the full methodology, per-ticker FULL/PARTIAL classification, and ambiguous name-match notes. GOOG (Class C, closed 2026-07-28 in the GOOGL swap) is kept as a separate array from GOOGL per the task's tax-treatment caution -- the swap may be a taxable exit+entry rather than a like-kind transfer; this is NOT resolved here, flagged for the user/CPA. | REBUILT FROM SCRATCH 2026-08-13 by SMITH-LEDGER. FIFO re-run over the complete corrected chronological history rather than patched in place. Openings at 2026-07-27 for CLS, AVGO, DRAM, GEV and ORCL are now reconstructed from their full INDmoney confirmation chains back to the last zero-crossing, which ELIMINATES their null-date synthetic plugs (CLS 3.003, AVGO 2.000, DRAM 5.000, GEV 0.395, ORCL 4.000 -- all five previously blocked LTCG computation). Only dust plugs remain: AMAT 0.0091785, QCOM 0.000761904, ASML 0.000001151. The phantom GOOG lot of 8.441sh has been removed -- GOOG (Class C) was sold down on 2026-07-23 and never re-bought; the 2026-07-28 purchase was GOOGL (Class A), which was itself fully exited by 2026-08-11. sum(lots)==holdings verified for all 31 held tickers.",
- "AMAT": [
-  {
-   "qty": 0.009178499999999978,
-   "price_usd": null,
-   "date": null,
-   "price_source": "unknown",
-   "note": "predates available email history, real date and price unknown"
-  },
-  {
-   "qty": 0.999,
-   "price_usd": 473.79,
-   "date": "2026-07-28",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 1,
-   "price_usd": 548.24,
-   "date": "2026-08-12",
-   "price_source": "email_confirmed"
-  }
- ],
- "AMD": [
-  {
-   "qty": 2,
-   "price_usd": 491.12,
-   "date": "2026-08-12",
-   "price_source": "email_confirmed"
-  }
- ],
- "AMZN": [
-  {
-   "qty": 2,
-   "price_usd": 271.77,
-   "date": "2026-07-31",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 2,
-   "price_usd": 271.96,
-   "date": "2026-08-06",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 1,
-   "price_usd": 270.1,
-   "date": "2026-08-12",
-   "price_source": "email_confirmed"
-  }
- ],
- "ARM": [
-  {
-   "qty": 3,
-   "price_usd": 282.65,
-   "date": "2026-08-07",
-   "price_source": "email_confirmed"
-  }
- ],
- "ASML": [
-  {
-   "qty": 1.1509999999770315e-06,
-   "price_usd": null,
-   "date": null,
-   "price_source": "unknown",
-   "note": "predates available email history, real date and price unknown"
-  },
-  {
-   "qty": 1,
-   "price_usd": 1569.01,
-   "date": "2026-07-28",
-   "price_source": "email_confirmed"
-  }
- ],
- "AVGO": [
-  {
-   "qty": 2,
-   "price_usd": 375.5,
-   "date": "2026-07-28",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 2,
-   "price_usd": 421.73,
-   "date": "2026-08-12",
-   "price_source": "email_confirmed"
-  }
- ],
- "BABA": [
-  {
-   "qty": 2,
-   "price_usd": 130.71,
-   "date": "2026-08-10",
-   "price_source": "email_confirmed"
-  }
- ],
- "BX": [
-  {
-   "qty": 5,
-   "price_usd": 139.38,
-   "date": "2026-08-10",
-   "price_source": "email_confirmed"
-  }
- ],
- "CEG": [
-  {
-   "qty": 3,
-   "price_usd": 267.72,
-   "date": "2026-07-30",
-   "price_source": "email_confirmed"
-  }
- ],
- "CIEN": [
-  {
-   "qty": 0.008528082000000103,
-   "price_usd": 339.51,
-   "date": "2026-07-28",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 2,
-   "price_usd": 426.34,
-   "date": "2026-08-12",
-   "price_source": "email_confirmed"
-  }
- ],
- "CLS": [
-  {
-   "qty": 0.003266352,
-   "price_usd": 330.24,
-   "date": "2026-07-15",
-   "price_source": "email_confirmed",
-   "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
-  },
-  {
-   "qty": 1,
-   "price_usd": 303.81,
-   "date": "2026-07-16",
-   "price_source": "email_confirmed",
-   "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
-  },
-  {
-   "qty": 2,
-   "price_usd": 293.34,
-   "date": "2026-07-17",
-   "price_source": "email_confirmed",
-   "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
-  },
-  {
-   "qty": 1,
-   "price_usd": 319.33,
-   "date": "2026-08-06",
-   "price_source": "email_confirmed"
-  }
- ],
- "COHR": [
-  {
-   "qty": 2,
-   "price_usd": 343.56,
-   "date": "2026-08-12",
-   "price_source": "email_confirmed"
-  }
- ],
- "DRAM": [
-  {
-   "qty": 5,
-   "price_usd": 54.31,
-   "date": "2026-07-16",
-   "price_source": "email_confirmed",
-   "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
-  },
-  {
-   "qty": 25,
-   "price_usd": 48.0,
-   "date": "2026-07-28",
-   "price_source": "email_confirmed"
-  }
- ],
- "FLTW": [
-  {
-   "qty": 10,
-   "price_usd": 98.8,
-   "date": "2026-08-10",
-   "price_source": "email_confirmed"
-  }
- ],
- "GEV": [
-  {
-   "qty": 0.0007819999999999494,
-   "price_usd": 1090.77,
-   "date": "2026-07-21",
-   "price_source": "email_confirmed",
-   "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
-  },
-  {
-   "qty": 0.394168742,
-   "price_usd": 1011.8,
-   "date": "2026-07-22",
-   "price_source": "email_confirmed",
-   "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
-  },
-  {
-   "qty": 0.61,
-   "price_usd": 936.5,
-   "date": "2026-07-28",
-   "price_source": "email_confirmed"
-  }
- ],
- "INTC": [
-  {
-   "qty": 5,
-   "price_usd": 101.56,
-   "date": "2026-08-07",
-   "price_source": "email_confirmed"
-  }
- ],
- "LRCX": [
-  {
-   "qty": 2,
-   "price_usd": 293.45,
-   "date": "2026-08-03",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 1,
-   "price_usd": 311.86,
-   "date": "2026-08-05",
-   "price_source": "email_confirmed"
-  }
- ],
- "MRVL": [
-  {
-   "qty": 3,
-   "price_usd": 174.75,
-   "date": "2026-07-28",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 2,
-   "price_usd": 175.59,
-   "date": "2026-07-29",
-   "price_source": "reconstructed"
-  },
-  {
-   "qty": 2,
-   "price_usd": 221.35,
-   "date": "2026-08-12",
-   "price_source": "email_confirmed"
-  }
- ],
- "MSFT": [
-  {
-   "qty": 2,
-   "price_usd": 495.97,
-   "date": "2026-08-06",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 1,
-   "price_usd": 509.86,
-   "date": "2026-08-10",
-   "price_source": "email_confirmed"
-  }
- ],
- "MU": [
-  {
-   "qty": 0.00036537599999997283,
-   "price_usd": 788.81,
-   "date": "2026-07-29",
-   "price_source": "reconstructed"
-  },
-  {
-   "qty": 1,
-   "price_usd": 850.79,
-   "date": "2026-07-31",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 1,
-   "price_usd": 849.49,
-   "date": "2026-07-31",
-   "price_source": "email_confirmed"
-  }
- ],
- "NBIS": [
-  {
-   "qty": 3,
-   "price_usd": 188.27,
-   "date": "2026-08-07",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 2,
-   "price_usd": 188.23,
-   "date": "2026-08-10",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 1,
-   "price_usd": 234.79,
-   "date": "2026-08-12",
-   "price_source": "email_confirmed"
-  }
- ],
- "NOW": [
-  {
-   "qty": 5,
-   "price_usd": 116.93,
-   "date": "2026-08-05",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 2,
-   "price_usd": 122.96,
-   "date": "2026-08-12",
-   "price_source": "email_confirmed"
-  }
- ],
- "NVDA": [
-  {
-   "qty": 10,
-   "price_usd": 197.51,
-   "date": "2026-07-28",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 5,
-   "price_usd": 193.48,
-   "date": "2026-07-30",
-   "price_source": "email_confirmed"
-  }
- ],
- "ORCL": [
-  {
-   "qty": 4,
-   "price_usd": 126.58,
-   "date": "2026-07-16",
-   "price_source": "email_confirmed",
-   "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
-  },
-  {
-   "qty": 2,
-   "price_usd": 140.58,
-   "date": "2026-08-04",
-   "price_source": "email_confirmed"
-  }
- ],
- "QCOM": [
-  {
-   "qty": 0.0007619040000008681,
-   "price_usd": null,
-   "date": null,
-   "price_source": "unknown",
-   "note": "predates available email history, real date and price unknown"
-  },
-  {
-   "qty": 3,
-   "price_usd": 163.51,
-   "date": "2026-07-29",
-   "price_source": "reconstructed"
-  },
-  {
-   "qty": 2,
-   "price_usd": 153.24,
-   "date": "2026-07-30",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 5,
-   "price_usd": 161.07,
-   "date": "2026-08-06",
-   "price_source": "email_confirmed"
-  }
- ],
- "SKHY": [
-  {
-   "qty": 1,
-   "price_usd": 143.02,
-   "date": "2026-08-06",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 10,
-   "price_usd": 138.07,
-   "date": "2026-08-07",
-   "price_source": "email_confirmed"
-  }
- ],
- "SNDK": [
-  {
-   "qty": 0.008131251000000006,
-   "price_usd": 1079.59,
-   "date": "2026-07-28",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 0.5,
-   "price_usd": 1212.38,
-   "date": "2026-08-07",
-   "price_source": "email_confirmed"
-  }
- ],
- "STM": [
-  {
-   "qty": 20,
-   "price_usd": 56.29,
-   "date": "2026-08-12",
-   "price_source": "email_confirmed"
-  }
- ],
- "TER": [
-  {
-   "qty": 0.0027301880000001333,
-   "price_usd": 329.32,
-   "date": "2026-07-29",
-   "price_source": "reconstructed"
-  },
-  {
-   "qty": 3,
-   "price_usd": 378.94,
-   "date": "2026-08-07",
-   "price_source": "email_confirmed"
-  }
- ],
- "TSM": [
-  {
-   "qty": 3,
-   "price_usd": 382.25,
-   "date": "2026-07-28",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 2,
-   "price_usd": 405.2,
-   "date": "2026-07-31",
-   "price_source": "email_confirmed"
-  },
-  {
-   "qty": 1,
-   "price_usd": 431.75,
-   "date": "2026-08-12",
-   "price_source": "email_confirmed"
-  }
- ],
- "TXN": [
-  {
-   "qty": 3,
-   "price_usd": 282.62,
-   "date": "2026-08-12",
-   "price_source": "email_confirmed"
-  }
- ]
+  "schema_version": 1,
+  "_note": "Backfilled 2026-07-31 from INDmoney transaction-confirmation emails (transactions@transactions.indmoney.com), full history 2025-04-30 through 2026-07-30 pulled via Gmail search_threads + get_thread. FIFO applied per ticker. Many positions were fully flattened by a stop-out/full-exit event during this window (07-24 mass stop-out, 07-27 stop-out #2, or an earlier round-trip) -- for those tickers every lot dated on/after the flattening event is exact and FULL coverage is achieved without needing to trace further back, since anything before a full flatten is economically irrelevant (already sold). Tickers that were only ever TRIMMED (never fully flattened) within the reconstructed window carry a residual synthetic lot dated null (qty = current holdings minus the reconstructed recent lots) per the 'never fabricate a date/price' rule. See runs/2026-07-31-1302/lots_backfill_report.md for the full methodology, per-ticker FULL/PARTIAL classification, and ambiguous name-match notes. GOOG (Class C, closed 2026-07-28 in the GOOGL swap) is kept as a separate array from GOOGL per the task's tax-treatment caution -- the swap may be a taxable exit+entry rather than a like-kind transfer; this is NOT resolved here, flagged for the user/CPA. | REBUILT FROM SCRATCH 2026-08-13 by SMITH-LEDGER. FIFO re-run over the complete corrected chronological history rather than patched in place. Openings at 2026-07-27 for CLS, AVGO, DRAM, GEV and ORCL are now reconstructed from their full INDmoney confirmation chains back to the last zero-crossing, which ELIMINATES their null-date synthetic plugs (CLS 3.003, AVGO 2.000, DRAM 5.000, GEV 0.395, ORCL 4.000 -- all five previously blocked LTCG computation). Only dust plugs remain: AMAT 0.0091785, QCOM 0.000761904, ASML 0.000001151. The phantom GOOG lot of 8.441sh has been removed -- GOOG (Class C) was sold down on 2026-07-23 and never re-bought; the 2026-07-28 purchase was GOOGL (Class A), which was itself fully exited by 2026-08-11. sum(lots)==holdings verified for all 31 held tickers.",
+  "AMAT": [
+    {
+      "qty": 0.009178499999999978,
+      "price_usd": null,
+      "date": null,
+      "price_source": "unknown",
+      "note": "predates available email history, real date and price unknown"
+    },
+    {
+      "qty": 0.999,
+      "price_usd": 473.79,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 548.24,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "AMD": [
+    {
+      "qty": 2,
+      "price_usd": 491.12,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "AMZN": [
+    {
+      "qty": 2,
+      "price_usd": 271.77,
+      "date": "2026-07-31",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 271.96,
+      "date": "2026-08-06",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 270.1,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "ARM": [
+    {
+      "qty": 3,
+      "price_usd": 282.65,
+      "date": "2026-08-07",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "ASML": [
+    {
+      "qty": 1.1509999999770315e-06,
+      "price_usd": null,
+      "date": null,
+      "price_source": "unknown",
+      "note": "predates available email history, real date and price unknown"
+    },
+    {
+      "qty": 1,
+      "price_usd": 1569.01,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "AVGO": [
+    {
+      "qty": 2,
+      "price_usd": 375.5,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 421.73,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "BABA": [
+    {
+      "qty": 2,
+      "price_usd": 130.71,
+      "date": "2026-08-10",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "BX": [
+    {
+      "qty": 5,
+      "price_usd": 139.38,
+      "date": "2026-08-10",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "CEG": [
+    {
+      "qty": 3,
+      "price_usd": 267.72,
+      "date": "2026-07-30",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "CIEN": [
+    {
+      "qty": 0.008528082000000103,
+      "price_usd": 339.51,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 426.34,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "CLS": [
+    {
+      "qty": 0.003266352,
+      "price_usd": 330.24,
+      "date": "2026-07-15",
+      "price_source": "email_confirmed",
+      "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
+    },
+    {
+      "qty": 1,
+      "price_usd": 303.81,
+      "date": "2026-07-16",
+      "price_source": "email_confirmed",
+      "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
+    },
+    {
+      "qty": 2,
+      "price_usd": 293.34,
+      "date": "2026-07-17",
+      "price_source": "email_confirmed",
+      "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
+    },
+    {
+      "qty": 1,
+      "price_usd": 319.33,
+      "date": "2026-08-06",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "COHR": [
+    {
+      "qty": 2,
+      "price_usd": 343.56,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "DRAM": [
+    {
+      "qty": 5,
+      "price_usd": 54.31,
+      "date": "2026-07-16",
+      "price_source": "email_confirmed",
+      "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
+    },
+    {
+      "qty": 25,
+      "price_usd": 48.0,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "FLTW": [
+    {
+      "qty": 10,
+      "price_usd": 98.8,
+      "date": "2026-08-10",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "GEV": [
+    {
+      "qty": 0.0007819999999999494,
+      "price_usd": 1090.77,
+      "date": "2026-07-21",
+      "price_source": "email_confirmed",
+      "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
+    },
+    {
+      "qty": 0.394168742,
+      "price_usd": 1011.8,
+      "date": "2026-07-22",
+      "price_source": "email_confirmed",
+      "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug"
+    },
+    {
+      "qty": 0.61,
+      "price_usd": 936.5,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "INTC": [
+    {
+      "qty": 5,
+      "price_usd": 101.56,
+      "date": "2026-08-07",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "LRCX": [
+    {
+      "qty": 2,
+      "price_usd": 293.45,
+      "date": "2026-08-03",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 311.86,
+      "date": "2026-08-05",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "MRVL": [
+    {
+      "qty": 3,
+      "price_usd": 174.75,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 175.59,
+      "date": "2026-07-29",
+      "price_source": "reconstructed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 221.35,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "MSFT": [
+    {
+      "qty": 2,
+      "price_usd": 495.97,
+      "date": "2026-08-06",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 509.86,
+      "date": "2026-08-10",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "MU": [
+    {
+      "qty": 0.00036537599999997283,
+      "price_usd": 788.81,
+      "date": "2026-07-29",
+      "price_source": "reconstructed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 850.79,
+      "date": "2026-07-31",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 849.49,
+      "date": "2026-07-31",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "NBIS": [
+    {
+      "qty": 3,
+      "price_usd": 188.27,
+      "date": "2026-08-07",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 188.23,
+      "date": "2026-08-10",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 234.79,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "NOW": [
+    {
+      "qty": 5,
+      "price_usd": 116.93,
+      "date": "2026-08-05",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 122.96,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "NVDA": [
+    {
+      "qty": 10,
+      "price_usd": 197.51,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 5,
+      "price_usd": 193.48,
+      "date": "2026-07-30",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "ORCL": [
+    {
+      "qty": 4,
+      "price_usd": 126.58,
+      "date": "2026-07-16",
+      "price_source": "email_confirmed",
+      "note": "reconstructed from the full INDmoney confirmation chain back to the last zero-crossing (SMITH-LEDGER 2026-08-13); replaces a null-date synthetic plug | VERIFIED 2026-08-13: the $233(06-04) vs $126.58(07-16) gap flagged by smith-ledger is NOT an unadjusted corporate action. yfinance reports ZERO splits for any ticker in 2026, and ORCL's weekly closes run continuously 225.78 -> 213.68 -> 184.13 -> 148.53 -> 140.27 -> 126.41 -> 114.99 with no gap. It is a real ~54% six-week decline. This basis is CORRECT and must not be split-adjusted."
+    },
+    {
+      "qty": 2,
+      "price_usd": 140.58,
+      "date": "2026-08-04",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "QCOM": [
+    {
+      "qty": 0.0007619040000008681,
+      "price_usd": null,
+      "date": null,
+      "price_source": "unknown",
+      "note": "predates available email history, real date and price unknown"
+    },
+    {
+      "qty": 3,
+      "price_usd": 163.51,
+      "date": "2026-07-29",
+      "price_source": "reconstructed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 153.24,
+      "date": "2026-07-30",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 5,
+      "price_usd": 161.07,
+      "date": "2026-08-06",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "SKHY": [
+    {
+      "qty": 1,
+      "price_usd": 143.02,
+      "date": "2026-08-06",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 10,
+      "price_usd": 138.07,
+      "date": "2026-08-07",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "SNDK": [
+    {
+      "qty": 0.008131251000000006,
+      "price_usd": 1079.59,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 0.5,
+      "price_usd": 1212.38,
+      "date": "2026-08-07",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "STM": [
+    {
+      "qty": 20,
+      "price_usd": 56.29,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "TER": [
+    {
+      "qty": 0.0027301880000001333,
+      "price_usd": 329.32,
+      "date": "2026-07-29",
+      "price_source": "reconstructed"
+    },
+    {
+      "qty": 3,
+      "price_usd": 378.94,
+      "date": "2026-08-07",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "TSM": [
+    {
+      "qty": 3,
+      "price_usd": 382.25,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 405.2,
+      "date": "2026-07-31",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 431.75,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "TXN": [
+    {
+      "qty": 3,
+      "price_usd": 282.62,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ]
 }

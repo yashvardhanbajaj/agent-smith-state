@@ -1976,7 +1976,17 @@
       "id": "G66",
       "opened": "2026-08-13",
       "owner": "smith-ledger",
-      "description": "Residual ledger work after the first smith-ledger run. (a) 21 sales still consume unknown-basis lots, so realised P&L on them is not computable -- JOB 3 priority 3 (full history back to 2025-04-30) was not attempted. (b) 13 rows remain price_source=reconstructed and are quarantined from P&L until confirmed. (c) ORCL's price history shows $233 on 2026-06-04 vs $126.58 on 2026-07-16 -- suggests an UNADJUSTED CORPORATE ACTION (split) never applied to the ledger; flagged by the agent, not resolved, and it would distort ORCL cost basis and any LTCG computation. (d) dust plugs remain for AMAT 0.0091785, QCOM 0.000761904, ASML 0.000001151 -- together under one share, harmless but not zero."
+      "description": "Residual ledger work after the first smith-ledger run. (a) 21 sales still consume unknown-basis lots, so realised P&L on them is not computable -- JOB 3 priority 3 (full history back to 2025-04-30) was not attempted. (b) 13 rows remain price_source=reconstructed and are quarantined from P&L until confirmed. (c) RESOLVED 2026-08-13 -- FALSE POSITIVE, no action taken and none should be. See orcl_corporate_action_check below. (d) dust plugs remain for AMAT 0.0091785, QCOM 0.000761904, ASML 0.000001151 -- together under one share, harmless but not zero.",
+      "orcl_corporate_action_check": {
+        "verdict": "no corporate action -- ledger is correct as-is",
+        "checked": "2026-08-13",
+        "evidence": [
+          "yfinance get_splits returned ZERO split events for any ticker, 2026-01-01..2026-08-13",
+          "ORCL weekly closes are continuous with no gap: 05-25 $225.78, 06-01 $213.68, 06-08 $184.13, 06-15 $184.29, 06-22 $148.53, 06-29 $140.27, 07-06 $140.64, 07-13 $126.41, 07-20 $114.99 -- a real ~54% decline over six weeks, not a one-day ratio jump",
+          "lots reconcile independently to the broker: 4sh @ $126.58 + 2sh @ $140.58 = $787.48 for 6sh ($131.25/sh) vs INDmoney's own invested figure of $787.57 ($131.26/sh) -- a 9-cent difference attributable to fees"
+        ],
+        "why_it_matters": "Had this been 'fixed' by applying a 2:1 adjustment, it would have HALVED a correct cost basis and corrupted both P&L and LTCG for the position. A suspected corporate action must be confirmed against split data and a continuous price series before any adjustment -- the price ratio alone is not evidence."
+      }
     }
   ],
   "sentiment": {
