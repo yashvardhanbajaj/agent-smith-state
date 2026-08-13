@@ -317,9 +317,11 @@
       "qty_change": 2,
       "price_at_trade": 425.03,
       "reason": "dollar-cost-averaging",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:08:52Z (21:38:52 IST): $852.61 for ~2.006 shares @ $425.03, Market order. Matches the strategist's AMD stage-in proposal from the 05:00 ET run, though the user's stated rationale was DCA rather than the proposal's specific sizing logic.",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:08:52Z (21:38:52 IST): $852.61 for 2 shares @ $425.03 (Shares field, full body confirmed), Market order. Matches the strategist's AMD stage-in proposal from the 05:00 ET run, though the user's stated rationale was DCA rather than the proposal's specific sizing logic. | SMITH-LEDGER 2026-08-13 run 2 (G66a): price_source promoted reconstructed -> email_confirmed, get_thread confirms Order Type: Market, qty was already correct (2sh, not the ~2.006 the notes had guessed).",
       "fill_time_utc": "2026-07-29T16:08:52Z",
-      "price_source": "reconstructed"
+      "order_type": "Market",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-29",
@@ -328,9 +330,11 @@
       "qty_change": 2,
       "price_at_trade": 228.4,
       "reason": "dollar-cost-averaging",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:22:09Z (21:52:09 IST): $458.17 for 2 shares @ $228.40, Market order. Now 1.24x over its ATR risk cap post-add.",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:22:09Z (21:52:09 IST): $458.17 for 2 shares @ $228.40, Market order. Now 1.24x over its ATR risk cap post-add. | SMITH-LEDGER 2026-08-13 run 2 (G66a): price_source promoted reconstructed -> email_confirmed via get_thread full body, Order Type: Market.",
       "fill_time_utc": "2026-07-29T16:22:09Z",
-      "price_source": "reconstructed"
+      "order_type": "Market",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-29",
@@ -339,9 +343,11 @@
       "qty_change": 3,
       "price_at_trade": 175.0,
       "reason": "re-entry-after-price-correction",
-      "notes": "Brand new position, first-ever BE holding in this book -- not caught by qty-diff detection since the fill (2026-07-29T18:02:22Z / 23:32:22 IST) postdated the 22:30 IST refresher's holdings snapshot; only surfaced via the INDmoney confirmation email, discovered when the user pointed Agent Smith at the inbox. Exact fill: $526.57 for 3 shares @ $175.00, Market order. User-confirmed rationale via TRADE RATIONALE CAPTURE (chosen via 'Other', not one of the 5 standard buckets): 're-enter asfter price correction' [sic] -- reading this as a deliberate re-entry into a name the user had been watching, now that its price corrected, not a stop-loss/DCA/thesis-change/raise-cash/rebalance in the standard sense. No sector_map/thesis/ATR/beta cache entry yet -- needs smith-thesis classification on the next full sweep (see G38).",
+      "notes": "Brand new position, first-ever BE holding in this book -- not caught by qty-diff detection since the fill (2026-07-29T18:02:22Z / 23:32:22 IST) postdated the 22:30 IST refresher's holdings snapshot; only surfaced via the INDmoney confirmation email, discovered when the user pointed Agent Smith at the inbox. Exact fill: $526.57 for 3 shares @ $175.00, Market order. User-confirmed rationale via TRADE RATIONALE CAPTURE (chosen via 'Other', not one of the 5 standard buckets): 're-enter asfter price correction' [sic] -- reading this as a deliberate re-entry into a name the user had been watching, now that its price corrected, not a stop-loss/DCA/thesis-change/raise-cash/rebalance in the standard sense. No sector_map/thesis/ATR/beta cache entry yet -- needs smith-thesis classification on the next full sweep (see G38). | SMITH-LEDGER 2026-08-13 run 2 (G66a): price_source promoted reconstructed -> email_confirmed via get_thread full body, Order Type: Market.",
       "fill_time_utc": "2026-07-29T18:02:22Z",
-      "price_source": "reconstructed"
+      "order_type": "Market",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-29",
@@ -350,9 +356,11 @@
       "qty_change": 5,
       "price_at_trade": 128.86,
       "reason": "re-entry-after-price-correction",
-      "notes": "Re-entered after the full stop-out exit on 2026-07-24 (10sh sold @ $151.90). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:50:14Z (2026-07-30T00:20:14 IST): $646.23 for 5 shares @ $128.86, Market order -- about 15% below the exit price. Discovered via the full email pull, not qty-diff (postdated all prior snapshots this session). User-confirmed rationale (chosen via 'Other'): 're-enter after correction'. No sector_map/thesis/ATR/beta cache entry -- needs smith-thesis classification (see G38).",
+      "notes": "Re-entered after the full stop-out exit on 2026-07-24 (10sh sold @ $151.90). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:50:14Z (2026-07-30T00:20:14 IST): $646.23 for 5 shares @ $128.86, Market order -- about 15% below the exit price. Discovered via the full email pull, not qty-diff (postdated all prior snapshots this session). User-confirmed rationale (chosen via 'Other'): 're-enter after correction'. No sector_map/thesis/ATR/beta cache entry -- needs smith-thesis classification (see G38). | SMITH-LEDGER 2026-08-13 run 2 (G66a): price_source promoted reconstructed -> email_confirmed via get_thread full body, Order Type: Market.",
       "fill_time_utc": "2026-07-29T18:50:14Z",
-      "price_source": "reconstructed"
+      "order_type": "Market",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-29",
@@ -361,9 +369,11 @@
       "qty_change": 2,
       "price_at_trade": 272.72,
       "reason": "new-entry",
-      "notes": "Brand new position, first-ever MKSI (MKS Instruments) holding in this book. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:54:23Z (2026-07-30T00:24:23 IST): $547.08 for 2 shares @ $272.72, Market order. User-confirmed rationale (chosen via 'Other'): 'new entry' -- distinct from the DCA/re-entry answers since this is a genuinely first-time position, not adding to or returning to anything. No sector_map/thesis/ATR/beta cache entry -- needs smith-thesis classification (see G38).",
+      "notes": "Brand new position, first-ever MKSI (MKS Instruments) holding in this book. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:54:23Z (2026-07-30T00:24:23 IST): $547.08 for 2 shares @ $272.72, Market order. User-confirmed rationale (chosen via 'Other'): 'new entry' -- distinct from the DCA/re-entry answers since this is a genuinely first-time position, not adding to or returning to anything. No sector_map/thesis/ATR/beta cache entry -- needs smith-thesis classification (see G38). | SMITH-LEDGER 2026-08-13 run 2 (G66a): price_source promoted reconstructed -> email_confirmed via get_thread full body, Order Type: Market.",
       "fill_time_utc": "2026-07-29T18:54:23Z",
-      "price_source": "reconstructed"
+      "order_type": "Market",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-29",
@@ -372,20 +382,24 @@
       "qty_change": 2,
       "price_at_trade": 175.59,
       "reason": "dollar-cost-averaging",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE: dollar-cost-averaging. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:54:58Z (2026-07-30T00:24:58 IST): $352.24 for 2 shares @ $175.59, Market order.",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE: dollar-cost-averaging. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:54:58Z (2026-07-30T00:24:58 IST): $352.24 for 2 shares @ $175.59, Market order. | SMITH-LEDGER 2026-08-13 run 2 (G66a): price_source promoted reconstructed -> email_confirmed via get_thread full body, Order Type: Market.",
       "fill_time_utc": "2026-07-29T18:54:58Z",
-      "price_source": "reconstructed"
+      "order_type": "Market",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-29",
       "ticker": "MU",
       "action": "add",
-      "qty_change": 1.003005,
+      "qty_change": 1,
       "price_at_trade": 788.81,
       "reason": "dollar-cost-averaging",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE: dollar-cost-averaging. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:55:10Z (2026-07-30T00:25:10 IST): $791.18 for ~1.003 shares @ $788.81, Market order.",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE: dollar-cost-averaging. Exact fill from transactions@transactions.indmoney.com, 2026-07-29T18:55:10Z (2026-07-30T00:25:10 IST): $791.18 for 1 share @ $788.81, Market order. | SMITH-LEDGER 2026-08-13 run 2 (G66a): QTY CORRECTED 1.003005 -> 1. The original entry derived qty as Amount/Price under the (wrong) assumption the Shares field was truncated in the snippet; get_thread on the full body shows Shares: 1 explicitly -- the $2.37 Amount-vs-Price*Shares gap ($791.18 vs $788.81) is a plausible fee, not a fractional share. Per HARD RULE 2 the email's own Shares field takes precedence over a derived qty. price_source promoted reconstructed -> email_confirmed, Order Type: Market.",
       "fill_time_utc": "2026-07-29T18:55:10Z",
-      "price_source": "reconstructed"
+      "order_type": "Market",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-29",
@@ -394,9 +408,11 @@
       "qty_change": 2,
       "price_at_trade": 147.07,
       "reason": "dollar-cost-averaging",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:19:50Z (21:49:50 IST): $295.03 for 2 shares @ $147.07, Market order. Now 1.24x over its ATR risk cap post-add.",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:19:50Z (21:49:50 IST): $295.03 for 2 shares @ $147.07, Market order. Now 1.24x over its ATR risk cap post-add. | SMITH-LEDGER 2026-08-13 run 2 (G66a): price_source promoted reconstructed -> email_confirmed via get_thread full body, Order Type: Market.",
       "fill_time_utc": "2026-07-29T16:19:50Z",
-      "price_source": "reconstructed"
+      "order_type": "Market",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-29",
@@ -405,9 +421,11 @@
       "qty_change": -6.0,
       "price_at_trade": 162.01,
       "reason": "stop-loss",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: stop-loss -- confirmed by the INDmoney confirmation email itself (Order Type: stop). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T13:30:36Z (19:00:36 IST): $972.06 for 6 shares @ $162.01. Left a 0.000762sh dust remainder. Funded part of the same-session ARM/TER/NBIS/VRT/AMD adds below.",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: stop-loss -- confirmed by the INDmoney confirmation email itself (Order Type: stop). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T13:30:36Z (19:00:36 IST): $972.06 for 6 shares @ $162.01. Left a 0.000762sh dust remainder. Funded part of the same-session ARM/TER/NBIS/VRT/AMD adds below. | SMITH-LEDGER 2026-08-13 run 2 (G66a): price_source promoted reconstructed -> email_confirmed (search_threads snippet already showed Order Type: stop and the amount/price/shares all reconcile exactly, no fee gap).",
       "fill_time_utc": "2026-07-29T13:30:36Z",
-      "price_source": "reconstructed"
+      "order_type": "stop",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-29",
@@ -416,8 +434,11 @@
       "qty_change": 3,
       "price_at_trade": 163.51,
       "reason": "re-entry",
-      "notes": "Bought back a few hours after the same-day stop-out (6sh sold 13:30:36Z @ $162.01, this fill 18:51:11Z / 2026-07-30T00:21:11 IST @ $163.51, essentially flat to the stop price). Net today: -6+3 = -3sh vs this morning's baseline. Exact fill: $492.00 for 3 shares, Market order. User-confirmed rationale (chosen via 'Other'): 're-enter' -- distinct from the GLW/BE 're-entry-after-price-correction' answers since this is a same-day re-entry after a stop, not a return to a name exited days/weeks earlier; kept as a separate reason string rather than merged, pending a decision on whether it deserves its own bucket.",
-      "price_source": "reconstructed"
+      "notes": "Bought back a few hours after the same-day stop-out (6sh sold 13:30:36Z @ $162.01, this fill 18:51:11Z / 2026-07-30T00:21:11 IST @ $163.51, essentially flat to the stop price). Net today: -6+3 = -3sh vs this morning's baseline. Exact fill: $492.00 for 3 shares, Market order. User-confirmed rationale (chosen via 'Other'): 're-enter' -- distinct from the GLW/BE 're-entry-after-price-correction' answers since this is a same-day re-entry after a stop, not a return to a name exited days/weeks earlier; kept as a separate reason string rather than merged, pending a decision on whether it deserves its own bucket. | SMITH-LEDGER 2026-08-13 run 2 (G66a): price_source promoted reconstructed -> email_confirmed via get_thread full body, Order Type: Market. fill_time_utc added (was previously missing).",
+      "fill_time_utc": "2026-07-29T18:51:11Z",
+      "order_type": "Market",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-29",
@@ -426,9 +447,11 @@
       "qty_change": 2,
       "price_at_trade": 329.32,
       "reason": "dollar-cost-averaging",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:06:48Z (21:36:48 IST): $660.62 for 2 shares @ $329.32, Market order. TER was one of the day's few gainers. Now 1.01x over its ATR risk cap post-add.",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:06:48Z (21:36:48 IST): $660.62 for 2 shares @ $329.32, Market order. TER was one of the day's few gainers. Now 1.01x over its ATR risk cap post-add. | SMITH-LEDGER 2026-08-13 run 2 (G66a): price_source promoted reconstructed -> email_confirmed via get_thread full body, Order Type: Market.",
       "fill_time_utc": "2026-07-29T16:06:48Z",
-      "price_source": "reconstructed"
+      "order_type": "Market",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-29",
@@ -437,9 +460,11 @@
       "qty_change": 2,
       "price_at_trade": 226.22,
       "reason": "dollar-cost-averaging",
-      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:24:20Z (21:54:20 IST): $453.78 for ~2.006 shares @ $226.22, Market order -- VRT fell 16.6% intraday this session, the book's worst mover by a wide margin; this fill landed mid-decline, not at the day's worst level. Now 1.09x over its ATR risk cap post-add.",
+      "notes": "User-confirmed via TRADE RATIONALE CAPTURE 2026-07-29: dollar-cost-averaging (chosen via 'Other', see G35). Exact fill from transactions@transactions.indmoney.com, 2026-07-29T16:24:20Z (21:54:20 IST): $453.78 for 2 shares @ $226.22 (Shares field, full body confirmed), Market order -- VRT fell 16.6% intraday this session, the book's worst mover by a wide margin; this fill landed mid-decline, not at the day's worst level. Now 1.09x over its ATR risk cap post-add. | SMITH-LEDGER 2026-08-13 run 2 (G66a): price_source promoted reconstructed -> email_confirmed via get_thread full body, Order Type: Market; qty was already correct (2sh, not the ~2.006 the notes had guessed).",
       "fill_time_utc": "2026-07-29T16:24:20Z",
-      "price_source": "reconstructed"
+      "order_type": "Market",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-30",
@@ -503,9 +528,11 @@
       "qty_change": -10,
       "price_at_trade": 35.99,
       "reason": "stop-loss",
-      "notes": "CONFIRMED via INDmoney email 2026-07-31T14:08:25Z: SELL order, order type 'stop', 10sh @ $35.99 = $359.90. Second full-exit event for IREN (first was 07-24 mass stop-out, position rebuilt to 10sh, now stopped out again). Objectively a stop-loss per order type field, not inferred.",
+      "notes": "CONFIRMED via INDmoney email 2026-07-31T14:08:25Z: SELL order, order type 'stop', 10sh @ $35.99 = $359.90. Second full-exit event for IREN (first was 07-24 mass stop-out, position rebuilt to 10sh, now stopped out again). Objectively a stop-loss per order type field, not inferred. | SMITH-LEDGER 2026-08-13 run 2 (G66a): price_source promoted reconstructed -> email_confirmed (search_threads snippet showed Order Type: stop and Amount=Price*Shares exactly, no fee gap; independently re-verified).",
       "fill_time_utc": "2026-07-31T14:08:25Z",
-      "price_source": "reconstructed"
+      "order_type": "stop",
+      "qty_source": "email_shares_field",
+      "price_source": "email_confirmed"
     },
     {
       "date": "2026-07-31",
