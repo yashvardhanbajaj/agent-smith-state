@@ -800,7 +800,31 @@
       "Intel Corporation Common Stock": "INTC",
       "Franklin FTSE Taiwan ETF": "FLTW",
       "Blackstone Inc.": "BX",
-      "Texas Instruments Incorporated Common Stock": "TXN"
+      "Texas Instruments Incorporated Common Stock": "TXN",
+      "Super Micro Computer, Inc.": "SMCI",
+      "Palantir Technologies Inc": "PLTR",
+      "Core Scientific Inc": "CORZ",
+      "Apple, Inc.": "AAPL",
+      "Penguin Solutions Inc": "PENG",
+      "Western Digital Corporation": "WDC",
+      "Rambus Inc.": "RMBS",
+      "Flex Lng Ltd": "FLNG",
+      "First Trust Natural Gas Etf": "FCG",
+      "Eli Lilly And Company": "LLY",
+      "First Solar Inc": "FSLR",
+      "Arista Networks": "ANET",
+      "Amphenol Corporation": "APH",
+      "CoreWeave, Inc. Class A Common Stock": "CRWV",
+      "CoreWeave Inc. Class A": "CRWV",
+      "Invesco China Technology ETF": "CQQQ",
+      "Dell Technologies Inc.": "DELL",
+      "Amkor Technology Inc": "AMKR",
+      "Amkor Technology Inc.": "AMKR",
+      "iShares MSCI Taiwan ETF": "EWT",
+      "Credo Technology Group Holding Ltd": "CRDO",
+      "Eaton Corporation plc": "ETN",
+      "iShares Asia 50 ETF": "AIA",
+      "Digital Realty Trust Inc.": "DLR"
     },
     "betas": {
       "AMAT": {
@@ -1488,6 +1512,9 @@
         "SKHY"
       ],
       "note": "Seeded 2026-08-12 to unblock the oversold_reversion / overbought_distribution triggers, which previously could not be computed at all -- OVERBOUGHT PULLBACK had fired once in 69 journal entries because the bucket was being assigned by eye. Refresh from the SAME daily bars ATR20 uses; there is no extra API cost when both are refreshed together."
+    },
+    "ticker_map_notes": {
+      "2026-08-13": "Added SMCI / PLTR / CORZ, all verified via yfinance symbol search (NMS common stock; for Core Scientific this means CORZ, deliberately NOT the CORZW warrants or CORZR/CORZZ variants). These are EXITED historical positions -- the ticker_map had been seeded from CURRENT holdings, so any name the user once held and fully sold was absent. That is why the 2025-2026 backfill agents had to quarantine 12 confirmations they had extracted perfectly: they were correctly refusing to infer a ticker from email subject text (TICKER INTEGRITY), and the map simply had no entry. Seeding the map from current holdings alone is the underlying defect; a historical pull will keep hitting it for every exited name. EXTENDED: window 1 (2025-04-30..07-31) quarantined 21 more rows across Apple -> AAPL and Penguin Solutions -> PENG (both NMS, verified via symbol search) on top of SMCI/PLTR/CORZ. Five exited names, 33 correctly-extracted confirmations held back solely for a missing map entry. This is now a measured systemic cost of seeding ticker_map from current holdings, not an anecdote. FURTHER EXTENDED by window 4 (2026-02..04), which quarantined 24 more rows across 8 names. Six now verified and added: WDC, RMBS, FLNG (NYQ), FCG (PCX ETF), LLY (NYQ), FSLR. Palantir was already added. 'Pure Storage, Inc.' (5 rows) is DELIBERATELY LEFT UNRESOLVED -- see known_gaps G67."
     }
   },
   "fomc_cache": {
@@ -1994,6 +2021,12 @@
         "baba_discrepancy": "BABA is the one ticker outside 0.2%: FIFO leaves 2sh @ $130.71 = $261.42 against a broker invested of $254.97 ($127.49/sh), a $6.45 / 2.5% gap. Not forced to match -- it most likely reflects INDmoney using AVERAGE cost where this ledger uses FIFO. Flagged, not papered over.",
         "run1_vs_run2": "Run 2 rebuilt lots.json by proper chronological FIFO instead of run 1's single-shot 'holdings minus net' subtraction, which had understated some plugs (ASML's read 0.0000012sh when it should be ~1.0sh) and overstated others. Run 2's method is sounder; run 1's ORCL price was nonetheless correct, and the residual check recovered it to 2 cents. Both facts held together."
       }
+    },
+    {
+      "id": "G67",
+      "opened": "2026-08-13",
+      "owner": "orchestrator / ticker_map",
+      "description": "'Pure Storage, Inc.' (5 confirmations in 2026-02..04, a fully-exited position) cannot be resolved to a ticker with the tools available. yfinance symbol search returns only European listings (6PU.DU/.MU/.SG/.HM) with no US primary, and both get_stock_price and get_stock_summary return 'Quote not found' for the obvious candidate PSTG -- which may mean the US line was delisted or acquired. I am confident the symbol is PSTG but confidence is not verification, and TICKER INTEGRITY exists precisely because an inferred symbol silently points at the wrong instrument (the 2026-07-13 MEM/DRAM incident). Those 5 rows therefore stay quarantined in window_4.json with full qty/price detail intact, recoverable by a map entry alone once the symbol is confirmed from an authoritative source -- an INDmoney holdings record, a broker statement, or the user simply telling us. Impact is limited: it is an exited name, so it affects historical realised P&L completeness, not any current position or the 31/31 quantity invariant."
     }
   ],
   "sentiment": {
