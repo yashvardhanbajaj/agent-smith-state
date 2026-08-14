@@ -1,0 +1,122 @@
+{
+  "window": {"since": "2025-08-01", "until": "2025-10-31"},
+  "trades": [
+    {
+      "ts_utc": "2025-08-21T15:20:43Z",
+      "date": "2025-08-21",
+      "ticker": "PLTR",
+      "side": "BUY",
+      "qty_change": 1,
+      "price_at_trade": 155.77,
+      "amount_usd": 156.22,
+      "order_type": "Market",
+      "reason": "UNCAPTURED",
+      "qty_source": "shares_field",
+      "price_source": "email_confirmed",
+      "message_id": "198cd37d461061e5",
+      "notes": "Cross-checked against prior run's prose record; exact match, no disagreement."
+    },
+    {
+      "ts_utc": "2025-08-21T15:21:30Z",
+      "date": "2025-08-21",
+      "ticker": "CORZ",
+      "side": "SELL",
+      "qty_change": -0.004813537,
+      "price_at_trade": 13.57,
+      "amount_usd": 0.07,
+      "order_type": "Market",
+      "reason": "UNCAPTURED",
+      "qty_source": "shares_field",
+      "price_source": "email_confirmed",
+      "message_id": "198cd388d6f3dd83",
+      "notes": "Cross-checked against prior run's prose record; exact match, no disagreement. Tiny fractional-share sell (dust)."
+    },
+    {
+      "ts_utc": "2025-09-15T19:49:51Z",
+      "date": "2025-09-15",
+      "ticker": "SMCI",
+      "side": "BUY",
+      "qty_change": 2,
+      "price_at_trade": 45.45,
+      "amount_usd": 91.16,
+      "order_type": "Market",
+      "reason": "UNCAPTURED",
+      "qty_source": "shares_field",
+      "price_source": "email_confirmed",
+      "message_id": "1994eed32f6b49e9",
+      "notes": "Cross-checked against prior run's prose record; exact match, no disagreement."
+    },
+    {
+      "ts_utc": "2025-10-10T18:00:20Z",
+      "date": "2025-10-10",
+      "ticker": "CORZ",
+      "side": "SELL",
+      "qty_change": -15,
+      "price_at_trade": 18.61,
+      "amount_usd": 279.17,
+      "order_type": "Market",
+      "reason": "UNCAPTURED",
+      "qty_source": "shares_field",
+      "price_source": "email_confirmed",
+      "message_id": "199cf47edb1dac83",
+      "notes": "Cross-checked against prior run's prose record; exact match, no disagreement."
+    }
+  ],
+  "coverage": {
+    "pages_fetched": 1,
+    "confirmations_seen": 23,
+    "target_confirmations_matched": 4,
+    "cancelled_excluded": 0,
+    "date_gaps": [],
+    "method_note": "search_threads query 'from:transactions.indmoney.com subject:(BUY OR SELL) after:2025/08/01 before:2025/11/01' pageSize=50 returned resultCountEstimate=23 and 23 threads in a single page (no nextPageToken) — full window covered in one pull, no overlapping-window pagination needed. All 4 target rows (CORZ x2, PLTR x1, SMCI x1) were present among the 23; the other 19 confirmations (MSFT, QCOM, NVDA, AMD, META, ASML, GOOGL) were left untouched per scope override, since they are already in the ledger."
+  },
+  "unresolved": [],
+  "data_quality": [
+    {
+      "ticker": "PLTR",
+      "ts_utc": "2025-08-21T15:20:43Z",
+      "check": "amount_vs_price_times_shares",
+      "computed": 155.77,
+      "reported_amount": 156.22,
+      "delta": 0.45,
+      "verdict": "within plausible fee tolerance, accepted"
+    },
+    {
+      "ticker": "CORZ",
+      "ts_utc": "2025-08-21T15:21:30Z",
+      "check": "amount_vs_price_times_shares",
+      "computed": 0.0653,
+      "reported_amount": 0.07,
+      "delta": 0.0047,
+      "verdict": "within rounding tolerance on a sub-cent fractional-share dust trade, accepted"
+    },
+    {
+      "ticker": "SMCI",
+      "ts_utc": "2025-09-15T19:49:51Z",
+      "check": "amount_vs_price_times_shares",
+      "computed": 90.90,
+      "reported_amount": 91.16,
+      "delta": 0.26,
+      "verdict": "within plausible fee tolerance, accepted"
+    },
+    {
+      "ticker": "CORZ",
+      "ts_utc": "2025-10-10T18:00:20Z",
+      "check": "amount_vs_price_times_shares",
+      "computed": 279.15,
+      "reported_amount": 279.17,
+      "delta": 0.02,
+      "verdict": "within plausible fee tolerance, accepted"
+    }
+  ],
+  "cross_check_vs_prior_prose": {
+    "note": "Orchestrator supplied prior run's prose-recorded values for these 4 rows as a sanity check. All four match exactly (timestamp, side, qty, price, amount, order type). No corrections needed.",
+    "matches": [
+      {"ticker": "PLTR", "ts_utc": "2025-08-21T15:20:43Z", "agreement": "exact"},
+      {"ticker": "CORZ", "ts_utc": "2025-08-21T15:21:30Z", "agreement": "exact"},
+      {"ticker": "SMCI", "ts_utc": "2025-09-15T19:49:51Z", "agreement": "exact"},
+      {"ticker": "CORZ", "ts_utc": "2025-10-10T18:00:20Z", "agreement": "exact"}
+    ]
+  },
+  "write_surface_note": "EXTRACTION-ONLY run per orchestrator override. trades.json and lots.json were NOT written or touched. This file is input for a later merge/write step run by the orchestrator (or a non-parallel ledger run) after all 5 parallel windows complete."
+}

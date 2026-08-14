@@ -2049,13 +2049,28 @@
       "id": "G69",
       "opened": "2026-08-13",
       "owner": "orchestrator (schema design)",
-      "description": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so they logged that the trades existed and discarded the numbers -- unrecoverable without a re-pull. Entirely an orchestrator design error, not an agent fault. All 24 securities involved are exited/never-held, so the 31/31 invariant, current cost basis and LTCG are unaffected; the loss is historical realised P&L on closed positions. FIX for any future fan-out: the quarantine schema MUST carry the full extracted payload (qty, price, amount, order_type) so a later map entry alone recovers the row."
+      "description": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so they logged that the trades existed and discarded the numbers -- unrecoverable without a re-pull. Entirely an orchestrator design error, not an agent fault. All 24 securities involved are exited/never-held, so the 31/31 invariant, current cost basis and LTCG are unaffected; the loss is historical realised P&L on closed positions. FIX for any future fan-out: the quarantine schema MUST carry the full extracted payload (qty, price, amount, order_type) so a later map entry alone recovers the row.",
+      "closed": "2026-08-13",
+      "closed_by": "recovery fan-out 2026-08-13",
+      "resolution": "CLOSED. All 116 rows recovered across 5 parallel windows, zero quarantined, zero corrections. The corrected `unresolved` schema (full payload: display_name, side, qty_change, price_at_trade, amount_usd, order_type) was never needed -- every security resolved once ticker_map had the 24 exited names. Ledger 677 -> 793 rows."
     },
     {
       "id": "G70",
       "opened": "2026-08-13",
       "owner": "orchestrator",
       "description": "Trade-time vs present-day ticker divergence. 'Pure Storage, Inc.' trades in Feb-Apr 2026 were executed around its February 2026 rename to Everpure and its move to ticker P, so the symbol in force AT TRADE TIME may have been PSTG while the same security is P today. ticker_map is a flat name->symbol dict with no effective-date dimension, so it cannot express this. Low impact right now (exited position, 5 rows, and a rename changes neither share count nor basis) but the pattern will recur -- SNDK's own separation from WDC is a live example in this book. If a renamed name is ever held again, the map needs an effective-date form."
+    },
+    {
+      "id": "G71",
+      "opened": "2026-08-13",
+      "owner": "orchestrator / smith-ledger",
+      "description": "SHARE-CLASS CONVERSIONS ARE INVISIBLE TO THE LEDGER. GOOG's FIFO runs NEGATIVE (-2.9919sh): it sold ~3 more shares than it ever bought, across a complete 13-row history whose first buy is the account's own first trade (2025-04-30). The cause is a GOOG->GOOGL share-class conversion -- already evidenced by the earlier finding that a row logged 'GOOG 8.441sh @ $325.79' was really GOOGL 8sh @ $327.45. A conversion moves shares between symbols WITHOUT generating a BUY/SELL confirmation, so an email-sourced ledger cannot see it and FIFO reports a phantom short. Note the sign: a conversion OUT produces a short (GOOG), a conversion IN would produce an over-count -- which is a candidate explanation for the G68 over-counts on QCOM/MSFT/AMD/MRVL, though unproven and not assumed. Any fix needs a conversion/corporate-action row type that FIFO understands, not another email pull -- the data is simply not in email."
+    },
+    {
+      "id": "G72",
+      "opened": "2026-08-13",
+      "owner": "orchestrator",
+      "description": "ORCHESTRATOR TOLD THE USER SOMETHING FALSE ABOUT A HOLDING. On 2026-08-12, asked to compare Lumentum (LITE) against Corning and Amphenol, I stated LITE was 'never actually held -- only a stray TARGET GAP signal tag, no thesis, no position history.' The recovered ledger shows LITE was traded 22 TIMES between 2026-05-15 and 2026-07-23, cycling in and out repeatedly and closing flat on 07-23 for a realised LOSS of $54.18 -- six days before the user asked about it. Root cause: I checked state.thesis and state.signal_history, which are seeded from CURRENT holdings, and treated their silence as proof of absence. It is the same structural blind spot as the ticker_map defect -- current-holdings-derived state cannot answer questions about exited positions. STANDING RULE: before asserting a name was never held, query trades.json, which is the only record of the full history. Absence from thesis/signal_history proves nothing."
     }
   ],
   "sentiment": {
@@ -2521,5 +2536,11 @@
     "stop_loss_rows": 94,
     "oldest_surviving_lot": "2026-06-22",
     "note": "Every currently-held share was bought within the last ~52 days despite the account being ~15.5 months old -- FIFO shows complete portfolio turnover, consistent with the measured tight-stop churn. LTCG is now computable but nothing qualifies: the oldest surviving lot reaches the 24-month boundary around 2028-06, not 2027-04."
+  },
+  "realised_pnl_closed_positions": {
+    "as_of": "2026-08-13",
+    "total_usd": 608.49,
+    "positions": 36,
+    "note": "First complete realised P&L on fully-exited names, computable only after the 116-row recovery. Best: GOOG +$334.46, WDC +$204.77, BE +$142.81. Worst: GLW -$249.02, SMCI -$197.09, META -$107.67, EWY -$96.48. GOOG's figure is partly pre-history basis and is distorted by the unrecorded GOOG->GOOGL conversion (G71) -- treat it as indicative."
   }
 }
