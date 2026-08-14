@@ -1639,8 +1639,9 @@
       "opened": "2026-07-27 (ad-hoc discovery)",
       "owner": "orchestrator -- needs a proper sweep to backfill the ledger gap",
       "status": "closed",
-      "closed": "2026-07-28",
-      "resolution": "CLOSED 2026-07-28: trades.json seeded with 12 entries covering the 07-24 event (reconstructed), the 07-27 stop-outs (with fills) and the 07-28 redeployment (exact fills). Forward capture mechanism was already in place; the historical hole is now filled and labelled."
+      "closed": "2026-08-13",
+      "resolution": "CLOSED 2026-08-13. The GLW -10 and IREN -25 stop fills of 2026-07-24 had no captured price and were excluded from all P&L. The targeted 07-24..07-27 pull recovered both from their confirmations. trades.json now has ZERO price-less rows across all 677.",
+      "closed_by": "smith-ledger run 3 + full backfill"
     },
     {
       "id": "G28",
@@ -2020,13 +2021,28 @@
         "still_open": "PURCHASE DATES for those 13 plug lots (41.93 shares) remain genuinely unknown, so LTCG/holding-period is still blocked -- ltcg_flags returns 0 and will keep doing so. Separately, 15 SALES consumed shares that have already left the book; their basis is not recoverable from a current-holdings constraint and still needs the historical pull. Realised P&L on those 15 stays incomplete.",
         "baba_discrepancy": "BABA is the one ticker outside 0.2%: FIFO leaves 2sh @ $130.71 = $261.42 against a broker invested of $254.97 ($127.49/sh), a $6.45 / 2.5% gap. Not forced to match -- it most likely reflects INDmoney using AVERAGE cost where this ledger uses FIFO. Flagged, not papered over.",
         "run1_vs_run2": "Run 2 rebuilt lots.json by proper chronological FIFO instead of run 1's single-shot 'holdings minus net' subtraction, which had understated some plugs (ASML's read 0.0000012sh when it should be ~1.0sh) and overstated others. Run 2's method is sounder; run 1's ORCL price was nonetheless correct, and the residual check recovered it to 2 cents. Both facts held together."
-      }
+      },
+      "closed": "2026-08-13",
+      "resolution": "LARGELY CLOSED 2026-08-13. (a) cost basis: every lot now carries a price AND a date -- zero lots lacking either, so the derived-from-broker plugs are superseded by confirmed fills. (b) quarantined rows: zero remain. (c) ORCL: false positive, closed earlier. (d) dust plugs: gone. RESIDUAL: 4 tickers still over-count against the broker -- QCOM +3.0, MSFT +1.5, AMD +0.0206, MRVL +0.0089 -- meaning sells missing from somewhere in 2025-04-30..2026-07-23. The exhaustive 07-24..07-27 pull proved they are NOT in that window. Tracked as G68.",
+      "closed_by": "smith-ledger run 3 + full backfill"
     },
     {
       "id": "G67",
       "opened": "2026-08-13",
       "owner": "orchestrator / ticker_map",
       "description": "'Pure Storage, Inc.' (5 confirmations in 2026-02..04, a fully-exited position) cannot be resolved to a ticker with the tools available. yfinance symbol search returns only European listings (6PU.DU/.MU/.SG/.HM) with no US primary, and both get_stock_price and get_stock_summary return 'Quote not found' for the obvious candidate PSTG -- which may mean the US line was delisted or acquired. I am confident the symbol is PSTG but confidence is not verification, and TICKER INTEGRITY exists precisely because an inferred symbol silently points at the wrong instrument (the 2026-07-13 MEM/DRAM incident). Those 5 rows therefore stay quarantined in window_4.json with full qty/price detail intact, recoverable by a map entry alone once the symbol is confirmed from an authoritative source -- an INDmoney holdings record, a broker statement, or the user simply telling us. Impact is limited: it is an exited name, so it affects historical realised P&L completeness, not any current position or the 31/31 quantity invariant."
+    },
+    {
+      "id": "G68",
+      "opened": "2026-08-13",
+      "owner": "smith-ledger",
+      "description": "Four tickers over-count against the broker after a from-scratch FIFO over the complete 677-row ledger: QCOM +3.0sh, MSFT +1.5sh, AMD +0.0206sh, MRVL +0.0089sh. FIFO holds MORE than the broker reports, so SELL confirmations are missing from 2025-04-30..2026-07-23. The exhaustive 2026-07-24..07-27 pull confirmed they are not in that window. MSFT's -1.5 and AMD's fractional residue both sit near fractional-share activity (MSFT shows +0.5396/+0.4003/-0.9399 fills), so a fractional-share program or a DRIP/corporate-action credit is a plausible cause that email confirmations may not cover at all. 27 of 31 tickers reconcile exactly. Not papered over: the affected lots keep an explicit residual rather than being force-matched."
+    },
+    {
+      "id": "G69",
+      "opened": "2026-08-13",
+      "owner": "orchestrator (schema design)",
+      "description": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so they logged that the trades existed and discarded the numbers -- unrecoverable without a re-pull. Entirely an orchestrator design error, not an agent fault. All 24 securities involved are exited/never-held, so the 31/31 invariant, current cost basis and LTCG are unaffected; the loss is historical realised P&L on closed positions. FIX for any future fan-out: the quarantine schema MUST carry the full extracted payload (qty, price, amount, order_type) so a later map entry alone recovers the row."
     }
   ],
   "sentiment": {
@@ -2480,5 +2496,17 @@
       "verified": "secondary"
     }
   ],
-  "ai_capex_pct": 92.67
+  "ai_capex_pct": 92.67,
+  "ledger_provenance": {
+    "as_of": "2026-08-13",
+    "rows": 677,
+    "span": "2025-04-30..2026-08-12",
+    "price_less_rows": 0,
+    "lots_missing_price": 0,
+    "lots_missing_date": 0,
+    "tickers_reconciling": "27/31",
+    "stop_loss_rows": 94,
+    "oldest_surviving_lot": "2026-06-22",
+    "note": "Every currently-held share was bought within the last ~52 days despite the account being ~15.5 months old -- FIFO shows complete portfolio turnover, consistent with the measured tight-stop churn. LTCG is now computable but nothing qualifies: the oldest surviving lot reaches the 24-month boundary around 2028-06, not 2027-04."
+  }
 }
