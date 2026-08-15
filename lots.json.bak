@@ -1,430 +1,456 @@
 {
   "schema_version": 1,
-  "_note": "Backfilled 2026-07-31 from INDmoney transaction-confirmation emails (transactions@transactions.indmoney.com), full history 2025-04-30 through 2026-07-30 pulled via Gmail search_threads + get_thread. FIFO applied per ticker. Many positions were fully flattened by a stop-out/full-exit event during this window (07-24 mass stop-out, 07-27 stop-out #2, or an earlier round-trip) -- for those tickers every lot dated on/after the flattening event is exact and FULL coverage is achieved without needing to trace further back, since anything before a full flatten is economically irrelevant (already sold). Tickers that were only ever TRIMMED (never fully flattened) within the reconstructed window carry a residual synthetic lot dated null (qty = current holdings minus the reconstructed recent lots) per the 'never fabricate a date/price' rule. See runs/2026-07-31-1302/lots_backfill_report.md for the full methodology, per-ticker FULL/PARTIAL classification, and ambiguous name-match notes. GOOG (Class C, closed 2026-07-28 in the GOOGL swap) is kept as a separate array from GOOGL per the task's tax-treatment caution -- the swap may be a taxable exit+entry rather than a like-kind transfer; this is NOT resolved here, flagged for the user/CPA.",
-  "GOOG": [
+  "AMAT": [
     {
-      "qty": 8.441,
-      "date": "2026-07-28",
-      "price_usd": 325.79,
-      "note": "Position fully closed same day (swapped to GOOGL). Carried forward unchanged from prior seed -- GOOG is not one of the 27 currently-held tickers so was out of scope for full re-verification this run."
-    }
-  ],
-  "NVDA": [
-    {
-      "qty": 10,
-      "date": "2026-07-28",
-      "price_usd": 197.51
+      "qty": 0.009179,
+      "price_usd": 565.25,
+      "date": "2026-07-15",
+      "price_source": "email_confirmed"
     },
     {
-      "qty": 5,
-      "date": "2026-07-30",
-      "price_usd": 193.48
-    }
-  ],
-  "GLW": [],
-  "NBIS": [
-    {
-      "qty": 3,
-      "date": "2026-08-07",
-      "price_usd": 188.27,
-      "note": "email-confirmed fill (INDmoney BUY confirmation 2026-08-07T20:01:44Z, $566.52/3sh, Limit). Re-entry, prior NBIS position fully exited earlier. Reason UNCAPTURED."
-    },
-    {
-      "qty": 2,
-      "date": "2026-08-10",
-      "price_usd": 188.23,
-      "note": "email-confirmed, Market. UNCAPTURED reason."
+      "qty": 0.999,
+      "price_usd": 473.79,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
     },
     {
       "qty": 1,
+      "price_usd": 548.24,
       "date": "2026-08-12",
-      "price_usd": 234.79,
-      "note": "email-confirmed fill"
-    }
-  ],
-  "BE": [],
-  "MKSI": [],
-  "CEG": [
-    {
-      "qty": 3,
-      "date": "2026-07-30",
-      "price_usd": 267.72,
-      "note": "Exact fill confirmed via email reconciliation 2026-07-31; corrects trades.json's 07-31 approximate $266.60 entry -- same trade, exact fill was $267.72 on 2026-07-30."
-    }
-  ],
-  "EWY": [],
-  "TSM": [
-    {
-      "qty": 3,
-      "date": "2026-07-28",
-      "price_usd": 382.25
-    },
-    {
-      "qty": 2,
-      "date": "2026-07-31",
-      "price_usd": 405.2,
-      "note": "Market order, confirmed via email 2026-07-31T19:08:34Z"
-    },
-    {
-      "qty": 1,
-      "date": "2026-08-12",
-      "price_usd": 431.75,
-      "note": "email-confirmed fill (per-share derived from amount/shares, Price truncated)"
-    }
-  ],
-  "ORCL": [
-    {
-      "qty": 4,
-      "date": "2026-07-16",
-      "price_usd": 126.58
-    },
-    {
-      "qty": 2,
-      "date": "2026-08-04",
-      "price_usd": 139.42,
-      "note": "approximate, not a confirmed fill -- live ext_hr quote at time of capture, DCA per user"
-    }
-  ],
-  "GOOGL": [],
-  "CIEN": [
-    {
-      "qty": 0.00852799999999998,
-      "date": "2026-07-28",
-      "price_usd": 339.51
-    },
-    {
-      "qty": 2,
-      "date": "2026-08-12",
-      "price_usd": 426.34,
-      "note": "email-confirmed fill"
-    }
-  ],
-  "ASML": [
-    {
-      "qty": 1,
-      "date": "2026-07-28",
-      "price_usd": 1569.01,
-      "note": "Corrects prior seed (0.111sh @1571.16, which did not match the actual confirmation email of 1 full share @1569.01)."
-    },
-    {
-      "qty": 1.151e-06,
-      "date": null,
-      "price_usd": null,
-      "note": "predates available email history, real date unknown"
-    }
-  ],
-  "MU": [
-    {
-      "qty": 0.0003653760000000483,
-      "date": "2026-07-29",
-      "price_usd": 788.81,
-      "note": "remainder after FIFO-consuming 1sh into the 07-31 10:25am ET stop-sell @ $824.87"
-    },
-    {
-      "qty": 1,
-      "date": "2026-07-31",
-      "price_usd": 850.79,
-      "note": "rebuy following 07-31 10:08am ET stop-sell @ $832 (whipsaw, tight-stop pattern)"
-    },
-    {
-      "qty": 1,
-      "date": "2026-07-31",
-      "price_usd": 849.49,
-      "note": "rebuy following 07-31 11:25am ET stop-sell @ $824.87 (2nd whipsaw same day)"
-    }
-  ],
-  "CLS": [
-    {
-      "qty": 3.003266352,
-      "date": null,
-      "price_usd": null,
-      "note": "predates available email history, real date unknown -- no CLS buy found after the 07-24 partial trim; the reconstructed email window never shows this position being fully re-established"
-    },
-    {
-      "qty": 1,
-      "date": "2026-08-06",
-      "price_usd": 319.33,
-      "note": "email-confirmed, Market. UNCAPTURED reason."
-    }
-  ],
-  "DRAM": [
-    {
-      "qty": 25,
-      "date": "2026-07-28",
-      "price_usd": 48.0
-    },
-    {
-      "qty": 5,
-      "date": null,
-      "price_usd": null,
-      "note": "predates available email history, real date unknown -- survivor of the 07-24 partial trim"
+      "price_source": "email_confirmed"
     }
   ],
   "AMD": [
     {
-      "qty": 2,
-      "date": "2026-08-12",
-      "price_usd": 491.12,
-      "note": "email-confirmed fill"
-    }
-  ],
-  "AVGO": [
-    {
-      "qty": 2,
-      "date": null,
-      "price_usd": null,
-      "note": "predates available email history, real date unknown"
-    },
-    {
-      "qty": 2,
-      "date": "2026-08-12",
-      "price_usd": 421.73,
-      "note": "email-confirmed fill"
-    }
-  ],
-  "GEV": [
-    {
-      "qty": 0.61,
-      "date": "2026-07-28",
-      "price_usd": 936.5
-    },
-    {
-      "qty": 0.394950742,
-      "date": null,
-      "price_usd": null,
-      "note": "predates available email history, real date unknown -- survivor of the 07-27 trim (1.395->0.395sh)"
-    }
-  ],
-  "VRT": [],
-  "AMAT": [
-    {
-      "qty": 0.999,
-      "date": "2026-07-28",
-      "price_usd": 473.79
-    },
-    {
-      "qty": 0.0091785,
-      "date": null,
-      "price_usd": null,
-      "note": "predates available email history, real date unknown (dust remainder)"
-    },
-    {
-      "qty": 1,
-      "date": "2026-08-12",
-      "price_usd": 548.24,
-      "note": "email-confirmed fill"
-    }
-  ],
-  "TER": [
-    {
-      "qty": 0.0027301879999999112,
-      "date": "2026-07-29",
-      "price_usd": 329.32
-    },
-    {
-      "qty": 3,
-      "date": "2026-08-07",
-      "price_usd": 378.94,
-      "note": "email-confirmed fill (INDmoney BUY confirmation 2026-08-07T19:55:10Z, $1140.24/3sh, Market). Reason UNCAPTURED."
-    }
-  ],
-  "SNDK": [
-    {
-      "qty": 0.008131251000000006,
-      "date": null,
-      "price_usd": null,
-      "note": "predates available email history, real date unknown"
-    },
-    {
-      "qty": 0.5,
-      "date": "2026-08-07",
-      "price_usd": 1212.38,
-      "note": "email-confirmed fill (INDmoney BUY confirmation 2026-08-07T19:55:40Z, $608.01/0.5sh, Market). Reason UNCAPTURED."
-    }
-  ],
-  "MRVL": [
-    {
-      "qty": 3,
-      "date": "2026-07-28",
-      "price_usd": 174.75
-    },
-    {
-      "qty": 2,
-      "date": "2026-07-29",
-      "price_usd": 175.59
-    },
-    {
-      "qty": 2,
-      "date": "2026-08-12",
-      "price_usd": 221.35,
-      "note": "email-confirmed fill"
-    }
-  ],
-  "QCOM": [
-    {
-      "qty": 0.000761904,
-      "date": null,
-      "price_usd": null,
-      "note": "predates available email history, real date unknown -- dust remainder surviving the 2026-07-29 stop-sell of 6sh @162.01, per trades.json"
-    },
-    {
-      "qty": 3,
-      "date": "2026-07-29",
-      "price_usd": 163.51
-    },
-    {
-      "qty": 2,
-      "date": "2026-07-30",
-      "price_usd": 153.24,
-      "note": "Exact fill confirmed via email reconciliation 2026-07-31; corrects trades.json's 07-31 approximate $153.15 entry -- same trade, exact fill was $153.24 on 2026-07-30."
-    },
-    {
-      "qty": 5,
+      "qty": 0.020631,
+      "price_usd": 495.39,
       "date": "2026-08-06",
-      "price_usd": 161.07,
-      "note": "email-confirmed fill, Market order. Reason UNCAPTURED -- discovered during dashboard engineering, not asked yet."
-    }
-  ],
-  "COHR": [
+      "price_source": "email_confirmed"
+    },
     {
       "qty": 2,
+      "price_usd": 491.12,
       "date": "2026-08-12",
-      "price_usd": 343.56,
-      "note": "email-confirmed fill"
-    }
-  ],
-  "ARM": [
-    {
-      "qty": 3,
-      "date": "2026-08-07",
-      "price_usd": 282.65,
-      "note": "email-confirmed fill (INDmoney BUY confirmation 2026-08-07T19:57:39Z, $850.50/3sh, Market). NEW POSITION. Reason UNCAPTURED."
+      "price_source": "email_confirmed"
     }
   ],
   "AMZN": [
     {
       "qty": 2,
-      "date": "2026-07-31",
       "price_usd": 271.77,
-      "note": "Market order, confirmed via email 2026-07-31T19:34:14Z"
+      "date": "2026-07-31",
+      "price_source": "email_confirmed"
     },
     {
       "qty": 2,
-      "date": "2026-08-06",
       "price_usd": 271.96,
-      "note": "email-confirmed, Market. UNCAPTURED reason."
+      "date": "2026-08-06",
+      "price_source": "email_confirmed"
     },
     {
       "qty": 1,
-      "date": "2026-08-12",
       "price_usd": 270.1,
-      "note": "email-confirmed fill"
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "ARM": [
+    {
+      "qty": 3,
+      "price_usd": 282.65,
+      "date": "2026-08-07",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "ASML": [
+    {
+      "qty": 1,
+      "price_usd": 1569.01,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "AVGO": [
+    {
+      "qty": 2.0,
+      "price_usd": 375.5,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 421.73,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
     }
   ],
   "BABA": [
     {
       "qty": 2,
-      "date": "2026-08-10",
       "price_usd": 130.71,
-      "note": "email-confirmed, Market. UNCAPTURED reason."
-    }
-  ],
-  "QBTS": [],
-  "LRCX": [
-    {
-      "qty": 2,
-      "date": "2026-08-03",
-      "price_usd": 293.45,
-      "note": "CORRECTED 2026-08-06 from an approximate 2026-08-04 @ $309.75 placeholder to the email-confirmed fill (INDmoney BUY confirmation 2026-08-03T14:57Z, $588.65 / 2sh)"
-    },
-    {
-      "qty": 1,
-      "date": "2026-08-05",
-      "price_usd": 311.86,
-      "note": "email-confirmed fill (INDmoney BUY confirmation 2026-08-05T17:38Z, $312.80 / 1sh)"
-    }
-  ],
-  "NOW": [
-    {
-      "qty": 5,
-      "date": "2026-08-05",
-      "price_usd": 116.93,
-      "note": "email-confirmed fill (INDmoney BUY confirmation 2026-08-05T18:35Z, $586.40 / 5sh, Market)"
-    },
-    {
-      "qty": 2,
-      "date": "2026-08-12",
-      "price_usd": 122.96,
-      "note": "email-confirmed fill"
-    }
-  ],
-  "MP": [],
-  "SKHY": [
-    {
-      "qty": 1,
-      "date": "2026-08-06",
-      "price_usd": 143.02,
-      "note": "email-confirmed, Market. UNCAPTURED reason."
-    },
-    {
-      "qty": 10,
-      "date": "2026-08-07",
-      "price_usd": 138.07,
-      "note": "email-confirmed fill (INDmoney BUY confirmation 2026-08-07T19:53:08Z, $1384.84/10sh, Market). Same-day re-buy after the 14:10 stop-loss (5sh @ $135) -- net position increased despite the stop. Reason UNCAPTURED."
-    }
-  ],
-  "MSFT": [
-    {
-      "qty": 2,
-      "date": "2026-08-06",
-      "price_usd": 495.97,
-      "note": "email-confirmed NEW POSITION, Market. UNCAPTURED reason."
-    },
-    {
-      "qty": 1,
       "date": "2026-08-10",
-      "price_usd": 509.86,
-      "note": "email-confirmed, Market. UNCAPTURED reason."
-    }
-  ],
-  "INTC": [
-    {
-      "qty": 5,
-      "date": "2026-08-07",
-      "price_usd": 101.56,
-      "note": "email-confirmed fill (INDmoney BUY confirmation 2026-08-07T20:04:05Z, $509.33/5sh, Limit). NEW POSITION, ticker resolved from 'Intel Corporation Common Stock' (well-known standard ticker). Reason UNCAPTURED."
-    }
-  ],
-  "FLTW": [
-    {
-      "qty": 10,
-      "date": "2026-08-10",
-      "price_usd": 98.8,
-      "note": "email-confirmed NEW POSITION, Market. UNCAPTURED reason."
+      "price_source": "email_confirmed"
     }
   ],
   "BX": [
     {
       "qty": 5,
-      "date": "2026-08-10",
       "price_usd": 139.38,
-      "note": "email-confirmed NEW POSITION, Market. UNCAPTURED reason."
+      "date": "2026-08-10",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "CEG": [
+    {
+      "qty": 3,
+      "price_usd": 267.72,
+      "date": "2026-07-30",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "CIEN": [
+    {
+      "qty": 0.008528,
+      "price_usd": 339.51,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 426.34,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "CLS": [
+    {
+      "qty": 0.003266,
+      "price_usd": 330.24,
+      "date": "2026-07-15",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1.0,
+      "price_usd": 303.81,
+      "date": "2026-07-16",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2.0,
+      "price_usd": 293.34,
+      "date": "2026-07-17",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 319.33,
+      "date": "2026-08-06",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "COHR": [
+    {
+      "qty": 2,
+      "price_usd": 343.56,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "DRAM": [
+    {
+      "qty": 5.0,
+      "price_usd": 54.31,
+      "date": "2026-07-16",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 25,
+      "price_usd": 48.0,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "FLTW": [
+    {
+      "qty": 10,
+      "price_usd": 98.8,
+      "date": "2026-08-10",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "GEV": [
+    {
+      "qty": 0.000782,
+      "price_usd": 1090.77,
+      "date": "2026-07-21",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 0.394169,
+      "price_usd": 1011.8,
+      "date": "2026-07-22",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 0.61,
+      "price_usd": 936.5,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "INTC": [
+    {
+      "qty": 5,
+      "price_usd": 101.56,
+      "date": "2026-08-07",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "LRCX": [
+    {
+      "qty": 2,
+      "price_usd": 293.45,
+      "date": "2026-08-03",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 311.86,
+      "date": "2026-08-05",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "MRVL": [
+    {
+      "qty": 0.008898,
+      "price_usd": 207.63,
+      "date": "2026-07-22",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 3,
+      "price_usd": 174.75,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 175.59,
+      "date": "2026-07-29",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 221.35,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "MSFT": [
+    {
+      "qty": 1.5,
+      "price_usd": 368.9,
+      "date": "2026-06-22",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 495.97,
+      "date": "2026-08-06",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 509.86,
+      "date": "2026-08-10",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "MU": [
+    {
+      "qty": 0.000366,
+      "price_usd": 788.81,
+      "date": "2026-07-29",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 850.79,
+      "date": "2026-07-31",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 849.49,
+      "date": "2026-07-31",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "NBIS": [
+    {
+      "qty": 3,
+      "price_usd": 188.27,
+      "date": "2026-08-07",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 188.23,
+      "date": "2026-08-10",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 234.79,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "NOW": [
+    {
+      "qty": 5,
+      "price_usd": 116.93,
+      "date": "2026-08-05",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 122.96,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "NVDA": [
+    {
+      "qty": 10,
+      "price_usd": 197.51,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 5,
+      "price_usd": 193.48,
+      "date": "2026-07-30",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "ORCL": [
+    {
+      "qty": 4.0,
+      "price_usd": 126.58,
+      "date": "2026-07-16",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 140.58,
+      "date": "2026-08-04",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "QCOM": [
+    {
+      "qty": 3.000762,
+      "price_usd": 172.11,
+      "date": "2026-07-21",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 3,
+      "price_usd": 163.51,
+      "date": "2026-07-29",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 153.24,
+      "date": "2026-07-30",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 5,
+      "price_usd": 161.07,
+      "date": "2026-08-06",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "SKHY": [
+    {
+      "qty": 1,
+      "price_usd": 143.02,
+      "date": "2026-08-06",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 10,
+      "price_usd": 138.07,
+      "date": "2026-08-07",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "SNDK": [
+    {
+      "qty": 0.008132,
+      "price_usd": 1079.59,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 0.5,
+      "price_usd": 1212.38,
+      "date": "2026-08-07",
+      "price_source": "email_confirmed"
     }
   ],
   "STM": [
     {
       "qty": 20,
-      "date": "2026-08-12",
       "price_usd": 56.29,
-      "note": "email-confirmed fill"
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "TER": [
+    {
+      "qty": 0.002731,
+      "price_usd": 329.32,
+      "date": "2026-07-29",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 3,
+      "price_usd": 378.94,
+      "date": "2026-08-07",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "TSM": [
+    {
+      "qty": 3,
+      "price_usd": 382.25,
+      "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 2,
+      "price_usd": 405.2,
+      "date": "2026-07-31",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 431.75,
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
     }
   ],
   "TXN": [
     {
       "qty": 3,
-      "date": "2026-08-12",
       "price_usd": 282.62,
-      "note": "email-confirmed fill"
+      "date": "2026-08-12",
+      "price_source": "email_confirmed"
     }
-  ]
+  ],
+  "_note": "REBUILT FROM SCRATCH 2026-08-13 (SMITH-LEDGER gap-fill run, output-3) by full chronological FIFO simulation over the COMPLETE trades.json (2025-04-30 to 2026-08-12, 677 rows -- the prior lots.json rebuild in run 2/G66b only used trades.json rows from 2026-07-24 onward and never saw the earlier 2025-04-30 to 2026-07-23 history, which had separately been backfilled into trades.json but never propagated into lots.json until now). This run additionally closed the 2026-07-24 gap: the day's mass stop-out event #1 was never actually email-pulled before (4 rows -- GLW, IREN, MULTI [bundling SNDK/DRAM/TSM/CLS/LRCX/MU/TER/CIEN with a null qty], NBIS -- were reconstructed/unpriced placeholders); all 12 real fills are now in trades.json, individually email-confirmed. Algorithm: for each ticker, compute the minimal front-loaded 'predates-history' plug required to keep the FIFO queue non-negative at every point in its full recorded history (required_initial = max(0, -min cumulative balance)); insert that plug as the oldest lot (reusing the existing derived-from-broker-invested cost basis where the required qty still matches one, otherwise an explicit price:null/date:null lot since no invested_amount figure is cached for that ticker in this session); then replay every trade chronologically, FIFO oldest-first. Where the resulting total still does not equal live holdings_qty after this minimal-but-honest plug, the gap is a genuine missing trade (most likely an un-pulled SELL) elsewhere in history -- NOT papered over; see invariant_check.mismatches in the accompanying report."
 }

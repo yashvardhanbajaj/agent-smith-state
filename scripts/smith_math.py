@@ -456,17 +456,65 @@ def cmd_book(args):
             qty_changes.append(entry)
 
     # load trade rationales from trades.json if present (FIXED 1.2: 2026-07-26)
+    #
+    # FIXED 2026-08-15 (found by smith-ledger). The prior implementation built a bare
+    # ticker -> reason map by LAST-WRITE-WINS over the entire trade history, with no date and
+    # no direction check:
+    #     for trade in trades: trade_reasons[trade["ticker"]] = trade["reason"]
+    # So any ticker whose newest fill was not yet recorded in trades.json inherited the reason
+    # of its most recent PRIOR, unrelated trade. On this run that stamped four positions
+    # OPENING from zero (IREN, VRT, BE, GLW) with "stop-loss" -- each name's previous exit --
+    # and labelled a genuine AMAT stop-loss sale "deploy-excess-cash". A position opening
+    # cannot be a stop-loss; the label was not merely stale, it was categorically impossible,
+    # and it fed the briefing and the strategist's context.
+    #
+    # Two guards now, both cheap:
+    #   1. DIRECTION must agree. A qty increase only accepts a buy-side row, a decrease only a
+    #      sell-side row. This alone kills the impossible-label class.
+    #   2. RECENCY. Only rows dated at/after the previous run's timestamp can explain a change
+    #      observed since that run. Older rows describe a different event.
+    # No match -> emit "UNMATCHED" rather than borrowing someone else's reason. An honest gap
+    # is recoverable; a confident wrong label is what actually did damage.
     trades = load_json(os.path.join(args.base_dir, "trades.json"), default={})
-    trade_reasons = {}  # ticker -> reason
-    for trade in trades.get("trades", []):
-        t = trade.get("ticker")
-        if t:
-            trade_reasons[t] = trade.get("reason", "UNCAPTURED")
+    prior_ts = _proposal_parse_date((state.get("ts") or "")[:10])
 
-    # attach trade rationale to qty_changes
+    def _sign_of(trade):
+        """+1 buy-side, -1 sell-side, 0 unknown. qty_change is authoritative; the action verb
+        is the fallback because action strings have drifted (add/entry/buy, trim/exit/sell)."""
+        q = trade.get("qty_change")
+        if isinstance(q, (int, float)) and q:
+            return 1 if q > 0 else -1
+        verb = str(trade.get("action", "")).strip().lower()
+        if verb.startswith(("buy", "add", "entry", "re-entry", "initiate")):
+            return 1
+        if verb.startswith(("sell", "trim", "exit", "reduce", "close")):
+            return -1
+        return 0
+
     for qc in qty_changes:
-        if qc["ticker"] in trade_reasons:
-            qc["trade_reason"] = trade_reasons[qc["ticker"]]
+        # Direction of the observed change. NOTE cmd_book's rows carry prior_qty/current_qty
+        # (cmd_attribution's carry qty_diff) -- derive from whichever is present rather than
+        # assuming one shape. Getting this wrong silently defaults every row to "sell", which
+        # is how the first cut of this fix still mislabelled six buys as UNMATCHED.
+        if qc.get("qty_diff") is not None:
+            delta = qc["qty_diff"]
+        else:
+            delta = (qc.get("current_qty") or 0) - (qc.get("prior_qty") or 0)
+        want = 1 if delta > 0 else -1
+        best, best_d = None, None
+        for trade in trades.get("trades", []):
+            if trade.get("ticker") != qc["ticker"]:
+                continue
+            if _sign_of(trade) != want:
+                continue
+            d = _proposal_parse_date(trade.get("date", ""))
+            if prior_ts and d and d < prior_ts:
+                continue  # predates this window -- describes a different event
+            if best_d is None or (d and d >= best_d):
+                best, best_d = trade, d
+        qc["trade_reason"] = (best.get("reason", "UNCAPTURED") if best else "UNMATCHED")
+        if best_d:
+            qc["trade_reason_date"] = str(best_d)
 
     data_quality = []
     if not recon["persist_safe"]:

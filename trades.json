@@ -10885,7 +10885,117 @@
       "notes": "Email-confirmed: INDmoney BUY 2026-08-12T14:27:20Z, $850.39/3sh, Price $282.62. NEW POSITION (Texas Instruments, analog/industrial semi). User rationale captured interactively: deploying the excess cash (22.5% wallet vs a [5,15]% band). | SCHEMA FIX 2026-08-13: field was written as `qty_diff` by the orchestrator's own capture; canonical name is `qty_change` (what cmd_stops and smith_dashboard read). Until this fix the row contributed qty=0 to every dollar figure.",
       "price_source": "email_confirmed",
       "qty_change": 3
+    },
+    {
+      "date": "2026-08-13",
+      "ticker": "IREN",
+      "action": "entry",
+      "price_at_trade": 46.38,
+      "reason": "UNCAPTURED",
+      "order_type": "Market",
+      "notes": "Email-confirmed: INDmoney BUY 2026-08-13T15:26:47Z, $465.22/10sh, Price $46.38, Order Type: Market. NEW POSITION (IREN Limited, opened from zero). Order Type is Market, not stop -- reason stays UNCAPTURED per Hard Rule 5 (a position OPENING cannot be a stop-loss; runtime label was wrongly 'stop-loss', see bug note). SMITH-LEDGER 2026-08-15: this fill was ABSENT from trades.json prior to this run. cmd_book's reason-attachment in scripts/smith_math.py (~L458-469) builds a ticker->reason dict by iterating trades.json in list order with plain overwrite (last row per ticker wins) and attaches that single reason to EVERY qty_change row for the ticker, with no date or direction check against the actual change being reported. With this fill missing, the stale reason from the ticker's PRIOR (unrelated) trade leaked onto this position change in runs/2026-08-15-1809/compute_book.json. This is a code-level matching bug in smith_math.py, outside smith-ledger's write surface (trades.json/lots.json only) -- flagged for the orchestrator/dev to fix the matching logic itself; this row's addition only repairs the data gap.",
+      "price_source": "email_confirmed",
+      "qty_change": 10
+    },
+    {
+      "date": "2026-08-13",
+      "ticker": "IREN",
+      "action": "add",
+      "price_at_trade": 44.82,
+      "reason": "UNCAPTURED",
+      "order_type": "Market",
+      "notes": "Email-confirmed: INDmoney BUY 2026-08-13T17:33:35Z, $449.53/10sh, Price $44.82, Order Type: Market. Second IREN tranche same day (10sh @ $46.38 + 10sh @ $44.82 = 20sh total, matching the 0->20 qty_change exactly; kept as TWO rows per Hard Rule 3, never averaged). Market order -- reason UNCAPTURED. SMITH-LEDGER 2026-08-15: this fill was ABSENT from trades.json prior to this run. cmd_book's reason-attachment in scripts/smith_math.py (~L458-469) builds a ticker->reason dict by iterating trades.json in list order with plain overwrite (last row per ticker wins) and attaches that single reason to EVERY qty_change row for the ticker, with no date or direction check against the actual change being reported. With this fill missing, the stale reason from the ticker's PRIOR (unrelated) trade leaked onto this position change in runs/2026-08-15-1809/compute_book.json. This is a code-level matching bug in smith_math.py, outside smith-ledger's write surface (trades.json/lots.json only) -- flagged for the orchestrator/dev to fix the matching logic itself; this row's addition only repairs the data gap.",
+      "price_source": "email_confirmed",
+      "qty_change": 10
+    },
+    {
+      "date": "2026-08-13",
+      "ticker": "BE",
+      "action": "entry",
+      "price_at_trade": 244.11,
+      "reason": "UNCAPTURED",
+      "order_type": "Market",
+      "notes": "Email-confirmed: INDmoney BUY 2026-08-13T15:27:16Z, $489.69/2sh, Price $244.11, Order Type: Market. NEW POSITION (Bloom Energy, re-opened from zero after 2026-08-07 stop-out). Market order -- reason UNCAPTURED; runtime label was wrongly 'stop-loss' on this OPENING trade, see bug note. SMITH-LEDGER 2026-08-15: this fill was ABSENT from trades.json prior to this run. cmd_book's reason-attachment in scripts/smith_math.py (~L458-469) builds a ticker->reason dict by iterating trades.json in list order with plain overwrite (last row per ticker wins) and attaches that single reason to EVERY qty_change row for the ticker, with no date or direction check against the actual change being reported. With this fill missing, the stale reason from the ticker's PRIOR (unrelated) trade leaked onto this position change in runs/2026-08-15-1809/compute_book.json. This is a code-level matching bug in smith_math.py, outside smith-ledger's write surface (trades.json/lots.json only) -- flagged for the orchestrator/dev to fix the matching logic itself; this row's addition only repairs the data gap.",
+      "price_source": "email_confirmed",
+      "qty_change": 2
+    },
+    {
+      "date": "2026-08-14",
+      "ticker": "BE",
+      "action": "add",
+      "price_at_trade": 233.88,
+      "reason": "UNCAPTURED",
+      "order_type": "Market",
+      "notes": "Email-confirmed: INDmoney BUY 2026-08-14T16:27:14Z, $175.94/0.75sh, Price $233.88, Order Type: Market. Second BE tranche (2sh 08-13 + 0.75sh 08-14 = 2.75sh total, matching the 0->2.75 qty_change exactly). Market order -- reason UNCAPTURED. SMITH-LEDGER 2026-08-15: this fill was ABSENT from trades.json prior to this run. cmd_book's reason-attachment in scripts/smith_math.py (~L458-469) builds a ticker->reason dict by iterating trades.json in list order with plain overwrite (last row per ticker wins) and attaches that single reason to EVERY qty_change row for the ticker, with no date or direction check against the actual change being reported. With this fill missing, the stale reason from the ticker's PRIOR (unrelated) trade leaked onto this position change in runs/2026-08-15-1809/compute_book.json. This is a code-level matching bug in smith_math.py, outside smith-ledger's write surface (trades.json/lots.json only) -- flagged for the orchestrator/dev to fix the matching logic itself; this row's addition only repairs the data gap.",
+      "price_source": "email_confirmed",
+      "qty_change": 0.75
+    },
+    {
+      "date": "2026-08-13",
+      "ticker": "GLW",
+      "action": "entry",
+      "price_at_trade": 166.27,
+      "reason": "UNCAPTURED",
+      "order_type": "Market",
+      "notes": "Email-confirmed: INDmoney BUY 2026-08-13T15:35:47Z, $500.29/3sh, Price $166.27, Order Type: Market. NEW POSITION (Corning, re-opened from zero after 2026-08-06 stop-out). Market order -- reason UNCAPTURED; runtime label was wrongly 'stop-loss' on this OPENING trade, see bug note. SMITH-LEDGER 2026-08-15: this fill was ABSENT from trades.json prior to this run. cmd_book's reason-attachment in scripts/smith_math.py (~L458-469) builds a ticker->reason dict by iterating trades.json in list order with plain overwrite (last row per ticker wins) and attaches that single reason to EVERY qty_change row for the ticker, with no date or direction check against the actual change being reported. With this fill missing, the stale reason from the ticker's PRIOR (unrelated) trade leaked onto this position change in runs/2026-08-15-1809/compute_book.json. This is a code-level matching bug in smith_math.py, outside smith-ledger's write surface (trades.json/lots.json only) -- flagged for the orchestrator/dev to fix the matching logic itself; this row's addition only repairs the data gap.",
+      "price_source": "email_confirmed",
+      "qty_change": 3
+    },
+    {
+      "date": "2026-08-13",
+      "ticker": "GEV",
+      "action": "add",
+      "price_at_trade": 1036.57,
+      "reason": "UNCAPTURED",
+      "order_type": "Market",
+      "notes": "Email-confirmed: INDmoney BUY 2026-08-13T15:36:46Z, $1039.68/1sh, Price $1036.57, Order Type: Market. Add to existing GEV position (1.004950742 -> 2.004950742sh, matches qty_change exactly). Market order -- reason UNCAPTURED (runtime showed UNCAPTURED too, but by coincidence of the stale-match, not because this fill was actually matched -- see bug note). SMITH-LEDGER 2026-08-15: this fill was ABSENT from trades.json prior to this run. cmd_book's reason-attachment in scripts/smith_math.py (~L458-469) builds a ticker->reason dict by iterating trades.json in list order with plain overwrite (last row per ticker wins) and attaches that single reason to EVERY qty_change row for the ticker, with no date or direction check against the actual change being reported. With this fill missing, the stale reason from the ticker's PRIOR (unrelated) trade leaked onto this position change in runs/2026-08-15-1809/compute_book.json. This is a code-level matching bug in smith_math.py, outside smith-ledger's write surface (trades.json/lots.json only) -- flagged for the orchestrator/dev to fix the matching logic itself; this row's addition only repairs the data gap.",
+      "price_source": "email_confirmed",
+      "qty_change": 1
+    },
+    {
+      "date": "2026-08-13",
+      "ticker": "VRT",
+      "action": "entry",
+      "price_at_trade": 291.04,
+      "reason": "UNCAPTURED",
+      "order_type": "Market",
+      "notes": "Email-confirmed: INDmoney BUY 2026-08-13T15:37:12Z, $875.75/3sh, Price $291.04, Order Type: Market. NEW POSITION (Vertiv, re-opened from zero after 2026-08-10 stop-out). Market order -- reason UNCAPTURED; runtime label was wrongly 'stop-loss' on this OPENING trade, see bug note. SMITH-LEDGER 2026-08-15: this fill was ABSENT from trades.json prior to this run. cmd_book's reason-attachment in scripts/smith_math.py (~L458-469) builds a ticker->reason dict by iterating trades.json in list order with plain overwrite (last row per ticker wins) and attaches that single reason to EVERY qty_change row for the ticker, with no date or direction check against the actual change being reported. With this fill missing, the stale reason from the ticker's PRIOR (unrelated) trade leaked onto this position change in runs/2026-08-15-1809/compute_book.json. This is a code-level matching bug in smith_math.py, outside smith-ledger's write surface (trades.json/lots.json only) -- flagged for the orchestrator/dev to fix the matching logic itself; this row's addition only repairs the data gap.",
+      "price_source": "email_confirmed",
+      "qty_change": 3
+    },
+    {
+      "date": "2026-08-13",
+      "ticker": "MU",
+      "action": "add",
+      "price_at_trade": 970.36,
+      "reason": "UNCAPTURED",
+      "order_type": "Market",
+      "notes": "Email-confirmed: INDmoney BUY 2026-08-13T16:27:59Z, $486.63/0.5sh, Price $970.36, Order Type: Market. Add to existing MU position (2.000365376 -> 2.500365376sh, matches qty_change exactly). This is a qty INCREASE (buy) -- runtime label was wrongly 'stop-loss' (an exit-only reason) on an add, see bug note. Market order -- reason UNCAPTURED. SMITH-LEDGER 2026-08-15: this fill was ABSENT from trades.json prior to this run. cmd_book's reason-attachment in scripts/smith_math.py (~L458-469) builds a ticker->reason dict by iterating trades.json in list order with plain overwrite (last row per ticker wins) and attaches that single reason to EVERY qty_change row for the ticker, with no date or direction check against the actual change being reported. With this fill missing, the stale reason from the ticker's PRIOR (unrelated) trade leaked onto this position change in runs/2026-08-15-1809/compute_book.json. This is a code-level matching bug in smith_math.py, outside smith-ledger's write surface (trades.json/lots.json only) -- flagged for the orchestrator/dev to fix the matching logic itself; this row's addition only repairs the data gap.",
+      "price_source": "email_confirmed",
+      "qty_change": 0.5
+    },
+    {
+      "date": "2026-08-14",
+      "ticker": "COHR",
+      "action": "add",
+      "price_at_trade": 322.09,
+      "reason": "UNCAPTURED",
+      "order_type": "Market",
+      "notes": "Email-confirmed: INDmoney BUY 2026-08-14T13:39:11Z, $323.06/1sh, Price $322.09, Order Type: Market. Add to existing COHR position (2 -> 3sh, matches qty_change exactly). This fill is a DIFFERENT, LATER trade than the 2026-08-12 'add 2 re-entry-after-stop' row already on file -- runtime wrongly reused that stale 08-12 reason for this 08-14 fill (last-trade-per-ticker matching, see bug note). This fill's own Order Type is Market, not stop, so it gets its own reason: UNCAPTURED. SMITH-LEDGER 2026-08-15: this fill was ABSENT from trades.json prior to this run. cmd_book's reason-attachment in scripts/smith_math.py (~L458-469) builds a ticker->reason dict by iterating trades.json in list order with plain overwrite (last row per ticker wins) and attaches that single reason to EVERY qty_change row for the ticker, with no date or direction check against the actual change being reported. With this fill missing, the stale reason from the ticker's PRIOR (unrelated) trade leaked onto this position change in runs/2026-08-15-1809/compute_book.json. This is a code-level matching bug in smith_math.py, outside smith-ledger's write surface (trades.json/lots.json only) -- flagged for the orchestrator/dev to fix the matching logic itself; this row's addition only repairs the data gap.",
+      "price_source": "email_confirmed",
+      "qty_change": 1
+    },
+    {
+      "date": "2026-08-14",
+      "ticker": "AMAT",
+      "action": "trim",
+      "price_at_trade": 499.24,
+      "reason": "stop-loss",
+      "order_type": "stop",
+      "notes": "Email-confirmed: INDmoney SELL 2026-08-14T13:30:11Z, $499.24/1sh, Price $499.24, Order Type: stop. Trim of existing AMAT position (2.0081785 -> 1.0081785sh, matches qty_change exactly). Order Type is LITERALLY 'stop' -- this is the one row in this batch where stop-loss is the objectively correct reason per Hard Rule 5. Runtime instead showed the stale buy-side reason 'deploy-excess-cash' from the 2026-08-12 AMAT BUY row (a buy-side reason wrongly attached to a SELL) -- the worst mislabel in this batch, since it hid a genuine stop-loss exit under a redeployment label. SMITH-LEDGER 2026-08-15: this fill was ABSENT from trades.json prior to this run. cmd_book's reason-attachment in scripts/smith_math.py (~L458-469) builds a ticker->reason dict by iterating trades.json in list order with plain overwrite (last row per ticker wins) and attaches that single reason to EVERY qty_change row for the ticker, with no date or direction check against the actual change being reported. With this fill missing, the stale reason from the ticker's PRIOR (unrelated) trade leaked onto this position change in runs/2026-08-15-1809/compute_book.json. This is a code-level matching bug in smith_math.py, outside smith-ledger's write surface (trades.json/lots.json only) -- flagged for the orchestrator/dev to fix the matching logic itself; this row's addition only repairs the data gap.",
+      "price_source": "email_confirmed",
+      "qty_change": -1
     }
   ],
-  "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'dca-into-diversification'|'re-entry-after-stop'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out. | 2026-08-03: 'dca-into-diversification' and 're-entry-after-stop' promoted to standing buy-side reasons (see G45) after both recurred via 'Other' the same day \u2014 a same-day MU stop-loss/rebuy whipsaw pair (re-entry-after-stop) and a five-ticker weekend diversification buy the user confirmed as DCA into diversification. Buy-side step 1 changed shape from a yes/no to a 4-option question (DCA / DCA-into-diversification / Re-entry-after-stop / Something else) to keep 3 buy-relevant reasons within the cap; sell-side step 1 is unchanged. | 2026-08-13 SMITH-LEDGER (G64/G65/G66): first full email reconciliation. 11 rows corrected, 13 rows ADDED (the entire 2026-07-28 redeployment beyond the 4 named clips was absent from trades.json though present in lots.json -- the two files had silently diverged), 1 row split (NVDA 07-27 was two fills, not one), 1 ticker corrected (a 07-28 row recorded as GOOG is in fact GOOGL/Alphabet Class A per ticker_map). Every row now carries price_source ('email_confirmed' = verified against an INDmoney confirmation; 'reconstructed' = rests on a quantity diff and MUST be quarantined from P&L; 'unknown' = no price). ts_utc/order_type/qty_source added where verified."
+  "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'dca-into-diversification'|'re-entry-after-stop'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out. | 2026-08-03: 'dca-into-diversification' and 're-entry-after-stop' promoted to standing buy-side reasons (see G45) after both recurred via 'Other' the same day \u2014 a same-day MU stop-loss/rebuy whipsaw pair (re-entry-after-stop) and a five-ticker weekend diversification buy the user confirmed as DCA into diversification. Buy-side step 1 changed shape from a yes/no to a 4-option question (DCA / DCA-into-diversification / Re-entry-after-stop / Something else) to keep 3 buy-relevant reasons within the cap; sell-side step 1 is unchanged. | 2026-08-13 SMITH-LEDGER (G64/G65/G66): first full email reconciliation. 11 rows corrected, 13 rows ADDED (the entire 2026-07-28 redeployment beyond the 4 named clips was absent from trades.json though present in lots.json -- the two files had silently diverged), 1 row split (NVDA 07-27 was two fills, not one), 1 ticker corrected (a 07-28 row recorded as GOOG is in fact GOOGL/Alphabet Class A per ticker_map). Every row now carries price_source ('email_confirmed' = verified against an INDmoney confirmation; 'reconstructed' = rests on a quantity diff and MUST be quarantined from P&L; 'unknown' = no price). ts_utc/order_type/qty_source added where verified. | 2026-08-15 SMITH-LEDGER (this run): 10 rows ADDED for IREN(x2)/BE(x2)/GLW/GEV/VRT/MU/COHR/AMAT fills dated 2026-08-13/08-14 that were missing from trades.json and had triggered a stale ticker-only reason-matching bug in smith_math.py's qty_changes construction (see per-row notes). All 10 are email-confirmed (Amount/Price/Shares/Order Type all read directly, none derived or reconstructed). 9 of 10 are Order Type Market -> reason UNCAPTURED; the AMAT SELL is Order Type stop -> reason stop-loss (genuinely, not inferred)."
 }

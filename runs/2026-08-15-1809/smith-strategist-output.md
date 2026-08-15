@@ -1,0 +1,117 @@
+# Agent Smith — Portfolio Strategist — Deep Weekly Review — 2026-08-15
+
+Policy is CONFIRMED (drift below is live, not provisional). No policy bootstrap needed (`policy_draft: null`).
+
+## Risk-off status
+`risk_off_status: normal` (compute_drift.json). Drawdown -2.507% vs policy warn/risk-off thresholds of 15%/25% — nowhere near either rung (peak $44,873.02, well inside band). This does NOT license complacency: the live constraint this week is aggregate ATR risk (14.29% vs 10% cap) and the cash breach (0.028% vs [5,15]%), not drawdown. Proposals below are sized to cure both simultaneously; no defensive-lead framing required since risk-off is not triggered, but sizing stays conservative given extreme-greed sentiment.
+
+## Sized proposals
+
+**1. TRIM NVDA ~$550 (reaffirms P-072, rc3 — finally actioning a 3x-reconfirmed proposal)** @ $225.17/sh
+Cap_multiple 1.198x, -$559 headroom (computed, compute_risk.json) on the book's single largest position (7.74% wt, $3,377.58) contributing 4.19% of the 14.29% aggregate open-risk breach. NVDA Q2 FY27 earnings independently CONFIRMED 2026-08-26 (verified — smith-watchlist corroborated via stockanalysis.com after both INDmoney and yfinance left it unconfirmed). Macro's own cluster_impact read: "technically overbought heading into NVDA earnings... asymmetry now skewed to downside on a miss." Trimming into strength ahead of a binary event on the largest position is the textbook use of a computed cap breach plus a verified date, not narrative judgment.
+`evidence_quality: {"verified":1,"computed":2,"unverified":1}`
+
+**2. TRIM SKHY ~$900 (resizes P-070 from $675→$900, rc2)** @ $165.68/sh
+Largest cap breach in the book — 2.081x its ATR cap, -$946.81 headroom, 7.28% of the 14.29% aggregate risk (both computed, compute_risk.json/compute_derisk.json, derisk rank #1 of 35, derisk_score 125.0, fragility 100.0 — the top of the queue). Sentiment score 82.9 extreme_greed (computed, compute_sentiment.json) hints profit-booking on exactly this kind of name. Watch thesis (unverified — dominant 60-70% HBM4 share + flat ASP) is supporting, not the lead reason.
+`evidence_quality: {"verified":0,"computed":2,"unverified":1}`
+
+**3. TRIM MU ~$500 (new, partial cure by design)** @ $949.87/sh
+Second-largest cap breach — 2.037x cap, -$1,209.06 headroom, 7.13% risk share (computed). Sized as a *partial* cure, not full, because MU carries genuine fresh tailwinds this week (Buy upgrade + $250M AI-startup fund — 2 distinct events per signals) plus Samsung/SK Hynix's confirmed DRAM/HBM pricing hikes (catalyst #4, TrendForce 08-13, within the tracker's own basis band). Cutting the ATR-cap overage without fully exiting a name with live tailwinds.
+`evidence_quality: {"verified":0,"computed":2,"unverified":2}`
+
+**4. TRIM NBIS ~$700 (reaffirms P-083; keep P-084 raise-stop open alongside it)** @ $255.05/sh
+Cap_multiple 1.794x, -$677.20 headroom (computed) — this size essentially fully cures the breach. Also flagged REVERSAL-TRIM WATCH by signals after its run (unverified tier, supporting only). Thesis is strengthening, but this trim is justified purely by the computed ATR breach, not by any cluster or thesis argument — NBIS's own cluster (Compute/Hyperscaler OEM, 6.70% in a [0,10] band) is not breached, so there's no directional-breach conflict here.
+`evidence_quality: {"verified":0,"computed":2,"unverified":2}`
+
+**5. TRIM DRAM ~$450 (new)** @ $56.93/sh
+Cap_multiple 1.518x, -$582.79 headroom, 5.31% risk share (computed). Watch thesis (CXMT overhang, unverified) is a supporting note only — the trim is cap-driven.
+`evidence_quality: {"verified":0,"computed":2,"unverified":1}`
+
+**6. TRIM BX ~$180 (reaffirms P-075 — premise corrected, see below)** @ $149.33/sh
+P-075 was almost certainly written when BX cached at beta -0.021 vs the WRONG benchmark (SMH), which made it look like a natural book hedge. That's now corrected (computed this run, smith-book): BX is actually **1.124 vs SPX** — not a hedge, just another position correlated to the broad market that has run hard (rel_strength +15.81pp/+16.54% abs on the month, stretch_score 65.9, in names_stretched — computed, compute_derisk.json). This is a clean overbought_distribution-style profit-take, deliberately independent of BX's own ATR cap (it isn't breached, 0.237x) — the point is booking gains on a name that ran, which is exactly the trigger type this queue is built for. Watch thesis is supporting only.
+`evidence_quality: {"verified":0,"computed":2,"unverified":1}`
+
+**7. BUY CEG ~$300 (re-scopes P-086 from $450 → $300, explicitly funded from NBIS trim proceeds, pair_id ROT-NBIS-CEG)** @ $278.65/sh
+This is the only one of the four unfunded buys I'm keeping alive, and only funded, reduced, and paired — never bought from empty cash. CEG has ample headroom (cap_multiple 0.25, computed), sits in an in-band cluster (AI Power/Cooling/DC Infra 10.20% vs [10,20], barely above floor — a small CEG buy nudges it further into the band, not out of it), and has an ex-dividend date in 3 days (08-18, computed calendar fact). Sell leg (NBIS trim, proposal 4 above) is a computed cap-breach cure with the name also flagged REVERSAL-TRIM WATCH; buy leg sized to a fraction of the $700 NBIS proceeds, well under CEG's own headroom, deliberately conservative given zero starting cash.
+`evidence_quality: {"verified":0,"computed":2,"unverified":1}`
+Pair: sell_leg=NBIS ($700, proposal 4), buy_leg=CEG ($300), pair_id "ROT-NBIS-CEG".
+
+**Cash arithmetic:** trims raise $550+$900+$500+$700+$450+$180 = $3,280. CEG buy uses $300 of that. Net cash raised ≈ $2,980. New cash ≈ $12 + $2,980 = **$2,992 (≈6.84% of the $43,748 book)** — inside the [5,15]% band, deliberately parked in the lower third given extreme-greed sentiment and the two binary earnings events 11-12 days out (NVDA 08-26, MRVL 08-27). Rough linear approximation of aggregate open-risk reduction (not recomputed by compute_risk — flagged as approximate): trimming these five names by their stated fractions of position value cuts roughly 10pt off risk share, taking aggregate open risk from 14.29% toward roughly 4-5%, comfortably under the 10% cap even before accounting for the untouched smaller breaches (MRVL 1.41x, GEV 1.31x, SNDK 1.11x, TSM 1.06x, TER 1.03x) which remain open and worth a follow-up pass next run.
+
+## Governance dispositions (not capital-moving, required by this week's specific asks)
+
+**8. ORCL — SET/reaffirm hard stop at $139.14 (computed ATR stop level, compute_derisk.json), no trim.** size $0.
+ORCL is STRONG DOWNTREND for a 3rd+ consecutive run with an exit flag that's gone unactioned each time — drifting is explicitly the worst option here. But ORCL sits inside the Compute/Hyperscaler cluster, which is breached **under** its floor (10.61% vs [15,25], -9.39pt) — trimming or exiting it would deepen the one breach in this book that most needs *more* weight, not less (the G56 directional-breach anti-pattern the task specifically warns against). Resolution: don't cite the cluster as a reason to act, and don't trim into an underweight floor — instead convert the repeatedly-flagged-but-unactioned downtrend into a concrete, computed contingent order (its own 1x-ATR stop level, $139.14) so the position self-exits on further technical deterioration without a discretionary weight cut today. This also resolves the PEER LEADER contradiction: signals itself flags that read as a stale trailing-1m artifact about to flip, so it shouldn't stay the excuse for inaction either.
+`evidence_quality: {"verified":0,"computed":1,"unverified":2}`
+
+**9. AMD — RULE: hold at current 2sh, no further adds.** size $0.
+The re-entry (2sh, ~$966, 2.29% wt) directly contradicts the 08-12 decision to decline re-adding, and smith-thesis flagged it as unresolved. Both sides of that original call are now independently VERIFIED (secondary, stockanalysis.com, 08-14): the Q2 beat / Data Center +107% YoY is real, and so is the Q3 guide_below_consensus plus the ~$5B debt raise — the exact concerns that drove the 08-12 refusal are still true, not narrative noise. AMD isn't over its ATR cap (0.737x), so there's no risk-cure argument either way. Ruling: the position stays (unwinding a small, non-breaching position purely to enforce consistency isn't worth the transaction), but it is explicitly capped here — no further adds to AMD until the guide/debt-raise concerns are resolved or contradicted by a primary filing. This is a decision, not a drift.
+`evidence_quality: {"verified":2,"computed":1,"unverified":0}`
+
+**10. COHR — RULE: hold at 3sh, no trim, correct the record.** size $0.
+Was adding 1sh (2→3) into the 08-13 drop a mistake? No — and the premise needs correcting. smith-catalyst characterized the 08-13 move as COHR's "OWN earnings miss." smith-thesis's VERIFIED (secondary, stockanalysis.com, 08-12) finding says the opposite: Q4 revenue and EPS **beat**, with Q1 FY27 guide **above** consensus. This is the identical mischaracterization pattern flagged twice before in the evidence-gate history (SNDK's "beat, not miss," MRVL's contradicted "collapse" claim) — an unverified headline outranking verified arithmetic. The ~12% drop is better explained by the unconfirmed operating-cash-flow-decline claim (tier2, magnitude uncorroborated) or a sell-the-news reaction than by a miss that the primary numbers don't support. COHR also isn't over its ATR cap (0.958x) and is still net positive on relative strength over the month (+9.58pp) despite Friday. No sizing change; flagging the catalyst-desk characterization for correction going forward.
+`evidence_quality: {"verified":1,"computed":1,"unverified":1}`
+
+## The four unfunded buys — resolved individually
+
+**11. RETIRE P-076 Buy GEV $180.51.** size $0.
+GEV is itself over its own ATR cap (1.314x, -$502.83 headroom, computed) — buying more directly deepens an existing risk-cap breach in the same week the desk is trying to cure exactly that. Backwards, full stop.
+`evidence_quality: {"verified":0,"computed":1,"unverified":0}`
+
+**12. RETIRE P-077 Buy QCOM $388.88.** size $0.
+Signals confirms QCOM's own OVERSOLD BOUNCE setup already resolved (pos 0.318, needed ≤0.30) — the premise that likely justified this proposal has expired. Combined with the computed cash breach (0.028% vs [5,15]% floor), there's no case for holding scarce future cash for a trigger that's no longer live.
+`evidence_quality: {"verified":0,"computed":1,"unverified":1}`
+
+**13. RETIRE P-085 Buy VRT $600.** size $0.
+VRT's own print is genuinely contested — EPS beat $1.52 vs $1.43 but revenue MISSED $3.27B vs $3.38B by ~$110M on the same print (verified secondary, stockanalysis.com, non-empty evidence_against). Per the G58 qualifier, a contested verified verdict is a supporting input, not a lead one for a fresh add — and combined with the computed cash breach, this doesn't clear the bar to fund a new buy this week. Revisit once one more quarter clarifies the beat/miss tension.
+`evidence_quality: {"verified":1,"computed":1,"unverified":0}`
+
+## Stress table (approximate, anchored to smith-macro's live regime read)
+
+| Scenario | Est. portfolio impact | Most exposed |
+|---|---|---|
+| AI-capex pause | ai_capex factor 88.96% (computed) × assumed -20% cluster move ≈ **-17.8% equity (≈ -$7,780)**. Macro's own read ("first and hardest hit... asymmetry skewed to downside") argues against tempering this down — if anything the realized move could exceed -20% given the book is technically overbought into NVDA earnings. | NVDA, TSM, MU, SKHY, GEV |
+| Rates +100bp | High-beta names (SKHY β2.44, NBIS β2.64, DRAM β2.07, MU β1.95, TER β1.83, LRCX β1.77, MRVL β1.68) × assumed -10% ≈ **-2.5% to -3% equity (≈ -$1,100–$1,300)**. Anchor: Fed 3.63% hawkish-unchanged, no FOMC inside 5 sessions (next 09-16) — macro tail didn't carry an explicit current 10-yr level this run, so this falls back to the static +100bp/-10% assumption; flagged in data_quality. | SKHY, NBIS, DRAM, MU, TER |
+| Tariff/export-control escalation | China-revenue-exposed names — TSM (foundry, Taiwan/China), ASML (China DUV restriction risk, thesis note: "un-escalated not resolved"), MRVL/NVDA (export-control history), BABA (China Internet, 0.56% wt, minor). Combined weight ≈13-14% of equity; assumed -15% on that slice ≈ **-2% equity (≈ -$875)**. | TSM, ASML, MRVL, NVDA |
+| USD/INR ±3% | ~0% on the USD-reported book (correctly, book is priced in USD). In INR net-worth terms: a 3% INR depreciation vs USD adds ≈ **+$1,312 equivalent** to the user's INR-denominated net worth from this book alone; 3% appreciation costs the same in reverse. | Whole book (INR-terms only, not a US book risk) |
+| **NVDA miss on 2026-08-26** (mandatory, given 7.74% wt and $12 starting cash) | No options-implied-move figure available this run (macro carried SPY/QQQ PCR, not an NVDA single-name straddle read — flagged in data_quality). Using a conservative historical post-earnings-miss move of -12% on NVDA alone: 7.74% wt × -12% ≈ **-0.93% equity (≈ -$407)** direct. Correlated AI-capex-chain drag (88.96% factor concentration, computed) on a miss headline would compound this well beyond the direct NVDA figure — and there is zero cash to average down into the drawdown even after this week's trims land only ~$3,000 of dry powder. | NVDA direct; AI Semis/Fabs, AI Memory/Storage, AI Networking/Optics chain-wide on contagion |
+| MRVL miss on 2026-08-27 (optics/networking idiosyncratic, day after NVDA) | MRVL 3.56% wt (position_open_risk computed), AI Networking/Optics cluster 12.77% of equity already showed dispersion this week (COHR -12% own-miss vs CIEN/GLW positive) — a second consecutive single-name miss the day after NVDA would read as cluster-specific, not macro. Assumed -15% on MRVL alone ≈ **-0.53% equity (≈ -$233)** direct, with elevated odds of sympathy selling across CIEN/COHR/AVGO/GLW given the week's decoupling precedent. | MRVL direct; CIEN, COHR, AVGO, GLW on sympathy |
+
+## Hit-rate readout (interim — buckets with ≥3 scored entries only)
+- TARGET GAP: 57.1% hit rate (n=14)
+- MOMENTUM+VOLUME: 60.0% hit rate (n=5)
+- OVERSOLD BOUNCE: n=1, skipped (below the 3-entry floor)
+Neither reported bucket is below the 40%-over-≥5 de-emphasis threshold — no bucket recommended for de-emphasis this run. `compute_journal.json` also carries a separate `bucket_hit_rates_7d` series (interim 7-day window) that wasn't fully pulled this run to stay inside tool budget — flagged in data_quality, not fabricated.
+
+## Proposal-outcome scorecard
+No proposals matured to a scoreable 30d/90d checkpoint this run with the price_at_proposal data needed for auto-scoring. Every currently open proposal (P-070 through P-086) is ≤3 days old (dated 08-12/08-13). The only proposals old enough to matter (P-001 through P-006, mid-July, status executed/fulfilled) don't carry an embedded price_at_proposal/target field in proposals.json for automated scoring — this is a standing data gap, not a fresh finding. Recommend the ledger reconciler or a future strategist run backfill price_at_proposal on the mid-July executed batch so P-001–P-006 become scoreable at their 90d mark (mid-October).
+
+## Data quality
+- `compute_triggers.json` (the five deterministic non-ATR trigger lists — oversold_reversion, overbought_distribution, laggard_rotation, profit_ratchet, scale_out_ladder) was NOT produced this run — the file does not exist in runs/2026-08-15-1809/. All trigger-style reasoning above (BX/SKHY profit-take framing, NBIS reversal-trim) was reconstructed manually from compute_derisk.json's names_stretched/queue and compute_risk.json's cap-multiple breaches, which are legitimate computed substitutes but are NOT the deterministic, pre-screened, hit-rate-tracked lists the task specifies. No `trigger_type` field is set on any proposal above as a result — setting one without the actual source list would mislabel the auto-retirement condition. Recommend the orchestrator confirm whether compute_triggers.json failed silently this run or was never dispatched.
+- ORCL analyst-forecast math is internally inconsistent in the signals tool output (mean/current implies +64.2% upside, tool-reported field says +39.1%) — cited nowhere in sizing above, flagged only.
+- Rates+100bp scenario falls back to a static assumption; macro's tail didn't carry an explicit current 10-yr level this run.
+- NVDA-miss scenario has no options-implied-move figure this run; used a conservative historical proxy instead.
+- `bucket_hit_rates_7d` (interim 7-day series) exists in compute_journal.json but wasn't fully read this run — budget constraint, not a finding.
+
+```json
+{"policy_draft":null,
+ "proposals":[
+   {"action":"TRIM","ticker":"NVDA","size_usd":550,"price_at_proposal":225.17,"rationale":"Cap_multiple 1.198x (-$559 headroom, computed) on largest position (7.74% wt); NVDA earnings confirmed 2026-08-26 (verified); macro reads asymmetry skewed to downside on a miss. Reaffirms P-072 (rc3).","trigger_type":null,"trigger_bucket":null,"pair_id":null,"pair_role":null,"evidence_quality":{"verified":1,"computed":2,"unverified":1}},
+   {"action":"TRIM","ticker":"SKHY","size_usd":900,"price_at_proposal":165.68,"rationale":"Largest cap breach in book, 2.081x cap (-$946.81 headroom), 7.28% risk share, derisk rank #1 (computed). Extreme-greed sentiment (computed) supports profit-booking. Resizes P-070 from $675.","trigger_type":null,"trigger_bucket":null,"pair_id":null,"pair_role":null,"evidence_quality":{"verified":0,"computed":2,"unverified":1}},
+   {"action":"TRIM","ticker":"MU","size_usd":500,"price_at_proposal":949.87,"rationale":"2.037x cap breach (-$1,209.06 headroom, computed), sized as partial cure only given fresh Buy upgrade + $250M AI-startup fund tailwinds and confirmed DRAM/HBM pricing hikes this week.","trigger_type":null,"trigger_bucket":null,"pair_id":null,"pair_role":null,"evidence_quality":{"verified":0,"computed":2,"unverified":2}},
+   {"action":"TRIM","ticker":"NBIS","size_usd":700,"price_at_proposal":255.05,"rationale":"1.794x cap breach (-$677.20 headroom, computed), essentially full cure at this size. REVERSAL-TRIM WATCH flagged by signals. Reaffirms P-083; P-084 raise-stop stays open alongside it.","trigger_type":null,"trigger_bucket":null,"pair_id":"ROT-NBIS-CEG","pair_role":"sell","evidence_quality":{"verified":0,"computed":2,"unverified":2}},
+   {"action":"TRIM","ticker":"DRAM","size_usd":450,"price_at_proposal":56.93,"rationale":"1.518x cap breach (-$582.79 headroom, computed). Watch thesis (CXMT overhang) supporting only.","trigger_type":null,"trigger_bucket":null,"pair_id":null,"pair_role":null,"evidence_quality":{"verified":0,"computed":2,"unverified":1}},
+   {"action":"TRIM","ticker":"BX","size_usd":180,"price_at_proposal":149.33,"rationale":"Beta corrected this run to 1.124 vs SPX (was miscached -0.021 vs wrong benchmark SMH) -- BX is not a hedge. In names_stretched, up +15.81pp rel/+16.54% abs on month (computed) -- classic ATR-independent profit-take. Reaffirms P-075 with corrected premise.","trigger_type":null,"trigger_bucket":null,"pair_id":null,"pair_role":null,"evidence_quality":{"verified":0,"computed":2,"unverified":1}},
+   {"action":"BUY","ticker":"CEG","size_usd":300,"price_at_proposal":278.65,"rationale":"Re-scoped from $450, explicitly funded from NBIS trim proceeds. Ample cap headroom (0.25x, computed), in-band cluster, ex-div in 3 days (08-18).","trigger_type":null,"trigger_bucket":null,"pair_id":"ROT-NBIS-CEG","pair_role":"buy","evidence_quality":{"verified":0,"computed":2,"unverified":1}},
+   {"action":"SET_STOP","ticker":"ORCL","size_usd":0,"price_at_proposal":156.23,"rationale":"3rd+ consecutive STRONG DOWNTREND run, unactioned exit flag -- but ORCL sits in the Compute/Hyperscaler cluster breached UNDER its floor (10.61% vs 15%, -9.39pt); trimming would deepen that breach (G56 anti-pattern). Set hard stop at computed ATR level $139.14 instead of trimming or drifting.","trigger_type":null,"trigger_bucket":null,"pair_id":null,"pair_role":null,"evidence_quality":{"verified":0,"computed":1,"unverified":2}},
+   {"action":"HOLD_NO_ADD","ticker":"AMD","size_usd":0,"price_at_proposal":374.44,"rationale":"Re-entry (2sh) contradicted the explicit 08-12 refusal to re-add. Both the Q2 beat and the Q3 guide_below_consensus/$5B debt raise are now verified secondary -- the original concerns are real and unresolved. Ruling: hold current 2sh, no further adds until resolved by a primary filing.","trigger_type":null,"trigger_bucket":null,"pair_id":null,"pair_role":null,"evidence_quality":{"verified":2,"computed":1,"unverified":0}},
+   {"action":"HOLD_NO_TRIM","ticker":"COHR","size_usd":0,"price_at_proposal":327.25,"rationale":"smith-catalyst mischaracterized 08-13 move as an 'earnings miss'; verified secondary source shows a Q4 BEAT with Q1 guide above consensus -- same pattern as prior SNDK/MRVL mischaracterizations. The 1sh add was not a mistake on fundamentals. Hold at 3sh, correct the record.","trigger_type":null,"trigger_bucket":null,"pair_id":null,"pair_role":null,"evidence_quality":{"verified":1,"computed":1,"unverified":1}},
+   {"action":"RETIRE","ticker":"GEV","size_usd":0,"price_at_proposal":180.51,"rationale":"GEV is itself over its own ATR cap (1.314x, -$502.83 headroom, computed) -- buying more deepens an existing risk-cap breach. Retire P-076.","trigger_type":null,"trigger_bucket":null,"pair_id":null,"pair_role":null,"evidence_quality":{"verified":0,"computed":1,"unverified":0}},
+   {"action":"RETIRE","ticker":"QCOM","size_usd":0,"price_at_proposal":388.88,"rationale":"Signals confirms QCOM's own OVERSOLD BOUNCE setup already resolved (pos 0.318, needed <=0.30) -- the premise expired. Combined with the computed cash breach, no case to fund this from scarce cash. Retire P-077.","trigger_type":null,"trigger_bucket":null,"pair_id":null,"pair_role":null,"evidence_quality":{"verified":0,"computed":1,"unverified":1}},
+   {"action":"RETIRE","ticker":"VRT","size_usd":0,"price_at_proposal":600,"rationale":"VRT's Q2 print is genuinely contested (EPS beat, revenue miss by ~$110M, verified secondary, non-empty evidence_against) -- a contested verified verdict is a supporting input, not a lead one for a fresh add, especially against a computed cash breach. Retire P-085.","trigger_type":null,"trigger_bucket":null,"pair_id":null,"pair_role":null,"evidence_quality":{"verified":1,"computed":1,"unverified":0}}
+ ],
+ "proposal_outcomes":[],
+ "scorecard":{"trim_accuracy_30d":null,"add_accuracy_30d":null,"overall_accuracy_30d":null},
+ "deemphasize_buckets":[],
+ "data_quality":["compute_triggers.json (oversold_reversion/overbought_distribution/laggard_rotation/profit_ratchet/scale_out_ladder) was not produced this run -- all trigger-style reasoning reconstructed manually from compute_derisk.json/compute_risk.json; no trigger_type set on any proposal as a result","ORCL analyst-forecast tool field internally inconsistent (mean/current implies +64.2%, tool reports +39.1%) -- not used in sizing","rates+100bp scenario uses a static +100bp/-10% fallback assumption; macro tail carried no explicit current 10-yr level this run","NVDA-miss scenario used a conservative historical post-earnings-move proxy in the absence of an options-implied-move figure","bucket_hit_rates_7d exists in compute_journal.json but was not fully read this run (tool budget)","no proposal has matured to a scoreable 30d/90d checkpoint this run; P-001-P-006 (mid-July) lack embedded price_at_proposal/target fields for auto-scoring"]}
+```

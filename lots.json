@@ -2,13 +2,7 @@
   "schema_version": 1,
   "AMAT": [
     {
-      "qty": 0.009179,
-      "price_usd": 565.25,
-      "date": "2026-07-15",
-      "price_source": "email_confirmed"
-    },
-    {
-      "qty": 0.999,
+      "qty": 0.008179,
       "price_usd": 473.79,
       "date": "2026-07-28",
       "price_source": "email_confirmed"
@@ -154,6 +148,12 @@
       "price_usd": 343.56,
       "date": "2026-08-12",
       "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 322.09,
+      "date": "2026-08-14",
+      "price_source": "email_confirmed"
     }
   ],
   "DRAM": [
@@ -195,6 +195,12 @@
       "qty": 0.61,
       "price_usd": 936.5,
       "date": "2026-07-28",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 1,
+      "price_usd": 1036.57,
+      "date": "2026-08-13",
       "price_source": "email_confirmed"
     }
   ],
@@ -283,6 +289,12 @@
       "qty": 1,
       "price_usd": 849.49,
       "date": "2026-07-31",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 0.5,
+      "price_usd": 970.36,
+      "date": "2026-08-13",
       "price_source": "email_confirmed"
     }
   ],
@@ -452,5 +464,49 @@
       "price_source": "email_confirmed"
     }
   ],
-  "_note": "REBUILT FROM SCRATCH 2026-08-13 (SMITH-LEDGER gap-fill run, output-3) by full chronological FIFO simulation over the COMPLETE trades.json (2025-04-30 to 2026-08-12, 677 rows -- the prior lots.json rebuild in run 2/G66b only used trades.json rows from 2026-07-24 onward and never saw the earlier 2025-04-30 to 2026-07-23 history, which had separately been backfilled into trades.json but never propagated into lots.json until now). This run additionally closed the 2026-07-24 gap: the day's mass stop-out event #1 was never actually email-pulled before (4 rows -- GLW, IREN, MULTI [bundling SNDK/DRAM/TSM/CLS/LRCX/MU/TER/CIEN with a null qty], NBIS -- were reconstructed/unpriced placeholders); all 12 real fills are now in trades.json, individually email-confirmed. Algorithm: for each ticker, compute the minimal front-loaded 'predates-history' plug required to keep the FIFO queue non-negative at every point in its full recorded history (required_initial = max(0, -min cumulative balance)); insert that plug as the oldest lot (reusing the existing derived-from-broker-invested cost basis where the required qty still matches one, otherwise an explicit price:null/date:null lot since no invested_amount figure is cached for that ticker in this session); then replay every trade chronologically, FIFO oldest-first. Where the resulting total still does not equal live holdings_qty after this minimal-but-honest plug, the gap is a genuine missing trade (most likely an un-pulled SELL) elsewhere in history -- NOT papered over; see invariant_check.mismatches in the accompanying report."
+  "_note": "REBUILT FROM SCRATCH 2026-08-13 (SMITH-LEDGER gap-fill run, output-3) by full chronological FIFO simulation over the COMPLETE trades.json (2025-04-30 to 2026-08-12, 677 rows -- the prior lots.json rebuild in run 2/G66b only used trades.json rows from 2026-07-24 onward and never saw the earlier 2025-04-30 to 2026-07-23 history, which had separately been backfilled into trades.json but never propagated into lots.json until now). This run additionally closed the 2026-07-24 gap: the day's mass stop-out event #1 was never actually email-pulled before (4 rows -- GLW, IREN, MULTI [bundling SNDK/DRAM/TSM/CLS/LRCX/MU/TER/CIEN with a null qty], NBIS -- were reconstructed/unpriced placeholders); all 12 real fills are now in trades.json, individually email-confirmed. Algorithm: for each ticker, compute the minimal front-loaded 'predates-history' plug required to keep the FIFO queue non-negative at every point in its full recorded history (required_initial = max(0, -min cumulative balance)); insert that plug as the oldest lot (reusing the existing derived-from-broker-invested cost basis where the required qty still matches one, otherwise an explicit price:null/date:null lot since no invested_amount figure is cached for that ticker in this session); then replay every trade chronologically, FIFO oldest-first. Where the resulting total still does not equal live holdings_qty after this minimal-but-honest plug, the gap is a genuine missing trade (most likely an un-pulled SELL) elsewhere in history -- NOT papered over; see invariant_check.mismatches in the accompanying report.",
+  "IREN": [
+    {
+      "qty": 10,
+      "price_usd": 46.38,
+      "date": "2026-08-13",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 10,
+      "price_usd": 44.82,
+      "date": "2026-08-13",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "BE": [
+    {
+      "qty": 2,
+      "price_usd": 244.11,
+      "date": "2026-08-13",
+      "price_source": "email_confirmed"
+    },
+    {
+      "qty": 0.75,
+      "price_usd": 233.88,
+      "date": "2026-08-14",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "GLW": [
+    {
+      "qty": 3,
+      "price_usd": 166.27,
+      "date": "2026-08-13",
+      "price_source": "email_confirmed"
+    }
+  ],
+  "VRT": [
+    {
+      "qty": 3,
+      "price_usd": 291.04,
+      "date": "2026-08-13",
+      "price_source": "email_confirmed"
+    }
+  ]
 }

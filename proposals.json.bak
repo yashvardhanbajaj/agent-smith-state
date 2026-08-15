@@ -1635,7 +1635,7 @@
       "action": "Trim MU",
       "size_usd": 600,
       "price_at_proposal": 868.52,
-      "status": "open",
+      "status": "dismissed_by_user",
       "rationale": "ATR risk-cap 1.53x (computed) + extreme-greed profit-booking hint (computed); thesis WATCH cited as color only, thesis itself says no_action",
       "id": "P-069",
       "direction_bucket": "TRIM",
@@ -1654,7 +1654,8 @@
       "review_flags": [],
       "revalidated_on": "2026-08-13",
       "retires_when": "MU drops under its ATR risk cap",
-      "tranche_note": "cures 89% of the risk cap excess ($671) -- roughly 2 tranches this size to fully clear it"
+      "tranche_note": "cures 89% of the risk cap excess ($671) -- roughly 2 tranches this size to fully clear it",
+      "note": "dismissed by user 2026-08-13T12:12: Strategist verdict 2026-08-13: a PURE ATR risk-cap trim with no other support -- exactly the pattern the user's standing brief singled out as unwanted. MU's 1.58x cap excess is real and the risk panel will keep surfacing it, but it no longer occupies a proposal slot on cap grounds alone. Re-propose only if MU acquires an independent trigger (stretch, overbought, or a thesis change)."
     },
     {
       "date": "2026-08-12",
@@ -1812,7 +1813,7 @@
       "action": "Re-enter VRT",
       "size_usd": 850,
       "price_at_proposal": 281.81,
-      "status": "open",
+      "status": "superseded",
       "rationale": "AI Power/Cooling/DC Infra cluster under-floor breach -9.40pt (computed, G56-correct direction = buy) + watchlist target-gap +16.66% + signals whipsaw read, already back above stop price",
       "id": "P-073",
       "direction_bucket": "BUY",
@@ -1827,7 +1828,8 @@
       "review_flags": [],
       "revalidated_on": "2026-08-13",
       "retires_when": "AI Power/Cooling/DC Infra re-enters its policy band",
-      "cluster": "AI Power/Cooling/DC Infra"
+      "cluster": "AI Power/Cooling/DC Infra",
+      "note": "auto-superseded 2026-08-03 -- folded into P-085 as a repeat of the same open proposal"
     },
     {
       "date": "2026-08-12",
@@ -1944,7 +1946,7 @@
     {
       "id": "P-078",
       "date": "2026-08-12T20:25:00+05:30",
-      "status": "open",
+      "status": "superseded",
       "action": "Trim MSFT",
       "ticker": "MSFT",
       "direction": "TRIM",
@@ -1971,7 +1973,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-13",
-      "retires_when": "MSFT RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "MSFT RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)",
+      "note": "auto-superseded 2026-08-03 -- folded into P-082 as a repeat of the same open proposal"
     },
     {
       "id": "P-079",
@@ -2005,7 +2008,7 @@
     {
       "id": "P-080",
       "date": "2026-08-12T20:25:00+05:30",
-      "status": "open",
+      "status": "superseded",
       "action": "Raise stop NBIS",
       "ticker": "NBIS",
       "direction": "STOP_RAISE",
@@ -2030,7 +2033,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-13",
-      "retires_when": "n/a -- profit_ratchet is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
+      "retires_when": "n/a -- profit_ratchet is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here",
+      "note": "auto-superseded 2026-08-03 -- folded into P-084 as a repeat of the same open proposal"
     },
     {
       "id": "P-081",
@@ -2061,6 +2065,195 @@
       "review_flags": [],
       "revalidated_on": "2026-08-13",
       "retires_when": "n/a -- profit_ratchet is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
+    },
+    {
+      "id": "P-082",
+      "date": "2026-08-13T11:39:00+05:30",
+      "status": "open",
+      "action": "Trim MSFT",
+      "ticker": "MSFT",
+      "direction": "TRIM",
+      "size_usd": 370,
+      "price_at_proposal": 492.43,
+      "rationale": "RSI14 78.8, +3.35sigma peer-relative (most extended in book), +24.7% 1m -- protect real unrealised gain. Standalone: no intra-cluster laggard exists to rotate into (checked MSFT/AMZN/ORCL, all stretched); cluster tension noted, not cited as support for the trim, per G56.",
+      "trigger_type": "overbought_distribution",
+      "price_source": "yfinance get_stock_price, Wed 2026-08-12 CLOSE (no Thursday US price exists at 02:09 ET)",
+      "pair_id": null,
+      "pair_role": null,
+      "direction_bucket": "TRIM",
+      "history": [
+        {
+          "date": "2026-08-12T20:25:00+05:30",
+          "size_usd": 371.21,
+          "price_at_proposal": 494.95,
+          "rationale": "RSI14 78.8, +24.7% on the month, most extended reading in book -- cluster -7.74pt under so paired intra-cluster with META instead of trimmed to cash, per trigger engine's own blocker guidance. CONDITIONAL -- see buy leg"
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-12T20:25:00+05:30, still open",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 78.8 > 70 (overbought); up +24.7% on the month -- real gain to protect",
+        "caveat -- cluster Compute/Hyperscaler is -10.40pt UNDER its floor -- this trim deepens an existing underweight. The stretch reason stands on its own, but do NOT cite the cluster as support (G56). Prefer an intra-cluster rotation: sell this extended name, buy a lagging one in the same cluster, leaving the cluster weight unchanged.",
+        "recommended 2x, still unactioned"
+      ],
+      "cluster": "Compute/Hyperscaler",
+      "still_valid_because": [
+        "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 78.8 > 70 (overbought); up +24.7% on the month -- real gain to protect",
+        "caveat -- cluster Compute/Hyperscaler is -10.40pt UNDER its floor -- this trim deepens an existing underweight. The stretch reason stands on its own, but do NOT cite the cluster as support (G56). Prefer an intra-cluster rotation: sell this extended name, buy a lagging one in the same cluster, leaving the cluster weight unchanged.",
+        "recommended 2x, still unactioned"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-13",
+      "retires_when": "MSFT RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "id": "P-083",
+      "date": "2026-08-13T11:39:00+05:30",
+      "status": "open",
+      "action": "Trim NBIS",
+      "ticker": "NBIS",
+      "direction": "TRIM",
+      "size_usd": 710,
+      "price_at_proposal": 259.2,
+      "rationale": "Integrated recommendation: 1.846x ATR cap (largest excess after SKHY, -$712.55 headroom deficit) sized to fully cure the cap AND clears scale_out_ladder rung 1 ($518.40 suggested) in one action instead of two.",
+      "trigger_type": "scale_out_ladder",
+      "price_source": "yfinance get_stock_price, Wed 2026-08-12 CLOSE (no Thursday US price exists at 02:09 ET)",
+      "pair_id": null,
+      "pair_role": null,
+      "direction_bucket": "TRIM",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "NBIS at 1.85x its ATR risk cap",
+        "NBIS genuinely stretched: +6.9% 1m, +6.1pp vs SMH -- real profit to take, not just a smaller loss",
+        "scale_out_ladder is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design"
+      ],
+      "cluster": "Compute/Hyperscaler OEM",
+      "full_cure_usd": 713.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 100.0,
+      "still_valid_because": [
+        "NBIS at 1.85x its ATR risk cap",
+        "NBIS genuinely stretched: +6.9% 1m, +6.1pp vs SMH -- real profit to take, not just a smaller loss",
+        "scale_out_ladder is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-13",
+      "retires_when": "n/a -- scale_out_ladder is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
+    },
+    {
+      "id": "P-084",
+      "date": "2026-08-13T11:39:00+05:30",
+      "status": "open",
+      "action": "Raise stop NBIS",
+      "ticker": "NBIS",
+      "direction": "STOP_RAISE",
+      "size_usd": 0,
+      "price_at_proposal": 259.2,
+      "rationale": "Raise stop 192.74 -> 196.01 (breakeven+). Ratchet only, never tightened. Most of this ratchet already self-executed via the ATR trail -- only $19.61 of gain remains at risk pre-trim, effectively none post-trim. Supersedes P-080.",
+      "trigger_type": "profit_ratchet",
+      "price_source": "yfinance get_stock_price, Wed 2026-08-12 CLOSE (no Thursday US price exists at 02:09 ET)",
+      "pair_id": null,
+      "pair_role": null,
+      "direction_bucket": "HOLD",
+      "history": [
+        {
+          "date": "2026-08-12T20:25:00+05:30",
+          "size_usd": 0,
+          "price_at_proposal": 233.055,
+          "rationale": "Up +18.9% vs $196.01 basis, stop at $173.30 is below breakeven -- $136.26 of gain at risk to a retracement; backed by verified Q2 beat + Reflection AI deal, ask (3), zero cash cost"
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-12T20:25:00+05:30, still open",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "NBIS at 1.85x its ATR risk cap",
+        "profit_ratchet is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design",
+        "recommended 2x, still unactioned"
+      ],
+      "cluster": "Compute/Hyperscaler OEM",
+      "still_valid_because": [
+        "NBIS at 1.85x its ATR risk cap",
+        "profit_ratchet is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design",
+        "recommended 2x, still unactioned"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-13",
+      "retires_when": "n/a -- profit_ratchet is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
+    },
+    {
+      "id": "P-085",
+      "date": "2026-08-13T11:39:00+05:30",
+      "status": "open",
+      "action": "Buy VRT",
+      "ticker": "VRT",
+      "direction": "BUY",
+      "size_usd": 600,
+      "price_at_proposal": 296.67,
+      "rationale": "Re-entry, resized down from $850 -- price ran +5.3% since last priced ($281.81->$296.67). Fills AI Power/Cooling -10.16pt underweight, second-deepest hole in the book. Funded from trim proceeds, not the wallet.",
+      "trigger_type": null,
+      "price_source": "yfinance get_stock_price, Wed 2026-08-12 CLOSE (no Thursday US price exists at 02:09 ET)",
+      "pair_id": null,
+      "pair_role": null,
+      "direction_bucket": "BUY",
+      "history": [
+        {
+          "date": "2026-08-12",
+          "size_usd": 850,
+          "price_at_proposal": 281.81,
+          "rationale": "AI Power/Cooling/DC Infra cluster under-floor breach -9.40pt (computed, G56-correct direction = buy) + watchlist target-gap +16.66% + signals whipsaw read, already back above stop price"
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-12, still open",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "AI Power/Cooling/DC Infra under band (-10.2pt)",
+        "recommended 2x, still unactioned"
+      ],
+      "cluster": "AI Power/Cooling/DC Infra",
+      "still_valid_because": [
+        "AI Power/Cooling/DC Infra under band (-10.2pt)",
+        "recommended 2x, still unactioned"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-13",
+      "retires_when": "AI Power/Cooling/DC Infra re-enters its policy band"
+    },
+    {
+      "id": "P-086",
+      "date": "2026-08-13T11:39:00+05:30",
+      "status": "open",
+      "action": "Buy CEG",
+      "ticker": "CEG",
+      "direction": "BUY",
+      "size_usd": 450,
+      "price_at_proposal": 278.68,
+      "rationale": "TARGET GAP + REVERSAL-BUY WATCH, $2,467.56 headroom (most room of any name in the cluster), fills the same -10.16pt Power/Cooling hole as VRT/GEV. Sized modestly given an open, unresolved leverage-concern thesis WATCH flag from a prior run.",
+      "trigger_type": null,
+      "price_source": "yfinance get_stock_price, Wed 2026-08-12 CLOSE (no Thursday US price exists at 02:09 ET)",
+      "pair_id": null,
+      "pair_role": null,
+      "direction_bucket": "BUY",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "AI Power/Cooling/DC Infra under band (-10.2pt)"
+      ],
+      "cluster": "AI Power/Cooling/DC Infra",
+      "still_valid_because": [
+        "AI Power/Cooling/DC Infra under band (-10.2pt)"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-13",
+      "retires_when": "AI Power/Cooling/DC Infra re-enters its policy band"
     }
   ],
   "retracted": [
