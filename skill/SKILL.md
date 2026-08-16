@@ -118,6 +118,14 @@ Compare today against state.json's `us_market_holidays` list (seeded at first ru
 
    **Result: 469KB → 134KB total (71% less), and the slices themselves are 92% smaller — while covering 14 agents instead of 11.**
 
+   **SKIP WHAT CANNOT HAVE CHANGED (added 2026-08-16).** Each slice carries an `inputs_digest` fingerprinting its inline values *and the content of every referenced file*. `slices` compares against the previous run and returns `skip_candidates`: agents whose inputs are **byte-identical** and which reason only over files, so they cannot produce a new finding — reuse their prior output instead of dispatching. On the 2026-08-16 run, `book`, `scout` and `macro` were dispatched against data identical to the previous deep review at roughly 90K subagent tokens each; that is ~270K tokens for three restatements.
+
+   Two categories are **never** listed as skippable, and the distinction is the whole safety of the mechanism:
+   - **External readers** (`signals`, `thesis`, `watchlist`, `catalyst`, `scout`, `macro`, `earnings`, `cycle`, `quality`) — their real input is news and prices, which move even when state does not. An unchanged slice says nothing about the world.
+   - **`strategist`** — its true inputs are the Stage-1 JSON tails, which arrive inline in its prompt and never touch its slice. Its digest can be identical while every analyst finding beneath it changed. **A digest that cannot see an input must never vote on skipping it.**
+
+   So the saving is real but bounded: it applies to `book`, `ledger`, `tax` and `rebound`. Treat `skip_candidates` as a recommendation to verify, not an instruction — and if you skip an agent, say so in the briefing rather than letting its section silently vanish.
+
    You still choose WHICH agents to dispatch and write the prose framing; this guarantees the data half is complete, deduplicated and identical every run. Hand-assembly is what dropped `status:"active"` and `peak_total_book_usd` on 2026-08-16, each silently emptying a dashboard panel.
 
 

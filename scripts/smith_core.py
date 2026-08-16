@@ -39,7 +39,6 @@ Stages the pipeline deliberately does NOT run (each needs something it cannot su
   dismiss     --base-dir DIR --id P-### [--reason "..."]        user-invoked, terminal
   validate    --base-dir DIR                                    policy sanity check, not per-run
 """
-import argparse
 import json
 import math
 import os
@@ -48,7 +47,6 @@ import sys
 from datetime import date, datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import smith_risk
 
 
 """Shared primitives: constants and IO helpers used by every Smith module."""

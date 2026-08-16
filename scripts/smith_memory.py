@@ -12,7 +12,7 @@ from datetime import date, datetime
 
 import smith_risk
 from smith_core import *  # noqa: F401,F403 -- shared constants and IO helpers
-from smith_core import load_json, emit, fail, clamp
+from smith_core import load_json, emit, fail
 from smith_lifecycle import _proposal_parse_date  # `import *` skips underscore names
 
 
@@ -509,6 +509,22 @@ REF_FILES = {
     "market_inputs": "market_inputs.json",
 }
 BASE_REF_FILES = {"lots": "lots.json"}
+
+# Agents whose REAL input is the outside world, not a file. Their slice can be byte-identical to
+# last run's and they still have work to do, because news, prices and filings moved even when
+# state did not. NEVER skip these on an unchanged digest -- that is the difference between a
+# genuine saving and silently going blind.
+EXTERNAL_READERS = {"signals", "thesis", "watchlist", "catalyst", "scout", "macro",
+                    "earnings", "cycle", "quality"}
+# NEVER_SKIP covers a second, subtler case: agents whose true inputs are NOT VISIBLE in their
+# slice, so the digest cannot speak for them. smith-strategist is the example -- it reasons over
+# the Stage-1 JSON tails, which arrive inline in its prompt and never touch its slice file. Its
+# digest can be byte-identical while every analyst finding underneath it changed. A digest that
+# cannot see an input must never be allowed to vote on skipping it.
+NEVER_SKIP = {"strategist"}
+# Everything else (book, ledger, tax, rebound) reasons purely over files this run already
+# produced. If every one is byte-identical to the previous run, the agent has, by construction,
+# nothing new to say.
 SHARED_SOURCES = {"hbm_tracker": "/Users/yb/Claude/HBMTracker/consumer_view.json"}
 GAPS_CAP, FLAGS_CAP = 8, 5
 
@@ -584,6 +600,23 @@ def cmd_slices(args):
     }
 
     shared_once = {}
+    # previous run's digests, for the unchanged-input check
+    prior_run, prior_digests = None, {}
+    runs_root = os.path.dirname(os.path.abspath(rd))
+    try:
+        sibs = sorted(d for d in os.listdir(runs_root)
+                      if os.path.isdir(os.path.join(runs_root, d))
+                      and os.path.join(runs_root, d) != os.path.abspath(rd))
+        if sibs:
+            prior_run = sibs[-1]
+            for f in os.listdir(os.path.join(runs_root, prior_run)):
+                if f.startswith("slice_") and f.endswith(".json"):
+                    d = load_json(os.path.join(runs_root, prior_run, f), default={})
+                    if d.get("inputs_digest"):
+                        prior_digests[f[6:-5]] = d["inputs_digest"]
+    except OSError:
+        pass
+    skippable = []
     want = [a.strip() for a in (args.agents or "").split(",") if a.strip()] or list(AGENT_SLICES)
     written, problems = [], []
     for agent in want:
@@ -635,13 +668,51 @@ def cmd_slices(args):
             if k in ("thesis", "sector_map") and not sl.get(k) and k not in sl["read_these_files"]:
                 problems.append(f"smith-{agent}: '{k}' is neither inline nor referenced -- "
                                 f"refusing to pretend that is a valid embed")
+        # Fingerprint the agent's ACTUAL inputs: inline values plus the CONTENT of every
+        # referenced file (not its path -- paths are stable while contents change).
+        h = hashlib.md5()
+        for k in sorted(k for k in sl if k not in ("read_these_files", "output_file", "today")):
+            h.update(f"{k}={json.dumps(sl[k], sort_keys=True)}".encode())
+        for k, path in sorted(sl["read_these_files"].items()):
+            try:
+                with open(path, "rb") as fh:
+                    h.update(k.encode() + hashlib.md5(fh.read()).digest())
+            except OSError:
+                h.update(k.encode() + b"MISSING")
+        sl["inputs_digest"] = h.hexdigest()[:12]
+
         out = os.path.join(rd, f"slice_{agent}.json")
         with open(out, "w") as fh:
             json.dump(sl, fh, indent=2)
-        written.append({"agent": f"smith-{agent}", "file": out,
-                        "bytes": os.path.getsize(out), "refs": len(sl["read_these_files"])})
+        rec = {"agent": f"smith-{agent}", "file": out, "bytes": os.path.getsize(out),
+               "refs": len(sl["read_these_files"]), "inputs_digest": sl["inputs_digest"]}
+        prior = prior_digests.get(agent)
+        if prior and prior == sl["inputs_digest"]:
+            rec["inputs_unchanged_since"] = prior_run
+            if agent in EXTERNAL_READERS or agent in NEVER_SKIP:
+                rec["skip"] = False
+                rec["skip_reason"] = (
+                    "inputs unchanged BUT this agent reads the outside world -- news and prices "
+                    "moved even though state did not. Dispatch it."
+                    if agent in EXTERNAL_READERS else
+                    "inputs unchanged BUT its real inputs (the Stage-1 tails) are not in its "
+                    "slice, so this digest cannot speak for them. Dispatch it.")
+            else:
+                rec["skip"] = True
+                rec["skip_reason"] = ("every input is byte-identical to " + str(prior_run) +
+                                      " and this agent reasons only over files -- it can have "
+                                      "nothing new to say. Reuse its prior output.")
+                skippable.append(f"smith-{agent}")
+        written.append(rec)
 
     emit({"run_dir": rd, "written": written, "problems": problems,
+          "compared_against": prior_run,
+          "skip_candidates": skippable,
+          "skip_note": ("Agents listed here have byte-identical inputs to the previous run AND "
+                        "reason only over files, so they cannot produce a new finding -- reuse "
+                        "their prior output instead of dispatching. Agents that read the outside "
+                        "world are NEVER listed here even when their slice is unchanged, because "
+                        "their real input is news and prices, not the file."),
           "shared_snapshots": shared_notes,
           "total_bytes": sum(w["bytes"] for w in written),
           "note": ("Small agent-specific state inline; anything already on disk handed over as a "

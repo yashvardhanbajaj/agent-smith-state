@@ -11,7 +11,7 @@ from datetime import date, datetime
 
 import smith_risk
 from smith_core import *  # noqa: F401,F403 -- shared constants and IO helpers
-from smith_core import load_json, emit, fail, clamp
+from smith_core import load_json, emit
 
 
 # Smallest share quantity any broker actually records. Below this a residual is float noise
