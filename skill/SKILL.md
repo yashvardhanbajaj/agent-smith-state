@@ -32,6 +32,16 @@ EVIDENCE PRINCIPLE (added 2026-08-10, G58 — the qualitative counterpart to the
 
 ## FLOW
 
+**READ THIS MAP FIRST.** This section mixes two different things, and conflating them is why the numbering looks odd. Section numbers are STABLE IDENTIFIERS (22 places across the fleet cite `§2.9c`, `§6`, `§7`) — they are **not** a running order. Renumbering would break every one of those citations, so the numbers stay put and this map carries the sequence.
+
+**THE ORDERED SEQUENCE — what actually happens, in order:**
+`0 LOCK` → `0.5 refresher check` → `1 MEMORY` → `1.5 market inputs` → `1.6 holiday check` → `2 prefetch + ticker resolution + COMPUTE (pipeline)` → **`slices`** → `3 STAGE 1 (parallel analysts)` → `4 STAGE 2 (strategist)` → `5 SYNTHESIZE` → `6 DASHBOARD` → `7 PERSIST` → **`compact`** → release lock.
+
+**THE REFERENCE SECTIONS — policies the steps above cite, not steps themselves:**
+`2.5b` price source · `2.6` persist gate · `2.7` data-fetch methods · `2.8` cache TTLs · `2.9` trade-rationale capture · `2.9b` lots backfill · `2.9c` de-risk queue · `2.9d` non-ATR triggers.
+These describe HOW to do parts of step 2 and what the subsystems mean. Read them when the step that cites them runs; do not execute them as a sequence.
+
+
 ### 0. LOCK
 Check `/Users/yb/Claude/AgentSmith/.running`. If it exists with a timestamp <30 minutes old, another sweep is in progress — report that and stop. Otherwise (missing or stale) write the current ISO timestamp to it. DELETE it at the end of the run, including after failures.
 
@@ -119,6 +129,14 @@ Every sub-agent receives the resolved holdings.json AND the relevant compute_*.j
 - **intraday / post-close** → `get_stock_price`, all names in one call. Do NOT use the INDmoney per-name endpoint here; the extended-hours field is meaningless while the cash session is printing.
 - **Never re-pull the same symbol within 20 minutes** unless the user asks for a fresh check or you are about to hand over an actionable stop level.
 
+### 2.6. PERSIST GATE (added 2026-07-28, closes G3)
+`compute_book.json` now emits `reconciliation` and `persist_safe`. The script compares the row-level sum of holdings against the snapshot total and any `aggregate_value_inr` supplied, and sets `persist_safe: false` when either diverges >3%. **When `persist_safe` is false: do NOT write state.json and do NOT append a ledger row.** Report the divergence, run the analysis clearly labelled provisional, and stop. This replaces the manual STALENESS-GATE judgement call for the aggregate-vs-rows case; the live-quote crosscheck in HARD RULES still applies to per-name prices.
+
+### 2.7. DATA-FETCH METHODS THAT WORK (added 2026-07-28)
+- **Daily bars**: yfinance auto-aggregates to weekly for `period >= 3mo`, and caps rows per symbol when many symbols are requested. To force true daily bars use `period='1mo'` with **at most 3 symbols per call** — that reliably returns ~21 daily rows each. ATR20, beta and RSI14 all depend on this.
+- **Earnings dates**: use `get_earnings` and take the latest quarterly `reportedDate` + ~91 days; cross-check near-dated names against FMP's earnings-calendar range endpoint. yfinance's own earnings-calendar endpoint is unreliable (was G20). FMP's per-symbol `earnings-company` endpoint is plan-blocked.
+- **Betas**: compute vs **SMH**, not SPX. The SPX beta was shown to be actively misleading (predicted +0.075% for a session that delivered -5.06%).
+
 ### 2.8. CACHE TTLs — do not refresh what has not moved (added 2026-07-28)
 Measured 2026-07-28: a quick run was costing ~119KB of raw payload (~33k tokens), and **18 of 27 calls were avoidable**. The dominant waste was re-deriving slow-moving quantities.
 
@@ -133,14 +151,6 @@ Measured 2026-07-28: a quick run was costing ~119KB of raw payload (~33k tokens)
 **QUICK runs read every cache as-is and refresh nothing.** A stale ATR20 makes stops marginally wide, which is the safe direction to err. Getting ATR/beta needs 8-9 `get_stock_history` calls (3-symbol batches) — that is the single most expensive thing this desk does and it belongs on a weekly cadence, not a daily one.
 
 **Budget:** lean quick run ≈ 4 calls / 26KB. Lean deep run ≈ 12 calls / 87KB. If a quick run exceeds ~8 calls, something is being re-derived that should have been cached.
-
-### 2.6. PERSIST GATE (added 2026-07-28, closes G3)
-`compute_book.json` now emits `reconciliation` and `persist_safe`. The script compares the row-level sum of holdings against the snapshot total and any `aggregate_value_inr` supplied, and sets `persist_safe: false` when either diverges >3%. **When `persist_safe` is false: do NOT write state.json and do NOT append a ledger row.** Report the divergence, run the analysis clearly labelled provisional, and stop. This replaces the manual STALENESS-GATE judgement call for the aggregate-vs-rows case; the live-quote crosscheck in HARD RULES still applies to per-name prices.
-
-### 2.7. DATA-FETCH METHODS THAT WORK (added 2026-07-28)
-- **Daily bars**: yfinance auto-aggregates to weekly for `period >= 3mo`, and caps rows per symbol when many symbols are requested. To force true daily bars use `period='1mo'` with **at most 3 symbols per call** — that reliably returns ~21 daily rows each. ATR20, beta and RSI14 all depend on this.
-- **Earnings dates**: use `get_earnings` and take the latest quarterly `reportedDate` + ~91 days; cross-check near-dated names against FMP's earnings-calendar range endpoint. yfinance's own earnings-calendar endpoint is unreliable (was G20). FMP's per-symbol `earnings-company` endpoint is plan-blocked.
-- **Betas**: compute vs **SMH**, not SPX. The SPX beta was shown to be actively misleading (predicted +0.075% for a session that delivered -5.06%).
 
 ### 2.9. TRADE RATIONALE CAPTURE (added 2026-07-29, interactive sessions only)
 
@@ -270,7 +280,13 @@ SUB-AGENT FAILURE: retry once via SendMessage to the same agent (resumes from it
 TAIL VALIDATION (on every Stage-1 return, before merging anything into state): the JSON tail must parse and contain that agent's expected top-level keys (per its schema in the agent file). A malformed or key-missing tail counts as a soft failure — SendMessage the agent: "re-emit only your fenced JSON tail, valid JSON, nothing else" (one retry). If still bad, salvage what the output_file contains, note it in data_quality, and never merge a half-parsed tail into state.json — a silently corrupted signal_history or thesis map poisons every later run that embeds it as prior-self context.
 
 ### 4. STAGE 2 — dispatch `smith-strategist` (one Agent call)
-Embed: mode, today's date, the JSON tail RETURNED by each Stage-1 agent (inline), `compute_drift.json` inline (drift table, breaches, cash/AI-capex checks, risk-off status — already computed, the strategist reasons about proposals from it rather than rederiving it), `compute_sentiment.json` inline (band + action_hint: extreme_greed → lead with profit-booking proposals on overweight/breach names; extreme_fear → lead with cash-deployment proposals into the diversifier bench), scout's diversifier-bench tail (deep mode), smith-macro's tail (deep mode — Fed stance, options PCR/max-pain, calendar, and `cluster_impact` which anchors the stress table's AI-capex-pause and rates+100bp scenarios in a live regime read instead of a static assumption), smith-rebound's proposals tail if dispatched (gate classification + support levels + candidate sizing), the output FILE PATHS from every Stage-1 agent as fallback, paths to policy.json/state.json/journal.json/proposals.json/lots.json (policy may be absent — bootstrap), known_gaps, its own output_file. Returns: sized proposals (LTCG-aware, sentiment-aware, rebound-aware on hot days), risk-off status, macro-anchored stress table (deep), hit-rate readout + per-name×bucket signal grades — and a policy draft if bootstrapping.
+Its data embed is already rendered: **`runs/<ts>/slice_strategist.json`**, carrying inline state plus a `read_these_files` map of paths to `drift`, `sentiment`, `risk`, `book`, `derisk`, `triggers`, `rotation`. Hand it that path rather than re-listing every input in prose — that list drifted out of sync with what was actually embedded twice before the slice table existed.
+
+Add inline: the fenced JSON tail RETURNED by each Stage-1 agent, the Stage-1 `output_file` paths as fallback, and its own `output_file`.
+
+**Run `smith_math.py score` BEFORE dispatching.** The strategist consumes the stored scorecard and no longer computes outcomes itself (corrected 2026-08-16 — it had been hand-producing figures the script already wrote, matching by luck; a divergence would have left the desk with two scorecards and no way to adjudicate). If `score` has not run, the strategist will correctly refuse to fill the gap by hand.
+
+Returns: sized proposals, risk-off status, macro-anchored stress table (deep), hit-rate readout, and its interpretation of the scorecard — plus a policy draft if bootstrapping.
 
 ### 5. SYNTHESIZE — one briefing, deltas first
 Header: **Agent Smith — US** (quick) or **Agent Smith — US Deep Review** (deep).
@@ -443,6 +459,13 @@ Every surviving proposal also gets `still_valid_because` (recomputed each run) a
 - last_run_dir — set to this run's `runs/<ts>/` path (enables 0.5 refresher and prior-self reads).
 - Keep only 10 most recent runs/; delete older ones (compute_*.json files included).
 - GIT SNAPSHOT — the state directory is a git repo (initialized 2026-07-18): after all writes, `git add -A && git commit -m "run <ts> <mode>"` (quiet, best-effort — a git failure is a one-line data_quality note, never a run failure). This is the rollback path for any state corruption; it supersedes nothing (the .bak scheme stays).
+- **COMPACT (added 2026-08-16, deep runs).** After all writes succeed, run
+  `python3 scripts/smith_math.py compact --base-dir . --holdings runs/<ts>/holdings.json --today <date> --write`.
+  It archives closed gaps beyond the 8 most recent, thesis/sector_map for names no longer held, and terminal
+  proposals past the 90d scoring window — **archive, never delete**, idempotent, and every evicted record stays
+  queryable via `smith_math.py gaps`. First run freed 97KB (46% of state.json), which matters because state.json
+  is read every run and sliced into every prompt. Run it AFTER persist, never before: compacting first would
+  evict records this run still needs.
 - Delete .running lockfile.
 Emit compact fenced MILESTONE JSON (≤15 lines: agent, mode, ts, usdinr, us{...}, sentiment{score,band}, news_watermark, risk_off_status, proposals count, data_quality).
 
