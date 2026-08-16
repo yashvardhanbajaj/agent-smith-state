@@ -43,6 +43,7 @@ import argparse
 import json
 import math
 import os
+import re
 import sys
 from datetime import date, datetime
 
@@ -1361,13 +1362,39 @@ def _proposal_direction(action):
 def _proposal_infer_ticker(pr):
     if pr.get("ticker"):
         return pr["ticker"]
-    # backfill from the action text: last all-caps token 2-5 chars is almost always the symbol
-    words = (pr.get("action") or "").replace("(", " ").replace(")", " ").split()
-    for w in reversed(words):
-        wc = w.strip(".,")
-        if wc.isupper() and 2 <= len(wc) <= 5 and wc not in ("BUY", "TRIM", "EXIT", "ADD", "HOLD", "NO"):
-            return wc
-    return None
+    # backfill from the action text: last all-caps token 2-5 chars is almost always the symbol.
+    #
+    # FIXED 2026-08-15 (G77). The old version did `.replace("(", " ").replace(")", " ")` --
+    # it stripped the BRACKETS but kept the text inside them, then took the LAST caps token.
+    # On "Re-enter VRT (funded by TSM trim)" that returns TSM: the funding leg named in the
+    # parenthetical, not VRT, the actual subject of the proposal. P-005 was mis-tickered that
+    # way on 2026-07-29 and sat wrong for 32 days. It surfaced only because the new proposal
+    # scorer tried to grade it and produced "TRIM TSM missed by 39.4%" -- scoring VRT's
+    # $305.87 price against TSM's price history. The anchor was never corrupt; the ticker was.
+    #
+    # A parenthetical in this desk's action grammar is always qualifying context ("(funded by
+    # X trim)", "(rotation funding leg)", "(new position)"), never the subject. So DISCARD the
+    # parenthetical content entirely, then take the last caps token from what remains.
+    #   "Re-enter VRT (funded by TSM trim)" -> "Re-enter VRT"  -> VRT   (was TSM)
+    #   "Trim CEG (rotation funding leg)"   -> "Trim CEG"      -> CEG   (unchanged)
+    #   "Top up TSM"                        -> "Top up TSM"    -> TSM   (unchanged)
+    SKIP = ("BUY", "TRIM", "EXIT", "ADD", "HOLD", "NO", "SELL", "SET", "STOP", "RAISE")
+
+    def _last_symbol(text):
+        for w in reversed(text.split()):
+            wc = w.strip(".,;:")
+            if wc.isupper() and 2 <= len(wc) <= 5 and wc not in SKIP:
+                return wc
+        return None
+
+    action = pr.get("action") or ""
+    outside = re.sub(r"\([^)]*\)", " ", action)   # drop parenthetical content, not just brackets
+    sym = _last_symbol(outside)
+    if sym:
+        return sym
+    # Nothing outside the parens -- fall back to the full string rather than returning None,
+    # but this is the ambiguous case and the caller marks it as backfilled either way.
+    return _last_symbol(action.replace("(", " ").replace(")", " "))
 
 
 def _proposal_parse_date(raw):

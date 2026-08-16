@@ -72,12 +72,13 @@
       "price_at_proposal": 305.87,
       "status": "executed",
       "rationale": "Power/Infra cluster is 6.5pt under target (8.5% vs 15%, band [10,20]) after the 07-14 exit -- watchlist found +18.9% upside with uniformly positive post-exit news, and today's signals/thesis agents independently found no bearish trigger for the original exit (reads mechanical/SL-day, not thesis-driven). Net-neutral on the AI-capex factor since VRT is itself in the AI-capex chain -- fixes the Power/Infra underweight without adding fresh non-AI-capex exposure.",
-      "note": "User re-entered VRT with 3sh (~$964 notional) in the 22:10 run -- larger than the $500 proposal but directionally matches; funding came from wallet cash broadly (multiple buys this run), not a dedicated TSM trim (TSM qty unchanged at 6sh). | ticker backfilled from action text (2026-07-29 fix)",
-      "ticker": "TSM",
+      "note": "User re-entered VRT with 3sh (~$964 notional) in the 22:10 run -- larger than the $500 proposal but directionally matches; funding came from wallet cash broadly (multiple buys this run), not a dedicated TSM trim (TSM qty unchanged at 6sh). | TICKER CORRECTED 2026-08-15 (G77): was TSM, is VRT. The 2026-07-29 backfill parsed the action 'Re-enter VRT (funded by TSM trim)' and took the LAST caps token, which is the funding leg inside the parenthetical, not the subject. price_at_proposal $305.87 was never corrupt -- it is VRT's price on 2026-07-14 (VRT traded $287.53-$317.18 that week); it only looked impossible when read against TSM, which traded $386-$448. direction_bucket corrected TRIM->BUY: the proposal's subject action is re-entering VRT. This proposal's own note already recorded that the TSM leg never happened ('TSM qty unchanged at 6sh').",
+      "ticker": "VRT",
       "id": "P-005",
-      "direction_bucket": "TRIM",
-      "outcome_pct": null,
-      "outcome_verdict": "needs_anchor_review",
+      "direction_bucket": "BUY",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "outcome_pct": -3.93,
+      "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-15"
     },
@@ -145,8 +146,8 @@
       "status": "fulfilled",
       "rationale": "Both clusters over band, AI-capex capped-out; STM already CLUSTER_FULL per rebound and a laggard per watchlist; avoid NVDA/AMD (today RS leaders)",
       "closure_note": "fulfilled -- smith-rebound confirmed a 5-share STM trim on 2026-07-18 closely matches this proposal's size (~$400) and rationale (cluster-full/laggard); reads as the user executing this call, not an independent stop-loss",
-      "ticker": "AI",
-      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "ticker": "STM",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | TICKER CORRECTED 2026-08-15 (G77 sweep): was 'AI', is STM. The 2026-07-29 backfill took the last all-caps token from 'Trim STM (AI Semis/Fabs + Memory/Storage cluster overage)' and picked up 'AI' out of the CLUSTER NAME. 'AI' is a real ticker (C3.ai), so this silently pointed at the wrong instrument rather than failing visibly -- the same class as the 2026-07-13 MEM/DRAM mislabeling. price_at_proposal is null so it never scored, but it would have scored the wrong company.",
       "id": "P-010",
       "direction_bucket": "TRIM"
     },
@@ -2692,8 +2693,8 @@
   "scorecard": {
     "as_of": "2026-08-15",
     "trim_accuracy_30d": 0.0,
-    "add_accuracy_30d": 33.3,
-    "overall_accuracy_30d": 16.7,
+    "add_accuracy_30d": 25.0,
+    "overall_accuracy_30d": 14.3,
     "by_direction": {
       "TRIM/SELL": {
         "n": 1,
@@ -2704,12 +2705,12 @@
         "avg_benefit_pct": 0.31
       },
       "BUY": {
-        "n": 3,
+        "n": 4,
         "worked": 1,
-        "missed": 1,
+        "missed": 2,
         "neutral": 1,
-        "accuracy_pct": 33.3,
-        "avg_benefit_pct": -4.67
+        "accuracy_pct": 25.0,
+        "avg_benefit_pct": -4.49
       },
       "HOLD": {
         "n": 2,
@@ -2721,21 +2722,20 @@
       }
     },
     "overall": {
-      "n": 6,
+      "n": 7,
       "worked": 1,
-      "missed": 3,
+      "missed": 4,
       "neutral": 2,
-      "accuracy_pct": 16.7,
-      "avg_benefit_pct": -3.75
+      "accuracy_pct": 14.3,
+      "avg_benefit_pct": -3.77
     },
-    "scored_count": 6,
-    "quarantined_anchor_review": 1,
+    "scored_count": 7,
+    "quarantined_anchor_review": 0,
     "excluded_dismissed_by_user": 9,
     "not_yet_30d": 43,
     "note": "Direction-aware: a TRIM 'worked' if the price FELL after it, a BUY if it ROSE, a HOLD if the move stayed inside the +/-2.0% noise band. Threshold shared with the journal scorer so 'worked' means the same magnitude in both. dismissed_by_user proposals are excluded -- a user override is not a strategist error.",
     "data_quality": [
-      "43 proposal(s) are under 30 days old -- not yet in the scoring window.",
-      "QUARANTINED pending anchor review, excluded from the scorecard: P-005 TRIM TSM implies +39.4% from a $305.87 anchor. Verify the anchor against price history before trusting these."
+      "43 proposal(s) are under 30 days old -- not yet in the scoring window."
     ]
   },
   "last_updated": "2026-08-04T18:20:00+05:30"
