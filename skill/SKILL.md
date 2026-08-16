@@ -93,18 +93,23 @@ Compare today against state.json's `us_market_holidays` list (seeded at first ru
    - `python3 scripts/smith_math.py triggers --base-dir . --run-dir runs/<ts> --today <date>` → `compute_triggers.json` (needs `compute_risk.json`, `compute_rotation.json`, `compute_drift.json` and `compute_book.json` in the run dir first — see §2.9d)
    - Any subcommand exiting non-zero: note it in data_quality and have the corresponding sub-agent compute that section inline as a fallback (book↔smith-book, journal↔smith-signals, attribution↔smith-watchlist, drift↔smith-strategist, sentiment↔smith-scout) — same graceful-degradation contract as a failed sub-agent.
 
-5. **RENDER THE AGENT EMBEDS — do not hand-assemble them** (added 2026-08-16):
+5. **RENDER THE AGENT EMBEDS — do not hand-assemble them** (added 2026-08-16, rebuilt the same day after measuring it):
+
    `python3 scripts/smith_math.py slices --base-dir . --run-dir runs/<ts> --mode <mode> --today <date> [--agents a,b,c]`
-   writes `runs/<ts>/slice_<agent>.json` for every agent, rendered from the `AGENT_SLICES` table
-   which encodes section 3's embed spec as data. **Hand-assembling these is how fields get
-   silently dropped**: on 2026-08-16 two hand-built embeds omitted `status: "active"` from
-   diversifier_candidates and `peak_total_book_usd` from the `us` block, and each silently
-   emptied a dashboard panel — caught only by an unrelated section-count guard. A direct
-   comparison the same day showed the generated thesis slice carried **16 declared fields the
-   hand-built one had dropped**. Read the command's `problems` array before dispatching: a
-   missing compute file or an empty required slice is reported there, never silently written.
-   You still choose WHICH agents to dispatch and write the prose framing; this guarantees the
-   data half is complete and identical every run.
+
+   **THE DATA FLOW, in order — this ordering is the efficiency, not an accident:**
+   `market inputs + holdings` → `pipeline` (9 computes, writes compute_*.json) → **`slices`** → dispatch agents → merge tails → PERSIST → `compact`.
+   Slices MUST run after the pipeline, because it hands agents *paths* to compute files and reports any that are missing in `problems`. Read that array before dispatching.
+
+   **What it does and why.** v1 inlined everything and was measured: 11 slices, 469KB, **56.3% duplicated payload** — `thesis` copied into 4 agents at 27KB each, `open_flags` broadcast to all 10, and `compute_*.json` inlined into 5 agents *despite those files already sitting in the same directory*. v2 fixes three things:
+   - **Refs, not copies.** Anything already on disk is handed over as a path in `read_these_files`. Agents read what they need, when they need it, and can read selectively instead of carrying 27KB to use one field of.
+   - **Content-addressed shared payloads.** Any payload ≥2KB is materialised **once** into `runs/<ts>/shared/<name>.<hash>.json` and referenced. Dedup is by **content**, so two agents asking for the same data under different keys still get one file. A size rule rather than a hand-maintained list of "big keys", because such a list is one more thing that goes stale.
+   - **Shared external snapshots.** Resources more than one agent reads — the HBM tracker is read by `thesis`, `catalyst` **and** `cycle` — are snapshotted once into `shared/`. This cuts three live reads to one **and removes a real correctness hazard: agents reading the same moving file at different moments can legitimately disagree, and then the desk holds two "facts".** The snapshot makes each run internally consistent by construction.
+
+   **Result: 469KB → 134KB total (71% less), and the slices themselves are 92% smaller — while covering 14 agents instead of 11.**
+
+   You still choose WHICH agents to dispatch and write the prose framing; this guarantees the data half is complete, deduplicated and identical every run. Hand-assembly is what dropped `status:"active"` and `peak_total_book_usd` on 2026-08-16, each silently emptying a dashboard panel.
+
 
 Every sub-agent receives the resolved holdings.json AND the relevant compute_*.json inline — none of them re-fetches the holdings list or redoes arithmetic the script already did.
 

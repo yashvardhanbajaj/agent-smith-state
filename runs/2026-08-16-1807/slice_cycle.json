@@ -27,20 +27,13 @@
     }
   ],
   "known_gaps_truncated": 0,
-  "agent": "smith-strategist",
-  "output_file": "runs/2026-08-16-1807/smith-strategist-output.md",
+  "agent": "smith-cycle",
+  "output_file": "runs/2026-08-16-1807/smith-cycle-output.md",
   "holdings_path": "runs/2026-08-16-1807/holdings.json",
   "read_these_files": {
-    "thesis": "runs/2026-08-16-1807/shared/thesis.eb87d8d1.json",
-    "preferences": "runs/2026-08-16-1807/shared/preferences.b6a7f928.json",
-    "open_flags": "runs/2026-08-16-1807/shared/open_flags.c266c166.json",
+    "factor_themes": "runs/2026-08-16-1807/shared/factor_themes.df5fda9a.json",
     "drift": "runs/2026-08-16-1807/compute_drift.json",
-    "sentiment": "runs/2026-08-16-1807/compute_sentiment.json",
-    "risk": "runs/2026-08-16-1807/compute_risk.json",
-    "book": "runs/2026-08-16-1807/compute_book.json",
-    "derisk": "runs/2026-08-16-1807/compute_derisk.json",
-    "triggers": "runs/2026-08-16-1807/compute_triggers.json",
-    "rotation": "runs/2026-08-16-1807/compute_rotation.json",
+    "hbm_tracker": "runs/2026-08-16-1807/shared/hbm_tracker.json",
     "holdings": "runs/2026-08-16-1807/shared/holdings_trim.0d56f739.json"
   },
   "sector_map": {
@@ -79,5 +72,44 @@
     "BX": "Alternative Asset Manager/Diversifier",
     "STM": "Analog/Industrial Semis",
     "TXN": "Analog/Industrial Semis"
+  },
+  "data_cache.earnings_facts": {
+    "VRT": {
+      "period": "Q2 2026",
+      "reported_date": "2026-08-06",
+      "revenue_actual": 3270000000,
+      "revenue_consensus": 3380000000,
+      "eps_actual": 1.52,
+      "eps_consensus": 1.43,
+      "guide_next_q": 3750000000,
+      "guide_consensus": 3710000000,
+      "source": "stockanalysis.com/stocks/vrt",
+      "verified_on": "2026-08-14"
+    },
+    "AMD": {
+      "period": "Q2 FY2026",
+      "reported_date": "2026-08-04",
+      "revenue_actual": 11540000000,
+      "revenue_consensus": null,
+      "eps_actual": 1.66,
+      "eps_consensus": null,
+      "guide_next_q": null,
+      "guide_consensus": null,
+      "source": "INDmoney news + stockanalysis.com",
+      "verified_on": "2026-08-14"
+    },
+    "COHR": {
+      "period": "Q4 FY2026",
+      "reported_date": "2026-08-12",
+      "revenue_actual": 2045000000,
+      "revenue_consensus": 2025000000,
+      "eps_actual": 1.74,
+      "eps_consensus": 1.65,
+      "guide_next_q": "$2.2-2.4B rev / $1.85-2.05 EPS (raised above the reported quarter)",
+      "guide_consensus": null,
+      "source": "Benzinga + stockanalysis.com",
+      "verified_on": "2026-08-15",
+      "note": "BEAT on revenue and EPS with a stronger-than-expected FY27 outlook; stock fell DESPITE the beat. Recorded because smith-catalyst mischaracterised it as a miss."
+    }
   }
 }

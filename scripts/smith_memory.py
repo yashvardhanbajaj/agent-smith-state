@@ -5,6 +5,7 @@ four unrelated domains. Shared primitives live in smith_core; smith_math keeps t
 per-run compute stages, the pipeline runner and the CLI, and imports these.
 """
 
+import hashlib
 import json
 import os
 from datetime import date, datetime
@@ -441,40 +442,111 @@ def cmd_validate(args):
 # It does NOT replace the orchestrator's judgement about WHICH agents to dispatch, or the prose
 # framing of a prompt. It guarantees the DATA half is complete and identical every run.
 
+
+
+# ---------------------------------------------------------------------------
+# SLICES -- per-agent embeds, rebuilt 2026-08-16 after measuring the first version
+# ---------------------------------------------------------------------------
+# v1 rendered 11 slices totalling 368KB of which **56.3% was duplicated payload**: `thesis`
+# copied into 4 agents at 27KB each, `open_flags` broadcast to 10 agents at 3KB each, and
+# `compute_*.json` inlined into 5 agents despite those files ALREADY EXISTING in the same run
+# directory. Copying a file that sits next to the reader is pure waste.
+#
+# Measured on the same run, agents were also re-pulling identical EXTERNAL data: the HBM tracker
+# was read by smith-thesis AND smith-catalyst (smith-cycle now makes three), stockanalysis.com
+# by watchlist AND thesis, yfinance by scout, macro and book.
+#
+# Three changes:
+#   1. REFS, NOT COPIES. Anything already on disk in the run dir is handed over as a PATH in
+#      `read_these_files`. The agent reads what it needs, when it needs it, and can read
+#      selectively rather than carrying 27KB to use one field of.
+#   2. SHARED SNAPSHOTS. External resources more than one agent reads are snapshotted ONCE into
+#      runs/<ts>/shared/. This cuts duplicate fetches, and removes a real correctness hazard:
+#      agents reading the same LIVE file at different moments can legitimately disagree, and
+#      then the desk holds two "facts". A snapshot makes the run internally consistent.
+#   3. OPT-IN BROADCAST. open_flags went to all 10 agents because "embed in every prompt" was
+#      read literally. Only agents that act on flags receive them.
+
 AGENT_SLICES = {
     "signals":    {"state": ["news_watermark", "signal_history", "signal_history_as_of",
                              "open_flags", "peer_map"],
-                   "cache": ["atr20"], "compute": ["journal"], "holdings": "trim"},
-    "thesis":     {"state": ["thesis", "sector_map", "news_watermark"],
-                   "cache": ["etf_constituents", "earnings_facts"], "compute": [],
-                   "holdings": "trim", "full_thesis": True},
+                   "cache": ["atr20"], "refs": ["journal"], "holdings": "trim"},
+    "thesis":     {"state": ["thesis", "sector_map", "news_watermark", "open_flags"],
+                   "cache": ["etf_constituents", "earnings_facts"], "refs": [],
+                   "holdings": "trim", "shared": ["hbm_tracker"]},
     "watchlist":  {"state": ["news_watermark", "watchlist_scan_cursor"],
-                   "cache": ["earnings_calendar"], "compute": ["attribution"],
-                   "holdings": "trim"},
-    "book":       {"state": [], "cache": ["betas"], "compute": ["book"], "holdings": "full",
-                   "extra_files": ["lots.json"]},
-    "scout":      {"state": ["diversifier_candidates"], "cache": [], "compute": ["sentiment"],
-                   "holdings": "trim", "extra_files": ["market_inputs.json"]},
-    "macro":      {"state": ["fomc_cache"], "cache": [], "compute": ["sentiment"],
-                   "holdings": None, "extra_files": ["market_inputs.json"]},
+                   "cache": ["earnings_calendar"], "refs": ["attribution"], "holdings": "trim"},
+    "book":       {"state": [], "cache": ["betas"], "refs": ["book", "lots"], "holdings": None},
+    "scout":      {"state": ["diversifier_candidates"], "cache": [],
+                   "refs": ["sentiment", "market_inputs"], "holdings": "trim"},
+    "macro":      {"state": ["fomc_cache"], "cache": [],
+                   "refs": ["sentiment", "market_inputs"], "holdings": None},
     "catalyst":   {"state": ["factor_themes", "factor_catalysts", "news_watermark"],
-                   "cache": [], "compute": ["drift"], "holdings": "trim"},
-    "quality":    {"state": ["thesis"], "cache": [], "compute": ["book"], "holdings": "trim"},
-    "rebound":    {"state": ["thesis", "sector_map"], "cache": [], "compute": ["book", "risk"],
+                   "cache": [], "refs": ["drift"], "holdings": "trim",
+                   "shared": ["hbm_tracker"]},
+    "cycle":      {"state": ["factor_themes", "sector_map"], "cache": ["earnings_facts"],
+                   "refs": ["drift"], "holdings": "trim", "shared": ["hbm_tracker"]},
+    "earnings":   {"state": [], "cache": ["earnings_calendar", "earnings_facts"],
+                   "refs": ["book"], "holdings": "trim"},
+    "tax":        {"state": ["thesis"], "cache": [], "refs": ["book", "lots"],
+                   "holdings": "trim"},
+    "quality":    {"state": ["open_flags"], "cache": [], "refs": ["book"], "holdings": "trim"},
+    "rebound":    {"state": ["sector_map"], "cache": [], "refs": ["book", "risk"],
                    "holdings": "full"},
-    "ledger":     {"state": [], "cache": ["ticker_map"], "compute": ["book"], "holdings": "full",
-                   "extra_files": ["lots.json"]},
-    "strategist": {"state": ["thesis", "sector_map", "preferences"], "cache": [],
-                   "compute": ["drift", "sentiment", "risk", "book", "derisk", "triggers",
-                               "rotation"],
+    "ledger":     {"state": [], "cache": ["ticker_map"], "refs": ["book", "lots"],
+                   "holdings": "full"},
+    "strategist": {"state": ["thesis", "sector_map", "preferences", "open_flags"], "cache": [],
+                   "refs": ["drift", "sentiment", "risk", "book", "derisk", "triggers",
+                            "rotation"],
                    "holdings": "trim"},
 }
 
-# Every agent gets these, per SKILL section 3's "Embed in EVERY prompt".
+REF_FILES = {
+    "book": "compute_book.json", "risk": "compute_risk.json", "drift": "compute_drift.json",
+    "journal": "compute_journal.json", "attribution": "compute_attribution.json",
+    "rotation": "compute_rotation.json", "sentiment": "compute_sentiment.json",
+    "derisk": "compute_derisk.json", "triggers": "compute_triggers.json",
+    "market_inputs": "market_inputs.json",
+}
+BASE_REF_FILES = {"lots": "lots.json"}
+SHARED_SOURCES = {"hbm_tracker": "/Users/yb/Claude/HBMTracker/consumer_view.json"}
 GAPS_CAP, FLAGS_CAP = 8, 5
 
+# Any single payload at or above this size is materialised ONCE into runs/<ts>/shared/ and
+# referenced by path instead of being copied into each slice. A size rule rather than a
+# hand-maintained list of "big keys", because a hand-maintained list is one more thing that goes
+# stale -- `thesis` was 27KB and copied 3 times, `holdings` 3KB copied 10 times, and both would
+# have had to be remembered. The threshold self-tunes as the book grows.
+INLINE_MAX_BYTES = 2048
+
+
+def _place(sl, key, value, shared_dir, shared_once, name=None):
+    """Inline a small payload; materialise a large one ONCE into shared/ and hand over a path.
+
+    Deduplication is by CONTENT, not by key name: two agents asking for the same payload under
+    different keys still get one file. Identical bytes for every reader is the point -- it is
+    both smaller and safer than each agent holding its own copy.
+    """
+    if value is None:
+        sl[key] = None
+        return
+    blob = json.dumps(value, indent=2)
+    if len(blob) < INLINE_MAX_BYTES:
+        sl[key] = value
+        return
+    fname = (name or key).replace(".", "_")
+    digest = hashlib.md5(blob.encode()).hexdigest()[:8]
+    path = shared_once.get(digest)
+    if path is None:
+        path = os.path.join(shared_dir, f"{fname}.{digest}.json")
+        with open(path, "w") as fh:
+            fh.write(blob)
+        shared_once[digest] = path
+    sl["read_these_files"][key] = path
+
+
 def cmd_slices(args):
-    """Render each dispatched agent's data embed to runs/<ts>/slice_<agent>.json."""
+    """Render each agent's embed: small state inline, everything file-backed by reference."""
     base, rd = args.base_dir, args.run_dir
     state = load_json(os.path.join(base, "state.json"), default={})
     holdings = load_json(os.path.join(rd, "holdings.json"), default={})
@@ -483,23 +555,35 @@ def cmd_slices(args):
     trim = [{"ticker": r.get("ticker"), "name": r.get("name"), "qty": r.get("qty"),
              "weight_pct": round(r.get("weight_pct") or 0, 2)} for r in rows]
 
+    shared_dir = os.path.join(rd, "shared")
+    os.makedirs(shared_dir, exist_ok=True)
+    shared_paths, shared_notes = {}, []
+    for name, src in SHARED_SOURCES.items():
+        payload = load_json(src, default=None)
+        if payload is None:
+            shared_notes.append(f"{name}: source {src} UNREADABLE -- agents must degrade, not guess")
+            continue
+        dst = os.path.join(shared_dir, f"{name}.json")
+        with open(dst, "w") as fh:
+            json.dump(payload, fh, indent=2)
+        shared_paths[name] = dst
+        shared_notes.append(f"{name}: snapshotted once from {src}; every agent this run reads "
+                            f"the SAME bytes and cannot disagree about it")
+
     dc = state.get("data_cache") or {}
     live_gaps = [g for g in (state.get("known_gaps") or []) if smith_risk.gap_is_live(g)]
     common = {
         "mode": args.mode, "today": args.today or str(date.today()),
         "market_session": holdings.get("market_session"),
         "gate_classification": holdings.get("gate_classification"),
-        "macro": holdings.get("macro_strip") or {},
-        "usdinr": holdings.get("usdinr"),
-        "holdings_path": os.path.join(rd, "holdings.json"),
-        # capped per SKILL's EMBED DISCIPLINE -- never broadcast the full registry
+        "macro": holdings.get("macro_strip") or {}, "usdinr": holdings.get("usdinr"),
         "known_gaps": [{"id": g.get("id"), "status": smith_risk.gap_status(g),
                         "gap": (g.get("gap") or g.get("description") or "")[:240]}
                        for g in live_gaps[:GAPS_CAP]],
         "known_gaps_truncated": max(0, len(live_gaps) - GAPS_CAP),
-        "open_flags": (state.get("open_flags") or [])[-FLAGS_CAP:],
     }
 
+    shared_once = {}
     want = [a.strip() for a in (args.agents or "").split(",") if a.strip()] or list(AGENT_SLICES)
     written, problems = [], []
     for agent in want:
@@ -510,45 +594,57 @@ def cmd_slices(args):
         sl = dict(common)
         sl["agent"] = f"smith-{agent}"
         sl["output_file"] = os.path.join(rd, f"smith-{agent}-output.md")
+        sl["holdings_path"] = os.path.join(rd, "holdings.json")
+        sl["read_these_files"] = {}
 
         for k in spec["state"]:
             v = state.get(k)
-            # thesis/sector_map: held names only unless the agent owns the whole map
-            if k in ("thesis", "sector_map") and isinstance(v, dict) and not spec.get("full_thesis"):
+            if k in ("thesis", "sector_map") and isinstance(v, dict):
                 v = {t: x for t, x in v.items() if t in held}
-            sl[k] = v
+            if k == "open_flags":
+                v = (v or [])[-FLAGS_CAP:]
+            _place(sl, k, v, shared_dir, shared_once)
         for k in spec["cache"]:
-            sl[f"data_cache.{k}"] = dc.get(k)
-        for c in spec["compute"]:
-            path = os.path.join(rd, f"compute_{c}.json")
-            payload = load_json(path, default=None)
-            if payload is None:
-                problems.append(f"smith-{agent}: compute_{c}.json MISSING -- run the pipeline first")
-            sl[f"compute_{c}"] = payload
-        for f in spec.get("extra_files", []):
-            cand = os.path.join(rd, f)
-            cand = cand if os.path.exists(cand) else os.path.join(base, f)
-            sl[f] = load_json(cand, default=None)
-        if spec.get("holdings") == "trim":
-            sl["holdings"] = trim
-        elif spec.get("holdings") == "full":
-            sl["holdings"] = rows
+            _place(sl, f"data_cache.{k}", dc.get(k), shared_dir, shared_once)
 
-        # completeness assertion -- an empty required slice is the silent-drop failure this
-        # command exists to prevent, so it is reported, never quietly written
+        for r in spec.get("refs", []):
+            path = (os.path.join(rd, REF_FILES[r]) if r in REF_FILES
+                    else os.path.join(base, BASE_REF_FILES[r]) if r in BASE_REF_FILES else None)
+            if path is None:
+                problems.append(f"smith-{agent}: unknown ref '{r}'")
+            elif not os.path.exists(path):
+                problems.append(f"smith-{agent}: {os.path.basename(path)} MISSING -- run the "
+                                f"pipeline before rendering slices")
+            else:
+                sl["read_these_files"][r] = path
+        for sname in spec.get("shared", []):
+            if sname in shared_paths:
+                sl["read_these_files"][sname] = shared_paths[sname]
+            else:
+                problems.append(f"smith-{agent}: shared source '{sname}' unavailable this run")
+
+        if spec.get("holdings") == "trim":
+            _place(sl, "holdings", trim, shared_dir, shared_once, name="holdings_trim")
+        elif spec.get("holdings") == "full":
+            _place(sl, "holdings", rows, shared_dir, shared_once, name="holdings_full")
+
+        # completeness: a required payload must be present EITHER inline OR as a ref -- it
+        # moved representation when large payloads became content-addressed, and a guard that
+        # only knows the old shape reports false alarms instead of real ones.
         for k in spec["state"]:
-            if k in ("thesis", "sector_map") and not sl.get(k):
-                problems.append(f"smith-{agent}: '{k}' rendered EMPTY -- refusing to pretend "
-                                f"that is a valid embed")
+            if k in ("thesis", "sector_map") and not sl.get(k) and k not in sl["read_these_files"]:
+                problems.append(f"smith-{agent}: '{k}' is neither inline nor referenced -- "
+                                f"refusing to pretend that is a valid embed")
         out = os.path.join(rd, f"slice_{agent}.json")
         with open(out, "w") as fh:
             json.dump(sl, fh, indent=2)
         written.append({"agent": f"smith-{agent}", "file": out,
-                        "bytes": os.path.getsize(out), "keys": len(sl)})
+                        "bytes": os.path.getsize(out), "refs": len(sl["read_these_files"])})
 
     emit({"run_dir": rd, "written": written, "problems": problems,
+          "shared_snapshots": shared_notes,
           "total_bytes": sum(w["bytes"] for w in written),
-          "note": ("Renders SKILL section 3's embed table deterministically. The orchestrator "
-                   "still decides WHICH agents run and writes the prose framing -- this "
-                   "guarantees the DATA half is complete and identical every run, which "
-                   "hand-assembly twice failed to do on 2026-08-16.")})
+          "note": ("Small agent-specific state inline; anything already on disk handed over as a "
+                   "path in `read_these_files`, never copied. Shared external sources are "
+                   "snapshotted once into runs/<ts>/shared/ -- fewer fetches, and every agent "
+                   "this run sees identical bytes.")})
