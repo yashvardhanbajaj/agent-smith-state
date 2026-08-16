@@ -528,6 +528,8 @@ def cmd_book(args):
         for trade in trades.get("trades", []):
             if trade.get("ticker") != qc["ticker"]:
                 continue
+            if trade.get("type") == "corporate_action":
+                continue  # a conversion/split is not a trade and has no rationale to capture
             if _sign_of(trade) != want:
                 continue
             d = _proposal_parse_date(trade.get("date", ""))
@@ -2271,6 +2273,248 @@ def _months_between(d_iso, today):
     return (today.year - d.year) * 12 + (today.month - d.month) + (today.day - d.day) / 30.44
 
 
+# ---------------------------------------------------------------------------
+# lots -- deterministic FIFO with corporate-action support
+# ---------------------------------------------------------------------------
+# WHY THIS EXISTS (added 2026-08-15). Two things were wrong at once.
+#
+# 1. FIFO WAS BEING DONE BY AN LLM. lots.json is the desk's cost-basis and holding-period
+#    record, and until now it was rebuilt by hand by the smith-ledger sub-agent. Consuming
+#    lots oldest-first is pure deterministic arithmetic over data already on disk -- exactly
+#    what the COMPUTE-FIRST PRINCIPLE says must never be an LLM's job. It stayed that way only
+#    because nobody had written the engine.
+#
+# 2. THE LEDGER COULD NOT EXPRESS EVENTS THAT MOVE SHARES WITHOUT A TRADE. Share-class
+#    conversions, splits, fractional-share credits and DRIP all change share counts and
+#    generate NO buy/sell confirmation, so an email-sourced ledger simply cannot see them.
+#    That produced two standing gaps: G71 (GOOG's FIFO runs -2.9919sh -- it "sold" three more
+#    shares than it ever bought, across a GOOG->GOOGL conversion) and G68 (QCOM +3.0sh and
+#    MSFT +1.5sh over-counted against the broker, with fractional-share activity visible in
+#    the fills). Both are the same shape: a real event the schema had no row for.
+#
+# The corporate-action row closes that. Critically it CARRIES COST BASIS AND ACQUISITION DATE
+# through a conversion or split -- a conversion is not a sale and a split is not a purchase,
+# so neither restarts the LTCG holding-period clock. Getting that wrong would silently reset
+# every affected lot's clock and corrupt the tax picture, which is worse than the gap it fixes.
+#
+# It also refuses to clamp. If a sell consumes more than exists, the old hand-FIFO floored at
+# zero and moved on, which is how a phantom short stayed invisible until someone eyeballed a
+# negative. Here it is recorded as a `phantom_short` and reported.
+
+CA_TYPES = ("conversion", "split", "fractional_credit", "spinoff", "adjustment")
+
+
+def _lot_sort_key(lot):
+    """Oldest first. A lot with no date sorts FIRST -- synthetic pre-history lots from the
+    2.9b backfill are by construction the oldest thing in the book, so consuming them first
+    is both chronologically right and the conservative LTCG choice."""
+    return (lot.get("date") or "0000-00-00", lot.get("price_usd") or 0)
+
+
+def _consume_fifo(lot_list, qty, log, ticker, when):
+    """Remove `qty` shares oldest-first. Returns (consumed_lots, shortfall).
+
+    consumed_lots preserves each slice's original date and price so a conversion can carry
+    them to the destination symbol. shortfall > 0 means the record claims more shares left
+    than it ever recorded arriving -- surfaced, never silently floored at zero.
+    """
+    remaining, consumed = qty, []
+    lot_list.sort(key=_lot_sort_key)
+    while remaining > 1e-9 and lot_list:
+        lot = lot_list[0]
+        take = min(lot["qty"], remaining)
+        consumed.append({"qty": take, "date": lot.get("date"), "price_usd": lot.get("price_usd")})
+        lot["qty"] -= take
+        remaining -= take
+        if lot["qty"] <= 1e-9:
+            lot_list.pop(0)
+    if remaining > 1e-9:
+        log.append({"ticker": ticker, "date": when, "shortfall_qty": round(remaining, 6),
+                    "note": "sell/conversion consumed more shares than the record ever shows "
+                            "arriving -- phantom short, NOT clamped to zero (G71 signature)"})
+    return consumed, remaining
+
+
+def cmd_lots(args):
+    """Rebuild lots.json from trades.json by deterministic FIFO, honouring corporate actions.
+
+    CORPORATE-ACTION ROW SHAPE (in trades.json; a row with no `type` is a plain trade, so
+    every one of the existing 803 rows keeps working unchanged):
+
+      {"date":"2026-06-15", "type":"corporate_action", "ca_type":"conversion",
+       "ticker":"GOOG", "qty_change":-3.0,          # shares leaving this symbol
+       "to_ticker":"GOOGL", "to_qty":3.0,           # shares arriving at that one
+       "ratio":null,                                # split only: new shares per old
+       "price_at_trade":null,                       # corporate actions have no fill price
+       "reason":"corporate_action",
+       "source":"brokerage statement 2026-06",      # REQUIRED -- this data is not in email
+       "notes":"GOOG->GOOGL share-class conversion"}
+
+    ca_type semantics:
+      conversion        move shares between symbols, CARRYING basis and acquisition date.
+                        Not a taxable sale; the holding-period clock does not restart.
+      split             multiply every open lot by `ratio`, divide its per-share price by the
+                        same. Total basis and every acquisition date unchanged.
+      fractional_credit shares appearing with no purchase (DRIP, fractional program). Basis is
+                        `price_at_trade` if stated, else 0 -- and 0 is FLAGGED, because a
+                        zero-basis lot overstates future gains if it is wrong.
+      spinoff           like conversion but the source keeps its shares; destination lots are
+                        created dated the spinoff, basis 0 unless stated.
+      adjustment        an explicit, sourced reconciliation to broker truth when the cause is
+                        genuinely unknown. The honest escape hatch: it records that a delta was
+                        applied and why, instead of force-matching lots and pretending the
+                        record was always right. Always shows up in the output.
+    """
+    trades = load_json(os.path.join(args.base_dir, "trades.json"), default={"trades": []})
+    rows = list(trades.get("trades", []))
+    rows.sort(key=lambda r: (r.get("date") or "", r.get("fill_time_utc") or ""))
+
+    lots, shorts, applied_ca, warnings = {}, [], [], []
+
+    for r in rows:
+        tk = r.get("ticker")
+        if not tk:
+            continue
+        when = r.get("date")
+        lots.setdefault(tk, [])
+        rtype = r.get("type", "trade")
+
+        if rtype != "corporate_action":
+            q = r.get("qty_change") or 0
+            if q > 0:
+                lots[tk].append({"qty": q, "date": when, "price_usd": r.get("price_at_trade"),
+                                 "price_source": r.get("price_source") or "trade"})
+            elif q < 0:
+                _consume_fifo(lots[tk], -q, shorts, tk, when)
+            continue
+
+        ca = r.get("ca_type")
+        if ca not in CA_TYPES:
+            warnings.append(f"{tk} {when}: unknown ca_type {ca!r} -- row ignored, nothing applied")
+            continue
+        if not r.get("source"):
+            warnings.append(f"{tk} {when}: corporate action has no `source` -- this data cannot "
+                            f"come from email, so an unsourced row is unverifiable")
+
+        if ca == "split":
+            ratio = r.get("ratio")
+            if not ratio or ratio <= 0:
+                warnings.append(f"{tk} {when}: split needs a positive `ratio` -- row ignored")
+                continue
+            for lot in lots[tk]:
+                lot["qty"] *= ratio
+                if lot.get("price_usd"):
+                    lot["price_usd"] = lot["price_usd"] / ratio
+            applied_ca.append({"date": when, "ca_type": ca, "ticker": tk, "ratio": ratio,
+                               "note": "qty scaled, per-share basis inversely scaled; total "
+                                       "basis and all acquisition dates preserved"})
+
+        elif ca in ("conversion", "spinoff"):
+            dst = r.get("to_ticker")
+            if not dst:
+                warnings.append(f"{tk} {when}: {ca} needs `to_ticker` -- row ignored")
+                continue
+            lots.setdefault(dst, [])
+            out_q = abs(r.get("qty_change") or 0)
+            in_q = r.get("to_qty")
+            if in_q is None:
+                in_q = out_q
+            if ca == "conversion":
+                moved, short = _consume_fifo(lots[tk], out_q, shorts, tk, when)
+                got = sum(m["qty"] for m in moved)
+                scale = (in_q / got) if got > 1e-9 else 1.0
+                for m in moved:
+                    # basis and acquisition date CARRY -- a conversion is not a purchase
+                    lots[dst].append({
+                        "qty": m["qty"] * scale,
+                        "date": m["date"],
+                        "price_usd": (m["price_usd"] / scale) if m.get("price_usd") and scale else m.get("price_usd"),
+                        "price_source": "carried_through_conversion"})
+                applied_ca.append({"date": when, "ca_type": ca, "from": tk, "to": dst,
+                                   "qty_out": round(got, 6), "qty_in": round(in_q, 6),
+                                   "shortfall": round(short, 6) if short else 0,
+                                   "note": "basis and acquisition dates carried; LTCG clock NOT reset"})
+            else:  # spinoff -- source keeps its shares
+                lots[dst].append({"qty": in_q, "date": when,
+                                  "price_usd": r.get("price_at_trade"),
+                                  "price_source": "spinoff"})
+                applied_ca.append({"date": when, "ca_type": ca, "from": tk, "to": dst,
+                                   "qty_in": in_q,
+                                   "note": "source position unchanged; destination dated the spinoff"})
+
+        elif ca == "fractional_credit":
+            q = r.get("qty_change") or 0
+            px = r.get("price_at_trade")
+            lots[tk].append({"qty": q, "date": when, "price_usd": px,
+                             "price_source": "fractional_credit"})
+            if px is None:
+                warnings.append(f"{tk} {when}: fractional_credit has no price -- lot carries a "
+                                f"null basis, which understates cost and overstates future gain")
+            applied_ca.append({"date": when, "ca_type": ca, "ticker": tk, "qty": q})
+
+        elif ca == "adjustment":
+            q = r.get("qty_change") or 0
+            if q > 0:
+                lots[tk].append({"qty": q, "date": when, "price_usd": r.get("price_at_trade"),
+                                 "price_source": "adjustment"})
+            elif q < 0:
+                _consume_fifo(lots[tk], -q, shorts, tk, when)
+            applied_ca.append({"date": when, "ca_type": ca, "ticker": tk, "qty": q,
+                               "source": r.get("source"), "notes": r.get("notes"),
+                               "note": "EXPLICIT reconciliation to broker truth -- recorded, "
+                                       "not force-matched"})
+
+    # tidy
+    out = {}
+    for tk, ls in lots.items():
+        keep = [{k: (round(v, 6) if isinstance(v, float) else v) for k, v in lot.items()}
+                for lot in ls if lot["qty"] > 1e-9]
+        if keep:
+            keep.sort(key=_lot_sort_key)
+            out[tk] = keep
+
+    # reconcile against the broker, if a run's holdings were supplied
+    recon, mismatches = None, []
+    if args.holdings:
+        h = load_json(args.holdings, default={})
+        live = {r["ticker"]: r.get("qty") for r in h.get("holdings_inr", [])}
+        for tk, q in live.items():
+            ls = round(sum(l["qty"] for l in out.get(tk, [])), 6)
+            if abs(ls - (q or 0)) > 1e-4:
+                mismatches.append({"ticker": tk, "lots_sum": ls, "broker_qty": q,
+                                   "delta": round(ls - (q or 0), 6)})
+        recon = {"tickers_checked": len(live), "reconciled": len(live) - len(mismatches),
+                 "mismatches": sorted(mismatches, key=lambda m: -abs(m["delta"]))}
+
+    written = None
+    if args.write:
+        path = os.path.join(args.base_dir, "lots.json")
+        prev = load_json(path, default={})
+        payload = {"schema_version": prev.get("schema_version", 1),
+                   "_note": ("Rebuilt deterministically by `smith_math.py lots` from trades.json. "
+                             "Do NOT hand-edit: re-running the engine overwrites it. Record "
+                             "share-moving events that generate no buy/sell confirmation as "
+                             "corporate_action rows in trades.json instead."),
+                   "_rebuilt": str(date.today())}
+        payload.update(out)
+        tmp = path + ".tmp"
+        with open(tmp, "w") as fh:
+            json.dump(payload, fh, indent=2)
+        os.replace(tmp, path)
+        written = path
+
+    emit({"tickers": len(out),
+          "total_lots": sum(len(v) for v in out.values()),
+          "corporate_actions_applied": applied_ca,
+          "phantom_shorts": shorts,
+          "reconciliation": recon,
+          "warnings": warnings,
+          "written": written,
+          "note": ("phantom_shorts are sells/conversions that consumed more than the record shows "
+                   "arriving -- surfaced rather than clamped to zero. A non-empty list means the "
+                   "trade record is missing share-creating events (see G68/G71).")})
+
+
 def cmd_pipeline(args):
     """Run the compute stages in dependency order and FAIL LOUDLY on a broken one.
 
@@ -3116,6 +3360,12 @@ def main():
     sp.add_argument("--today", default=None)
     sp.add_argument("--out", default=None, help="default: base_dir/stops_analysis.json")
 
+    sp = sub.add_parser("lots", help="rebuild lots.json from trades.json by FIFO, honouring corporate actions")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--holdings", default=None,
+                    help="a run's holdings.json, to reconcile lot sums against broker quantities")
+    sp.add_argument("--write", action="store_true", help="write lots.json (default: dry run)")
+
     sp = sub.add_parser("pipeline", help="run all per-run computes in dependency order, failing loudly")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--run-dir", required=True)
@@ -3135,7 +3385,7 @@ def main():
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
-         "triggers": cmd_triggers, "score": cmd_score, "pipeline": cmd_pipeline,
+         "triggers": cmd_triggers, "score": cmd_score, "pipeline": cmd_pipeline, "lots": cmd_lots,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "dismiss": cmd_dismiss, "stops": cmd_stops}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
