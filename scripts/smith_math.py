@@ -12,12 +12,32 @@ Subcommands emit one compact JSON object to stdout. On any error, emit
 signal to note the gap in data_quality and let the relevant sub-agent
 compute that section inline, same as any other sub-agent failure.
 
-Usage:
-  smith_math.py book        --base-dir DIR --run-dir DIR [--lots lots.json]
-  smith_math.py journal     --base-dir DIR --run-dir DIR [--today YYYY-MM-DD]
-  smith_math.py attribution --base-dir DIR --run-dir DIR
-  smith_math.py drift       --base-dir DIR --run-dir DIR
-  smith_math.py sentiment   --base-dir DIR --market-inputs market_inputs.json
+Usage -- PREFER THE PIPELINE. It runs every per-run stage below in dependency order and
+fails loudly instead of letting a stage emit silent zeros (see cmd_pipeline for the incident
+that motivated it):
+
+  smith_math.py pipeline    --base-dir DIR --run-dir DIR [--today YYYY-MM-DD] [--lots lots.json]
+
+Per-run stages (all run by `pipeline`; invoke individually only to debug one):
+  book        --base-dir DIR --run-dir DIR [--lots lots.json]   value/weights/concentration/drawdown
+  risk        --base-dir DIR --run-dir DIR                      ATR caps, open risk   (needs book)
+  drift       --base-dir DIR --run-dir DIR                      cluster/cash/AI-capex (needs book)
+  journal     --base-dir DIR --run-dir DIR [--today ...]        signal hit-rate scoring
+  attribution --base-dir DIR --run-dir DIR                      FX / flow / residual decomposition
+  rotation    --base-dir DIR --run-dir DIR                      accumulate/trim buckets (needs risk)
+  sentiment   --base-dir DIR --market-inputs market_inputs.json Fear/Greed composite
+  derisk      --base-dir DIR --run-dir DIR [--today ...]        fragility queue (needs risk+sentiment)
+  triggers    --base-dir DIR --run-dir DIR [--today ...]        oversold/overbought/ratchet triggers
+
+Stages the pipeline deliberately does NOT run (each needs something it cannot supply itself):
+  score       --base-dir DIR --prices-json P.json [--today ...] [--dry-run]
+              proposal outcome scoring, 30d/90d. Needs prices -> run with --prices-json /dev/null
+              first and it will NAME the tickers it wants.
+  stops       --base-dir DIR --prices-json P.json [--today ...] stop-loss efficacy; same price rule
+  proposals   --base-dir DIR --run-dir DIR [--today ...]        lifecycle/dedup/priority; run AFTER
+                                                                the strategist appends this run
+  dismiss     --base-dir DIR --id P-### [--reason "..."]        user-invoked, terminal
+  validate    --base-dir DIR                                    policy sanity check, not per-run
 """
 import argparse
 import json
@@ -49,6 +69,8 @@ BUCKET_DIRECTION = {
     "EARNINGS PROXIMITY": None, "POLICY IMPACT": None, "INSIDER ACTIVITY": None,
 }
 VERDICT_THRESHOLD_PCT = 2.0  # move must exceed this to call worked/failed vs neutral
+ANCHOR_REVIEW_PCT = 35.0  # |move| beyond this quarantines a proposal score pending anchor review
+                          # (see cmd_score: a corrupt $305.87 TSM anchor produced a phantom -39%)
 
 # ---------------------------------------------------------------------------
 # Trigger thresholds (added 2026-08-12, user-reported: "still most of the proposals are based
@@ -2222,6 +2244,282 @@ def _months_between(d_iso, today):
     return (today.year - d.year) * 12 + (today.month - d.month) + (today.day - d.day) / 30.44
 
 
+def cmd_pipeline(args):
+    """Run the compute stages in dependency order and FAIL LOUDLY on a broken one.
+
+    WHY THIS EXISTS (added 2026-08-15). The deep review that day invoked the stages by hand,
+    in a shell loop, and got the order wrong: `rotation` ran while `compute_risk.json` was
+    still absent because `risk` had failed on an argument-order mistake a moment earlier.
+    rotation did not error. It exited 0 and wrote a file containing ZERO tickers. Nothing
+    downstream complained. The only reason it surfaced at all was that the dashboard's
+    section-count diff showed "Rotation analysis" had vanished from the published page --
+    i.e. the desk found a silent data failure by noticing a hole in an HTML file.
+
+    That is the wrong control. Stages have real dependencies (rotation needs risk; derisk
+    needs risk AND sentiment; proposals needs drift, risk, book, derisk, rotation), and a
+    stage whose input is missing should stop the run, not quietly emit an empty result that
+    every consumer then treats as fact. An empty rotation table is indistinguishable from
+    "no rotation candidates" unless something checks.
+
+    So: one ordered runner, each stage's inputs asserted present BEFORE it runs, each output
+    checked non-trivially-empty AFTER, and the first genuine failure aborts with the stage
+    named. Stages the orchestrator legitimately cannot run yet (score and stops need prices
+    it must fetch first) are skipped with a reason rather than failed.
+    """
+    import subprocess  # local: the rest of this file is deliberately network- and shell-free
+
+    run_dir, base = args.run_dir, args.base_dir
+    here = os.path.abspath(__file__)
+
+    def out(name):
+        return os.path.join(run_dir, f"compute_{name}.json")
+
+    # (stage, required input files, "emptiness" probe on its own output)
+    STAGES = [
+        ("book",        ["holdings.json"],                          lambda d: d.get("value_usd")),
+        ("risk",        ["compute_book.json"],                      lambda d: d.get("positions")),
+        ("drift",       ["compute_book.json"],                      lambda d: d.get("cluster_table")),
+        ("journal",     ["holdings.json"],                          lambda d: True),
+        ("attribution", ["holdings.json"],                          lambda d: True),
+        ("rotation",    ["compute_risk.json"],                      lambda d: d.get("tickers")),
+        ("sentiment",   ["market_inputs.json"],                     lambda d: d.get("score") is not None),
+        ("derisk",      ["compute_risk.json", "compute_sentiment.json"], lambda d: d.get("queue")),
+        ("triggers",    ["compute_risk.json", "compute_book.json"], lambda d: True),
+    ]
+
+    results, failed = [], None
+    for name, needs, probe in STAGES:
+        missing = [n for n in needs
+                   if not os.path.exists(os.path.join(run_dir, n))
+                   and not os.path.exists(os.path.join(base, n))]
+        if missing:
+            results.append({"stage": name, "status": "BLOCKED", "missing_inputs": missing})
+            failed = failed or (name, f"required input(s) absent: {', '.join(missing)}")
+            break
+
+        cmd = [sys.executable, here, name, "--base-dir", base]
+        if name == "sentiment":
+            cmd += ["--market-inputs", os.path.join(run_dir, "market_inputs.json")]
+        else:
+            cmd += ["--run-dir", run_dir]
+        if name in ("journal", "derisk", "triggers") and args.today:
+            cmd += ["--today", args.today]
+        if name == "book" and args.lots:
+            cmd += ["--lots", args.lots]
+
+        proc = subprocess.run(cmd, capture_output=True, text=True)
+        if proc.returncode != 0:
+            results.append({"stage": name, "status": "FAILED", "exit": proc.returncode,
+                            "stderr": (proc.stderr or "")[-400:]})
+            failed = (name, f"exited {proc.returncode}")
+            break
+        try:
+            payload = json.loads(proc.stdout)
+        except ValueError:
+            results.append({"stage": name, "status": "FAILED", "note": "stdout was not valid JSON"})
+            failed = (name, "emitted non-JSON stdout")
+            break
+        if isinstance(payload, dict) and payload.get("error"):
+            results.append({"stage": name, "status": "FAILED", "note": payload["error"]})
+            failed = (name, payload["error"])
+            break
+        with open(out(name), "w") as fh:
+            json.dump(payload, fh, indent=2)
+        # THE CHECK THAT WOULD HAVE CAUGHT 2026-08-15: exit 0 is not success if the payload
+        # is hollow. A stage that ran but produced nothing is a failure wearing a green light.
+        if not probe(payload):
+            results.append({"stage": name, "status": "EMPTY",
+                            "note": "ran cleanly but produced an empty result -- treated as a "
+                                    "failure, not as 'nothing to report'"})
+            failed = (name, "produced an empty result despite exiting 0")
+            break
+        results.append({"stage": name, "status": "ok"})
+
+    emit({"run_dir": run_dir,
+          "stages": results,
+          "completed": [r["stage"] for r in results if r["status"] == "ok"],
+          "failed_at": failed[0] if failed else None,
+          "reason": failed[1] if failed else None,
+          "ok": failed is None,
+          "not_run_here": ["score", "stops", "proposals", "validate"],
+          "note": ("score and stops need prices the orchestrator must fetch first; proposals "
+                   "runs after the strategist has appended this run's proposals; validate is a "
+                   "policy check, not a per-run compute. Run those explicitly.")})
+    if failed:
+        sys.exit(1)
+
+
+def cmd_score(args):
+    """Score past proposals on price outcome. The strategist's accountability loop.
+
+    WHY THIS EXISTS (added 2026-08-15). SKILL.md section 7 has instructed the desk to
+    "Score past (non-open) proposals at 30d/90d with outcome_pct + verdict (open|worked|missed)
+    ... Compute per-proposal and aggregate strategist scorecard" since the file was written.
+    No code ever did it. As of this build the book has produced **96 proposals, 9 of them
+    actually executed or filled, and not one has an outcome** -- `outcome_pct` appeared nowhere
+    in this script. The scorecard field existed, was loaded, was written back, and was always
+    null; its `note` had grown into a five-entry log of "still zero proposals in the 30d/90d
+    scoring window" stretching from 2026-07-18, an excuse that stopped being true weeks ago
+    (the earliest cohort crossed 30 days on ~2026-08-12).
+
+    The asymmetry this fixes: journal.json has scored SIGNALS since July and now carries real
+    30-day hit rates (TARGET GAP 57.1% on n=14, MOMENTUM+VOLUME 60% on n=5). Signals are held
+    to account; the sized dollar recommendations built ON those signals never were. A desk that
+    measures its indicators but not its decisions is grading the easy half.
+
+    METHOD -- deliberately the same shape as cmd_stops, which already works:
+      * The orchestrator supplies prices via --prices-json (this script has no network, by
+        design). A ticker with no price stays unscored and is NAMED in data_quality; it is
+        never silently dropped and never guessed.
+      * Verdict is DIRECTION-AWARE, because "the price went up" means opposite things for a BUY
+        and a TRIM. A BUY works if price rose; a TRIM/SELL works if price fell (you avoided the
+        drawdown); a HOLD works if the move stayed inside the noise band, since the whole claim
+        of a HOLD is "nothing needed doing".
+      * VERDICT_THRESHOLD_PCT (2.0) is reused from the journal scorer rather than inventing a
+        second threshold, so a "worked" here means the same magnitude as a "worked" there.
+      * Both 30d and 90d are computed when the age allows; a proposal older than 30 but younger
+        than 90 scores 30d only and stays `open_90d`. Age is measured from the proposal date,
+        not from when it was actioned -- the recommendation is what is being graded.
+
+    HONESTY CONSTRAINTS, matching the charts' own rules:
+      * `status: "dismissed_by_user"` is EXCLUDED from the scorecard. The user overriding a
+        proposal is not the strategist being wrong, and counting it either way would corrupt
+        the record -- but the count of exclusions is reported so the omission is visible.
+      * `superseded` proposals are excluded as individual rows (the surviving row carries the
+        idea) but their `history` is not double-counted, mirroring the dedup rule in
+        cmd_proposals: one idea counts once.
+      * A HOLD with size_usd 0 still scores -- "do nothing" is a real call with a real outcome.
+    """
+    p_path = os.path.join(args.base_dir, "proposals.json")
+    proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
+    props = proposals.get("proposals", [])
+    prices = load_json(args.prices_json, default={}) if args.prices_json else {}
+    today = (datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today())
+
+    # statuses that represent a real, closed recommendation worth grading
+    SCOREABLE = {"executed", "fulfilled", "filled", "auto_retired", "superseded", "deferred", "watch"}
+    EXCLUDED = {"dismissed_by_user"}
+
+    rows, unpriced, excluded_n, too_young = [], [], 0, 0
+    for pr in props:
+        st = pr.get("status")
+        if st in EXCLUDED:
+            excluded_n += 1
+            continue
+        if st == "open" or st not in SCOREABLE:
+            continue
+        tk, p0 = pr.get("ticker"), pr.get("price_at_proposal")
+        d0 = _proposal_parse_date(pr.get("date", ""))
+        if not tk or not p0 or not d0:
+            continue  # cannot grade without an anchor; not an error, just unscoreable
+        age = (today - d0).days
+        if age < 30:
+            too_young += 1
+            continue
+        now = prices.get(tk)
+        if now is None:
+            unpriced.append(tk)
+            continue
+        move = (now - p0) / p0 * 100.0
+        direction = pr.get("direction_bucket") or _proposal_direction(pr.get("action"))
+        # direction-aware: the same move is a win or a loss depending on what was advised
+        if direction == "BUY":
+            signed = move
+        elif direction in ("TRIM", "SELL"):
+            signed = -move
+        else:  # HOLD -- the claim is "no action needed", so small moves vindicate it
+            signed = VERDICT_THRESHOLD_PCT - abs(move)
+        # ANCHOR PLAUSIBILITY GUARD (added 2026-08-15, first run of this scorer).
+        # The very first scoring pass produced a "TRIM TSM missed by 39.4%" row off a
+        # price_at_proposal of $305.87 dated 2026-07-14. TSM traded $386-$448 that week and
+        # closed $398.37; it never saw $305.87. The anchor was corrupt, and on a sample of
+        # seven that single row set the ENTIRE trim-accuracy figure (avg benefit -19.54%,
+        # accuracy 0%). A bad reading was about to become the desk's self-assessment.
+        # This is the same principle the charts already enforce -- a row whose value_trust is
+        # not ok is drawn ringed and EXCLUDED from scales and win/loss counts, never allowed to
+        # set an axis. Same rule here: an implausible move is quarantined for review, reported
+        # in full so it is visible, and kept OUT of the aggregate until a human confirms the
+        # anchor. Real 30-day moves of this size do happen (NBIS ran +34% this month), so this
+        # is deliberately a REVIEW flag, not a discard -- the row is never silently dropped.
+        if abs(move) > ANCHOR_REVIEW_PCT:
+            verdict = "needs_anchor_review"
+        else:
+            verdict = ("worked" if signed > VERDICT_THRESHOLD_PCT
+                       else "missed" if signed < -VERDICT_THRESHOLD_PCT else "neutral")
+        row = {"id": pr.get("id"), "ticker": tk, "direction": direction, "status": st,
+               "date": str(d0), "age_days": age, "price_at_proposal": round(p0, 4),
+               "price_now": round(now, 4), "move_pct": round(move, 2),
+               "signed_benefit_pct": round(signed, 2), "verdict": verdict,
+               "window": "90d" if age >= 90 else "30d"}
+        rows.append(row)
+        pr["outcome_pct"] = None if verdict == "needs_anchor_review" else round(signed, 2)
+        pr["outcome_verdict"] = verdict
+        pr["outcome_window"] = row["window"]
+        pr["outcome_scored_on"] = str(today)
+
+    def agg(subset):
+        n = len(subset)
+        if not n:
+            return None
+        w = sum(1 for r in subset if r["verdict"] == "worked")
+        m = sum(1 for r in subset if r["verdict"] == "missed")
+        return {"n": n, "worked": w, "missed": m, "neutral": n - w - m,
+                "accuracy_pct": round(w / n * 100, 1),
+                "avg_benefit_pct": round(sum(r["signed_benefit_pct"] for r in subset) / n, 2)}
+
+    # quarantined rows are reported but never counted -- see the anchor guard above
+    graded = [r for r in rows if r["verdict"] != "needs_anchor_review"]
+    review = [r for r in rows if r["verdict"] == "needs_anchor_review"]
+    trims = [r for r in graded if r["direction"] in ("TRIM", "SELL")]
+    buys = [r for r in graded if r["direction"] == "BUY"]
+    holds = [r for r in graded if r["direction"] == "HOLD"]
+    scorecard = {
+        "as_of": str(today),
+        "trim_accuracy_30d": (agg(trims) or {}).get("accuracy_pct"),
+        "add_accuracy_30d": (agg(buys) or {}).get("accuracy_pct"),
+        "overall_accuracy_30d": (agg(graded) or {}).get("accuracy_pct"),
+        "by_direction": {"TRIM/SELL": agg(trims), "BUY": agg(buys), "HOLD": agg(holds)},
+        "overall": agg(graded),
+        "scored_count": len(graded),
+        "quarantined_anchor_review": len(review),
+        "excluded_dismissed_by_user": excluded_n,
+        "not_yet_30d": too_young,
+        "note": ("Direction-aware: a TRIM 'worked' if the price FELL after it, a BUY if it ROSE, "
+                 "a HOLD if the move stayed inside the +/-%.1f%% noise band. Threshold shared with "
+                 "the journal scorer so 'worked' means the same magnitude in both. "
+                 "dismissed_by_user proposals are excluded -- a user override is not a strategist "
+                 "error." % VERDICT_THRESHOLD_PCT),
+    }
+    proposals["scorecard"] = scorecard
+
+    dq = []
+    if unpriced:
+        u = sorted(set(unpriced))
+        dq.append(f"{len(u)} ticker(s) had no price supplied and stay unscored until a later run "
+                  f"provides one (never guessed, never dropped): {', '.join(u[:12])}"
+                  f"{'...' if len(u) > 12 else ''}")
+    if too_young:
+        dq.append(f"{too_young} proposal(s) are under 30 days old -- not yet in the scoring window.")
+    if review:
+        dq.append("QUARANTINED pending anchor review, excluded from the scorecard: "
+                  + "; ".join(f"{r['id']} {r['direction']} {r['ticker']} implies {r['move_pct']:+.1f}% "
+                              f"from a ${r['price_at_proposal']:.2f} anchor" for r in review)
+                  + ". Verify the anchor against price history before trusting these.")
+    if not rows:
+        dq.append("nothing scoreable this run: no closed proposal has both a price anchor and a "
+                  "supplied current price.")
+    scorecard["data_quality"] = dq
+
+    if not args.dry_run:
+        tmp = p_path + ".tmp"
+        with open(tmp, "w") as fh:
+            json.dump(proposals, fh, indent=2)
+        os.replace(tmp, p_path)
+
+    emit({"scored_count": len(rows), "scorecard": scorecard, "rows": rows,
+          "written": (not args.dry_run) and p_path or None, "data_quality": dq})
+
+
 def cmd_derisk(args):
     risk = load_json(os.path.join(args.run_dir, "compute_risk.json"))
     book = load_json(os.path.join(args.run_dir, "compute_book.json"))
@@ -2791,11 +3089,26 @@ def main():
     sp.add_argument("--today", default=None)
     sp.add_argument("--out", default=None, help="default: base_dir/stops_analysis.json")
 
+    sp = sub.add_parser("pipeline", help="run all per-run computes in dependency order, failing loudly")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--today", default=None)
+    sp.add_argument("--lots", default=None)
+
+    sp = sub.add_parser("score", help="score past proposals on price outcome (30d/90d)")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--prices-json", required=True,
+                    help='{"TICKER":price_usd} for tickers with a closed, unscored proposal. '
+                         'Run with /dev/null first to have the tool NAME which tickers it needs.')
+    sp.add_argument("--today", default=None)
+    sp.add_argument("--dry-run", action="store_true",
+                    help="compute and print the scorecard without writing proposals.json")
+
     args = p.parse_args()
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
-         "triggers": cmd_triggers,
+         "triggers": cmd_triggers, "score": cmd_score, "pipeline": cmd_pipeline,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "dismiss": cmd_dismiss, "stops": cmd_stops}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully

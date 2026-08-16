@@ -11,7 +11,11 @@
       "note": "User bought 3 sh TSM (qty 3->6) ~$1,288 -- matches $1,300 proposal closely. | ticker backfilled from action text (2026-07-29 fix)",
       "ticker": "TSM",
       "id": "P-001",
-      "direction_bucket": "BUY"
+      "direction_bucket": "BUY",
+      "outcome_pct": -0.6,
+      "outcome_verdict": "neutral",
+      "outcome_window": "30d",
+      "outcome_scored_on": "2026-08-15"
     },
     {
       "date": "2026-07-13T19:40",
@@ -23,7 +27,11 @@
       "note": "User bought 2 sh LRCX (qty 3->5), exact restore -- ~$665, matches $705 proposal closely. | ticker backfilled from action text (2026-07-29 fix)",
       "ticker": "LRCX",
       "id": "P-002",
-      "direction_bucket": "TRIM"
+      "direction_bucket": "TRIM",
+      "outcome_pct": 0.31,
+      "outcome_verdict": "neutral",
+      "outcome_window": "30d",
+      "outcome_scored_on": "2026-08-15"
     },
     {
       "date": "2026-07-13T19:40",
@@ -35,7 +43,11 @@
       "note": "User bought 3 sh CRDO (new position) ~$731 -- matches $700 proposal closely. | ticker backfilled from action text (2026-07-29 fix)",
       "ticker": "CRDO",
       "id": "P-003",
-      "direction_bucket": "HOLD"
+      "direction_bucket": "HOLD",
+      "outcome_pct": -4.9,
+      "outcome_verdict": "missed",
+      "outcome_window": "30d",
+      "outcome_scored_on": "2026-08-15"
     },
     {
       "date": "2026-07-13T19:40",
@@ -47,7 +59,11 @@
       "note": "User bought 1 sh VRT (new position) ~$312 -- close to $400 proposal (smaller). | ticker backfilled from action text (2026-07-29 fix)",
       "ticker": "VRT",
       "id": "P-004",
-      "direction_bucket": "HOLD"
+      "direction_bucket": "HOLD",
+      "outcome_pct": -3.86,
+      "outcome_verdict": "missed",
+      "outcome_window": "30d",
+      "outcome_scored_on": "2026-08-15"
     },
     {
       "date": "2026-07-14",
@@ -59,7 +75,11 @@
       "note": "User re-entered VRT with 3sh (~$964 notional) in the 22:10 run -- larger than the $500 proposal but directionally matches; funding came from wallet cash broadly (multiple buys this run), not a dedicated TSM trim (TSM qty unchanged at 6sh). | ticker backfilled from action text (2026-07-29 fix)",
       "ticker": "TSM",
       "id": "P-005",
-      "direction_bucket": "TRIM"
+      "direction_bucket": "TRIM",
+      "outcome_pct": null,
+      "outcome_verdict": "needs_anchor_review",
+      "outcome_window": "30d",
+      "outcome_scored_on": "2026-08-15"
     },
     {
       "date": "2026-07-15T15:42",
@@ -73,7 +93,11 @@
       "ticker": "COHR",
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-006",
-      "direction_bucket": "BUY"
+      "direction_bucket": "BUY",
+      "outcome_pct": -15.88,
+      "outcome_verdict": "missed",
+      "outcome_window": "30d",
+      "outcome_scored_on": "2026-08-15"
     },
     {
       "date": "2026-07-16T16:44",
@@ -85,7 +109,11 @@
       "ticker": "GLW",
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-007",
-      "direction_bucket": "BUY"
+      "direction_bucket": "BUY",
+      "outcome_pct": 2.46,
+      "outcome_verdict": "worked",
+      "outcome_window": "30d",
+      "outcome_scored_on": "2026-08-15"
     },
     {
       "date": "2026-07-16T16:44",
@@ -2662,10 +2690,53 @@
     }
   ],
   "scorecard": {
-    "trim_accuracy_30d": null,
-    "add_accuracy_30d": null,
-    "overall_accuracy_30d": null,
-    "note": "Oldest open proposal (2026-07-13) is 5 days old -- still short of the 30d scoring mark (~2026-08-12 for the earliest cohort). 2026-07-18 deep review: did a full stale-proposal pass, closed 20 as overtaken by events, marked 2 as fulfilled (STM trim, COHR deploy -- both match real user trades), added 5 new coordinated proposals reflecting the funding-constrained reality (near-zero cash). 2026-07-20 deep review: added 4 new proposals (SNDK/AMAT trims, NEM deploy, cash-hold), reconciled 1 stale SNDK price anchor from 07-18 as superseded. Still zero proposals in the 30d/90d scoring window (earliest cohort ~2026-08-12). 2026-07-22 quick sweep: added 5 new proposals (SNDK trim, ORCL exit, IREN/GEV holds, BABA cluster flag). Still zero proposals in the 30d/90d scoring window. 2026-07-23 quick sweep: restated SNDK/ORCL as prerequisites for smith-rebound's stage-in bench; added VRT stage-in (funded) and GEV hold (thesis-timing) plus 3 deferred rebound names. Still zero proposals in the 30d/90d scoring window. 2026-07-25 cash-position review: reconciled proposal backlog -- marked 8 stale/overtaken proposals (repeated SNDK trims from 07-20/07-22/07-23, ORCL exit calls from 07-22/07-23, and 07-18 CIEN/VRT/META/TSM-GLW-AVGO items mooted by the 07-24 major flow event) as superseded, keeping the 07-24 SNDK/GEV/COHR/hold-cash set as the live, actionable proposals."
+    "as_of": "2026-08-15",
+    "trim_accuracy_30d": 0.0,
+    "add_accuracy_30d": 33.3,
+    "overall_accuracy_30d": 16.7,
+    "by_direction": {
+      "TRIM/SELL": {
+        "n": 1,
+        "worked": 0,
+        "missed": 0,
+        "neutral": 1,
+        "accuracy_pct": 0.0,
+        "avg_benefit_pct": 0.31
+      },
+      "BUY": {
+        "n": 3,
+        "worked": 1,
+        "missed": 1,
+        "neutral": 1,
+        "accuracy_pct": 33.3,
+        "avg_benefit_pct": -4.67
+      },
+      "HOLD": {
+        "n": 2,
+        "worked": 0,
+        "missed": 2,
+        "neutral": 0,
+        "accuracy_pct": 0.0,
+        "avg_benefit_pct": -4.38
+      }
+    },
+    "overall": {
+      "n": 6,
+      "worked": 1,
+      "missed": 3,
+      "neutral": 2,
+      "accuracy_pct": 16.7,
+      "avg_benefit_pct": -3.75
+    },
+    "scored_count": 6,
+    "quarantined_anchor_review": 1,
+    "excluded_dismissed_by_user": 9,
+    "not_yet_30d": 43,
+    "note": "Direction-aware: a TRIM 'worked' if the price FELL after it, a BUY if it ROSE, a HOLD if the move stayed inside the +/-2.0% noise band. Threshold shared with the journal scorer so 'worked' means the same magnitude in both. dismissed_by_user proposals are excluded -- a user override is not a strategist error.",
+    "data_quality": [
+      "43 proposal(s) are under 30 days old -- not yet in the scoring window.",
+      "QUARANTINED pending anchor review, excluded from the scorecard: P-005 TRIM TSM implies +39.4% from a $305.87 anchor. Verify the anchor against price history before trusting these."
+    ]
   },
   "last_updated": "2026-08-04T18:20:00+05:30"
 }
