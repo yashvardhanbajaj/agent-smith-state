@@ -535,6 +535,56 @@ NEVER_SKIP = {"strategist"}
 # orchestrator can see exactly how close it was instead of being told a binary.
 MATERIALITY_PCT = 0.25   # below this, a numeric delta is noise, not news
 
+# DOMAIN DISPATCH (added 2026-08-17, from measuring two real runs).
+# Measured subagent cost is nearly FLAT across agents -- 77K to 148K tokens -- while yield is
+# not: on 2026-08-16 `thesis` spent 116,870 tokens to report ZERO status changes and `book`
+# 91,687 to report "unchanged", while `catalyst` spent 105,223 on the CXMT finding that moved
+# the read on a 15.53% sleeve. Cost per agent is therefore NOT the lever; SELECTION is.
+#
+# And the right selection question is not "did this agent's slice bytes change" (the byte digest
+# was defeated by a 0.0157% FX tick) but **"did the thing this agent actually reads move?"**
+# Each agent is mapped to the domain it consumes, and the domain is evaluated from concrete
+# observable facts about the run rather than from file hashes.
+AGENT_DOMAIN = {
+    "signals": "news", "thesis": "news", "catalyst": "news", "cycle": "news",
+    "quality": "fundamentals", "earnings": "calendar", "watchlist": "calendar",
+    "macro": "macro", "scout": "session",
+    "book": "holdings", "ledger": "holdings", "tax": "holdings", "rebound": "session",
+    "strategist": "always",
+}
+DOMAIN_HELP = {
+    "news": "new items since news_watermark",
+    "calendar": "an earnings date confirmed/changed, or a print entering the window",
+    "macro": "a rate/FOMC/CPI/NFP event, or a live options session",
+    "session": "a trading session actually occurred since the last run",
+    "holdings": "qty_changes non-empty, or lots.json changed",
+    "fundamentals": "a new filing or reported quarter",
+    "always": "its inputs are the Stage-1 tails, which are never visible here",
+}
+
+
+def _domain_moved(domain, ctx):
+    """(moved, evidence). None = cannot tell from the script alone -- say so, never guess."""
+    if domain == "always":
+        return True, "always dispatched -- its real inputs are not visible to this check"
+    if domain == "holdings":
+        if ctx["qty_changes"]:
+            return True, f"{len(ctx['qty_changes'])} qty change(s) this run"
+        if ctx["lots_changed"]:
+            return True, "lots.json changed since the previous run"
+        return False, "no qty_changes and lots.json unchanged -- nothing for it to read"
+    if domain == "session":
+        if ctx["session_occurred"]:
+            return True, "a trading session occurred since the previous run"
+        return False, (f"market_session={ctx['market_session']} and prices are unchanged since "
+                       f"the previous run -- no session to read")
+    if domain == "calendar":
+        if ctx["calendar_changed"]:
+            return True, "earnings_calendar changed since the previous run"
+        return False, "earnings_calendar unchanged since the previous run"
+    return None, (f"'{domain}' cannot be evaluated from files alone ({DOMAIN_HELP.get(domain,'')}) "
+                  f"-- the orchestrator must judge it. Default to dispatching.")
+
 
 def _numeric_leaves(obj, prefix="", out=None):
     """Flatten every numeric leaf to {path: value} for a field-by-field delta."""
@@ -645,6 +695,7 @@ def cmd_slices(args):
     }
 
     shared_once = {}
+    runs_root = os.path.dirname(os.path.abspath(rd))
     # previous run's digests, for the unchanged-input check
     prior_run, prior_digests, prior_slices = None, {}, {}
     runs_root = os.path.dirname(os.path.abspath(rd))
@@ -662,7 +713,34 @@ def cmd_slices(args):
                         prior_digests[f[6:-5]] = d["inputs_digest"]
     except OSError:
         pass
-    skippable, immaterial = [], []
+    skippable, immaterial, no_domain_move = [], [], []
+    # observable facts this run, for the domain check
+    book_now = load_json(os.path.join(rd, "compute_book.json"), default={})
+    prior_book = (load_json(os.path.join(runs_root, prior_run, "compute_book.json"), default={})
+                  if prior_run else {})
+    prior_holdings = (load_json(os.path.join(runs_root, prior_run, "holdings.json"), default={})
+                      if prior_run else {})
+    lots_now = load_json(os.path.join(base, "lots.json"), default={})
+    prior_lots_digest = (prior_slices.get("book", {}) or {}).get("_lots_digest")
+    lots_digest = hashlib.md5(json.dumps(lots_now, sort_keys=True).encode()).hexdigest()[:12]
+    ctx = {
+        "qty_changes": book_now.get("qty_changes") or [],
+        "lots_changed": bool(prior_lots_digest) and prior_lots_digest != lots_digest,
+        "market_session": holdings.get("market_session"),
+        # A session occurred only if the BROKER'S OWN INR values moved. Comparing price_usd was
+        # the obvious thing to write and it is wrong for exactly the reason the byte-digest was
+        # wrong: price_usd is DERIVED through the FX rate, so a 0.0157% USD/INR tick makes every
+        # USD price differ and fakes a session that never happened. Caught 2026-08-17, minutes
+        # after fixing the identical contamination one layer up -- the lesson generalises:
+        # **never test for change on a derived value when the source value is available.**
+        "session_occurred": any(
+            (a.get("market_value_inr") != b.get("market_value_inr"))
+            for a, b in zip(rows, (prior_holdings.get("holdings_inr") or []))),
+        "calendar_changed": (json.dumps(dc.get("earnings_calendar"), sort_keys=True) !=
+                             json.dumps((prior_slices.get("watchlist", {}) or {})
+                                        .get("data_cache.earnings_calendar"), sort_keys=True))
+                            if prior_slices.get("watchlist") else False,
+    }
     want = [a.strip() for a in (args.agents or "").split(",") if a.strip()] or list(AGENT_SLICES)
     written, problems = [], []
     for agent in want:
@@ -732,6 +810,13 @@ def cmd_slices(args):
             json.dump(sl, fh, indent=2)
         rec = {"agent": f"smith-{agent}", "file": out, "bytes": os.path.getsize(out),
                "refs": len(sl["read_these_files"]), "inputs_digest": sl["inputs_digest"]}
+        dom = AGENT_DOMAIN.get(agent, "always")
+        moved, evidence = _domain_moved(dom, ctx)
+        rec["domain"] = dom
+        rec["domain_moved"] = moved
+        rec["domain_evidence"] = evidence
+        if moved is False:
+            no_domain_move.append(f"smith-{agent}")
         # materiality: compare this slice against the prior run's slice, field by field
         prior_slice = prior_slices.get(agent)
         if prior_slice is not None:
@@ -776,6 +861,13 @@ def cmd_slices(args):
           "compared_against": prior_run,
           "skip_candidates": skippable,
           "immaterial_change_candidates": immaterial,
+          "domain_did_not_move": no_domain_move,
+          "dispatch_note": ("`domain_did_not_move` lists agents whose INPUT DOMAIN is observably "
+                            "unchanged -- the strongest skip signal, because it asks whether the "
+                            "thing they read moved rather than whether their bytes did. Measured "
+                            "2026-08-16/17: agent cost is nearly flat (77K-148K tokens) while "
+                            "yield is not, so selection is the lever, not trimming. A null "
+                            "domain_moved means the script cannot tell -- dispatch."),
           "materiality_pct": MATERIALITY_PCT,
           "skip_note": ("Agents listed here have byte-identical inputs to the previous run AND "
                         "reason only over files, so they cannot produce a new finding -- reuse "
