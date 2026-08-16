@@ -2371,6 +2371,45 @@ def cmd_lots(args):
 
     lots, shorts, applied_ca, warnings = {}, [], [], []
 
+    # G80 DETECTOR (added 2026-08-15). Any quantity derived as Amount / Price is arithmetically
+    # invalid, because INDmoney's Amount includes SEC/FINRA fees. Proven twice: a share-based
+    # order (2026-06-22 META, Amount/Price = 1.002954, Shares field = 1) and a dollar-based one
+    # (2025-04-30 GOOG, Amount/Price = 0.626330953, Shares field = 0.62453024). It inflates buys,
+    # understates sells, and was the root cause of most of G68 and G79.
+    #
+    # The rule forbidding it lives in smith-ledger.md -- but a prose rule is exactly what lapsed
+    # here in the first place, and that file had ALREADY contradicted itself on this point for
+    # months. So the compute layer now names the offending rows on every run. Cheap, and it
+    # cannot quietly stop being true.
+    # Split known-and-accepted residue from a genuine relapse. The 24 rows predating the rule
+    # hardening were quantified at ~$29 of basis error total (~$12 on live positions, 0.027% of
+    # book) and deliberately left rather than spending 20+ confirmation pulls on twelve dollars.
+    # A row dated AFTER the cutoff means the forbidden method is BACK, which is an alarm, not
+    # residue -- so the two are reported differently and the alarm is impossible to mistake for
+    # the accepted noise.
+    G80_CUTOFF = "2026-08-15"
+    derived = [r for r in rows if r.get("qty_source") == "derived_amount_over_price"]
+    old_rows = [r for r in derived if (r.get("date") or "") < G80_CUTOFF]
+    new_rows = [r for r in derived if (r.get("date") or "") >= G80_CUTOFF]
+    if new_rows:
+        warnings.append(
+            f"G80 RELAPSE -- {len(new_rows)} row(s) dated on/after {G80_CUTOFF} were reconstructed "
+            f"with the FORBIDDEN Amount/Price method: "
+            + ", ".join(f"{r.get('ticker')} {r.get('date')}" for r in new_rows[:8])
+            + ". Amount includes SEC/FINRA fees, so this is arithmetically invalid, not merely "
+              "approximate. Re-pull each confirmation and read its `Shares:` field. Do NOT model a "
+              "fee ratio -- that is the same error one level up. See smith-ledger.md task 2.")
+    if old_rows:
+        by_tk = {}
+        for r in old_rows:
+            by_tk[r.get("ticker")] = by_tk.get(r.get("ticker"), 0) + 1
+        warnings.append(
+            f"G80 accepted residue: {len(old_rows)} pre-{G80_CUTOFF} row(s) still carry the old "
+            f"Amount/Price derivation ("
+            + ", ".join(f"{k} x{v}" for k, v in sorted(by_tk.items(), key=lambda kv: -kv[1]))
+            + "). Quantified at ~$29 of cost-basis error in total, ~$12 of it on live positions "
+              "(0.027% of book) -- knowingly left, not overlooked. Informational.")
+
     for r in rows:
         tk = r.get("ticker")
         if not tk:
