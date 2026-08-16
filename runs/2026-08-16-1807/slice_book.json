@@ -1,0 +1,1516 @@
+{
+  "mode": "deep",
+  "today": "2026-08-16",
+  "market_session": "closed",
+  "gate_classification": "AMBIGUOUS",
+  "macro": {
+    "us10y": 4.696,
+    "vix": 14.25,
+    "dxy": 99.636,
+    "spx": 7785.76,
+    "ndx": 26729.164,
+    "es_f": 7805,
+    "nq_f": 30141.75,
+    "smh": 587.82
+  },
+  "usdinr": 95.43,
+  "holdings_path": "runs/2026-08-16-1807/holdings.json",
+  "known_gaps": [
+    {
+      "id": "G69",
+      "status": "partially_closed",
+      "gap": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so "
+    },
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "open_flags": [
+    {
+      "ticker": "SNDK/TER/ARM/NBIS/INTC",
+      "flag": "5 more trades from 2026-08-07 (exact fills confirmed via scoped Gmail search this run, added to trades.json/lots.json) remain reason=UNCAPTURED: SNDK add (0.5sh@$1212.38, Market), TER add (3sh@$378.94, Market), ARM new position (3sh@$282.65, Market), NBIS re-entry (3sh@$188.27, Limit), INTC new position (5sh@$101.56, Limit). Combined with the prior 11 from G55, the scheduled-run UNCAPTURED backlog now stands at 16 trades awaiting the user's rationale at the next interactive run.",
+      "opened": "2026-08-10"
+    },
+    {
+      "ticker": "STOP-CASCADE-08-10/11",
+      "flag": "6 stop-losses fired in 2 sessions (AMD/VRT/GOOGL/MP full exits, SNDK/AVGO trims) -- signals read all 6 as idiosyncratic not macro (VIX calm throughout). VRT, MP, AMD, SNDK all recovered above their stop price within 1-2 sessions (whipsaws); GOOGL is the one genuine breakdown, still falling ($343.80 vs $351.95 stop as of 08-12). Strategist proposed VRT re-entry (P-073, cluster under-floor) and AVGO re-accumulation (P-074, rotation-bucket accumulate) but explicitly DECLINED an AMD re-entry despite a matching watchlist setup, citing G58 (unverified beat/miss characterization) and no under-floor cluster support. Cash spiked to 22.5% (post_stop_event regime, not yet back in normal band) -- this is fresh stop proceeds sitting idle, not accumulated excess.",
+      "opened": "2026-08-12"
+    },
+    {
+      "ticker": "STM/TXN",
+      "opened": "2026-08-12",
+      "flag": "PROVISIONAL cluster assignment made by the ORCHESTRATOR, not smith-thesis, which failed twice on API 529 this run. STM (20sh) and TXN (3sh) were left Unclassified by the entry, which made ~$1,955 of the book invisible to the drift table and inflated every other cluster's share. Assigned to a NEW 'Analog/Industrial Semis' cluster following the Enterprise Software / Critical Minerals precedent for non-AI-capex satellites. NO POLICY BAND CREATED -- per the Critical Minerals rationale, the band is a user decision, not an inferred one. Two things still owed: (1) smith-thesis must write first theses for both and confirm or correct this cluster; (2) the user must set a band (suggest 0%/[0,5] mirroring the other satellites, but that is their call). Until banded, this cluster shows in drift as unbanded and cannot breach."
+    },
+    {
+      "ticker": "IREN",
+      "opened": "2026-08-12",
+      "flag": "smith-watchlist call 2026-08-12: CHASE, NOT ENTRY. $42.33-43.37 (+6.5 to +9.1% on the session), mean target $81.73 (13 analysts, 92% Buy) = +48.21% upside, down ~3pt from +51.36% purely on price, not target cuts. NO news since the 08-12 watermark explains the pop -- last sourced catalysts are the $2.8B AI-cloud contract (20 Jul) and the Anthropic rally (06 Jul), both stale; move attributed to sector beta (SMH +2.32%), INFERRED not confirmed. Standing re-entry interest REMAINS OPEN -- the better trigger is a pullback or a confirmed new catalyst, not today's candle. Cash at 7.33% is inside its band, i.e. operating buffer, not dry powder."
+    },
+    {
+      "ticker": "STM",
+      "opened": "2026-08-13",
+      "flag": "STM PEER LAGGARD -1.61 sigma (provisional Analog/Industrial Semis cluster)"
+    }
+  ],
+  "agent": "smith-book",
+  "output_file": "runs/2026-08-16-1807/smith-book-output.md",
+  "data_cache.betas": {
+    "AMAT": {
+      "value": 1.648,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "AMD": {
+      "value": 1.566,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "AMZN": {
+      "value": 0.252,
+      "as_of": "2026-08-03",
+      "benchmark": "SMH"
+    },
+    "ARM": {
+      "value": 1.25,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "ASML": {
+      "value": 0.926,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "AVGO": {
+      "value": 0.713,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "CIEN": {
+      "value": 1.499,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "CLS": {
+      "value": 0.997,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "COHR": {
+      "value": 1.707,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "DRAM": {
+      "value": 2.073,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "EWY": {
+      "value": 1.394,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "GEV": {
+      "value": 0.777,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "GOOG": {
+      "value": 0.244,
+      "as_of": "2026-07-28",
+      "benchmark": "SMH"
+    },
+    "LRCX": {
+      "value": 1.772,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "MRVL": {
+      "value": 1.676,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "MU": {
+      "value": 1.954,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "NVDA": {
+      "value": 0.51,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "ORCL": {
+      "value": 0.677,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "QCOM": {
+      "value": 0.372,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "SNDK": {
+      "value": 2.924,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "TER": {
+      "value": 1.832,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "TSM": {
+      "value": 0.903,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "VRT": {
+      "value": 1.082,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "GOOGL": {
+      "value": -0.036,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "NBIS": {
+      "value": 2.636,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "IREN": {
+      "value": 2.436,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "CEG": {
+      "value": 0.45,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "GLW": {
+      "value": 1.449,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "BE": {
+      "value": 2.105,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "MKSI": {
+      "value": 1.646,
+      "as_of": "2026-07-31",
+      "benchmark": "SMH"
+    },
+    "META": {
+      "value": 0.022,
+      "as_of": "2026-08-03",
+      "benchmark": "SMH"
+    },
+    "BABA": {
+      "value": 0.264,
+      "as_of": "2026-08-03",
+      "benchmark": "SMH"
+    },
+    "QBTS": {
+      "value": 1.21,
+      "as_of": "2026-08-03",
+      "benchmark": "SMH"
+    },
+    "MP": {
+      "value": 1.233,
+      "as_of": "2026-08-07",
+      "benchmark": "SMH",
+      "method": "22 true-daily bars 2026-07-07..08-06 (period=1mo, 3 symbols/call to force daily), returns vs SMH"
+    },
+    "NOW": {
+      "value": -0.608,
+      "as_of": "2026-08-07",
+      "benchmark": "SMH",
+      "method": "22 true-daily bars 2026-07-07..08-06, returns vs SMH",
+      "caveat": "NEGATIVE beta is real for this window (enterprise software rallied while semis crashed 07-28/29 then reversed), but 22 sessions spanning one violent sector-specific event is not a stable structural loading -- same caveat class as META's ~0 beta on 2026-08-03. Do not size on it as if it were a durable hedge; re-measure next deep run."
+    },
+    "MSFT": {
+      "value": 0.459,
+      "as_of": "2026-08-07",
+      "benchmark": "SMH",
+      "method": "23 true-daily bars 2026-07-07..08-06 vs SMH"
+    },
+    "SKHY": {
+      "value": 2.442,
+      "as_of": "2026-08-07",
+      "benchmark": "SMH",
+      "method": "20 true-daily bars 2026-07-10..08-06 vs SMH (shorter history: recent ADR listing)",
+      "caveat": "annualized vol ~161% over this window -- SK Hynix ADR is the highest-vol name in the book by a wide margin; ATR-based stop will be correspondingly wide."
+    },
+    "INTC": {
+      "value": 1.579,
+      "as_of": "2026-08-10",
+      "benchmark": "SMH"
+    },
+    "STM": {
+      "value": 1.521,
+      "as_of": "2026-08-16",
+      "benchmark": "SPX_native_yfinance",
+      "note": "refreshed 2026-08-16; prior cache entry was a bare number with no as_of/benchmark. This is yfinance NATIVE (S&P-benchmarked) beta, NOT the SMH regression used elsewhere -- re-derive vs SMH next deep run for consistency."
+    },
+    "TXN": {
+      "value": 1.325,
+      "as_of": "2026-08-16",
+      "benchmark": "SPX_native_yfinance",
+      "note": "refreshed 2026-08-16; prior cache entry was a bare number with no as_of/benchmark. This is yfinance NATIVE (S&P-benchmarked) beta, NOT the SMH regression used elsewhere -- re-derive vs SMH next deep run for consistency."
+    },
+    "FLTW": {
+      "value": 2.411,
+      "as_of": "2026-08-15",
+      "benchmark": "SPX",
+      "note": "CORRECTED 2026-08-15 from 0.768 vs SMH. Thin sample (21 obs) -- re-measure next deep run."
+    },
+    "BX": {
+      "value": 1.124,
+      "as_of": "2026-08-15",
+      "benchmark": "SPX",
+      "note": "CORRECTED 2026-08-15: was -0.021 cached vs SMH (wrong benchmark), which made BX look like a natural hedge. It is not."
+    },
+    "_method_note_2026_08_12": "STM/TXN/AMD/COHR/FLTW/BX betas regressed vs SMH over only 22 daily returns (2026-07-13..08-12) -- the per-call row cap limits history. Thin but materially better than the 1.0 default that was silently in use; refresh on the next deep run."
+  },
+  "compute_book": {
+    "value_usd": 43735.68,
+    "pnl_pct": 7.866877397506446,
+    "day_chg_pct_weighted": null,
+    "count": 35,
+    "usdinr": 95.43,
+    "usdinr_drift_pct": -0.251,
+    "top3": [
+      {
+        "ticker": "NVDA",
+        "weight_pct": 7.721
+      },
+      {
+        "ticker": "TSM",
+        "weight_pct": 5.848
+      },
+      {
+        "ticker": "MU",
+        "weight_pct": 5.554
+      }
+    ],
+    "top5_pct": 28.149,
+    "top10_pct": 47.389,
+    "over_10pct": [],
+    "beta": 1.298,
+    "primary_benchmark": {
+      "benchmark": "SOX/SMH",
+      "primary_beta": 1.19,
+      "peer_etf": "SMH",
+      "secondary_spx_beta": 1.491,
+      "note": "SOX is the true factor; SPX beta is misleading. Use SOX/SMH for all sizing/stress decisions."
+    },
+    "risk_concentration": [
+      {
+        "ticker": "MU",
+        "weight_pct": 5.554,
+        "beta": 1.954,
+        "risk_pct": 8.36
+      },
+      {
+        "ticker": "SKHY",
+        "weight_pct": 4.166,
+        "beta": 2.442,
+        "risk_pct": 7.84
+      },
+      {
+        "ticker": "NBIS",
+        "weight_pct": 3.809,
+        "beta": 2.636,
+        "risk_pct": 7.74
+      },
+      {
+        "ticker": "DRAM",
+        "weight_pct": 3.904,
+        "beta": 2.073,
+        "risk_pct": 6.24
+      },
+      {
+        "ticker": "MRVL",
+        "weight_pct": 3.553,
+        "beta": 1.676,
+        "risk_pct": 4.59
+      }
+    ],
+    "peak_value_usd": 43735.68,
+    "peak_total_book_usd": 44873.02,
+    "total_book_usd": 43747.93,
+    "drawdown_pct": -2.507,
+    "drawdown_basis": "total_book",
+    "wallet_usd": 12.25,
+    "wallet_pct": 0.028,
+    "ltcg_flags": [],
+    "market_cap_allocation": {
+      "Unclassified": 100.0
+    },
+    "reconciliation": {
+      "row_sum_inr": 4174677.7,
+      "snapshot_inr": 4173696.34,
+      "aggregate_inr": 4173696.34,
+      "tolerance_pct": 3.0,
+      "snapshot_divergence_pct": 0.024,
+      "aggregate_divergence_pct": 0.024,
+      "persist_safe": true
+    },
+    "persist_safe": true,
+    "qty_changes": [],
+    "est_net_flows_usd": 0.0,
+    "flow_components": {
+      "adds_trims_usd": 0.0,
+      "new_entries_usd": 0.0,
+      "exits_usd": 0.0,
+      "exits_unpriced": [],
+      "exit_price_basis": "last_known_price_prior_run"
+    },
+    "positions": [
+      {
+        "ticker": "NVDA",
+        "weight_pct": 7.721,
+        "market_value_usd": 3377.58,
+        "qty": 15,
+        "price_usd": 225.1718,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "TSM",
+        "weight_pct": 5.848,
+        "market_value_usd": 2558.23,
+        "qty": 6,
+        "price_usd": 426.3723,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "MU",
+        "weight_pct": 5.554,
+        "market_value_usd": 2429.63,
+        "qty": 2.500365376,
+        "price_usd": 971.7109,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "GEV",
+        "weight_pct": 4.81,
+        "market_value_usd": 2104.15,
+        "qty": 2.004950742,
+        "price_usd": 1049.475,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "ASML",
+        "weight_pct": 4.216,
+        "market_value_usd": 1844.18,
+        "qty": 1.000001151,
+        "price_usd": 1844.1765,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "SKHY",
+        "weight_pct": 4.166,
+        "market_value_usd": 1822.47,
+        "qty": 11,
+        "price_usd": 165.6787,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "DRAM",
+        "weight_pct": 3.904,
+        "market_value_usd": 1707.99,
+        "qty": 30,
+        "price_usd": 56.933,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "NBIS",
+        "weight_pct": 3.809,
+        "market_value_usd": 1666.17,
+        "qty": 6,
+        "price_usd": 277.6945,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "QCOM",
+        "weight_pct": 3.767,
+        "market_value_usd": 1648.11,
+        "qty": 10.000761904,
+        "price_usd": 164.7986,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "AVGO",
+        "weight_pct": 3.594,
+        "market_value_usd": 1572.04,
+        "qty": 4,
+        "price_usd": 393.0106,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "MRVL",
+        "weight_pct": 3.553,
+        "market_value_usd": 1554.22,
+        "qty": 7,
+        "price_usd": 222.0316,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "MSFT",
+        "weight_pct": 3.398,
+        "market_value_usd": 1486.28,
+        "qty": 3,
+        "price_usd": 495.4259,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "CLS",
+        "weight_pct": 3.181,
+        "market_value_usd": 1391.73,
+        "qty": 4.003266352,
+        "price_usd": 347.6482,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "AMZN",
+        "weight_pct": 3.002,
+        "market_value_usd": 1313.32,
+        "qty": 5,
+        "price_usd": 262.6637,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "TER",
+        "weight_pct": 2.818,
+        "market_value_usd": 1232.75,
+        "qty": 3.002730188,
+        "price_usd": 410.5415,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "STM",
+        "weight_pct": 2.465,
+        "market_value_usd": 1078.46,
+        "qty": 20,
+        "price_usd": 53.9228,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "FLTW",
+        "weight_pct": 2.372,
+        "market_value_usd": 1037.85,
+        "qty": 10,
+        "price_usd": 103.7854,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "AMD",
+        "weight_pct": 2.352,
+        "market_value_usd": 1028.83,
+        "qty": 2,
+        "price_usd": 514.417,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "LRCX",
+        "weight_pct": 2.279,
+        "market_value_usd": 997.13,
+        "qty": 3,
+        "price_usd": 332.3774,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "COHR",
+        "weight_pct": 2.244,
+        "market_value_usd": 981.74,
+        "qty": 3,
+        "price_usd": 327.2471,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "ORCL",
+        "weight_pct": 2.065,
+        "market_value_usd": 903.17,
+        "qty": 6,
+        "price_usd": 150.5279,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "IREN",
+        "weight_pct": 2.046,
+        "market_value_usd": 895.25,
+        "qty": 20,
+        "price_usd": 44.7623,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "NOW",
+        "weight_pct": 2.036,
+        "market_value_usd": 890.8,
+        "qty": 7,
+        "price_usd": 127.2567,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "VRT",
+        "weight_pct": 1.969,
+        "market_value_usd": 861.26,
+        "qty": 3,
+        "price_usd": 287.085,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "CIEN",
+        "weight_pct": 1.969,
+        "market_value_usd": 861.24,
+        "qty": 2.008528082,
+        "price_usd": 428.7924,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "ARM",
+        "weight_pct": 1.916,
+        "market_value_usd": 838.36,
+        "qty": 3,
+        "price_usd": 279.4546,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "CEG",
+        "weight_pct": 1.911,
+        "market_value_usd": 835.96,
+        "qty": 3,
+        "price_usd": 278.6546,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "SNDK",
+        "weight_pct": 1.906,
+        "market_value_usd": 833.94,
+        "qty": 0.508131251,
+        "price_usd": 1641.1959,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "TXN",
+        "weight_pct": 1.875,
+        "market_value_usd": 820.33,
+        "qty": 3,
+        "price_usd": 273.4443,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "BX",
+        "weight_pct": 1.707,
+        "market_value_usd": 746.64,
+        "qty": 5,
+        "price_usd": 149.3278,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "BE",
+        "weight_pct": 1.446,
+        "market_value_usd": 632.37,
+        "qty": 2.75,
+        "price_usd": 229.952,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "AMAT",
+        "weight_pct": 1.232,
+        "market_value_usd": 538.94,
+        "qty": 1.0081785,
+        "price_usd": 534.568,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "INTC",
+        "weight_pct": 1.172,
+        "market_value_usd": 512.53,
+        "qty": 5,
+        "price_usd": 102.5054,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "GLW",
+        "weight_pct": 1.138,
+        "market_value_usd": 498.0,
+        "qty": 3,
+        "price_usd": 165.9987,
+        "day_chg_pct": null,
+        "market_cap": ""
+      },
+      {
+        "ticker": "BABA",
+        "weight_pct": 0.559,
+        "market_value_usd": 244.33,
+        "qty": 2,
+        "price_usd": 122.1664,
+        "day_chg_pct": null,
+        "market_cap": ""
+      }
+    ],
+    "data_quality": []
+  },
+  "lots.json": {
+    "schema_version": 1,
+    "_note": "Rebuilt deterministically by `smith_math.py lots` from trades.json. Do NOT hand-edit: re-running the engine overwrites it. Record share-moving events that generate no buy/sell confirmation as corporate_action rows in trades.json instead.",
+    "_rebuilt": "2026-08-16",
+    "AMD": [
+      {
+        "qty": 2,
+        "date": "2026-08-12",
+        "price_usd": 491.12,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "MSFT": [
+      {
+        "qty": 2,
+        "date": "2026-08-06",
+        "price_usd": 495.97,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 1,
+        "date": "2026-08-10",
+        "price_usd": 509.86,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "QCOM": [
+      {
+        "qty": 0.000762,
+        "date": "2026-07-21",
+        "price_usd": 172.11,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 3,
+        "date": "2026-07-29",
+        "price_usd": 163.51,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 2,
+        "date": "2026-07-30",
+        "price_usd": 153.24,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 5,
+        "date": "2026-08-06",
+        "price_usd": 161.07,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "NVDA": [
+      {
+        "qty": 10,
+        "date": "2026-07-28",
+        "price_usd": 197.51,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 5,
+        "date": "2026-07-30",
+        "price_usd": 193.48,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "ASML": [
+      {
+        "qty": 1,
+        "date": "2026-07-28",
+        "price_usd": 1569.01,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "TSM": [
+      {
+        "qty": 3,
+        "date": "2026-07-28",
+        "price_usd": 382.25,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 2,
+        "date": "2026-07-31",
+        "price_usd": 405.2,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 1,
+        "date": "2026-08-12",
+        "price_usd": 431.75,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "AVGO": [
+      {
+        "qty": 2.0,
+        "date": "2026-07-28",
+        "price_usd": 375.5,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 2,
+        "date": "2026-08-12",
+        "price_usd": 421.73,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "AMZN": [
+      {
+        "qty": 2,
+        "date": "2026-07-31",
+        "price_usd": 271.77,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 2,
+        "date": "2026-08-06",
+        "price_usd": 271.96,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 1,
+        "date": "2026-08-12",
+        "price_usd": 270.1,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "MU": [
+      {
+        "qty": 0.000366,
+        "date": "2026-07-29",
+        "price_usd": 788.81,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 1,
+        "date": "2026-07-31",
+        "price_usd": 849.49,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 1,
+        "date": "2026-07-31",
+        "price_usd": 850.79,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 0.5,
+        "date": "2026-08-13",
+        "price_usd": 970.36,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "SNDK": [
+      {
+        "qty": 0.008132,
+        "date": "2026-07-28",
+        "price_usd": 1079.59,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 0.5,
+        "date": "2026-08-07",
+        "price_usd": 1212.38,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "GLW": [
+      {
+        "qty": 3,
+        "date": "2026-08-13",
+        "price_usd": 166.27,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "CLS": [
+      {
+        "qty": 0.003266,
+        "date": "2026-07-15",
+        "price_usd": 330.24,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 1.0,
+        "date": "2026-07-16",
+        "price_usd": 303.81,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 2.0,
+        "date": "2026-07-17",
+        "price_usd": 293.34,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 1,
+        "date": "2026-08-06",
+        "price_usd": 319.33,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "GEV": [
+      {
+        "qty": 0.000782,
+        "date": "2026-07-21",
+        "price_usd": 1090.77,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 0.394169,
+        "date": "2026-07-22",
+        "price_usd": 1011.8,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 0.61,
+        "date": "2026-07-28",
+        "price_usd": 936.5,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 1,
+        "date": "2026-08-13",
+        "price_usd": 1036.57,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "LRCX": [
+      {
+        "qty": 2,
+        "date": "2026-08-03",
+        "price_usd": 293.45,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 1,
+        "date": "2026-08-05",
+        "price_usd": 311.86,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "LLY": [
+      {
+        "qty": 4e-06,
+        "date": "2026-04-02",
+        "price_usd": 934.66,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "TER": [
+      {
+        "qty": 0.002731,
+        "date": "2026-07-29",
+        "price_usd": 329.32,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 3,
+        "date": "2026-08-07",
+        "price_usd": 378.94,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "INTC": [
+      {
+        "qty": 5,
+        "date": "2026-08-07",
+        "price_usd": 101.56,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "COHR": [
+      {
+        "qty": 2,
+        "date": "2026-08-12",
+        "price_usd": 343.56,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 1,
+        "date": "2026-08-14",
+        "price_usd": 322.09,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "AMAT": [
+      {
+        "qty": 0.008179,
+        "date": "2026-07-28",
+        "price_usd": 473.79,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 1,
+        "date": "2026-08-12",
+        "price_usd": 548.24,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "DRAM": [
+      {
+        "qty": 5.0,
+        "date": "2026-07-16",
+        "price_usd": 54.31,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 25,
+        "date": "2026-07-28",
+        "price_usd": 48.0,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "STM": [
+      {
+        "qty": 20,
+        "date": "2026-08-12",
+        "price_usd": 56.29,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "BE": [
+      {
+        "qty": 2,
+        "date": "2026-08-13",
+        "price_usd": 244.11,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 0.75,
+        "date": "2026-08-14",
+        "price_usd": 233.88,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "ARM": [
+      {
+        "qty": 3,
+        "date": "2026-08-07",
+        "price_usd": 282.65,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "NBIS": [
+      {
+        "qty": 3,
+        "date": "2026-08-07",
+        "price_usd": 188.27,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 2,
+        "date": "2026-08-10",
+        "price_usd": 188.23,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 1,
+        "date": "2026-08-12",
+        "price_usd": 234.79,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "NOW": [
+      {
+        "qty": 5,
+        "date": "2026-08-05",
+        "price_usd": 116.93,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 2,
+        "date": "2026-08-12",
+        "price_usd": 122.96,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "ORCL": [
+      {
+        "qty": 4.0,
+        "date": "2026-07-16",
+        "price_usd": 126.58,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 2,
+        "date": "2026-08-04",
+        "price_usd": 140.58,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "CIEN": [
+      {
+        "qty": 0.008528,
+        "date": "2026-07-28",
+        "price_usd": 339.51,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 2,
+        "date": "2026-08-12",
+        "price_usd": 426.34,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "MRVL": [
+      {
+        "qty": 3,
+        "date": "2026-07-28",
+        "price_usd": 174.75,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 2,
+        "date": "2026-07-29",
+        "price_usd": 175.59,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 2,
+        "date": "2026-08-12",
+        "price_usd": 221.35,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "VRT": [
+      {
+        "qty": 3,
+        "date": "2026-08-13",
+        "price_usd": 291.04,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "IREN": [
+      {
+        "qty": 10,
+        "date": "2026-08-13",
+        "price_usd": 44.82,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 10,
+        "date": "2026-08-13",
+        "price_usd": 46.38,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "BABA": [
+      {
+        "qty": 2,
+        "date": "2026-08-10",
+        "price_usd": 130.71,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "CEG": [
+      {
+        "qty": 3,
+        "date": "2026-07-30",
+        "price_usd": 267.72,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "SKHY": [
+      {
+        "qty": 1,
+        "date": "2026-08-06",
+        "price_usd": 143.02,
+        "price_source": "email_confirmed"
+      },
+      {
+        "qty": 10,
+        "date": "2026-08-07",
+        "price_usd": 138.07,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "BX": [
+      {
+        "qty": 5,
+        "date": "2026-08-10",
+        "price_usd": 139.38,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "FLTW": [
+      {
+        "qty": 10,
+        "date": "2026-08-10",
+        "price_usd": 98.8,
+        "price_source": "email_confirmed"
+      }
+    ],
+    "TXN": [
+      {
+        "qty": 3,
+        "date": "2026-08-12",
+        "price_usd": 282.62,
+        "price_source": "email_confirmed"
+      }
+    ]
+  },
+  "holdings": [
+    {
+      "ticker": "AVGO",
+      "name": "Broadcom Inc. Common Stock",
+      "qty": 4,
+      "invested_inr": 152166.57998829347,
+      "market_value_inr": 150019.99503427744,
+      "pnl_pct": -1.4106809485901364,
+      "weight_pct": 3.5935707120126974
+    },
+    {
+      "ticker": "LRCX",
+      "name": "Lam Research Corporation Common Stock",
+      "qty": 3,
+      "invested_inr": 85772.49026534382,
+      "market_value_inr": 95156.32317180187,
+      "pnl_pct": 10.94037596136994,
+      "weight_pct": 2.2793693329670583
+    },
+    {
+      "ticker": "ARM",
+      "name": "Arm Holdings plc American Depositary Shares",
+      "qty": 3,
+      "invested_inr": 80925.50907427368,
+      "market_value_inr": 80005.06785230711,
+      "pnl_pct": -1.1373931810818572,
+      "weight_pct": 1.9164369961547383
+    },
+    {
+      "ticker": "FLTW",
+      "name": "Franklin FTSE Taiwan ETF",
+      "qty": 10,
+      "invested_inr": 94289.77758789062,
+      "market_value_inr": 99042.4393013306,
+      "pnl_pct": 5.040484594430036,
+      "weight_pct": 2.372457145050799
+    },
+    {
+      "ticker": "ASML",
+      "name": "ASML Holding N.V. New York Registry Shares",
+      "qty": 1.000001151,
+      "invested_inr": 149738.6640242041,
+      "market_value_inr": 175989.96866815156,
+      "pnl_pct": 17.531413689990003,
+      "weight_pct": 4.215654032446807
+    },
+    {
+      "ticker": "BE",
+      "name": "Bloom Energy Corporation",
+      "qty": 2.75,
+      "invested_inr": 63334.16674885822,
+      "market_value_inr": 60346.88982195128,
+      "pnl_pct": -4.7166909746401515,
+      "weight_pct": 1.4455460805452742
+    },
+    {
+      "ticker": "NOW",
+      "name": "SERVICENOW, INC.",
+      "qty": 7,
+      "invested_inr": 79266.03771466107,
+      "market_value_inr": 85008.72407531738,
+      "pnl_pct": 7.244825812195408,
+      "weight_pct": 2.0362943021883866
+    },
+    {
+      "ticker": "BX",
+      "name": "Blackstone Inc.",
+      "qty": 5,
+      "invested_inr": 66506.74109863282,
+      "market_value_inr": 71251.77267218009,
+      "pnl_pct": 7.134662584820011,
+      "weight_pct": 1.7067610447209365
+    },
+    {
+      "ticker": "CLS",
+      "name": "Celestica, Inc.",
+      "qty": 4.003266352,
+      "invested_inr": 115562.87538143988,
+      "market_value_inr": 132812.6393873841,
+      "pnl_pct": 14.926734861007644,
+      "weight_pct": 3.1813866610151376
+    },
+    {
+      "ticker": "COHR",
+      "name": "Coherent Corp.",
+      "qty": 3,
+      "invested_inr": 96314.19256903729,
+      "market_value_inr": 93687.58589873649,
+      "pnl_pct": -2.727123179087095,
+      "weight_pct": 2.244187281088419
+    },
+    {
+      "ticker": "NBIS",
+      "name": "Nebius Group N.V. Class A Ordinary Shares",
+      "qty": 6,
+      "invested_inr": 112237.23570213099,
+      "market_value_inr": 159002.33653850108,
+      "pnl_pct": 41.666297769913974,
+      "weight_pct": 3.808733226499509
+    },
+    {
+      "ticker": "CEG",
+      "name": "Constellation Energy Corporation Common Stock",
+      "qty": 3,
+      "invested_inr": 76649.57263916015,
+      "market_value_inr": 79776.02735310048,
+      "pnl_pct": 4.078893862407562,
+      "weight_pct": 1.9109505726308231
+    },
+    {
+      "ticker": "SKHY",
+      "name": "SK hynix Inc. American Depositary Shares",
+      "qty": 11,
+      "invested_inr": 145416.17668772142,
+      "market_value_inr": 173917.8745786408,
+      "pnl_pct": 19.60008751442162,
+      "weight_pct": 4.166019204563369
+    },
+    {
+      "ticker": "MSFT",
+      "name": "Microsoft Corporation Common Stock",
+      "qty": 3,
+      "invested_inr": 143323.94521556963,
+      "market_value_inr": 141835.49162411503,
+      "pnl_pct": -1.0385240157992142,
+      "weight_pct": 3.397519567360896
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation Common Stock",
+      "qty": 15,
+      "invested_inr": 280816.47872586275,
+      "market_value_inr": 322322.1659967955,
+      "pnl_pct": 14.780360276311008,
+      "weight_pct": 7.720887440996963
+    },
+    {
+      "ticker": "MU",
+      "name": "Micron Technology, Inc. Common Stock",
+      "qty": 2.500365376,
+      "invested_inr": 208596.68431049056,
+      "market_value_inr": 231859.79936271225,
+      "pnl_pct": 11.152197902434139,
+      "weight_pct": 5.553956884831303
+    },
+    {
+      "ticker": "STM",
+      "name": "STMicroelectronics N.V.",
+      "qty": 20,
+      "invested_inr": 107431.17675170899,
+      "market_value_inr": 102917.09787225351,
+      "pnl_pct": -4.201833225645714,
+      "weight_pct": 2.465270503405705
+    },
+    {
+      "ticker": "BABA",
+      "name": "Alibaba Group Holding Limited American Depositary Shares, each represents eight Ordinary Shares",
+      "qty": 2,
+      "invested_inr": 24948.617061767578,
+      "market_value_inr": 23316.679302502424,
+      "pnl_pct": -6.541195270362348,
+      "weight_pct": 0.5585264539151631
+    },
+    {
+      "ticker": "GEV",
+      "name": "GE Vernova Inc.",
+      "qty": 2.004950742,
+      "invested_inr": 191586.51248970765,
+      "market_value_inr": 200798.62240275153,
+      "pnl_pct": 4.8083290380572965,
+      "weight_pct": 4.809919159870342
+    },
+    {
+      "ticker": "INTC",
+      "name": "Intel Corporation Common Stock",
+      "qty": 5,
+      "invested_inr": 48461.89176025391,
+      "market_value_inr": 48910.4362487793,
+      "pnl_pct": 0.925561244584479,
+      "weight_pct": 1.171597900501317
+    },
+    {
+      "ticker": "MRVL",
+      "name": "Marvell Technology, Inc. Common Stock",
+      "qty": 7,
+      "invested_inr": 125796.5064508244,
+      "market_value_inr": 148319.34995990898,
+      "pnl_pct": 17.90418839484154,
+      "weight_pct": 3.552833553413387
+    },
+    {
+      "ticker": "VRT",
+      "name": "Vertiv Holdings Co Class A Common Stock",
+      "qty": 3,
+      "invested_inr": 83327.235766333,
+      "market_value_inr": 82189.57634439692,
+      "pnl_pct": -1.3652912057785282,
+      "weight_pct": 1.9687645924563069
+    },
+    {
+      "ticker": "QCOM",
+      "name": "QUALCOMM Incorporated Common Stock",
+      "qty": 10.000761904,
+      "invested_inr": 152930.8743155964,
+      "market_value_inr": 157279.30832990783,
+      "pnl_pct": 2.8433983875210025,
+      "weight_pct": 3.767459903533742
+    },
+    {
+      "ticker": "TSM",
+      "name": "Taiwan Semiconductor Manufacturing Company Ltd.",
+      "qty": 6,
+      "invested_inr": 227859.64601179285,
+      "market_value_inr": 244132.27074957266,
+      "pnl_pct": 7.1415123399856535,
+      "weight_pct": 5.84793098961486
+    },
+    {
+      "ticker": "TXN",
+      "name": "Texas Instruments Incorporated Common Stock",
+      "qty": 3,
+      "invested_inr": 80914.08550506592,
+      "market_value_inr": 78284.37205037847,
+      "pnl_pct": -3.250007014567076,
+      "weight_pct": 1.8752195435299657
+    },
+    {
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices, Inc. Common Stock",
+      "qty": 2,
+      "invested_inr": 93740.51100294189,
+      "market_value_inr": 98181.61958427727,
+      "pnl_pct": 4.737662013807466,
+      "weight_pct": 2.3518371168817604
+    },
+    {
+      "ticker": "AMZN",
+      "name": "Amazon.com, Inc. Common Stock",
+      "qty": 5,
+      "invested_inr": 129557.78093566894,
+      "market_value_inr": 125330.00763137825,
+      "pnl_pct": -3.263233804837985,
+      "weight_pct": 3.002148111373706
+    },
+    {
+      "ticker": "ORCL",
+      "name": "Oracle Corp",
+      "qty": 6,
+      "invested_inr": 75153.95372229088,
+      "market_value_inr": 86189.25744157098,
+      "pnl_pct": 14.68359703344123,
+      "weight_pct": 2.064572733530511
+    },
+    {
+      "ticker": "CIEN",
+      "name": "Ciena Corporation",
+      "qty": 2.008528082,
+      "invested_inr": 81650.99666851935,
+      "market_value_inr": 82188.29194967348,
+      "pnl_pct": 0.6580388520368026,
+      "weight_pct": 1.9687338261357257
+    },
+    {
+      "ticker": "IREN",
+      "name": "IREN Limited Ordinary Shares",
+      "qty": 20,
+      "invested_inr": 87039.00821337891,
+      "market_value_inr": 85433.40661076363,
+      "pnl_pct": -1.8446919784277593,
+      "weight_pct": 2.046467124290762
+    },
+    {
+      "ticker": "SNDK",
+      "name": "Sandisk Corporation Common Stock",
+      "qty": 0.508131251,
+      "invested_inr": 58689.31716892218,
+      "market_value_inr": 79583.17478561492,
+      "pnl_pct": 35.60078498878274,
+      "weight_pct": 1.9063309928335153
+    },
+    {
+      "ticker": "GLW",
+      "name": "Corning Incorporated",
+      "qty": 3,
+      "invested_inr": 47602.49960723877,
+      "market_value_inr": 47523.76730697323,
+      "pnl_pct": -0.16539530679093598,
+      "weight_pct": 1.138381708917033
+    },
+    {
+      "ticker": "TER",
+      "name": "Teradyne, Inc. Common Stock",
+      "qty": 3.002730188,
+      "invested_inr": 108578.85083337434,
+      "market_value_inr": 117640.88568270778,
+      "pnl_pct": 8.346040485582309,
+      "weight_pct": 2.8179633070113086
+    },
+    {
+      "ticker": "AMAT",
+      "name": "Applied Materials, Inc. Common Stock",
+      "qty": 1.0081785,
+      "invested_inr": 52691.080220728334,
+      "market_value_inr": 51431.03803713179,
+      "pnl_pct": -2.391376639685693,
+      "weight_pct": 1.2319762571410484
+    },
+    {
+      "ticker": "DRAM",
+      "name": "Roundhill Memory ETF",
+      "qty": 30,
+      "invested_inr": 140425.3468020062,
+      "market_value_inr": 162993.43320405576,
+      "pnl_pct": 16.071234229436936,
+      "weight_pct": 3.904335736570729
+    }
+  ]
+}

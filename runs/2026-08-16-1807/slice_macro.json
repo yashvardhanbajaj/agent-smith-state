@@ -1,0 +1,117 @@
+{
+  "mode": "deep",
+  "today": "2026-08-16",
+  "market_session": "closed",
+  "gate_classification": "AMBIGUOUS",
+  "macro": {
+    "us10y": 4.696,
+    "vix": 14.25,
+    "dxy": 99.636,
+    "spx": 7785.76,
+    "ndx": 26729.164,
+    "es_f": 7805,
+    "nq_f": 30141.75,
+    "smh": 587.82
+  },
+  "usdinr": 95.43,
+  "holdings_path": "runs/2026-08-16-1807/holdings.json",
+  "known_gaps": [
+    {
+      "id": "G69",
+      "status": "partially_closed",
+      "gap": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so "
+    },
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "open_flags": [
+    {
+      "ticker": "SNDK/TER/ARM/NBIS/INTC",
+      "flag": "5 more trades from 2026-08-07 (exact fills confirmed via scoped Gmail search this run, added to trades.json/lots.json) remain reason=UNCAPTURED: SNDK add (0.5sh@$1212.38, Market), TER add (3sh@$378.94, Market), ARM new position (3sh@$282.65, Market), NBIS re-entry (3sh@$188.27, Limit), INTC new position (5sh@$101.56, Limit). Combined with the prior 11 from G55, the scheduled-run UNCAPTURED backlog now stands at 16 trades awaiting the user's rationale at the next interactive run.",
+      "opened": "2026-08-10"
+    },
+    {
+      "ticker": "STOP-CASCADE-08-10/11",
+      "flag": "6 stop-losses fired in 2 sessions (AMD/VRT/GOOGL/MP full exits, SNDK/AVGO trims) -- signals read all 6 as idiosyncratic not macro (VIX calm throughout). VRT, MP, AMD, SNDK all recovered above their stop price within 1-2 sessions (whipsaws); GOOGL is the one genuine breakdown, still falling ($343.80 vs $351.95 stop as of 08-12). Strategist proposed VRT re-entry (P-073, cluster under-floor) and AVGO re-accumulation (P-074, rotation-bucket accumulate) but explicitly DECLINED an AMD re-entry despite a matching watchlist setup, citing G58 (unverified beat/miss characterization) and no under-floor cluster support. Cash spiked to 22.5% (post_stop_event regime, not yet back in normal band) -- this is fresh stop proceeds sitting idle, not accumulated excess.",
+      "opened": "2026-08-12"
+    },
+    {
+      "ticker": "STM/TXN",
+      "opened": "2026-08-12",
+      "flag": "PROVISIONAL cluster assignment made by the ORCHESTRATOR, not smith-thesis, which failed twice on API 529 this run. STM (20sh) and TXN (3sh) were left Unclassified by the entry, which made ~$1,955 of the book invisible to the drift table and inflated every other cluster's share. Assigned to a NEW 'Analog/Industrial Semis' cluster following the Enterprise Software / Critical Minerals precedent for non-AI-capex satellites. NO POLICY BAND CREATED -- per the Critical Minerals rationale, the band is a user decision, not an inferred one. Two things still owed: (1) smith-thesis must write first theses for both and confirm or correct this cluster; (2) the user must set a band (suggest 0%/[0,5] mirroring the other satellites, but that is their call). Until banded, this cluster shows in drift as unbanded and cannot breach."
+    },
+    {
+      "ticker": "IREN",
+      "opened": "2026-08-12",
+      "flag": "smith-watchlist call 2026-08-12: CHASE, NOT ENTRY. $42.33-43.37 (+6.5 to +9.1% on the session), mean target $81.73 (13 analysts, 92% Buy) = +48.21% upside, down ~3pt from +51.36% purely on price, not target cuts. NO news since the 08-12 watermark explains the pop -- last sourced catalysts are the $2.8B AI-cloud contract (20 Jul) and the Anthropic rally (06 Jul), both stale; move attributed to sector beta (SMH +2.32%), INFERRED not confirmed. Standing re-entry interest REMAINS OPEN -- the better trigger is a pullback or a confirmed new catalyst, not today's candle. Cash at 7.33% is inside its band, i.e. operating buffer, not dry powder."
+    },
+    {
+      "ticker": "STM",
+      "opened": "2026-08-13",
+      "flag": "STM PEER LAGGARD -1.61 sigma (provisional Analog/Industrial Semis cluster)"
+    }
+  ],
+  "agent": "smith-macro",
+  "output_file": "runs/2026-08-16-1807/smith-macro-output.md",
+  "fomc_cache": {
+    "rate_pct": 3.63,
+    "stance": "HAWKISH",
+    "next_check_date": "2026-09-17"
+  },
+  "compute_sentiment": {
+    "score": 82.9,
+    "band": "extreme_greed",
+    "components": {
+      "vix": 96.0,
+      "ma125": 91.7,
+      "rsi14": 73.1,
+      "pct_off_52w_high": 98.4,
+      "yield_trend": 55.5
+    },
+    "action_hint": "propose profit-booking on overweight/breach names",
+    "prior_band": "extreme_greed",
+    "note": "proxy composite, not CNN's Fear & Greed Index -- equal-weighted VIX-range/125dma/RSI14/52wk-high/yield-trend"
+  },
+  "market_inputs.json": {
+    "usdinr": 95.43,
+    "us10y": 4.696,
+    "us10y_prevclose": 4.641,
+    "vix": 14.25,
+    "vix_prev_close": 14.63,
+    "vix_change_pct": -2.597,
+    "dxy": 99.636,
+    "dxy_change_pct": -0.031,
+    "spx": 7785.76,
+    "spx_prev_close": 7798.99,
+    "spx_change_pct": -0.17,
+    "ndx": 26729.165,
+    "ndx_prev_close": 26803.025,
+    "ndx_change_pct": -0.276,
+    "es_f": 7805.0,
+    "es_f_change_pct": -0.224,
+    "nq_f": 30141.75,
+    "nq_f_change_pct": -0.155,
+    "smh": 587.82,
+    "smh_prev_close": 589.12,
+    "smh_change_pct": -0.221,
+    "asia": null,
+    "worst_asia_index": null,
+    "worst_asia_change_pct": null,
+    "market_session": "closed",
+    "gate_classification": "AMBIGUOUS",
+    "timestamp": "2026-08-16T12:37:57Z",
+    "note": "Sunday 2026-08-16 18:07 IST. US market CLOSED since Friday 2026-08-14's close, and Asia is closed too, so EVERY value here is byte-identical to the 2026-08-15 deep run's -- this run has no new price information by construction, and the derived sentiment inputs (spx_125dma, spx_52w_high, vix_52w_range, ndx_rsi14, us10y_chg_1m_bps) are carried forward unchanged because they are computed off the same closes. GATE CORRECTED TO AMBIGUOUS: Gate v2's STABILIZING branch requires ALL of VIX<=+2%, SMH>=-1%, no Asia index <=-2%, AND at least one of ES/NQ >= 0%. VIX (-2.60%) and SMH (-0.22%) pass, but BOTH ES (-0.224%) and NQ (-0.155%) closed negative, so the fourth term fails and the correct classification is AMBIGUOUS, not the STABILIZING the 2026-08-15 run recorded on this same data. Flagged rather than silently repeated or silently changed. In practice the distinction is immaterial here -- a weekend gate is a low-information gate, since no session has occurred to classify.",
+    "spx_125dma": 7186.53,
+    "spx_52w_high": 7816.7,
+    "vix_52w_range": [
+      13.38,
+      35.3
+    ],
+    "ndx_rsi14": 73.12,
+    "us10y_chg_1m_bps": 11.1
+  }
+}

@@ -1,0 +1,448 @@
+{
+  "mode": "deep",
+  "today": "2026-08-16",
+  "market_session": "closed",
+  "gate_classification": "AMBIGUOUS",
+  "macro": {
+    "us10y": 4.696,
+    "vix": 14.25,
+    "dxy": 99.636,
+    "spx": 7785.76,
+    "ndx": 26729.164,
+    "es_f": 7805,
+    "nq_f": 30141.75,
+    "smh": 587.82
+  },
+  "usdinr": 95.43,
+  "holdings_path": "runs/2026-08-16-1807/holdings.json",
+  "known_gaps": [
+    {
+      "id": "G69",
+      "status": "partially_closed",
+      "gap": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so "
+    },
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "open_flags": [
+    {
+      "ticker": "SNDK/TER/ARM/NBIS/INTC",
+      "flag": "5 more trades from 2026-08-07 (exact fills confirmed via scoped Gmail search this run, added to trades.json/lots.json) remain reason=UNCAPTURED: SNDK add (0.5sh@$1212.38, Market), TER add (3sh@$378.94, Market), ARM new position (3sh@$282.65, Market), NBIS re-entry (3sh@$188.27, Limit), INTC new position (5sh@$101.56, Limit). Combined with the prior 11 from G55, the scheduled-run UNCAPTURED backlog now stands at 16 trades awaiting the user's rationale at the next interactive run.",
+      "opened": "2026-08-10"
+    },
+    {
+      "ticker": "STOP-CASCADE-08-10/11",
+      "flag": "6 stop-losses fired in 2 sessions (AMD/VRT/GOOGL/MP full exits, SNDK/AVGO trims) -- signals read all 6 as idiosyncratic not macro (VIX calm throughout). VRT, MP, AMD, SNDK all recovered above their stop price within 1-2 sessions (whipsaws); GOOGL is the one genuine breakdown, still falling ($343.80 vs $351.95 stop as of 08-12). Strategist proposed VRT re-entry (P-073, cluster under-floor) and AVGO re-accumulation (P-074, rotation-bucket accumulate) but explicitly DECLINED an AMD re-entry despite a matching watchlist setup, citing G58 (unverified beat/miss characterization) and no under-floor cluster support. Cash spiked to 22.5% (post_stop_event regime, not yet back in normal band) -- this is fresh stop proceeds sitting idle, not accumulated excess.",
+      "opened": "2026-08-12"
+    },
+    {
+      "ticker": "STM/TXN",
+      "opened": "2026-08-12",
+      "flag": "PROVISIONAL cluster assignment made by the ORCHESTRATOR, not smith-thesis, which failed twice on API 529 this run. STM (20sh) and TXN (3sh) were left Unclassified by the entry, which made ~$1,955 of the book invisible to the drift table and inflated every other cluster's share. Assigned to a NEW 'Analog/Industrial Semis' cluster following the Enterprise Software / Critical Minerals precedent for non-AI-capex satellites. NO POLICY BAND CREATED -- per the Critical Minerals rationale, the band is a user decision, not an inferred one. Two things still owed: (1) smith-thesis must write first theses for both and confirm or correct this cluster; (2) the user must set a band (suggest 0%/[0,5] mirroring the other satellites, but that is their call). Until banded, this cluster shows in drift as unbanded and cannot breach."
+    },
+    {
+      "ticker": "IREN",
+      "opened": "2026-08-12",
+      "flag": "smith-watchlist call 2026-08-12: CHASE, NOT ENTRY. $42.33-43.37 (+6.5 to +9.1% on the session), mean target $81.73 (13 analysts, 92% Buy) = +48.21% upside, down ~3pt from +51.36% purely on price, not target cuts. NO news since the 08-12 watermark explains the pop -- last sourced catalysts are the $2.8B AI-cloud contract (20 Jul) and the Anthropic rally (06 Jul), both stale; move attributed to sector beta (SMH +2.32%), INFERRED not confirmed. Standing re-entry interest REMAINS OPEN -- the better trigger is a pullback or a confirmed new catalyst, not today's candle. Cash at 7.33% is inside its band, i.e. operating buffer, not dry powder."
+    },
+    {
+      "ticker": "STM",
+      "opened": "2026-08-13",
+      "flag": "STM PEER LAGGARD -1.61 sigma (provisional Analog/Industrial Semis cluster)"
+    }
+  ],
+  "agent": "smith-watchlist",
+  "output_file": "runs/2026-08-16-1807/smith-watchlist-output.md",
+  "news_watermark": "2026-08-16",
+  "watchlist_scan_cursor": 75,
+  "data_cache.earnings_calendar": {
+    "LRCX": {
+      "date": "2026-07-29",
+      "confirmed": true,
+      "source": "reported",
+      "as_of": "2026-07-30"
+    },
+    "GOOG": {
+      "date": "2026-10-21",
+      "confirmed": true,
+      "source": "reported 07-22",
+      "as_of": "2026-07-28"
+    },
+    "TER": {
+      "date": "2026-07-28",
+      "confirmed": true,
+      "source": "reported",
+      "as_of": "2026-07-30"
+    },
+    "QCOM": {
+      "date": "2026-07-29",
+      "confirmed": true,
+      "source": "reported",
+      "as_of": "2026-07-30"
+    },
+    "AAPL": {
+      "date": "2026-07-30",
+      "confirmed": true,
+      "source": "fmp-calendar",
+      "as_of": "2026-07-28"
+    },
+    "AMZN": {
+      "date": "2026-07-30",
+      "confirmed": true,
+      "source": "fmp-calendar",
+      "as_of": "2026-07-28"
+    },
+    "AMD": {
+      "date": "2026-08-04",
+      "confirmed": true,
+      "source": "fmp-calendar"
+    },
+    "CLS": {
+      "date": "2026-07-28",
+      "confirmed": true,
+      "source": "reported",
+      "as_of": "2026-07-30"
+    },
+    "VRT": {
+      "date": "2026-07-29",
+      "confirmed": true,
+      "source": "reported",
+      "as_of": "2026-07-30"
+    },
+    "COHR": {
+      "date": "2026-08-12",
+      "confirmed": true,
+      "source": "zacks-preview"
+    },
+    "MRVL": {
+      "date": "2026-08-27",
+      "confirmed": true,
+      "source": "indmoney-news",
+      "checked": "2026-08-16"
+    },
+    "AVGO": {
+      "date": "2026-09-02",
+      "confirmed": true,
+      "source": "indmoney-news",
+      "checked": "2026-08-16"
+    },
+    "GEV": {
+      "date": "2026-10-21",
+      "confirmed": true,
+      "source": "reported 07-22",
+      "as_of": "2026-07-28"
+    },
+    "CEG": {
+      "date": "2026-08-06",
+      "confirmed": true
+    },
+    "VST": {
+      "date": "2026-08-07",
+      "confirmed": true,
+      "source": "reported"
+    },
+    "ETN": {
+      "date": "2026-08-04",
+      "confirmed": false,
+      "source": "cadence",
+      "as_of": "2026-07-28"
+    },
+    "HUBB": {
+      "date": "2026-10-27",
+      "confirmed": true,
+      "source": "reported 07-28",
+      "as_of": "2026-07-28"
+    },
+    "NVDA": {
+      "date": "2026-08-26",
+      "confirmed": true,
+      "source": "web (stockanalysis.com)",
+      "checked": "2026-08-16"
+    },
+    "QBTS": {
+      "date": "2026-08-06",
+      "confirmed": true
+    },
+    "MP": {
+      "date": "2026-11-05",
+      "confirmed": false,
+      "source": "estimate = verified last-reported + 91d cadence",
+      "last_reported": "2026-08-06",
+      "last_reported_source": "web-verified (stockanalysis.com) 2026-08-07",
+      "note": "Q2 2026 reported. ALREADY REPORTED on 2026-08-06 -- any EARNINGS PROXIMITY flag citing that date is stale and must not gate a proposal. Next date is a cadence ESTIMATE, not decision-grade; re-verify before use."
+    },
+    "AMAT": {
+      "date": "2026-08-13",
+      "confirmed": true,
+      "source": "web-verified (stockanalysis.com) 2026-08-07",
+      "note": "company-announced FQ3 call date; heuristic had this right"
+    },
+    "NBIS": {
+      "date": "2026-08-12",
+      "confirmed": true,
+      "source": "web-verified (stockanalysis.com) 2026-08-07",
+      "note": "Q2 2026, before market open; heuristic had this right"
+    },
+    "BABA": {
+      "date": "2026-08-28",
+      "confirmed": true,
+      "source": "web-verified (stockanalysis.com) 2026-08-07",
+      "note": "CORRECTED from cached 2026-08-12 -- the yfinance +91d heuristic was WRONG BY 16 DAYS on this name. A false EARNINGS PROXIMITY flag on 08-12 would have gated proposals against an event that is not for another two weeks."
+    },
+    "MKSI": {
+      "date": "2026-11-04",
+      "confirmed": false,
+      "source": "estimate = verified last-reported + 91d cadence",
+      "last_reported": "2026-08-05",
+      "last_reported_source": "web-verified (stockanalysis.com) 2026-08-07",
+      "note": "Q2 2026 reported. ALREADY REPORTED on 2026-08-05 -- any EARNINGS PROXIMITY flag citing that date is stale and must not gate a proposal. Next date is a cadence ESTIMATE, not decision-grade; re-verify before use."
+    },
+    "SNDK": {
+      "date": "2026-11-04",
+      "confirmed": false,
+      "source": "estimate = verified last-reported + 91d cadence",
+      "last_reported": "2026-08-05",
+      "last_reported_source": "web-verified (stockanalysis.com) 2026-08-07",
+      "note": "FQ4 reported -- the Q1 FY27 guide-below-consensus that triggered the 08-06 stop cascade (G51). ALREADY REPORTED on 2026-08-05 -- any EARNINGS PROXIMITY flag citing that date is stale and must not gate a proposal. Next date is a cadence ESTIMATE, not decision-grade; re-verify before use."
+    }
+  },
+  "compute_attribution": {
+    "value_delta_usd": 0.0,
+    "fx_effect_usd": 109.72,
+    "flow_usd": 0.0,
+    "residual_market_move_usd": -109.71,
+    "qty_changes": [],
+    "data_quality": [],
+    "flow_components": {
+      "adds_trims_usd": 0.0,
+      "new_entries_usd": 0.0,
+      "exits_usd": 0.0,
+      "exits_unpriced": [],
+      "exit_price_basis": "last_known_price_prior_run"
+    },
+    "ledger_rows_available": 28,
+    "rolling": {
+      "1m": null,
+      "3m": null,
+      "6m": null,
+      "12m": null,
+      "note": "only 28 ledger row(s) -- rolling windows need more history"
+    }
+  },
+  "holdings": [
+    {
+      "ticker": "AVGO",
+      "name": "Broadcom Inc. Common Stock",
+      "qty": 4,
+      "weight_pct": 3.59
+    },
+    {
+      "ticker": "LRCX",
+      "name": "Lam Research Corporation Common Stock",
+      "qty": 3,
+      "weight_pct": 2.28
+    },
+    {
+      "ticker": "ARM",
+      "name": "Arm Holdings plc American Depositary Shares",
+      "qty": 3,
+      "weight_pct": 1.92
+    },
+    {
+      "ticker": "FLTW",
+      "name": "Franklin FTSE Taiwan ETF",
+      "qty": 10,
+      "weight_pct": 2.37
+    },
+    {
+      "ticker": "ASML",
+      "name": "ASML Holding N.V. New York Registry Shares",
+      "qty": 1.000001151,
+      "weight_pct": 4.22
+    },
+    {
+      "ticker": "BE",
+      "name": "Bloom Energy Corporation",
+      "qty": 2.75,
+      "weight_pct": 1.45
+    },
+    {
+      "ticker": "NOW",
+      "name": "SERVICENOW, INC.",
+      "qty": 7,
+      "weight_pct": 2.04
+    },
+    {
+      "ticker": "BX",
+      "name": "Blackstone Inc.",
+      "qty": 5,
+      "weight_pct": 1.71
+    },
+    {
+      "ticker": "CLS",
+      "name": "Celestica, Inc.",
+      "qty": 4.003266352,
+      "weight_pct": 3.18
+    },
+    {
+      "ticker": "COHR",
+      "name": "Coherent Corp.",
+      "qty": 3,
+      "weight_pct": 2.24
+    },
+    {
+      "ticker": "NBIS",
+      "name": "Nebius Group N.V. Class A Ordinary Shares",
+      "qty": 6,
+      "weight_pct": 3.81
+    },
+    {
+      "ticker": "CEG",
+      "name": "Constellation Energy Corporation Common Stock",
+      "qty": 3,
+      "weight_pct": 1.91
+    },
+    {
+      "ticker": "SKHY",
+      "name": "SK hynix Inc. American Depositary Shares",
+      "qty": 11,
+      "weight_pct": 4.17
+    },
+    {
+      "ticker": "MSFT",
+      "name": "Microsoft Corporation Common Stock",
+      "qty": 3,
+      "weight_pct": 3.4
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation Common Stock",
+      "qty": 15,
+      "weight_pct": 7.72
+    },
+    {
+      "ticker": "MU",
+      "name": "Micron Technology, Inc. Common Stock",
+      "qty": 2.500365376,
+      "weight_pct": 5.55
+    },
+    {
+      "ticker": "STM",
+      "name": "STMicroelectronics N.V.",
+      "qty": 20,
+      "weight_pct": 2.47
+    },
+    {
+      "ticker": "BABA",
+      "name": "Alibaba Group Holding Limited American Depositary Shares, each represents eight Ordinary Shares",
+      "qty": 2,
+      "weight_pct": 0.56
+    },
+    {
+      "ticker": "GEV",
+      "name": "GE Vernova Inc.",
+      "qty": 2.004950742,
+      "weight_pct": 4.81
+    },
+    {
+      "ticker": "INTC",
+      "name": "Intel Corporation Common Stock",
+      "qty": 5,
+      "weight_pct": 1.17
+    },
+    {
+      "ticker": "MRVL",
+      "name": "Marvell Technology, Inc. Common Stock",
+      "qty": 7,
+      "weight_pct": 3.55
+    },
+    {
+      "ticker": "VRT",
+      "name": "Vertiv Holdings Co Class A Common Stock",
+      "qty": 3,
+      "weight_pct": 1.97
+    },
+    {
+      "ticker": "QCOM",
+      "name": "QUALCOMM Incorporated Common Stock",
+      "qty": 10.000761904,
+      "weight_pct": 3.77
+    },
+    {
+      "ticker": "TSM",
+      "name": "Taiwan Semiconductor Manufacturing Company Ltd.",
+      "qty": 6,
+      "weight_pct": 5.85
+    },
+    {
+      "ticker": "TXN",
+      "name": "Texas Instruments Incorporated Common Stock",
+      "qty": 3,
+      "weight_pct": 1.88
+    },
+    {
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices, Inc. Common Stock",
+      "qty": 2,
+      "weight_pct": 2.35
+    },
+    {
+      "ticker": "AMZN",
+      "name": "Amazon.com, Inc. Common Stock",
+      "qty": 5,
+      "weight_pct": 3.0
+    },
+    {
+      "ticker": "ORCL",
+      "name": "Oracle Corp",
+      "qty": 6,
+      "weight_pct": 2.06
+    },
+    {
+      "ticker": "CIEN",
+      "name": "Ciena Corporation",
+      "qty": 2.008528082,
+      "weight_pct": 1.97
+    },
+    {
+      "ticker": "IREN",
+      "name": "IREN Limited Ordinary Shares",
+      "qty": 20,
+      "weight_pct": 2.05
+    },
+    {
+      "ticker": "SNDK",
+      "name": "Sandisk Corporation Common Stock",
+      "qty": 0.508131251,
+      "weight_pct": 1.91
+    },
+    {
+      "ticker": "GLW",
+      "name": "Corning Incorporated",
+      "qty": 3,
+      "weight_pct": 1.14
+    },
+    {
+      "ticker": "TER",
+      "name": "Teradyne, Inc. Common Stock",
+      "qty": 3.002730188,
+      "weight_pct": 2.82
+    },
+    {
+      "ticker": "AMAT",
+      "name": "Applied Materials, Inc. Common Stock",
+      "qty": 1.0081785,
+      "weight_pct": 1.23
+    },
+    {
+      "ticker": "DRAM",
+      "name": "Roundhill Memory ETF",
+      "qty": 30,
+      "weight_pct": 3.9
+    }
+  ]
+}
