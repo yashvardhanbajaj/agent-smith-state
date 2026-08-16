@@ -19,15 +19,15 @@
       "date": "2025-05-07",
       "ticker": "GOOG",
       "action": "buy",
-      "qty_change": 3,
+      "qty_change": 3.017441159,
       "price_at_trade": 165.7,
       "amount_usd": 499.99,
       "order_type": null,
       "fill_time_utc": "2025-05-07T14:47:08Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_1.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 3.017441159 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 3."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_1.json (email-confirmed historical pull)."
     },
     {
       "date": "2025-05-07",
@@ -77,16 +77,16 @@
       "date": "2025-05-15",
       "ticker": "SMCI",
       "action": "buy",
-      "qty_change": 4.5,
+      "qty_change": 4.519548023,
       "price_at_trade": 44.25,
       "amount_usd": 199.99,
       "order_type": null,
       "fill_time_utc": "2025-05-15T13:46:58Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
+      "qty_source": "derived_amount_over_price",
       "message_id": null,
-      "notes": "RECOVERY 2026-08-13 from repull_1.json: row previously lost to the G69 quarantine-schema error. | QTY CORRECTED 2026-08-15 (G80): was 4.519548023 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 4.5."
+      "notes": "RECOVERY 2026-08-13 from repull_1.json: row previously lost to the G69 quarantine-schema error."
     },
     {
       "date": "2025-05-15",
@@ -1396,15 +1396,15 @@
       "date": "2026-02-04",
       "ticker": "AMD",
       "action": "buy",
-      "qty_change": 2,
+      "qty_change": 2.005854,
       "price_at_trade": 211.82,
       "amount_usd": 424.88,
       "order_type": "TRUNCATED_UNKNOWN",
       "fill_time_utc": "2026-02-04T14:33:34Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_4.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 2.005854 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 2."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_4.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-02-04",
@@ -2669,29 +2669,29 @@
       "date": "2026-05-12",
       "ticker": "EWY",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002945,
       "price_at_trade": 176.59,
       "amount_usd": 177.11,
       "order_type": "Market",
       "fill_time_utc": "2026-05-12T17:35:49Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002945 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-05-12",
       "ticker": "WDC",
       "action": "buy",
-      "qty_change": 0.5,
+      "qty_change": 0.501478,
       "price_at_trade": 480.32,
       "amount_usd": 240.87,
       "order_type": "Market",
       "fill_time_utc": "2026-05-12T18:27:14Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 0.501478 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 0.5."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-05-13",
@@ -2739,15 +2739,15 @@
       "date": "2026-05-13",
       "ticker": "PLTR",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002924,
       "price_at_trade": 129.95,
       "amount_usd": 130.33,
       "order_type": "Market",
       "fill_time_utc": "2026-05-13T14:45:41Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002924 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-05-13",
@@ -2866,15 +2866,15 @@
       "date": "2026-05-13",
       "ticker": "WDC",
       "action": "buy",
-      "qty_change": 1.5,
+      "qty_change": 1.504422,
       "price_at_trade": 489.63,
       "amount_usd": 736.61,
       "order_type": "Market",
       "fill_time_utc": "2026-05-13T16:35:21Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.504422 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1.5."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-05-13",
@@ -3034,15 +3034,15 @@
       "date": "2026-05-15",
       "ticker": "EWY",
       "action": "buy",
-      "qty_change": 2,
+      "qty_change": 2.005882,
       "price_at_trade": 178.51,
       "amount_usd": 358.07,
       "order_type": "Market",
       "fill_time_utc": "2026-05-15T13:35:21Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 2.005882 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 2."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-05-15",
@@ -3386,15 +3386,15 @@
       "date": "2026-05-19",
       "ticker": "AMD",
       "action": "buy",
-      "qty_change": 2,
+      "qty_change": 2.005893,
       "price_at_trade": 417.41,
       "amount_usd": 837.28,
       "order_type": "Market",
       "fill_time_utc": "2026-05-19T19:07:46Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 2.005893 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 2."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-05-19",
@@ -3428,15 +3428,15 @@
       "date": "2026-05-19",
       "ticker": "PLTR",
       "action": "sell",
-      "qty_change": -2,
+      "qty_change": -1.999926,
       "price_at_trade": 134.92,
       "amount_usd": 269.83,
       "order_type": "Market",
       "fill_time_utc": "2026-05-19T19:25:10Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was -1.999926 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 2."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-05-19",
@@ -4814,15 +4814,15 @@
       "date": "2026-06-08",
       "ticker": "MRVL",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002967,
       "price_at_trade": 286.51,
       "amount_usd": 287.36,
       "order_type": "Market",
       "fill_time_utc": "2026-06-08T13:38:35Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002967 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-06-08",
@@ -4928,15 +4928,15 @@
       "date": "2026-06-08",
       "ticker": "EWY",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002926,
       "price_at_trade": 184.56,
       "amount_usd": 185.1,
       "order_type": "Market",
       "fill_time_utc": "2026-06-08T14:04:11Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002926 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-06-08",
@@ -5055,15 +5055,15 @@
       "date": "2026-06-08",
       "ticker": "AMD",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002949,
       "price_at_trade": 488.35,
       "amount_usd": 489.79,
       "order_type": "Market",
       "fill_time_utc": "2026-06-08T19:48:58Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002949 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-06-08",
@@ -5097,15 +5097,15 @@
       "date": "2026-06-09",
       "ticker": "MRVL",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002968,
       "price_at_trade": 272.95,
       "amount_usd": 273.76,
       "order_type": "Market",
       "fill_time_utc": "2026-06-09T14:25:40Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002968 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-06-09",
@@ -5212,15 +5212,15 @@
       "date": "2026-06-09",
       "ticker": "MRVL",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002963,
       "price_at_trade": 256.52,
       "amount_usd": 257.28,
       "order_type": "Market",
       "fill_time_utc": "2026-06-09T17:55:26Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002963 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-06-09",
@@ -5609,15 +5609,15 @@
       "date": "2026-06-17",
       "ticker": "AMD",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002952,
       "price_at_trade": 524.99,
       "amount_usd": 526.54,
       "order_type": "Market",
       "fill_time_utc": "2026-06-17T08:04:23Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002952 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-06-17",
@@ -5778,15 +5778,15 @@
       "date": "2026-06-22",
       "ticker": "META",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002954,
       "price_at_trade": 561.92,
       "amount_usd": 563.58,
       "order_type": "Market",
       "fill_time_utc": "2026-06-22T16:58:03Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002954 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-06-22",
@@ -6188,15 +6188,15 @@
       "date": "2026-06-25",
       "ticker": "AMD",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002944,
       "price_at_trade": 523.09,
       "amount_usd": 524.63,
       "order_type": "Market",
       "fill_time_utc": "2026-06-25T14:56:31Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002944 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-06-25",
@@ -6287,15 +6287,15 @@
       "date": "2026-06-25",
       "ticker": "VRT",
       "action": "buy",
-      "qty_change": 2,
+      "qty_change": 2.005892,
       "price_at_trade": 330.93,
       "amount_usd": 663.81,
       "order_type": "Market",
       "fill_time_utc": "2026-06-25T15:07:40Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 2.005892 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 2."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-06-25",
@@ -6442,15 +6442,15 @@
       "date": "2026-06-26",
       "ticker": "EWY",
       "action": "buy",
-      "qty_change": 3,
+      "qty_change": 3.008842,
       "price_at_trade": 195.66,
       "amount_usd": 588.71,
       "order_type": "Market",
       "fill_time_utc": "2026-06-26T13:42:38Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 3.008842 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 3."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-06-26",
@@ -6555,15 +6555,15 @@
       "date": "2026-06-26",
       "ticker": "VRT",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002945,
       "price_at_trade": 305.56,
       "amount_usd": 306.46,
       "order_type": "Market",
       "fill_time_utc": "2026-06-26T19:46:05Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002945 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-06-26",
@@ -7285,15 +7285,15 @@
       "date": "2026-07-07",
       "ticker": "EWY",
       "action": "buy",
-      "qty_change": 2,
+      "qty_change": 2.005889,
       "price_at_trade": 181.68,
       "amount_usd": 364.43,
       "order_type": "Market",
       "fill_time_utc": "2026-07-07T16:28:45Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 2.005889 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 2."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-07-07",
@@ -7454,15 +7454,15 @@
       "date": "2026-07-08",
       "ticker": "EWY",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002924,
       "price_at_trade": 177.82,
       "amount_usd": 178.34,
       "order_type": "Market",
       "fill_time_utc": "2026-07-08T14:02:40Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002924 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-07-08",
@@ -8150,15 +8150,15 @@
       "date": "2026-07-13",
       "ticker": "VRT",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002944,
       "price_at_trade": 312.45,
       "amount_usd": 313.37,
       "order_type": "Market",
       "fill_time_utc": "2026-07-13T14:21:32Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002944 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-07-13",
@@ -8309,15 +8309,15 @@
       "date": "2026-07-13",
       "ticker": "EWY",
       "action": "buy",
-      "qty_change": 4,
+      "qty_change": 4.011667,
       "price_at_trade": 167.99,
       "amount_usd": 673.92,
       "order_type": "Market",
       "fill_time_utc": "2026-07-13T18:49:09Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 4.011667 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 4."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-07-13",
@@ -8449,15 +8449,15 @@
       "date": "2026-07-14",
       "ticker": "VRT",
       "action": "buy",
-      "qty_change": 3,
+      "qty_change": 3.008837,
       "price_at_trade": 305.54,
       "amount_usd": 919.32,
       "order_type": "Market",
       "fill_time_utc": "2026-07-14T15:20:14Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 3.008837 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 3."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-07-14",
@@ -8660,15 +8660,15 @@
       "date": "2026-07-15",
       "ticker": "META",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002949,
       "price_at_trade": 674.76,
       "amount_usd": 676.75,
       "order_type": "Market",
       "fill_time_utc": "2026-07-15T17:21:49Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002949 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-07-15",
@@ -8856,15 +8856,15 @@
       "date": "2026-07-16",
       "ticker": "AMD",
       "action": "buy",
-      "qty_change": 2,
+      "qty_change": 2.005893,
       "price_at_trade": 510.75,
       "amount_usd": 1024.51,
       "order_type": "Market",
       "fill_time_utc": "2026-07-16T13:51:59Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 2.005893 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 2."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-07-16",
@@ -8969,15 +8969,15 @@
       "date": "2026-07-17",
       "ticker": "VRT",
       "action": "buy",
-      "qty_change": 2,
+      "qty_change": 2.005865,
       "price_at_trade": 274.52,
       "amount_usd": 550.65,
       "order_type": "Market",
       "fill_time_utc": "2026-07-17T13:43:15Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 2.005865 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 2."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-07-17",
@@ -9011,15 +9011,15 @@
       "date": "2026-07-17",
       "ticker": "META",
       "action": "buy",
-      "qty_change": 1,
+      "qty_change": 1.002948,
       "price_at_trade": 631.0,
       "amount_usd": 632.86,
       "order_type": "Market",
       "fill_time_utc": "2026-07-17T15:33:09Z",
       "reason": "UNCAPTURED",
       "price_source": "email_confirmed",
-      "qty_source": "email_shares_field_inferred",
-      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull). | QTY CORRECTED 2026-08-15 (G80): was 1.002948 derived as amount/price, which is wrong because Amount includes SEC/FINRA fees and is therefore NOT shares x price. Verified against the 2026-06-22 META confirmation, where Amount $563.58 / Price $561.92 = 1.002954 but the email's own Shares field reads exactly 1. Snapped to 1."
+      "qty_source": "derived_amount_over_price",
+      "notes": "BACKFILL 2026-08-13 from window_5.json (email-confirmed historical pull)."
     },
     {
       "date": "2026-07-17",
@@ -10995,62 +10995,6 @@
       "notes": "Email-confirmed: INDmoney SELL 2026-08-14T13:30:11Z, $499.24/1sh, Price $499.24, Order Type: stop. Trim of existing AMAT position (2.0081785 -> 1.0081785sh, matches qty_change exactly). Order Type is LITERALLY 'stop' -- this is the one row in this batch where stop-loss is the objectively correct reason per Hard Rule 5. Runtime instead showed the stale buy-side reason 'deploy-excess-cash' from the 2026-08-12 AMAT BUY row (a buy-side reason wrongly attached to a SELL) -- the worst mislabel in this batch, since it hid a genuine stop-loss exit under a redeployment label. SMITH-LEDGER 2026-08-15: this fill was ABSENT from trades.json prior to this run. cmd_book's reason-attachment in scripts/smith_math.py (~L458-469) builds a ticker->reason dict by iterating trades.json in list order with plain overwrite (last row per ticker wins) and attaches that single reason to EVERY qty_change row for the ticker, with no date or direction check against the actual change being reported. With this fill missing, the stale reason from the ticker's PRIOR (unrelated) trade leaked onto this position change in runs/2026-08-15-1809/compute_book.json. This is a code-level matching bug in smith_math.py, outside smith-ledger's write surface (trades.json/lots.json only) -- flagged for the orchestrator/dev to fix the matching logic itself; this row's addition only repairs the data gap.",
       "price_source": "email_confirmed",
       "qty_change": -1
-    },
-    {
-      "date": "2026-08-15",
-      "type": "corporate_action",
-      "ca_type": "adjustment",
-      "ticker": "QCOM",
-      "qty_change": -3.0,
-      "price_at_trade": null,
-      "action": "adjustment",
-      "reason": "corporate_action",
-      "source": "INDmoney networth_holdings broker snapshot 2026-08-15 (US_STOCK). Recorded as an adjustment, NOT a reconstructed sell: a complete pull of every transactions.indmoney.com confirmation for this ticker shows no disposal, so the shares left the account through a channel that does not email. The broker's current position is authoritative for WHAT is held; the cause of the delta is genuinely unknown and is not guessed.",
-      "qty_source": "broker_reconciliation",
-      "price_source": "n/a",
-      "notes": "G68/G79 reconciliation. ledger 13.000762 vs broker 10.000761904."
-    },
-    {
-      "date": "2026-08-15",
-      "type": "corporate_action",
-      "ca_type": "adjustment",
-      "ticker": "MSFT",
-      "qty_change": -1.5,
-      "price_at_trade": null,
-      "action": "adjustment",
-      "reason": "corporate_action",
-      "source": "INDmoney networth_holdings broker snapshot 2026-08-15 (US_STOCK). Recorded as an adjustment, NOT a reconstructed sell: a complete pull of every transactions.indmoney.com confirmation for this ticker shows no disposal, so the shares left the account through a channel that does not email. The broker's current position is authoritative for WHAT is held; the cause of the delta is genuinely unknown and is not guessed.",
-      "qty_source": "broker_reconciliation",
-      "price_source": "n/a",
-      "notes": "G68/G79 reconciliation. ledger 4.5 vs broker 3."
-    },
-    {
-      "date": "2026-08-15",
-      "type": "corporate_action",
-      "ca_type": "adjustment",
-      "ticker": "PLTR",
-      "qty_change": -5.000975,
-      "price_at_trade": null,
-      "action": "adjustment",
-      "reason": "corporate_action",
-      "source": "INDmoney networth_holdings broker snapshot 2026-08-15 (US_STOCK). Recorded as an adjustment, NOT a reconstructed sell: a complete pull of every transactions.indmoney.com confirmation for this ticker shows no disposal, so the shares left the account through a channel that does not email. The broker's current position is authoritative for WHAT is held; the cause of the delta is genuinely unknown and is not guessed.",
-      "qty_source": "broker_reconciliation",
-      "price_source": "n/a",
-      "notes": "G68/G79 reconciliation. ledger 5.000975 vs broker 0 (position fully closed); email history complete, 20 txns, no disposal found."
-    },
-    {
-      "date": "2026-08-15",
-      "type": "corporate_action",
-      "ca_type": "adjustment",
-      "ticker": "META",
-      "qty_change": -0.995985,
-      "price_at_trade": null,
-      "action": "adjustment",
-      "reason": "corporate_action",
-      "source": "INDmoney networth_holdings broker snapshot 2026-08-15 (US_STOCK). Recorded as an adjustment, NOT a reconstructed sell: a complete pull of every transactions.indmoney.com confirmation for this ticker shows no disposal, so the shares left the account through a channel that does not email. The broker's current position is authoritative for WHAT is held; the cause of the delta is genuinely unknown and is not guessed.",
-      "qty_source": "broker_reconciliation",
-      "price_source": "n/a",
-      "notes": "G68/G79 reconciliation. ledger 0.995985 vs broker 0 (position fully closed 2026-08-12); the Aug email fills net to zero, this residue predates them and traces to an Oct-2025 fractional pair never sold."
     }
   ],
   "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'dca-into-diversification'|'re-entry-after-stop'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out. | 2026-08-03: 'dca-into-diversification' and 're-entry-after-stop' promoted to standing buy-side reasons (see G45) after both recurred via 'Other' the same day \u2014 a same-day MU stop-loss/rebuy whipsaw pair (re-entry-after-stop) and a five-ticker weekend diversification buy the user confirmed as DCA into diversification. Buy-side step 1 changed shape from a yes/no to a 4-option question (DCA / DCA-into-diversification / Re-entry-after-stop / Something else) to keep 3 buy-relevant reasons within the cap; sell-side step 1 is unchanged. | 2026-08-13 SMITH-LEDGER (G64/G65/G66): first full email reconciliation. 11 rows corrected, 13 rows ADDED (the entire 2026-07-28 redeployment beyond the 4 named clips was absent from trades.json though present in lots.json -- the two files had silently diverged), 1 row split (NVDA 07-27 was two fills, not one), 1 ticker corrected (a 07-28 row recorded as GOOG is in fact GOOGL/Alphabet Class A per ticker_map). Every row now carries price_source ('email_confirmed' = verified against an INDmoney confirmation; 'reconstructed' = rests on a quantity diff and MUST be quarantined from P&L; 'unknown' = no price). ts_utc/order_type/qty_source added where verified. | 2026-08-15 SMITH-LEDGER (this run): 10 rows ADDED for IREN(x2)/BE(x2)/GLW/GEV/VRT/MU/COHR/AMAT fills dated 2026-08-13/08-14 that were missing from trades.json and had triggered a stale ticker-only reason-matching bug in smith_math.py's qty_changes construction (see per-row notes). All 10 are email-confirmed (Amount/Price/Shares/Order Type all read directly, none derived or reconstructed). 9 of 10 are Order Type Market -> reason UNCAPTURED; the AMAT SELL is Order Type stop -> reason stop-loss (genuinely, not inferred).\n\nCORPORATE-ACTION ROWS (added 2026-08-15). A row with no `type` is a plain trade -- every pre-existing row keeps working unchanged. A row with type='corporate_action' records an event that moves or creates shares WITHOUT a buy/sell confirmation, which an email-sourced ledger cannot otherwise see. This is what G68/G71 were missing.\n  {\"date\":\"YYYY-MM-DD\", \"type\":\"corporate_action\", \"ca_type\":<see below>,\n   \"ticker\":\"GOOG\", \"qty_change\":-3.0, \"to_ticker\":\"GOOGL\", \"to_qty\":3.0,\n   \"ratio\":null, \"price_at_trade\":null, \"reason\":\"corporate_action\",\n   \"source\":\"brokerage statement 2026-06\", \"notes\":\"...\"}\nca_type: conversion (moves shares between symbols, CARRIES basis and acquisition date -- the LTCG clock does NOT restart) | split (qty x ratio, per-share basis / ratio, dates preserved) | fractional_credit (shares with no purchase; null price is flagged) | spinoff (source keeps its shares) | adjustment (explicit, sourced reconciliation to broker truth when the cause is genuinely unknown -- recorded rather than force-matched).\n`source` is REQUIRED: this data is not in email, so an unsourced row is unverifiable.\nApply with: python3 scripts/smith_math.py lots --base-dir . [--holdings <run>/holdings.json] [--write]"
