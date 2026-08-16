@@ -1997,7 +1997,7 @@ def cmd_proposals(args):
             # intact/strengthening kills it outright -- the quality gate was the whole premise.
             elif pr.get("trigger_type") == "oversold_reversion":
                 rsi_now = trig_rsi.get(ticker)
-                th_now = _thesis_status(state_thesis.get(ticker))
+                th_now = smith_risk.thesis_status(state_thesis.get(ticker))
                 if th_now is not None and th_now not in HEALTHY_THESIS:
                     why = (f"{ticker}'s thesis is now '{th_now}' -- an oversold entry is only a dip-buy "
                            "while the thesis is intact; without that it is a falling knife")
@@ -3267,17 +3267,6 @@ def _parse_as_of(raw):
         return None
 
 
-def _thesis_status(entry):
-    """Deprecated shim -- delegates to the single canonical reader in smith_risk (2026-08-16).
-
-    Kept only so an unnoticed caller keeps working. Do NOT reimplement the shape logic here:
-    this function previously returned `rpartition("|")[2]` raw, which turned an entire thesis
-    prose string into a bogus "status" whenever the string carried no pipe, silently exempting
-    that name from every thesis gate. Call smith_risk.thesis_status directly in new code.
-    """
-    return smith_risk.thesis_status(entry)
-
-
 def _avg_cost_from_lots(tlots):
     """Weighted average cost over lots with a REAL price. Returns
     (avg_cost_usd, priced_qty, unpriced_qty). Synthetic null-price lots from the 2.9b backfill
@@ -3376,7 +3365,7 @@ def cmd_triggers(args):
     laggard_set = set(rel_ranked[:max(laggard_cut, 1)]) if rel_ranked else set()
 
     for ticker, r in risk_by_ticker.items():
-        status = _thesis_status(thesis.get(ticker))
+        status = smith_risk.thesis_status(thesis.get(ticker))
         rtk = rotation_by_ticker.get(ticker, {})
         bearish = set(rtk.get("bearish_buckets") or [])
         mv = r.get("market_value_usd") or 0.0
@@ -3490,7 +3479,7 @@ def cmd_triggers(args):
                         orel = rel_vals.get(ot)
                         if orel is None or orel >= 0 or orow.get("over_cap"):
                             continue
-                        if _thesis_status(thesis.get(ot)) == "broken":
+                        if smith_risk.thesis_status(thesis.get(ot)) == "broken":
                             continue
                         rotation_targets.append({"ticker": ot, "rel_pp": round(orel, 2),
                                                  "headroom_usd": orow.get("headroom_usd")})
