@@ -312,16 +312,26 @@
       "thesis": "Photonics/optical for datacenter interconnect; FQ4 was a BEAT with a stronger-than-expected FY27 outlook -- the stock fell despite it",
       "evidence_for": [
         {
-          "claim": "Q4 FY26 revenue and EPS beat estimates; FY27 outlook above consensus; record FY26 revenue and EPS growth on AI datacenter and comms demand",
+          "claim": "FQ4 BEAT: non-GAAP EPS $1.74 vs $1.65 consensus, revenue $2.045B vs $2.025B consensus, +34% YoY, a record quarter",
           "date": "2026-08-12",
-          "source": "stockanalysis.com/stocks/cohr (re-verified by orchestrator 2026-08-15)"
+          "source": "Benzinga / stockanalysis.com (verified 2026-08-15)"
+        },
+        {
+          "claim": "Q1 FY27 guidance $2.2-2.4B revenue / $1.85-2.05 EPS -- RAISED above the quarter just reported",
+          "date": "2026-08-12",
+          "source": "Benzinga (verified 2026-08-15)"
         }
       ],
       "evidence_against": [
         {
-          "claim": "stock fell on the print anyway; an operating-cash-flow decline was reported by a tier-2 source with the magnitude uncorroborated",
+          "claim": "stock sold off same session despite the beat-and-raise -- read as valuation/positioning unwind on a name that had run, not a fundamental signal",
           "date": "2026-08-13",
-          "source": "INDmoney news (tier2, magnitude unconfirmed)"
+          "source": "multiple (verified 2026-08-15)"
+        },
+        {
+          "claim": "magnitude of that decline is DISPUTED -4.57% to -12.4% across four sources, window unclear -- not resolved, not picked",
+          "date": "2026-08-15",
+          "source": "G75 regression test"
         }
       ],
       "verified": "secondary",
@@ -1691,13 +1701,13 @@
       "COHR": {
         "period": "Q4 FY2026",
         "reported_date": "2026-08-12",
-        "revenue_actual": null,
-        "revenue_consensus": null,
-        "eps_actual": null,
-        "eps_consensus": null,
-        "guide_next_q": null,
+        "revenue_actual": 2045000000,
+        "revenue_consensus": 2025000000,
+        "eps_actual": 1.74,
+        "eps_consensus": 1.65,
+        "guide_next_q": "$2.2-2.4B rev / $1.85-2.05 EPS (raised above the reported quarter)",
         "guide_consensus": null,
-        "source": "stockanalysis.com/stocks/cohr (orchestrator verification 2026-08-15)",
+        "source": "Benzinga + stockanalysis.com",
         "verified_on": "2026-08-15",
         "note": "BEAT on revenue and EPS with a stronger-than-expected FY27 outlook; stock fell DESPITE the beat. Recorded because smith-catalyst mischaracterised it as a miss."
       }
@@ -2276,9 +2286,33 @@
       "id": "G75",
       "opened": "2026-08-15",
       "owner": "smith-catalyst",
-      "status": "open",
+      "status": "closed",
       "description": "smith-catalyst reported Coherent's 2026-08-13 fall as an earnings MISS. Primary reporting shows the opposite: a BEAT on revenue and EPS with a stronger-than-expected FY27 outlook -- the stock fell DESPITE the beat ('Coherent Stock Drops Despite Earnings Beat and Strong Outlook'). This is the SAME failure class as G58 (SanDisk, smith-thesis, 2026-08-10): inferring a fundamental verdict from a price move. It recurred in a DIFFERENT agent, one week after the G58 rules were written -- and smith-catalyst's file was never given the G58 verdict-vocabulary block, only smith-thesis, smith-quality and smith-signals were. The book had added 1sh of COHR the day after the print, so the false framing reached a live position. It was caught this run by the strategist's new evidence gate before it drove a sizing decision, which is the gate working as designed; the underlying rule gap is what remains open.",
-      "next_step": "Port the G58 verdict-vocabulary block (beat/miss reserved for reported actuals vs consensus; a price reaction is not a fundamental verdict; reported quarter and forward guide are separate signals) into smith-catalyst.md, and audit smith-scout/smith-macro/smith-watchlist for the same omission."
+      "next_step": "Port the G58 verdict-vocabulary block (beat/miss reserved for reported actuals vs consensus; a price reaction is not a fundamental verdict; reported quarter and forward guide are separate signals) into smith-catalyst.md, and audit smith-scout/smith-macro/smith-watchlist for the same omission.",
+      "closed": "2026-08-15",
+      "closed_by": "orchestrator 2026-08-15",
+      "resolution": "Ported as process step 5 of smith-catalyst.md ('A PRICE MOVE IS NOT A FUNDAMENTAL VERDICT'), placed between classification and magnitude-scaling because that is where the inference actually happens, plus a HARD RULES one-liner. The rule is written against the specific failure: the source headline said 'Drop After Earnings' and the agent wrote 'miss'. Four clauses -- beat/miss means reported actuals vs consensus only; a stock can fall on a beat and rise on a miss so price direction carries no information about the quarter; reported quarter and forward guide are separate signals; escalating words need a magnitude and a source. Cheapest correction named explicitly (one WebFetch of stockanalysis.com, already an allowed domain) with the fallback stated: an honest 'fell 12% after reporting, beat/miss not established' beats an unverified verdict.\nAUDIT of the rest of the fleet (the second half of this gap's next_step): smith-scout, smith-macro, smith-rebound, smith-cycle and smith-book never characterise earnings -- no exposure, no rule added, deliberately not padded. Two did need it and got tailored versions: smith-earnings, which OWNS the words beat/miss as its literal product and had an example verdict blending a surprise figure with a price move, now carries the airtight definition before it is built out; and smith-watchlist, whose 'earnings highlights' output line could drift from reporting a DATE into characterising a RESULT, now bounded to dates only.\n\nVERIFICATION CAVEAT (2026-08-15): a regression replay was run against the exact 08-13 entry. It succeeded on outcome -- the agent judged its own entry non-compliant, fetched the real figures (non-GAAP EPS $1.74 vs $1.65 consensus, revenue $2.045B vs $2.025B, guidance RAISED), named the inference mechanically ('Drop after earnings' -> 'earnings miss'), correctly preserved the decoupling observation as separately sound, and surfaced a real new finding: the -12% magnitude this desk had been carrying is the least-corroborated of four conflicting figures (-4.57% to -12.4%, window unclear). All of that was persisted. BUT the agent's own step citations were off by one against the edited file -- it cited step 5 for MAP and step 6 for SCALE, which is the PRE-edit numbering. It read a cached definition. **Sub-agent definitions are loaded at session start, not re-read from disk per dispatch, so a rule edited mid-session cannot be regression-tested in that same session.** The correction therefore came from the pre-existing 'scale the claim to the evidence' rule plus an explicit prompt instruction, NOT from the new step 5. The new rule is written and synced but its behavioural effect is UNVERIFIED until a fresh session loads it. Do not treat this gap's test as proof the rule fires; re-run the same replay at the start of a later session to actually confirm it.",
+      "verification": "outcome_confirmed_rule_unverified"
+    },
+    {
+      "id": "G76",
+      "opened": "2026-08-15",
+      "owner": "orchestrator",
+      "status": "closed",
+      "closed": "2026-08-15",
+      "description": "The strategist had no accountability loop. SKILL.md section 7 had instructed the desk to score past proposals at 30d/90d with outcome_pct and an aggregate scorecard since the file was written, and NO CODE EVER DID IT -- `outcome_pct` appeared nowhere in smith_math.py. As of this build: 96 proposals produced, 9 actually executed/fulfilled/filled, ZERO scored. The scorecard field was loaded and written back null every run, its `note` grown into a five-entry log of 'still zero proposals in the 30d/90d scoring window' dating to 2026-07-18 -- an excuse that expired ~2026-08-12. Meanwhile journal.json had been scoring SIGNALS since July and now carries real 30-day hit rates (TARGET GAP 57.1% n=14). The desk graded its indicators and not its decisions.",
+      "resolution": "Built `smith_math.py score`. Direction-aware (a TRIM works if price FELL, a BUY if it ROSE, a HOLD if the move stayed inside the +/-2% band), reusing the journal's VERDICT_THRESHOLD_PCT so 'worked' means the same magnitude in both. Orchestrator supplies prices (--prices-json, run against /dev/null first and it names what it needs -- these include EXITED tickers, so it is its own fetch). dismissed_by_user excluded and the exclusion count reported. First real run: 6 graded, overall accuracy 16.7%, buy 33.3% (n=3), hold 0% (n=2). Also added an ANCHOR PLAUSIBILITY GUARD after the first pass produced a 'TRIM TSM missed 39.4%' row off a corrupt $305.87 anchor (TSM traded $386-448 that week, closed $398.37) which on n=7 was setting the entire trim-accuracy figure; rows beyond +/-35% are now quarantined, reported in full, and excluded from the aggregate -- the same rule the charts apply to value_trust!=ok ledger rows."
+    },
+    {
+      "id": "G77",
+      "opened": "2026-08-15",
+      "owner": "orchestrator",
+      "status": "closed",
+      "description": "P-005's price_at_proposal ($305.87, 2026-07-14) was flagged as a corrupt anchor because TSM traded $386-$448 that week. ROOT CAUSE WAS THE OPPOSITE OF THE DIAGNOSIS: the anchor was always correct and the TICKER was wrong. The action reads 'Re-enter VRT (funded by TSM trim)', and the 2026-07-29 ticker backfill did `.replace('(',' ').replace(')',' ')` -- stripping the BRACKETS but keeping their contents -- then took the LAST all-caps token, which is the funding leg named inside the parenthetical, not the subject. $305.87 is VRT's price on 2026-07-14 (VRT traded $287.53-$317.18 that week). The proposal's own note had recorded that the TSM leg never even happened ('TSM qty unchanged at 6sh').",
+      "next_step": "Have smith-ledger cross-check P-005's anchor against the 2026-07-14 fill history and either correct it to the real figure or mark the proposal permanently unscoreable. Until then it stays quarantined and out of the scorecard, which is the safe state. Also worth a sweep: if one anchor is corrupt, check whether other July-cohort price_at_proposal values were written by the same path.",
+      "closed": "2026-08-15",
+      "closed_by": "orchestrator 2026-08-15",
+      "resolution": "Three parts. (1) HEURISTIC: _proposal_infer_ticker now discards parenthetical CONTENT via regex before taking the last symbol, since a parenthetical in this desk's action grammar is always qualifying context ('(funded by X trim)', '(rotation funding leg)'), never the subject. Ten-case regression, all pass. Also needed `import re`, which was absent -- the first cut would have thrown at runtime. (2) DATA: P-005 corrected TSM->VRT and TRIM->BUY (the subject action is a re-entry); the $305.87 anchor was left untouched because it was never wrong. It now scores as a VRT buy, -3.93%, missed -- a defensible small loss instead of a phantom -39.4%. (3) SWEEP, which found a SECOND and worse case: P-010 was stored as ticker 'AI', parsed out of the CLUSTER NAME in 'Trim STM (AI Semis/Fabs + Memory/Storage cluster overage)'. 'AI' is a real ticker (C3.ai), so it pointed at the wrong company silently rather than failing visibly -- the same class as the 2026-07-13 MEM/DRAM incident. Corrected to STM. All 96 proposals now agree with the corrected inference. WORTH NOTING: the anchor guard added hours earlier did its job in a way I did not anticipate -- it was written to stop a bad NUMBER from setting the scorecard, and what it actually surfaced was a 32-day-old ticker error plus a second one nobody had looked for. Quarantining rather than discarding is what made that possible."
     }
   ],
   "sentiment": {
@@ -2369,6 +2403,9 @@
   },
   "watchlist_scan_cursor": 60,
   "data_quality": [
+    "Proposal scoring live (G76): 7 graded, 14.3% overall accuracy, 0 quarantined. G77 closed -- P-005 was mis-tickered TSM->VRT and P-010 'AI'->STM by a 2026-07-29 backfill that read parenthetical/cluster text as the subject; heuristic fixed, all 96 proposals now agree.",
+    "COHR magnitude CORRECTED 2026-08-15: the '-12%' this desk reported on 08-13 and repeated in the 08-15 briefing is the least-corroborated of four conflicting figures (-4.57% Benzinga, -5.69% TradingKey, -8.0% GuruFocus, -12.4% 247wallst with an unclear window). Left unresolved rather than picked. The quarter itself is now verified: EPS $1.74 vs $1.65, revenue $2.045B vs $2.025B, guidance raised.",
+    "TESTING LIMITATION found 2026-08-15: sub-agent definitions are cached at session start, so a mid-session edit to an agent .md cannot be regression-tested in that session -- the dispatched agent reads the pre-edit version. Verify rule changes at the start of a later session, not immediately after writing them.",
     "G75 (new, OPEN): smith-catalyst mischaracterised COHR's 08-13 print as an earnings MISS; it was a BEAT with a strong FY27 outlook and the stock fell anyway. Same failure class as G58, in an agent that never received the G58 verdict-vocabulary block. Corrected in thesis, factor_catalysts and earnings_facts; the rule gap stays open.",
     "G73 (fixed this run): cmd_book's trade-reason matcher was ticker-only last-write-wins; four position OPENINGS were labelled 'stop-loss'. Now direction- and date-scoped, with a regression assert.",
     "G74 (fixed this run): sector_map was omitted from smith-thesis's embed for a second time, so it re-classified with non-policy cluster names again. Rename REJECTED at merge -- the existing policy-aligned map already covers all 35 held names, so no drift damage. SKILL.md now requires the embed.",
@@ -2709,14 +2746,16 @@
       "date": "2026-08-13",
       "direction": "ambiguous",
       "horizon": "immediate",
-      "headline": "Optical complex decouples: COHR falls on its own print while Ciena/Nokia rise on theirs",
-      "magnitude": "COHR -12% on the session. CORRECTED 2026-08-15: smith-catalyst characterised this as an earnings MISS -- it was a BEAT on revenue and EPS with a stronger-than-expected FY27 outlook; the stock fell despite the beat. The decoupling observation (name-specific reactions, not uniform sympathy) stands; the miss framing does not.",
+      "headline": "Coherent beats Q4 and raises Q1 guidance but sells off same session; Ciena/Nokia rise on their own prints -- optics names decoupling into idiosyncratic reactions, not one sympathy block",
+      "magnitude": "VERIFIED 2026-08-15 (G75 regression): non-GAAP EPS $1.74 vs $1.65 consensus, revenue $2.045B vs $2.025B consensus -- a BEAT, +34% YoY, a record quarter -- with Q1 FY27 guidance ($2.2-2.4B rev / $1.85-2.05 EPS) RAISED above the quarter just reported. The mechanism is a sell-the-news/valuation unwind on a name that had run, NOT deteriorating fundamentals. Same-session decline is DISPUTED across sources and left unresolved rather than picked: Benzinga -4.57%, TradingKey -5.69%, GuruFocus -8.0%, 247wallst headline -12.4% (window unclear, possibly multi-day). The '-12%' this desk reported on 2026-08-13 and repeated in the 08-15 briefing is the least-corroborated of the four.",
       "affects": [
         "COHR",
         "CIEN"
       ],
       "exposure_pct_equity": 4.29,
-      "source": "https://247wallst.com/investing/2026/08/13/optics-stocks-divide-coherent-and-cisco-drop-after-earnings-while-nokia-and-ciena-soar/ + stockanalysis.com/stocks/cohr (orchestrator correction)"
+      "source": "https://www.benzinga.com/markets/earnings/26/08/61160816/coherent-shares-slip-despite-q4-earnings-beat-ceo-highlights-exceptional-demand",
+      "verified": "secondary",
+      "verified_on": "2026-08-15"
     },
     {
       "date": "2026-08-14",
