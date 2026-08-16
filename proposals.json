@@ -2681,6 +2681,135 @@
       "review_flags": [],
       "revalidated_on": "2026-08-16",
       "retires_when": null
+    },
+    {
+      "date": "2026-08-16T18:07:00+05:30",
+      "action": "Trim BX (overbought, protect real gain)",
+      "ticker": "BX",
+      "size_usd": 185,
+      "price_at_proposal": 149.33,
+      "status": "open",
+      "trigger_type": "overbought_distribution",
+      "pair_id": "PAIR-2026-08-16-BX-QCOM",
+      "pair_role": "sell_leg",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 1
+      },
+      "rationale": "RSI14 71.1 (>70), +16.5% on the month -- real gain to protect. Deliberately INDEPENDENT of the ATR cap per trigger design (BX sits at 0.237x, comfortably inside) -- preferred precisely BECAUSE it is cap-independent, which is the answer to 'every trim is an ATR trim'. No cluster band exists for Alternative Asset Mgr, so no G56 tension. Sentiment EXTREME_GREED 82.9 supports booking now.",
+      "id": "P-097",
+      "direction_bucket": "TRIM",
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 0.0% vs a [5,15]% band -- this also rebuilds it",
+        "BX genuinely stretched: +16.5% 1m, +15.8pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 71.1 > 70 (overbought); up +16.5% on the month -- real gain to protect"
+      ],
+      "cluster": "Alternative Asset Manager/Diversifier",
+      "still_valid_because": [
+        "cash short at 0.0% vs a [5,15]% band -- this also rebuilds it",
+        "BX genuinely stretched: +16.5% 1m, +15.8pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 71.1 > 70 (overbought); up +16.5% on the month -- real gain to protect"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-16",
+      "retires_when": "BX RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "date": "2026-08-16T18:07:00+05:30",
+      "action": "Buy QCOM (rotation destination, funded by BX trim)",
+      "ticker": "QCOM",
+      "size_usd": 185,
+      "price_at_proposal": 164.8,
+      "status": "open",
+      "trigger_type": "laggard_rotation",
+      "pair_id": "PAIR-2026-08-16-BX-QCOM",
+      "pair_role": "buy_leg",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 1
+      },
+      "rationale": "laggard_rotation SHADOW trigger, surfaced only because it pairs with the live BX sell leg -- bottom-quartile 1m relative strength (-6.7pp vs SMH, has not run yet), thesis strengthening, inside its own ATR cap (0.811x, $384.78 headroom). Sized to the SMALLER of BX proceeds and QCOM headroom -- BX proceeds bind. Checked against compute_rotation.json: not in the accumulate bucket, no contradiction.",
+      "id": "P-098",
+      "direction_bucket": "BUY",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [
+        "laggard_rotation is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design"
+      ],
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "laggard_rotation is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-16",
+      "retires_when": "n/a -- laggard_rotation is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
+    },
+    {
+      "date": "2026-08-16T18:07:00+05:30",
+      "action": "Trim SNDK (largest gainer, no open proposal, cap breach + scale-out rung)",
+      "ticker": "SNDK",
+      "size_usd": 280,
+      "price_at_proposal": 1641.2,
+      "status": "open",
+      "trigger_type": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 3,
+        "unverified": 1
+      },
+      "rationale": "Up +35.6% vs a $1,210.25 basis -- largest percentage gainer in the book with NO open trim despite that. Computed ATR cap breach (1.189x, $132.85 excess) ANCHORS the proposal; scale_out_ladder and profit_ratchet are SHADOW and inform size only, they do not justify it. Weakest 1m relative strength in the Memory cluster (-14.28pp) -- a laggard that already had its run. Thesis WATCH, reframed this run as competitive/structural (CXMT), not a pricing verdict.",
+      "id": "P-099",
+      "direction_bucket": "TRIM",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "SNDK at 1.19x its ATR risk cap",
+        "cash short at 0.0% vs a [5,15]% band -- this also rebuilds it"
+      ],
+      "cluster": "AI Memory/Storage",
+      "full_cure_usd": 133.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 211.0,
+      "still_valid_because": [
+        "SNDK at 1.19x its ATR risk cap",
+        "cash short at 0.0% vs a [5,15]% band -- this also rebuilds it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-16",
+      "retires_when": "SNDK drops under its ATR risk cap"
+    },
+    {
+      "date": "2026-08-16T18:07:00+05:30",
+      "action": "Raise MRVL stop to cost basis (no capital moved)",
+      "ticker": "MRVL",
+      "size_usd": 0,
+      "price_at_proposal": 222.03,
+      "status": "open",
+      "trigger_type": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 1
+      },
+      "rationale": "Computed ATR cap breach (1.404x, $447.24 excess) anchors this; profit_ratchet (shadow) flags the current stop $178.16 sits BELOW the $188.30 cost basis while up 17.9% -- a pullback would convert a real gain into a realised loss. Raises the stop ONLY; does not trim and does not fight the strengthening thesis. Ratchet up, never tighten down.",
+      "id": "P-100",
+      "direction_bucket": "HOLD",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "MRVL at 1.40x its ATR risk cap"
+      ],
+      "cluster": "AI Networking/Optics",
+      "still_valid_because": [
+        "MRVL at 1.40x its ATR risk cap"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-16",
+      "retires_when": null
     }
   ],
   "retracted": [

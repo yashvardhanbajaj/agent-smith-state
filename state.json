@@ -211,7 +211,22 @@
   ],
   "news_watermark": "2026-08-16",
   "thesis": {
-    "NVDA": "Core AI GPU/accelerator platform leadership | strengthening",
+    "NVDA": {
+      "status": "strengthening",
+      "thesis": "Core AI GPU/accelerator platform leadership; OpenAI/SB Energy Ohio financing guarantee narrowed $250bn->~$100bn first phase, de-risking, NVDA weighing ~$3bn stake (unsigned)",
+      "evidence_for": [
+        {
+          "claim": "NVDA-OpenAI/SB Energy Ohio financing guarantee narrowed $250bn to ~$100bn first phase; NVDA weighing ~$3bn direct stake, unsigned",
+          "date": "2026-08-16",
+          "source": "smith-catalyst 2026-08-16 scan"
+        }
+      ],
+      "evidence_against": [],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "none found this run; status unchanged, de-risking tailwind only"
+    },
     "ASML": {
       "status": "watch",
       "thesis": "Sole-source EUV lithography; the EUV moat is untouched by China's DUV progress.",
@@ -251,7 +266,28 @@
     },
     "GEV": "Grid/power-gen equipment for AI datacenter electrification; Q2 rev +22%, raised guidance, $11B grid capex | strengthening",
     "CLS": "EMS/AI ASIC builder; Q2 beat+raised guide, 08-06 -12.9% dilutive-offering hit was capital-structure not demand | strengthening",
-    "DRAM": "Thematic memory ETF (Samsung/SK Hynix/Micron); diverged negative vs Fri SMH rally, same CXMT overhang as MU | watch",
+    "DRAM": {
+      "status": "watch",
+      "thesis": "Thematic memory ETF (Samsung/SK Hynix/Micron); same CXMT structural overhang as MU, HBM3E flat within basis",
+      "evidence_for": [
+        {
+          "claim": "HBM3E flat within basis, $9.00/GB, 0.0% trend 2026-07-19 to 2026-08-05; 2027 contract prices forecast +80-150%",
+          "date": "2026-08-05",
+          "source": "HBMTracker consumer_view.json"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "same CXMT DRAM-capacity overhang as MU; diverged negative vs Friday SMH rally",
+          "date": "2026-08-16",
+          "source": "smith-catalyst 2026-08-16 scan + smith-signals 2026-08-15"
+        }
+      ],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "status unchanged"
+    },
     "VRT": {
       "status": "watch",
       "thesis": "Thermal/power management for AI datacenters; re-entered 3sh on a genuinely split print",
@@ -280,8 +316,59 @@
     "CIEN": "Optical networking gear for AI datacenter/telco backbone -- trimmed 59%, weak FY guide vs AI PoC win | watch",
     "QCOM": "Diversifying from handsets into AI/datacenter CPUs and auto | strengthening",
     "TER": "Semicap automated test equipment geared to AI chip test volume | strengthening",
-    "TSM": "Foundry monopoly manufacturing leading-edge AI chips | strengthening",
-    "MU": "Memory (DRAM/HBM); WATCH driven by CXMT structural/funding risk, not ASP -- HBM3E flat within basis, corrected -51% figure stays dead | watch",
+    "TSM": {
+      "status": "strengthening",
+      "thesis": "Foundry monopoly manufacturing leading-edge AI chips; July revenue +45% YoY reinforces pricing power narrative",
+      "evidence_for": [
+        {
+          "claim": "July revenue +45% YoY, trailing 7-month +37% YoY",
+          "date": "2026-08-15",
+          "source": "smith-catalyst 2026-08-16 scan (in-window item)"
+        },
+        {
+          "claim": "~25% AI-chip price hike planned",
+          "date": "2026-08-15",
+          "source": "smith-catalyst 2026-08-16 scan"
+        }
+      ],
+      "evidence_against": [],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "none found this run; not independently re-verified via stockanalysis.com this run, no status change"
+    },
+    "MU": {
+      "status": "watch",
+      "thesis": "Memory (DRAM/HBM); WATCH driven by CXMT structural/capacity risk, not ASP -- HBM3E flat within basis, corrected -51% figure stays dead",
+      "evidence_for": [
+        {
+          "claim": "HBM3E stack-derived $9.00/GB flat 2026-07-19 to 2026-08-05 (0.0% trend_within_basis); corrected -51% figure (C1) remains dead",
+          "date": "2026-08-05",
+          "source": "HBMTracker consumer_view.json"
+        },
+        {
+          "claim": "2027 HBM contract prices forecast to surge 80-150%, tight DRAM supply favors Samsung/SK Hynix/Micron",
+          "date": "2026-06-02",
+          "source": "HBMTracker consumer_view.json forecasts (TrendForce)"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "CXMT projected to close DRAM wafer-capacity gap with Micron to ~25k WSPM by end-2026 (vs Micron 375k); Q1'26 DRAM share 8% vs ~3% YoY",
+          "date": "2026-08-16",
+          "source": "smith-catalyst 2026-08-16 scan (tomshardware.com)"
+        },
+        {
+          "claim": "counter-scale: wafer starts are not bit-equivalent output; CXMT node density and yield still trail Micron",
+          "date": "2026-08-16",
+          "source": "smith-catalyst 2026-08-16 scan"
+        }
+      ],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "status unchanged; WATCH is competitive/structural, not a pricing verdict"
+    },
     "SNDK": {
       "status": "watch",
       "thesis": "AI NAND/enterprise-SSD supercycle. WATCH rests on sizing/volatility (highest beta in book, 2.80x its ATR risk cap), NOT on a demand problem.",
@@ -546,7 +633,33 @@
       "note": "Opened only ~1 week earlier (2026-08-05) -- a very short, costly round-trip."
     },
     "NOW": "Enterprise ITSM/workflow platform pivoting to agentic AI (AI ACV >$1bn), OpenAI competitive-disruption overhang vs -35% trailing-year decline | watch",
-    "SKHY": "Direct SK Hynix ADR; down ~9.2% since 08-05 entry despite dominant 60-70% HBM4 Vera Rubin allocation, no adverse news found | watch",
+    "SKHY": {
+      "status": "watch",
+      "thesis": "Direct SK Hynix ADR; down ~9.2% since 08-05 entry despite dominant 60-70% HBM4 Vera Rubin allocation -- price weakness is a measurement artifact/unresolved, not a genuine ASP signal",
+      "evidence_for": [
+        {
+          "claim": "SK Hynix holds 60-70% of HBM4 Vera Rubin allocation vs Samsung 25-30% and Micron thin (single-digit to low-teens)",
+          "date": "2026-06-05",
+          "source": "HBMTracker consumer_view.json supply_structure"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "down ~9.2% since 08-05 entry, no adverse company-specific news found; HBM4 nominal '+14.29%' move is a correction-flagged basis-splice artifact (C2), defensible flat figure ~$10.42/GB",
+          "date": "2026-08-05",
+          "source": "HBMTracker consumer_view.json corrections C2"
+        },
+        {
+          "claim": "same CXMT DRAM-capacity overhang applies structurally",
+          "date": "2026-08-16",
+          "source": "smith-catalyst 2026-08-16 scan"
+        }
+      ],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "status unchanged; reconciliation finds no_action, measurement-artifact per C2"
+    },
     "MSFT": {
       "status": "watch",
       "thesis": "First researched thesis (two prior uncaptured buys: 08-06 2sh@$495.97, 08-10 +1sh@$509.86, now 3sh). Azure/OpenAI-linked hyperscaler capex spender, Compute/Hyperscaler cluster.",
@@ -2496,13 +2609,15 @@
   },
   "watchlist_scan_cursor": 75,
   "data_quality": [
-    "2026-08-16 DEEP run RAN DEGRADED: smith-thesis and smith-strategist were NOT dispatched/completed -- the account hit its MONTHLY SPEND LIMIT mid-run. thesis map left untouched (not overwritten with a partial view); NO new proposals were generated this run.",
-    "Sunday run: US/Asia/Europe all closed. Every price is Friday 2026-08-14's close and is byte-identical to the 2026-08-15 deep run -- value_delta_usd 0.0, qty_changes empty, no trades since last run.",
+    "2026-08-16 DEEP run COMPLETED in two passes. The first pass died mid-sweep on the account's MONTHLY SPEND LIMIT, which killed smith-thesis and blocked smith-strategist; both were rerun successfully afterwards on the same unchanged data. All 7 Stage-1 analysts plus the strategist have now reported.",
+    "Sunday run: US/Asia/Europe all closed. Every price is Friday 2026-08-14's close, byte-identical to the 2026-08-15 deep run -- value_delta_usd 0.0, qty_changes empty, no trades since last run. Structural findings, not price findings.",
+    "Thesis: ZERO status changes (15 strengthening / 20 watch / 0 broken). Fresh evidence on 5 names only. MU/DRAM/SKHY WATCH verdicts explicitly grounded in COMPETITIVE/STRUCTURAL risk (CXMT), NOT pricing -- HBM3E flat within basis at $9.00/GB and the HBM4 '+14.29%' is a correction-flagged basis-splice artifact (C2), not a real move.",
     "Gate corrected to AMBIGUOUS (2026-08-15 recorded STABILIZING on this same data; Gate v2 requires at least one of ES/NQ >= 0% and both were negative). Immaterial in practice -- a weekend gate is low-information.",
-    "smith-rebound NOT dispatched despite AMBIGUOUS: no session has occurred, no stops fired, and cash is $12.25 -- there is nothing to redeploy. Stated, not silently skipped.",
-    "smith-quality not triggered (a deep row already exists this calendar month, 2026-08-15). smith-ledger not triggered (qty_changes empty).",
+    "smith-rebound NOT dispatched despite AMBIGUOUS: no session occurred, no stops fired, cash is $12.25 -- nothing to redeploy. Stated, not silently skipped. smith-quality not triggered (deep row already exists this month). smith-ledger not triggered (qty_changes empty).",
     "FMP insiderTrades AND FMP news both confirmed plan-gated -- signals ran entirely on INDmoney embedded news.",
     "STM/TXN betas refreshed via yfinance NATIVE (SPX) beta, a different methodology from the SMH regression used for the other 33 -- re-derive vs SMH next deep run.",
+    "~13 held names still carry LEGACY BARE-STRING thesis entries rather than the evidence-object schema (pre-existing, not introduced this run; the 5 names touched this run all carry both evidence arrays). Worth a migration pass.",
+    "GEV (1.31x cap), TSM (1.05x) and TER (1.03x) remain over their ATR caps with no open trim -- TSM/TER excess trivial and both strengthening; GEV moderate but unflagged by any trigger. Carried forward deliberately, not forced into a proposal.",
     "ledger.csv row deliberately NOT appended: weekend/market-closed run, per the standing rule."
   ],
   "market_closed_run": false,
@@ -2945,5 +3060,15 @@
     "next_cpi": "2026-09-11",
     "next_nfp": "2026-09-04",
     "regime_note": "Fragile risk-on, not clean risk-on: EXTREME_GREED 82.9, VIX 14.25 near 52wk low, SPX within 0.4% of ATH, stacked on NDX RSI14 73.1 overbought and 10yr +11.1bp/1m to 4.696% against a HAWKISH Fed, with SPY put OI 2.58 signalling hedging beneath the tape."
-  }
+  },
+  "thesis_tensions_last": [
+    {
+      "metric": "hbm4_usd_per_gb",
+      "verdict_conflict": "SKHY WATCH (price -9.2%) vs nominal +14.29% HBM4",
+      "direction": "no_action",
+      "reconciliation": "+14.29% is a correction-flagged basis-splice artifact (C2), not a real price signal"
+    }
+  ],
+  "ai_capex_pct_thesis": 90.0,
+  "risk_off_status": "normal"
 }
