@@ -117,6 +117,15 @@ FUNDAMENTAL_HEADWIND_BUCKETS = {"NEW HEADWINDS"}
 # signal_history headwind bucket. 7d ties it to the same weekly cadence the ATR/beta/rel caches
 # use, so an override always rests on evidence from the current week.
 THESIS_OVERRIDES_STALE_BUCKET_DAYS = 7
+# G62 part (a) -- the general decay rule, complementing the narrow thesis-override below.
+# smith-signals REWRITES a ticker's bucket list wholesale on every successful run, so buckets only
+# go stale when that agent FAILS -- which is exactly what happened to META on 2026-08-12. A
+# per-ticker refresh stamp (state.signal_history_as_of) therefore captures staleness precisely: it
+# advances whenever signals ran, and freezes when it didn't. Past this age an unrefreshed
+# news-flow bucket stops being decisive. It is still REPORTED -- decay removes the veto, not the
+# information. A ticker with no stamp at all is treated as stale: the veto is the dangerous
+# default, so unknown age must fail open, not closed.
+HEADWIND_BUCKET_MAX_AGE_DAYS = 10
 HEALTHY_THESIS = {"intact", "strengthening"}
 LIVE_TRIGGERS = {"oversold_reversion", "overbought_distribution"}
 SHADOW_TRIGGERS = {"laggard_rotation", "profit_ratchet", "scale_out_ladder"}
@@ -1557,9 +1566,30 @@ def cmd_proposals(args):
             if "auto-voided" not in pr.get("note", ""):
                 pr["note"] = (pr.get("note", "") + " | auto-voided -- position exited").strip(" |")
 
+    # G60 remainder: an auto-void is normal for an OLD proposal whose position has since been
+    # exited, and an ALARM for one created this run -- that combination means the strategist
+    # just wrote an idea the void logic killed on arrival. It happened on 2026-08-12: a fresh
+    # "Re-enter VRT" proposal was destroyed the instant it was created, because RE-ENTER was
+    # missing from DIRECTION_KEYWORDS and defaulted to HOLD, which presupposes a holding that a
+    # re-entry proposal by definition does not have. It was caught only because the open_count
+    # (5) didn't match the 6 proposals the strategist actually wrote -- i.e. by eye. Counting is
+    # not a control, so the two cases are now separated and named.
+    voided_today, voided_stale, recon_warnings = [], [], []
     for i in to_supersede:
         if props[i].get("status") == "open":
             props[i]["status"] = "superseded"
+        pid = props[i].get("id") or f"idx{i}"
+        label = f"{pid} {props[i].get('ticker')} \"{props[i].get('action')}\""
+        (voided_today if (props[i].get("date") or "")[:10] == str(today_date) else voided_stale
+         ).append(label)
+    if voided_today:
+        warn = ("PROPOSAL AUTO-VOIDED ON THE RUN THAT CREATED IT (G60) -- "
+                + "; ".join(voided_today) + ". A proposal killed the same day it was written is "
+                "almost always a direction-classification bug, not a stale idea: the action verb "
+                "did not map to a direction bucket, defaulted to HOLD, and HOLD presupposes a "
+                "position the proposal exists to establish. Check DIRECTION_KEYWORDS covers this "
+                "verb before assuming the void was correct.")
+        recon_warnings.append(warn)
 
     # -- priority scoring (added 2026-08-03, G47: user asked "which proposal is what
     # priority" for the Open Proposals panel). Deterministic and score-able off data this
@@ -2048,7 +2078,10 @@ def cmd_proposals(args):
 
     emit({"proposals_count": len(props), "superseded_count": len(to_supersede), "changes_made": len(to_supersede),
           "auto_retired_count": len(retired), "auto_retired": retired,
-          "open_count": len(open_now), "priority_counts": priority_counts, "written": True})
+          "open_count": len(open_now), "priority_counts": priority_counts, "written": True,
+          "auto_voided_created_this_run": voided_today,
+          "auto_voided_stale": voided_stale,
+          "reconciliation_warnings": recon_warnings})
 
 
 def cmd_stops(args):
@@ -2311,6 +2344,12 @@ def _lot_sort_key(lot):
     return (lot.get("date") or "0000-00-00", lot.get("price_usd") or 0)
 
 
+# Smallest share quantity any broker actually records. Below this a residual is float noise
+# from summing decimal fractions, not a missing transaction -- reporting it as a phantom short
+# produced a "shortfall_qty: 0.0" row that read as a real defect (2026-08-15).
+SHARE_EPS = 1e-6
+
+
 def _consume_fifo(lot_list, qty, log, ticker, when):
     """Remove `qty` shares oldest-first. Returns (consumed_lots, shortfall).
 
@@ -2320,19 +2359,139 @@ def _consume_fifo(lot_list, qty, log, ticker, when):
     """
     remaining, consumed = qty, []
     lot_list.sort(key=_lot_sort_key)
-    while remaining > 1e-9 and lot_list:
+    while remaining > SHARE_EPS and lot_list:
         lot = lot_list[0]
         take = min(lot["qty"], remaining)
         consumed.append({"qty": take, "date": lot.get("date"), "price_usd": lot.get("price_usd")})
         lot["qty"] -= take
         remaining -= take
-        if lot["qty"] <= 1e-9:
+        if lot["qty"] <= SHARE_EPS:
             lot_list.pop(0)
-    if remaining > 1e-9:
+    if remaining > SHARE_EPS:
         log.append({"ticker": ticker, "date": when, "shortfall_qty": round(remaining, 6),
                     "note": "sell/conversion consumed more shares than the record ever shows "
                             "arriving -- phantom short, NOT clamped to zero (G71 signature)"})
     return consumed, remaining
+
+
+def cmd_maxpain(args):
+    """Max-pain and put/call OI ratio from an options chain (G18).
+
+    G18 was opened when a SPY/QQQ pull returned near-zero/null open interest across nearly
+    every strike. Re-probed 2026-08-16: OI is now populated across the full chain, so the
+    blocker is gone and the number is computable again. It lives here rather than in an agent
+    because it is pure arithmetic over a table -- exactly what COMPUTE-FIRST reserves for the
+    script.
+
+    Max pain = the strike at which the aggregate intrinsic value owed to option HOLDERS is
+    smallest, i.e. where the most contracts expire worthless:
+        pain(K) = SUM_calls OI_c * max(0, K - strike_c) + SUM_puts OI_p * max(0, strike_p - K)
+    evaluated at every listed strike; the minimum wins.
+
+    Takes a saved chain file because this script is offline by design -- the orchestrator does
+    the MCP fetch and hands the JSON over, the same contract every other compute uses.
+    """
+    chain = load_json(args.chain)
+    spot = chain.get("underlyingPrice")
+    out, dq = {}, []
+    if chain.get("_truncated"):
+        dq.append("chain JSON carries _truncated: true -- strikes were dropped by the fetch, so "
+                  "max-pain is computed over a PARTIAL book and may be wrong. Re-fetch per-expiry "
+                  "with a wider strike_range before trusting it.")
+    for expiry, legs in (chain.get("data") or {}).items():
+        calls = [(c.get("strike"), c.get("openInterest") or 0) for c in (legs.get("calls") or [])
+                 if c.get("strike") is not None]
+        puts = [(p.get("strike"), p.get("openInterest") or 0) for p in (legs.get("puts") or [])
+                if p.get("strike") is not None]
+        if not calls or not puts:
+            dq.append(f"{expiry}: missing a full call or put leg -- skipped, never half-computed")
+            continue
+        call_oi, put_oi = sum(o for _, o in calls), sum(o for _, o in puts)
+        if call_oi == 0 and put_oi == 0:
+            dq.append(f"{expiry}: open interest is zero across every strike -- this is the original "
+                      "G18 signature. Reported as null rather than as a max-pain of 0.")
+            out[expiry] = {"max_pain": None, "pcr_oi": None, "note": "no open interest"}
+            continue
+        strikes = sorted({s for s, _ in calls} | {s for s, _ in puts})
+        pain = {K: sum(o * max(0.0, K - s) for s, o in calls)
+                   + sum(o * max(0.0, s - K) for s, o in puts) for K in strikes}
+        best = min(pain, key=pain.get)
+        # A minimum sitting at the edge of the listed range usually means the range, not the
+        # market, picked it -- flag rather than report a boundary artifact as a real level.
+        edge = best in (strikes[0], strikes[-1])
+        if edge:
+            dq.append(f"{expiry}: max-pain landed on the {'lowest' if best == strikes[0] else 'highest'} "
+                      f"listed strike ({best}) -- that is a truncated-chain artifact, not a level.")
+        out[expiry] = {
+            "max_pain": best, "pain_at_max_pain": round(pain[best], 0),
+            "pcr_oi": round(put_oi / call_oi, 3) if call_oi else None,
+            "call_oi": call_oi, "put_oi": put_oi,
+            "strikes_used": len(strikes), "strike_range": [strikes[0], strikes[-1]],
+            "spot_vs_max_pain_pct": (round((spot - best) / best * 100, 2)
+                                     if spot and best else None),
+            "boundary_artifact": edge,
+        }
+    emit({"symbol": args.symbol, "underlying_price": spot, "expiries": out,
+          "data_quality": dq,
+          "note": ("pcr_oi is put/call OPEN INTEREST (positioning), not volume. Max-pain is a "
+                   "gravity heuristic, not a forecast -- it moves as OI shifts and is least "
+                   "meaningful far from expiry.")})
+
+
+def cmd_history(args):
+    """Authoritative 'was this ever held?' lookup, sourced from trades.json (G72).
+
+    Built because the orchestrator told the user LITE was "never actually held" when the
+    ledger carried 22 LITE trades. The false answer came from reading silence in
+    state.thesis / state.signal_history as proof of absence -- but both are seeded from
+    CURRENT holdings, so a fully-exited name is ALWAYS silent there. Absence of evidence in
+    those two files is not evidence of absence; trades.json is the only file that can answer
+    this, because it is the only one that records positions that no longer exist.
+    """
+    trades = load_json(os.path.join(args.base_dir, "trades.json"), default={"trades": []}).get("trades", [])
+    state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    lots = load_json(os.path.join(args.base_dir, "lots.json"), default={})
+    # lots.json keys tickers at the TOP level; the metadata keys start with "_" or are scalars.
+    holdings_now = {t for t, v in lots.items()
+                    if isinstance(v, list) and sum((l.get("qty") or 0) for l in v) > SHARE_EPS}
+
+    out = {}
+    for tk in [t.strip().upper() for t in args.ticker.split(",") if t.strip()]:
+        rows = sorted([r for r in trades if (r.get("ticker") or "").upper() == tk],
+                      key=lambda r: (r.get("date") or "", r.get("fill_time_utc") or ""))
+        if not rows:
+            out[tk] = {"ever_held": False, "trade_count": 0,
+                       "answer": f"{tk}: no trade of any kind in the ledger. Never held.",
+                       "caveat": "Absence here is meaningful ONLY because trades.json is the "
+                                 "authoritative record. Never answer this from state.thesis."}
+            continue
+        buys = [r for r in rows if (r.get("qty_change") or 0) > 0]
+        sells = [r for r in rows if (r.get("qty_change") or 0) < 0]
+        cas = [r for r in rows if r.get("type") == "corporate_action"]
+        net = sum(r.get("qty_change") or 0 for r in rows)
+        peak, run = 0.0, 0.0
+        for r in rows:
+            run += r.get("qty_change") or 0
+            peak = max(peak, run)
+        held = tk in holdings_now
+        out[tk] = {
+            "ever_held": True, "currently_held": held,
+            "trade_count": len(rows), "buys": len(buys), "sells": len(sells),
+            "corporate_actions": len(cas),
+            "first_trade": rows[0].get("date"), "last_trade": rows[-1].get("date"),
+            "peak_qty": round(peak, 6), "net_qty_now": round(net, 6),
+            "answer": (f"{tk}: HELD SINCE {rows[0].get('date')} -- {len(rows)} trades "
+                       f"({len(buys)} buys, {len(sells)} sells), peak {round(peak, 4)} shares."
+                       if held else
+                       f"{tk}: WAS held and is now EXITED -- {len(rows)} trades between "
+                       f"{rows[0].get('date')} and {rows[-1].get('date')} "
+                       f"({len(buys)} buys, {len(sells)} sells), peak {round(peak, 4)} shares."),
+        }
+    emit({"generated": str(date.today()), "source": "trades.json + lots.json",
+          "tickers": out,
+          "note": ("G72 fix. state.thesis and state.signal_history are seeded from CURRENT "
+                   "holdings, so an exited name is silent in both by construction. Answer "
+                   "'was this ever held' from THIS command only.")})
 
 
 def cmd_lots(args):
@@ -3169,6 +3328,19 @@ def cmd_triggers(args):
         # `verified: "unverified"` (the normal state) does NOT override anything, so this cannot
         # become a blanket bypass. The bucket is still reported, just no longer decisive.
         thesis_override = False
+        if fundamental_headwind:
+            stamp = _parse_as_of((state.get("signal_history_as_of") or {}).get(ticker))
+            age = (today - stamp).days if stamp else None
+            if age is None or age > HEADWIND_BUCKET_MAX_AGE_DAYS:
+                fundamental_headwind = False
+                dq.append(
+                    f"{ticker}: {sorted(bearish & FUNDAMENTAL_HEADWIND_BUCKETS)} bucket DECAYED "
+                    + (f"-- last refreshed {age}d ago, past the "
+                       f"{HEADWIND_BUCKET_MAX_AGE_DAYS}d limit" if age is not None
+                       else "-- no refresh stamp, so its age cannot be established")
+                    + " (G62). smith-signals rewrites buckets wholesale each run, so an unrefreshed "
+                      "bucket means that agent has not confirmed the headwind recently. Reported as "
+                      "context; no longer decisive.")
         if fundamental_headwind and healthy:
             te = thesis.get(ticker)
             if isinstance(te, dict) and te.get("verified") in ("primary", "secondary"):
@@ -3421,6 +3593,14 @@ def main():
                     help="a run's holdings.json, to reconcile lot sums against broker quantities")
     sp.add_argument("--write", action="store_true", help="write lots.json (default: dry run)")
 
+    sp = sub.add_parser("maxpain", help="max-pain + put/call OI ratio from a saved options chain (G18)")
+    sp.add_argument("--chain", required=True, help="JSON chain file: {underlyingPrice, data:{expiry:{calls,puts}}}")
+    sp.add_argument("--symbol", default=None)
+
+    sp = sub.add_parser("history", help="authoritative was-this-ever-held lookup for a ticker (G72)")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--ticker", required=True, help="one ticker, or a comma-separated list")
+
     sp = sub.add_parser("pipeline", help="run all per-run computes in dependency order, failing loudly")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--run-dir", required=True)
@@ -3441,6 +3621,7 @@ def main():
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
          "triggers": cmd_triggers, "score": cmd_score, "pipeline": cmd_pipeline, "lots": cmd_lots,
+         "history": cmd_history, "maxpain": cmd_maxpain,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "dismiss": cmd_dismiss, "stops": cmd_stops}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully

@@ -10106,7 +10106,9 @@
       "price_source": "email_confirmed",
       "order_type": "stop",
       "ts_utc": "2026-08-03T13:30:21Z",
-      "qty_source": "email_shares_field"
+      "qty_source": "email_shares_field",
+      "order_type_source": "email_confirmed",
+      "order_type_evidence": "Gmail thread 19fc7d17a298d377, transactions@transactions.indmoney.com, 2026-08-03 -- 'Roundhill Memory ETF, 20sh @ $48.98, Amount $979.60', Order Type: stop. Verified 2026-08-16 (G65)."
     },
     {
       "date": "2026-08-03",
@@ -10119,7 +10121,9 @@
       "price_source": "email_confirmed",
       "order_type": "stop",
       "ts_utc": "2026-08-03T13:30:40Z",
-      "qty_source": "email_shares_field"
+      "qty_source": "email_shares_field",
+      "order_type_source": "email_confirmed",
+      "order_type_evidence": "Gmail thread 19fc7d1c3bc5f029, transactions@transactions.indmoney.com, 2026-08-03 -- 'ASML Holding NV, 1sh @ $1608.91', Order Type: stop. Verified 2026-08-16 (G65)."
     },
     {
       "date": "2026-08-03",
@@ -10132,7 +10136,9 @@
       "price_source": "email_confirmed",
       "order_type": "stop",
       "ts_utc": "2026-08-03T13:33:17Z",
-      "qty_source": "email_shares_field"
+      "qty_source": "email_shares_field",
+      "order_type_source": "email_confirmed",
+      "order_type_evidence": "Gmail thread 19fc7d429203bcab, transactions@transactions.indmoney.com, 2026-08-03 -- 'Arm Holdings plc (ADR), 4sh @ $220.01, Amount $880.04', Order Type: stop. Verified 2026-08-16 (G65)."
     },
     {
       "date": "2026-08-03",
@@ -11051,6 +11057,104 @@
       "qty_source": "broker_reconciliation",
       "price_source": "n/a",
       "notes": "G68/G79 reconciliation. ledger 0.995985 vs broker 0 (position fully closed 2026-08-12); the Aug email fills net to zero, this residue predates them and traces to an Oct-2025 fractional pair never sold."
+    },
+    {
+      "date": "2026-02-02",
+      "type": "corporate_action",
+      "ca_type": "adjustment",
+      "ticker": "NVDA",
+      "qty_change": 3.0,
+      "price_at_trade": null,
+      "action": "adjustment",
+      "reason": "corporate_action",
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "qty_source": "fifo_shortfall_reconciliation",
+      "price_source": "unknown",
+      "notes": "G71 phantom-short reconciliation. sell of 10sh on 2026-02-03 against 7sh ever recorded. Basis unknown -- null, not invented."
+    },
+    {
+      "date": "2026-02-02",
+      "type": "corporate_action",
+      "ca_type": "adjustment",
+      "ticker": "GOOG",
+      "qty_change": 1.009384,
+      "price_at_trade": null,
+      "action": "adjustment",
+      "reason": "corporate_action",
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "qty_source": "fifo_shortfall_reconciliation",
+      "price_source": "unknown",
+      "notes": "G71 phantom-short reconciliation. position went flat 2025-09-18, then a 1.013541sh sell on 2026-02-03. Basis unknown -- null, not invented."
+    },
+    {
+      "date": "2026-02-10",
+      "type": "corporate_action",
+      "ca_type": "adjustment",
+      "ticker": "GOOG",
+      "qty_change": 2.0,
+      "price_at_trade": null,
+      "action": "adjustment",
+      "reason": "corporate_action",
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "qty_source": "fifo_shortfall_reconciliation",
+      "price_source": "unknown",
+      "notes": "G71 phantom-short reconciliation. further 2sh sell on 2026-02-11 with no intervening buy. Basis unknown -- null, not invented."
+    },
+    {
+      "date": "2026-02-25",
+      "type": "corporate_action",
+      "ca_type": "adjustment",
+      "ticker": "TSM",
+      "qty_change": 1.0,
+      "price_at_trade": null,
+      "action": "adjustment",
+      "reason": "corporate_action",
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "qty_source": "fifo_shortfall_reconciliation",
+      "price_source": "unknown",
+      "notes": "G71 phantom-short reconciliation. sell on 2026-02-26 with no shares available. Basis unknown -- null, not invented."
+    },
+    {
+      "date": "2026-03-02",
+      "type": "corporate_action",
+      "ca_type": "adjustment",
+      "ticker": "TSM",
+      "qty_change": 1.0,
+      "price_at_trade": null,
+      "action": "adjustment",
+      "reason": "corporate_action",
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "qty_source": "fifo_shortfall_reconciliation",
+      "price_source": "unknown",
+      "notes": "G71 phantom-short reconciliation. sell on 2026-03-03 with no shares available. Basis unknown -- null, not invented."
+    },
+    {
+      "date": "2026-05-11",
+      "type": "corporate_action",
+      "ca_type": "adjustment",
+      "ticker": "AMD",
+      "qty_change": 0.998336,
+      "price_at_trade": null,
+      "action": "adjustment",
+      "reason": "corporate_action",
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "qty_source": "fifo_shortfall_reconciliation",
+      "price_source": "unknown",
+      "notes": "G71 phantom-short reconciliation. sell on 2026-05-12 exceeding available. Basis unknown -- null, not invented."
+    },
+    {
+      "date": "2025-12-25",
+      "type": "corporate_action",
+      "ca_type": "adjustment",
+      "ticker": "SMCI",
+      "qty_change": 0.005202,
+      "price_at_trade": null,
+      "action": "adjustment",
+      "reason": "corporate_action",
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "qty_source": "fifo_shortfall_reconciliation",
+      "price_source": "unknown",
+      "notes": "G71 phantom-short reconciliation. fractional shortfall on 2025-12-26. Basis unknown -- null, not invented."
     }
   ],
   "notes": "Flow interrogation log: captures the rationale for each trade (exit/entry/trim) \u2014 populated by interactive runs asking 'why' and by scheduled runs writing 'UNCAPTURED' for manual review. Each entry: {date, ticker, action ('exit'|'trim'|'entry'), qty_change, price_at_trade, reason ('dollar-cost-averaging'|'dca-into-diversification'|'re-entry-after-stop'|'stop-loss'|'thesis-change'|'raise-cash'|'rebalance'|UNCAPTURED, or free text if the user typed something not on that list), notes}. Enables sell-discipline tracking and proposal scoring against actual user behavior. | SEEDED 2026-07-28: back-filled the 07-24 and 07-27 stop-out events (reconstructed, fills approximate) and the 07-28 redeployment (fills exact). G26 now has data for the first time. | 2026-07-29: 'dollar-cost-averaging' promoted from a free-text answer to a full 5th standard reason (see G35, TRADE RATIONALE CAPTURE step 2.9 in SKILL.md) after going 5-for-5 on its first day. Capture is now two AskUserQuestion steps since the tool hard-caps at 4 custom options per question and 5 standing buckets don't fit in one ask. Step 1 is direction-aware (same day, user request): a buy (qty_diff > 0) is asked 'was this DCA?' first, a sell (qty_diff < 0) is asked 'was this a stop-loss?' first; step 2 shows whichever 4 of the 5 reasons step 1 didn't already rule out. | 2026-08-03: 'dca-into-diversification' and 're-entry-after-stop' promoted to standing buy-side reasons (see G45) after both recurred via 'Other' the same day \u2014 a same-day MU stop-loss/rebuy whipsaw pair (re-entry-after-stop) and a five-ticker weekend diversification buy the user confirmed as DCA into diversification. Buy-side step 1 changed shape from a yes/no to a 4-option question (DCA / DCA-into-diversification / Re-entry-after-stop / Something else) to keep 3 buy-relevant reasons within the cap; sell-side step 1 is unchanged. | 2026-08-13 SMITH-LEDGER (G64/G65/G66): first full email reconciliation. 11 rows corrected, 13 rows ADDED (the entire 2026-07-28 redeployment beyond the 4 named clips was absent from trades.json though present in lots.json -- the two files had silently diverged), 1 row split (NVDA 07-27 was two fills, not one), 1 ticker corrected (a 07-28 row recorded as GOOG is in fact GOOGL/Alphabet Class A per ticker_map). Every row now carries price_source ('email_confirmed' = verified against an INDmoney confirmation; 'reconstructed' = rests on a quantity diff and MUST be quarantined from P&L; 'unknown' = no price). ts_utc/order_type/qty_source added where verified. | 2026-08-15 SMITH-LEDGER (this run): 10 rows ADDED for IREN(x2)/BE(x2)/GLW/GEV/VRT/MU/COHR/AMAT fills dated 2026-08-13/08-14 that were missing from trades.json and had triggered a stale ticker-only reason-matching bug in smith_math.py's qty_changes construction (see per-row notes). All 10 are email-confirmed (Amount/Price/Shares/Order Type all read directly, none derived or reconstructed). 9 of 10 are Order Type Market -> reason UNCAPTURED; the AMAT SELL is Order Type stop -> reason stop-loss (genuinely, not inferred).\n\nCORPORATE-ACTION ROWS (added 2026-08-15). A row with no `type` is a plain trade -- every pre-existing row keeps working unchanged. A row with type='corporate_action' records an event that moves or creates shares WITHOUT a buy/sell confirmation, which an email-sourced ledger cannot otherwise see. This is what G68/G71 were missing.\n  {\"date\":\"YYYY-MM-DD\", \"type\":\"corporate_action\", \"ca_type\":<see below>,\n   \"ticker\":\"GOOG\", \"qty_change\":-3.0, \"to_ticker\":\"GOOGL\", \"to_qty\":3.0,\n   \"ratio\":null, \"price_at_trade\":null, \"reason\":\"corporate_action\",\n   \"source\":\"brokerage statement 2026-06\", \"notes\":\"...\"}\nca_type: conversion (moves shares between symbols, CARRIES basis and acquisition date -- the LTCG clock does NOT restart) | split (qty x ratio, per-share basis / ratio, dates preserved) | fractional_credit (shares with no purchase; null price is flagged) | spinoff (source keeps its shares) | adjustment (explicit, sourced reconciliation to broker truth when the cause is genuinely unknown -- recorded rather than force-matched).\n`source` is REQUIRED: this data is not in email, so an unsourced row is unverifiable.\nApply with: python3 scripts/smith_math.py lots --base-dir . [--holdings <run>/holdings.json] [--write]"
