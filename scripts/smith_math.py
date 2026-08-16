@@ -991,7 +991,7 @@ def validate_cache_events(state):
     return defects
 
 
-def validate_thesis_schema(state):
+def validate_thesis_schema(state, base_dir="."):
     """Guard the thesis map's shape at the validation boundary (added 2026-08-16).
 
     All 42 entries were migrated to the evidence-object schema on 2026-08-16, so a bare string
@@ -1038,6 +1038,21 @@ def validate_thesis_schema(state):
             (dc.get("earnings_facts"), "data_cache.earnings_facts", dict)):
         defects.extend(smith_risk.mixed_shape_defects(mapping, nm, want))
 
+    # known_gaps statuses -- same vocabulary defect as thesis, found 2026-08-16: 9 records stored
+    # a resolution narrative in `status`, so nine long-closed gaps read as open and one genuinely
+    # open one (G22) stayed invisible for 3.5 weeks.
+    for src, label in ((state.get("known_gaps") or [], "state.known_gaps"),
+                       ((load_json(os.path.join(base_dir, "known-gaps-archive.json"),
+                                   default={}) or {}).get("known_gaps") or [],
+                        "known-gaps-archive.json")):
+        bad = sorted(str(g.get("id")) for g in src if smith_risk.gap_status(g) is None)
+        if bad:
+            defects.append(
+                f"UNREADABLE GAP STATUS in {label} on {len(bad)} record(s) ({', '.join(bad[:8])}) "
+                f"-- not one of {smith_risk.KNOWN_GAP_STATUSES}. These sort as live by the safe "
+                f"default, but they cannot be reported on accurately; put the narrative in "
+                f"`resolution` and set a real status.")
+
     unknown = sorted(t for t, v in thesis.items()
                      if v and smith_risk.thesis_status(v) is None)
     if unknown:
@@ -1046,6 +1061,227 @@ def validate_thesis_schema(state):
             f"status is not one of {smith_risk.KNOWN_STATUSES}. These names fall through every "
             f"thesis gate silently; they are not blocked, they are simply never considered.")
     return defects
+
+
+# ---------------------------------------------------------------------------
+# RETENTION -- one declarative table for every memory-of-record file (2026-08-16)
+# ---------------------------------------------------------------------------
+# Measured on 2026-08-16: state.json had grown to 232KB, and 53.3% of it (112KB) was
+# `known_gaps` -- of which 109KB was 61 CLOSED gaps. That file is read on every run and sliced
+# into every sub-agent prompt, so resolved history was being paid for on every single dispatch,
+# forever. proposals.json carried 72 terminal rows against 14 open ones.
+#
+# The striking part is that the fix already half-existed: known-gaps-archive.json,
+# proposals-archive.json and exited-holdings-archive.json were all present, all sharing the same
+# {schema_version, _readme, <payload>} shape -- and only journal.json had a documented prune
+# rule. Three archives, one rule. So the defect is not "state.json is big", it is that RETENTION
+# WAS A PER-FILE AFTERTHOUGHT instead of a policy. This table is the policy.
+#
+# Invariants, because this touches the memory of record:
+#   * ARCHIVE, NEVER DELETE. Every evicted record lands in its archive file first; the hot file
+#     shrinks only after the archive write succeeds.
+#   * IDEMPOTENT. Re-running compacts nothing further and rewrites nothing.
+#   * DRY RUN BY DEFAULT (same contract as `lots`); --write to apply.
+#   * NEVER EVICT SOMETHING STILL LIVE -- an open gap, an open proposal, a held ticker.
+#   * G72 COMPATIBILITY: archived records stay queryable. Eviction must never become the reason
+#     the desk answers "no such thing" -- that is precisely the LITE failure one level up.
+
+RETENTION = {
+    "known_gaps": {
+        "archive": "known-gaps-archive.json", "payload": "known_gaps",
+        "keep_recent": 8,
+        "why": "closed gaps are cited by ID, never re-read in full; the registry only needs the "
+               "open ones plus enough recent history to avoid re-opening a just-fixed issue",
+    },
+    "proposals": {
+        "archive": "proposals-archive.json", "payload": "proposals",
+        "keep_recent": 20, "terminal_after_days": 90,
+        "why": "a proposal in a terminal state (superseded/auto_retired/dismissed_by_user/"
+               "executed) past the 90d scoring window can never change again",
+    },
+    "thesis": {
+        "archive": "exited-holdings-archive.json", "payload": "thesis",
+        "why": "a thesis for a name no longer held is history, not context -- the dashboard "
+               "already filters these out, so they were pure prompt weight",
+    },
+    "sector_map": {
+        "archive": "exited-holdings-archive.json", "payload": "sector_map",
+        "why": "same as thesis; keep it in step so the two never disagree about which "
+               "tickers exist",
+    },
+}
+
+TERMINAL_PROPOSAL_STATUSES = ("superseded", "auto_retired", "dismissed_by_user",
+                              "executed", "fulfilled", "filled")
+
+
+def _archive_load(path):
+    d = load_json(path, default=None)
+    if not isinstance(d, dict):
+        d = {"schema_version": 1,
+             "_readme": "Archived records evicted from the hot file by `smith_math.py compact`. "
+                        "Full history lives HERE; the hot file keeps only what a run needs. "
+                        "Nothing is ever deleted -- if you are looking for something that "
+                        "vanished from state.json, it is in this file."}
+    return d
+
+
+def _archive_merge(arc, payload_key, records):
+    """Merge into the archive without duplicating. Dict payloads merge by key; list payloads
+    de-duplicate on a stable identity so a re-run cannot double-append."""
+    cur = arc.get(payload_key)
+    if isinstance(records, dict):
+        cur = cur if isinstance(cur, dict) else {}
+        cur.update(records)
+    else:
+        cur = cur if isinstance(cur, list) else []
+        def ident(r):
+            if not isinstance(r, dict):
+                return json.dumps(r, sort_keys=True)
+            return r.get("id") or r.get("gap_id") or json.dumps(r, sort_keys=True)
+        seen = {ident(r) for r in cur}
+        cur.extend(r for r in records if ident(r) not in seen)
+    arc[payload_key] = cur
+    return arc
+
+
+def cmd_compact(args):
+    """Enforce RETENTION across every memory-of-record file. Dry run unless --write."""
+    base = args.base_dir
+    today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    state = load_json(os.path.join(base, "state.json"), default={})
+    before = len(json.dumps(state))
+    moves, writes = [], {}
+
+    held = set()
+    if args.holdings:
+        h = load_json(args.holdings, default={})
+        held = {r.get("ticker") for r in (h.get("holdings_inr") or []) if r.get("ticker")}
+    if not held:
+        held = {r.get("ticker") for r in (state.get("holdings") or []) if r.get("ticker")}
+
+    # --- known_gaps: keep open + N most recent closed -----------------------
+    cfg = RETENTION["known_gaps"]
+    gaps = state.get("known_gaps") or []
+    live = [g for g in gaps if (g.get("status") or "open") not in ("closed",)]
+    closed = [g for g in gaps if (g.get("status") or "open") == "closed"]
+    closed.sort(key=lambda g: g.get("resolved_on") or g.get("closed") or "", reverse=True)
+    keep_closed, evict = closed[:cfg["keep_recent"]], closed[cfg["keep_recent"]:]
+    if evict:
+        moves.append({"file": "state.known_gaps", "moved": len(evict),
+                      "to": cfg["archive"], "kept_live": len(live),
+                      "kept_recent_closed": len(keep_closed),
+                      "ids": [g.get("id") for g in evict][:12], "why": cfg["why"]})
+        state["known_gaps"] = live + keep_closed
+        writes.setdefault(cfg["archive"], _archive_load(os.path.join(base, cfg["archive"])))
+        _archive_merge(writes[cfg["archive"]], cfg["payload"], evict)
+
+    # --- thesis + sector_map: evict names no longer held ---------------------
+    if held:
+        for key in ("thesis", "sector_map"):
+            cfg = RETENTION[key]
+            m = state.get(key) or {}
+            gone = {t: v for t, v in m.items() if t not in held}
+            if gone:
+                moves.append({"file": f"state.{key}", "moved": len(gone),
+                              "to": cfg["archive"], "kept": len(m) - len(gone),
+                              "ids": sorted(gone)[:12], "why": cfg["why"]})
+                state[key] = {t: v for t, v in m.items() if t in held}
+                writes.setdefault(cfg["archive"],
+                                  _archive_load(os.path.join(base, cfg["archive"])))
+                _archive_merge(writes[cfg["archive"]], cfg["payload"], gone)
+
+    # --- proposals: evict terminal rows past the scoring window --------------
+    cfg = RETENTION["proposals"]
+    p_path = os.path.join(base, "proposals.json")
+    praw = load_json(p_path, default=None)
+    p_rows = (praw.get("proposals") if isinstance(praw, dict) else praw) or []
+    def _age(r):
+        d = _proposal_parse_date(r.get("date", "") or "")
+        return (today - d).days if d else None
+    terminal = [r for r in p_rows
+                if r.get("status") in TERMINAL_PROPOSAL_STATUSES
+                and (_age(r) or 0) > cfg["terminal_after_days"]]
+    terminal.sort(key=lambda r: r.get("date") or "", reverse=True)
+    p_evict = terminal[cfg["keep_recent"]:]
+    if p_evict:
+        ev_ids = {id(r) for r in p_evict}
+        moves.append({"file": "proposals.json", "moved": len(p_evict), "to": cfg["archive"],
+                      "kept": len(p_rows) - len(p_evict),
+                      "ids": [r.get("id") for r in p_evict][:12], "why": cfg["why"]})
+        kept = [r for r in p_rows if id(r) not in ev_ids]
+        writes.setdefault(cfg["archive"], _archive_load(os.path.join(base, cfg["archive"])))
+        _archive_merge(writes[cfg["archive"]], cfg["payload"], p_evict)
+        writes["__proposals__"] = ({"proposals": kept} if isinstance(praw, dict) else kept)
+        if isinstance(praw, dict):
+            merged = dict(praw); merged["proposals"] = kept
+            writes["__proposals__"] = merged
+
+    after = len(json.dumps(state))
+    out = {"dry_run": not args.write, "moves": moves,
+           "state_bytes_before": before, "state_bytes_after": after,
+           "state_bytes_freed": before - after,
+           "state_pct_freed": round((before - after) / before * 100, 1) if before else 0,
+           "note": ("ARCHIVE, NEVER DELETE -- every evicted record is written to its archive "
+                    "file before the hot file shrinks, and archives stay queryable. Re-running "
+                    "is a no-op.")}
+    if not moves:
+        out["note"] = "already compact -- nothing met an eviction rule (this command is idempotent)"
+    if args.write and moves:
+        for path, payload in writes.items():
+            if path == "__proposals__":
+                _safe_write(os.path.join(base, "proposals.json"), payload)
+            else:
+                _safe_write(os.path.join(base, path), payload)
+        _safe_write(os.path.join(base, "state.json"), state)
+        out["written"] = True
+    emit(out)
+
+
+def _safe_write(path, obj):
+    """.bak then tmp-then-mv -- the WRITE SAFETY contract for memory-of-record files."""
+    if os.path.exists(path):
+        with open(path) as f_in, open(path + ".bak", "w") as f_out:
+            f_out.write(f_in.read())
+    with open(path + ".tmp", "w") as f:
+        json.dump(obj, f, indent=2)
+    os.replace(path + ".tmp", path)
+
+
+def cmd_gaps(args):
+    """Look up known_gaps across BOTH the hot registry and the archive (added 2026-08-16).
+
+    This exists because `compact` evicts resolved gaps out of state.json, and an eviction that
+    made a record unfindable would recreate G72 exactly one level up: the desk told the user LITE
+    was "never held" because it consulted a file that could not represent the answer. Archiving
+    is only safe if the archive is queryable, so this command is a REQUIRED companion to compact,
+    not a convenience. Search by ID, by status, or by free text across both files.
+    """
+    base = args.base_dir
+    hot = (load_json(os.path.join(base, "state.json"), default={}) or {}).get("known_gaps") or []
+    arc = (load_json(os.path.join(base, "known-gaps-archive.json"), default={}) or {}).get("known_gaps") or []
+    rows = [dict(g, _where="state.json") for g in hot] + [dict(g, _where="archive") for g in arc]
+
+    q = (args.id or args.query or "").strip().lower()
+    if args.id:
+        hits = [g for g in rows if (g.get("id") or "").lower() == q]
+    elif args.query:
+        hits = [g for g in rows
+                if q in json.dumps({k: v for k, v in g.items() if k != "_where"}).lower()]
+    else:
+        hits = [g for g in rows if smith_risk.gap_is_live(g)] if args.open_only else rows
+
+    hits.sort(key=lambda g: (g.get("id") or ""))
+    emit({"searched": {"hot": len(hot), "archived": len(arc), "total": len(rows)},
+          "matched": len(hits),
+          "gaps": [{"id": g.get("id"), "status": g.get("status") or "open",
+                    "where": g["_where"], "opened": g.get("opened"),
+                    "resolved_on": g.get("resolved_on"),
+                    "gap": (g.get("gap") or g.get("description") or "")[:400],
+                    "resolution": (g.get("resolution") or "")[:400]} for g in hits],
+          "note": ("Searches BOTH state.json and known-gaps-archive.json. A gap missing from "
+                   "state.json is ARCHIVED, never deleted -- absence here, and only here, is "
+                   "evidence a gap never existed.")})
 
 
 def cmd_validate(args):
@@ -1059,7 +1295,7 @@ def cmd_validate(args):
         policy_defects = validate_policy(policy)
 
     cache_defects = validate_cache_events(state)
-    thesis_defects = validate_thesis_schema(state)
+    thesis_defects = validate_thesis_schema(state, args.base_dir)
     all_defects = policy_defects + cache_defects + thesis_defects
 
     emit({
@@ -3661,6 +3897,18 @@ def main():
     sp.add_argument("--chain", required=True, help="JSON chain file: {underlyingPrice, data:{expiry:{calls,puts}}}")
     sp.add_argument("--symbol", default=None)
 
+    sp = sub.add_parser("gaps", help="look up known_gaps across BOTH state.json and the archive")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--id", default=None, help="exact gap id, e.g. G44")
+    sp.add_argument("--query", default=None, help="free-text search across both files")
+    sp.add_argument("--open-only", action="store_true")
+
+    sp = sub.add_parser("compact", help="enforce RETENTION: archive resolved history out of the hot files")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--holdings", default=None, help="a run's holdings.json, to know which tickers are live")
+    sp.add_argument("--today", default=None)
+    sp.add_argument("--write", action="store_true", help="apply (default: dry run)")
+
     sp = sub.add_parser("history", help="authoritative was-this-ever-held lookup for a ticker (G72)")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--ticker", required=True, help="one ticker, or a comma-separated list")
@@ -3685,7 +3933,7 @@ def main():
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
          "triggers": cmd_triggers, "score": cmd_score, "pipeline": cmd_pipeline, "lots": cmd_lots,
-         "history": cmd_history, "maxpain": cmd_maxpain,
+         "history": cmd_history, "maxpain": cmd_maxpain, "compact": cmd_compact, "gaps": cmd_gaps,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "dismiss": cmd_dismiss, "stops": cmd_stops}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully

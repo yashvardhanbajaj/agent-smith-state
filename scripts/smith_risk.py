@@ -259,3 +259,41 @@ def mixed_shape_defects(mapping, name, expect_type):
             f"({', '.join(odd[:8])}{' ...' if len(odd) > 8 else ''}). Every reader of this "
             f"namespace must then branch on type, and each branch is a place to drift. Fix the "
             f"writer, or add the key to RESERVED_KEYS if it is bookkeeping, not data."]
+
+
+# ---------------------------------------------------------------------------
+# KNOWN_GAPS STATUS -- same defect class as thesis, found 2026-08-16 by cmd_gaps
+# ---------------------------------------------------------------------------
+# 9 of 71 gap records stored a resolution NARRATIVE in `status` ("resolved 2026-07-18 --
+# methodology folded into G3") instead of a status value. Any reader asking "is this gap open?"
+# by testing `status != "closed"` therefore reported nine long-resolved gaps as OPEN. That is
+# exactly the thesis string/object defect one field over: a field with no enforced vocabulary,
+# and every reader left to guess.
+#
+# Same remedy: a whitelist, one normalizer, and a validate check. `resolved` is accepted as a
+# synonym for closed because that is what the legacy records actually meant.
+
+KNOWN_GAP_STATUSES = ("open", "closed", "partially_closed", "wontfix", "blocked")
+_GAP_SYNONYMS = {"resolved": "closed", "fixed": "closed", "done": "closed"}
+
+
+def gap_status(entry):
+    """Canonical gap status. Unknown/narrative values normalize to None, never silently 'open'."""
+    if not isinstance(entry, dict):
+        return None
+    raw = str(entry.get("status") or "").strip().lower()
+    if not raw:
+        return "open"                      # a gap with no status recorded is open by convention
+    for k in KNOWN_GAP_STATUSES:
+        if raw.startswith(k):
+            return k
+    for syn, canon in _GAP_SYNONYMS.items():
+        if raw.startswith(syn):
+            return canon
+    return None
+
+
+def gap_is_live(entry):
+    """True when a gap still needs attention. An UNREADABLE status counts as live, deliberately:
+    if the desk cannot tell whether something is fixed, the safe default is that it is not."""
+    return gap_status(entry) in (None, "open", "partially_closed", "blocked")
