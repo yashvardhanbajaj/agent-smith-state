@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "ts": "2026-08-16T18:07:00+05:30",
+  "ts": "2026-08-17T04:34:00+05:30",
   "mode": "deep",
   "usdinr": 95.67,
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
-  "last_run_dir": "runs/2026-08-16-1807/",
+  "last_run_dir": "runs/2026-08-17-0434/",
   "us": {
-    "value_usd": 43735.68,
+    "value_usd": 43742.56,
     "count": 35,
     "top3": [
       {
@@ -27,8 +27,8 @@
     "peak_value_usd": 43735.68,
     "beta": 1.277,
     "peak_total_book_usd": 44873.02,
-    "total_book_usd": 43747.93,
-    "drawdown_pct": -2.507,
+    "total_book_usd": 43754.81,
+    "drawdown_pct": -2.492,
     "top5_pct": 28.149,
     "top10_pct": 47.389
   },
@@ -209,7 +209,7 @@
       "weight_pct": 0.56
     }
   ],
-  "news_watermark": "2026-08-16",
+  "news_watermark": "2026-08-17",
   "thesis": {
     "NVDA": {
       "status": "strengthening",
@@ -2140,16 +2140,15 @@
   },
   "watchlist_scan_cursor": 75,
   "data_quality": [
-    "2026-08-16 DEEP run COMPLETED in two passes. The first pass died mid-sweep on the account's MONTHLY SPEND LIMIT, which killed smith-thesis and blocked smith-strategist; both were rerun successfully afterwards on the same unchanged data. All 7 Stage-1 analysts plus the strategist have now reported.",
-    "Sunday run: US/Asia/Europe all closed. Every price is Friday 2026-08-14's close, byte-identical to the 2026-08-15 deep run -- value_delta_usd 0.0, qty_changes empty, no trades since last run. Structural findings, not price findings.",
-    "Thesis: ZERO status changes (15 strengthening / 20 watch / 0 broken). Fresh evidence on 5 names only. MU/DRAM/SKHY WATCH verdicts explicitly grounded in COMPETITIVE/STRUCTURAL risk (CXMT), NOT pricing -- HBM3E flat within basis at $9.00/GB and the HBM4 '+14.29%' is a correction-flagged basis-splice artifact (C2), not a real move.",
-    "Gate corrected to AMBIGUOUS (2026-08-15 recorded STABILIZING on this same data; Gate v2 requires at least one of ES/NQ >= 0% and both were negative). Immaterial in practice -- a weekend gate is low-information.",
-    "smith-rebound NOT dispatched despite AMBIGUOUS: no session occurred, no stops fired, cash is $12.25 -- nothing to redeploy. Stated, not silently skipped. smith-quality not triggered (deep row already exists this month). smith-ledger not triggered (qty_changes empty).",
-    "FMP insiderTrades AND FMP news both confirmed plan-gated -- signals ran entirely on INDmoney embedded news.",
-    "STM/TXN betas refreshed via yfinance NATIVE (SPX) beta, a different methodology from the SMH regression used for the other 33 -- re-derive vs SMH next deep run.",
-    "~13 held names still carry LEGACY BARE-STRING thesis entries rather than the evidence-object schema (pre-existing, not introduced this run; the 5 names touched this run all carry both evidence arrays). Worth a migration pass.",
-    "GEV (1.31x cap), TSM (1.05x) and TER (1.03x) remain over their ATR caps with no open trim -- TSM/TER excess trivial and both strengthening; GEV moderate but unflagged by any trigger. Carried forward deliberately, not forced into a proposal.",
-    "ledger.csv row deliberately NOT appended: weekend/market-closed run, per the standing rule."
+    "2026-08-17 DEEP run. Sunday 19:04 ET: cash market and Asia closed, INDmoney snapshot identical to 08-16 TO THE CENT. Only new input was FUTURES reopening POSITIVE (ES +0.074%, NQ +0.221%) vs Friday's settle -- gate AMBIGUOUS -> STABILIZING. TWO agents searched independently and BOTH found NO named cause; treated as unexplained drift, not signal.",
+    "SIGNALS: zero news items dated after the 2026-08-16 watermark across all holdings, verified by batched fetch rather than assumed. All price-derived buckets carried forward unchanged.",
+    "DISPATCHED 4 of 14 agents (signals, catalyst, tax, strategist). Skipped with stated reasons: book/scout/rebound/ledger (input DOMAIN observably unmoved), thesis (0 changes on 08-16, news is the only mover and signals found none), watchlist/macro (no session, FOMC cached to 09-17, options do not trade Sunday evening), quality/cycle (not first deep of month), earnings (NVDA is 7 trading days out, outside the 5-day trigger).",
+    "smith-tax FIRST EVER DISPATCH. Earliest open lot 2026-07-15 => first LTCG crossing 2028-07-15; every lot short-term, NO trim deferrable into long-term treatment. Only MU and NBIS have material FIFO-vs-HIFO deltas ($60.48 / $46.52).",
+    "LLY 4-microshare dust orphan cleared with a sourced adjustment row. Root cause was a G80 derived_amount_over_price sell that under-consumed the position by 0.000004sh; the old single >1e-4 orphan bar hid it. Two-tier orphan detection (material vs dust) added.",
+    "P-094 (ORCL hard stop) was auto-retired IN ERROR as a tactical HOLD and has been reinstated -- a stop level is a standing risk instruction, not hold-fire advice. Rule fixed.",
+    "POLICY DRIFT FLAGGED, NOT FIXED: policy.json prose still says LTCG per-lot dates are unavailable pending G1 seeding, but G1 closed 2026-08-15. The machine value ltcg_boundary_months:24 is correct and was used. policy.json is user-confirmed, so the note needs the user's approval to change.",
+    "FY26-27 realised gains NOT computable and NOT estimated: the lots engine emits no realised-P&L block, and seven G71 adjustments carry an explicitly null basis that FY sells consumed. Harvest value stated as loss size only, never as tax saved.",
+    "ledger.csv row deliberately NOT appended: no session occurred."
   ],
   "market_closed_run": false,
   "peer_map": {
@@ -2485,45 +2484,15 @@
   "factor_catalysts": [
     {
       "date": "2026-08-16",
-      "direction": "threat",
-      "horizon": "structural",
-      "headline": "CXMT projected to close DRAM wafer-capacity gap with Micron to ~25k WSPM by end-2026 (350k vs 375k); Q1'26 DRAM share 8% vs ~3% YoY",
-      "magnitude": "25k WSPM gap vs Micron's 375k, BUT wafer starts are not bit-equivalent output -- CXMT node density/yield trail Micron per the same sources; ~950k WSPM trajectory by 2030",
-      "affects": [
-        "MU",
-        "DRAM",
-        "SNDK",
-        "SKHY"
-      ],
-      "exposure_pct_equity": 15.53,
-      "source": "https://www.tomshardware.com/pc-components/dram/cxmt-close-to-matching-microns-memory-capacity-in-2026-research-claims-would-put-china-on-track-to-become-worlds-second-largest-dram-producer"
-    },
-    {
-      "date": "2026-08-16",
-      "direction": "threat",
-      "horizon": "structural",
-      "headline": "China's first domestic immersion DUV tools begin deliveries to CXMT/SMIC/Hua Hong this August",
-      "magnitude": "5 units 2026, ~20 in 2027 vs ASML's 131 immersion tools / 98.7% share (2025 baseline, unchanged since 07-28); EUV untouched",
-      "affects": [
-        "ASML",
-        "LRCX",
-        "AMAT",
-        "TER"
-      ],
-      "exposure_pct_equity": 10.55,
-      "source": "https://x.com/wccftech/status/2081799374838059269"
-    },
-    {
-      "date": "2026-08-15",
-      "direction": "tailwind",
+      "direction": "ambiguous",
       "horizon": "immediate",
-      "headline": "NVDA-OpenAI/SB Energy Ohio financing: guarantee narrowed to first-phase-only (~$100bn); NVDA weighing ~$3bn direct stake; NOT yet signed as of Sunday",
-      "magnitude": "guarantee narrowed from $250bn (07-27) to ~$100bn first-phase backstop; signing still pending 2+ days after WSJ's 'this weekend' framing",
+      "headline": "NVDA-OpenAI/SB Energy Ohio financing STILL UNSIGNED 3 days past its 'this weekend' framing; guarantee <$100bn first-phase; NVDA's ~$3bn SB Energy stake would split 50/50 between deal-signing and SB Energy's own IPO (targeted as soon as Sept 2026)",
+      "magnitude": "narrowed from $250bn (07-27) to <$100bn; no signature; SB Energy IPO target ~$5bn raise",
       "affects": [
         "NVDA"
       ],
       "exposure_pct_equity": 7.72,
-      "source": "https://www.koreatimes.co.kr/amp/world/20260815/nvidia-scales-back-funding-guarantee-for-ohio-openai-data-center-wsj-reports"
+      "source": "https://www.cnbc.com/2026/08/15/nvidia-mulls-3b-investment-in-sb-energy-in-openai-data-center-deal-report.html"
     }
   ],
   "ai_capex_pct": 92.67,
@@ -2546,37 +2515,37 @@
     "note": "First complete realised P&L on fully-exited names, computable only after the 116-row recovery. Best: GOOG +$334.46, WDC +$204.77, BE +$142.81. Worst: GLW -$249.02, SMCI -$197.09, META -$107.67, EWY -$96.48. GOOG's figure is partly pre-history basis and is distorted by the unrecorded GOOG->GOOGL conversion (G71) -- treat it as indicative."
   },
   "signal_history_as_of": {
-    "ORCL": "2026-08-16",
-    "ASML": "2026-08-16",
-    "SNDK": "2026-08-16",
-    "TSM": "2026-08-16",
-    "MU": "2026-08-16",
-    "MRVL": "2026-08-16",
-    "CIEN": "2026-08-16",
-    "AMD": "2026-08-16",
-    "STM": "2026-08-16",
-    "ARM": "2026-08-16",
-    "DRAM": "2026-08-16",
-    "NVDA": "2026-08-16",
-    "AVGO": "2026-08-16",
-    "GEV": "2026-08-16",
-    "QCOM": "2026-08-16",
-    "CLS": "2026-08-16",
-    "BABA": "2026-08-16",
-    "NBIS": "2026-08-16",
-    "CEG": "2026-08-16",
-    "AMZN": "2026-08-16",
-    "NOW": "2026-08-16",
-    "SKHY": "2026-08-16",
-    "MSFT": "2026-08-16",
-    "FLTW": "2026-08-16",
-    "BX": "2026-08-16",
-    "TER": "2026-08-16",
-    "VRT": "2026-08-16",
-    "COHR": "2026-08-16",
-    "AMAT": "2026-08-16",
-    "BE": "2026-08-16",
-    "IREN": "2026-08-16"
+    "ORCL": "2026-08-17",
+    "ASML": "2026-08-17",
+    "SNDK": "2026-08-17",
+    "TSM": "2026-08-17",
+    "MU": "2026-08-17",
+    "MRVL": "2026-08-17",
+    "CIEN": "2026-08-17",
+    "AMD": "2026-08-17",
+    "STM": "2026-08-17",
+    "ARM": "2026-08-17",
+    "DRAM": "2026-08-17",
+    "NVDA": "2026-08-17",
+    "AVGO": "2026-08-17",
+    "GEV": "2026-08-17",
+    "QCOM": "2026-08-17",
+    "CLS": "2026-08-17",
+    "BABA": "2026-08-17",
+    "NBIS": "2026-08-17",
+    "CEG": "2026-08-17",
+    "AMZN": "2026-08-17",
+    "NOW": "2026-08-17",
+    "SKHY": "2026-08-17",
+    "MSFT": "2026-08-17",
+    "FLTW": "2026-08-17",
+    "BX": "2026-08-17",
+    "TER": "2026-08-17",
+    "VRT": "2026-08-17",
+    "COHR": "2026-08-17",
+    "AMAT": "2026-08-17",
+    "BE": "2026-08-17",
+    "IREN": "2026-08-17"
   },
   "macro_read": {
     "as_of": "2026-08-16",
@@ -2601,5 +2570,19 @@
     }
   ],
   "ai_capex_pct_thesis": 90.0,
-  "risk_off_status": "normal"
+  "risk_off_status": "normal",
+  "tax_read": {
+    "as_of": "2026-08-17",
+    "earliest_open_lot": "2026-07-15",
+    "first_ltcg_crossing": "2028-07-15",
+    "live_ltcg_decisions": false,
+    "material_hifo_savings": {
+      "MU": 60.48,
+      "NBIS": 46.52,
+      "note": "$107 less realised gain on $1,200 of selling; deferral not erasure"
+    },
+    "harvest_total_usd": 283.21,
+    "harvest_names": 13,
+    "in_fy_harvest_window": false
+  }
 }

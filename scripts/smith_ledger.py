@@ -270,10 +270,28 @@ def cmd_lots(args):
             if tk in live:
                 continue
             q = round(sum(l["qty"] for l in ls), 6)
+            # TWO TIERS (added 2026-08-17). The single >1e-4 threshold hid a real finding: LLY
+            # carried 0.000004sh across one lot for a name the broker does not hold, invisible
+            # because it sat between SHARE_EPS and the orphan bar. Its cause was diagnostic --
+            # bought 0.106681, sold 0.106677, with the SELL derived via the FORBIDDEN
+            # Amount/Price method (G80), which is arithmetically wrong because Amount includes
+            # SEC/FINRA fees. So the dust was not rounding; it was the known-bad derivation
+            # leaving residue. A material orphan is an ALARM (a sell missing outright); a dust
+            # orphan is RESIDUE. Both must be visible, framed differently, neither swept away.
             if q > 1e-4:
                 orphans.append({"ticker": tk, "lots_sum": q, "broker_qty": 0, "lots": len(ls),
+                                "severity": "material",
                                 "note": "ledger shows an open position the broker does not report "
                                         "-- a sell is missing from the trade record entirely"})
+            elif q > SHARE_EPS:
+                orphans.append({"ticker": tk, "lots_sum": q, "broker_qty": 0, "lots": len(ls),
+                                "severity": "dust",
+                                "note": "sub-0.0001sh residue on a name the broker does not hold. "
+                                        "Almost always a qty_source=derived_amount_over_price sell "
+                                        "(G80) that under-consumed the position. Not a valuation "
+                                        "risk, but it inflates the ticker count and will confuse "
+                                        "any consumer that trusts lots.json's key set -- clear it "
+                                        "with a sourced `adjustment` row, do not silently drop it."})
         recon = {"tickers_checked": len(live), "reconciled": len(live) - len(mismatches),
                  "mismatches": sorted(mismatches, key=lambda m: -abs(m["delta"])),
                  "orphaned_positions": sorted(orphans, key=lambda o: -o["lots_sum"])}

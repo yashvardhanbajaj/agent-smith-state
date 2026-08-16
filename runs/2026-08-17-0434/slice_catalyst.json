@@ -1,0 +1,85 @@
+{
+  "mode": "deep",
+  "today": "2026-08-17",
+  "market_session": "closed",
+  "gate_classification": "STABILIZING",
+  "macro": {
+    "us10y": 4.696,
+    "vix": 14.25,
+    "dxy": 99.608,
+    "spx": 7785.76,
+    "ndx": 26729.164,
+    "es_f": 7810.75,
+    "nq_f": 30208.5,
+    "smh": 587.82
+  },
+  "usdinr": 95.415,
+  "known_gaps": [
+    {
+      "id": "G69",
+      "status": "partially_closed",
+      "gap": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so "
+    },
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "agent": "smith-catalyst",
+  "output_file": "runs/2026-08-17-0434/smith-catalyst-output.md",
+  "holdings_path": "runs/2026-08-17-0434/holdings.json",
+  "read_these_files": {
+    "factor_themes": "runs/2026-08-17-0434/shared/factor_themes.df5fda9a.json",
+    "drift": "runs/2026-08-17-0434/compute_drift.json",
+    "hbm_tracker": "runs/2026-08-17-0434/shared/hbm_tracker.json",
+    "holdings": "runs/2026-08-17-0434/shared/holdings_trim.0d56f739.json"
+  },
+  "factor_catalysts": [
+    {
+      "date": "2026-08-16",
+      "direction": "threat",
+      "horizon": "structural",
+      "headline": "CXMT projected to close DRAM wafer-capacity gap with Micron to ~25k WSPM by end-2026 (350k vs 375k); Q1'26 DRAM share 8% vs ~3% YoY",
+      "magnitude": "25k WSPM gap vs Micron's 375k, BUT wafer starts are not bit-equivalent output -- CXMT node density/yield trail Micron per the same sources; ~950k WSPM trajectory by 2030",
+      "affects": [
+        "MU",
+        "DRAM",
+        "SNDK",
+        "SKHY"
+      ],
+      "exposure_pct_equity": 15.53,
+      "source": "https://www.tomshardware.com/pc-components/dram/cxmt-close-to-matching-microns-memory-capacity-in-2026-research-claims-would-put-china-on-track-to-become-worlds-second-largest-dram-producer"
+    },
+    {
+      "date": "2026-08-16",
+      "direction": "threat",
+      "horizon": "structural",
+      "headline": "China's first domestic immersion DUV tools begin deliveries to CXMT/SMIC/Hua Hong this August",
+      "magnitude": "5 units 2026, ~20 in 2027 vs ASML's 131 immersion tools / 98.7% share (2025 baseline, unchanged since 07-28); EUV untouched",
+      "affects": [
+        "ASML",
+        "LRCX",
+        "AMAT",
+        "TER"
+      ],
+      "exposure_pct_equity": 10.55,
+      "source": "https://x.com/wccftech/status/2081799374838059269"
+    },
+    {
+      "date": "2026-08-15",
+      "direction": "tailwind",
+      "horizon": "immediate",
+      "headline": "NVDA-OpenAI/SB Energy Ohio financing: guarantee narrowed to first-phase-only (~$100bn); NVDA weighing ~$3bn direct stake; NOT yet signed as of Sunday",
+      "magnitude": "guarantee narrowed from $250bn (07-27) to ~$100bn first-phase backstop; signing still pending 2+ days after WSJ's 'this weekend' framing",
+      "affects": [
+        "NVDA"
+      ],
+      "exposure_pct_equity": 7.72,
+      "source": "https://www.koreatimes.co.kr/amp/world/20260815/nvidia-scales-back-funding-guarantee-for-ohio-openai-data-center-wsj-reports"
+    }
+  ],
+  "news_watermark": "2026-08-16",
+  "inputs_digest": "a490bcec51fc"
+}
