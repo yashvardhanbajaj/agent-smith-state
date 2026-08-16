@@ -2483,8 +2483,24 @@ def cmd_lots(args):
             if abs(ls - (q or 0)) > 1e-4:
                 mismatches.append({"ticker": tk, "lots_sum": ls, "broker_qty": q,
                                    "delta": round(ls - (q or 0), 6)})
+        # ALSO check the other direction (added during the 2026-08-15 cutover). The loop above
+        # only walks tickers the broker reports, so a ticker the LEDGER thinks is still open
+        # while the broker shows NO position at all was invisible -- and that is the more
+        # alarming case, because it means a sell is missing entirely rather than partially.
+        # The cutover surfaced PLTR carrying ~5.0sh across five lots and META ~1.0sh, both
+        # fully exited per the broker. Neither would have been reported without this.
+        orphans = []
+        for tk, ls in out.items():
+            if tk in live:
+                continue
+            q = round(sum(l["qty"] for l in ls), 6)
+            if q > 1e-4:
+                orphans.append({"ticker": tk, "lots_sum": q, "broker_qty": 0, "lots": len(ls),
+                                "note": "ledger shows an open position the broker does not report "
+                                        "-- a sell is missing from the trade record entirely"})
         recon = {"tickers_checked": len(live), "reconciled": len(live) - len(mismatches),
-                 "mismatches": sorted(mismatches, key=lambda m: -abs(m["delta"]))}
+                 "mismatches": sorted(mismatches, key=lambda m: -abs(m["delta"])),
+                 "orphaned_positions": sorted(orphans, key=lambda o: -o["lots_sum"])}
 
     written = None
     if args.write:
