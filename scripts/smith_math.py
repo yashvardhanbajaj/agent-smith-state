@@ -2235,6 +2235,29 @@ def cmd_stops(args):
         "stops": scored, "data_quality": dq,
     }
     out_path = args.out or os.path.join(args.base_dir, "stops_analysis.json")
+
+    # REGRESSION GUARD (added 2026-08-16). This file is the ONLY record of stop-loss efficacy and
+    # is not run-dir scoped, so an overwrite is unrecoverable outside git. The documented way to
+    # discover which tickers need prices is to run with an empty price map first -- which scores
+    # ZERO stops and, before this guard, wrote that empty result straight over 94 real ones. That
+    # destroyed the file twice (2026-08-15 and again 2026-08-16), both times recovered only via
+    # `git checkout`. The probe idiom is correct; silently persisting its result was not.
+    # So: refuse to shrink the file. A run that scores fewer stops than the version on disk is
+    # reporting a degraded input, not a new truth -- emit the analysis, skip the write, say why.
+    prior = load_json(out_path, default=None)
+    prior_n = len(prior.get("stops") or []) if isinstance(prior, dict) else 0
+    if prior_n and len(scored) < prior_n and not getattr(args, "force", False):
+        emit({"written": None, "scored_count": len(scored), "overall": overall,
+              "by_cohort": by_cohort, "data_quality": dq,
+              "write_skipped": (
+                  f"REFUSED to overwrite {out_path}: this run scored {len(scored)} stop(s) but the "
+                  f"existing file holds {prior_n}. Shrinking it would destroy the standing efficacy "
+                  f"record. This is the expected outcome when probing with an empty/partial "
+                  f"--prices-json to discover which tickers are needed: read the data_quality list "
+                  f"for those tickers, supply their prices, and re-run. Pass --force only if you "
+                  f"genuinely intend to replace the record with a smaller one.")})
+        return
+
     json.dump(out, open(out_path + ".tmp", "w"), indent=2)
     os.replace(out_path + ".tmp", out_path)
     emit({"written": out_path, "scored_count": len(scored), "overall": overall, "by_cohort": by_cohort})
@@ -3586,6 +3609,9 @@ def main():
     sp.add_argument("--prices-json", required=True, help='{"TICKER":price_usd} for tickers with an unscored stop')
     sp.add_argument("--today", default=None)
     sp.add_argument("--out", default=None, help="default: base_dir/stops_analysis.json")
+    sp.add_argument("--force", action="store_true",
+                    help="allow overwriting stops_analysis.json with FEWER scored stops than it "
+                         "already holds (normally refused -- see the regression guard in cmd_stops)")
 
     sp = sub.add_parser("lots", help="rebuild lots.json from trades.json by FIFO, honouring corporate actions")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
