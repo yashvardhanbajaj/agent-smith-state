@@ -558,38 +558,14 @@ def build(base, out):
     # can use it too -- single definition, both call sites read the same dict.
     risk_by_ticker = {r["ticker"]: r for r in risk.get("positions", [])}
 
-    def thesis_status(txt):
-        """('strengthening'|'watch'|'broken'|None). Same rpartition("|") convention the thesis
-        map already used -- extracted here so the cluster-expand feature can share it exactly
-        rather than re-deriving a second, possibly-divergent parse of the same field.
+    # These three were local reimplementations of a shape-parse that also existed three times
+    # over in smith_math. Consolidated 2026-08-16 into smith_risk, which every consumer already
+    # imports. This copy was the only CORRECT one (it whitelisted known statuses instead of
+    # returning raw rpartition output) -- that behaviour is what the shared version adopted.
+    thesis_status = smith_risk.thesis_status
+    thesis_text = smith_risk.thesis_text
 
-        EXTENDED 2026-08-10 (G58): a thesis entry is now either a legacy bare string
-        ("one-liner | watch") or the new object carrying evidence_for/evidence_against and a
-        `verified` tag. Both shapes coexist during migration -- older names keep their string
-        until smith-thesis next touches them -- so every reader goes through this shim rather
-        than assuming a type. Returning None on an unexpected shape is deliberate: an
-        unparseable status renders as 'no status' rather than crashing the whole build."""
-        if not txt:
-            return None
-        if isinstance(txt, dict):
-            st_raw = str(txt.get("status") or "").strip().lower()
-        else:
-            _, _, status = str(txt).rpartition("|")
-            st_raw = status.strip().lower() if status else ""
-        return next((k for k in ("strengthening", "watch", "broken") if st_raw.startswith(k)), None)
-
-    def thesis_text(v):
-        """The human-readable one-liner, from either schema shape (G58)."""
-        if isinstance(v, dict):
-            return v.get("thesis") or ""
-        return str(v or "")
-
-    def thesis_evidence(v):
-        """(evidence_for, evidence_against, verified) -- empty/'' for legacy string entries."""
-        if isinstance(v, dict):
-            return (v.get("evidence_for") or [], v.get("evidence_against") or [],
-                    v.get("verified") or "")
-        return ([], [], "")
+    thesis_evidence = smith_risk.thesis_evidence
 
     H = []
     H.append(f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
@@ -1435,11 +1411,7 @@ def build(base, out):
             # object. Route both through the shared shims so this panel never re-derives a
             # second, divergent parse -- and so an unmigrated name still renders.
             st = thesis_status(txt)
-            if isinstance(txt, dict):
-                body = thesis_text(txt)
-            else:
-                body, _, _status = str(txt).rpartition("|")
-                body = body.strip()
+            body = thesis_text(txt)   # handles both shapes -- smith_risk, consolidated 2026-08-16
             # status is usually a bare keyword but sometimes carries a bracketed note
             # (e.g. "strengthening [position closed ...]") -- thesis_status matches by prefix.
             # Membership-check the dict (not `groups.get(st) or other` -- an empty list is

@@ -121,3 +121,141 @@ def rotation_bucket(over_cap, thesis_status, net_signal):
     if ts == "watch" and net_signal < 0:
         return "rotate_out"
     return None
+
+
+# ---------------------------------------------------------------------------
+# THESIS ENTRY SHAPE -- ONE canonical reader for the whole desk (added 2026-08-16)
+# ---------------------------------------------------------------------------
+# A state.thesis entry has had TWO shapes since G58 introduced the evidence schema:
+#   legacy:  "one-liner prose | status"        (a bare string)
+#   current: {"status","thesis","evidence_for","evidence_against","verified",...}
+#
+# That dual shape was reimplemented FOUR separate times -- twice inline in smith_math
+# (cmd_rotation, cmd_derisk), once as smith_math._thesis_status, once as a nested closure in
+# smith_dashboard -- and they had already drifted apart:
+#
+#   * smith_math's versions returned `rpartition("|")[2]` RAW. When a string carries no pipe,
+#     rpartition returns ('', '', whole_string), so the ENTIRE thesis prose became the "status".
+#     It then silently matched no known status and the name fell through every thesis gate --
+#     no crash, no flag, just a position quietly exempt from rotation and trigger logic.
+#   * smith_dashboard's version whitelisted against ("strengthening","watch","broken") via
+#     startswith and returned None otherwise -- correct, but only in the dashboard.
+#
+# G60 was the same class of defect firing loudly (cmd_rotation/cmd_derisk crashed with
+# AttributeError the first time a dict entry reached their .rpartition call). The lesson is not
+# "add another isinstance branch" -- it is that a field with two shapes needs exactly ONE reader,
+# in a module every consumer already imports. That is this block. smith_math, smith_dashboard
+# and smith_charts all `import smith_risk`, so there is no excuse for a fifth implementation.
+#
+# KNOWN_STATUSES is the whitelist. Anything else normalizes to None, which every caller already
+# treats as "no usable status" -- degrading to unknown is safe, inventing a status is not.
+
+KNOWN_STATUSES = ("strengthening", "watch", "broken", "intact", "exited")
+
+
+def thesis_status(entry):
+    """Canonical status for either entry shape. Returns a KNOWN_STATUSES member, or None.
+
+    None means 'no usable status' and is a normal, safe outcome -- never a crash, and never a
+    fabricated value. Prefix-matched so "watch (position closed 08-04)" still reads as watch.
+    """
+    if not entry:
+        return None
+    if isinstance(entry, dict):
+        raw = str(entry.get("status") or "").strip().lower()
+    else:
+        head, sep, tail = str(entry).rpartition("|")
+        # No separator => no status was ever encoded. Do NOT treat the prose as a status.
+        raw = tail.strip().lower() if sep else ""
+    return next((k for k in KNOWN_STATUSES if raw.startswith(k)), None)
+
+
+def thesis_text(entry):
+    """The human-readable one-liner, from either shape. '' when absent."""
+    if isinstance(entry, dict):
+        return entry.get("thesis") or ""
+    head, sep, _tail = str(entry or "").rpartition("|")
+    return (head if sep else str(entry or "")).strip()
+
+
+def thesis_evidence(entry):
+    """(evidence_for, evidence_against, verified). Legacy strings carry no evidence, so they
+    return ([], [], 'unverified') -- an honest empty, not an implied absence of risk."""
+    if isinstance(entry, dict):
+        return (entry.get("evidence_for") or [],
+                entry.get("evidence_against") or [],
+                entry.get("verified") or "unverified")
+    return ([], [], "unverified")
+
+
+def is_legacy_thesis(entry):
+    """True for a bare-string entry that has not been migrated to the evidence schema."""
+    return entry is not None and not isinstance(entry, dict)
+
+
+def normalize_thesis_entry(entry, note=None):
+    """Upgrade a legacy bare string to the evidence-object schema WITHOUT inventing anything.
+
+    Both evidence arrays come back EXPLICITLY EMPTY with `verified: "unverified"` -- the legacy
+    string genuinely carried no evidence, and a migration that manufactured some would be worse
+    than the gap it closed. An already-migrated entry is returned untouched.
+    """
+    if isinstance(entry, dict):
+        return entry
+    return {
+        "status": thesis_status(entry) or "watch",
+        "thesis": thesis_text(entry),
+        "evidence_for": [],
+        "evidence_against": [],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": note or ("migrated from legacy bare-string schema 2026-08-16; the original "
+                         "string carried no evidence, so both arrays are explicitly empty "
+                         "rather than invented -- next smith-thesis touch should populate them"),
+    }
+
+
+# ---------------------------------------------------------------------------
+# MIXED NAMESPACES -- data keys and metadata keys sharing one dict (2026-08-16)
+# ---------------------------------------------------------------------------
+# Several state/lot namespaces store per-ticker data ALONGSIDE bookkeeping keys:
+#   lots.json          -> {"AMD": [...], "schema_version": 1, "_note": "...", "_rebuilt": "..."}
+#   data_cache.betas   -> {"AMAT": {...}, "_method_note_2026_08_12": "..."}
+# Lookups by ticker are unaffected. ITERATION is where this bites, and it already produced two
+# separate ad-hoc filters for the same lots.json namespace (`not k.startswith("_") and
+# isinstance(v, list)` in one place, a bare `isinstance(v, list)` in another). Two filters for
+# one namespace is how they drift.
+#
+# Convention: bookkeeping keys are `_`-prefixed OR in RESERVED_KEYS. data_entries() is the one
+# reader; value_type adds a belt-and-braces type filter for callers that want it.
+
+RESERVED_KEYS = ("schema_version", "as_of", "note", "source", "window", "ttl_days",
+                 "refresh_after", "generated", "_rebuilt")
+
+
+def data_entries(mapping, value_type=None):
+    """Yield only the real data (ticker) entries of a mixed namespace, as (key, value) pairs."""
+    for k, v in (mapping or {}).items():
+        if k.startswith("_") or k in RESERVED_KEYS:
+            continue
+        if value_type is not None and not isinstance(v, value_type):
+            continue
+        yield k, v
+
+
+def mixed_shape_defects(mapping, name, expect_type):
+    """Report data entries whose value type is NOT expect_type -- the generic form of the bug
+    that produced the thesis string/object split. Returns a list of human-readable defects.
+
+    Deliberately reports rather than coerces: a namespace holding two value shapes is a writer
+    problem, and silently normalizing it on read is exactly how the thesis split survived for
+    weeks in four different readers.
+    """
+    odd = sorted(k for k, v in data_entries(mapping) if not isinstance(v, expect_type))
+    if not odd:
+        return []
+    return [f"MIXED SHAPES in {name}: {len(odd)} entry(ies) are not {expect_type.__name__} "
+            f"({', '.join(odd[:8])}{' ...' if len(odd) > 8 else ''}). Every reader of this "
+            f"namespace must then branch on type, and each branch is a place to drift. Fix the "
+            f"writer, or add the key to RESERVED_KEYS if it is bookkeeping, not data."]

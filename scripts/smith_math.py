@@ -394,7 +394,7 @@ def cmd_book(args):
     ltcg_flags = []
     ltcg_boundary_months = load_json(os.path.join(args.base_dir, "policy.json"), default={}).get("ltcg_boundary_months", 24)
     today = date.today()
-    lots = {k: v for k, v in lots.items() if not k.startswith("_") and isinstance(v, list)}
+    lots = dict(smith_risk.data_entries(lots, value_type=list))   # one canonical filter (2026-08-16)
     if lots:
         for ticker, lot_list in lots.items():
             for lot in lot_list:
@@ -991,6 +991,63 @@ def validate_cache_events(state):
     return defects
 
 
+def validate_thesis_schema(state):
+    """Guard the thesis map's shape at the validation boundary (added 2026-08-16).
+
+    All 42 entries were migrated to the evidence-object schema on 2026-08-16, so a bare string
+    reappearing means something wrote the legacy shape back -- most likely a sub-agent tail
+    merged verbatim, or a hand-edit. That is worth catching immediately rather than discovering
+    it the next time a reader silently degrades: before consolidation, a legacy string with no
+    pipe parsed its entire prose as a "status", which matched nothing and quietly exempted the
+    name from every thesis gate in cmd_rotation, cmd_derisk and cmd_triggers.
+
+    Also enforces the G58 contract that BOTH evidence arrays are present. An empty side must be
+    an explicit [] -- a missing key is a schema violation, not a stylistic one.
+    """
+    defects = []
+    thesis = state.get("thesis") or {}
+    legacy = sorted(t for t, v in thesis.items() if smith_risk.is_legacy_thesis(v))
+    if legacy:
+        defects.append(
+            f"THESIS SCHEMA REGRESSION: {len(legacy)} entry(ies) are legacy bare strings again "
+            f"({', '.join(legacy[:8])}{' ...' if len(legacy) > 8 else ''}). Every entry was "
+            f"migrated to the evidence-object schema on 2026-08-16. Re-run the migration via "
+            f"smith_risk.normalize_thesis_entry rather than hand-patching, and check whichever "
+            f"writer reintroduced the string shape.")
+    missing = sorted(t for t, v in thesis.items()
+                     if isinstance(v, dict)
+                     and ("evidence_for" not in v or "evidence_against" not in v))
+    if missing:
+        defects.append(
+            f"THESIS EVIDENCE SCHEMA: {len(missing)} entry(ies) are missing an evidence array "
+            f"({', '.join(missing[:8])}{' ...' if len(missing) > 8 else ''}). Both sides are "
+            f"mandatory (G58); an empty side is an explicit [] plus a note, never an omitted key.")
+    # Generic sweep: any per-ticker namespace holding two value shapes is the same defect one
+    # level up. thesis was the instance that shipped; this catches the next one in any namespace.
+    dc = state.get("data_cache") or {}
+    for mapping, nm, want in (
+            (state.get("thesis"), "state.thesis", dict),
+            (state.get("sector_map"), "state.sector_map", str),
+            (state.get("peer_map"), "state.peer_map", dict),
+            (state.get("signal_history"), "state.signal_history", list),
+            (state.get("signal_history_as_of"), "state.signal_history_as_of", str),
+            (state.get("diversifier_candidates"), "state.diversifier_candidates", dict),
+            (dc.get("betas"), "data_cache.betas", dict),
+            (dc.get("ticker_map"), "data_cache.ticker_map", str),
+            (dc.get("earnings_calendar"), "data_cache.earnings_calendar", dict),
+            (dc.get("earnings_facts"), "data_cache.earnings_facts", dict)):
+        defects.extend(smith_risk.mixed_shape_defects(mapping, nm, want))
+
+    unknown = sorted(t for t, v in thesis.items()
+                     if v and smith_risk.thesis_status(v) is None)
+    if unknown:
+        defects.append(
+            f"THESIS STATUS UNREADABLE on {len(unknown)} entry(ies) ({', '.join(unknown[:8])}) -- "
+            f"status is not one of {smith_risk.KNOWN_STATUSES}. These names fall through every "
+            f"thesis gate silently; they are not blocked, they are simply never considered.")
+    return defects
+
+
 def cmd_validate(args):
     policy = load_json(os.path.join(args.base_dir, "policy.json"), default=None)
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
@@ -1002,7 +1059,8 @@ def cmd_validate(args):
         policy_defects = validate_policy(policy)
 
     cache_defects = validate_cache_events(state)
-    all_defects = policy_defects + cache_defects
+    thesis_defects = validate_thesis_schema(state)
+    all_defects = policy_defects + cache_defects + thesis_defects
 
     emit({
         "policy_present": policy is not None,
@@ -1253,14 +1311,8 @@ def cmd_rotation(args):
 
     tickers = {}
     for ticker, r in risk_by_ticker.items():
-        entry = thesis.get(ticker, "")
-        if isinstance(entry, dict):
-            # newer evidence-schema entries carry status as an explicit key rather than
-            # a trailing "| status" suffix on a bare string (see G58) -- read it directly.
-            thesis_status = (entry.get("status") or "").strip().lower() or None
-        else:
-            _, _, status = (entry or "").rpartition("|")
-            thesis_status = status.strip().lower() if status else None
+        # ONE canonical reader for both entry shapes -- see smith_risk.thesis_status (2026-08-16).
+        thesis_status = smith_risk.thesis_status(thesis.get(ticker))
         polarity = smith_risk.classify_signal_polarity(signal_history.get(ticker, []))
         over_cap = bool(r.get("over_cap"))
         bucket = smith_risk.rotation_bucket(over_cap, thesis_status, polarity["net"])
@@ -2475,8 +2527,8 @@ def cmd_history(args):
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
     lots = load_json(os.path.join(args.base_dir, "lots.json"), default={})
     # lots.json keys tickers at the TOP level; the metadata keys start with "_" or are scalars.
-    holdings_now = {t for t, v in lots.items()
-                    if isinstance(v, list) and sum((l.get("qty") or 0) for l in v) > SHARE_EPS}
+    holdings_now = {t for t, v in smith_risk.data_entries(lots, value_type=list)
+                    if sum((l.get("qty") or 0) for l in v) > SHARE_EPS}
 
     out = {}
     for tk in [t.strip().upper() for t in args.ticker.split(",") if t.strip()]:
@@ -3108,13 +3160,7 @@ def cmd_derisk(args):
             fr_reasons.append(f"position below ${dust_usd:g} dust threshold")
         friction = clamp(friction)
 
-        t_entry = thesis.get(t, "")
-        if isinstance(t_entry, dict):
-            # newer evidence-schema entries carry status as an explicit key rather than
-            # a trailing "| status" suffix on a bare string (see G58) -- read it directly.
-            t_status = (t_entry.get("status") or "").strip().lower() or None
-        else:
-            t_status = (t_entry or "").split("|")[-1].strip() or None
+        t_status = smith_risk.thesis_status(thesis.get(t))
 
         raw.append({"ticker": t, "market_value_usd": round(mv, 2),
                     "cluster": sector_map.get(t), "thesis_status": t_status,
@@ -3222,11 +3268,14 @@ def _parse_as_of(raw):
 
 
 def _thesis_status(entry):
-    """Newer evidence-schema entries carry status as an explicit key; older ones as a trailing
-    '| status' suffix on a bare string (see G58). Both shapes are live in state.json."""
-    if isinstance(entry, dict):
-        return (entry.get("status") or "").strip().lower() or None
-    return ((entry or "").rpartition("|")[2].strip().lower()) or None
+    """Deprecated shim -- delegates to the single canonical reader in smith_risk (2026-08-16).
+
+    Kept only so an unnoticed caller keeps working. Do NOT reimplement the shape logic here:
+    this function previously returned `rpartition("|")[2]` raw, which turned an entire thesis
+    prose string into a bogus "status" whenever the string carried no pipe, silently exempting
+    that name from every thesis gate. Call smith_risk.thesis_status directly in new code.
+    """
+    return smith_risk.thesis_status(entry)
 
 
 def _avg_cost_from_lots(tlots):
