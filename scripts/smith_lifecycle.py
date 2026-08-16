@@ -6,6 +6,7 @@ per-run compute stages, the pipeline runner and the CLI, and imports these.
 """
 
 import json
+import re
 import os
 from datetime import date, datetime
 
@@ -622,8 +623,20 @@ def cmd_proposals(args):
                            f"{hr.get('hit_rate_pct') if hr else 'unmeasured'}% (was >55% when proposed) "
                            "-- the measured edge behind this buy no longer clears the bar")
         elif bucket == "HOLD":
+            # A STOP instruction is not hold-fire advice (found 2026-08-17). P-094 "Set hard stop
+            # on ORCL @ $139.14" was auto-retired after 2 days as time-expired tactical guidance,
+            # and P-100 "Raise MRVL stop to cost basis" was one day from the same fate. A stop
+            # level is a STANDING risk instruction: it stays valid until it is acted on, the
+            # position exits, or the level is superseded -- it does not go stale on a clock.
+            # Both landed in the HOLD bucket only because neither buys nor sells anything.
+            is_stop = bool(re.search(r"\bstop\b", str(pr.get("action") or ""), re.I)) or \
+                      (pr.get("trigger_type") == "profit_ratchet")
             if ticker and ticker not in current_tickers:
-                why = f"{ticker} is no longer held -- the position this advised holding on is gone"
+                why = (f"{ticker} is no longer held -- the "
+                       + ("stop this proposed has nothing left to protect"
+                          if is_stop else "position this advised holding on is gone"))
+            elif is_stop:
+                why = None      # standing instruction: never expires on age alone
             elif age >= HOLD_MAX_AGE_DAYS:
                 why = (f"tactical HOLD is {age} days old -- hold-fire advice is time-bound by nature "
                        "and is not carried forward as standing guidance")

@@ -522,6 +522,51 @@ EXTERNAL_READERS = {"signals", "thesis", "watchlist", "catalyst", "scout", "macr
 # digest can be byte-identical while every analyst finding underneath it changed. A digest that
 # cannot see an input must never be allowed to vote on skipping it.
 NEVER_SKIP = {"strategist"}
+
+# MATERIALITY (added 2026-08-17, from running the thing). The byte-exact digest below is correct
+# and was, on its first live outing, useless: between the 08-16 and 08-17 runs NOT ONE SHARE moved
+# and not one US price changed, but USD/INR ticked 95.43 -> 95.415 (**0.0157%**) and every USD
+# figure in the book shifted with it. Every digest differed; nothing was skippable.
+#
+# "Byte-identical" is the wrong bar for a system whose inputs include a continuously-drifting FX
+# rate. But rounding values before hashing would HIDE the change, which is worse. So the exact
+# digest stays authoritative, and alongside it we report the LARGEST RELATIVE CHANGE across
+# numeric fields. A run whose worst numeric delta is 0.0157% has not materially changed, and the
+# orchestrator can see exactly how close it was instead of being told a binary.
+MATERIALITY_PCT = 0.25   # below this, a numeric delta is noise, not news
+
+
+def _numeric_leaves(obj, prefix="", out=None):
+    """Flatten every numeric leaf to {path: value} for a field-by-field delta."""
+    out = {} if out is None else out
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            _numeric_leaves(v, f"{prefix}.{k}", out)
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            _numeric_leaves(v, f"{prefix}[{i}]", out)
+    elif isinstance(obj, (int, float)) and not isinstance(obj, bool):
+        out[prefix] = float(obj)
+    return out
+
+
+def _max_relative_delta(a, b):
+    """(max_pct, field) across numeric leaves common to both. None if shapes are incomparable --
+    a structural change is never 'immaterial', so it must not be reported as a small number."""
+    la, lb = _numeric_leaves(a), _numeric_leaves(b)
+    common = set(la) & set(lb)
+    if not common or set(la) != set(lb):
+        return None, "structure changed"
+    worst, where = 0.0, ""
+    for k in common:
+        x, y = la[k], lb[k]
+        if x == y:
+            continue
+        denom = max(abs(x), abs(y), 1e-9)
+        d = abs(y - x) / denom * 100.0
+        if d > worst:
+            worst, where = d, k
+    return worst, where
 # Everything else (book, ledger, tax, rebound) reasons purely over files this run already
 # produced. If every one is byte-identical to the previous run, the agent has, by construction,
 # nothing new to say.
@@ -601,7 +646,7 @@ def cmd_slices(args):
 
     shared_once = {}
     # previous run's digests, for the unchanged-input check
-    prior_run, prior_digests = None, {}
+    prior_run, prior_digests, prior_slices = None, {}, {}
     runs_root = os.path.dirname(os.path.abspath(rd))
     try:
         sibs = sorted(d for d in os.listdir(runs_root)
@@ -612,11 +657,12 @@ def cmd_slices(args):
             for f in os.listdir(os.path.join(runs_root, prior_run)):
                 if f.startswith("slice_") and f.endswith(".json"):
                     d = load_json(os.path.join(runs_root, prior_run, f), default={})
+                    prior_slices[f[6:-5]] = d
                     if d.get("inputs_digest"):
                         prior_digests[f[6:-5]] = d["inputs_digest"]
     except OSError:
         pass
-    skippable = []
+    skippable, immaterial = [], []
     want = [a.strip() for a in (args.agents or "").split(",") if a.strip()] or list(AGENT_SLICES)
     written, problems = [], []
     for agent in want:
@@ -686,6 +732,27 @@ def cmd_slices(args):
             json.dump(sl, fh, indent=2)
         rec = {"agent": f"smith-{agent}", "file": out, "bytes": os.path.getsize(out),
                "refs": len(sl["read_these_files"]), "inputs_digest": sl["inputs_digest"]}
+        # materiality: compare this slice against the prior run's slice, field by field
+        prior_slice = prior_slices.get(agent)
+        if prior_slice is not None:
+            cmp_now = {k: v for k, v in sl.items()
+                       if k not in ("read_these_files", "output_file", "today", "inputs_digest")}
+            cmp_old = {k: v for k, v in prior_slice.items()
+                       if k not in ("read_these_files", "output_file", "today", "inputs_digest")}
+            worst, where = _max_relative_delta(cmp_old, cmp_now)
+            if worst is not None:
+                rec["max_delta_pct"] = round(worst, 4)
+                rec["max_delta_field"] = where
+                if worst < MATERIALITY_PCT and sl["inputs_digest"] != prior_digests.get(agent):
+                    rec["immaterial_change"] = True
+                    rec["immaterial_note"] = (
+                        f"inputs differ but the largest numeric change is {worst:.4f}% "
+                        f"(at {where}), below the {MATERIALITY_PCT}% materiality bar -- this is "
+                        f"noise, not news. Skipping is defensible for a file-only agent; the "
+                        f"decision is the orchestrator's and must be stated in the briefing.")
+                    if agent not in EXTERNAL_READERS and agent not in NEVER_SKIP:
+                        immaterial.append(f"smith-{agent}")
+
         prior = prior_digests.get(agent)
         if prior and prior == sl["inputs_digest"]:
             rec["inputs_unchanged_since"] = prior_run
@@ -708,6 +775,8 @@ def cmd_slices(args):
     emit({"run_dir": rd, "written": written, "problems": problems,
           "compared_against": prior_run,
           "skip_candidates": skippable,
+          "immaterial_change_candidates": immaterial,
+          "materiality_pct": MATERIALITY_PCT,
           "skip_note": ("Agents listed here have byte-identical inputs to the previous run AND "
                         "reason only over files, so they cannot produce a new finding -- reuse "
                         "their prior output instead of dispatching. Agents that read the outside "
