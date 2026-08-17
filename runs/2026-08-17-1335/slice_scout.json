@@ -1,0 +1,105 @@
+{
+  "mode": "deep",
+  "today": "2026-08-17",
+  "market_session": "pre-open",
+  "gate_classification": "AMBIGUOUS",
+  "macro": {
+    "us10y": 4.696,
+    "vix": 14.93,
+    "dxy": 99.349,
+    "spx": 7785.76,
+    "ndx": 26729.164,
+    "es_f": 7818.5,
+    "nq_f": 30310.25,
+    "smh": 587.82
+  },
+  "usdinr": 95.6025,
+  "known_gaps": [
+    {
+      "id": "G69",
+      "status": "partially_closed",
+      "gap": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so "
+    },
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "agent": "smith-scout",
+  "output_file": "runs/2026-08-17-1335/smith-scout-output.md",
+  "holdings_path": "runs/2026-08-17-1335/holdings.json",
+  "read_these_files": {
+    "sentiment": "runs/2026-08-17-1335/compute_sentiment.json",
+    "market_inputs": "runs/2026-08-17-1335/market_inputs.json",
+    "holdings": "runs/2026-08-17-1335/shared/holdings_trim.6fcf11f1.json"
+  },
+  "diversifier_candidates": {
+    "VST": {
+      "price_usd": 148.13,
+      "target_usd": 223.17,
+      "upside_pct": 50.7,
+      "clean_diversifier": false,
+      "thesis": "Merchant power gen; live beta 1.43 reinforces AI-load adjacency -- NOT a clean diversifier",
+      "status": "active"
+    },
+    "UNH": {
+      "price_usd": 401.73,
+      "target_usd": 471.65,
+      "upside_pct": 17.4,
+      "clean_diversifier": true,
+      "thesis": "Managed care rebound, no capex correlation, beta 0.63",
+      "status": "active"
+    },
+    "PG": {
+      "price_usd": 144.55,
+      "target_usd": 163.35,
+      "upside_pct": 13.0,
+      "clean_diversifier": true,
+      "thesis": "Staples ballast, beta 0.38",
+      "status": "active"
+    },
+    "NEM": {
+      "price_usd": 117.76,
+      "target_usd": 133.0,
+      "upside_pct": 12.9,
+      "clean_diversifier": true,
+      "thesis": "Gold miner, zero AI-capex overlap, beta 0.50",
+      "status": "active"
+    },
+    "DUK": {
+      "price_usd": 123.92,
+      "target_usd": 138.61,
+      "upside_pct": 11.9,
+      "clean_diversifier": true,
+      "thesis": "Regulated utility, beta 0.37",
+      "status": "active"
+    },
+    "SO": {
+      "price_usd": 92.8,
+      "target_usd": 101.45,
+      "upside_pct": 9.3,
+      "clean_diversifier": true,
+      "thesis": "Regulated SE utility, beta 0.33",
+      "status": "active"
+    },
+    "LLY": {
+      "price_usd": 1180.16,
+      "target_usd": 1270.37,
+      "upside_pct": 7.6,
+      "clean_diversifier": true,
+      "thesis": "Pharma/GLP-1, decoupled from semis, beta 0.51",
+      "status": "active"
+    },
+    "JNJ": {
+      "price_usd": 260.35,
+      "target_usd": 269.95,
+      "upside_pct": 3.7,
+      "clean_diversifier": true,
+      "thesis": "Diversified pharma/medtech, beta 0.23",
+      "status": "active"
+    }
+  },
+  "inputs_digest": "cdf152dcaf12"
+}

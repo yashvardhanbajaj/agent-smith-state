@@ -1,0 +1,220 @@
+{
+  "mode": "deep",
+  "today": "2026-08-17",
+  "market_session": "pre-open",
+  "gate_classification": "AMBIGUOUS",
+  "macro": {
+    "us10y": 4.696,
+    "vix": 14.93,
+    "dxy": 99.349,
+    "spx": 7785.76,
+    "ndx": 26729.164,
+    "es_f": 7818.5,
+    "nq_f": 30310.25,
+    "smh": 587.82
+  },
+  "usdinr": 95.6025,
+  "known_gaps": [
+    {
+      "id": "G69",
+      "status": "partially_closed",
+      "gap": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so "
+    },
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "agent": "smith-signals",
+  "output_file": "runs/2026-08-17-1335/smith-signals-output.md",
+  "holdings_path": "runs/2026-08-17-1335/holdings.json",
+  "read_these_files": {
+    "open_flags": "runs/2026-08-17-1335/shared/open_flags.c266c166.json",
+    "peer_map": "runs/2026-08-17-1335/shared/peer_map.27afc16d.json",
+    "journal": "runs/2026-08-17-1335/compute_journal.json",
+    "holdings": "runs/2026-08-17-1335/shared/holdings_trim.6fcf11f1.json"
+  },
+  "news_watermark": "2026-08-17",
+  "signal_history": {
+    "ORCL": [
+      "STRONG DOWNTREND",
+      "TARGET GAP",
+      "PEER LEADER"
+    ],
+    "ASML": [
+      "STRONG UPTREND",
+      "TARGET GAP"
+    ],
+    "SNDK": [],
+    "TSM": [
+      "TARGET GAP"
+    ],
+    "MU": [
+      "TARGET GAP",
+      "NEW TAILWINDS"
+    ],
+    "MRVL": [],
+    "CIEN": [
+      "TARGET GAP"
+    ],
+    "AMD": [
+      "TARGET GAP",
+      "STRONG UPTREND"
+    ],
+    "STM": [
+      "TARGET GAP",
+      "PEER LAGGARD"
+    ],
+    "ARM": [],
+    "DRAM": [
+      "BREAKOUT"
+    ],
+    "NVDA": [
+      "TARGET GAP"
+    ],
+    "AVGO": [
+      "TARGET GAP",
+      "PEER LEADER"
+    ],
+    "GEV": [
+      "STRONG UPTREND"
+    ],
+    "QCOM": [],
+    "CLS": [
+      "TARGET GAP"
+    ],
+    "BABA": [
+      "TARGET GAP"
+    ],
+    "NBIS": [
+      "STRONG UPTREND",
+      "REVERSAL - TRIM WATCH"
+    ],
+    "CEG": [
+      "TARGET GAP",
+      "REVERSAL - BUY WATCH",
+      "PEER LEADER"
+    ],
+    "AMZN": [
+      "TARGET GAP"
+    ],
+    "NOW": [
+      "PEER LEADER"
+    ],
+    "SKHY": [
+      "BREAKOUT"
+    ],
+    "MSFT": [
+      "PEER LEADER"
+    ],
+    "FLTW": [
+      "STRONG UPTREND"
+    ],
+    "BX": [
+      "PEER LEADER"
+    ],
+    "TER": [
+      "STRONG UPTREND"
+    ],
+    "VRT": [],
+    "COHR": [
+      "TARGET GAP"
+    ],
+    "AMAT": [
+      "TARGET GAP"
+    ],
+    "BE": [
+      "TARGET GAP"
+    ],
+    "IREN": [
+      "TARGET GAP"
+    ]
+  },
+  "signal_history_as_of": {
+    "ORCL": "2026-08-17",
+    "ASML": "2026-08-17",
+    "SNDK": "2026-08-17",
+    "TSM": "2026-08-17",
+    "MU": "2026-08-17",
+    "MRVL": "2026-08-17",
+    "CIEN": "2026-08-17",
+    "AMD": "2026-08-17",
+    "STM": "2026-08-17",
+    "ARM": "2026-08-17",
+    "DRAM": "2026-08-17",
+    "NVDA": "2026-08-17",
+    "AVGO": "2026-08-17",
+    "GEV": "2026-08-17",
+    "QCOM": "2026-08-17",
+    "CLS": "2026-08-17",
+    "BABA": "2026-08-17",
+    "NBIS": "2026-08-17",
+    "CEG": "2026-08-17",
+    "AMZN": "2026-08-17",
+    "NOW": "2026-08-17",
+    "SKHY": "2026-08-17",
+    "MSFT": "2026-08-17",
+    "FLTW": "2026-08-17",
+    "BX": "2026-08-17",
+    "TER": "2026-08-17",
+    "VRT": "2026-08-17",
+    "COHR": "2026-08-17",
+    "AMAT": "2026-08-17",
+    "BE": "2026-08-17",
+    "IREN": "2026-08-17"
+  },
+  "data_cache.atr20": {
+    "as_of": "2026-08-12 (partial refresh: STM, TXN, AMD, COHR, FLTW, BX added; others carried forward)",
+    "window": "22 daily bars, 30 Jun - 30 Jul 2026 (includes full 07-28 crash + 07-29/30 relief rally)",
+    "source": "yfinance daily OHLC, true-range method",
+    "values_pct": {
+      "ASML": 5.11,
+      "NVDA": 3.88,
+      "SNDK": 15.6,
+      "MU": 9.38,
+      "GOOGL": 3.34,
+      "DRAM": 9.72,
+      "MRVL": 9.88,
+      "COHR": 10.67,
+      "AMD": 8.34,
+      "VRT": 9.02,
+      "TER": 9.12,
+      "EWY": 6.44,
+      "CLS": 7.15,
+      "LRCX": 9.07,
+      "AMAT": 8.9,
+      "ARM": 10.45,
+      "CIEN": 8.05,
+      "TSM": 4.48,
+      "ORCL": 5.47,
+      "QCOM": 5.38,
+      "GEV": 6.83,
+      "NBIS": 12.82,
+      "IREN": 11.1,
+      "CEG": 3.27,
+      "GLW": 10.36,
+      "BE": 14.12,
+      "MKSI": 9.41,
+      "AVGO": 4.14,
+      "META": 4.74,
+      "AMZN": 3.09,
+      "BABA": 3.28,
+      "QBTS": 8.01,
+      "MP": 6.1,
+      "NOW": 5.65,
+      "MSFT": 3.12,
+      "SKHY": 12.49,
+      "INTC": 7.588,
+      "STM": 4.17,
+      "TXN": 3.35,
+      "FLTW": 1.89,
+      "BX": 3.47
+    },
+    "note": "Refreshed 2026-07-31 deep run -- prior cache (as_of 07-28) window predated the violent 07-28 crash and 07-29/30 rally entirely. Basis of stop_loss_framework (stop = 2x ATR20, floored at 3%). | 2026-08-12: added the 6 names that had no entry, incl. 2 brand-new positions (STM, TXN) and 2 that had been silently uncapped for weeks (FLTW, BX). ATR computed over 20 of 23 available bars via the policy's own (high-low)/close rule.",
+    "ttl_days": 7,
+    "refresh_after": "2026-08-19"
+  },
+  "inputs_digest": "e2ec06ca6d13"
+}
