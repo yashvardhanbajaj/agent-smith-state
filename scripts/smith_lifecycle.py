@@ -406,9 +406,11 @@ def cmd_proposals(args):
         # run, so a trigger_type written onto a proposal whose condition has since cleared scores
         # nothing rather than coasting on a label.
         tt = pr.get("trigger_type")
+        has_live_trigger = False
         if tt in LIVE_TRIGGERS and ticker in trigger_live_sets.get(tt, set()):
             row = trigger_rows[tt][ticker]
             score += 3
+            has_live_trigger = True
             reasons.append(f"{tt}: " + "; ".join(row.get("reasons") or []))
             for b in row.get("blockers") or []:
                 reasons.append(f"caveat -- {b}")
@@ -441,7 +443,20 @@ def cmd_proposals(args):
             score -= 1
             reasons.append("discretionary add -- no active breach or typed trigger behind it")
         pr["priority_score"] = score
-        pr["priority"] = "HIGH" if score >= 4 else "MEDIUM" if score >= 2 else "LOW"
+        priority = "HIGH" if score >= 4 else "MEDIUM" if score >= 2 else "LOW"
+        # 2026-08-17, user-reported: proposals were reaching HIGH on pure portfolio-composition
+        # arithmetic (over_cap + cluster breach + cash band + repeat count can stack to 8) with
+        # NO criterion that says anything about the STOCK -- no live trigger of any kind
+        # (technical, catalyst, or thesis-driven). That combination is a volatility-budget/loose-
+        # composition finding, not a trade idea, and is capped at MEDIUM regardless of how high
+        # the mechanical score stacks. A live trigger (has_live_trigger, +3 above) is exempt from
+        # the cap by construction -- it is the one component that IS a price-moving criterion.
+        if priority == "HIGH" and not has_live_trigger:
+            priority = "MEDIUM"
+            reasons.append("capped at MEDIUM: no live trigger (technical, catalyst, or thesis) "
+                           "behind this proposal -- score reached HIGH on cap/cluster/cash/repeat "
+                           "mechanics alone, which describes the portfolio, not the stock")
+        pr["priority"] = priority
         pr["priority_reasons"] = reasons
         if cluster:
             pr["cluster"] = cluster
@@ -557,6 +572,25 @@ def cmd_proposals(args):
                 elif abs_now is not None and abs_now <= 0:
                     why = (f"{ticker} is no longer up on the month ({abs_now:+.1f}%) -- there is no "
                            "longer a gain to protect, so this is not a profit-take any more")
+            # catalyst_threat and thesis_break (added 2026-08-17): both cap/cluster-independent,
+            # same discipline as overbought_distribution -- tested on their OWN condition, never
+            # retired merely for being within the ATR cap or inside its policy band.
+            elif pr.get("trigger_type") == "catalyst_threat":
+                if ticker in trigger_live_sets.get("catalyst_threat", set()):
+                    pass  # the catalyst is still live this run -- keep open
+                else:
+                    why = (f"{ticker} no longer appears in a structural-threat factor catalyst -- "
+                           "the finding this trim was sized against has cleared or was superseded")
+            elif pr.get("trigger_type") == "thesis_break":
+                th_now = smith_risk.thesis_status(state_thesis.get(ticker))
+                if th_now == "broken":
+                    pass  # thesis is still broken -- keep open
+                elif th_now is None:
+                    pass  # cannot test (no usable status) -- keep open rather than guess
+                else:
+                    why = (f"{ticker}'s thesis is now '{th_now}', no longer 'broken' -- the "
+                           "fundamental break this trim was sized against has been resolved or "
+                           "reassessed")
             elif pr.get("trigger_type") in SHADOW_TRIGGERS:
                 pass  # shadow triggers are logged, not lifecycle-managed as live proposals
             else:
@@ -718,6 +752,13 @@ def cmd_proposals(args):
         elif _tt == "oversold_reversion":
             retires_when = (f"{ticker} RSI14 recovers above {RSI_OVERSOLD_EXIT:g} (setup consumed) "
                             "or its thesis leaves intact/strengthening")
+        elif _tt == "catalyst_threat":
+            retires_when = (f"{ticker} no longer appears in a structural-threat factor catalyst "
+                            "(cap/cluster-independent -- staying inside the ATR cap does NOT "
+                            "retire this)")
+        elif _tt == "thesis_break":
+            retires_when = (f"{ticker}'s thesis is no longer 'broken' (cap/cluster-independent -- "
+                            "staying inside the ATR cap does NOT retire this)")
         elif _tt in SHADOW_TRIGGERS:
             retires_when = (f"n/a -- {_tt} is shadow-scored, tracked in trigger_journal.json rather "
                             "than lifecycle-managed here")

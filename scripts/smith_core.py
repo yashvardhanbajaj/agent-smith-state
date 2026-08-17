@@ -121,6 +121,33 @@ OVERBOUGHT_TRIM_FRACTION = 0.25  # profit-take slice on an overbought name
 
 MAX_SINGLE_DEPLOY_FRACTION = 0.25  # cap one buy suggestion at this share of deployable cash
 
+# 2026-08-17, user-reported: "most of the proposals and the analysis is banked on the ATR
+# risk/cluster cap/cash band... these caps/bands was formed as a loose portfolio composition.
+# The trades/proposals should focus on other important criteria impacting an individual stock
+# price instead." Diagnosis confirmed against a live run: the 2026-08-12 fix (demoting over_cap,
+# adding the two RSI-based live triggers) was necessary but not sufficient -- 6 of 8 HIGH
+# proposals that run carried NO live trigger at all and reached HIGH purely by stacking
+# over_cap+cluster+cash+repeat, none of which says anything about whether the STOCK itself gave
+# a reason. Worse, the two things that actually DO move a stock for company-specific reasons --
+# a structural threat catalyst (smith-catalyst) and a thesis flipping to broken (smith-thesis) --
+# had NO path into the scorer at all; the AVGO/BX bond-downgrade catalyst that same run only
+# became a proposal because the strategist manually folded it in by hand.
+#
+# catalyst_threat and thesis_break close that gap. Deliberately LIVE from day one, not
+# shadow-first like laggard_rotation/profit_ratchet/scale_out_ladder above: the shadow-first
+# rule exists for NEWLY INVENTED STATISTICAL HEURISTICS with no track record in this book
+# (bottom-quartile relative strength, an arbitrary gain threshold) -- it does not apply to
+# findings that are already evidence-graded and sourced before they ever reach this scorer. A
+# catalyst_threat requires smith-catalyst to have classified something direction="threat" AND
+# horizon="structural" with a named source; a thesis_break requires smith-thesis to have
+# explicitly flipped a name to "broken", which under the G58 evidence gate means it carries its
+# own evidence_for/evidence_against arrays. Gating these behind a fabricated hit-rate measurement
+# would mean re-deriving conviction the analyst agents already established, which is the exact
+# manual-workaround gap this closes, not a new heuristic being tested.
+CATALYST_THREAT_TRIM_FRACTION = 0.20  # a probabilistic tail risk -- lighter than overbought's 0.25
+
+THESIS_BREAK_TRIM_FRACTION = 0.40  # a confirmed fundamental break -- heavier; strategist may size to a full exit
+
 # A technical dip on an intact thesis is a bounce setup; a technical dip alongside a FUNDAMENTAL
 # negative is a falling knife. Only the latter disqualifies -- requiring net-bullish signals
 # would disqualify every oversold name by definition, since being oversold IS bearish price action.
@@ -143,7 +170,7 @@ HEADWIND_BUCKET_MAX_AGE_DAYS = 10
 
 HEALTHY_THESIS = {"intact", "strengthening"}
 
-LIVE_TRIGGERS = {"oversold_reversion", "overbought_distribution"}
+LIVE_TRIGGERS = {"oversold_reversion", "overbought_distribution", "catalyst_threat", "thesis_break"}
 
 SHADOW_TRIGGERS = {"laggard_rotation", "profit_ratchet", "scale_out_ladder"}
 

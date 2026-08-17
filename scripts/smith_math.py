@@ -1513,7 +1513,7 @@ def _parse_as_of(raw):
 
 
 def cmd_triggers(args):
-    """Deterministic candidate generation for the five non-ATR proposal triggers.
+    """Deterministic candidate generation for the seven non-ATR proposal triggers.
 
     This does NOT create proposals -- it hands the strategist typed, pre-screened candidate lists
     so it no longer has to invent non-ATR ideas from narrative judgment. Same compute-first
@@ -1521,12 +1521,17 @@ def cmd_triggers(args):
     never a prose reading, and a missing input yields an empty list plus a data_quality line
     rather than an estimate.
 
-    vote=="live"   (oversold_reversion, overbought_distribution) may become sized proposals now.
+    vote=="live"   (oversold_reversion, overbought_distribution, catalyst_threat, thesis_break)
+                   may become sized proposals now.
     vote=="shadow" (laggard_rotation, profit_ratchet, scale_out_ladder) are logged with
                    price_at_flag and scored at 7/30d first -- the same "a new signal class earns
-                   its vote before it gets one" rule the de-risk queue (2.9c) runs under. The two
-                   live triggers are exempted because OVERSOLD BOUNCE already carries a measured
-                   record in this book's own journal; the other three are genuinely unmeasured.
+                   its vote before it gets one" rule the de-risk queue (2.9c) runs under. The
+                   RSI-based live triggers are exempted because OVERSOLD BOUNCE already carries a
+                   measured record in this book's own journal; catalyst_threat and thesis_break
+                   (added 2026-08-17) are exempted for a different reason -- they consume findings
+                   that are already evidence-graded and sourced by smith-catalyst/smith-thesis
+                   before they ever reach here, not a newly invented statistical heuristic with no
+                   track record. See smith_core.py's CATALYST_THREAT_TRIM_FRACTION note.
     """
     risk = load_json(os.path.join(args.run_dir, "compute_risk.json"))
     book = load_json(os.path.join(args.run_dir, "compute_book.json"))
@@ -1584,12 +1589,25 @@ def cmd_triggers(args):
         deployable = 0.0
     max_single = deployable * MAX_SINGLE_DEPLOY_FRACTION if deployable else 0.0
 
-    oversold, overbought, laggard, ratchet, ladder = [], [], [], [], []
+    oversold, overbought, laggard, ratchet, ladder, catalyst_threat, thesis_break = [], [], [], [], [], [], []
 
     rel_ranked = sorted((t for t in risk_by_ticker if rel_vals.get(t) is not None),
                         key=lambda t: rel_vals[t])
     laggard_cut = int(len(rel_ranked) * LAGGARD_PCTILE / 100.0) if rel_ranked else 0
     laggard_set = set(rel_ranked[:max(laggard_cut, 1)]) if rel_ranked else set()
+
+    # catalyst_threat precompute (added 2026-08-17): only a structural, threat-classified catalyst
+    # counts -- "noise"/"mechanical" horizon threats are exactly the Friday-drop-with-no-cause class
+    # smith-catalyst itself distinguishes, and a "ambiguous" direction is not a threat by definition.
+    # Keyed by ticker so the per-ticker loop below can just look itself up, same shape as every
+    # other precomputed map here (rel_vals, laggard_set, etc).
+    factor_catalysts = state.get("factor_catalysts", []) or []
+    catalyst_threats_by_ticker = {}
+    for cat in factor_catalysts:
+        if cat.get("direction") != "threat" or cat.get("horizon") != "structural":
+            continue
+        for t in (cat.get("affects") or []):
+            catalyst_threats_by_ticker.setdefault(t, []).append(cat)
 
     for ticker, r in risk_by_ticker.items():
         status = smith_risk.thesis_status(thesis.get(ticker))
@@ -1797,13 +1815,76 @@ def cmd_triggers(args):
                 dq.append(f"{ticker} has no lots.json entry -- profit_ratchet/scale_out_ladder "
                           "cannot be computed (no cost basis)")
 
+        # --- F. catalyst_threat (TRIM, live) ------------------------------------
+        # Deliberately independent of over_cap/cluster/cash, same discipline as
+        # overbought_distribution -- a structural threat is a reason to trim on its own, not
+        # something that should wait for a volatility-budget breach to also be true. See the
+        # constants-file note (smith_core.py) for why this is LIVE, not shadow-first.
+        cats = catalyst_threats_by_ticker.get(ticker)
+        if cats:
+            size = mv * CATALYST_THREAT_TRIM_FRACTION
+            reasons = [f"{c.get('headline', '')} ({c.get('date', '')}) -- {c.get('magnitude', '')}"
+                      for c in cats]
+            blockers = []
+            # TENSION, not suppression (same idiom as overbought_distribution's cluster_tension
+            # check above): a name can simultaneously carry a strengthening thesis/accumulate
+            # rotation signal AND a real, dated financing/structural threat -- those are not the
+            # same question, and letting the accumulate signal silently veto the catalyst would
+            # recreate exactly the gap this trigger exists to close (AVGO, 2026-08-17: rotation
+            # said accumulate on a strengthening thesis while a $370bn bond-downgrade tail risk
+            # went unscored). Surface both, let the strategist weigh them.
+            rtk_here = rotation_by_ticker.get(ticker, {})
+            if rtk_here.get("bucket") == "accumulate" and status in HEALTHY_THESIS:
+                blockers.append(f"{ticker} is simultaneously in rotation's accumulate bucket on a "
+                                f"{status} thesis -- the catalyst threat and the accumulate signal "
+                                "are answering different questions (financing-structure risk vs. "
+                                "operating fundamentals); this does not cancel the trigger, but "
+                                "size and priority are a judgement call, not a formula")
+            catalyst_threat.append({**base, "trigger_type": "catalyst_threat", "direction": "TRIM",
+                                    "vote": "live",
+                                    "suggested_size_usd": round(size, 2),
+                                    "trim_fraction": CATALYST_THREAT_TRIM_FRACTION,
+                                    "over_cap_independent": True,
+                                    "catalyst_sources": [c.get("source") for c in cats],
+                                    "retires_when": f"{ticker} no longer appears in a "
+                                                    "structural-threat factor catalyst",
+                                    "reasons": reasons, "blockers": blockers})
+
+        # --- G. thesis_break (TRIM, live) ---------------------------------------
+        # A broken thesis has nothing to do with cost basis, so this is its own top-level check,
+        # not chained onto the ratchet/ladder if/elif above -- it must fire even when lots.json
+        # has no entry for this ticker. LIVE from day one; see the constants-file note.
+        if status == "broken":
+            ev_for, ev_against, verified = smith_risk.thesis_evidence(thesis.get(ticker))
+            thesis_line = smith_risk.thesis_text(thesis.get(ticker))
+            size = mv * THESIS_BREAK_TRIM_FRACTION
+            reasons = ([thesis_line] if thesis_line else []) + \
+                      [f"broken -- {c.get('claim', '')} ({c.get('date', '')}, {c.get('source', '')})"
+                       for c in (ev_against or [])[:3]]
+            blockers = []
+            if not ev_against:
+                blockers.append(f"{ticker} marked broken with no evidence_against recorded -- "
+                                "sizing proceeds anyway (a status flip is itself the signal) but "
+                                "flag for the next smith-thesis touch to backfill the evidence")
+            thesis_break.append({**base, "trigger_type": "thesis_break", "direction": "TRIM",
+                                 "vote": "live",
+                                 "suggested_size_usd": round(size, 2),
+                                 "trim_fraction": THESIS_BREAK_TRIM_FRACTION,
+                                 "over_cap_independent": True,
+                                 "evidence_verified": verified,
+                                 "retires_when": f"{ticker}'s thesis is no longer 'broken'",
+                                 "reasons": reasons, "blockers": blockers})
+
     oversold.sort(key=lambda x: x["rsi14"])
     overbought.sort(key=lambda x: -x["rsi14"])
     laggard.sort(key=lambda x: x["rel_strength_1m_pp"])
     ratchet.sort(key=lambda x: -(x["gain_at_risk_usd"] or 0))
     ladder.sort(key=lambda x: -x["gain_pct"])
+    catalyst_threat.sort(key=lambda x: -(x.get("market_value_usd") or 0))
+    thesis_break.sort(key=lambda x: -(x.get("market_value_usd") or 0))
 
-    live_counts = {"oversold_reversion": len(oversold), "overbought_distribution": len(overbought)}
+    live_counts = {"oversold_reversion": len(oversold), "overbought_distribution": len(overbought),
+                   "catalyst_threat": len(catalyst_threat), "thesis_break": len(thesis_break)}
     shadow_counts = {"laggard_rotation": len(laggard), "profit_ratchet": len(ratchet),
                      "scale_out_ladder": len(ladder)}
 
@@ -1825,6 +1906,7 @@ def cmd_triggers(args):
                        "ladder_tiers_pct": LADDER_TIERS_PCT},
         "live_counts": live_counts, "shadow_counts": shadow_counts,
         "oversold_reversion": oversold, "overbought_distribution": overbought,
+        "catalyst_threat": catalyst_threat, "thesis_break": thesis_break,
         "laggard_rotation": laggard, "profit_ratchet": ratchet, "scale_out_ladder": ladder,
         "shadow_new": shadow_new,
         # Published for cmd_proposals' retirement pass so it tests RSI-triggered proposals against
