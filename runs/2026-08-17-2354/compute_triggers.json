@@ -1,0 +1,521 @@
+{
+  "as_of": "2026-08-17",
+  "rsi_as_of": "2026-08-12",
+  "rsi_age_days": 5,
+  "rsi_usable": true,
+  "rel_as_of": "2026-08-12",
+  "rel_age_days": 5,
+  "rel_usable": true,
+  "deployable_cash_usd": 0.0,
+  "max_single_deploy_usd": 0.0,
+  "thresholds": {
+    "rsi_oversold": 35.0,
+    "rsi_overbought": 70.0,
+    "laggard_pctile": 25.0,
+    "ratchet_min_gain_pct": 15.0,
+    "ladder_tiers_pct": [
+      25.0,
+      50.0
+    ]
+  },
+  "live_counts": {
+    "oversold_reversion": 0,
+    "overbought_distribution": 1,
+    "catalyst_threat": 2,
+    "thesis_break": 0
+  },
+  "shadow_counts": {
+    "laggard_rotation": 1,
+    "profit_ratchet": 4,
+    "scale_out_ladder": 4
+  },
+  "oversold_reversion": [],
+  "overbought_distribution": [
+    {
+      "ticker": "MSFT",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "watch",
+      "rsi14": 78.8,
+      "rel_strength_1m_pp": 24.0,
+      "abs_return_1m_pct": 24.73,
+      "price_usd": 479.59,
+      "market_value_usd": 1438.77,
+      "trigger_type": "overbought_distribution",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 359.69,
+      "trim_fraction": 0.25,
+      "over_cap_independent": true,
+      "cluster_tension": true,
+      "cluster_drift_pt": -9.11,
+      "rotation_targets": [],
+      "retires_when": "MSFT RSI14 falls below 60 or it is no longer up on the month",
+      "reasons": [
+        "RSI14 78.8 > 70 (overbought)",
+        "up +24.7% on the month -- real gain to protect"
+      ],
+      "blockers": [
+        "cluster Compute/Hyperscaler is -9.11pt UNDER its floor -- this trim deepens an existing underweight. The stretch reason stands on its own, but do NOT cite the cluster as support (G56). NO intra-cluster rotation is available: every other name in Compute/Hyperscaler has already run (none has negative 1m relative strength while inside its ATR cap). So the real choice is trim-anyway and accept a deeper underweight, or leave it -- there is no third option this run. Do not go looking for one."
+      ]
+    }
+  ],
+  "catalyst_threat": [
+    {
+      "ticker": "AVGO",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 65.3,
+      "rel_strength_1m_pp": 8.3,
+      "abs_return_1m_pct": 9.03,
+      "price_usd": 394.26,
+      "market_value_usd": 1577.04,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 315.41,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/08/14/broadcom-sinks-6-as-bofa-flags-370b-in-ai-debt-amd-climbs-4-on-bairds-1250-call/"
+      ],
+      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "BofA downgrades Broadcom bond rating (Marketweight) over XPV off-balance-sheet AI financing platform with Blackstone/Apollo funding Anthropic compute (2026-08-11) -- current tranche $35bn/1GW; plan to 20GW by 2028; stress-test residual-value exposure up to $370bn, ~$42bn extreme-loss case; BofA raised FY26 AVGO revenue/EBITDA forecasts despite the downgrade"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "ORCL",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "watch",
+      "rsi14": 66.6,
+      "rel_strength_1m_pp": 16.74,
+      "abs_return_1m_pct": 17.47,
+      "price_usd": 147.92,
+      "market_value_usd": 887.52,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 177.5,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://www.tradingkey.com/news/market-movers/262109012-market-movers-orcl-20260814"
+      ],
+      "retires_when": "ORCL no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "ORCL -3.65% continuing debt/capex/cloud-AI-returns skepticism narrative, no single new dated item (2026-08-14) -- narrative-level; no new figure disclosed this session"
+      ],
+      "blockers": []
+    }
+  ],
+  "thesis_break": [],
+  "laggard_rotation": [
+    {
+      "ticker": "QCOM",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 43.1,
+      "rel_strength_1m_pp": -6.69,
+      "abs_return_1m_pct": -5.96,
+      "price_usd": 161.87,
+      "market_value_usd": 1618.82,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 448.33,
+      "suggested_size_usd": 0.0,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-6.7pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": [
+        "no deployable cash above the band ceiling -- setup valid, funding is not; fund it from a sell leg (rotation pair) rather than from the wallet"
+      ]
+    }
+  ],
+  "profit_ratchet": [
+    {
+      "ticker": "MU",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "watch",
+      "rsi14": 51.7,
+      "rel_strength_1m_pp": -5.46,
+      "abs_return_1m_pct": -4.73,
+      "price_usd": 1020.575,
+      "market_value_usd": 2551.81,
+      "trigger_type": "profit_ratchet",
+      "direction": "STOP_RAISE",
+      "vote": "shadow",
+      "avg_cost_usd": 874.1715,
+      "gain_pct": 16.75,
+      "current_stop_usd": 829.1151,
+      "suggested_stop_usd": 874.1715,
+      "gain_at_risk_usd": 112.66,
+      "reasons": [
+        "up +16.7% vs a $874.17 basis",
+        "stop sits at $829.12, BELOW breakeven -- a retracement turns this winner into a realised loss"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "SKHY",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "watch",
+      "rsi14": null,
+      "rel_strength_1m_pp": null,
+      "abs_return_1m_pct": null,
+      "price_usd": 173.39,
+      "market_value_usd": 1907.29,
+      "trigger_type": "profit_ratchet",
+      "direction": "STOP_RAISE",
+      "vote": "shadow",
+      "avg_cost_usd": 138.52,
+      "gain_pct": 25.17,
+      "current_stop_usd": 130.0772,
+      "suggested_stop_usd": 138.52,
+      "gain_at_risk_usd": 92.87,
+      "reasons": [
+        "up +25.2% vs a $138.52 basis",
+        "stop sits at $130.08, BELOW breakeven -- a retracement turns this winner into a realised loss"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "TER",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 57.7,
+      "rel_strength_1m_pp": 7.55,
+      "abs_return_1m_pct": 8.28,
+      "price_usd": 439.155,
+      "market_value_usd": 1318.66,
+      "trigger_type": "profit_ratchet",
+      "direction": "STOP_RAISE",
+      "vote": "shadow",
+      "avg_cost_usd": 378.8949,
+      "gain_pct": 15.9,
+      "current_stop_usd": 359.0531,
+      "suggested_stop_usd": 378.8949,
+      "gain_at_risk_usd": 59.58,
+      "reasons": [
+        "up +15.9% vs a $378.89 basis",
+        "stop sits at $359.05, BELOW breakeven -- a retracement turns this winner into a realised loss"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "DRAM",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "watch",
+      "rsi14": 53.9,
+      "rel_strength_1m_pp": -8.0,
+      "abs_return_1m_pct": -7.27,
+      "price_usd": 60.75,
+      "market_value_usd": 1822.5,
+      "trigger_type": "profit_ratchet",
+      "direction": "STOP_RAISE",
+      "vote": "shadow",
+      "avg_cost_usd": 49.0517,
+      "gain_pct": 23.85,
+      "current_stop_usd": 48.9402,
+      "suggested_stop_usd": 49.0517,
+      "gain_at_risk_usd": 3.34,
+      "reasons": [
+        "up +23.8% vs a $49.05 basis",
+        "stop sits at $48.94, BELOW breakeven -- a retracement turns this winner into a realised loss"
+      ],
+      "blockers": []
+    }
+  ],
+  "scale_out_ladder": [
+    {
+      "ticker": "SNDK",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "watch",
+      "rsi14": 43.7,
+      "rel_strength_1m_pp": -14.28,
+      "abs_return_1m_pct": -13.55,
+      "price_usd": 1791.47,
+      "market_value_usd": 910.3,
+      "trigger_type": "scale_out_ladder",
+      "direction": "TRIM",
+      "vote": "shadow",
+      "avg_cost_usd": 1210.2549,
+      "gain_pct": 48.02,
+      "tiers": [
+        {
+          "gain_pct": 25.0,
+          "triggered": true,
+          "slice_usd": 303.43
+        },
+        {
+          "gain_pct": 50.0,
+          "triggered": false,
+          "slice_usd": 303.43
+        }
+      ],
+      "suggested_size_usd": 303.43,
+      "reasons": [
+        "up +48.0% vs basis -- 1 of 2 scale-out rung(s) reached (+25%)"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "NBIS",
+      "cluster": "Compute/Hyperscaler OEM",
+      "thesis_status": "strengthening",
+      "rsi14": 54.3,
+      "rel_strength_1m_pp": 6.14,
+      "abs_return_1m_pct": 6.87,
+      "price_usd": 275.4,
+      "market_value_usd": 826.2,
+      "trigger_type": "scale_out_ladder",
+      "direction": "TRIM",
+      "vote": "shadow",
+      "avg_cost_usd": 203.75,
+      "gain_pct": 35.17,
+      "tiers": [
+        {
+          "gain_pct": 25.0,
+          "triggered": true,
+          "slice_usd": 275.4
+        },
+        {
+          "gain_pct": 50.0,
+          "triggered": false,
+          "slice_usd": 275.4
+        }
+      ],
+      "suggested_size_usd": 275.4,
+      "reasons": [
+        "up +35.2% vs basis -- 1 of 2 scale-out rung(s) reached (+25%)"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "MRVL",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 60.4,
+      "rel_strength_1m_pp": 5.36,
+      "abs_return_1m_pct": 6.09,
+      "price_usd": 235.9937,
+      "market_value_usd": 1651.96,
+      "trigger_type": "scale_out_ladder",
+      "direction": "TRIM",
+      "vote": "shadow",
+      "avg_cost_usd": 188.3043,
+      "gain_pct": 25.33,
+      "tiers": [
+        {
+          "gain_pct": 25.0,
+          "triggered": true,
+          "slice_usd": 550.65
+        },
+        {
+          "gain_pct": 50.0,
+          "triggered": false,
+          "slice_usd": 550.65
+        }
+      ],
+      "suggested_size_usd": 550.65,
+      "reasons": [
+        "up +25.3% vs basis -- 1 of 2 scale-out rung(s) reached (+25%)"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "SKHY",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "watch",
+      "rsi14": null,
+      "rel_strength_1m_pp": null,
+      "abs_return_1m_pct": null,
+      "price_usd": 173.39,
+      "market_value_usd": 1907.29,
+      "trigger_type": "scale_out_ladder",
+      "direction": "TRIM",
+      "vote": "shadow",
+      "avg_cost_usd": 138.52,
+      "gain_pct": 25.17,
+      "tiers": [
+        {
+          "gain_pct": 25.0,
+          "triggered": true,
+          "slice_usd": 635.76
+        },
+        {
+          "gain_pct": 50.0,
+          "triggered": false,
+          "slice_usd": 635.76
+        }
+      ],
+      "suggested_size_usd": 635.76,
+      "reasons": [
+        "up +25.2% vs basis -- 1 of 2 scale-out rung(s) reached (+25%)"
+      ],
+      "blockers": []
+    }
+  ],
+  "shadow_new": [
+    {
+      "date": "2026-08-17",
+      "ticker": "QCOM",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 161.87,
+      "rsi14": 43.1,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -6.69,
+      "scored": false
+    },
+    {
+      "date": "2026-08-17",
+      "ticker": "MU",
+      "trigger_type": "profit_ratchet",
+      "price_at_flag": 1020.575,
+      "rsi14": 51.7,
+      "gain_pct": 16.75,
+      "rel_strength_1m_pp": -5.46,
+      "scored": false
+    },
+    {
+      "date": "2026-08-17",
+      "ticker": "SKHY",
+      "trigger_type": "profit_ratchet",
+      "price_at_flag": 173.39,
+      "rsi14": null,
+      "gain_pct": 25.17,
+      "rel_strength_1m_pp": null,
+      "scored": false
+    },
+    {
+      "date": "2026-08-17",
+      "ticker": "TER",
+      "trigger_type": "profit_ratchet",
+      "price_at_flag": 439.155,
+      "rsi14": 57.7,
+      "gain_pct": 15.9,
+      "rel_strength_1m_pp": 7.55,
+      "scored": false
+    },
+    {
+      "date": "2026-08-17",
+      "ticker": "DRAM",
+      "trigger_type": "profit_ratchet",
+      "price_at_flag": 60.75,
+      "rsi14": 53.9,
+      "gain_pct": 23.85,
+      "rel_strength_1m_pp": -8.0,
+      "scored": false
+    },
+    {
+      "date": "2026-08-17",
+      "ticker": "SNDK",
+      "trigger_type": "scale_out_ladder",
+      "price_at_flag": 1791.47,
+      "rsi14": 43.7,
+      "gain_pct": 48.02,
+      "rel_strength_1m_pp": -14.28,
+      "scored": false
+    },
+    {
+      "date": "2026-08-17",
+      "ticker": "NBIS",
+      "trigger_type": "scale_out_ladder",
+      "price_at_flag": 275.4,
+      "rsi14": 54.3,
+      "gain_pct": 35.17,
+      "rel_strength_1m_pp": 6.14,
+      "scored": false
+    },
+    {
+      "date": "2026-08-17",
+      "ticker": "MRVL",
+      "trigger_type": "scale_out_ladder",
+      "price_at_flag": 235.9937,
+      "rsi14": 60.4,
+      "gain_pct": 25.33,
+      "rel_strength_1m_pp": 5.36,
+      "scored": false
+    },
+    {
+      "date": "2026-08-17",
+      "ticker": "SKHY",
+      "trigger_type": "scale_out_ladder",
+      "price_at_flag": 173.39,
+      "rsi14": null,
+      "gain_pct": 25.17,
+      "rel_strength_1m_pp": null,
+      "scored": false
+    }
+  ],
+  "rsi_values": {
+    "NVDA": 62.2,
+    "MU": 51.7,
+    "DRAM": 53.9,
+    "MRVL": 60.4,
+    "AMAT": 49.0,
+    "AMZN": 60.2,
+    "ARM": 43.7,
+    "ASML": 51.7,
+    "AVGO": 65.3,
+    "BABA": 58.0,
+    "BX": 71.1,
+    "CEG": 62.8,
+    "CIEN": 54.2,
+    "CLS": 48.7,
+    "FLTW": 60.2,
+    "GEV": 45.8,
+    "INTC": 46.4,
+    "LRCX": 51.4,
+    "META": 34.1,
+    "MSFT": 78.8,
+    "NBIS": 54.3,
+    "NOW": 66.2,
+    "ORCL": 66.6,
+    "QCOM": 43.1,
+    "SNDK": 43.7,
+    "TER": 57.7,
+    "TSM": 53.3,
+    "STM": 39.8,
+    "TXN": 42.4,
+    "AMD": 45.3,
+    "COHR": 56.4
+  },
+  "abs_return_1m_pct_values": {
+    "NVDA": 8.13,
+    "MU": -4.73,
+    "DRAM": -7.27,
+    "MRVL": 6.09,
+    "AMAT": -3.37,
+    "AMZN": 9.01,
+    "ARM": -7.63,
+    "ASML": 0.79,
+    "AVGO": 9.03,
+    "BABA": 5.96,
+    "BX": 16.54,
+    "CEG": 7.71,
+    "CIEN": 4.01,
+    "CLS": -2.95,
+    "FLTW": 6.25,
+    "GEV": -4.12,
+    "INTC": -4.27,
+    "LRCX": 0.84,
+    "META": -8.82,
+    "MSFT": 24.73,
+    "NBIS": 6.87,
+    "NOW": 20.91,
+    "ORCL": 17.47,
+    "QCOM": -5.96,
+    "SNDK": -13.55,
+    "TER": 8.28,
+    "TSM": 1.42,
+    "STM": -14.75,
+    "TXN": -4.15,
+    "AMD": -10.55,
+    "COHR": 10.31
+  },
+  "data_quality": []
+}

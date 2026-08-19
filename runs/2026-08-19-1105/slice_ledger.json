@@ -1,0 +1,45 @@
+{
+  "mode": "quick",
+  "today": "2026-08-19",
+  "market_session": "pre-open",
+  "gate_classification": "ESCALATING",
+  "macro": {
+    "us10y": 4.706,
+    "vix": 15.84,
+    "dxy": 99.54,
+    "spx": 7691.76,
+    "ndx": 26289.71,
+    "es_f": 7702.25,
+    "nq_f": 29488.75,
+    "smh": 569.77
+  },
+  "usdinr": 95.725,
+  "known_gaps": [
+    {
+      "id": "G69",
+      "status": "partially_closed",
+      "gap": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so "
+    },
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    },
+    {
+      "id": "G79",
+      "status": "open",
+      "gap": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are there"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "agent": "smith-ledger",
+  "output_file": "runs/2026-08-19-1105/smith-ledger-output.md",
+  "holdings_path": "runs/2026-08-19-1105/holdings.json",
+  "read_these_files": {
+    "data_cache.ticker_map": "runs/2026-08-19-1105/shared/data_cache_ticker_map.9305f637.json",
+    "book": "runs/2026-08-19-1105/compute_book.json",
+    "lots": "./lots.json",
+    "holdings": "runs/2026-08-19-1105/shared/holdings_full.bfa0c1bf.json"
+  },
+  "inputs_digest": "d1ed3600dc0b"
+}

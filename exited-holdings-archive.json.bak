@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "_readme": "Thesis/sector_map entries for positions no longer held. Retired from state.json 2026-07-26 (a run only needs live-holdings context; the ticker-mislabeling safety net and cluster-drift logic both operate on CURRENT holdings only). Preserved here for history.",
+  "thesis": {
+    "STM": "Diversified semis with emerging AI/datacenter power exposure | EXITED 2026-07-24 (crashed -18.67% same day, likely earnings-driven)",
+    "DLR": "Datacenter REIT owning the physical AI compute real estate | EXITED 2026-07-14",
+    "DELL": "AI server OEM (PowerEdge) hardware pick-and-shovel | strengthening",
+    "ETN": "Electrical equipment for data-center electrification | EXITED 2026-07-14",
+    "ANET": "High-speed Ethernet switching for AI/cloud datacenter networking | EXITED 2026-07-14",
+    "CRDO": "High-speed connectivity/retimers, pure-play AI networking small-cap | EXITED 2026-07-16",
+    "CQQQ": "Thematic ETF, China tech/internet diversification | EXITED 2026-07-18",
+    "AIA": "Regional ETF, broad Asia-50 large caps diversification | intact",
+    "LITE": "Optical transceivers/components for AI datacenter interconnect | EXITED 2026-07-24",
+    "GOOG": {
+      "status": "strengthening",
+      "thesis": "Hyperscaler that BUYS AI capex rather than selling it -- the chain's only internal hedge; blowout 2Q26 print, no earnings until ~late Oct",
+      "evidence_for": [],
+      "evidence_against": [],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "migrated from legacy bare-string schema 2026-08-16; the original string carried no evidence, so both arrays are explicitly empty rather than invented -- next smith-thesis touch should populate them",
+      "legacy_source": "Hyperscaler that BUYS AI capex rather than selling it -- the chain's only internal hedge; blowout 2Q26 print, no earnings until ~late Oct | strengthening [POSITION CLOSED 2026-07-28, swapped to GOOGL Class A]"
+    },
+    "META": {
+      "status": "intact",
+      "thesis": "Hyperscaler ad-funded AI capex spender; resolved WATCH->INTACT, no new deterioration since 07-29 Q2 print, oversold RSI is technical not fundamental",
+      "evidence_for": [
+        {
+          "claim": "no new negative catalyst since 07-29 Q2 (-11% post-earnings, already priced in)",
+          "date": "2026-08-12",
+          "source": "stockanalysis.com/stocks/META"
+        },
+        {
+          "claim": "Strong Buy consensus, PT $756.95, +29.8% upside vs $583.02",
+          "date": "2026-08-12",
+          "source": "stockanalysis.com/stocks/META"
+        },
+        {
+          "claim": "RSI14 34.1, book's only oversold name -- price signal not thesis signal",
+          "date": "2026-08-12",
+          "source": "compute_risk.json"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "FCF-down-vs-capex-up tension from Q2 is structural and untested until next print",
+          "date": "2026-08-12",
+          "source": "embed_thesis.json prior + this run"
+        },
+        {
+          "claim": "stockanalysis.com page lacked granular Q2/Q3 consensus breakdown this run",
+          "date": "2026-08-12",
+          "source": "stockanalysis.com/stocks/META tool limitation"
+        }
+      ],
+      "verified": "secondary",
+      "verified_against": "stockanalysis.com/stocks/META",
+      "verified_on": "2026-08-12",
+      "note": "status change unlocks oversold-reversion dip-buy trigger"
+    },
+    "BABA": "China AI/cloud recovery: Alibaba Cloud + Qwen-Apple integration, $53B AI/cloud capex pledge | EXITED 2026-07-24",
+    "GLW": "Optical fiber/connectivity for datacenter interconnect buildout | strengthening (EXITED 2026-07-24/25)",
+    "NBIS": "Emerging AI-cloud/neocloud GPU-as-a-service infrastructure | watch (EXITED 2026-07-24/25)",
+    "IREN": "Bitcoin-mining infra pivoted to AI/GPU cloud | strengthening (EXITED 2026-07-24/25)",
+    "EWY": {
+      "status": "watch",
+      "thesis": "South Korea ETF: >50% Samsung + SK Hynix. On 2026-07-28 Samsung fell 14.4% (worst since Oct 2008) and SK Hynix 14.7%; KOSPI -10.84%, -34% in 25 days after a 300% spike",
+      "evidence_for": [],
+      "evidence_against": [],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "migrated from legacy bare-string schema 2026-08-16; the original string carried no evidence, so both arrays are explicitly empty rather than invented -- next smith-thesis touch should populate them",
+      "legacy_source": "South Korea ETF: >50% Samsung + SK Hynix. On 2026-07-28 Samsung fell 14.4% (worst since Oct 2008) and SK Hynix 14.7%; KOSPI -10.84%, -34% in 25 days after a 300% spike | watch"
+    },
+    "GOOGL": {
+      "status": "exited",
+      "thesis": "EXITED full 5sh@$351.95 stop-loss 2026-08-11. Was strengthening: 2Q26 rev +24%, cloud +82%, but FY26 capex raised to $195-205bn, FCF -$5.9bn.",
+      "evidence_for": [
+        {
+          "claim": "2Q26 rev +24%/cloud +82% YoY",
+          "date": "2026-07-28",
+          "source": "prior state.json"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "FY26 capex raised to $195-205bn, quarterly FCF -$5.9bn",
+          "date": "2026-07-28",
+          "source": "prior state.json"
+        }
+      ],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "Risk-management exit, not a thesis break. Retained for history."
+    },
+    "MKSI": {
+      "status": "intact",
+      "thesis": "Semicap vacuum/laser/photonics & process-control tools for leading-edge + memory fab capex",
+      "evidence_for": [],
+      "evidence_against": [],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "migrated from legacy bare-string schema 2026-08-16; the original string carried no evidence, so both arrays are explicitly empty rather than invented -- next smith-thesis touch should populate them",
+      "legacy_source": "Semicap vacuum/laser/photonics & process-control tools for leading-edge + memory fab capex | intact"
+    },
+    "QBTS": {
+      "status": "watch",
+      "thesis": "D-Wave quantum annealing; genuine different-tech-cycle diversifier, no GPU/HBM dependency; AT&T deal real but Aug 6 earnings binary and unproven",
+      "evidence_for": [],
+      "evidence_against": [],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "migrated from legacy bare-string schema 2026-08-16; the original string carried no evidence, so both arrays are explicitly empty rather than invented -- next smith-thesis touch should populate them",
+      "legacy_source": "D-Wave quantum annealing; genuine different-tech-cycle diversifier, no GPU/HBM dependency; AT&T deal real but Aug 6 earnings binary and unproven | watch"
+    },
+    "MP": {
+      "status": "exited",
+      "thesis": "EXITED full 15sh@$53.96 stop-loss 2026-08-11. Was watch: rare-earth/magnet reshoring, DoW price-protection deal.",
+      "evidence_for": [
+        {
+          "claim": "DoW price-protection agreement",
+          "date": "2026-08-05",
+          "source": "prior state.json"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "China export-control-list risk -- the reason it was already WATCH",
+          "date": "2026-08-05",
+          "source": "prior state.json"
+        }
+      ],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "Opened only ~1 week earlier (2026-08-05) -- a very short, costly round-trip."
+    }
+  },
+  "sector_map": {
+    "STM": "AI Semis/Fabs",
+    "ANET": "AI Networking/Optics",
+    "CRDO": "AI Networking/Optics",
+    "ETN": "AI Power/Cooling/DC Infra",
+    "DLR": "AI Power/Cooling/DC Infra",
+    "DELL": "Compute/Hyperscaler OEM",
+    "CQQQ": "Diversified/Regional ETF",
+    "AIA": "Diversified/Regional ETF",
+    "LITE": "AI Networking/Optics",
+    "GOOG": "Compute/Hyperscaler",
+    "META": "Compute/Hyperscaler",
+    "BABA": "China Consumer/Cloud",
+    "GLW": "AI Networking/Optics",
+    "NBIS": "Compute/Hyperscaler OEM",
+    "IREN": "Compute/Hyperscaler",
+    "EWY": "AI Memory/Storage",
+    "GOOGL": "Compute/Hyperscaler",
+    "MKSI": "AI Semis/Fabs",
+    "QBTS": "Quantum Computing/Diversifier",
+    "MP": "Critical Minerals/Rare Earth"
+  }
+}
