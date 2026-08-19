@@ -1,0 +1,259 @@
+{
+ "schema_version": 1,
+ "created": "2026-08-19T22:00:00+05:30",
+ "purpose": "Three-cohort decision experiment opened at the user's request on 2026-08-19. Scores three DIFFERENT decision-makers against the same tape over the same window: (A) the user's stop-loss engine, which fired 2026-08-18; (B) Agent Smith's strategist proposals, written 2026-08-19 11:05 IST; (C) the user's own discretionary DCA, executed 2026-08-19 intraday. Review date 2026-08-26. Anchors below are LIVE prices at creation time, not estimates.",
+ "review_date": "2026-08-26",
+ "anchor_note": "Anchor prices captured 2026-08-19 between 12:10 and 12:30 ET from yfinance live quotes. Cohort A's anchor is the CONFIRMED STOP FILL from trades.json (email_confirmed), not the anchor price -- scoring a stop against anything other than where it actually filled would flatter or punish it unfairly. Cohort B and C anchor at the price when proposed / when filled respectively.",
+ "scoring_rule": "Direction-aware, same convention as smith_math.py score: a SELL/STOP 'worked' if the price FELL after it; a BUY 'worked' if the price ROSE. +/-2.0% noise band = neutral. Report per-cohort hit rate, average signed benefit %, and total dollar impact. CRITICAL: report n alongside every accuracy figure -- none of these cohorts is large enough for a verdict at one week, and the honest output is a directional read plus the n, never a ranking presented as settled.",
+ "cohort_A_stop_losses": {
+  "decision_maker": "user's stop-loss engine",
+  "event_date": "2026-08-18",
+  "note": "10 of 11 confirmed literal Order Type: stop via INDmoney email, fired 13:30:05Z-14:41:23Z inside SMH -4.09%. SNDK was a deliberate 08-17 market sell, tracked separately. ASML dusted 2026-08-19, pending ledger confirmation.",
+  "fills_are_authoritative_in": "trades.json rows dated 2026-08-18 with price_source=email_confirmed",
+  "names": [
+   "MRVL",
+   "AVGO",
+   "MU",
+   "TER",
+   "ARM",
+   "DRAM",
+   "IONQ",
+   "NBIS",
+   "ORCL",
+   "SKHY"
+  ],
+  "separate": [
+   "SNDK (2026-08-17 deliberate market sell)",
+   "ASML (2026-08-19 CONFIRMED stop: 1sh @ $1,774.69, order_type=stop, 13:49:12Z)"
+  ],
+  "price_2026_08_19": {
+   "MRVL": 237.06,
+   "AVGO": 364.04,
+   "MU": 939.205,
+   "TER": 385.7752,
+   "ARM": 252.2089,
+   "DRAM": 55.6,
+   "IONQ": 43.77,
+   "NBIS": 228.5,
+   "ORCL": 145.315,
+   "SKHY": 159.96,
+   "SNDK": 1596.75,
+   "ASML": 1764.02
+  },
+  "asml_confirmed": {
+   "date": "2026-08-19",
+   "qty": 1,
+   "fill": 1774.69,
+   "order_type": "stop"
+  }
+ },
+ "cohort_B_smith_proposals": {
+  "decision_maker": "Agent Smith strategist",
+  "proposed": "2026-08-19T11:05:00+05:30",
+  "note": "7 sized proposals, none executed by the desk. Scored on whether the RECOMMENDATION was right, independent of whether the user acted.",
+  "proposals": [
+   {
+    "id": "P-119",
+    "action": "TRIM",
+    "ticker": "MSFT",
+    "size_usd": 360,
+    "anchor": 481.63
+   },
+   {
+    "id": "P-120",
+    "action": "BUY",
+    "ticker": "QCOM",
+    "size_usd": 360,
+    "anchor": 160.19
+   },
+   {
+    "id": "P-121",
+    "action": "TRIM",
+    "ticker": "AVGO",
+    "size_usd": 152,
+    "anchor": 380.0
+   },
+   {
+    "id": "P-122",
+    "action": "BUY",
+    "ticker": "AMZN",
+    "size_usd": 700,
+    "anchor": 259.45
+   },
+   {
+    "id": "P-123",
+    "action": "BUY",
+    "ticker": "GLW",
+    "size_usd": 539,
+    "anchor": 159.9
+   },
+   {
+    "id": "P-124",
+    "action": "BUY",
+    "ticker": "IREN",
+    "size_usd": 111,
+    "anchor": 42.0
+   },
+   {
+    "id": "P-125",
+    "action": "TRIM",
+    "ticker": "NVDA",
+    "size_usd": 576,
+    "anchor": 219.74
+   }
+  ],
+  "desk_advice_not_taken": [
+   "Advised STAY OUT on SKHY/NBIS/IONQ re-entry this week; user re-entered NBIS. Score that disagreement explicitly.",
+   "Advised TRIM AVGO on catalyst_threat; user DOUBLED AVGO 2sh->4sh. Direct contradiction, score it.",
+   "Flagged BE headroom NEGATIVE (-$88.54, already 1.118x over cap); user added +4sh. Score it.",
+   "Flagged COHR near-full ($69.91 headroom, 0.929x cap); user added +2sh. Score it."
+  ]
+ },
+ "cohort_C_user_dca": {
+  "decision_maker": "user, discretionary",
+  "executed": "2026-08-19 intraday",
+  "note": "Fills are EMAIL-CONFIRMED from INDmoney transaction confirmations (smith-ledger, 2026-08-19 PM). 16 fills across 14 tickers. AVGO and BE each filled in two tranches; prices shown are qty-weighted.",
+  "new_positions": [
+   {
+    "ticker": "WDC",
+    "qty": 2,
+    "usd": 926.45,
+    "flag": "brand new to book",
+    "confirmed_fill": 461.84,
+    "price_source": "email_confirmed"
+   },
+   {
+    "ticker": "GOOG",
+    "qty": 3,
+    "usd": 1026.39,
+    "flag": "brand new to book",
+    "confirmed_fill": 341.11,
+    "price_source": "email_confirmed"
+   },
+   {
+    "ticker": "META",
+    "qty": 2,
+    "usd": 1096.26,
+    "flag": "re-entry; prior exit 2026-08-12 was a user-confirmed RAISE-CASH sale, NOT a stop -- thesis was intact at exit",
+    "confirmed_fill": 546.5,
+    "price_source": "email_confirmed"
+   },
+   {
+    "ticker": "NBIS",
+    "qty": 4,
+    "usd": 874.13,
+    "flag": "RE-ENTRY 1 DAY after stop at $259.90; desk advised stay-out",
+    "confirmed_fill": 217.88,
+    "price_source": "email_confirmed"
+   }
+  ],
+  "adds": [
+   {
+    "ticker": "TER",
+    "qty": 2,
+    "usd": 759.69,
+    "flag": "rebuild from dust after 08-18 stop",
+    "confirmed_fill": 378.71,
+    "price_source": "email_confirmed"
+   },
+   {
+    "ticker": "COHR",
+    "qty": 2,
+    "usd": 572.94,
+    "flag": "desk flagged near-full cap",
+    "confirmed_fill": 285.61,
+    "price_source": "email_confirmed"
+   },
+   {
+    "ticker": "GLW",
+    "qty": 3,
+    "usd": 453.91,
+    "flag": "desk agreed, had headroom",
+    "confirmed_fill": 150.85,
+    "price_source": "email_confirmed"
+   },
+   {
+    "ticker": "VRT",
+    "qty": 2,
+    "usd": 525.18,
+    "flag": "desk agreed, had headroom",
+    "confirmed_fill": 261.81,
+    "price_source": "email_confirmed"
+   },
+   {
+    "ticker": "AMAT",
+    "qty": 1,
+    "usd": 494.48,
+    "flag": "AI Semis/Fabs already over ceiling",
+    "confirmed_fill": 493.01,
+    "price_source": "email_confirmed"
+   },
+   {
+    "ticker": "STM",
+    "qty": 10,
+    "usd": 508.27,
+    "flag": "desk's top pick, most headroom",
+    "confirmed_fill": 50.68,
+    "price_source": "email_confirmed"
+   },
+   {
+    "ticker": "BE",
+    "qty": 4,
+    "usd": 808.96,
+    "flag": "desk flagged NEGATIVE headroom",
+    "confirmed_fill": 201.635,
+    "price_source": "email_confirmed"
+   },
+   {
+    "ticker": "AVGO",
+    "qty": 2,
+    "usd": 731.4,
+    "flag": "desk proposed TRIM; user doubled",
+    "confirmed_fill": 364.605,
+    "price_source": "email_confirmed"
+   },
+   {
+    "ticker": "MU",
+    "qty": 1,
+    "usd": 936.19,
+    "flag": "memory re-entry, thesis was stopped-out-not-broken",
+    "confirmed_fill": 933.39,
+    "price_source": "email_confirmed"
+   },
+   {
+    "ticker": "INTC",
+    "qty": 7,
+    "usd": 653.79,
+    "flag": "AI Semis/Fabs already over ceiling",
+    "confirmed_fill": 93.12,
+    "price_source": "email_confirmed"
+   }
+  ],
+  "total_deployed_usd": 10368.04,
+  "fills_detail": {
+   "AVGO": "1sh @ $364.34 + 1sh @ $364.87",
+   "BE": "2sh @ $202.02 + 2sh @ $201.25"
+  }
+ },
+ "benchmark_anchors": {
+  "note": "Cohort performance is meaningless without the tape it happened in. Score every cohort vs SMH, the book's declared benchmark.",
+  "SMH": 565.07,
+  "NDX": 29396.148,
+  "SPX": 7735.41,
+  "IXIC": 26306.254,
+  "VIX": 15.23,
+  "us10y": 4.653,
+  "us30y": 5.285,
+  "DXY": 98.912,
+  "usdinr": 95.743,
+  "captured": "2026-08-19 ~12:10 ET"
+ },
+ "open_questions_for_review": [
+  "Did the stops save money at 7 days, or did the names recover above their stop (whipsaw)? Cascade cohort was 57.7% at 1 day.",
+  "Did the desk's stay-out call on NBIS beat the user's 1-day re-entry?",
+  "AVGO is the cleanest head-to-head in the file: desk said TRIM on a sourced catalyst_threat, user doubled. One of them is wrong.",
+  "Did adding to BE (negative headroom) and COHR (near-full) cost anything, or was the ATR cap too conservative?",
+  "Cash went ~33.4% -> roughly 8-9% after deploying $10.3k. Was deploying into an ESCALATING gate right?"
+ ],
+ "ledger_status": "All fills email-confirmed as of 2026-08-19 PM. 848 trade rows, 32/32 tickers reconciled, 0 mismatches, 0 quarantined."
+}
