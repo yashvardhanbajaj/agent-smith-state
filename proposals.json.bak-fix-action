@@ -12,10 +12,10 @@
       "ticker": "TSM",
       "id": "P-001",
       "direction_bucket": "BUY",
-      "outcome_pct": -3.15,
+      "outcome_pct": -3.62,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-20"
+      "outcome_scored_on": "2026-08-19"
     },
     {
       "date": "2026-07-13T19:40",
@@ -28,10 +28,10 @@
       "ticker": "LRCX",
       "id": "P-002",
       "direction_bucket": "TRIM",
-      "outcome_pct": 7.5,
-      "outcome_verdict": "worked",
+      "outcome_pct": 1.64,
+      "outcome_verdict": "neutral",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-20"
+      "outcome_scored_on": "2026-08-19"
     },
     {
       "date": "2026-07-13T19:40",
@@ -47,7 +47,7 @@
       "outcome_pct": 0.83,
       "outcome_verdict": "neutral",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-20"
+      "outcome_scored_on": "2026-08-19"
     },
     {
       "date": "2026-07-13T19:40",
@@ -60,10 +60,10 @@
       "ticker": "VRT",
       "id": "P-004",
       "direction_bucket": "HOLD",
-      "outcome_pct": -14.87,
+      "outcome_pct": -10.69,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-20"
+      "outcome_scored_on": "2026-08-19"
     },
     {
       "date": "2026-07-14",
@@ -77,10 +77,10 @@
       "id": "P-005",
       "direction_bucket": "BUY",
       "cluster": "AI Power/Cooling/DC Infra",
-      "outcome_pct": -15.17,
+      "outcome_pct": -10.9,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-20"
+      "outcome_scored_on": "2026-08-19"
     },
     {
       "date": "2026-07-15T15:42",
@@ -95,10 +95,10 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-006",
       "direction_bucket": "BUY",
-      "outcome_pct": -26.09,
+      "outcome_pct": -20.89,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-20"
+      "outcome_scored_on": "2026-08-19"
     },
     {
       "date": "2026-07-16T16:44",
@@ -111,10 +111,10 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-007",
       "direction_bucket": "BUY",
-      "outcome_pct": -6.64,
-      "outcome_verdict": "missed",
+      "outcome_pct": -1.3,
+      "outcome_verdict": "neutral",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-20"
+      "outcome_scored_on": "2026-08-19"
     },
     {
       "date": "2026-07-16T16:44",
@@ -165,7 +165,7 @@
       "outcome_pct": 29.3,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-20"
+      "outcome_scored_on": "2026-08-19"
     },
     {
       "date": "2026-07-27T10:09:00+05:30",
@@ -3466,7 +3466,7 @@
       "retires_when": "n/a -- scale_out_ladder is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
     },
     {
-      "action": "Trim MRVL (scale-out rung)",
+      "action": "TRIM",
       "ticker": "MRVL",
       "size_usd": 550.65,
       "price_at_proposal": 235.9937,
@@ -3559,7 +3559,7 @@
       "note": "auto-voided -- position exited"
     },
     {
-      "action": "Raise TER stop to cost basis (no capital moved)",
+      "action": "STOP_RAISE",
       "ticker": "TER",
       "size_usd": 0,
       "price_at_proposal": 439.155,
@@ -3626,7 +3626,7 @@
       "note": "auto-voided -- position exited"
     },
     {
-      "action": "Trim MSFT",
+      "action": "TRIM",
       "ticker": "MSFT",
       "size_usd": 360,
       "price_at_proposal": 481.63,
@@ -3686,7 +3686,7 @@
       "retires_when": "MSFT RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)"
     },
     {
-      "action": "Buy QCOM (rotation destination leg)",
+      "action": "BUY",
       "ticker": "QCOM",
       "size_usd": 360,
       "price_at_proposal": 160.19,
@@ -3732,7 +3732,7 @@
       "retires_when": "n/a -- laggard_rotation is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
     },
     {
-      "action": "Trim AVGO",
+      "action": "TRIM",
       "ticker": "AVGO",
       "size_usd": 152,
       "price_at_proposal": 380.0,
@@ -3784,7 +3784,7 @@
       "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
     },
     {
-      "action": "Buy AMZN",
+      "action": "BUY",
       "ticker": "AMZN",
       "size_usd": 700,
       "price_at_proposal": 259.45,
@@ -3820,7 +3820,7 @@
       "retires_when": "Compute/Hyperscaler re-enters its policy band"
     },
     {
-      "action": "Buy GLW",
+      "action": "BUY",
       "ticker": "GLW",
       "size_usd": 539,
       "price_at_proposal": 159.9,
@@ -3852,7 +3852,7 @@
       "retires_when": null
     },
     {
-      "action": "Buy IREN",
+      "action": "BUY",
       "ticker": "IREN",
       "size_usd": 111,
       "price_at_proposal": 42.0,
@@ -3888,7 +3888,7 @@
       "retires_when": "Compute/Hyperscaler re-enters its policy band"
     },
     {
-      "action": "Trim NVDA",
+      "action": "TRIM",
       "ticker": "NVDA",
       "size_usd": 576,
       "price_at_proposal": 219.74,
@@ -3936,26 +3936,26 @@
     }
   ],
   "scorecard": {
-    "as_of": "2026-08-20",
-    "trim_accuracy_30d": 100.0,
+    "as_of": "2026-08-19",
+    "trim_accuracy_30d": 0.0,
     "add_accuracy_30d": 20.0,
-    "overall_accuracy_30d": 25.0,
+    "overall_accuracy_30d": 12.5,
     "by_direction": {
       "TRIM/SELL": {
         "n": 1,
-        "worked": 1,
+        "worked": 0,
         "missed": 0,
-        "neutral": 0,
-        "accuracy_pct": 100.0,
-        "avg_benefit_pct": 7.5
+        "neutral": 1,
+        "accuracy_pct": 0.0,
+        "avg_benefit_pct": 1.64
       },
       "BUY": {
         "n": 5,
         "worked": 1,
-        "missed": 4,
-        "neutral": 0,
+        "missed": 3,
+        "neutral": 1,
         "accuracy_pct": 20.0,
-        "avg_benefit_pct": -4.35
+        "avg_benefit_pct": -1.48
       },
       "HOLD": {
         "n": 2,
@@ -3963,24 +3963,24 @@
         "missed": 1,
         "neutral": 1,
         "accuracy_pct": 0.0,
-        "avg_benefit_pct": -7.02
+        "avg_benefit_pct": -4.93
       }
     },
     "overall": {
       "n": 8,
-      "worked": 2,
-      "missed": 5,
-      "neutral": 1,
-      "accuracy_pct": 25.0,
-      "avg_benefit_pct": -3.54
+      "worked": 1,
+      "missed": 4,
+      "neutral": 3,
+      "accuracy_pct": 12.5,
+      "avg_benefit_pct": -1.95
     },
     "scored_count": 8,
     "quarantined_anchor_review": 0,
     "excluded_dismissed_by_user": 9,
-    "not_yet_30d": 71,
+    "not_yet_30d": 60,
     "note": "Direction-aware: a TRIM 'worked' if the price FELL after it, a BUY if it ROSE, a HOLD if the move stayed inside the +/-2.0% noise band. Threshold shared with the journal scorer so 'worked' means the same magnitude in both. dismissed_by_user proposals are excluded -- a user override is not a strategist error.",
     "data_quality": [
-      "71 proposal(s) are under 30 days old -- not yet in the scoring window."
+      "60 proposal(s) are under 30 days old -- not yet in the scoring window."
     ]
   },
   "last_updated": "2026-08-19T11:05:00+05:30"

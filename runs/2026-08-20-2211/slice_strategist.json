@@ -1,0 +1,94 @@
+{
+  "mode": "quick",
+  "today": "2026-08-20",
+  "market_session": "intraday",
+  "gate_classification": "AMBIGUOUS",
+  "macro": {
+    "us10y": 4.7,
+    "vix": 15.82,
+    "dxy": 98.916,
+    "spx": 7682.91,
+    "ndx": 26145.11,
+    "es_f": 7692.75,
+    "nq_f": 29318.0,
+    "smh": 561.39,
+    "us30y": 5.241,
+    "ndx100": 29277.402
+  },
+  "usdinr": 95.695,
+  "known_gaps": [
+    {
+      "id": "G69",
+      "status": "partially_closed",
+      "gap": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so "
+    },
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    },
+    {
+      "id": "G79",
+      "status": "partially_closed",
+      "gap": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are there"
+    },
+    {
+      "id": "G80",
+      "status": "open",
+      "gap": "SHADOW-SCORED TRIGGER PROPOSALS ARE STRUCTURALLY EXEMPT FROM CONDITION-BASED AUTO-RETIREMENT. Any proposal whose trigger_type is a shadow trigger (profit_ratchet, scale_out_ladder) is written with retires_when = 'n/a -- shadow-scored, track"
+    },
+    {
+      "id": "G81",
+      "status": "open",
+      "gap": "PROXIMATE CAUSE OF THE 2026-08-18 SEMIS ROUT IS UNRESOLVED, AND THE FIRST ANSWER WAS WRONG. smith-catalyst returned, as its lead catalyst, that the 30-year UST hit a 19-year high of 5.33% on Tuesday and repriced high-multiple AI hardware. C"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "agent": "smith-strategist",
+  "output_file": "runs/2026-08-20-2211/smith-strategist-output.md",
+  "holdings_path": "runs/2026-08-20-2211/holdings.json",
+  "read_these_files": {
+    "thesis": "runs/2026-08-20-2211/shared/thesis.2e00e57c.json",
+    "preferences": "runs/2026-08-20-2211/shared/preferences.b6a7f928.json",
+    "open_flags": "runs/2026-08-20-2211/shared/open_flags.ff4e8f3e.json",
+    "drift": "runs/2026-08-20-2211/compute_drift.json",
+    "sentiment": "runs/2026-08-20-2211/compute_sentiment.json",
+    "risk": "runs/2026-08-20-2211/compute_risk.json",
+    "book": "runs/2026-08-20-2211/compute_book.json",
+    "derisk": "runs/2026-08-20-2211/compute_derisk.json",
+    "triggers": "runs/2026-08-20-2211/compute_triggers.json",
+    "rotation": "runs/2026-08-20-2211/compute_rotation.json",
+    "holdings": "runs/2026-08-20-2211/shared/holdings_trim.2f53c208.json"
+  },
+  "sector_map": {
+    "NVDA": "AI Semis/Fabs",
+    "ASML": "AI Semis/Fabs",
+    "AMAT": "AI Semis/Fabs",
+    "TER": "AI Semis/Fabs",
+    "QCOM": "AI Semis/Fabs",
+    "TSM": "AI Semis/Fabs",
+    "MU": "AI Memory/Storage",
+    "MRVL": "AI Networking/Optics",
+    "AVGO": "AI Networking/Optics",
+    "CIEN": "AI Networking/Optics",
+    "CLS": "Compute/Hyperscaler OEM",
+    "GEV": "AI Power/Cooling/DC Infra",
+    "VRT": "AI Power/Cooling/DC Infra",
+    "AMD": "AI Semis/Fabs",
+    "COHR": "AI Networking/Optics",
+    "AMZN": "Compute/Hyperscaler",
+    "CEG": "AI Power/Cooling/DC Infra",
+    "IREN": "Compute/Hyperscaler",
+    "BE": "AI Power/Cooling/DC Infra",
+    "GLW": "AI Networking/Optics",
+    "BABA": "China Internet/Diversifier",
+    "LRCX": "AI Semis/Fabs",
+    "NOW": "Enterprise Software",
+    "MSFT": "Compute/Hyperscaler",
+    "INTC": "AI Semis/Fabs",
+    "FLTW": "Diversified/Regional ETF",
+    "STM": "Analog/Industrial Semis",
+    "TXN": "Analog/Industrial Semis"
+  },
+  "inputs_digest": "b63602b1a1fb"
+}

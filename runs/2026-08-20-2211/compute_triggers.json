@@ -1,0 +1,275 @@
+{
+  "as_of": "2026-08-20",
+  "rsi_as_of": "2026-08-12",
+  "rsi_age_days": 8,
+  "rsi_usable": true,
+  "rel_as_of": "2026-08-12",
+  "rel_age_days": 8,
+  "rel_usable": true,
+  "deployable_cash_usd": 0.0,
+  "max_single_deploy_usd": 0.0,
+  "thresholds": {
+    "rsi_oversold": 35.0,
+    "rsi_overbought": 70.0,
+    "laggard_pctile": 25.0,
+    "ratchet_min_gain_pct": 15.0,
+    "ladder_tiers_pct": [
+      25.0,
+      50.0
+    ]
+  },
+  "live_counts": {
+    "oversold_reversion": 0,
+    "overbought_distribution": 1,
+    "catalyst_threat": 4,
+    "thesis_break": 0
+  },
+  "shadow_counts": {
+    "laggard_rotation": 1,
+    "profit_ratchet": 0,
+    "scale_out_ladder": 0
+  },
+  "oversold_reversion": [],
+  "overbought_distribution": [
+    {
+      "ticker": "MSFT",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "watch",
+      "rsi14": 78.8,
+      "rel_strength_1m_pp": 24.0,
+      "abs_return_1m_pct": 24.73,
+      "price_usd": 483.335,
+      "market_value_usd": 1450.0,
+      "trigger_type": "overbought_distribution",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 362.5,
+      "trim_fraction": 0.25,
+      "over_cap_independent": true,
+      "cluster_tension": true,
+      "cluster_drift_pt": -2.085,
+      "rotation_targets": [
+        {
+          "ticker": "META",
+          "rel_pp": -9.55,
+          "headroom_usd": 1115.03
+        }
+      ],
+      "retires_when": "MSFT RSI14 falls below 60 or it is no longer up on the month",
+      "reasons": [
+        "RSI14 78.8 > 70 (overbought)",
+        "up +24.7% on the month -- real gain to protect"
+      ],
+      "blockers": [
+        "cluster Compute/Hyperscaler is -2.08pt UNDER its floor -- this trim deepens an existing underweight. The stretch reason stands on its own, but do NOT cite the cluster as support (G56). Resolve it as an INTRA-CLUSTER ROTATION into: META (-9.6pp, $1,115 headroom) -- books the gain and leaves the cluster weight unchanged."
+      ]
+    }
+  ],
+  "catalyst_threat": [
+    {
+      "ticker": "GEV",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "strengthening",
+      "rsi14": 45.8,
+      "rel_strength_1m_pp": -4.85,
+      "abs_return_1m_pct": -4.12,
+      "price_usd": 952.515,
+      "market_value_usd": 1909.75,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 381.95,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://www.tipranks.com/news/big-tech-has-3-trillion-in-ai-commitments-hidden-off-the-balance-sheet"
+      ],
+      "retires_when": "GEV no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "WSJ: nine Big Tech firms carry $3T in off-balance-sheet AI commitments vs ~$600bn trailing capex; triggers behind-the-meter power-stock de-risking (2026-08-17) -- $3T total ($1.2T leases not-yet-in-service + $1.9T purchase commitments), growing ~$1.2T/quarter; Alphabet $811bn, Meta $420bn vs $83.7bn on-balance-sheet debt; GEV -6.90%, BE -9.97%, VRT -6.80% same-day; US industrial production +0.2% vs +0.4% expected added drag"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "VRT",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "watch",
+      "rsi14": null,
+      "rel_strength_1m_pp": null,
+      "abs_return_1m_pct": null,
+      "price_usd": 259.47,
+      "market_value_usd": 1816.29,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 363.26,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://www.tipranks.com/news/big-tech-has-3-trillion-in-ai-commitments-hidden-off-the-balance-sheet"
+      ],
+      "retires_when": "VRT no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "WSJ: nine Big Tech firms carry $3T in off-balance-sheet AI commitments vs ~$600bn trailing capex; triggers behind-the-meter power-stock de-risking (2026-08-17) -- $3T total ($1.2T leases not-yet-in-service + $1.9T purchase commitments), growing ~$1.2T/quarter; Alphabet $811bn, Meta $420bn vs $83.7bn on-balance-sheet debt; GEV -6.90%, BE -9.97%, VRT -6.80% same-day; US industrial production +0.2% vs +0.4% expected added drag"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "BE",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "strengthening",
+      "rsi14": null,
+      "rel_strength_1m_pp": null,
+      "abs_return_1m_pct": null,
+      "price_usd": 200.73,
+      "market_value_usd": 1605.84,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 321.17,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://www.tipranks.com/news/big-tech-has-3-trillion-in-ai-commitments-hidden-off-the-balance-sheet"
+      ],
+      "retires_when": "BE no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "WSJ: nine Big Tech firms carry $3T in off-balance-sheet AI commitments vs ~$600bn trailing capex; triggers behind-the-meter power-stock de-risking (2026-08-17) -- $3T total ($1.2T leases not-yet-in-service + $1.9T purchase commitments), growing ~$1.2T/quarter; Alphabet $811bn, Meta $420bn vs $83.7bn on-balance-sheet debt; GEV -6.90%, BE -9.97%, VRT -6.80% same-day; US industrial production +0.2% vs +0.4% expected added drag"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "AVGO",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 65.3,
+      "rel_strength_1m_pp": 8.3,
+      "abs_return_1m_pct": 9.03,
+      "price_usd": 363.9,
+      "market_value_usd": 1455.6,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 291.12,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://www.tipranks.com/news/big-tech-has-3-trillion-in-ai-commitments-hidden-off-the-balance-sheet"
+      ],
+      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "WSJ: nine Big Tech firms carry $3T in off-balance-sheet AI commitments vs ~$600bn trailing capex; triggers behind-the-meter power-stock de-risking (2026-08-17) -- $3T total ($1.2T leases not-yet-in-service + $1.9T purchase commitments), growing ~$1.2T/quarter; Alphabet $811bn, Meta $420bn vs $83.7bn on-balance-sheet debt; GEV -6.90%, BE -9.97%, VRT -6.80% same-day; US industrial production +0.2% vs +0.4% expected added drag"
+      ],
+      "blockers": []
+    }
+  ],
+  "thesis_break": [],
+  "laggard_rotation": [
+    {
+      "ticker": "QCOM",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 43.1,
+      "rel_strength_1m_pp": -6.69,
+      "abs_return_1m_pct": -5.96,
+      "price_usd": 163.275,
+      "market_value_usd": 1632.87,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 310.92,
+      "suggested_size_usd": 0.0,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-6.7pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": [
+        "no deployable cash above the band ceiling -- setup valid, funding is not; fund it from a sell leg (rotation pair) rather than from the wallet"
+      ]
+    }
+  ],
+  "profit_ratchet": [],
+  "scale_out_ladder": [],
+  "shadow_new": [
+    {
+      "date": "2026-08-20",
+      "ticker": "QCOM",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 163.275,
+      "rsi14": 43.1,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -6.69,
+      "scored": false
+    }
+  ],
+  "rsi_values": {
+    "NVDA": 62.2,
+    "MU": 51.7,
+    "DRAM": 53.9,
+    "MRVL": 60.4,
+    "AMAT": 49.0,
+    "AMZN": 60.2,
+    "ARM": 43.7,
+    "ASML": 51.7,
+    "AVGO": 65.3,
+    "BABA": 58.0,
+    "BX": 71.1,
+    "CEG": 62.8,
+    "CIEN": 54.2,
+    "CLS": 48.7,
+    "FLTW": 60.2,
+    "GEV": 45.8,
+    "INTC": 46.4,
+    "LRCX": 51.4,
+    "META": 34.1,
+    "MSFT": 78.8,
+    "NBIS": 54.3,
+    "NOW": 66.2,
+    "ORCL": 66.6,
+    "QCOM": 43.1,
+    "SNDK": 43.7,
+    "TER": 57.7,
+    "TSM": 53.3,
+    "STM": 39.8,
+    "TXN": 42.4,
+    "AMD": 45.3,
+    "COHR": 56.4
+  },
+  "abs_return_1m_pct_values": {
+    "NVDA": 8.13,
+    "MU": -4.73,
+    "DRAM": -7.27,
+    "MRVL": 6.09,
+    "AMAT": -3.37,
+    "AMZN": 9.01,
+    "ARM": -7.63,
+    "ASML": 0.79,
+    "AVGO": 9.03,
+    "BABA": 5.96,
+    "BX": 16.54,
+    "CEG": 7.71,
+    "CIEN": 4.01,
+    "CLS": -2.95,
+    "FLTW": 6.25,
+    "GEV": -4.12,
+    "INTC": -4.27,
+    "LRCX": 0.84,
+    "META": -8.82,
+    "MSFT": 24.73,
+    "NBIS": 6.87,
+    "NOW": 20.91,
+    "ORCL": 17.47,
+    "QCOM": -5.96,
+    "SNDK": -13.55,
+    "TER": 8.28,
+    "TSM": 1.42,
+    "STM": -14.75,
+    "TXN": -4.15,
+    "AMD": -10.55,
+    "COHR": 10.31
+  },
+  "data_quality": [
+    "META is oversold (RSI 34.1) but thesis is 'None' -- deliberately not a bounce candidate (falling knife, not a dip)"
+  ]
+}
