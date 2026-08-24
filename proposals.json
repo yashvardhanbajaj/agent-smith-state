@@ -5264,7 +5264,7 @@
       "action": "BUY NVDA",
       "ticker": "NVDA",
       "direction_bucket": "BUY",
-      "size_usd": 798.83,
+      "size_usd": 937.98,
       "price_at_proposal": 210.18,
       "rationale": "Reentry \u2014 cleared bar same-day as exit (2026-08-24); thesis strengthening (unverified); +44.1% vs analyst target; sized off target weight per reentry mechanics, no clamp.",
       "status": "open",
@@ -5272,7 +5272,7 @@
       "trigger_bucket": "live",
       "pair_id": null,
       "pair_role": null,
-      "size_wanted_usd": 798.83,
+      "size_wanted_usd": 937.98,
       "clamped_by": null,
       "stop_price_usd": 193.87,
       "exited_on": "2026-08-24",
@@ -5299,7 +5299,7 @@
       "review_flags": [],
       "revalidated_on": "2026-08-24",
       "retires_when": "NVDA no longer appears in this run's live reentry list, or 20 trading days pass since its exit, whichever comes first",
-      "note": "resized 2026-08-24: NVDA thesis upgraded unverified->secondary (SEC 8-K + CNBC/Axios on the OpenAI Ohio financing guarantee), conviction 42.5->51.5, crossed low->medium tier, size $399.42->$798.83"
+      "note": "resized 2026-08-24: NVDA thesis upgraded unverified->secondary (SEC 8-K + CNBC/Axios on the OpenAI Ohio financing guarantee), conviction 42.5->51.5, crossed low->medium tier, size $399.42->$798.83 | NVDA re-verified conviction unchanged (51.5) but tier curve smoothed -- $798.83 -> $937.98 (interpolated pct now above the old flat 0.60 medium-tier rate)"
     },
     {
       "date": "2026-08-24",
@@ -5386,7 +5386,7 @@
       "action": "BUY CLS",
       "ticker": "CLS",
       "direction_bucket": "BUY",
-      "size_usd": 216.75,
+      "size_usd": 424.82,
       "price_at_proposal": 296.5422,
       "rationale": "Profit rotation buy leg \u2014 laggard (-3.7pp) with strengthening (unverified) thesis, yet to rally; conviction 35.0 low tier.",
       "status": "open",
@@ -5394,7 +5394,7 @@
       "trigger_bucket": "live",
       "pair_id": "profit_rotation-MSFT-CLS",
       "pair_role": "buy",
-      "size_wanted_usd": 216.75,
+      "size_wanted_usd": 424.82,
       "clamped_by": null,
       "stop_price_usd": 254.1367,
       "exited_on": null,
@@ -5418,7 +5418,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-CLS is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-CLS is no longer live this run -- both legs retire together, never one alone",
+      "note": "CLS conviction 35.0->44.0 post-verification, now reflected proportionally (tier curve smoothed, no more low/medium cliff) -- $216.75 -> $424.82"
     },
     {
       "date": "2026-08-24",
@@ -5496,7 +5497,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone",
+      "note": "TER conviction 27.9->36.9 post-verification; cluster_rotation buy leg sizing unchanged since it's clamped to the sell leg's proceeds, not conviction, at this size"
     },
     {
       "date": "2026-08-24",

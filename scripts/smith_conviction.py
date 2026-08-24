@@ -69,13 +69,51 @@ CONVICTION_TIERS = [
 # could never clear "low" on thesis alone, no matter how strong -- starving conviction on the
 # most load-bearing input for the majority of the book. 20 lets it through; a genuinely weak or
 # absent thesis (base 0.1 or 0.0) still does not.
+#
+# TIER LABEL vs TIER PCT are deliberately split (2026-08-24, first live run found the bug):
+# CONVICTION_TIERS' step-function pct field is now used ONLY as anchor points for a piecewise-
+# linear interpolation (_tier_pct_for), not looked up directly. The label (_tier_label_for)
+# stays a discrete step -- "high"/"medium"/"low"/"none" is a natural-language bucket the
+# dashboard and priority scorer read, and forcing that to be continuous would just replace one
+# arbitrary line with infinitely many. The DOLLAR SIZE must not have a cliff, the LABEL can.
+#
+# Concretely, on 2026-08-24's first live dispatch: a scoped thesis-verification pass moved 7
+# scores up (unverified->secondary/primary evidence multiplier). NVDA (42.5->51.5) and GLW
+# (37.0->46.0) happened to cross the old 45-point low->medium step and roughly doubled in size;
+# CLS/AMAT/TER/WDC/AMZN improved by comparable or larger margins (+9 to +11 points) but stayed
+# on the low side of the same line and got ZERO dollar change -- WDC's thesis reached "primary"
+# verification, the highest evidence tier that exists, and its size didn't move at all. That is
+# not a policy choice, it is a step-function artifact: two candidates one point apart on either
+# side of 45 got a 2x size difference for a 1-point difference in conviction. Interpolation
+# fixes this without changing what "high"/"medium"/"low" mean or where policy_max itself is
+# computed -- same anchors, same endpoints (score 0 -> pct 0.0, score >=70 -> pct 1.0), just no
+# jump between them.
+TIER_PCT_ANCHORS = [(0, 0.0), (20, 0.30), (45, 0.60), (70, 1.00)]
 
 
-def _tier_for(score):
-    for floor, name, pct in CONVICTION_TIERS:
+def _tier_pct_for(score):
+    """Piecewise-linear interpolation across TIER_PCT_ANCHORS. Below the first anchor's score
+    (0) returns 0.0; at/above the last anchor's score (70) returns 1.0 -- same endpoints the old
+    step function had, so a "high" conviction idea still gets the full policy-max fraction and a
+    zero/negative score still sizes at zero. Everything between two anchors scales linearly, so
+    a 1-point difference in score never produces more than a 1-anchor-segment's worth of dollar
+    difference, regardless of which side of a tier LABEL boundary it happens to land on."""
+    if score <= TIER_PCT_ANCHORS[0][0]:
+        return TIER_PCT_ANCHORS[0][1]
+    for (s0, p0), (s1, p1) in zip(TIER_PCT_ANCHORS, TIER_PCT_ANCHORS[1:]):
+        if s0 <= score <= s1:
+            frac = (score - s0) / (s1 - s0)
+            return p0 + frac * (p1 - p0)
+    return TIER_PCT_ANCHORS[-1][1]  # score >= last anchor
+
+
+def _tier_label_for(score):
+    """Discrete label only -- for display and the priority scorer's tier-name reasons, never for
+    sizing. Uses the same floors as the old CONVICTION_TIERS step function."""
+    for floor, name, _pct in CONVICTION_TIERS:
         if score >= floor:
-            return name, pct
-    return "none", 0.0
+            return name
+    return "none"
 
 
 def thesis_component(thesis_entry):
@@ -279,7 +317,8 @@ def score_conviction(ctx):
             reasons.append(r)
 
     display_score = max(0.0, raw_total * mult) if raw_total > 0 else raw_total * mult
-    tier, tier_pct = _tier_for(display_score) if display_score > 0 else ("none", 0.0)
+    tier = _tier_label_for(display_score) if display_score > 0 else "none"
+    tier_pct = _tier_pct_for(display_score) if display_score > 0 else 0.0
 
     return {
         "conviction_score": round(display_score, 1),
