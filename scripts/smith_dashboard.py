@@ -594,12 +594,17 @@ def build(base, out):
     if cash_breach:
         breaches.append(f'cash {cash_pct:.1f}% outside the [{cash_band[0]},{cash_band[1]}]% band')
 
-    if open_props or breaches:
+    # Two-panel split (added 2026-08-24, third time the user reported the same defect: the list
+    # read as a compliance report because cap/cluster/cash mechanics competed with -- and usually
+    # beat, by sheer stacking -- genuine conviction-driven ideas for the top slot). IDEAS is
+    # ranked and capped; RISK HOUSEKEEPING is sized/actionable but never ranked against an idea.
+    # proposal_class is set by smith_lifecycle.py's cmd_proposals; anything missing the field
+    # (legacy proposals) defaults to "idea" there, so nothing silently vanishes into housekeeping.
+    idea_props = [p for p in open_props if p.get("proposal_class", "idea") != "housekeeping"]
+    housekeeping_props = [p for p in open_props if p.get("proposal_class") == "housekeeping"]
+
+    if idea_props or housekeeping_props or breaches:
         rows = []
-        for b in breaches:
-            rows.append(f'<div class="pr"><span class="act2">Breach</span>'
-                        f'<span class="why">{esc(b)} &mdash; bring it inside the band or record why '
-                        f'the breach is accepted.</span><span class="amt">&mdash;</span></div>')
 
         def prop_row(p):
             short, rest = trim_lead(p.get("rationale", ""))
@@ -642,9 +647,28 @@ def build(base, out):
             # case made visible instead of a bare $400 sitting next to no context.
             tranche = p.get("tranche_note")
             tranche_s = f'<span class="tranche">{esc(tranche)}</span>' if tranche else ""
+            # Conviction-driven ideas (added 2026-08-24) carry a stop level, a share count, and
+            # clamped_by -- "wanted $1,364, capped to $538 by ATR headroom" -- so a proposal never
+            # states a dollar figure without saying what it would take to fill it or what capped
+            # it short. Legacy/housekeeping proposals don't carry these fields; render nothing
+            # rather than a misleading "$0 shares".
+            stop_px = p.get("stop_price_usd")
+            price_px = p.get("price_usd")
+            shares = None
+            if price_px:
+                shares = int(p.get("size_usd", 0) / price_px) if price_px else None
+            stop_s = f'<span class="stopline">stop ${stop_px:,.2f}</span>' if stop_px else ""
+            shares_s = f'<span class="stopline">~{shares} sh</span>' if shares else ""
+            clamped = p.get("clamped_by")
+            clamped_s = (f'<span class="stopline">wanted ${p.get("size_wanted_usd", 0):,.0f}, '
+                        f'capped by {esc(clamped)}</span>') if clamped else ""
+            conv = p.get("conviction_score")
+            conv_s = (f'<span class="stopline">conviction {conv:.0f} ({esc(p.get("conviction_tier",""))})'
+                      f'</span>') if conv is not None else ""
             return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
                     f'{esc(p.get("action",""))}{clus_s}</span>'
-                    f'<span class="why">{esc(short)}{more}{live_s}{flag_s}{tranche_s}{retires_s}{meta}</span>'
+                    f'<span class="why">{esc(short)}{more}{live_s}{flag_s}{tranche_s}{retires_s}'
+                    f'{conv_s}{stop_s}{shares_s}{clamped_s}{meta}</span>'
                     f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
 
         # -- rotation ideas: paired trim+buy proposals sharing a pair_id (added 2026-08-06,
@@ -659,7 +683,7 @@ def build(base, out):
         # longer has 2 open members) falls back to rendering as an ordinary single proposal in
         # its priority tier rather than being silently dropped.
         by_pair = {}
-        for p in open_props:
+        for p in idea_props:
             if p.get("pair_id"):
                 by_pair.setdefault(p["pair_id"], []).append(p)
         complete_pairs = {pid: legs for pid, legs in by_pair.items() if len(legs) == 2}
@@ -673,38 +697,60 @@ def build(base, out):
                     f'<div class="rotarrow">&rarr;</div>'
                     f'<div class="rotleg buy">{prop_row(buy)}</div></div>')
 
-        if complete_pairs:
-            rows.append('<div class="rotgrp"><div class="rotgrp-h">ROTATION IDEAS'
-                        f'<span class="n">{len(complete_pairs)}</span></div>'
-                        + "".join(pair_card(legs) for legs in complete_pairs.values()) + '</div>')
+        # -- IDEAS panel: ranked by conviction (fallback to priority_score for legacy rows
+        # without one), capped at 5. A complete rotation pair counts as ONE slot toward the cap
+        # (it's one decision), not two. A minimum bar applies -- show fewer, or zero, rather than
+        # pad the list with weak ideas to hit five; "No ideas this week, book within policy" is a
+        # legitimate, honest output, not a bug.
+        MIN_IDEA_SCORE = 1
+        singles = [p for p in idea_props if p["id"] not in paired_ids]
 
-        # -- grouped by priority (HIGH first), computed by smith_math.py's `proposals`
-        # lifecycle pass from live risk-cap/cluster-breach/repeat-count data, not a guess.
-        # Anything predating that field (or if the compute step didn't run this cycle)
-        # falls back to LOW rather than disappearing or crashing the build. Each tier is
-        # a native <details> so it collapses -- HIGH starts open (it's the one that needs
-        # eyes every run), MEDIUM/LOW start closed. Paired proposals rendered above are
-        # excluded here so they don't appear twice.
+        def idea_rank(p):
+            return p.get("conviction_score", p.get("priority_score", 0) * 10)
+
+        ranked_items = ([("pair", legs, max(idea_rank(p) for p in legs)) for legs in complete_pairs.values()]
+                        + [("single", p, idea_rank(p)) for p in singles])
+        ranked_items = [it for it in ranked_items if it[2] >= MIN_IDEA_SCORE]
+        ranked_items.sort(key=lambda it: -it[2])
+        ranked_items = ranked_items[:5]
+
+        idea_rows = [pair_card(it[1]) if it[0] == "pair" else prop_row(it[1]) for it in ranked_items]
+        if idea_rows:
+            H.append('<section class="panel act"><div class="phead"><h2>Ideas</h2>'
+                     '<span class="pill a">Ranked by conviction &mdash; for review, never executed</span></div>'
+                     f'<div class="pbody"><div>{"".join(idea_rows)}</div>'
+                     '<p class="note">To drop an idea you don\'t want to act on, just tell '
+                     'Agent Smith &mdash; e.g. "dismiss P-014" &mdash; citing the id shown under '
+                     'its action. It will not be re-proposed.</p></div></section>')
+        else:
+            H.append('<section class="panel act"><div class="phead"><h2>Ideas</h2>'
+                     '<span class="pill a">Ranked by conviction</span></div>'
+                     '<div class="pbody"><p class="note">No ideas this week &mdash; book within '
+                     'policy, nothing cleared the conviction bar.</p></div></section>')
+
+        # -- RISK HOUSEKEEPING panel: cap breaches, stop-raises, band drift. Sized and actionable,
+        # but never ranked against an idea and never capped at 5 -- this is a maintenance queue,
+        # not a competition for the top slot. Grouped by priority tier same as before.
+        hrows = []
+        for b in breaches:
+            hrows.append(f'<div class="pr"><span class="act2">Breach</span>'
+                         f'<span class="why">{esc(b)} &mdash; bring it inside the band or record why '
+                         f'the breach is accepted.</span><span class="amt">&mdash;</span></div>')
         by_priority = {"HIGH": [], "MEDIUM": [], "LOW": []}
-        for p in open_props:
-            if p["id"] in paired_ids:
-                continue
+        for p in housekeeping_props:
             by_priority.setdefault(p.get("priority", "LOW"), by_priority["LOW"]).append(p)
         for tier in ("HIGH", "MEDIUM", "LOW"):
             items = sorted(by_priority[tier], key=lambda p: -p.get("priority_score", 0))
             if not items:
                 continue
             open_attr = " open" if tier == "HIGH" else ""
-            rows.append(f'<details class="pgrp {tier}"{open_attr}><summary>{tier} PRIORITY'
+            hrows.append(f'<details class="pgrp {tier}"{open_attr}><summary>{tier} PRIORITY'
                         f'<span class="n">{len(items)}</span></summary>'
                         f'<div class="body">{"".join(prop_row(p) for p in items)}</div></details>')
-
-        H.append('<section class="panel act"><div class="phead"><h2>Open proposals</h2>'
-                 '<span class="pill a">For review &mdash; never executed</span></div>'
-                 f'<div class="pbody"><div>{"".join(rows)}</div>'
-                 '<p class="note">To drop a proposal you don\'t want to act on, just tell '
-                 'Agent Smith &mdash; e.g. "dismiss P-014" &mdash; citing the id shown under '
-                 'its action. It will not be re-proposed.</p></div></section>')
+        if hrows:
+            H.append('<section class="panel act"><div class="phead"><h2>Risk housekeeping</h2>'
+                     '<span class="pill a">Sized &amp; actionable &mdash; not ranked against ideas</span></div>'
+                     f'<div class="pbody"><div>{"".join(hrows)}</div></div></section>')
 
     # -- factor catalysts --
     catalysts = state.get("factor_catalysts", [])
