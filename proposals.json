@@ -4521,7 +4521,7 @@
         }
       ],
       "repeat_count": 3,
-      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: BE no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py",
+      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: BE no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py | auto-retired 2026-08-24: BE no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir.",
       "priority_score": 4,
       "priority": "MEDIUM",
       "priority_reasons": [
@@ -4577,7 +4577,7 @@
         }
       ],
       "repeat_count": 3,
-      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: GEV no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py",
+      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: GEV no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py | auto-retired 2026-08-24: GEV no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir.",
       "priority_score": 4,
       "priority": "MEDIUM",
       "priority_reasons": [
@@ -4632,7 +4632,7 @@
         }
       ],
       "repeat_count": 3,
-      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: VRT no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py",
+      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: VRT no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py | auto-retired 2026-08-24: VRT no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir.",
       "priority_score": 4,
       "priority": "MEDIUM",
       "priority_reasons": [
@@ -4706,7 +4706,7 @@
         }
       ],
       "repeat_count": 6,
-      "note": "recommended 6x since 2026-08-17T23:54:00+05:30, still open",
+      "note": "recommended 6x since 2026-08-17T23:54:00+05:30, still open | auto-retired 2026-08-24: AVGO no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir.",
       "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
@@ -4721,7 +4721,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "retired_on": "2026-08-24"
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -4747,7 +4748,7 @@
         "catalyst_threat: Broadcom in talks for $70-80bn AI-financing debt SPV (with Blackstone, Apollo) to backstop compute incl. Anthropic; builds on June's $35bn AI XPV Platform, targets >20GW by 2028 (2026-08-21) -- $70-80bn new tranche ($45bn senior/$35bn subordinated) vs $35bn June platform; BofA ceiling estimate $370bn senior debt by 2029; AVGO on-balance-sheet debt only $83.7bn per 08-17 WSJ baseline"
       ],
       "retired_on": "2026-08-24",
-      "note": "auto-retired 2026-08-24: BX no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was auto-retired before state.factor_catalysts had been updated with the BX finding this run -- BX now correctly appears in compute_triggers.json's live catalyst_threat list",
+      "note": "auto-retired 2026-08-24: BX no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was auto-retired before state.factor_catalysts had been updated with the BX finding this run -- BX now correctly appears in compute_triggers.json's live catalyst_threat list | auto-retired 2026-08-24: BX no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir.",
       "still_valid_because": [
         "BX genuinely stretched: +16.5% 1m, +15.8pp vs SMH -- real profit to take, not just a smaller loss",
         "catalyst_threat: Broadcom in talks for $70-80bn AI-financing debt SPV (with Blackstone, Apollo) to backstop compute incl. Anthropic; builds on June's $35bn AI XPV Platform, targets >20GW by 2028 (2026-08-21) -- $70-80bn new tranche ($45bn senior/$35bn subordinated) vs $35bn June platform; BofA ceiling estimate $370bn senior debt by 2029; AVGO on-balance-sheet debt only $83.7bn per 08-17 WSJ baseline"
@@ -4762,7 +4763,7 @@
       "ticker": "MRVL",
       "size_usd": 500,
       "price_at_proposal": 228.92,
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": "scale_out_ladder",
       "direction_bucket": "TRIM",
       "cluster": "AI Networking/Optics",
@@ -4805,7 +4806,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "n/a -- scale_out_ladder is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
+      "retires_when": "n/a -- scale_out_ladder is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here",
+      "retired_reason": "MRVL was cut 75% (8sh->2sh) by the same 2026-08-24 intraday stop cascade before this trim could act -- remaining position ~$457, the original 1.73x cap breach this was sized against is almost certainly cleared by the stop itself. smith-rebound separately flags re-adding here as contraindicated (insider-sell flag, 3-day earnings proximity)."
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -4813,7 +4815,7 @@
       "ticker": "NVDA",
       "size_usd": 530,
       "price_at_proposal": 219.74,
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": null,
       "direction_bucket": "TRIM",
       "cluster": "AI Semis/Fabs",
@@ -4853,7 +4855,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "NVDA drops under its ATR risk cap"
+      "retires_when": "NVDA drops under its ATR risk cap",
+      "retired_reason": "NVDA fully exited by a stop-loss cascade 2026-08-24 intraday (SMH -2.64%) -- nothing left to trim. Position gone two days before its own 08-26 earnings print."
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -4861,7 +4864,7 @@
       "ticker": "NBIS",
       "size_usd": 600,
       "price_at_proposal": 215.145,
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": null,
       "direction_bucket": "TRIM",
       "cluster": "Compute/Hyperscaler",
@@ -4902,7 +4905,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "NBIS drops under its ATR risk cap"
+      "retires_when": "NBIS drops under its ATR risk cap",
+      "retired_reason": "NBIS fully exited by the same 2026-08-24 intraday stop cascade -- nothing left to trim."
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
