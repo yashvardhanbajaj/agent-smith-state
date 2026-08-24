@@ -12,7 +12,7 @@
       "ticker": "TSM",
       "id": "P-001",
       "direction_bucket": "BUY",
-      "outcome_pct": -2.28,
+      "outcome_pct": -3.53,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-24"
@@ -28,7 +28,7 @@
       "ticker": "LRCX",
       "id": "P-002",
       "direction_bucket": "TRIM",
-      "outcome_pct": 7.81,
+      "outcome_pct": 8.09,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-24"
@@ -60,7 +60,7 @@
       "ticker": "VRT",
       "id": "P-004",
       "direction_bucket": "HOLD",
-      "outcome_pct": -14.03,
+      "outcome_pct": -15.67,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-24"
@@ -77,7 +77,7 @@
       "id": "P-005",
       "direction_bucket": "BUY",
       "cluster": "AI Power/Cooling/DC Infra",
-      "outcome_pct": -14.31,
+      "outcome_pct": -15.98,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-24"
@@ -111,7 +111,7 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-007",
       "direction_bucket": "BUY",
-      "outcome_pct": -5.84,
+      "outcome_pct": -10.75,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-24"
@@ -3012,7 +3012,7 @@
       "ticker": "MU",
       "size_usd": 0,
       "price_at_proposal": 1008.5406,
-      "status": "open",
+      "status": "superseded",
       "trigger_type": "profit_ratchet",
       "pair_id": null,
       "pair_role": null,
@@ -3049,7 +3049,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-08-17T23:54:00+05:30, still open"
+      "note": "recommended 2x since 2026-08-17T23:54:00+05:30, still open | auto-superseded 2026-08-03 -- folded into P-147 as a repeat of the same open proposal"
     },
     {
       "date": "2026-08-17T14:30:00+05:30",
@@ -3483,7 +3483,7 @@
         "unverified": 1
       },
       "date": "2026-08-17T23:54:00+05:30",
-      "status": "open",
+      "status": "superseded",
       "id": "P-114",
       "direction_bucket": "TRIM",
       "priority_score": 4,
@@ -3507,7 +3507,8 @@
       "review_flags": [],
       "revalidated_on": "2026-08-24",
       "retires_when": "n/a -- scale_out_ladder is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here",
-      "tranche_note": "cures 66% of the risk cap excess ($840) -- roughly 2.0 tranches this size to fully clear it"
+      "tranche_note": "cures 66% of the risk cap excess ($840) -- roughly 2.0 tranches this size to fully clear it",
+      "note": "auto-superseded 2026-08-03 -- folded into P-143 as a repeat of the same open proposal"
     },
     {
       "action": "STOP_RAISE",
@@ -3581,7 +3582,7 @@
         "unverified": 0
       },
       "date": "2026-08-17T23:54:00+05:30",
-      "status": "open",
+      "status": "auto_retired",
       "id": "P-117",
       "direction_bucket": "HOLD",
       "priority_score": 0,
@@ -3595,7 +3596,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "n/a -- profit_ratchet is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
+      "retires_when": "n/a -- profit_ratchet is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here",
+      "retired_reason": "TER is a $1.00 (0.003% weight) dust residue from the 08-18 stop cascade -- nothing left to protect. G80 shadow-trigger auto-retirement gap, closed by strategist judgment 2026-08-24."
     },
     {
       "action": "STOP_RAISE",
@@ -3648,7 +3650,7 @@
         "unverified": 0
       },
       "date": "2026-08-19T11:05:00+05:30",
-      "status": "open",
+      "status": "superseded",
       "id": "P-119",
       "direction_bucket": "TRIM",
       "history": [
@@ -3672,7 +3674,7 @@
         }
       ],
       "repeat_count": 4,
-      "note": "recommended 4x since 2026-08-12T20:25:00+05:30, still open",
+      "note": "recommended 4x since 2026-08-12T20:25:00+05:30, still open | auto-superseded 2026-08-03 -- folded into P-146 as a repeat of the same open proposal",
       "priority_score": 4,
       "priority": "MEDIUM",
       "priority_reasons": [
@@ -3804,7 +3806,7 @@
         "unverified": 1
       },
       "date": "2026-08-19T11:05:00+05:30",
-      "status": "open",
+      "status": "superseded",
       "id": "P-122",
       "direction_bucket": "BUY",
       "priority_score": -1,
@@ -3818,7 +3820,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": null
+      "retires_when": null,
+      "note": "auto-superseded 2026-08-03 -- folded into P-151 as a repeat of the same open proposal"
     },
     {
       "action": "Buy GLW",
@@ -3869,7 +3872,7 @@
         "unverified": 1
       },
       "date": "2026-08-19T11:05:00+05:30",
-      "status": "open",
+      "status": "superseded",
       "id": "P-124",
       "direction_bucket": "BUY",
       "priority_score": -1,
@@ -3883,7 +3886,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": null
+      "retires_when": null,
+      "note": "auto-superseded 2026-08-03 -- folded into P-152 as a repeat of the same open proposal"
     },
     {
       "action": "Trim NVDA",
@@ -3901,7 +3905,7 @@
         "unverified": 0
       },
       "date": "2026-08-19T11:05:00+05:30",
-      "status": "open",
+      "status": "superseded",
       "id": "P-125",
       "direction_bucket": "TRIM",
       "priority_score": 4,
@@ -3922,7 +3926,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "NVDA drops under its ATR risk cap"
+      "retires_when": "NVDA drops under its ATR risk cap",
+      "note": "auto-superseded 2026-08-03 -- folded into P-144 as a repeat of the same open proposal"
     },
     {
       "action": "Trim BE",
@@ -4122,7 +4127,7 @@
         "unverified": 1
       },
       "date": "2026-08-20T22:11:00+05:30",
-      "status": "open",
+      "status": "superseded",
       "id": "P-130",
       "direction_bucket": "TRIM",
       "priority_score": 4,
@@ -4144,7 +4149,8 @@
       "review_flags": [],
       "revalidated_on": "2026-08-24",
       "retires_when": "NBIS drops under its ATR risk cap",
-      "tranche_note": "cures 89% of the risk cap excess ($726) -- roughly 2.0 tranches this size to fully clear it"
+      "tranche_note": "cures 89% of the risk cap excess ($726) -- roughly 2.0 tranches this size to fully clear it",
+      "note": "auto-superseded 2026-08-03 -- folded into P-145 as a repeat of the same open proposal"
     },
     {
       "date": "2026-08-24T08:55:00+05:30",
@@ -4152,7 +4158,7 @@
       "ticker": "BE",
       "size_usd": 403,
       "price_at_proposal": 201.56,
-      "status": "open",
+      "status": "superseded",
       "rationale": "Live catalyst_threat trigger (WSJ $3T off-balance-sheet AI financing story, same-day de-risking 2026-08-17); largest ATR cap overage in the book (2.723x, headroom -$1,275.51) and highest derisk_score (125.0, rank 1/33). Thesis strengthening but not the lead input -- trigger and cap overage are.",
       "trigger_type": "catalyst_threat",
       "trigger_bucket": "catalyst_threat",
@@ -4174,7 +4180,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-08-20T22:11:00+05:30, still open",
+      "note": "recommended 2x since 2026-08-20T22:11:00+05:30, still open | auto-superseded 2026-08-03 -- folded into P-138 as a repeat of the same open proposal",
       "priority_score": 6,
       "priority": "HIGH",
       "priority_reasons": [
@@ -4202,7 +4208,7 @@
       "ticker": "GEV",
       "size_usd": 396,
       "price_at_proposal": 988.0,
-      "status": "open",
+      "status": "superseded",
       "rationale": "Same catalyst_threat trigger; over cap 1.295x (headroom -$450.85); derisk rank 7.",
       "trigger_type": "catalyst_threat",
       "trigger_bucket": "catalyst_threat",
@@ -4224,7 +4230,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-08-20T22:11:00+05:30, still open",
+      "note": "recommended 2x since 2026-08-20T22:11:00+05:30, still open | auto-superseded 2026-08-03 -- folded into P-139 as a repeat of the same open proposal",
       "priority_score": 6,
       "priority": "HIGH",
       "priority_reasons": [
@@ -4252,7 +4258,7 @@
       "ticker": "VRT",
       "size_usd": 367,
       "price_at_proposal": 262.09,
-      "status": "open",
+      "status": "superseded",
       "rationale": "Same catalyst_threat trigger; over cap 1.584x (headroom -$676.10); derisk rank 4. Thesis WATCH is contested (EPS beat, revenue miss) so it is a supporting input only -- sized off the computed breach and trigger, not the thesis status.",
       "trigger_type": "catalyst_threat",
       "trigger_bucket": "catalyst_threat",
@@ -4274,7 +4280,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-08-20T22:11:00+05:30, still open",
+      "note": "recommended 2x since 2026-08-20T22:11:00+05:30, still open | auto-superseded 2026-08-03 -- folded into P-140 as a repeat of the same open proposal",
       "priority_score": 6,
       "priority": "HIGH",
       "priority_reasons": [
@@ -4302,7 +4308,7 @@
       "ticker": "AVGO",
       "size_usd": 295,
       "price_at_proposal": 368.65,
-      "status": "open",
+      "status": "superseded",
       "rationale": "Cap-independent profit-take: AVGO is NOT over its ATR cap (0.584x, headroom +$1,049.60) -- pure catalyst_threat trigger on a name up 9.03% on the month (RSI 65.3, +8.3pp relative strength), now carrying the XPV/BofA bond-downgrade overhang alone post-BX-exit.",
       "trigger_type": "catalyst_threat",
       "trigger_bucket": "catalyst_threat",
@@ -4342,7 +4348,7 @@
         }
       ],
       "repeat_count": 5,
-      "note": "recommended 5x since 2026-08-17T23:54:00+05:30, still open",
+      "note": "recommended 5x since 2026-08-17T23:54:00+05:30, still open | auto-superseded 2026-08-03 -- folded into P-141 as a repeat of the same open proposal",
       "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
@@ -4366,7 +4372,7 @@
       "ticker": "QCOM",
       "size_usd": 300,
       "price_at_proposal": 162.0,
-      "status": "open",
+      "status": "superseded",
       "rationale": "smith-rebound: near $159.80 support on macro-driven (not idiosyncratic) weakness. Real risk-cap headroom $808.30, sized as a small first tranche. Not a scored trigger bucket this run -- oversold_reversion suppressed on stale RSI.",
       "trigger_type": null,
       "trigger_bucket": null,
@@ -4394,7 +4400,7 @@
         }
       ],
       "repeat_count": 3,
-      "note": "recommended 3x since 2026-08-17T23:54:00+05:30, still open",
+      "note": "recommended 3x since 2026-08-17T23:54:00+05:30, still open | auto-superseded 2026-08-03 -- folded into P-148 as a repeat of the same open proposal",
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
@@ -4414,7 +4420,7 @@
       "ticker": "WDC",
       "size_usd": 150,
       "price_at_proposal": 462.35,
-      "status": "open",
+      "status": "superseded",
       "rationale": "smith-rebound: near $356.48 support. Real risk-cap headroom $174.18 (tighter than cluster headroom, sized to the tighter figure). Also nudges the AI Memory/Storage cluster floor breach (8.17% vs 15% target) in the right direction -- not a cure.",
       "trigger_type": null,
       "trigger_bucket": null,
@@ -4438,7 +4444,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "AI Memory/Storage re-enters its policy band"
+      "retires_when": "AI Memory/Storage re-enters its policy band",
+      "note": "auto-superseded 2026-08-03 -- folded into P-149 as a repeat of the same open proposal"
     },
     {
       "date": "2026-08-24T08:55:00+05:30",
@@ -4446,7 +4453,7 @@
       "ticker": "GLW",
       "size_usd": 90,
       "price_at_proposal": 152.54,
-      "status": "open",
+      "status": "superseded",
       "rationale": "smith-rebound: near $139.93 support. Real risk-cap headroom only $93.45, sized to the cap.",
       "trigger_type": null,
       "trigger_bucket": null,
@@ -4468,13 +4475,755 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-08-19T11:05:00+05:30, still open",
+      "note": "recommended 2x since 2026-08-19T11:05:00+05:30, still open | auto-superseded 2026-08-03 -- folded into P-150 as a repeat of the same open proposal",
       "priority_score": 1,
       "priority": "LOW",
       "priority_reasons": [
         "recommended 2x, still unactioned"
       ],
       "cluster": "AI Networking/Optics",
+      "still_valid_because": [
+        "recommended 2x, still unactioned"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": null
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "TRIM BE",
+      "ticker": "BE",
+      "size_usd": 390,
+      "price_at_proposal": 195.02,
+      "status": "open",
+      "trigger_type": "catalyst_threat",
+      "direction_bucket": "TRIM",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 1
+      },
+      "rationale": "Live catalyst_threat (WSJ $3T off-balance-sheet AI-financing story); worst cap overage in book (2.64x, headroom -$1,210), derisk rank 1/33. Thesis strengthening and fresh NEW TAILWINDS cited as context only, not basis.",
+      "id": "P-138",
+      "history": [
+        {
+          "date": "2026-08-20T22:11:00+05:30",
+          "size_usd": 321.17,
+          "price_at_proposal": 200.73,
+          "rationale": "catalyst_threat (live): WSJ $3T off-balance-sheet AI-commitments story named BE explicitly, -9.97% on the 08-17 headline day; also worst derisk-queue rank (1, score 125.0) and largest cap overshoot in book (2.168x, -$865.21 headroom). Thesis strengthening cited as context only, not basis."
+        },
+        {
+          "date": "2026-08-24T08:55:00+05:30",
+          "size_usd": 403,
+          "price_at_proposal": 201.56,
+          "rationale": "Live catalyst_threat trigger (WSJ $3T off-balance-sheet AI financing story, same-day de-risking 2026-08-17); largest ATR cap overage in the book (2.723x, headroom -$1,275.51) and highest derisk_score (125.0, rank 1/33). Thesis strengthening but not the lead input -- trigger and cap overage are."
+        }
+      ],
+      "repeat_count": 3,
+      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: BE no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py",
+      "priority_score": 4,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "BE at 2.64x its ATR risk cap",
+        "catalyst_threat was the stated trigger but BE is not in this run's catalyst_threat candidate list -- condition is no longer live",
+        "recommended 3x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "full_cure_usd": 1210.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 32.0,
+      "tranche_note": "cures 32% of the risk cap excess ($1,210) -- roughly 4 tranches this size to fully clear it",
+      "still_valid_because": [
+        "BE at 2.64x its ATR risk cap",
+        "catalyst_threat was the stated trigger but BE is not in this run's catalyst_threat candidate list -- condition is no longer live",
+        "recommended 3x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "BE no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "retired_on": "2026-08-24"
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "TRIM GEV",
+      "ticker": "GEV",
+      "size_usd": 379,
+      "price_at_proposal": 944.7,
+      "status": "open",
+      "trigger_type": "catalyst_threat",
+      "direction_bucket": "TRIM",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 1
+      },
+      "rationale": "Same catalyst_threat trigger; cap 1.24x (headroom -$365), derisk rank 7. NEW TAILWINDS flag noted as tension, not cancelling.",
+      "id": "P-139",
+      "history": [
+        {
+          "date": "2026-08-20T22:11:00+05:30",
+          "size_usd": 381.95,
+          "price_at_proposal": 952.515,
+          "rationale": "catalyst_threat (live): same WSJ catalyst, -6.90% on 08-17; 1.247x over ATR cap. Thesis strengthening cited as context only."
+        },
+        {
+          "date": "2026-08-24T08:55:00+05:30",
+          "size_usd": 396,
+          "price_at_proposal": 988.0,
+          "rationale": "Same catalyst_threat trigger; over cap 1.295x (headroom -$450.85); derisk rank 7."
+        }
+      ],
+      "repeat_count": 3,
+      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: GEV no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py",
+      "priority_score": 4,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "GEV at 1.24x its ATR risk cap",
+        "catalyst_threat was the stated trigger but GEV is not in this run's catalyst_threat candidate list -- condition is no longer live",
+        "recommended 3x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "full_cure_usd": 365.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 104.0,
+      "still_valid_because": [
+        "GEV at 1.24x its ATR risk cap",
+        "catalyst_threat was the stated trigger but GEV is not in this run's catalyst_threat candidate list -- condition is no longer live",
+        "recommended 3x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "GEV no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "retired_on": "2026-08-24"
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "TRIM VRT",
+      "ticker": "VRT",
+      "size_usd": 360,
+      "price_at_proposal": 257.0,
+      "status": "open",
+      "trigger_type": "catalyst_threat",
+      "direction_bucket": "TRIM",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 2,
+        "unverified": 0
+      },
+      "rationale": "Same catalyst_threat trigger; cap 1.55x (headroom -$641), derisk rank 4. Thesis WATCH is contested (EPS beat/rev miss) -- supporting input only.",
+      "id": "P-140",
+      "history": [
+        {
+          "date": "2026-08-20T22:11:00+05:30",
+          "size_usd": 363.26,
+          "price_at_proposal": 259.47,
+          "rationale": "catalyst_threat (live): same WSJ catalyst, -6.80% on 08-17; 1.567x over ATR cap. Thesis watch."
+        },
+        {
+          "date": "2026-08-24T08:55:00+05:30",
+          "size_usd": 367,
+          "price_at_proposal": 262.09,
+          "rationale": "Same catalyst_threat trigger; over cap 1.584x (headroom -$676.10); derisk rank 4. Thesis WATCH is contested (EPS beat, revenue miss) so it is a supporting input only -- sized off the computed breach and trigger, not the thesis status."
+        }
+      ],
+      "repeat_count": 3,
+      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: VRT no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py",
+      "priority_score": 4,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "VRT at 1.55x its ATR risk cap",
+        "catalyst_threat was the stated trigger but VRT is not in this run's catalyst_threat candidate list -- condition is no longer live",
+        "recommended 3x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "full_cure_usd": 641.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 56.0,
+      "tranche_note": "cures 56% of the risk cap excess ($641) -- roughly 2 tranches this size to fully clear it",
+      "still_valid_because": [
+        "VRT at 1.55x its ATR risk cap",
+        "catalyst_threat was the stated trigger but VRT is not in this run's catalyst_threat candidate list -- condition is no longer live",
+        "recommended 3x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "VRT no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "retired_on": "2026-08-24"
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "TRIM AVGO",
+      "ticker": "AVGO",
+      "size_usd": 292,
+      "price_at_proposal": 364.56,
+      "status": "open",
+      "trigger_type": "catalyst_threat",
+      "direction_bucket": "TRIM",
+      "cluster": "AI Networking/Optics",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 1
+      },
+      "rationale": "Cap-independent catalyst_threat (0.58x cap, +$1,065 headroom) -- in-cap names are the preferred candidate under this trigger by design. Recommended 5x since 08-17, never actioned.",
+      "id": "P-141",
+      "history": [
+        {
+          "date": "2026-08-17T23:54:00+05:30",
+          "size_usd": 315.41,
+          "price_at_proposal": 394.26,
+          "rationale": "Live catalyst_threat: BofA bond downgrade on XPV off-balance-sheet AI financing platform, extreme-case loss exposure ~$42bn (BofA also raised FY26 AVGO rev/EBITDA). Thesis strengthening but catalyst now carried alone -- BX exit removed the offsetting GP-side upside in the same vehicle."
+        },
+        {
+          "date": "2026-08-17T14:30:00+05:30",
+          "size_usd": 318.58,
+          "price_at_proposal": 398.22,
+          "rationale": "New live trigger, engine addendum: BofA downgraded Broadcom's BOND rating (2026-08-11) over the XPV off-balance-sheet AI financing platform AVGO built with Blackstone/Apollo to fund Anthropic compute -- stress-test exposure up to $370bn at full 2028 buildout, ~$42bn extreme-loss case. AVGO is named directly in this downgrade, same as BX (already trimmed under P-101 on this same catalyst). Cap-independent -- AVGO carries $1,044 of ATR headroom and is not over cap. TENSION, surfaced not suppressed: AVGO also sits in rotation's accumulate bucket on a strengthening thesis (real Q2 beat, 48% revenue growth, AI +143%) -- the catalyst and the accumulate signal answer different questions (financing-structure tail risk vs. operating fundamentals). This does not cancel the trigger; sized at the standard 20% catalyst_threat fraction, lighter than a cap-breach trim would be, precisely because the fundamentals are not in question."
+        },
+        {
+          "date": "2026-08-19T11:05:00+05:30",
+          "size_usd": 152,
+          "price_at_proposal": 380.0,
+          "rationale": "BofA bond downgrade over XPV off-balance-sheet AI financing (2026-08-11), reinforced by 08-17 WSJ $3T report. Cap-independent, $1,789 headroom. Tension surfaced: thesis strengthening, rotation bucket currently null (not accumulate) so no 2d exclusion applies. Resized down from prior $318.58 ask to fresh 20%-of-position compute."
+        },
+        {
+          "date": "2026-08-20T22:11:00+05:30",
+          "size_usd": 291.12,
+          "price_at_proposal": 363.9,
+          "rationale": "catalyst_threat (live), cap-independent by design -- AVGO sits inside its cap (0.576x), which the trigger framework treats as the preferred, not marginal, candidate. Same WSJ catalyst. Cluster in-band, no tension. Supersedes stale P-121 ($152, pre-move sizing)."
+        },
+        {
+          "date": "2026-08-24T08:55:00+05:30",
+          "size_usd": 295,
+          "price_at_proposal": 368.65,
+          "rationale": "Cap-independent profit-take: AVGO is NOT over its ATR cap (0.584x, headroom +$1,049.60) -- pure catalyst_threat trigger on a name up 9.03% on the month (RSI 65.3, +8.3pp relative strength), now carrying the XPV/BofA bond-downgrade overhang alone post-BX-exit."
+        }
+      ],
+      "repeat_count": 6,
+      "note": "recommended 6x since 2026-08-17T23:54:00+05:30, still open",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "AVGO genuinely stretched: +9.0% 1m, +8.3pp vs SMH -- real profit to take, not just a smaller loss",
+        "catalyst_threat: Broadcom in talks for $70-80bn AI-financing debt SPV (with Blackstone, Apollo) to backstop compute incl. Anthropic; builds on June's $35bn AI XPV Platform, targets >20GW by 2028 (2026-08-21) -- $70-80bn new tranche ($45bn senior/$35bn subordinated) vs $35bn June platform; BofA ceiling estimate $370bn senior debt by 2029; AVGO on-balance-sheet debt only $83.7bn per 08-17 WSJ baseline",
+        "recommended 6x and never actioned -- treated as implicitly declined (no priority bonus); consider `dismiss P-141` to clear it"
+      ],
+      "still_valid_because": [
+        "AVGO genuinely stretched: +9.0% 1m, +8.3pp vs SMH -- real profit to take, not just a smaller loss",
+        "catalyst_threat: Broadcom in talks for $70-80bn AI-financing debt SPV (with Blackstone, Apollo) to backstop compute incl. Anthropic; builds on June's $35bn AI XPV Platform, targets >20GW by 2028 (2026-08-21) -- $70-80bn new tranche ($45bn senior/$35bn subordinated) vs $35bn June platform; BofA ceiling estimate $370bn senior debt by 2029; AVGO on-balance-sheet debt only $83.7bn per 08-17 WSJ baseline",
+        "recommended 6x and never actioned -- treated as implicitly declined (no priority bonus); consider `dismiss P-141` to clear it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "TRIM BX",
+      "ticker": "BX",
+      "size_usd": 285,
+      "price_at_proposal": 143.28,
+      "status": "open",
+      "trigger_type": "catalyst_threat",
+      "direction_bucket": "TRIM",
+      "cluster": "Financials/Alt-Asset Diversifier",
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 1,
+        "unverified": 0
+      },
+      "rationale": "NEW. Same structural catalyst as AVGO (BX now named counterparty in the escalated $70-80bn AI-financing SPV) applied manually since BX predates this run's catalyst_threat list. Cap-independent (0.48x, +$1,578 headroom). Flag: BX was re-entered TODAY (10sh) -- this proposes partially reversing a same-day probe position; surfaced for review, not urged. Lighter alternative: add BX to theme_3 mapped tickers for next run's standing screen instead.",
+      "id": "P-142",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "BX genuinely stretched: +16.5% 1m, +15.8pp vs SMH -- real profit to take, not just a smaller loss",
+        "catalyst_threat: Broadcom in talks for $70-80bn AI-financing debt SPV (with Blackstone, Apollo) to backstop compute incl. Anthropic; builds on June's $35bn AI XPV Platform, targets >20GW by 2028 (2026-08-21) -- $70-80bn new tranche ($45bn senior/$35bn subordinated) vs $35bn June platform; BofA ceiling estimate $370bn senior debt by 2029; AVGO on-balance-sheet debt only $83.7bn per 08-17 WSJ baseline"
+      ],
+      "retired_on": "2026-08-24",
+      "note": "auto-retired 2026-08-24: BX no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was auto-retired before state.factor_catalysts had been updated with the BX finding this run -- BX now correctly appears in compute_triggers.json's live catalyst_threat list",
+      "still_valid_because": [
+        "BX genuinely stretched: +16.5% 1m, +15.8pp vs SMH -- real profit to take, not just a smaller loss",
+        "catalyst_threat: Broadcom in talks for $70-80bn AI-financing debt SPV (with Blackstone, Apollo) to backstop compute incl. Anthropic; builds on June's $35bn AI XPV Platform, targets >20GW by 2028 (2026-08-21) -- $70-80bn new tranche ($45bn senior/$35bn subordinated) vs $35bn June platform; BofA ceiling estimate $370bn senior debt by 2029; AVGO on-balance-sheet debt only $83.7bn per 08-17 WSJ baseline"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "BX no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "TRIM MRVL (scale-out rung)",
+      "ticker": "MRVL",
+      "size_usd": 500,
+      "price_at_proposal": 228.92,
+      "status": "open",
+      "trigger_type": "scale_out_ladder",
+      "direction_bucket": "TRIM",
+      "cluster": "AI Networking/Optics",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 3,
+        "unverified": 1
+      },
+      "rationale": "scale_out_ladder (shadow) coincides with a live computed cap breach that WORSENED, not cleared, since the 08-18 stop (now 8sh, 1.73x cap, headroom -$774). Thesis upgraded watch->strengthening this run (Google-partnership evidence) -- context only, not the basis. Target gap resolved OUT (7.87%, below 15% bar), removing prior BUY-side support -- irrelevant to this TRIM. TAX: sequence HIFO not FIFO -- FIFO books +$109.73 gain, HIFO books -$34.17 loss, a $143.90 swing (26% of proceeds).",
+      "id": "P-143",
+      "history": [
+        {
+          "date": "2026-08-17T23:54:00+05:30",
+          "size_usd": 550.65,
+          "price_at_proposal": 235.9937,
+          "rationale": "New: ATR cap 1.468x plus scale_out_ladder shadow coincidence (+25.3%, rung 1/2). No prior open trim; P-100 (stop raise) retired as resolved. Capped MEDIUM."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-17T23:54:00+05:30, still open",
+      "priority_score": 5,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "MRVL at 1.73x its ATR risk cap",
+        "MRVL genuinely stretched: +6.1% 1m, +5.4pp vs SMH -- real profit to take, not just a smaller loss",
+        "scale_out_ladder is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design",
+        "recommended 2x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "full_cure_usd": 774.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 65.0,
+      "tranche_note": "cures 65% of the risk cap excess ($774) -- roughly 2 tranches this size to fully clear it",
+      "still_valid_because": [
+        "MRVL at 1.73x its ATR risk cap",
+        "MRVL genuinely stretched: +6.1% 1m, +5.4pp vs SMH -- real profit to take, not just a smaller loss",
+        "scale_out_ladder is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design",
+        "recommended 2x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "n/a -- scale_out_ladder is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "TRIM NVDA",
+      "ticker": "NVDA",
+      "size_usd": 530,
+      "price_at_proposal": 219.74,
+      "status": "open",
+      "trigger_type": null,
+      "direction_bucket": "TRIM",
+      "cluster": "AI Semis/Fabs",
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 3,
+        "unverified": 0
+      },
+      "rationale": "Cap 1.20x, headroom -$531 (near-full cure at this size). Earnings 08-26 (2 trading days): 4/4 trailing beats but avg -5.30% drift two days post-print -- a red Thursday would not be a miss signal. Sentiment eased extreme_greed->greed but still elevated.",
+      "id": "P-144",
+      "history": [
+        {
+          "date": "2026-08-19T11:05:00+05:30",
+          "size_usd": 576,
+          "price_at_proposal": 219.74,
+          "rationale": "Largest position (11.01%), 1.212x ATR cap (-$575.81 headroom) inside an over-ceiling cluster (AI Semis/Fabs +10.52pt) -- trim cures real cluster overage. Earnings 2026-08-26 (5 sessions, verified via live check). Extreme-greed regime -> lead profit-booking with largest overweight name per policy. Framed on earnings + regime, cap breach as size justification only, not a mechanics-only trim."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-19T11:05:00+05:30, still open",
+      "priority_score": 5,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "NVDA at 1.20x its ATR risk cap",
+        "NVDA genuinely stretched: +8.1% 1m, +7.4pp vs SMH -- real profit to take, not just a smaller loss",
+        "recommended 2x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "full_cure_usd": 531.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 100.0,
+      "still_valid_because": [
+        "NVDA at 1.20x its ATR risk cap",
+        "NVDA genuinely stretched: +8.1% 1m, +7.4pp vs SMH -- real profit to take, not just a smaller loss",
+        "recommended 2x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "NVDA drops under its ATR risk cap"
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "TRIM NBIS",
+      "ticker": "NBIS",
+      "size_usd": 600,
+      "price_at_proposal": 215.145,
+      "status": "open",
+      "trigger_type": null,
+      "direction_bucket": "TRIM",
+      "cluster": "Compute/Hyperscaler",
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 2,
+        "unverified": 0
+      },
+      "rationale": "Cap 1.83x, headroom -$672 (cures ~89%). Upgraded evidence: -14% dilutive convertible-note hit (08-19, confirmed) and unresolved Vineland data-center concerns are real developments, not just cap mechanics. Thesis stays WATCH, genuinely unsettled.",
+      "id": "P-145",
+      "history": [
+        {
+          "date": "2026-08-20T22:11:00+05:30",
+          "size_usd": 645.44,
+          "price_at_proposal": 215.145,
+          "rationale": "No live trigger (thesis watch, not broken; RSI 54.3 neutral). Discretionary, sized off the computed $690.29 cap deficit per G58 since thesis has empty evidence_for and an explicit untested-against-the-stop-move evidence_against -- an information gap, not a verified view. 3sh unwinds the second, less-justified 08-20 add while keeping the first re-entry open. Down -3.91% intraday."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-20T22:11:00+05:30, still open",
+      "priority_score": 5,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "NBIS at 1.82x its ATR risk cap",
+        "NBIS genuinely stretched: +6.9% 1m, +6.1pp vs SMH -- real profit to take, not just a smaller loss",
+        "recommended 2x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "full_cure_usd": 672.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 89.0,
+      "tranche_note": "cures 89% of the risk cap excess ($672) -- roughly 2 tranches this size to fully clear it",
+      "still_valid_because": [
+        "NBIS at 1.82x its ATR risk cap",
+        "NBIS genuinely stretched: +6.9% 1m, +6.1pp vs SMH -- real profit to take, not just a smaller loss",
+        "recommended 2x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "NBIS drops under its ATR risk cap"
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "TRIM MSFT",
+      "ticker": "MSFT",
+      "size_usd": 360,
+      "price_at_proposal": 481.63,
+      "status": "open",
+      "trigger_type": "overbought_distribution",
+      "direction_bucket": "TRIM",
+      "cluster": "Compute/Hyperscaler",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 0
+      },
+      "rationale": "Originally live overbought_distribution (RSI 78.8) -- RSI cache now 12d stale, trigger structurally suppressed this run, condition unconfirmable either way. Held flat pending fresh data. PEER LEADER signal and wide cap headroom (0.43x) are at least consistent with continued strength.",
+      "id": "P-146",
+      "history": [
+        {
+          "date": "2026-08-12T20:25:00+05:30",
+          "size_usd": 371.21,
+          "price_at_proposal": 494.95,
+          "rationale": "RSI14 78.8, +24.7% on the month, most extended reading in book -- cluster -7.74pt under so paired intra-cluster with META instead of trimmed to cash, per trigger engine's own blocker guidance. CONDITIONAL -- see buy leg"
+        },
+        {
+          "date": "2026-08-13T11:39:00+05:30",
+          "size_usd": 370,
+          "price_at_proposal": 492.43,
+          "rationale": "RSI14 78.8, +3.35sigma peer-relative (most extended in book), +24.7% 1m -- protect real unrealised gain. Standalone: no intra-cluster laggard exists to rotate into (checked MSFT/AMZN/ORCL, all stretched); cluster tension noted, not cited as support for the trim, per G56."
+        },
+        {
+          "date": "2026-08-17T23:54:00+05:30",
+          "size_usd": 359.69,
+          "price_at_proposal": 479.59,
+          "rationale": "Live overbought_distribution (RSI14 78.8, +24.7% 1m, cap-independent). Compute/Hyperscaler cluster -9.11pt under floor, no intra-cluster rotation target exists -- trim-anyway-and-deepen or leave it, no third option; cluster cited as tension only, not support (G56)."
+        },
+        {
+          "date": "2026-08-19T11:05:00+05:30",
+          "size_usd": 360,
+          "price_at_proposal": 481.63,
+          "rationale": "RSI14 78.8 (>70), +24.7% 1m -- real gain, cap-independent (0.427x cap). Compute/Hyperscaler -7.17pt under floor cited as tension only, no intra-cluster rotation target exists. Pair leg A, book-profit/rotate-to-laggard."
+        }
+      ],
+      "repeat_count": 5,
+      "note": "recommended 5x since 2026-08-12T20:25:00+05:30, still open",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution was the stated trigger but MSFT is not in this run's overbought_distribution candidate list -- condition is no longer live",
+        "recommended 5x and never actioned -- treated as implicitly declined (no priority bonus); consider `dismiss P-146` to clear it"
+      ],
+      "still_valid_because": [
+        "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution was the stated trigger but MSFT is not in this run's overbought_distribution candidate list -- condition is no longer live",
+        "recommended 5x and never actioned -- treated as implicitly declined (no priority bonus); consider `dismiss P-146` to clear it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "MSFT RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "Raise MU stop to cost basis (no capital moved)",
+      "ticker": "MU",
+      "size_usd": 0,
+      "price_at_proposal": 934.4,
+      "status": "open",
+      "trigger_type": "profit_ratchet",
+      "direction_bucket": "HOLD",
+      "cluster": "AI Memory/Storage",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 1
+      },
+      "rationale": "Reaffirmed. MU is a real 3.65%-weight position (1.5sh, $1,401.94mv), still 1.26x over cap -- not dust despite the 08-18 cut. Gain has shrunk from +15.4% to +6.9% vs $874.17 basis since the original proposal, making the breakeven-stop raise more relevant, not less. Zero capital moved.",
+      "id": "P-147",
+      "history": [
+        {
+          "date": "2026-08-17T23:54:00+05:30",
+          "size_usd": 0,
+          "price_at_proposal": 1020.575,
+          "rationale": "profit_ratchet shadow: stop $829.12 below $874.17 basis, $112.66 of a +16.7% gain at risk. Zero capital; raise-to-breakeven is the sanctioned exception to the 21.8%-win-rate stop-efficacy data. Restates P-104."
+        },
+        {
+          "date": "2026-08-17T13:35:00+05:30",
+          "size_usd": 0,
+          "price_at_proposal": 1008.5406,
+          "rationale": "profit_ratchet (shadow) coincides with the already-open P-089 cap-breach trim (2.167x cap, computed) -- MU up +15.4% vs an $874.17 basis but its current stop ($819.34) sits below breakeven; a retracement would turn a real gain into a realised loss. Raises the stop only, no capital moved, does not fight the WATCH-not-broken thesis. Ratchet up, never tighten down."
+        }
+      ],
+      "repeat_count": 3,
+      "note": "recommended 3x since 2026-08-17T23:54:00+05:30, still open",
+      "priority_score": 4,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "MU at 1.26x its ATR risk cap",
+        "profit_ratchet is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design",
+        "recommended 3x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "still_valid_because": [
+        "MU at 1.26x its ATR risk cap",
+        "profit_ratchet is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design",
+        "recommended 3x, still unactioned",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "n/a -- profit_ratchet is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "Buy QCOM",
+      "ticker": "QCOM",
+      "size_usd": 300,
+      "price_at_proposal": 162.0,
+      "status": "open",
+      "trigger_type": null,
+      "direction_bucket": "BUY",
+      "cluster": "AI Semis/Fabs",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 2
+      },
+      "rationale": "Small first tranche, headroom now $832 (wider than at proposal time). Staged ahead of NVDA/MRVL earnings per stop-loss-style preference.",
+      "id": "P-148",
+      "history": [
+        {
+          "date": "2026-08-17T23:54:00+05:30",
+          "size_usd": 177.5,
+          "price_at_proposal": 161.87,
+          "rationale": "laggard_rotation shadow (bottom-quartile 1m rel strength -6.7pp, thesis strengthening, within cap) -- shadow, not yet hit-rate validated, scored zero on trigger alone. Sized to the smaller of ORCL sell proceeds ($177.50) and QCOM's own headroom ($448.33). Replaces P-098: BX exit occurred but proceeds left no cash trace (absorbed by IONQ/BE/AMZN), so that funding leg is dead."
+        },
+        {
+          "date": "2026-08-19T11:05:00+05:30",
+          "size_usd": 360,
+          "price_at_proposal": 160.19,
+          "rationale": "Bottom-quartile 1m rel strength (-6.7pp vs SMH), thesis strengthening, within cap (headroom $359.82). Shadow trigger, scored zero on trigger contribution. Sized to smaller of MSFT sell proceeds and QCOM headroom. Pair leg B."
+        },
+        {
+          "date": "2026-08-24T08:55:00+05:30",
+          "size_usd": 300,
+          "price_at_proposal": 162.0,
+          "rationale": "smith-rebound: near $159.80 support on macro-driven (not idiosyncratic) weakness. Real risk-cap headroom $808.30, sized as a small first tranche. Not a scored trigger bucket this run -- oversold_reversion suppressed on stale RSI."
+        }
+      ],
+      "repeat_count": 4,
+      "note": "recommended 4x since 2026-08-17T23:54:00+05:30, still open",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "recommended 4x, still unactioned"
+      ],
+      "still_valid_because": [
+        "recommended 4x, still unactioned"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": null
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "Buy WDC",
+      "ticker": "WDC",
+      "size_usd": 150,
+      "price_at_proposal": 462.35,
+      "status": "open",
+      "trigger_type": null,
+      "direction_bucket": "BUY",
+      "cluster": "AI Memory/Storage",
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 1,
+        "unverified": 1
+      },
+      "rationale": "Reconciled vs rebound's $550 suggestion -- real cap headroom only $203. Primary support is the real AI Memory/Storage floor breach (8.04% vs 15% target); PEER LAGGARD flag noted as tension, not a blocker.",
+      "id": "P-149",
+      "history": [
+        {
+          "date": "2026-08-24T08:55:00+05:30",
+          "size_usd": 150,
+          "price_at_proposal": 462.35,
+          "rationale": "smith-rebound: near $356.48 support. Real risk-cap headroom $174.18 (tighter than cluster headroom, sized to the tighter figure). Also nudges the AI Memory/Storage cluster floor breach (8.17% vs 15% target) in the right direction -- not a cure."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-24T08:55:00+05:30, still open",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "AI Memory/Storage under band (-7.0pt)",
+        "recommended 2x, still unactioned"
+      ],
+      "still_valid_because": [
+        "AI Memory/Storage under band (-7.0pt)",
+        "recommended 2x, still unactioned"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "AI Memory/Storage re-enters its policy band"
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "Buy GLW",
+      "ticker": "GLW",
+      "size_usd": 90,
+      "price_at_proposal": 152.54,
+      "status": "open",
+      "trigger_type": null,
+      "direction_bucket": "BUY",
+      "cluster": "AI Networking/Optics",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 2
+      },
+      "rationale": "Reconciled vs rebound's $600 suggestion -- real cap headroom only $141. Kept conservative within that ceiling given the ESCALATING gate.",
+      "id": "P-150",
+      "history": [
+        {
+          "date": "2026-08-19T11:05:00+05:30",
+          "size_usd": 539,
+          "price_at_proposal": 159.9,
+          "rationale": "AI Networking/Optics in-band; sized on dip-in-line-with-peer-median and support $151.83/$139.01. Rebound stage-in."
+        },
+        {
+          "date": "2026-08-24T08:55:00+05:30",
+          "size_usd": 90,
+          "price_at_proposal": 152.54,
+          "rationale": "smith-rebound: near $139.93 support. Real risk-cap headroom only $93.45, sized to the cap."
+        }
+      ],
+      "repeat_count": 3,
+      "note": "recommended 3x since 2026-08-19T11:05:00+05:30, still open",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "recommended 3x, still unactioned"
+      ],
+      "still_valid_because": [
+        "recommended 3x, still unactioned"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": null
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "Buy AMZN",
+      "ticker": "AMZN",
+      "size_usd": 350,
+      "price_at_proposal": 259.45,
+      "status": "open",
+      "trigger_type": null,
+      "direction_bucket": "BUY",
+      "cluster": "Compute/Hyperscaler",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 1
+      },
+      "rationale": "CORRECTED: original '-7.17pt under floor' rationale is stale -- Compute/Hyperscaler is now in-band (17.2% vs 20% target, band [15,25]). Purely discretionary add, no active breach behind it. Halved from $700 given the ESCALATING gate and thin cash.",
+      "id": "P-151",
+      "history": [
+        {
+          "date": "2026-08-19T11:05:00+05:30",
+          "size_usd": 700,
+          "price_at_proposal": 259.45,
+          "rationale": "Compute/Hyperscaler -7.17pt under floor. Ample headroom ($1,859), dip only -0.7%, support $256.39/$248.62. Rebound stage-in."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-19T11:05:00+05:30, still open",
+      "priority_score": 1,
+      "priority": "LOW",
+      "priority_reasons": [
+        "recommended 2x, still unactioned"
+      ],
+      "still_valid_because": [
+        "recommended 2x, still unactioned"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": null
+    },
+    {
+      "date": "2026-08-24T14:45:00+05:30",
+      "action": "Buy IREN (re-entry)",
+      "ticker": "IREN",
+      "size_usd": 111,
+      "price_at_proposal": 42.0,
+      "status": "open",
+      "trigger_type": null,
+      "direction_bucket": "BUY",
+      "cluster": "Compute/Hyperscaler",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 1
+      },
+      "rationale": "CORRECTED framing: IREN was fully exited in the 08-18 cascade -- this is a re-entry, not continuing exposure. Fresh support: watchlist's TARGET_GAP screen puts it at 48.76% upside today; matches the user's standing 08-12 re-entry preference (not chasing).",
+      "id": "P-152",
+      "history": [
+        {
+          "date": "2026-08-19T11:05:00+05:30",
+          "size_usd": 111,
+          "price_at_proposal": 42.0,
+          "rationale": "Thin ATR headroom ($110.87), support $39.30. Satisfies standing 08-12 re-entry open_flag modestly rather than chasing. Rebound stage-in."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-19T11:05:00+05:30, still open",
+      "priority_score": 1,
+      "priority": "LOW",
+      "priority_reasons": [
+        "recommended 2x, still unactioned"
+      ],
       "still_valid_because": [
         "recommended 2x, still unactioned"
       ],
@@ -4503,7 +5252,7 @@
         "missed": 0,
         "neutral": 0,
         "accuracy_pct": 100.0,
-        "avg_benefit_pct": 7.81
+        "avg_benefit_pct": 8.09
       },
       "BUY": {
         "n": 4,
@@ -4511,7 +5260,7 @@
         "missed": 4,
         "neutral": 0,
         "accuracy_pct": 0.0,
-        "avg_benefit_pct": -11.92
+        "avg_benefit_pct": -13.88
       },
       "HOLD": {
         "n": 2,
@@ -4519,7 +5268,7 @@
         "missed": 2,
         "neutral": 0,
         "accuracy_pct": 0.0,
-        "avg_benefit_pct": -8.59
+        "avg_benefit_pct": -9.41
       }
     },
     "overall": {
@@ -4528,15 +5277,15 @@
       "missed": 6,
       "neutral": 0,
       "accuracy_pct": 14.3,
-      "avg_benefit_pct": -8.15
+      "avg_benefit_pct": -9.47
     },
     "scored_count": 7,
     "quarantined_anchor_review": 1,
     "excluded_dismissed_by_user": 9,
-    "not_yet_30d": 72,
+    "not_yet_30d": 78,
     "note": "Direction-aware: a TRIM 'worked' if the price FELL after it, a BUY if it ROSE, a HOLD if the move stayed inside the +/-2.0% noise band. Threshold shared with the journal scorer so 'worked' means the same magnitude in both. dismissed_by_user proposals are excluded -- a user override is not a strategist error.",
     "data_quality": [
-      "72 proposal(s) are under 30 days old -- not yet in the scoring window.",
+      "78 proposal(s) are under 30 days old -- not yet in the scoring window.",
       "QUARANTINED pending anchor review, excluded from the scorecard: P-011 BUY NEM implies +46.7% from a $89.70 anchor. Verify the anchor against price history before trusting these."
     ]
   },
