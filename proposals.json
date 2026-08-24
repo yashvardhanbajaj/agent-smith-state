@@ -4495,7 +4495,7 @@
       "ticker": "BE",
       "size_usd": 390,
       "price_at_proposal": 195.02,
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": "catalyst_threat",
       "direction_bucket": "TRIM",
       "cluster": "AI Power/Cooling/DC Infra",
@@ -4521,19 +4521,17 @@
         }
       ],
       "repeat_count": 3,
-      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: BE no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py | auto-retired 2026-08-24: BE no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir.",
-      "priority_score": 4,
+      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: BE no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py | auto-retired 2026-08-24: BE no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir. | auto-retired 2026-08-24: recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
+      "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "BE at 2.64x its ATR risk cap",
-        "catalyst_threat was the stated trigger but BE is not in this run's catalyst_threat candidate list -- condition is no longer live",
-        "recommended 3x, still unactioned",
-        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+        "BE at 2.22x its ATR risk cap",
+        "catalyst_threat was the stated trigger but BE is not in this run's catalyst_threat candidate list -- condition is no longer live"
       ],
-      "full_cure_usd": 1210.0,
+      "full_cure_usd": 887.0,
       "cure_basis": "risk cap",
-      "cure_pct": 32.0,
-      "tranche_note": "cures 32% of the risk cap excess ($1,210) -- roughly 4 tranches this size to fully clear it",
+      "cure_pct": 44.0,
+      "tranche_note": "cures 44% of the risk cap excess ($887) -- roughly 3 tranches this size to fully clear it",
       "still_valid_because": [
         "BE at 2.64x its ATR risk cap",
         "catalyst_threat was the stated trigger but BE is not in this run's catalyst_threat candidate list -- condition is no longer live",
@@ -4543,7 +4541,9 @@
       "review_flags": [],
       "revalidated_on": "2026-08-24",
       "retires_when": "BE no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
-      "retired_on": "2026-08-24"
+      "retired_on": "2026-08-24",
+      "proposal_class": "idea",
+      "retired_reason": "recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -4551,7 +4551,7 @@
       "ticker": "GEV",
       "size_usd": 379,
       "price_at_proposal": 944.7,
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": "catalyst_threat",
       "direction_bucket": "TRIM",
       "cluster": "AI Power/Cooling/DC Infra",
@@ -4577,18 +4577,16 @@
         }
       ],
       "repeat_count": 3,
-      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: GEV no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py | auto-retired 2026-08-24: GEV no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir.",
-      "priority_score": 4,
+      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: GEV no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py | auto-retired 2026-08-24: GEV no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir. | auto-retired 2026-08-24: recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
+      "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "GEV at 1.24x its ATR risk cap",
-        "catalyst_threat was the stated trigger but GEV is not in this run's catalyst_threat candidate list -- condition is no longer live",
-        "recommended 3x, still unactioned",
-        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+        "GEV at 1.32x its ATR risk cap",
+        "catalyst_threat was the stated trigger but GEV is not in this run's catalyst_threat candidate list -- condition is no longer live"
       ],
-      "full_cure_usd": 365.0,
+      "full_cure_usd": 482.0,
       "cure_basis": "risk cap",
-      "cure_pct": 104.0,
+      "cure_pct": 79.0,
       "still_valid_because": [
         "GEV at 1.24x its ATR risk cap",
         "catalyst_threat was the stated trigger but GEV is not in this run's catalyst_threat candidate list -- condition is no longer live",
@@ -4598,7 +4596,10 @@
       "review_flags": [],
       "revalidated_on": "2026-08-24",
       "retires_when": "GEV no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
-      "retired_on": "2026-08-24"
+      "retired_on": "2026-08-24",
+      "proposal_class": "idea",
+      "tranche_note": "cures 79% of the risk cap excess ($482) -- roughly 2 tranches this size to fully clear it",
+      "retired_reason": "recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -4606,7 +4607,7 @@
       "ticker": "VRT",
       "size_usd": 360,
       "price_at_proposal": 257.0,
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": "catalyst_threat",
       "direction_bucket": "TRIM",
       "cluster": "AI Power/Cooling/DC Infra",
@@ -4632,19 +4633,17 @@
         }
       ],
       "repeat_count": 3,
-      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: VRT no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py | auto-retired 2026-08-24: VRT no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir.",
-      "priority_score": 4,
+      "note": "recommended 3x since 2026-08-20T22:11:00+05:30, still open | auto-retired 2026-08-24: VRT no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was incorrectly auto-retired by a retirement-logic bug (catalyst_threat retirement ignored an independently-live cap breach) fixed same run, see scripts/smith_lifecycle.py | auto-retired 2026-08-24: VRT no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir. | auto-retired 2026-08-24: recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
+      "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "VRT at 1.55x its ATR risk cap",
-        "catalyst_threat was the stated trigger but VRT is not in this run's catalyst_threat candidate list -- condition is no longer live",
-        "recommended 3x, still unactioned",
-        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+        "VRT at 1.62x its ATR risk cap",
+        "catalyst_threat was the stated trigger but VRT is not in this run's catalyst_threat candidate list -- condition is no longer live"
       ],
-      "full_cure_usd": 641.0,
+      "full_cure_usd": 699.0,
       "cure_basis": "risk cap",
-      "cure_pct": 56.0,
-      "tranche_note": "cures 56% of the risk cap excess ($641) -- roughly 2 tranches this size to fully clear it",
+      "cure_pct": 51.0,
+      "tranche_note": "cures 51% of the risk cap excess ($699) -- roughly 2 tranches this size to fully clear it",
       "still_valid_because": [
         "VRT at 1.55x its ATR risk cap",
         "catalyst_threat was the stated trigger but VRT is not in this run's catalyst_threat candidate list -- condition is no longer live",
@@ -4654,7 +4653,9 @@
       "review_flags": [],
       "revalidated_on": "2026-08-24",
       "retires_when": "VRT no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
-      "retired_on": "2026-08-24"
+      "retired_on": "2026-08-24",
+      "proposal_class": "idea",
+      "retired_reason": "recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -4662,7 +4663,7 @@
       "ticker": "AVGO",
       "size_usd": 292,
       "price_at_proposal": 364.56,
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": "catalyst_threat",
       "direction_bucket": "TRIM",
       "cluster": "AI Networking/Optics",
@@ -4706,13 +4707,12 @@
         }
       ],
       "repeat_count": 6,
-      "note": "recommended 6x since 2026-08-17T23:54:00+05:30, still open | auto-retired 2026-08-24: AVGO no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir.",
+      "note": "recommended 6x since 2026-08-17T23:54:00+05:30, still open | auto-retired 2026-08-24: AVGO no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir. | auto-retired 2026-08-24: recommended 6x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
       "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
         "AVGO genuinely stretched: +9.0% 1m, +8.3pp vs SMH -- real profit to take, not just a smaller loss",
-        "catalyst_threat: Broadcom in talks for $70-80bn AI-financing debt SPV (with Blackstone, Apollo) to backstop compute incl. Anthropic; builds on June's $35bn AI XPV Platform, targets >20GW by 2028 (2026-08-21) -- $70-80bn new tranche ($45bn senior/$35bn subordinated) vs $35bn June platform; BofA ceiling estimate $370bn senior debt by 2029; AVGO on-balance-sheet debt only $83.7bn per 08-17 WSJ baseline",
-        "recommended 6x and never actioned -- treated as implicitly declined (no priority bonus); consider `dismiss P-141` to clear it"
+        "catalyst_threat: Broadcom in talks for $70-80bn AI-financing debt SPV (with Blackstone, Apollo) to backstop compute incl. Anthropic; builds on June's $35bn AI XPV Platform, targets >20GW by 2028 (2026-08-21) -- $70-80bn new tranche ($45bn senior/$35bn subordinated) vs $35bn June platform; BofA ceiling estimate $370bn senior debt by 2029; AVGO on-balance-sheet debt only $83.7bn per 08-17 WSJ baseline"
       ],
       "still_valid_because": [
         "AVGO genuinely stretched: +9.0% 1m, +8.3pp vs SMH -- real profit to take, not just a smaller loss",
@@ -4722,7 +4722,9 @@
       "review_flags": [],
       "revalidated_on": "2026-08-24",
       "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
-      "retired_on": "2026-08-24"
+      "retired_on": "2026-08-24",
+      "proposal_class": "idea",
+      "retired_reason": "recommended 6x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -4755,7 +4757,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "BX no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "BX no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "proposal_class": "idea"
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -4914,7 +4917,7 @@
       "ticker": "MSFT",
       "size_usd": 360,
       "price_at_proposal": 481.63,
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": "overbought_distribution",
       "direction_bucket": "TRIM",
       "cluster": "Compute/Hyperscaler",
@@ -4952,13 +4955,12 @@
         }
       ],
       "repeat_count": 5,
-      "note": "recommended 5x since 2026-08-12T20:25:00+05:30, still open",
+      "note": "recommended 5x since 2026-08-12T20:25:00+05:30, still open | auto-retired 2026-08-24: recommended 5x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
         "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
-        "overbought_distribution was the stated trigger but MSFT is not in this run's overbought_distribution candidate list -- condition is no longer live",
-        "recommended 5x and never actioned -- treated as implicitly declined (no priority bonus); consider `dismiss P-146` to clear it"
+        "overbought_distribution was the stated trigger but MSFT is not in this run's overbought_distribution candidate list -- condition is no longer live"
       ],
       "still_valid_because": [
         "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
@@ -4967,7 +4969,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "MSFT RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "MSFT RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)",
+      "proposal_class": "housekeeping",
+      "retired_on": "2026-08-24",
+      "retired_reason": "recommended 5x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -4975,7 +4980,7 @@
       "ticker": "MU",
       "size_usd": 0,
       "price_at_proposal": 934.4,
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": "profit_ratchet",
       "direction_bucket": "HOLD",
       "cluster": "AI Memory/Storage",
@@ -5001,14 +5006,11 @@
         }
       ],
       "repeat_count": 3,
-      "note": "recommended 3x since 2026-08-17T23:54:00+05:30, still open",
-      "priority_score": 4,
-      "priority": "MEDIUM",
+      "note": "recommended 3x since 2026-08-17T23:54:00+05:30, still open | auto-retired 2026-08-24: recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
+      "priority_score": 0,
+      "priority": "LOW",
       "priority_reasons": [
-        "MU at 1.26x its ATR risk cap",
-        "profit_ratchet is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design",
-        "recommended 3x, still unactioned",
-        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+        "profit_ratchet is SHADOW-SCORED, not yet voting -- this trigger has no measured hit rate in this book, so it contributes 0 to priority by design"
       ],
       "still_valid_because": [
         "MU at 1.26x its ATR risk cap",
@@ -5018,7 +5020,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "n/a -- profit_ratchet is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here"
+      "retires_when": "n/a -- profit_ratchet is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here",
+      "proposal_class": "housekeeping",
+      "retired_on": "2026-08-24",
+      "retired_reason": "recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -5026,7 +5031,7 @@
       "ticker": "QCOM",
       "size_usd": 300,
       "price_at_proposal": 162.0,
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": null,
       "direction_bucket": "BUY",
       "cluster": "AI Semis/Fabs",
@@ -5058,18 +5063,23 @@
         }
       ],
       "repeat_count": 4,
-      "note": "recommended 4x since 2026-08-17T23:54:00+05:30, still open",
-      "priority_score": 2,
+      "note": "recommended 4x since 2026-08-17T23:54:00+05:30, still open | auto-retired 2026-08-24: recommended 4x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
+      "priority_score": 4,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "recommended 4x, still unactioned"
+        "AI Semis/Fabs under band (-7.3pt)",
+        "cash in excess at 30.4% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
       ],
       "still_valid_because": [
         "recommended 4x, still unactioned"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": null
+      "retires_when": null,
+      "proposal_class": "idea",
+      "retired_on": "2026-08-24",
+      "retired_reason": "recommended 4x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -5098,19 +5108,24 @@
       ],
       "repeat_count": 2,
       "note": "recommended 2x since 2026-08-24T08:55:00+05:30, still open",
-      "priority_score": 3,
+      "priority_score": 5,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "AI Memory/Storage under band (-7.0pt)",
-        "recommended 2x, still unactioned"
+        "AI Memory/Storage under band (-10.1pt)",
+        "cash in excess at 30.4% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
       ],
       "still_valid_because": [
-        "AI Memory/Storage under band (-7.0pt)",
-        "recommended 2x, still unactioned"
+        "AI Memory/Storage under band (-10.1pt)",
+        "cash in excess at 30.4% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "AI Memory/Storage re-enters its policy band"
+      "retires_when": "AI Memory/Storage re-enters its policy band",
+      "proposal_class": "idea"
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -5118,7 +5133,7 @@
       "ticker": "GLW",
       "size_usd": 90,
       "price_at_proposal": 152.54,
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": null,
       "direction_bucket": "BUY",
       "cluster": "AI Networking/Optics",
@@ -5144,18 +5159,21 @@
         }
       ],
       "repeat_count": 3,
-      "note": "recommended 3x since 2026-08-19T11:05:00+05:30, still open",
+      "note": "recommended 3x since 2026-08-19T11:05:00+05:30, still open | auto-retired 2026-08-24: recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "recommended 3x, still unactioned"
+        "cash in excess at 30.4% vs a [5,15]% band -- deploying is the live problem, not raising more"
       ],
       "still_valid_because": [
         "recommended 3x, still unactioned"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": null
+      "retires_when": null,
+      "proposal_class": "idea",
+      "retired_on": "2026-08-24",
+      "retired_reason": "recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -5184,17 +5202,20 @@
       ],
       "repeat_count": 2,
       "note": "recommended 2x since 2026-08-19T11:05:00+05:30, still open",
-      "priority_score": 1,
-      "priority": "LOW",
+      "priority_score": 3,
+      "priority": "MEDIUM",
       "priority_reasons": [
-        "recommended 2x, still unactioned"
+        "cash in excess at 30.4% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "still_valid_because": [
-        "recommended 2x, still unactioned"
+        "cash in excess at 30.4% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": null
+      "retires_when": null,
+      "proposal_class": "idea"
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -5223,17 +5244,20 @@
       ],
       "repeat_count": 2,
       "note": "recommended 2x since 2026-08-19T11:05:00+05:30, still open",
-      "priority_score": 1,
-      "priority": "LOW",
+      "priority_score": 3,
+      "priority": "MEDIUM",
       "priority_reasons": [
-        "recommended 2x, still unactioned"
+        "cash in excess at 30.4% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "still_valid_because": [
-        "recommended 2x, still unactioned"
+        "cash in excess at 30.4% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": null
+      "retires_when": null,
+      "proposal_class": "idea"
     }
   ],
   "retracted": [
