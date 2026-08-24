@@ -8,7 +8,7 @@ per-run compute stages, the pipeline runner and the CLI, and imports these.
 import json
 import re
 import os
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 import smith_risk
 from smith_core import *  # noqa: F401,F403 -- shared constants and IO helpers
@@ -80,6 +80,28 @@ def _proposal_parse_date(raw):
             continue
     return None
 
+
+def _proposal_parse_datetime(raw):
+    """Full-precision parse, for the dedup survivor tie-break ONLY -- every other caller wants
+    _proposal_parse_date's DATE granularity (age-in-days, 7-day expiry, history sort) and must
+    keep using that. This exists because that truncation broke same-day reaffirmation: found live
+    2026-08-24, a 08:55 quick-sweep proposal and a 14:45 deep-review resize of the SAME ticker both
+    parsed to date(2026,8,24), so the "keep whichever is chronologically LATEST" rule saw them as
+    date-equal and fell through to the rationale-length tie-break instead -- on five separate
+    tickers that run, the fresher (often more concise) resize LOST to the older, more verbose
+    rationale purely on string length, keeping stale size_usd/rationale on the surviving row.
+    This desk now runs several sweeps a day, so same-day repeats are the normal case, not an edge
+    case -- the comparison needs real chronological ordering, not just date equality."""
+    if not raw:
+        return None
+    try:
+        dt = datetime.fromisoformat(raw)
+        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+    except ValueError:
+        pass
+    d = _proposal_parse_date(raw)
+    return datetime(d.year, d.month, d.day, tzinfo=timezone.utc) if d else None
+
 def cmd_proposals(args):
     """Apply lifecycle rules to proposals.json: cross-run supersede-on-repeat, auto-expire
     old, auto-void when position changes materially. Also assigns each proposal a stable
@@ -123,6 +145,7 @@ def cmd_proposals(args):
     direction = _proposal_direction
     infer_ticker = _proposal_infer_ticker
     parse_date = _proposal_parse_date
+    parse_datetime = _proposal_parse_datetime
 
     # -- stable IDs: assign once, never reassign or reuse --
     max_id = 0
@@ -154,9 +177,13 @@ def cmd_proposals(args):
         key = (pr.get("ticker"), direction(pr.get("action")))
         if key in seen and key[0] is not None:
             j = seen[key]
-            date_i, date_j = prop_date, parse_date(props[j].get("date", ""))
+            # Full datetime precision here (2026-08-24 fix), not just date -- this desk runs
+            # several sweeps a day now, so two same-day proposals are the normal case, and
+            # comparing at date-only granularity made them look tied and fall through to the
+            # rationale-length coin-flip below even when one was genuinely hours fresher.
+            date_i, date_j = parse_datetime(pr.get("date", "")), parse_datetime(props[j].get("date", ""))
             # keep whichever occurrence is chronologically LATEST (freshest price/rationale);
-            # on an exact date tie, keep the longer rationale as the original heuristic did.
+            # on an exact timestamp tie, keep the longer rationale as the original heuristic did.
             if date_i and date_j and date_i != date_j:
                 survivor, loser = (i, j) if date_i > date_j else (j, i)
             elif date_i and not date_j:
@@ -572,25 +599,36 @@ def cmd_proposals(args):
                 elif abs_now is not None and abs_now <= 0:
                     why = (f"{ticker} is no longer up on the month ({abs_now:+.1f}%) -- there is no "
                            "longer a gain to protect, so this is not a profit-take any more")
-            # catalyst_threat and thesis_break (added 2026-08-17): both cap/cluster-independent,
-            # same discipline as overbought_distribution -- tested on their OWN condition, never
-            # retired merely for being within the ATR cap or inside its policy band.
+            # catalyst_threat and thesis_break (added 2026-08-17, retirement corrected 2026-08-24):
+            # SCORED cap/cluster-independent, same discipline as overbought_distribution -- an
+            # in-cap name is a valid catalyst-driven trim, never blocked by being within its cap.
+            # But RETIREMENT follows the "stretch" pattern instead (AND of conditions, not a bare
+            # own-condition test): unlike overbought_distribution, which is a purely technical
+            # signal never claiming a cap problem too, the strategist routinely layers a
+            # catalyst_threat trim ON TOP OF a live cap/cluster breach as co-primary evidence (BE,
+            # 2026-08-24: "worst cap overage in the book (2.64x)... the structural catalyst and
+            # cap breach carry this trim"). Testing only the catalyst's own condition meant that
+            # when the catalyst cleared (state.factor_catalysts genuinely does replace, not
+            # append, each run -- see PERSIST), the proposal retired outright even though its
+            # OTHER, still-live reason (the worst cap overage in the entire book) would on its own
+            # have kept any ordinary cap-breach trim open. Retire only when NEITHER survives.
             elif pr.get("trigger_type") == "catalyst_threat":
-                if ticker in trigger_live_sets.get("catalyst_threat", set()):
-                    pass  # the catalyst is still live this run -- keep open
-                else:
-                    why = (f"{ticker} no longer appears in a structural-threat factor catalyst -- "
-                           "the finding this trim was sized against has cleared or was superseded")
+                catalyst_ok = ticker in trigger_live_sets.get("catalyst_threat", set())
+                if not catalyst_ok and not over_cap and not cl:
+                    why = (f"{ticker} no longer appears in a structural-threat factor catalyst, "
+                           f"and neither the ATR cap nor cluster band independently justifies "
+                           "this trim any more -- the structural reason has cleared")
+                # else: still live via the catalyst itself, OR an independent cap/cluster breach
+                # -- keep open either way, same AND-of-conditions discipline as stretch below.
             elif pr.get("trigger_type") == "thesis_break":
                 th_now = smith_risk.thesis_status(state_thesis.get(ticker))
-                if th_now == "broken":
-                    pass  # thesis is still broken -- keep open
-                elif th_now is None:
+                if th_now is None:
                     pass  # cannot test (no usable status) -- keep open rather than guess
-                else:
-                    why = (f"{ticker}'s thesis is now '{th_now}', no longer 'broken' -- the "
-                           "fundamental break this trim was sized against has been resolved or "
-                           "reassessed")
+                elif th_now != "broken" and not over_cap and not cl:
+                    why = (f"{ticker}'s thesis is now '{th_now}', no longer 'broken', and "
+                           "neither the ATR cap nor cluster band independently justifies this "
+                           "trim any more -- the structural reason has cleared")
+                # else: thesis still broken, OR an independent cap/cluster breach -- keep open.
             elif pr.get("trigger_type") in SHADOW_TRIGGERS:
                 pass  # shadow triggers are logged, not lifecycle-managed as live proposals
             else:
