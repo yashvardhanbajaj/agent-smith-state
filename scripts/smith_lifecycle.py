@@ -674,6 +674,20 @@ def cmd_proposals(args):
                 if ticker not in trigger_live_sets.get(tt_now, set()):
                     why = (f"{ticker} no longer appears in this run's live {tt_now} list -- the "
                            "condition this trim/exit was sized against has cleared")
+            elif pr.get("trigger_type") in ("profit_rotation", "cluster_rotation"):
+                # Paired rotation SELL legs (added 2026-08-24, bug found live on first real
+                # dispatch): must NOT fall through to the generic cap/cluster test below -- a
+                # profit_rotation/cluster_rotation sell leg's reason for existing is "stretched
+                # and yet-to-rally elsewhere" or "cluster laggard vs a performer", never a cap or
+                # cluster-band breach, so testing over_cap/cl here retires it the instant it turns
+                # out to (correctly) not be over cap -- which is every time, since MSFT/AMD were
+                # never over-cap trims to begin with. First live proposals from the rebuilt engine
+                # (MSFT->CLS, AMD->TER) were both auto-retired within the same run they were
+                # created, one call after cmd_proposals appended them, before this fix. The real
+                # retirement condition for both legs of a pair lives entirely in the
+                # PAIRED-ROTATION RETIREMENT pass below (keyed on trigger_pairs), so this leg does
+                # nothing here -- `pass`, not a test.
+                pass
             elif pr.get("trigger_type") in SHADOW_TRIGGERS:
                 pass  # shadow triggers are logged, not lifecycle-managed as live proposals
             else:
