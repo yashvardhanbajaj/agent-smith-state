@@ -174,6 +174,50 @@ LIVE_TRIGGERS = {"oversold_reversion", "overbought_distribution", "catalyst_thre
 
 SHADOW_TRIGGERS = {"laggard_rotation", "profit_ratchet", "scale_out_ladder"}
 
+# ---------------------------------------------------------------------------
+# CONVICTION-DRIVEN TRIGGERS (added 2026-08-24, third time the user reported the same defect --
+# see smith_conviction.py's module docstring for the full diagnosis). These generate and SIZE
+# proposals from conviction (smith_conviction.score_conviction / conviction_size), never from a
+# flat fraction of market value or a bare ATR-headroom minimum -- risk caps then CLAMP the
+# result via smith_conviction.clamp_size, they never invent it.
+#
+# All are LIVE, same reasoning as catalyst_threat/thesis_break above: each consumes findings the
+# analyst agents already evidence-graded (thesis, factor_catalysts, signal buckets, analyst
+# targets, earnings_facts) rather than a newly invented statistical heuristic with no track
+# record -- the shadow-first rule does not apply to re-using already-verified conviction.
+#
+# One deliberate consolidation vs the original design sketch: a separate `dip_redeploy` trigger
+# reading smith-rebound's live proposals[] was dropped -- that data is ephemeral per-run output,
+# not persisted state, so a trigger keyed on it would silently return empty on any run rebound
+# wasn't dispatched. `conviction_average` (for held names) and `reentry` (for exited names)
+# already cover the identical behaviour -- a real dip on a name worth owning -- from data that
+# IS always available, so the post-cascade-redeploy case is covered without a fragile dependency.
+CONVICTION_TRIGGERS = {
+    "trend_entry", "trend_breakdown", "profit_rotation", "cluster_rotation",
+    "conviction_average", "conviction_exit", "entry_setup", "reentry", "bench_diversifier",
+}
+
+LIVE_TRIGGERS = LIVE_TRIGGERS | CONVICTION_TRIGGERS
+
+# Proposal classification for the dashboard's two-panel split (added 2026-08-24). IDEAS are
+# conviction-driven investment decisions; HOUSEKEEPING is portfolio-mechanics maintenance (a cap
+# breach, a stop-raise, a band drift) that is still sized and actionable but must never compete
+# with an idea for the top of the list -- that competition, with mechanics winning by sheer
+# stacking, is the root defect this whole file exists to fix. A trigger_type not listed here
+# (legacy proposals, hand-written strategist ideas with no trigger_type) defaults to "idea" --
+# the safe direction, since the alternative (defaulting everything unlabelled to housekeeping)
+# would have silently reclassified every historical proposal the day this shipped.
+HOUSEKEEPING_TRIGGERS = {
+    "oversold_reversion", "overbought_distribution", "laggard_rotation",
+    "profit_ratchet", "scale_out_ladder",
+}
+
+
+def proposal_class(trigger_type):
+    if trigger_type in HOUSEKEEPING_TRIGGERS:
+        return "housekeeping"
+    return "idea"
+
 # Every agent gets these, per SKILL section 3's "Embed in EVERY prompt".
 GAPS_CAP, FLAGS_CAP = 8, 5
 

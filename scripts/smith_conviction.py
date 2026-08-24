@@ -59,9 +59,16 @@ WEIGHTS = {
 CONVICTION_TIERS = [
     (70, "high", 1.00),
     (45, "medium", 0.60),
-    (25, "low", 0.30),
+    (20, "low", 0.30),
     (0, "none", 0.0),
 ]
+# The "low" floor is deliberately 20, not a rounder 25 -- verified against the live book:
+# WEIGHTS["thesis"] x 1.0 (strengthening) x 0.75 (unverified) = 21.0 EXACTLY, and 22 of 33
+# thesis entries in this book are unverified. A 25 floor would mean the single most common
+# thesis case here (a genuine strengthening call the desk simply hasn't source-verified yet)
+# could never clear "low" on thesis alone, no matter how strong -- starving conviction on the
+# most load-bearing input for the majority of the book. 20 lets it through; a genuinely weak or
+# absent thesis (base 0.1 or 0.0) still does not.
 
 
 def _tier_for(score):

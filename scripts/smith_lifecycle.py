@@ -318,10 +318,26 @@ def cmd_proposals(args):
     # a proposal is flagged, not rewarded, so the "earns its vote first" rule can't be bypassed
     # by the strategist simply writing the trigger_type onto a proposal.
     triggers = load_json(os.path.join(args.run_dir, "compute_triggers.json"), default={})
-    trigger_live_sets = {tt: {c["ticker"] for c in (triggers.get(tt) or [])}
+    # profit_rotation/cluster_rotation (added 2026-08-24) have a PAIRED shape -- no top-level
+    # "ticker", instead sell_leg/buy_leg sub-dicts each carrying one -- so the generic c["ticker"]
+    # extraction below would KeyError on them. _trigger_tickers() handles both shapes; every
+    # other LIVE_TRIGGERS member is still a plain single-ticker row, unchanged.
+    def _trigger_tickers(row):
+        if row.get("ticker"):
+            return [row["ticker"]]
+        legs = [row.get("sell_leg"), row.get("buy_leg")]
+        return [leg["ticker"] for leg in legs if leg and leg.get("ticker")]
+
+    trigger_live_sets = {tt: {t for c in (triggers.get(tt) or []) for t in _trigger_tickers(c)}
                          for tt in LIVE_TRIGGERS}
-    trigger_rows = {tt: {c["ticker"]: c for c in (triggers.get(tt) or [])}
+    # trigger_rows keeps its old per-ticker single-row shape for single-ticker triggers; paired
+    # triggers are looked up separately via trigger_pairs below, never through this dict, so a
+    # paired row is deliberately left OUT of trigger_rows rather than picking one leg arbitrarily.
+    trigger_rows = {tt: {c["ticker"]: c for c in (triggers.get(tt) or []) if c.get("ticker")}
                     for tt in LIVE_TRIGGERS | SHADOW_TRIGGERS}
+    # pair_id -> the live compute_triggers.json row, for the paired-rotation retirement pass.
+    trigger_pairs = {c["pair_id"]: c for tt in ("profit_rotation", "cluster_rotation")
+                     for c in (triggers.get(tt) or []) if c.get("pair_id")}
     # Already staleness-gated by cmd_triggers -- empty dicts when the cache is too old, which makes
     # every RSI-based retirement check below untestable and therefore a no-op (proposal stays open).
     trig_rsi = triggers.get("rsi_values") or {}
@@ -435,10 +451,32 @@ def cmd_proposals(args):
         tt = pr.get("trigger_type")
         has_live_trigger = False
         if tt in LIVE_TRIGGERS and ticker in trigger_live_sets.get(tt, set()):
-            row = trigger_rows[tt][ticker]
-            score += 3
+            row = trigger_rows[tt].get(ticker) or {}
+            if not row and tt in ("profit_rotation", "cluster_rotation") and pr.get("pair_id") in trigger_pairs:
+                # Paired rows carry no top-level ticker, so trigger_rows (single-ticker only) is
+                # empty for them -- pull the matching leg out of trigger_pairs instead of losing
+                # the conviction number entirely.
+                pair_row = trigger_pairs[pr["pair_id"]]
+                for leg in (pair_row.get("sell_leg"), pair_row.get("buy_leg")):
+                    if leg and leg.get("ticker") == ticker:
+                        row = leg
+                        break
+            if tt in CONVICTION_TRIGGERS:
+                # Conviction-driven triggers earn a priority bonus proportional to how strong the
+                # idea is, not a flat +3 -- a 21-point "low" conviction add shouldn't out-rank a
+                # 4-point cluster-cap breach the way a flat bonus would. round(score/10) keeps the
+                # scale comparable to the old flat bonus (a 70+ "high" conviction idea still nets +7,
+                # above the old +3; a 20-point "low" nets +2, below it) while remaining monotonic.
+                conv_score = row.get("conviction_score", 0) or 0
+                conv_bonus = max(1, round(conv_score / 10))
+                score += conv_bonus
+                reasons.append(f"{tt}: conviction {conv_score} "
+                                f"({row.get('conviction_tier', 'unscored')}) -- " +
+                                "; ".join(row.get("conviction_reasons") or row.get("reasons") or []))
+            else:
+                score += 3
+                reasons.append(f"{tt}: " + "; ".join(row.get("reasons") or []))
             has_live_trigger = True
-            reasons.append(f"{tt}: " + "; ".join(row.get("reasons") or []))
             for b in row.get("blockers") or []:
                 reasons.append(f"caveat -- {b}")
         elif tt in SHADOW_TRIGGERS:
@@ -448,19 +486,13 @@ def cmd_proposals(args):
             reasons.append(f"{tt} was the stated trigger but {ticker} is not in this run's "
                            f"{tt} candidate list -- condition is no longer live")
 
-        # Repeat bonus, with a DECAY (added 2026-08-12). A proposal restated 5+ times and never
-        # actioned is not more urgent -- in practice it has been declined, and the old uncapped
-        # +2 was promoting exactly those to HIGH and crowding out fresh ideas (DRAM sat at rc=6).
-        # Past the decay point it earns nothing and says so, which is also the cue to dismiss it.
-        if rc >= 5:
-            reasons.append(f"recommended {rc}x and never actioned -- treated as implicitly declined "
-                           f"(no priority bonus); consider `dismiss {pr.get('id')}` to clear it")
-        elif rc >= 3:
-            score += 2
-            reasons.append(f"recommended {rc}x, still unactioned")
-        elif rc == 2:
+        # Repeat bonus (lowered 2026-08-24: restatement auto-retirement now fires at rc>=3, see
+        # the retirement pass below, so a proposal never reaches this scoring pass carrying rc>=3
+        # from a PRIOR run -- this branch only still sees rc==2 on the run where it's about to
+        # cross the retirement line, one run ahead of that pass).
+        if rc == 2:
             score += 1
-            reasons.append(f"recommended {rc}x, still unactioned")
+            reasons.append(f"recommended {rc}x, still unactioned -- one more restatement auto-retires it")
         if bucket == "SELL":
             score += 1
         # The old penalty fired on any BUY with score==0, which punished precisely the trade this
@@ -485,6 +517,7 @@ def cmd_proposals(args):
                            "mechanics alone, which describes the portfolio, not the stock")
         pr["priority"] = priority
         pr["priority_reasons"] = reasons
+        pr["proposal_class"] = proposal_class(tt)
         if cluster:
             pr["cluster"] = cluster
 
@@ -629,6 +662,18 @@ def cmd_proposals(args):
                            "neither the ATR cap nor cluster band independently justifies this "
                            "trim any more -- the structural reason has cleared")
                 # else: thesis still broken, OR an independent cap/cluster breach -- keep open.
+            elif pr.get("trigger_type") in ("trend_breakdown", "conviction_exit"):
+                # Conviction-driven TRIM/SELL triggers (added 2026-08-24): tested purely on their
+                # OWN condition re-appearing in this run's live list, same discipline as
+                # oversold_reversion/overbought_distribution -- no cap/cluster fallback, because
+                # unlike catalyst_threat these are not typically layered with cap-breach
+                # reasoning by construction (they fire from signal-polarity/convergence, not from
+                # a breach at all). trigger_live_sets already covers every LIVE_TRIGGERS member
+                # generically (see cmd_triggers), so this is one branch for both trigger types.
+                tt_now = pr.get("trigger_type")
+                if ticker not in trigger_live_sets.get(tt_now, set()):
+                    why = (f"{ticker} no longer appears in this run's live {tt_now} list -- the "
+                           "condition this trim/exit was sized against has cleared")
             elif pr.get("trigger_type") in SHADOW_TRIGGERS:
                 pass  # shadow triggers are logged, not lifecycle-managed as live proposals
             else:
@@ -694,6 +739,24 @@ def cmd_proposals(args):
                     why = (f"'{tb}'s interim 7d hit rate has fallen to "
                            f"{hr.get('hit_rate_pct') if hr else 'unmeasured'}% (was >55% when proposed) "
                            "-- the measured edge behind this buy no longer clears the bar")
+            elif pr.get("trigger_type") in ("trend_entry", "conviction_average", "entry_setup", "reentry", "bench_diversifier"):
+                # Conviction-driven BUY triggers (added 2026-08-24): tested on their own
+                # condition re-appearing live, same as the TRIM-side branch above. A `reentry`
+                # additionally expires on a hard 20-trading-day clock even if conviction is
+                # still live -- a re-entry candidate that's gone unactioned for a month is a
+                # stale read of the exit event, not a standing idea.
+                tt_now = pr.get("trigger_type")
+                if ticker not in trigger_live_sets.get(tt_now, set()):
+                    why = (f"{ticker} no longer appears in this run's live {tt_now} list -- the "
+                           "condition this buy was sized against has cleared")
+                elif tt_now == "reentry" and pr.get("exited_on"):
+                    # Structured field, never parsed from rationale prose -- parsing free text is
+                    # exactly what made the 2026-07-29 breach-cleared voider false-positive and
+                    # get disabled (see this file's cmd_proposals docstring). `exited_on` must be
+                    # set explicitly when a reentry proposal is created.
+                    exited_on = _proposal_parse_date(pr["exited_on"])
+                    if exited_on and (today_date - exited_on).days > 20:
+                        why = f"{ticker}'s exit was {(today_date - exited_on).days} days ago -- past the 20-day reentry window"
         elif bucket == "HOLD":
             # A STOP instruction is not hold-fire advice (found 2026-08-17). P-094 "Set hard stop
             # on ORCL @ $139.14" was auto-retired after 2 days as time-expired tactical guidance,
@@ -713,12 +776,47 @@ def cmd_proposals(args):
                 why = (f"tactical HOLD is {age} days old -- hold-fire advice is time-bound by nature "
                        "and is not carried forward as standing guidance")
 
+        # Restatement auto-retirement, lowered 3->5 to >=3 (2026-08-24 rebuild). The record was
+        # 0-for-17 beyond even four restatements -- a proposal recommended 3+ times and never
+        # acted on is not "still building a case", it has been declined in practice. Only applies
+        # when no other retirement reason already fired above (those are more specific).
+        if not why and pr.get("repeat_count", 1) >= 3:
+            _rc = pr["repeat_count"]
+            why = (f"recommended {_rc}x and never actioned -- 0-for-17 historically beyond four "
+                   "restatements, so 3+ now auto-retires rather than losing only its priority bonus; "
+                   "re-propose fresh if the condition still holds")
+
         if why:
             pr["status"] = "auto_retired"
             pr["retired_on"] = str(today_date)
             pr["retired_reason"] = why
             pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {why}").strip(" |")
             retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": why})
+
+    # -- PAIRED-ROTATION RETIREMENT (added 2026-08-24) -- profit_rotation/cluster_rotation legs
+    # must retire TOGETHER, never independently. This is the direct fix for "19 rotation pairs
+    # attempted all-time, 0 survived": the old pairing scored and lifecycle-managed each leg on
+    # its own typed trigger (stretch / signal_conviction), so a single-sided retirement silently
+    # orphaned the other leg into an unpaired, half-explained proposal, which is indistinguishable
+    # from noise and never got acted on. Both legs share a pair_id; if the pair is no longer in
+    # this run's live trigger_pairs, retire whichever leg(s) are still open, together, one reason.
+    if trigger_pairs is not None:
+        by_pair_id = {}
+        for pr in props:
+            pid = pr.get("pair_id")
+            if pr.get("status") == "open" and pid and pid.startswith(("profit_rotation-", "cluster_rotation-")):
+                by_pair_id.setdefault(pid, []).append(pr)
+        for pid, legs in by_pair_id.items():
+            if pid in trigger_pairs:
+                continue  # still live this run -- both legs stay open
+            for pr in legs:
+                why = (f"the {pid.split('-')[0]} pairing this leg belongs to is no longer live "
+                       "this run -- both legs of a rotation retire together, never one alone")
+                pr["status"] = "auto_retired"
+                pr["retired_on"] = str(today_date)
+                pr["retired_reason"] = why
+                pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {why}").strip(" |")
+                retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": why})
 
     # -- LIVE RE-JUSTIFICATION (same change). Every proposal still open after the pass above
     # carries a freshly recomputed `still_valid_because` and a re-priced `price_drift_pct`, so
@@ -797,6 +895,17 @@ def cmd_proposals(args):
         elif _tt == "thesis_break":
             retires_when = (f"{ticker}'s thesis is no longer 'broken' (cap/cluster-independent -- "
                             "staying inside the ATR cap does NOT retire this)")
+        elif _tt in ("trend_breakdown", "conviction_exit"):
+            retires_when = (f"{ticker} no longer appears in this run's live {_tt} list "
+                            "(cap/cluster-independent -- staying inside the ATR cap does NOT retire this)")
+        elif _tt in ("trend_entry", "conviction_average", "entry_setup", "bench_diversifier"):
+            retires_when = f"{ticker} no longer appears in this run's live {_tt} list"
+        elif _tt == "reentry":
+            retires_when = (f"{ticker} no longer appears in this run's live reentry list, or 20 "
+                            "trading days pass since its exit, whichever comes first")
+        elif _tt in ("profit_rotation", "cluster_rotation"):
+            retires_when = (f"the {_tt} pairing {pr.get('pair_id')} is no longer live this run -- "
+                            "both legs retire together, never one alone")
         elif _tt in SHADOW_TRIGGERS:
             retires_when = (f"n/a -- {_tt} is shadow-scored, tracked in trigger_journal.json rather "
                             "than lifecycle-managed here")
