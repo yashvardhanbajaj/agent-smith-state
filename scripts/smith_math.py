@@ -55,7 +55,8 @@ from smith_core import load_json, emit, fail, clamp
 from smith_ledger import cmd_lots, cmd_history
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy
 from smith_lifecycle import cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_score_shadow_journal
-from smith_learning import cmd_learn_status, cmd_learn_lessons, cmd_learn_add_lesson
+from smith_learning import (cmd_learn_status, cmd_learn_lessons, cmd_learn_add_lesson,
+                            cmd_learn_revealed_preference, cmd_learn_priority_params)
 # explicit: `from x import *` does NOT export underscore-prefixed names
 from smith_core import _prior_run_prices
 from smith_ledger import _avg_cost_from_lots, _months_between
@@ -2588,6 +2589,14 @@ def main():
     sp.add_argument("--supersedes", default=None, type=int)
     sp.add_argument("--today", default=None)
 
+    sp = sub.add_parser("learn-revealed-preference",
+                        help="period-keyed acted/dismissed/ignored profile + engagement rate")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+
+    sp = sub.add_parser("learn-priority-params",
+                        help="list the priority scorer's named literals (Phase 2, not yet wired)")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+
     args = p.parse_args()
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
@@ -2597,7 +2606,9 @@ def main():
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "dismiss": cmd_dismiss, "stops": cmd_stops,
          "score-shadow-journal": cmd_score_shadow_journal, "learn-status": cmd_learn_status,
-         "learn-lessons": cmd_learn_lessons, "learn-add-lesson": cmd_learn_add_lesson}[args.cmd](args)
+         "learn-lessons": cmd_learn_lessons, "learn-add-lesson": cmd_learn_add_lesson,
+         "learn-revealed-preference": cmd_learn_revealed_preference,
+         "learn-priority-params": cmd_learn_priority_params}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")
 

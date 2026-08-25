@@ -36,6 +36,7 @@ import os
 from datetime import date, datetime
 
 from smith_core import load_json, emit, fail, safe_write
+from smith_lifecycle import _proposal_parse_date  # `import *` skips underscore names
 
 STORE_FILENAME = "learning.json"
 
@@ -278,3 +279,167 @@ def cmd_learn_add_lesson(args):
                         source_run=args.source_run, supersedes=args.supersedes,
                         today=args.today)
     emit({"added": lesson})
+
+
+# ---------------------------------------------------------------------------
+# Revealed preference -- Phase 2. HONESTLY SCOPED: a steer, not a model.
+# ---------------------------------------------------------------------------
+# The near-miss that shapes every line below: a strong-looking size effect (acted-on median
+# $700 vs ignored $360) evaporated the instant it was checked within-period instead of pooled
+# across all history -- July acted $705 vs ignored $700, August $325 vs $300, i.e. no effect at
+# all, the whole thing was time-confounding (see lesson kind=dead_end, source of this module's
+# hard rule). SO: THIS MODULE NEVER POOLS ACROSS PERIODS. Every profile below is period-keyed
+# from the start, structurally -- there is no code path that produces one flattened number
+# spanning multiple months, because that code path is exactly what produced the false result.
+
+ACTED_STATUSES = {"executed", "fulfilled", "filled"}
+IGNORED_STATUSES = {"auto_retired"}
+DISMISSED_STATUSES = {"dismissed_by_user"}
+DEFERRED_STATUSES = {"deferred", "watch"}
+# Deliberately excluded from every profile: "open" (outcome not yet known) and "superseded"
+# (a mechanical dedup merge into a restated duplicate, not a user decision about the idea).
+
+
+def _period_key(proposal_date_str):
+    """Month bucket, e.g. '2026-07'. The unit the confound was found at -- not a magic choice,
+    it's literally the granularity the dead_end lesson's within-period check used."""
+    d = _proposal_parse_date(proposal_date_str or "")
+    return d.strftime("%Y-%m") if d else "unknown"
+
+
+def _size_band(size_usd):
+    if size_usd is None:
+        return "unsized"
+    if size_usd < 200:
+        return "<$200"
+    if size_usd < 500:
+        return "$200-500"
+    if size_usd < 1000:
+        return "$500-1000"
+    return "$1000+"
+
+
+def compute_revealed_preference(base_dir):
+    """Returns a PERIOD-KEYED report: {period: {acted, dismissed, ignored, deferred,
+    engagement_rate_pct, by_trigger_type, by_direction, by_cluster, by_size_band}}. Never
+    returns a pooled cross-period number -- that is the whole point of this function existing
+    separately from a naive groupby. A caller wanting a single headline number must explicitly
+    look at one period (e.g. the most recent complete month), never sum across the dict."""
+    proposals = load_json(os.path.join(base_dir, "proposals.json"), default={}).get("proposals", [])
+
+    def classify(p):
+        st = p.get("status")
+        if st in ACTED_STATUSES:
+            return "acted"
+        if st in IGNORED_STATUSES:
+            return "ignored"
+        if st in DISMISSED_STATUSES:
+            return "dismissed"
+        if st in DEFERRED_STATUSES:
+            return "deferred"
+        return None  # open/superseded/etc -- not a terminal user-facing decision, excluded
+
+    by_period = {}
+    for p in proposals:
+        label = classify(p)
+        if label is None:
+            continue
+        period = _period_key(p.get("date"))
+        by_period.setdefault(period, {"acted": [], "ignored": [], "dismissed": [], "deferred": []})
+        by_period[period][label].append(p)
+
+    def profile_group(rows):
+        sizes = sorted(r.get("size_usd") or 0 for r in rows)
+        return {
+            "n": len(rows),
+            "median_size_usd": sizes[len(sizes) // 2] if sizes else None,
+            "by_trigger_type": _count_by(rows, lambda r: r.get("trigger_type") or "none"),
+            "by_direction": _count_by(rows, lambda r: r.get("direction_bucket") or "?"),
+            "by_cluster": _count_by(rows, lambda r: r.get("cluster") or "?"),
+            "by_size_band": _count_by(rows, lambda r: _size_band(r.get("size_usd"))),
+        }
+
+    report = {}
+    for period, groups in sorted(by_period.items()):
+        acted_n = len(groups["acted"])
+        terminal_n = acted_n + len(groups["ignored"]) + len(groups["dismissed"])
+        report[period] = {
+            "acted": profile_group(groups["acted"]),
+            "ignored": profile_group(groups["ignored"]),
+            "dismissed": profile_group(groups["dismissed"]),
+            "deferred": profile_group(groups["deferred"]),
+            # THE headline metric this phase exists to surface -- nothing reported it before.
+            "engagement_rate_pct": round(acted_n / terminal_n * 100, 1) if terminal_n else None,
+            "terminal_n": terminal_n,
+        }
+    return report
+
+
+def _count_by(rows, keyfn):
+    out = {}
+    for r in rows:
+        k = keyfn(r)
+        out[k] = out.get(k, 0) + 1
+    return dict(sorted(out.items(), key=lambda kv: -kv[1]))
+
+
+def cmd_learn_revealed_preference(args):
+    """CLI entry: emit the period-keyed revealed-preference report. See
+    compute_revealed_preference's docstring for why this never pools across periods."""
+    report = compute_revealed_preference(args.base_dir)
+    emit({
+        "by_period": report,
+        "note": ("Period-keyed by design -- do NOT sum acted/ignored/dismissed counts across "
+                 "periods into one pooled figure. A pooled $700-vs-$360 size effect looked real "
+                 "and was pure time-confounding (see learn-lessons, kind=dead_end): 8 of 9 "
+                 "acted-on rows were from one month, 33 of 37 ignored rows from another. Compare "
+                 "engagement_rate_pct WITHIN a period, or across periods as a trend -- never as "
+                 "a single blended number."),
+    })
+
+
+# ---------------------------------------------------------------------------
+# Named priority-scorer literals -- Phase 2's first shadow-parameter targets
+# ---------------------------------------------------------------------------
+# The priority scorer (smith_lifecycle.py cmd_proposals) has ELEVEN bare inline literals --
+# +2/+3/-1 bonuses and a >55 hit-rate bar duplicated as prose at smith_lifecycle.py:935 -- with
+# no named constant anywhere. This is the least principled surface in the codebase per the
+# Phase-2 audit. Named here first (a prerequisite for ever calibrating them); NOT yet read from
+# learning.json by the scorer itself -- these stay their hand-set defaults, exactly as today,
+# until real per-signal observations accumulate past a real n_gate. Wiring evaluate()/promote()
+# into the scorer without that data would let n=1 noise vote on real position sizing, which is
+# the one thing the state machine exists to prevent.
+PRIORITY_SCORER_DEFAULTS = {
+    "priority.bonus.over_cap": 2,
+    "priority.bonus.cluster_breach": 2,
+    "priority.bonus.cash_short_trim": 2,
+    "priority.bonus.cash_excess_buy": 2,
+    "priority.bonus.stretch_or_signal_conviction": 2,
+    "priority.bonus.non_conviction_live_trigger": 3,
+    "priority.bonus.repeat_twice": 1,
+    "priority.bonus.sell_bucket": 1,
+    "priority.penalty.discretionary_no_trigger": -1,
+    "priority.bar.high_min_score": 4,
+    "priority.bar.medium_min_score": 2,
+    "priority.gate.signal_conviction_hit_rate_pct": 55,
+}
+
+
+def cmd_learn_priority_params(args):
+    """Report the priority scorer's named literals and their current (still hand-set, Phase 2
+    ships these observable but not yet wired) state -- the visible first step toward eventually
+    calibrating them, once revealed-preference or outcome observations exist per-literal."""
+    store = load_store(args.base_dir)
+    rows = []
+    for pid, default in PRIORITY_SCORER_DEFAULTS.items():
+        stored = store.get("parameters", {}).get(pid)
+        rows.append({
+            "param_id": pid, "default": default,
+            "state": stored.get("state", "default") if stored else "default",
+            "note": ("not yet wired to learning.json -- smith_lifecycle.py still uses its "
+                     "hand-set literal directly; named here so it CAN be targeted next, not "
+                     "because it already is") if not stored else None,
+        })
+    emit({"parameters": rows,
+          "note": "Phase 2 named these; a future phase wires cmd_proposals to read them via "
+                  "evaluate(), once real per-signal observations exist."})

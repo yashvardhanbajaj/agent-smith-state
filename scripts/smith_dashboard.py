@@ -33,6 +33,7 @@ from datetime import datetime, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import smith_risk
+import smith_learning
 
 DEFAULT_BASE = "/Users/yb/Claude/AgentSmith"
 
@@ -1569,6 +1570,58 @@ def build(base, out):
                        for x in dq_all)
         H.append(f'<details><summary>Data quality caveats<span class="c">{len(dq_all)} this run</span></summary>'
                  f'<div class="body">{rows}</div></details>')
+
+    # -- self-learning (added 2026-08-25, Phase 2). Nothing surfaced the engagement-rate
+    # collapse before this -- it is the single most important number about this system right
+    # now (61.5% of terminal proposals acted-on in July, 2.4% in August) and was sitting
+    # unread in proposals.json the entire time the standing complaint escalated across three
+    # reports. Rendered period-keyed, matching learn-revealed-preference's own hard rule:
+    # never pool engagement rate across periods into one blended figure -- that is exactly the
+    # mistake that produced the false $700-vs-$360 size effect this same audit found and
+    # retracted (see the lessons list rendered below).
+    try:
+        rp = smith_learning.compute_revealed_preference(base)
+    except Exception:
+        rp = {}
+    learning_store = load(os.path.join(base, "learning.json"), {})
+    lessons = sorted(learning_store.get("lessons", []), key=lambda l: l.get("date") or "", reverse=True)[:5]
+    trig_j = load(os.path.join(base, "trigger_journal.json"), {})
+    derisk_j = load(os.path.join(base, "derisk_journal.json"), {})
+    if rp or lessons or trig_j.get("hit_rate_by_key") or derisk_j.get("hit_rate_by_key"):
+        rows = []
+        if rp:
+            rows.append('<div class="srow"><span class="slab">Engagement rate</span>'
+                        '<span style="font-size:12.5px;color:var(--ink-2)">'
+                        'share of terminal proposals (acted / acted+ignored+dismissed) '
+                        'that were actually acted on -- period-keyed, never pooled</span></div>')
+            for period, p in sorted(rp.items(), reverse=True):
+                er = p.get("engagement_rate_pct")
+                er_s = f'{er:.1f}%' if er is not None else '&mdash;'
+                rows.append(f'<div class="srow"><span class="slab">{esc(period)}</span>'
+                            f'<span style="font-size:12.5px">{er_s} '
+                            f'(acted {p["acted"]["n"]} / ignored {p["ignored"]["n"]} / '
+                            f'dismissed {p["dismissed"]["n"]}, n={p["terminal_n"]})</span></div>')
+        for label, journal_data in (("Shadow trigger hit rates", trig_j),
+                                    ("De-risk queue hit rates", derisk_j)):
+            hrk = journal_data.get("hit_rate_by_key")
+            if hrk:
+                bits = " &middot; ".join(f'{esc(k)} {v["hit_rate_pct"]}% (n={v["n"]})'
+                                         for k, v in hrk.items())
+                rows.append(f'<div class="srow"><span class="slab">{esc(label)}</span>'
+                            f'<span style="font-size:12.5px">{bits}</span></div>')
+        if lessons:
+            lbits = "".join(f'<div class="srow"><span class="slab">{esc(l.get("kind",""))}'
+                            f' &middot; {esc(l.get("date",""))}</span>'
+                            f'<span style="font-size:12px;color:var(--ink-2)">'
+                            f'{esc((l.get("text") or "")[:220])}</span></div>' for l in lessons)
+            rows.append(f'<details><summary>Recent lessons<span class="c">{len(lessons)} shown, '
+                       f'{len(learning_store.get("lessons") or [])} total</span></summary>'
+                       f'<div class="body">{lbits}</div></details>')
+        H.append('<details><summary>Self-learning<span class="c">Phase 0-2</span></summary>'
+                 f'<div class="body">{"".join(rows)}</div>'
+                 '<p class="note" style="margin-top:8px">Observational only -- nothing here '
+                 'auto-sizes a position yet. See learning.json / learn-status for the full '
+                 'parameter state machine.</p></details>')
 
     H.append('</div>')  # /t3
 
