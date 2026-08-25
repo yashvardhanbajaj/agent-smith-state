@@ -51,6 +51,14 @@
       "evidence": "trigger_journal.json, derisk_journal.json, scored 2026-08-25",
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "calibration",
+      "text": "Stop-distance calibration read (Phase 3, n=140 scored stops): overall 48.8%, cascade cohort 50.0% (n=29), deliberate cohort 54.2% (n=79) -- all within +/-10pp of a coin flip, no clear signal to widen or tighten stop_distance_pct in either cohort at current sample size. This CORRECTS a stale SKILL.md claim of '75% deliberate / 25% cascade' that was based on an n=6 snapshot; that divergence did not survive the sample growing to n=108 across the two real cohorts. The 'unknown' cohort (n=32, missing/unparseable fill_time_utc) reads 34.5%, below the coin-flip band, but this cohort's classification is itself data-quality-confounded (a missing timestamp is not a real cascade/deliberate signal) so this reading should not be treated as a genuine finding about stop behavior. Per-ATR-tier calibration (as opposed to cascade/deliberate) is not currently possible -- stops_analysis.json rows carry no ATR-at-fill. No change to policy.json's stop_loss_framework is warranted or was made; this is an escalation-only, no-action-indicated finding.",
+      "evidence": "stops_analysis.json, learn-stop-calibration 2026-08-25",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

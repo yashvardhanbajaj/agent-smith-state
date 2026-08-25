@@ -56,7 +56,8 @@ from smith_ledger import cmd_lots, cmd_history
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy
 from smith_lifecycle import cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_score_shadow_journal
 from smith_learning import (cmd_learn_status, cmd_learn_lessons, cmd_learn_add_lesson,
-                            cmd_learn_revealed_preference, cmd_learn_priority_params)
+                            cmd_learn_revealed_preference, cmd_learn_priority_params,
+                            cmd_learn_stop_calibration)
 # explicit: `from x import *` does NOT export underscore-prefixed names
 from smith_core import _prior_run_prices
 from smith_ledger import _avg_cost_from_lots, _months_between
@@ -1805,21 +1806,34 @@ def cmd_triggers(args):
             recently_exited[tr["ticker"]] = d
 
     def _track_record_for(buckets):
-        """Track record: use the interim 7d hit rate of whichever bullish bucket this ticker
+        """Track record: use the measured hit rate of whichever bullish bucket this ticker
         carries, if any -- same source cmd_proposals already reads for signal_conviction.
         Extracted 2026-08-25 (self-learning Phase 1) so entry_setup/reentry/bench_diversifier
         can share it too -- those three were passing track_record: None outright, a dead
         track_record_multiplier call for 3 of the 9 conviction triggers, found in the same
         audit that found trigger_journal.json's 0-scored gate. Not everything gets a track
         record (bench_diversifier has no buckets to read at all), and that's fine -- None is
-        the correct, honest answer there, not a bug to route around."""
+        the correct, honest answer there, not a bug to route around.
+
+        Prefers the VALIDATED 30d bucket_hit_rates over the interim 7d table (added 2026-08-25,
+        Phase 3 -- "feed the reconnected track_record_multiplier" from the now-unbiased data
+        Phase 1 fixed). Both tables read from journal.json, which Phase 1's exited-ticker price
+        injection has already de-biased for entries locked with a real price; the 30d table is
+        simply the higher-confidence one when it has data, since it requires the full 30-day
+        maturation window per VERDICT_THRESHOLD_PCT rather than the 7-day interim proxy. Falls
+        back to 7d only when a bucket has no 30d-matured reading yet."""
         tr = None
+        hit_rates_30d = journal.get("bucket_hit_rates", {})
         hit_rates_7d = journal.get("bucket_hit_rates_7d", {})
         polarity = smith_risk.classify_signal_polarity(buckets)
         for b in polarity["bullish"]:
-            hr = hit_rates_7d.get(b)
-            if hr and hr.get("n"):
-                tr = {"hit_rate_pct": hr["hit_rate_pct"], "n": hr["n"]}
+            hr30 = hit_rates_30d.get(b)
+            if hr30 and hr30.get("n"):
+                tr = {"hit_rate_pct": hr30["hit_rate_pct"], "n": hr30["n"], "interim": False}
+                break
+            hr7 = hit_rates_7d.get(b)
+            if hr7 and hr7.get("n"):
+                tr = {"hit_rate_pct": hr7["hit_rate_pct"], "n": hr7["n"], "interim": True}
                 break
         return tr
 
@@ -2597,6 +2611,10 @@ def main():
                         help="list the priority scorer's named literals (Phase 2, not yet wired)")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
 
+    sp = sub.add_parser("learn-stop-calibration",
+                        help="cohort win-rate read on stop distance -- escalation only, never auto-applies")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+
     args = p.parse_args()
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
@@ -2608,7 +2626,8 @@ def main():
          "score-shadow-journal": cmd_score_shadow_journal, "learn-status": cmd_learn_status,
          "learn-lessons": cmd_learn_lessons, "learn-add-lesson": cmd_learn_add_lesson,
          "learn-revealed-preference": cmd_learn_revealed_preference,
-         "learn-priority-params": cmd_learn_priority_params}[args.cmd](args)
+         "learn-priority-params": cmd_learn_priority_params,
+         "learn-stop-calibration": cmd_learn_stop_calibration}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")
 

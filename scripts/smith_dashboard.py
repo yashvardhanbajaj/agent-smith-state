@@ -1609,6 +1609,19 @@ def build(base, out):
                                          for k, v in hrk.items())
                 rows.append(f'<div class="srow"><span class="slab">{esc(label)}</span>'
                             f'<span style="font-size:12.5px">{bits}</span></div>')
+        try:
+            stopcal = smith_learning.compute_stop_calibration(base)
+        except Exception:
+            stopcal = {}
+        if stopcal.get("overall", {}).get("n"):
+            ov = stopcal["overall"]
+            coh_bits = " &middot; ".join(
+                f'{esc(k)} {v.get("win_rate_pct")}% (n={v.get("n")})'
+                for k, v in stopcal.get("by_cohort", {}).items() if v.get("n"))
+            rows.append(f'<div class="srow"><span class="slab">Stop-distance calibration</span>'
+                        f'<span style="font-size:12.5px">overall {ov["win_rate_pct"]}% '
+                        f'(n={ov["n"]}) &mdash; {esc(ov["signal"])}. {coh_bits}. '
+                        f'Escalation-only, policy.json untouched.</span></div>')
         if lessons:
             lbits = "".join(f'<div class="srow"><span class="slab">{esc(l.get("kind",""))}'
                             f' &middot; {esc(l.get("date",""))}</span>'

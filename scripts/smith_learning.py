@@ -425,6 +425,73 @@ PRIORITY_SCORER_DEFAULTS = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Stop-distance calibration -- Phase 3. ESCALATES ONLY, never auto-applies.
+# ---------------------------------------------------------------------------
+# stop_distance_pct = max(2*ATR%, 3.0%) is CODE (smith_risk.py) implementing a PROSE rule the
+# user confirmed in policy.json on 2026-07-27 ("2x the name's trailing average daily range,
+# floored at 3%"). policy.json is never auto-modified (HARD RULES) -- so this calibration can
+# only ever produce a PROPOSAL for the user to act on by hand, never a self-applied change.
+# Deliberately does NOT route through evaluate()/promote(): those exist to gate a SPECIFIC
+# proposed numeric value into shadow/active/escalated, and this function has no specific value
+# to propose (see below -- the honest finding this run is "no clear signal", not a number). If
+# a future run's data supports a concrete new floor, wire that through promote() with band_pct=0
+# so it can only ever reach "escalated", never "active" -- never through this reporting path.
+#
+# What the data can and cannot show: stops_analysis.json's 140 rows carry cohort (cascade vs
+# deliberate) and a verdict, but NO ATR-at-fill -- so a genuine per-volatility-TIER calibration
+# (which is what "calibrate stop distance" most naturally means) is not currently computable.
+# This function is honest about that rather than inventing tiers from data that doesn't exist:
+# it reports cohort-level win rates, states plainly whether they diverge enough from a 50/50
+# coin flip to indicate anything, and does NOT propose a specific new numeric floor unless the
+# divergence is large enough to say something concrete. "No calibration change indicated" is a
+# legitimate, honest output of a calibration pass, not a null result to paper over.
+STOP_CALIBRATION_NEUTRAL_BAND_PP = 10.0  # win rate within 50%+/-this = "no clear signal"
+
+
+def compute_stop_calibration(base_dir):
+    stops = load_json(os.path.join(base_dir, "stops_analysis.json"), default={})
+    overall = stops.get("overall") or {}
+    by_cohort = stops.get("by_cohort") or {}
+
+    def read(win_rate_dict):
+        n = win_rate_dict.get("count")
+        wr = win_rate_dict.get("win_rate_pct")
+        if not n or wr is None:
+            return {"n": n or 0, "win_rate_pct": wr, "signal": "insufficient data"}
+        delta = wr - 50.0
+        if abs(delta) <= STOP_CALIBRATION_NEUTRAL_BAND_PP:
+            signal = "no clear signal (within +/-10pp of a coin flip)"
+        elif delta > 0:
+            signal = "leans toward TIGHTER being affordable -- stops are working better than a coin flip"
+        else:
+            signal = "leans toward WIDER being warranted -- stops are underperforming a coin flip"
+        return {"n": n, "win_rate_pct": wr, "signal": signal}
+
+    cohort_reads = {k: read(v) for k, v in by_cohort.items()}
+    if "unknown" in cohort_reads:
+        cohort_reads["unknown"]["caveat"] = (
+            "unknown means fill_time_utc was missing/unparseable, not a real cascade/deliberate "
+            "classification -- its win rate may reflect whatever caused the missing timestamp "
+            "(older rows, a different price source) rather than a genuine cohort effect. Treat "
+            "this one more cautiously than cascade/deliberate; it's data-quality-confounded.")
+
+    return {
+        "overall": read(overall),
+        "by_cohort": cohort_reads,
+        "current_policy": "stop_distance_pct = max(2*ATR%, 3.0%), confirmed 2026-07-27",
+        "note": ("ESCALATION-ONLY finding -- policy.json's stop_loss_framework is never auto-"
+                 "modified regardless of what this shows. Per-volatility-TIER calibration is "
+                 "not currently possible: stops_analysis.json has no ATR-at-fill per row, only "
+                 "cascade-vs-deliberate cohort. If tier-level calibration is wanted, that field "
+                 "needs adding to the stop-scoring pipeline first, not estimated here."),
+    }
+
+
+def cmd_learn_stop_calibration(args):
+    emit(compute_stop_calibration(args.base_dir))
+
+
 def cmd_learn_priority_params(args):
     """Report the priority scorer's named literals and their current (still hand-set, Phase 2
     ships these observable but not yet wired) state -- the visible first step toward eventually
