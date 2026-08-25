@@ -1,0 +1,253 @@
+{
+  "policy_present": true,
+  "policy_confirmed": true,
+  "policy_defects": [],
+  "policy_valid": true,
+  "cluster_target_denominator": "split: ceiling=invested_equity, floor=invested_equity",
+  "cluster_denominator_declared": "invested_equity",
+  "cluster_denominator_switched": false,
+  "cluster_denominator_reason": "cash 8.5% within the normal band -- cluster breaches tested on invested equity",
+  "cluster_table": [
+    {
+      "cluster": "AI Semis/Fabs",
+      "actual_pct": 23.653,
+      "target_pct": 30,
+      "band_pct": [
+        25,
+        35
+      ],
+      "drift_pt": -6.347,
+      "breach": true,
+      "actual_pct_of_equity": 23.653,
+      "actual_pct_of_total_book": 21.65,
+      "breach_edge": "under",
+      "ceiling_tested_on": "invested_equity",
+      "floor_tested_on": "invested_equity"
+    },
+    {
+      "cluster": "AI Memory/Storage",
+      "actual_pct": 8.135,
+      "target_pct": 15,
+      "band_pct": [
+        10,
+        20
+      ],
+      "drift_pt": -6.865,
+      "breach": true,
+      "actual_pct_of_equity": 8.135,
+      "actual_pct_of_total_book": 7.446,
+      "breach_edge": "under",
+      "ceiling_tested_on": "invested_equity",
+      "floor_tested_on": "invested_equity"
+    },
+    {
+      "cluster": "AI Networking/Optics",
+      "actual_pct": 12.305,
+      "target_pct": 15,
+      "band_pct": [
+        10,
+        20
+      ],
+      "drift_pt": -2.695,
+      "breach": false,
+      "actual_pct_of_equity": 12.305,
+      "actual_pct_of_total_book": 11.263,
+      "breach_edge": null,
+      "ceiling_tested_on": "invested_equity",
+      "floor_tested_on": "invested_equity"
+    },
+    {
+      "cluster": "AI Power/Cooling/DC Infra",
+      "actual_pct": 16.627,
+      "target_pct": 15,
+      "band_pct": [
+        10,
+        20
+      ],
+      "drift_pt": 1.627,
+      "breach": false,
+      "actual_pct_of_equity": 16.627,
+      "actual_pct_of_total_book": 15.219,
+      "breach_edge": null,
+      "ceiling_tested_on": "invested_equity",
+      "floor_tested_on": "invested_equity"
+    },
+    {
+      "cluster": "Compute/Hyperscaler OEM",
+      "actual_pct": 0.003,
+      "target_pct": 5,
+      "band_pct": [
+        0,
+        10
+      ],
+      "drift_pt": -4.997,
+      "breach": false,
+      "actual_pct_of_equity": 0.003,
+      "actual_pct_of_total_book": 0.003,
+      "breach_edge": null,
+      "ceiling_tested_on": "invested_equity",
+      "floor_tested_on": "invested_equity"
+    },
+    {
+      "cluster": "Compute/Hyperscaler",
+      "actual_pct": 17.534,
+      "target_pct": 20,
+      "band_pct": [
+        15,
+        25
+      ],
+      "drift_pt": -2.466,
+      "breach": false,
+      "actual_pct_of_equity": 17.534,
+      "actual_pct_of_total_book": 16.049,
+      "breach_edge": null,
+      "ceiling_tested_on": "invested_equity",
+      "floor_tested_on": "invested_equity"
+    },
+    {
+      "cluster": "Diversified/Regional ETF",
+      "actual_pct": 2.619,
+      "target_pct": 0,
+      "band_pct": [
+        0,
+        10
+      ],
+      "drift_pt": 2.619,
+      "breach": false,
+      "actual_pct_of_equity": 2.619,
+      "actual_pct_of_total_book": 2.397,
+      "breach_edge": null,
+      "ceiling_tested_on": "invested_equity",
+      "floor_tested_on": "invested_equity"
+    },
+    {
+      "cluster": "Enterprise Software",
+      "actual_pct": 2.358,
+      "target_pct": 0,
+      "band_pct": [
+        0,
+        5
+      ],
+      "drift_pt": 2.358,
+      "breach": false,
+      "actual_pct_of_equity": 2.358,
+      "actual_pct_of_total_book": 2.158,
+      "breach_edge": null,
+      "ceiling_tested_on": "invested_equity",
+      "floor_tested_on": "invested_equity"
+    },
+    {
+      "cluster": "Critical Minerals/Rare Earth",
+      "actual_pct": 0.0,
+      "target_pct": 0,
+      "band_pct": [
+        0,
+        5
+      ],
+      "drift_pt": 0.0,
+      "breach": false,
+      "actual_pct_of_equity": 0.0,
+      "actual_pct_of_total_book": 0.0,
+      "breach_edge": null,
+      "ceiling_tested_on": "invested_equity",
+      "floor_tested_on": "invested_equity"
+    },
+    {
+      "cluster": "Unclassified",
+      "actual_pct": 4.94,
+      "target_pct": null,
+      "band_pct": null,
+      "drift_pt": null,
+      "breach": false,
+      "note": "no policy target for this cluster",
+      "actual_pct_of_equity": 4.94,
+      "actual_pct_of_total_book": 4.522,
+      "breach_edge": null,
+      "ceiling_tested_on": null,
+      "floor_tested_on": null
+    },
+    {
+      "cluster": "Financials/Alt-Asset Diversifier",
+      "actual_pct": 3.777,
+      "target_pct": null,
+      "band_pct": null,
+      "drift_pt": null,
+      "breach": false,
+      "note": "no policy target for this cluster",
+      "actual_pct_of_equity": 3.777,
+      "actual_pct_of_total_book": 3.457,
+      "breach_edge": null,
+      "ceiling_tested_on": null,
+      "floor_tested_on": null
+    },
+    {
+      "cluster": "Analog/Industrial Semis",
+      "actual_pct": 6.028,
+      "target_pct": null,
+      "band_pct": null,
+      "drift_pt": null,
+      "breach": false,
+      "note": "no policy target for this cluster",
+      "actual_pct_of_equity": 6.028,
+      "actual_pct_of_total_book": 5.517,
+      "breach_edge": null,
+      "ceiling_tested_on": null,
+      "floor_tested_on": null
+    },
+    {
+      "cluster": "Fintech/Retail Brokerage",
+      "actual_pct": 1.403,
+      "target_pct": null,
+      "band_pct": null,
+      "drift_pt": null,
+      "breach": false,
+      "note": "no policy target for this cluster",
+      "actual_pct_of_equity": 1.403,
+      "actual_pct_of_total_book": 1.284,
+      "breach_edge": null,
+      "ceiling_tested_on": null,
+      "floor_tested_on": null
+    },
+    {
+      "cluster": "China Internet/Diversifier",
+      "actual_pct": 0.618,
+      "target_pct": null,
+      "band_pct": null,
+      "drift_pt": null,
+      "breach": false,
+      "note": "no policy target for this cluster",
+      "actual_pct_of_equity": 0.618,
+      "actual_pct_of_total_book": 0.566,
+      "breach_edge": null,
+      "ceiling_tested_on": null,
+      "floor_tested_on": null
+    }
+  ],
+  "position_breaches": [],
+  "cash_pct": 8.47,
+  "cash_band_pct": [
+    5,
+    15
+  ],
+  "cash_breach": false,
+  "cash_regime": "normal",
+  "cash_regime_reason": "stop-out 5 sessions ago but cash 8.47% has re-entered the normal band (<= 15%)",
+  "cash_band_normal_pct": [
+    5,
+    15
+  ],
+  "cash_breach_vs_normal": false,
+  "cash_pct_denominator": "total_book",
+  "ai_capex_pct": 78.257,
+  "ai_capex_cap_pct": 100,
+  "ai_capex_breach": false,
+  "ai_capex_denominator": "invested_equity",
+  "ai_capex_pct_of_equity": 78.257,
+  "ai_capex_pct_of_total_book": 71.629,
+  "total_book_usd": 41309.73,
+  "peak_total_book_usd": 44873.02,
+  "drawdown_pct": -7.941,
+  "drawdown_basis": "total_book",
+  "risk_off_status": "normal",
+  "drawdown_action": null
+}

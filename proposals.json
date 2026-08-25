@@ -12,10 +12,10 @@
       "ticker": "TSM",
       "id": "P-001",
       "direction_bucket": "BUY",
-      "outcome_pct": -3.53,
+      "outcome_pct": -3.68,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-24"
+      "outcome_scored_on": "2026-08-25"
     },
     {
       "date": "2026-07-13T19:40",
@@ -28,10 +28,10 @@
       "ticker": "LRCX",
       "id": "P-002",
       "direction_bucket": "TRIM",
-      "outcome_pct": 8.09,
+      "outcome_pct": 4.49,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-24"
+      "outcome_scored_on": "2026-08-25"
     },
     {
       "date": "2026-07-13T19:40",
@@ -44,10 +44,10 @@
       "ticker": "CRDO",
       "id": "P-003",
       "direction_bucket": "HOLD",
-      "outcome_pct": -3.16,
+      "outcome_pct": -6.44,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-24"
+      "outcome_scored_on": "2026-08-25"
     },
     {
       "date": "2026-07-13T19:40",
@@ -60,10 +60,10 @@
       "ticker": "VRT",
       "id": "P-004",
       "direction_bucket": "HOLD",
-      "outcome_pct": -15.67,
+      "outcome_pct": -14.68,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-24"
+      "outcome_scored_on": "2026-08-25"
     },
     {
       "date": "2026-07-14",
@@ -77,10 +77,10 @@
       "id": "P-005",
       "direction_bucket": "BUY",
       "cluster": "AI Power/Cooling/DC Infra",
-      "outcome_pct": -15.98,
+      "outcome_pct": -14.97,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-24"
+      "outcome_scored_on": "2026-08-25"
     },
     {
       "date": "2026-07-15T15:42",
@@ -95,10 +95,10 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-006",
       "direction_bucket": "BUY",
-      "outcome_pct": -25.26,
+      "outcome_pct": -27.2,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-24"
+      "outcome_scored_on": "2026-08-25"
     },
     {
       "date": "2026-07-16T16:44",
@@ -111,10 +111,10 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-007",
       "direction_bucket": "BUY",
-      "outcome_pct": -10.75,
+      "outcome_pct": -7.97,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-24"
+      "outcome_scored_on": "2026-08-25"
     },
     {
       "date": "2026-07-16T16:44",
@@ -165,7 +165,7 @@
       "outcome_pct": null,
       "outcome_verdict": "needs_anchor_review",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-08-24"
+      "outcome_scored_on": "2026-08-25"
     },
     {
       "date": "2026-07-27T10:09:00+05:30",
@@ -4732,7 +4732,7 @@
       "ticker": "BX",
       "size_usd": 285,
       "price_at_proposal": 143.28,
-      "status": "open",
+      "status": "superseded",
       "trigger_type": "catalyst_threat",
       "direction_bucket": "TRIM",
       "cluster": "Financials/Alt-Asset Diversifier",
@@ -4750,7 +4750,7 @@
         "catalyst_threat: Broadcom in talks for $70-80bn AI-financing debt SPV (with Blackstone, Apollo) to backstop compute incl. Anthropic; builds on June's $35bn AI XPV Platform, targets >20GW by 2028 (2026-08-21) -- $70-80bn new tranche ($45bn senior/$35bn subordinated) vs $35bn June platform; BofA ceiling estimate $370bn senior debt by 2029; AVGO on-balance-sheet debt only $83.7bn per 08-17 WSJ baseline"
       ],
       "retired_on": "2026-08-24",
-      "note": "auto-retired 2026-08-24: BX no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was auto-retired before state.factor_catalysts had been updated with the BX finding this run -- BX now correctly appears in compute_triggers.json's live catalyst_threat list | auto-retired 2026-08-24: BX no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir.",
+      "note": "auto-retired 2026-08-24: BX no longer appears in a structural-threat factor catalyst -- the finding this trim was sized against has cleared or was superseded | re-opened 2026-08-24: was auto-retired before state.factor_catalysts had been updated with the BX finding this run -- BX now correctly appears in compute_triggers.json's live catalyst_threat list | auto-retired 2026-08-24: BX no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared | re-opened 2026-08-24 21:07: was incorrectly auto-retired by running the proposals pass against an intraday run-dir that lacked compute_risk/drift/triggers.json -- missing files degraded to 'condition cleared' rather than 'cannot test'. Nothing about these tickers' structural situation actually changed; re-running against the complete run-dir. | auto-superseded 2026-08-03 -- folded into P-163 as a repeat of the same open proposal",
       "still_valid_because": [
         "BX genuinely stretched: +16.5% 1m, +15.8pp vs SMH -- real profit to take, not just a smaller loss",
         "catalyst_threat: Broadcom in talks for $70-80bn AI-financing debt SPV (with Blackstone, Apollo) to backstop compute incl. Anthropic; builds on June's $35bn AI XPV Platform, targets >20GW by 2028 (2026-08-21) -- $70-80bn new tranche ($45bn senior/$35bn subordinated) vs $35bn June platform; BofA ceiling estimate $370bn senior debt by 2029; AVGO on-balance-sheet debt only $83.7bn per 08-17 WSJ baseline"
@@ -5108,22 +5108,18 @@
       ],
       "repeat_count": 2,
       "note": "recommended 2x since 2026-08-24T08:55:00+05:30, still open",
-      "priority_score": 5,
+      "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "AI Memory/Storage under band (-10.1pt)",
-        "cash in excess at 30.1% vs a [5,15]% band -- deploying is the live problem, not raising more",
-        "recommended 2x, still unactioned -- one more restatement auto-retires it",
-        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+        "AI Memory/Storage under band (-6.9pt)",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "still_valid_because": [
-        "AI Memory/Storage under band (-10.1pt)",
-        "cash in excess at 30.1% vs a [5,15]% band -- deploying is the live problem, not raising more",
-        "recommended 2x, still unactioned -- one more restatement auto-retires it",
-        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+        "AI Memory/Storage under band (-6.9pt)",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-24",
+      "revalidated_on": "2026-08-25",
       "retires_when": "AI Memory/Storage re-enters its policy band",
       "proposal_class": "idea"
     },
@@ -5181,7 +5177,7 @@
       "ticker": "AMZN",
       "size_usd": 350,
       "price_at_proposal": 259.45,
-      "status": "open",
+      "status": "superseded",
       "trigger_type": null,
       "direction_bucket": "BUY",
       "cluster": "Compute/Hyperscaler",
@@ -5201,7 +5197,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-08-19T11:05:00+05:30, still open",
+      "note": "recommended 2x since 2026-08-19T11:05:00+05:30, still open | auto-superseded 2026-08-03 -- folded into P-166 as a repeat of the same open proposal",
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
@@ -5244,18 +5240,16 @@
       ],
       "repeat_count": 2,
       "note": "recommended 2x since 2026-08-19T11:05:00+05:30, still open",
-      "priority_score": 3,
-      "priority": "MEDIUM",
+      "priority_score": 1,
+      "priority": "LOW",
       "priority_reasons": [
-        "cash in excess at 30.1% vs a [5,15]% band -- deploying is the live problem, not raising more",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "still_valid_because": [
-        "cash in excess at 30.1% vs a [5,15]% band -- deploying is the live problem, not raising more",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-24",
+      "revalidated_on": "2026-08-25",
       "retires_when": null,
       "proposal_class": "idea"
     },
@@ -5267,7 +5261,7 @@
       "size_usd": 937.98,
       "price_at_proposal": 210.18,
       "rationale": "Reentry \u2014 cleared bar same-day as exit (2026-08-24); thesis strengthening (unverified); +44.1% vs analyst target; sized off target weight per reentry mechanics, no clamp.",
-      "status": "open",
+      "status": "superseded",
       "trigger_type": "reentry",
       "trigger_bucket": "live",
       "pair_id": null,
@@ -5299,7 +5293,7 @@
       "review_flags": [],
       "revalidated_on": "2026-08-24",
       "retires_when": "NVDA no longer appears in this run's live reentry list, or 20 trading days pass since its exit, whichever comes first",
-      "note": "resized 2026-08-24: NVDA thesis upgraded unverified->secondary (SEC 8-K + CNBC/Axios on the OpenAI Ohio financing guarantee), conviction 42.5->51.5, crossed low->medium tier, size $399.42->$798.83 | NVDA re-verified conviction unchanged (51.5) but tier curve smoothed -- $798.83 -> $937.98 (interpolated pct now above the old flat 0.60 medium-tier rate)"
+      "note": "resized 2026-08-24: NVDA thesis upgraded unverified->secondary (SEC 8-K + CNBC/Axios on the OpenAI Ohio financing guarantee), conviction 42.5->51.5, crossed low->medium tier, size $399.42->$798.83 | NVDA re-verified conviction unchanged (51.5) but tier curve smoothed -- $798.83 -> $937.98 (interpolated pct now above the old flat 0.60 medium-tier rate) | auto-superseded 2026-08-03 -- folded into P-161 as a repeat of the same open proposal"
     },
     {
       "date": "2026-08-24",
@@ -5309,7 +5303,7 @@
       "size_usd": 124.08,
       "price_at_proposal": 156.31,
       "rationale": "Reentry \u2014 cleared bar same-day as exit; thesis strengthening but contested (2 for/1 against, unverified); sized verbatim off suggested_size_usd, no clamp.",
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": "reentry",
       "trigger_bucket": "live",
       "pair_id": null,
@@ -5325,12 +5319,11 @@
         "unverified": 1
       },
       "id": "P-154",
-      "priority_score": 6,
-      "priority": "HIGH",
+      "priority_score": 2,
+      "priority": "MEDIUM",
       "priority_reasons": [
-        "AI Memory/Storage under band (-10.1pt)",
-        "cash in excess at 30.1% vs a [5,15]% band -- deploying is the live problem, not raising more",
-        "reentry: conviction 25.0 (low) -- exited 2026-08-24 at $156.31; thesis strengthening (unverified, 2 for / 1 against); ambiguous/noise: KOSPI weak open (below 6,900), Samsung -4%+ vs SK Hynix +3.58% diverging positiv; technical: RSI cache stale, degraded to 0 (not estimated); named by 2 independent source(s) this run"
+        "AI Memory/Storage under band (-6.9pt)",
+        "reentry was the stated trigger but SKHY is not in this run's reentry candidate list -- condition is no longer live"
       ],
       "proposal_class": "idea",
       "still_valid_because": [
@@ -5340,7 +5333,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "SKHY no longer appears in this run's live reentry list, or 20 trading days pass since its exit, whichever comes first"
+      "retires_when": "SKHY no longer appears in this run's live reentry list, or 20 trading days pass since its exit, whichever comes first",
+      "retired_on": "2026-08-25",
+      "retired_reason": "SKHY no longer appears in this run's live reentry list -- the condition this buy was sized against has cleared",
+      "note": "auto-retired 2026-08-25: SKHY no longer appears in this run's live reentry list -- the condition this buy was sized against has cleared"
     },
     {
       "date": "2026-08-24",
@@ -5350,7 +5346,7 @@
       "size_usd": 434.9,
       "price_at_proposal": null,
       "rationale": "Profit rotation sell leg \u2014 stretched (names_stretched) with only a watch thesis; real profit to book, paired with CLS buy.",
-      "status": "open",
+      "status": "superseded",
       "trigger_type": "profit_rotation",
       "trigger_bucket": "live",
       "pair_id": "profit_rotation-MSFT-CLS",
@@ -5379,7 +5375,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-CLS is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-CLS is no longer live this run -- both legs retire together, never one alone",
+      "note": "auto-superseded 2026-08-03 -- folded into P-164 as a repeat of the same open proposal"
     },
     {
       "date": "2026-08-24",
@@ -5389,7 +5386,7 @@
       "size_usd": 424.82,
       "price_at_proposal": 296.5422,
       "rationale": "Profit rotation buy leg \u2014 laggard (-3.7pp) with strengthening (unverified) thesis, yet to rally; conviction 35.0 low tier.",
-      "status": "open",
+      "status": "superseded",
       "trigger_type": "profit_rotation",
       "trigger_bucket": "live",
       "pair_id": "profit_rotation-MSFT-CLS",
@@ -5419,7 +5416,7 @@
       "review_flags": [],
       "revalidated_on": "2026-08-24",
       "retires_when": "the profit_rotation pairing profit_rotation-MSFT-CLS is no longer live this run -- both legs retire together, never one alone",
-      "note": "CLS conviction 35.0->44.0 post-verification, now reflected proportionally (tier curve smoothed, no more low/medium cliff) -- $216.75 -> $424.82"
+      "note": "CLS conviction 35.0->44.0 post-verification, now reflected proportionally (tier curve smoothed, no more low/medium cliff) -- $216.75 -> $424.82 | auto-superseded 2026-08-03 -- folded into P-165 as a repeat of the same open proposal"
     },
     {
       "date": "2026-08-24",
@@ -5429,7 +5426,7 @@
       "size_usd": 283.94,
       "price_at_proposal": null,
       "rationale": "Cluster rotation sell leg \u2014 cluster laggard (-11.3pp), watch thesis with secondary-verified evidence (guide below consensus, leveraged debt raise, strategist's own 08-15 no-further-adds ruling); dead money in AI Semis/Fabs, rotate to the cluster's performer.",
-      "status": "open",
+      "status": "superseded",
       "trigger_type": "cluster_rotation",
       "trigger_bucket": "live",
       "pair_id": "cluster_rotation-AMD-TER",
@@ -5456,7 +5453,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
-      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone",
+      "note": "auto-superseded 2026-08-03 -- folded into P-160 as a repeat of the same open proposal"
     },
     {
       "date": "2026-08-24",
@@ -5466,7 +5464,7 @@
       "size_usd": 283.94,
       "price_at_proposal": 375.7302,
       "rationale": "Cluster rotation buy leg \u2014 cluster's relative-strength leader (+7.5pp) with strengthening (unverified) thesis; conviction 27.9 low tier.",
-      "status": "open",
+      "status": "auto_retired",
       "trigger_type": "cluster_rotation",
       "trigger_bucket": "live",
       "pair_id": "cluster_rotation-AMD-TER",
@@ -5482,12 +5480,11 @@
         "unverified": 0
       },
       "id": "P-158",
-      "priority_score": 8,
-      "priority": "HIGH",
+      "priority_score": 2,
+      "priority": "MEDIUM",
       "priority_reasons": [
-        "AI Semis/Fabs under band (-7.3pt)",
-        "cash in excess at 30.1% vs a [5,15]% band -- deploying is the live problem, not raising more",
-        "cluster_rotation: conviction 36.9 (unscored) -- performer within AI Semis/Fabs (+7.5pp), strengthening thesis"
+        "AI Semis/Fabs under band (-6.3pt)",
+        "cluster_rotation was the stated trigger but TER is not in this run's cluster_rotation candidate list -- condition is no longer live"
       ],
       "proposal_class": "idea",
       "still_valid_because": [
@@ -5498,7 +5495,9 @@
       "review_flags": [],
       "revalidated_on": "2026-08-24",
       "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone",
-      "note": "TER conviction 27.9->36.9 post-verification; cluster_rotation buy leg sizing unchanged since it's clamped to the sell leg's proceeds, not conviction, at this size"
+      "note": "TER conviction 27.9->36.9 post-verification; cluster_rotation buy leg sizing unchanged since it's clamped to the sell leg's proceeds, not conviction, at this size | auto-retired 2026-08-25: the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "retired_on": "2026-08-25",
+      "retired_reason": "the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "date": "2026-08-24",
@@ -5508,7 +5507,7 @@
       "size_usd": 294.75,
       "price_at_proposal": 368.4404,
       "rationale": "Catalyst threat, cap-independent \u2014 Broadcom's $70-80bn AI-financing debt SPV (Blackstone/Apollo, backstops Anthropic compute) vs $83.7bn own on-balance-sheet debt; BofA stress ceiling $370bn; AVGO now carries this exposure alone since BX's 08-17 exit. Trim fraction 0.2 per compute layer.",
-      "status": "open",
+      "status": "superseded",
       "trigger_type": "catalyst_threat",
       "trigger_bucket": "live",
       "pair_id": null,
@@ -5537,7 +5536,359 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-24",
+      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "note": "auto-superseded 2026-08-03 -- folded into P-162 as a repeat of the same open proposal"
+    },
+    {
+      "date": "2026-08-25",
+      "action": "SELL AMD",
+      "ticker": "AMD",
+      "direction_bucket": "SELL",
+      "size_usd": 279.8,
+      "price_at_proposal": null,
+      "rationale": "Cluster laggard in AI Semis/Fabs (-11.3pp rel. strength), thesis watch; re-entry itself flagged as contradicting the strategist's 2026-08-12 no-re-add ruling. Rotate to cluster's relative-strength leader.",
+      "status": "open",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "live",
+      "pair_id": "cluster_rotation-AMD-NVDA",
+      "pair_role": "sell",
+      "size_wanted_usd": 279.8,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "cluster": "AI Semis/Fabs",
+      "evidence_quality": {
+        "verified": 2,
+        "computed": 2,
+        "unverified": 0
+      },
+      "id": "P-160",
+      "history": [
+        {
+          "date": "2026-08-24",
+          "size_usd": 283.94,
+          "price_at_proposal": null,
+          "rationale": "Cluster rotation sell leg \u2014 cluster laggard (-11.3pp), watch thesis with secondary-verified evidence (guide below consensus, leveraged debt raise, strategist's own 08-15 no-further-adds ruling); dead money in AI Semis/Fabs, rotate to the cluster's performer."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-24, still open",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-11.3pp), watch thesis -- dead money in this cluster",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-11.3pp), watch thesis -- dead money in this cluster",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-25",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-NVDA is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "date": "2026-08-25",
+      "action": "BUY NVDA",
+      "ticker": "NVDA",
+      "direction_bucket": "BUY",
+      "size_usd": 279.8,
+      "price_at_proposal": null,
+      "rationale": "Cluster's relative-strength leader (+7.4pp), thesis strengthening (secondary verified). Small deliberate size into NVDA's 8/26 earnings (6.06% implied move) -- trigger fired on relative strength, not timed to the print.",
+      "status": "open",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "live",
+      "pair_id": "cluster_rotation-AMD-NVDA",
+      "pair_role": "buy",
+      "size_wanted_usd": 279.8,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "cluster": "AI Semis/Fabs",
+      "evidence_quality": {
+        "verified": 2,
+        "computed": 2,
+        "unverified": 0
+      },
+      "id": "P-161",
+      "history": [
+        {
+          "date": "2026-08-24",
+          "size_usd": 937.98,
+          "price_at_proposal": 210.18,
+          "rationale": "Reentry \u2014 cleared bar same-day as exit (2026-08-24); thesis strengthening (unverified); +44.1% vs analyst target; sized off target weight per reentry mechanics, no clamp."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-24, still open",
+      "priority_score": 8,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "AI Semis/Fabs under band (-6.3pt)",
+        "cluster_rotation: conviction 49.5 (unscored) -- performer within AI Semis/Fabs (+7.4pp), strengthening thesis",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "AI Semis/Fabs under band (-6.3pt)",
+        "cluster_rotation: conviction 49.5 (unscored) -- performer within AI Semis/Fabs (+7.4pp), strengthening thesis",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-25",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-NVDA is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "date": "2026-08-25",
+      "action": "TRIM AVGO",
+      "ticker": "AVGO",
+      "direction_bucket": "TRIM",
+      "size_usd": 289.19,
+      "price_at_proposal": 361.49,
+      "rationale": "Structural SPV-financing overhang ($370bn 2029 stress ceiling), carried alone by AVGO since BX's exit/re-entry cycle. Cap-independent per catalyst_threat design. Realizes a cost-basis LOSS, not profit -- do not describe as profit-taking. AVGO also reports 9/2 with a beat-and-fall history; trim is consistent with, not contrary to, that risk.",
+      "status": "open",
+      "trigger_type": "catalyst_threat",
+      "trigger_bucket": "live",
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": 289.19,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "cluster": "AI Networking/Optics",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 1
+      },
+      "id": "P-162",
+      "history": [
+        {
+          "date": "2026-08-24",
+          "size_usd": 294.75,
+          "price_at_proposal": 368.4404,
+          "rationale": "Catalyst threat, cap-independent \u2014 Broadcom's $70-80bn AI-financing debt SPV (Blackstone/Apollo, backstops Anthropic compute) vs $83.7bn own on-balance-sheet debt; BofA stress ceiling $370bn; AVGO now carries this exposure alone since BX's 08-17 exit. Trim fraction 0.2 per compute layer."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-24, still open",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "AVGO genuinely stretched: +9.0% 1m, +8.3pp vs SMH -- real profit to take, not just a smaller loss",
+        "catalyst_threat: Broadcom AI-financing SPV ($60-70bn tranche, drawing scrutiny over a $370bn-by-2029 ceiling) now applies to BOTH AVGO and BX since BX re-entered the book (2026-08-24) -- $370bn stress ceiling by 2029",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "AVGO genuinely stretched: +9.0% 1m, +8.3pp vs SMH -- real profit to take, not just a smaller loss",
+        "catalyst_threat: Broadcom AI-financing SPV ($60-70bn tranche, drawing scrutiny over a $370bn-by-2029 ceiling) now applies to BOTH AVGO and BX since BX re-entered the book (2026-08-24) -- $370bn stress ceiling by 2029",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-25",
       "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "date": "2026-08-25",
+      "action": "TRIM BX",
+      "ticker": "BX",
+      "direction_bucket": "TRIM",
+      "size_usd": 285.64,
+      "price_at_proposal": 142.82,
+      "rationale": "Same SPV exposure as AVGO, thesis watch, secondary-verified BofA downgrade + own deal friction. Realizes a cost-basis LOSS, not profit. Chosen over the compute layer's profit_rotation-BX-AMAT pair to avoid two simultaneous sell orders on the same small position -- AMAT buy leg deferred to a future run.",
+      "status": "open",
+      "trigger_type": "catalyst_threat",
+      "trigger_bucket": "live",
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": 285.64,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "cluster": "Financials/Alt-Asset Diversifier",
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 1,
+        "unverified": 0
+      },
+      "id": "P-163",
+      "history": [
+        {
+          "date": "2026-08-24T14:45:00+05:30",
+          "size_usd": 285,
+          "price_at_proposal": 143.28,
+          "rationale": "NEW. Same structural catalyst as AVGO (BX now named counterparty in the escalated $70-80bn AI-financing SPV) applied manually since BX predates this run's catalyst_threat list. Cap-independent (0.48x, +$1,578 headroom). Flag: BX was re-entered TODAY (10sh) -- this proposes partially reversing a same-day probe position; surfaced for review, not urged. Lighter alternative: add BX to theme_3 mapped tickers for next run's standing screen instead."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-24T14:45:00+05:30, still open",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "BX genuinely stretched: +16.5% 1m, +15.8pp vs SMH -- real profit to take, not just a smaller loss",
+        "catalyst_threat: Broadcom AI-financing SPV ($60-70bn tranche, drawing scrutiny over a $370bn-by-2029 ceiling) now applies to BOTH AVGO and BX since BX re-entered the book (2026-08-24) -- $370bn stress ceiling by 2029",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "BX genuinely stretched: +16.5% 1m, +15.8pp vs SMH -- real profit to take, not just a smaller loss",
+        "catalyst_threat: Broadcom AI-financing SPV ($60-70bn tranche, drawing scrutiny over a $370bn-by-2029 ceiling) now applies to BOTH AVGO and BX since BX re-entered the book (2026-08-24) -- $370bn stress ceiling by 2029",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-25",
+      "retires_when": "BX no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "date": "2026-08-25",
+      "action": "SELL MSFT",
+      "ticker": "MSFT",
+      "direction_bucket": "SELL",
+      "size_usd": 437.92,
+      "price_at_proposal": null,
+      "rationale": "Stretched (ahead of SMH, up on month), thesis watch/unverified; recently dropped out of TARGET GAP while remaining PEER LEADER. Self-funds the CLS buy leg.",
+      "status": "open",
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "live",
+      "pair_id": "profit_rotation-MSFT-CLS",
+      "pair_role": "sell",
+      "size_wanted_usd": 437.92,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "cluster": "Compute/Hyperscaler",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 1
+      },
+      "id": "P-164",
+      "history": [
+        {
+          "date": "2026-08-24",
+          "size_usd": 434.9,
+          "price_at_proposal": null,
+          "rationale": "Profit rotation sell leg \u2014 stretched (names_stretched) with only a watch thesis; real profit to book, paired with CLS buy."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-24, still open",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-25",
+      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-CLS is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "date": "2026-08-25",
+      "action": "BUY CLS",
+      "ticker": "CLS",
+      "direction_bucket": "BUY",
+      "size_usd": 424.65,
+      "price_at_proposal": 297.5001,
+      "rationale": "Laggard (-3.7pp) with strengthening thesis (secondary verified) -- yet to rally. Funded by MSFT sale proceeds, not new cash.",
+      "status": "open",
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "live",
+      "pair_id": "profit_rotation-MSFT-CLS",
+      "pair_role": "buy",
+      "size_wanted_usd": 424.65,
+      "clamped_by": null,
+      "stop_price_usd": 254.9576,
+      "exited_on": null,
+      "cluster": "Compute/Hyperscaler OEM",
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 2,
+        "unverified": 1
+      },
+      "id": "P-165",
+      "history": [
+        {
+          "date": "2026-08-24",
+          "size_usd": 424.82,
+          "price_at_proposal": 296.5422,
+          "rationale": "Profit rotation buy leg \u2014 laggard (-3.7pp) with strengthening (unverified) thesis, yet to rally; conviction 35.0 low tier."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-24, still open",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "profit_rotation: conviction 44.0 (unscored) -- laggard (-3.7pp) with a strengthening thesis -- yet to rally",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "profit_rotation: conviction 44.0 (unscored) -- laggard (-3.7pp) with a strengthening thesis -- yet to rally",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-25",
+      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-CLS is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "date": "2026-08-25",
+      "action": "BUY AMZN",
+      "ticker": "AMZN",
+      "direction_bucket": "BUY",
+      "size_usd": 1186.73,
+      "price_at_proposal": 262.76,
+      "rationale": "Conviction-average add, medium tier (score 51.9), thesis strengthening (secondary verified), PEER LEADER, +22.5% vs analyst target. Blended entry $266.82 clears stop $246.52 -- add not refused. Consumes ~83% of the $1,433.29 deployable-for-ideas cash pool this run, crowding out GLW/TER/WDC conviction_average candidates until more cash frees up.",
+      "status": "auto_retired",
+      "trigger_type": "conviction_average",
+      "trigger_bucket": "live",
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": 1186.73,
+      "clamped_by": null,
+      "stop_price_usd": 246.5214,
+      "exited_on": null,
+      "cluster": "Compute/Hyperscaler",
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 1,
+        "unverified": 0
+      },
+      "id": "P-166",
+      "history": [
+        {
+          "date": "2026-08-19T11:05:00+05:30",
+          "size_usd": 700,
+          "price_at_proposal": 259.45,
+          "rationale": "Compute/Hyperscaler -7.17pt under floor. Ample headroom ($1,859), dip only -0.7%, support $256.39/$248.62. Rebound stage-in."
+        },
+        {
+          "date": "2026-08-24T14:45:00+05:30",
+          "size_usd": 350,
+          "price_at_proposal": 259.45,
+          "rationale": "CORRECTED: original '-7.17pt under floor' rationale is stale -- Compute/Hyperscaler is now in-band (17.2% vs 20% target, band [15,25]). Purely discretionary add, no active breach behind it. Halved from $700 given the ESCALATING gate and thin cash."
+        }
+      ],
+      "repeat_count": 3,
+      "note": "recommended 3x since 2026-08-19T11:05:00+05:30, still open | auto-retired 2026-08-25: recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "conviction_average: conviction 51.9 (medium) -- thesis strengthening (secondary, 0 for / 0 against); signal polarity net +1 (PEER LEADER); +22.5% vs analyst target; technical: RSI cache stale, degraded to 0 (not estimated); named by 1 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "retired_on": "2026-08-25",
+      "retired_reason": "recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     }
   ],
   "retracted": [
@@ -5549,25 +5900,52 @@
     }
   ],
   "scorecard": {
-    "as_of": "2026-08-24",
-    "trim_accuracy_30d": null,
-    "add_accuracy_30d": null,
-    "overall_accuracy_30d": null,
+    "as_of": "2026-08-25",
+    "trim_accuracy_30d": 100.0,
+    "add_accuracy_30d": 0.0,
+    "overall_accuracy_30d": 14.3,
     "by_direction": {
-      "TRIM/SELL": null,
-      "BUY": null,
-      "HOLD": null
+      "TRIM/SELL": {
+        "n": 1,
+        "worked": 1,
+        "missed": 0,
+        "neutral": 0,
+        "accuracy_pct": 100.0,
+        "avg_benefit_pct": 4.49
+      },
+      "BUY": {
+        "n": 4,
+        "worked": 0,
+        "missed": 4,
+        "neutral": 0,
+        "accuracy_pct": 0.0,
+        "avg_benefit_pct": -13.46
+      },
+      "HOLD": {
+        "n": 2,
+        "worked": 0,
+        "missed": 2,
+        "neutral": 0,
+        "accuracy_pct": 0.0,
+        "avg_benefit_pct": -10.56
+      }
     },
-    "overall": null,
-    "scored_count": 0,
-    "quarantined_anchor_review": 0,
+    "overall": {
+      "n": 7,
+      "worked": 1,
+      "missed": 6,
+      "neutral": 0,
+      "accuracy_pct": 14.3,
+      "avg_benefit_pct": -10.06
+    },
+    "scored_count": 7,
+    "quarantined_anchor_review": 1,
     "excluded_dismissed_by_user": 9,
     "not_yet_30d": 104,
     "note": "Direction-aware: a TRIM 'worked' if the price FELL after it, a BUY if it ROSE, a HOLD if the move stayed inside the +/-2.0% noise band. Threshold shared with the journal scorer so 'worked' means the same magnitude in both. dismissed_by_user proposals are excluded -- a user override is not a strategist error.",
     "data_quality": [
-      "7 ticker(s) had no price supplied and stay unscored until a later run provides one (never guessed, never dropped): COHR, CRDO, GLW, LRCX, NEM, TSM, VRT",
       "104 proposal(s) are under 30 days old -- not yet in the scoring window.",
-      "nothing scoreable this run: no closed proposal has both a price anchor and a supplied current price."
+      "QUARANTINED pending anchor review, excluded from the scorecard: P-011 BUY NEM implies +47.0% from a $89.70 anchor. Verify the anchor against price history before trusting these."
     ]
   },
   "last_updated": "2026-08-20T22:11:00+05:30"

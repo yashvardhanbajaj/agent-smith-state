@@ -1,37 +1,24 @@
 {
   "schema_version": 1,
-  "ts": "2026-08-24T21:07:00+05:30",
-  "mode": "quick",
+  "ts": "2026-08-25T13:57:00+05:30",
+  "mode": "deep",
   "usdinr": 95.695,
   "artifact_url": "https://claude.ai/code/artifact/5d2cd23f-7792-4b61-b063-5aee3fbff407",
-  "last_run_dir": "runs/2026-08-24-2351/",
+  "last_run_dir": "runs/2026-08-25-1357/",
   "us": {
-    "value_usd": 28498.36,
-    "count": 30,
-    "top3": [
-      {
-        "ticker": "TSM",
-        "weight_pct": 8.693
-      },
-      {
-        "ticker": "GEV",
-        "weight_pct": 6.847
-      },
-      {
-        "ticker": "VRT",
-        "weight_pct": 6.341
-      }
-    ],
+    "value_usd": 37810.95,
+    "count": 35,
+    "top3": [],
     "pnl_pct": null,
-    "wallet_usd": 12431.02,
+    "wallet_usd": 3498.78,
     "peak_value_usd": 43986.02,
     "beta": 1.137,
     "peak_total_book_usd": 44873.02,
-    "total_book_usd": 40929.38,
-    "drawdown_pct": -8.788,
-    "top5_pct": 32.82,
-    "top10_pct": 57.79,
-    "usdinr": 95.725
+    "total_book_usd": 41309.73,
+    "drawdown_pct": -7.941,
+    "top5_pct": null,
+    "top10_pct": null,
+    "usdinr": 95.6375
   },
   "holdings": [
     {
@@ -185,7 +172,7 @@
       "weight_pct": 8.6929
     }
   ],
-  "news_watermark": "2026-08-24",
+  "news_watermark": "2026-08-25",
   "thesis": {
     "NVDA": {
       "status": "strengthening",
@@ -884,7 +871,7 @@
     },
     "SKHY": {
       "status": "strengthening",
-      "thesis": "Direct SK Hynix ADS -- best-positioned name for the 2027 HBM4 ramp",
+      "thesis": "Direct SK Hynix ADS -- best-positioned name for the 2027 HBM4 ramp; re-entered after being flagged stopped-out, now back at 2.11% weight.",
       "evidence_for": [
         {
           "claim": "SK Hynix 60-70% of HBM4 Vera Rubin allocation vs Micron low-single-to-low-teens",
@@ -892,22 +879,27 @@
           "source": "HBMTracker consumer_view.json supply_structure"
         },
         {
-          "claim": "2027 HBM contract prices forecast +80-150%",
+          "claim": "2027 HBM contract prices forecast +80-150% higher on tight DRAM supply and multi-year floor-price contracts",
           "date": "2026-06-02",
           "source": "HBMTracker consumer_view.json forecasts (TrendForce)"
         }
       ],
       "evidence_against": [
         {
-          "claim": "stopped out 2 days ago; HBM tracker 15d stale",
-          "date": "2026-08-20",
-          "source": "run snapshot + HBMTracker generated_at"
+          "claim": "was flagged stopped-out as of 2026-08-20/2026-08-24; now confirmed back in holdings at 2.11% wt as of this run -- re-entry rationale not independently sourced",
+          "date": "2026-08-25",
+          "source": "holdings.json"
+        },
+        {
+          "claim": "HBM4 apparent +14.29% price move within stack_derived basis is an open, unresolved measurement-basis correction (C2, source-spread widening)",
+          "date": "2026-08-05",
+          "source": "HBMTracker consumer_view.json corrections[C2]"
         }
       ],
       "verified": "unverified",
       "verified_against": "",
-      "verified_on": "2026-08-24",
-      "note": "No SEC filings found under symbol or 'SK Hynix' name search -- SK Hynix is a Korean issuer reporting to KRX/DART, not SEC; standard secFilings/stockanalysis recipe does not apply to this ADS. Structural data gap, not a failed verification."
+      "verified_on": "",
+      "note": "Evidence refreshed to reflect re-entry."
     },
     "BX": {
       "status": "watch",
@@ -935,6 +927,65 @@
       "verified_against": "stockanalysis.com/stocks/bx",
       "verified_on": "2026-08-24",
       "note": "cluster classification CONFIRMED with fresh eyes per G82 -- kept as-is, but explicitly flagged as not a clean diversifier"
+    },
+    "KLAC": {
+      "status": "strengthening",
+      "thesis": "NEW HOLDING. Semicap process-control/inspection (AI Semis/Fabs). Q4 FY26 rev $3.66B/EPS $1.05 beat guide-high, $7B buyback, accelerating 2026-2027 outlook -- but stock sank on the print, a valuation reset not a fundamentals miss.",
+      "evidence_for": [
+        {
+          "claim": "Q4 FY26 revenue $3.66B, non-GAAP EPS $1.05 at/above guidance high end; $7B buyback announced",
+          "date": "2026-07-28",
+          "source": "INDmoney news + stockanalysis.com/stocks/klac"
+        },
+        {
+          "claim": "Stifel raised PT $191->$270 citing AI-driven memory/processor demand; consensus PT $231.78 (+28% upside), 29 analysts rated Buy, accelerating 2026-2027 growth guide",
+          "date": "2026-08-24",
+          "source": "INDmoney news + stockanalysis.com/stocks/klac"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "stock fell ~9.6% after-hours on the July 28 print despite the beat -- expectations-reset/valuation reaction, unresolved whether it recurs at next print",
+          "date": "2026-07-28",
+          "source": "INDmoney news"
+        }
+      ],
+      "verified": "secondary",
+      "verified_against": "stockanalysis.com/stocks/klac + INDmoney news",
+      "verified_on": "2026-08-25",
+      "note": "First-ever thesis; brand-new position."
+    },
+    "COHR": {
+      "status": "strengthening",
+      "thesis": "RECONCILED. Optical/photonics for AI datacenter interconnect (AI Networking/Optics). Catalyst log read fully exited 08-21; book shows a genuine re-entry at 2.98% wt. Q4 FY26 beat rev/EPS with guide raised above the beaten quarter.",
+      "evidence_for": [
+        {
+          "claim": "Q4 FY26 revenue $2.05B beat $2.025B consensus, EPS $1.74 beat $1.65 consensus; guided Q1 rev $2.2-2.4B / EPS $1.85-2.05, above the just-reported quarter",
+          "date": "2026-08-12",
+          "source": "stockanalysis.com/stocks/cohr"
+        },
+        {
+          "claim": "CEO cites AI-datacenter demand as outstanding, 7 consecutive quarters of record revenue; anticipated US restrictions on Chinese DC components seen as a tailwind for Coherent as a US supplier",
+          "date": "2026-08-07",
+          "source": "INDmoney news"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "stock still fell on the earnings day despite the beat (expectations reset after a prior rally); separately flagged declines in operating cash flow in one report",
+          "date": "2026-08-13",
+          "source": "INDmoney news"
+        },
+        {
+          "claim": "position was logged fully exited by smith-catalyst on 08-21; current 2.98% weight (4sh) means this is a genuine re-entry, not merely a stale log",
+          "date": "2026-08-21",
+          "source": "holdings.json"
+        }
+      ],
+      "verified": "secondary",
+      "verified_against": "stockanalysis.com/stocks/cohr",
+      "verified_on": "2026-08-25",
+      "note": "Reconciles smith-catalyst's exited-vs-held discrepancy."
     }
   },
   "sector_map": {
@@ -970,10 +1021,14 @@
     "NBIS": "Compute/Hyperscaler",
     "SKHY": "AI Memory/Storage",
     "BX": "Financials/Alt-Asset Diversifier",
-    "HOOD": "Fintech/Retail Brokerage"
+    "HOOD": "Fintech/Retail Brokerage",
+    "KLAC": "AI Semis/Fabs",
+    "COHR": "AI Networking/Optics"
   },
   "signal_history": {
-    "ASML": [],
+    "ASML": [
+      "TARGET GAP"
+    ],
     "TSM": [
       "TARGET GAP",
       "INSIDER ACTIVITY"
@@ -982,9 +1037,7 @@
       "TARGET GAP"
     ],
     "MRVL": [
-      "INSIDER ACTIVITY",
-      "MOMENTUM+VOLUME",
-      "PEER LEADER"
+      "INSIDER ACTIVITY"
     ],
     "CIEN": [
       "TARGET GAP"
@@ -1013,7 +1066,9 @@
     "QCOM": [
       "TARGET GAP"
     ],
-    "CLS": [],
+    "CLS": [
+      "TARGET GAP"
+    ],
     "BABA": [
       "TARGET GAP",
       "STRONG DOWNTREND",
@@ -1024,20 +1079,21 @@
       "TARGET GAP"
     ],
     "AMZN": [
-      "TARGET GAP"
+      "TARGET GAP",
+      "PEER LEADER"
     ],
     "NOW": [
       "PEER LEADER"
     ],
     "MSFT": [
-      "TARGET GAP",
       "PEER LEADER"
     ],
     "FLTW": [
-      "STRONG UPTREND",
-      "STRONG DOWNTREND (move, conflicted)"
+      "STRONG UPTREND"
     ],
-    "TER": [],
+    "TER": [
+      "TARGET GAP"
+    ],
     "VRT": [
       "TARGET GAP"
     ],
@@ -1050,9 +1106,7 @@
     ],
     "IREN": [],
     "INTC": [
-      "INSIDER ACTIVITY",
-      "TARGET GAP",
-      "NEW TAILWINDS"
+      "TARGET GAP"
     ],
     "TXN": [
       "TARGET GAP"
@@ -1078,6 +1132,17 @@
       "TARGET GAP"
     ],
     "BX": [
+      "PEER LEADER"
+    ],
+    "KLAC": [
+      "TARGET GAP",
+      "PEER LAGGARD"
+    ],
+    "LRCX": [
+      "TARGET GAP"
+    ],
+    "SKHY": [
+      "STRONG DOWNTREND",
       "PEER LEADER"
     ]
   },
@@ -1248,7 +1313,8 @@
       "SpaceX": "SPCX",
       "Space Exploration Technologies Corp.": "SPCX",
       "Robinhood Markets, Inc. Class A Common Stock": "HOOD",
-      "Western Digital Corporation Common Stock": "WDC"
+      "Western Digital Corporation Common Stock": "WDC",
+      "KLA Corporation Common Stock": "KLAC"
     },
     "betas": {
       "AMAT": {
@@ -2023,13 +2089,14 @@
         "period": "Q2 FY27",
         "reported_date": "2026-08-26",
         "status": "PENDING",
-        "consensus_eps": 2.08869,
+        "consensus_eps": 2.09161,
         "revenue_actual": null,
         "revenue_consensus": null,
         "eps_actual": null,
         "quarter_verdict": null,
-        "implied_move_pct": 6.17,
-        "implied_move_source": "ATM 215 straddle 08-28 exp, last-trade prints (OI/quotes unavailable), as-of 2026-08-21 close",
+        "guide_verdict": null,
+        "implied_move_pct": 6.06,
+        "implied_move_source": "ATM 207.5 straddle 08-28 exp, spot 208.48",
         "surprise_history_pct": [
           4.1,
           3.46,
@@ -2040,7 +2107,7 @@
         "drift_2d_avg_pct": -5.3,
         "drift_5d_avg_pct": -4.84,
         "source": "smith-earnings",
-        "verified_on": "2026-08-24"
+        "verified_on": "2026-08-25"
       },
       "MRVL": {
         "period": "Q2 FY26",
@@ -2051,8 +2118,9 @@
         "revenue_consensus": null,
         "eps_actual": null,
         "quarter_verdict": null,
-        "implied_move_pct": 11.31,
-        "implied_move_source": "ATM 237.5 straddle 08-28 exp, last-trade prints, as-of 2026-08-21 close",
+        "guide_verdict": null,
+        "implied_move_pct": 10.55,
+        "implied_move_source": "ATM 230 straddle 08-28 exp, spot 229.29",
         "surprise_history_pct": [
           -0.51,
           3.01,
@@ -2061,9 +2129,93 @@
         ],
         "avg_surprise_pct": 1.05,
         "drift_2d_avg_pct": 3.74,
-        "drift_5d_avg_pct_note": "CONTAMINATED by 05-27 melt-up (+51.81%), median 5d +5.77%, range -18.0% to +51.8% -- do not use as central estimate",
+        "drift_5d_avg_pct": null,
         "source": "smith-earnings",
-        "verified_on": "2026-08-24"
+        "verified_on": "2026-08-25",
+        "drift_5d_median_pct": 5.77,
+        "drift_5d_avg_pct_note": "CONTAMINATED by 05-27 melt-up (+51.81%); avg is null by design. Use median +5.77%. Range -18.0% to +51.8%."
+      },
+      "AVGO": {
+        "period": "Q3 FY26",
+        "reported_date": "2026-09-02",
+        "status": "PENDING",
+        "consensus_eps": 3.238,
+        "revenue_actual": null,
+        "revenue_consensus": null,
+        "eps_actual": null,
+        "quarter_verdict": null,
+        "guide_verdict": null,
+        "implied_move_pct": 8.98,
+        "implied_move_source": "ATM 360 straddle 09-04 exp (upper bound), spot 358.76",
+        "surprise_history_pct": [
+          1.6,
+          4.38,
+          1.32,
+          1.74
+        ],
+        "avg_surprise_pct": 2.26,
+        "reaction_d1_pct": [
+          9.41,
+          -11.43,
+          4.8,
+          -12.59
+        ],
+        "drift_2d_avg_pct": -4.72,
+        "drift_5d_avg_pct": -4.03,
+        "note": "Beat-and-fall pattern: 4 straight beats, negative avg drift both 2d/5d, last print +1.74% beat reacted -12.59%.",
+        "source": "smith-earnings",
+        "verified_on": "2026-08-25",
+        "drift_5d_median_pct": -5.62,
+        "drift_2d_median_pct": -6.15
+      },
+      "CIEN": {
+        "period": "Q3 FY26",
+        "reported_date": "2026-09-03",
+        "status": "PENDING",
+        "consensus_eps": 1.72256,
+        "revenue_actual": null,
+        "revenue_consensus": null,
+        "eps_actual": null,
+        "quarter_verdict": null,
+        "guide_verdict": null,
+        "implied_move_pct": 13.3,
+        "implied_move_source": "ATM 372.5 straddle 09-04 exp, spot 371.95 -- LOW CONFIDENCE, thin OI",
+        "surprise_history_pct": [
+          27.56,
+          18.24,
+          15.55,
+          12.34
+        ],
+        "avg_surprise_pct": 18.42,
+        "reaction_d1_pct": [
+          23.31,
+          9.25,
+          -12.88,
+          -13.66
+        ],
+        "drift_2d_avg_pct": -3.54,
+        "drift_5d_avg_pct": -0.53,
+        "note": "HIGH-RISK MISLABEL CANDIDATE: beat EPS 12-28% four quarters straight, last TWO prints still closed ~-13% same-day. If it falls 09-03, that is a price reaction not a miss.",
+        "source": "smith-earnings",
+        "verified_on": "2026-08-25",
+        "drift_5d_median_pct": -4.57,
+        "drift_2d_median_pct": -7.96,
+        "drift_5d_avg_pct_note": "Avg -0.53% is dragged to ~flat by a single +36.95% outlier (2025-09-04). Median -4.57% is the honest central estimate; last two quarters were -1.05% and -29.94%."
+      },
+      "KLAC": {
+        "period": "Q4 FY2026",
+        "reported_date": "2026-07-28",
+        "revenue_actual": 3660000000,
+        "revenue_consensus": null,
+        "eps_actual": 1.05,
+        "eps_consensus": 1.0,
+        "quarter_verdict": "beat",
+        "guide_verdict": null,
+        "guide_next_q": null,
+        "guide_consensus": null,
+        "note": "EPS beat +5.1% (Act $1.05 vs Est $1.00, yfinance get_earnings) -- now a real surprise calc, not asserted from price action alone. Revenue $3.66B (+11.7% YoY), no revenue consensus sourced. Stock still fell ~-9.6% AH on the beat -- valuation/expectations reaction, kept separate from the quarter verdict per earnings-desk discipline.",
+        "source": "yfinance get_earnings + INDmoney news + stockanalysis.com/stocks/klac",
+        "verified_on": "2026-08-25"
       }
     }
   },
@@ -2253,83 +2405,80 @@
     "score": 66.1,
     "band": "greed",
     "components": {
-      "vix": 80.3,
+      "vix_range": 80.6,
       "ma125": 50,
       "rsi14": 50,
-      "pct_off_52w_high": 100.0,
-      "yield_trend": 50.0
-    },
-    "action_hint": null,
-    "prior_band": "extreme_greed",
-    "note": "proxy composite, not CNN's Fear & Greed Index -- equal-weighted VIX-range/125dma/RSI14/52wk-high/yield-trend"
+      "yield_trend": 50,
+      "pct_off_52w_high": 100
+    }
   },
   "diversifier_candidates": {
     "UNH": {
-      "price_usd": 390.11,
+      "price_usd": 398.76,
       "target_usd": 471.65,
-      "upside_pct": 20.9,
+      "upside_pct": 18.3,
       "thesis": "Managed care rebound, no capex correlation, beta 0.63",
       "status": "active",
       "clean_diversifier": true
     },
-    "PG": {
-      "price_usd": 144.68,
-      "target_usd": 163.35,
-      "upside_pct": 12.9,
-      "thesis": "Staples ballast, beta 0.38",
-      "status": "active",
-      "clean_diversifier": true
-    },
-    "NEM": {
-      "price_usd": 131.58,
-      "target_usd": 133.0,
-      "upside_pct": 1.1,
-      "thesis": "Gold miner, zero AI-capex overlap, beta 0.50 -- safe-haven rally compressed upside to near-zero",
-      "status": "active",
-      "clean_diversifier": true
-    },
     "DUK": {
-      "price_usd": 119.85,
+      "price_usd": 121.97,
       "target_usd": 138.61,
-      "upside_pct": 15.6,
-      "thesis": "Regulated utility, beta 0.37 -- pressured -3.3% today by rising 10Y yield",
+      "upside_pct": 13.6,
+      "thesis": "Regulated utility, beta 0.37 -- rate-sensitive",
       "status": "active",
       "clean_diversifier": true
     },
     "SO": {
-      "price_usd": 88.94,
+      "price_usd": 90.1,
       "target_usd": 101.45,
-      "upside_pct": 14.1,
-      "thesis": "Regulated SE utility, beta 0.33 -- pressured -4.2% today, same rate-sensitivity as DUK",
+      "upside_pct": 12.6,
+      "thesis": "Regulated SE utility, beta 0.33",
       "status": "active",
       "clean_diversifier": true
     },
+    "PG": {
+      "price_usd": 146.6,
+      "target_usd": 163.35,
+      "upside_pct": 11.4,
+      "thesis": "Staples ballast, beta 0.38",
+      "status": "active",
+      "clean_diversifier": true
+    },
+    "VST": {
+      "price_usd": 135.66,
+      "target_usd": 223.17,
+      "upside_pct": 64.5,
+      "thesis": "Merchant power gen, beta 1.43 -- AI-load adjacent, NOT clean",
+      "status": "active",
+      "clean_diversifier": false
+    },
     "LLY": {
-      "price_usd": 1255.4,
+      "price_usd": 1246.93,
       "target_usd": 1270.37,
-      "upside_pct": 1.2,
-      "thesis": "Pharma/GLP-1, decoupled from semis, beta 0.51 -- near 52wk high, upside largely consumed",
+      "upside_pct": 1.9,
+      "thesis": "Pharma/GLP-1, beta 0.51 -- near 52wk high",
+      "status": "active",
+      "clean_diversifier": true
+    },
+    "NEM": {
+      "price_usd": 131.84,
+      "target_usd": 133.0,
+      "upside_pct": 0.9,
+      "thesis": "Gold miner, beta 0.50 -- upside compressed",
       "status": "active",
       "clean_diversifier": true
     },
     "JNJ": {
-      "price_usd": 270.24,
+      "price_usd": 273.04,
       "target_usd": 269.95,
-      "upside_pct": -0.1,
-      "thesis": "Diversified pharma/medtech, beta 0.23 -- price now above analyst mean target, no cushion left",
+      "upside_pct": -1.1,
+      "thesis": "Diversified pharma/medtech, beta 0.23 -- above target",
       "status": "stale",
       "clean_diversifier": true
-    },
-    "VST": {
-      "price_usd": 136.21,
-      "target_usd": 223.17,
-      "upside_pct": 63.9,
-      "thesis": "Merchant power gen; beta 1.43 confirms AI-load adjacency -- NOT a clean diversifier",
-      "status": "active",
-      "clean_diversifier": false
     }
   },
-  "watchlist_scan_cursor": 15,
+  "watchlist_scan_cursor": 30,
   "data_quality": [
     "2026-08-24 DEEP run, Monday pre-open (04:xx ET / 13:51-14:45 IST), gate ESCALATING (Asia term alone: KOSPI -3.12%). Pre-market ext_hr overlay applied to all 33 holdings. Headline value/P&L snapshot-basis per HARD RULES ($39,012.17 equity, -0.56% P&L); pre-market read shows the book actually gapping -1.51% weighted since Friday close.",
     "Dispatched 10 of 14 agents (signals, thesis, watchlist, book, scout, macro, rebound [gate=ESCALATING], catalyst [deep run], tax [8+ open trims], earnings [NVDA 08-26/MRVL 08-27 within 5 trading days]). Skipped ledger (qty_changes empty), cycle/quality (4 prior deep runs this month, not first-of-month).",
@@ -2698,79 +2847,68 @@
   },
   "factor_catalysts": [
     {
-      "date": "2026-08-21",
-      "direction": "threat",
+      "date": "2026-08-25",
+      "direction": "ambiguous",
       "horizon": "immediate",
-      "headline": "Alibaba FQ1 FY27: adjusted EPS $1.26 vs $1.85 consensus (-42% YoY); AI capex running 4.5x new cloud revenue growth despite cloud +45% (fastest in 22 quarters)",
+      "headline": "Sector-wide pre-market green is SMH +14% over 4 sessions heading into binary earnings week (NVDA 8/26, MRVL 8/27, AVGO 9/2) -- not book-specific news",
+      "magnitude": "SMH +14% 4-session run",
       "affects": [
-        "BABA"
+        "NVDA",
+        "MRVL",
+        "AVGO",
+        "AMD",
+        "INTC",
+        "MU",
+        "TSM",
+        "LRCX",
+        "AMAT",
+        "KLAC"
       ],
-      "exposure_pct_equity": 0.6,
-      "magnitude": "-8.57% Fri, -3.47% further pre-market, -$21bn market cap; EPS miss confirmed vs consensus",
-      "source": "https://www.tradingkey.com/news/market-movers/262124713-market-movers-baba-20260821"
+      "exposure_pct_equity": 83.18,
+      "source": "smith-catalyst WebSearch scan 2026-08-25"
     },
     {
-      "date": "2026-08-21",
+      "date": "2026-08-24",
       "direction": "threat",
       "horizon": "structural",
-      "headline": "Broadcom in talks for $70-80bn AI-financing debt SPV (with Blackstone, Apollo) to backstop compute incl. Anthropic; builds on June's $35bn AI XPV Platform, targets >20GW by 2028",
+      "headline": "Broadcom AI-financing SPV ($60-70bn tranche, drawing scrutiny over a $370bn-by-2029 ceiling) now applies to BOTH AVGO and BX since BX re-entered the book",
+      "magnitude": "$370bn stress ceiling by 2029",
       "affects": [
         "AVGO",
         "BX"
       ],
-      "exposure_pct_equity": 7.53,
-      "magnitude": "$70-80bn new tranche ($45bn senior/$35bn subordinated) vs $35bn June platform; BofA ceiling estimate $370bn senior debt by 2029; AVGO on-balance-sheet debt only $83.7bn per 08-17 WSJ baseline",
-      "source": "https://www.gurufocus.com/news/9047935/broadcom-avgo-in-talks-for-up-to-80-billion-ai-financing"
+      "exposure_pct_equity": 7.65,
+      "source": "smith-catalyst WebSearch scan 2026-08-25, carried from 08-17/08-24 findings"
     },
     {
       "date": "2026-08-24",
-      "direction": "ambiguous",
+      "direction": "threat",
       "horizon": "noise",
-      "headline": "KOSPI weak open (below 6,900), Samsung -4%+ vs SK Hynix +3.58% diverging positive; named cause broad US-tech consolidation spillover, not new chip-specific news",
+      "headline": "Asia semis/memory pullback (KOSPI -4.21%, Nikkei -1.34%) -- third such pullback since 08-03, profit-taking not a new catalyst",
+      "magnitude": "KOSPI -4.21%",
       "affects": [
-        "MU",
         "SKHY",
-        "TSM"
+        "TSM",
+        "FLTW"
       ],
-      "exposure_pct_equity": 12.17,
-      "magnitude": "Samsung -4% to -8%, SK Hynix +3.58% same session -- divergence argues Samsung-specific not sector-wide",
-      "source": "https://www.tradingkey.com/analysis/stocks/more/262126339-japan-south-korea-stocks-kospi-nikkei-softbank-skhynix-samsung-kioxia-tradingkey"
+      "exposure_pct_equity": 8.75,
+      "source": "smith-catalyst WebSearch scan 2026-08-25"
     },
     {
-      "date": "2026-08-21",
+      "date": "2026-08-25",
       "direction": "ambiguous",
-      "horizon": "noise",
-      "headline": "08-18 COHR/CIEN/TER 'noise' episode retired: COHR fully exited from book, TER now dust position; underlying SMH selloff has round-tripped",
+      "horizon": "structural",
+      "headline": "China domestic DUV tools begin delivering to CXMT/SMIC/Hua Hong this month (confirmed timeline, still small scale: 5 units 2026 vs ASML's 131 tools); CXMT's own HBM3 push still 2027-dated, ~2% of wafer capacity HBM-allocated",
+      "magnitude": "5 units vs ASML's 131",
       "affects": [
-        "CIEN"
+        "ASML",
+        "AMAT",
+        "LRCX",
+        "MU",
+        "SKHY"
       ],
-      "exposure_pct_equity": 2.02,
-      "magnitude": "COHR 0% weight (not held), TER 0.0% weight (dust), CIEN 2.02% is the only live exposure remaining from this cluster",
-      "source": "https://stockanalysis.com/etf/smh/"
-    },
-    {
-      "date": "2026-08-21",
-      "direction": "tailwind",
-      "horizon": "noise",
-      "headline": "Robinhood +13.7% Friday on Bitcoin rally, White House crypto-regulatory summit optimism, private-markets/tokenization push, GS PT raise to $123",
-      "affects": [
-        "HOOD"
-      ],
-      "exposure_pct_equity": 1.39,
-      "magnitude": "crypto-regulatory catalyst, not AI-capex factor; +13.7% Fri",
-      "source": "https://www.benzinga.com/trading-ideas/movers/26/08/61359191/why-is-robinhood-stock-surging-friday"
-    },
-    {
-      "date": "2026-08-21",
-      "direction": "ambiguous",
-      "horizon": "noise",
-      "headline": "Marvell -5.57% Friday ahead of 08-27 earnings; no guidance leak or negative peer read-through found -- sourced as profit-taking after 2-day surge plus options-expiration amplification",
-      "affects": [
-        "MRVL"
-      ],
-      "exposure_pct_equity": 4.77,
-      "magnitude": "pullback despite a positive Google custom-AI-chip catalyst; analyst base still 24/29 buy-rated",
-      "source": "https://www.tipranks.com/news/why-marvell-stock-is-down-today-and-what-wall-street-expects-next-august-21"
+      "exposure_pct_equity": 15.4,
+      "source": "smith-catalyst WebSearch scan 2026-08-25"
     }
   ],
   "ai_capex_pct": 88.155,
@@ -2793,10 +2931,10 @@
     "note": "First complete realised P&L on fully-exited names, computable only after the 116-row recovery. Best: GOOG +$334.46, WDC +$204.77, BE +$142.81. Worst: GLW -$249.02, SMCI -$197.09, META -$107.67, EWY -$96.48. GOOG's figure is partly pre-history basis and is distorted by the unrecorded GOOG->GOOGL conversion (G71) -- treat it as indicative."
   },
   "signal_history_as_of": {
-    "ASML": "2026-08-24",
-    "TSM": "2026-08-24",
+    "ASML": "2026-08-25",
+    "TSM": "2026-08-25",
     "MU": "2026-08-24",
-    "MRVL": "2026-08-24",
+    "MRVL": "2026-08-25",
     "CIEN": "2026-08-24",
     "AMD": "2026-08-24",
     "STM": "2026-08-24",
@@ -2804,44 +2942,36 @@
     "AVGO": "2026-08-24",
     "GEV": "2026-08-24",
     "QCOM": "2026-08-24",
-    "CLS": "2026-08-24",
+    "CLS": "2026-08-25",
     "BABA": "2026-08-24",
     "CEG": "2026-08-24",
-    "AMZN": "2026-08-24",
+    "AMZN": "2026-08-25",
     "NOW": "2026-08-24",
-    "MSFT": "2026-08-24",
-    "FLTW": "2026-08-24",
-    "TER": "2026-08-24",
+    "MSFT": "2026-08-25",
+    "FLTW": "2026-08-25",
+    "TER": "2026-08-25",
     "VRT": "2026-08-24",
     "COHR": "2026-08-20",
     "AMAT": "2026-08-24",
     "BE": "2026-08-24",
     "IREN": "2026-08-20",
-    "LRCX": "2026-08-24",
+    "LRCX": "2026-08-25",
     "GLW": "2026-08-24",
-    "INTC": "2026-08-24",
+    "INTC": "2026-08-25",
     "TXN": "2026-08-24",
     "NBIS": "2026-08-24",
     "META": "2026-08-24",
     "GOOG": "2026-08-24",
     "WDC": "2026-08-24",
-    "SKHY": "2026-08-24",
+    "SKHY": "2026-08-25",
     "HOOD": "2026-08-24",
-    "BX": "2026-08-24"
+    "BX": "2026-08-24",
+    "KLAC": "2026-08-25"
   },
   "macro_read": {
-    "as_of": "2026-08-16",
-    "regime": "risk_on",
-    "fed_funds_pct": 3.63,
-    "fomc_stance": "HAWKISH",
-    "spy_pcr_oi": 2.58,
-    "spy_max_pain": 776,
-    "qqq_pcr_oi": 1.17,
-    "qqq_max_pain": 731,
-    "next_fomc": "2026-09-16",
-    "next_cpi": "2026-09-11",
-    "next_nfp": "2026-09-04",
-    "regime_note": "Fragile risk-on, not clean risk-on: EXTREME_GREED 82.9, VIX 14.25 near 52wk low, SPX within 0.4% of ATH, stacked on NDX RSI14 73.1 overbought and 10yr +11.1bp/1m to 4.696% against a HAWKISH Fed, with SPY put OI 2.58 signalling hedging beneath the tape."
+    "regime": "neutral",
+    "note": "Calm VIX (15.82) and green Asia session sit against a -2.43% SMH print (confirmed real, not stale) and a hawkish Fed (3.63%, 10y 4.704%) -- index-level complacency over a defensively-skewed options book (SPY put/call OI 3.09) and a semis-specific crack.",
+    "as_of": "2026-08-25"
   },
   "thesis_tensions_last": {
     "as_of": "2026-08-20",
@@ -2880,59 +3010,59 @@
   },
   "watchlist_setups": [
     {
-      "ticker": "RGTI",
-      "type": "OVERSOLD_BOUNCE",
-      "upside_pct": 37.83,
+      "ticker": "ORCL",
+      "type": "oversold_bounce",
+      "upside_pct": 42.2,
       "pos": 0.12
     },
     {
-      "ticker": "QBTS",
-      "type": "OVERSOLD_BOUNCE",
-      "upside_pct": 42.16,
-      "pos": 0.23
+      "ticker": "CEG",
+      "type": "oversold_bounce",
+      "upside_pct": 21.5,
+      "pos": 0.24
     },
     {
-      "ticker": "IONQ",
-      "type": "TARGET_GAP",
-      "upside_pct": 33.72,
-      "pos": 0.32
+      "ticker": "LEU",
+      "type": "oversold_bounce",
+      "upside_pct": 31.2,
+      "pos": 0.11
+    },
+    {
+      "ticker": "SMR",
+      "type": "oversold_bounce",
+      "upside_pct": 28.4,
+      "pos": 0.04
+    },
+    {
+      "ticker": "VST",
+      "type": "oversold_bounce",
+      "upside_pct": 38.7,
+      "pos": 0.03
+    },
+    {
+      "ticker": "FLEX",
+      "type": "target_gap",
+      "upside_pct": 33.6,
+      "pos": 0.49
     },
     {
       "ticker": "IREN",
-      "type": "TARGET_GAP",
-      "upside_pct": 48.76,
-      "pos": 0.41
-    },
-    {
-      "ticker": "STX",
-      "type": "TARGET_GAP",
-      "upside_pct": 23.83,
-      "pos": 0.7
-    },
-    {
-      "ticker": "APH",
-      "type": "TARGET_GAP",
-      "upside_pct": 20.73,
-      "pos": 0.71
-    },
-    {
-      "ticker": "GOOGL",
-      "type": "TARGET_GAP",
-      "upside_pct": 19.34,
-      "pos": 0.7
-    },
-    {
-      "ticker": "DDOG",
-      "type": "TARGET_GAP",
-      "upside_pct": 17.38,
-      "pos": 0.71
+      "type": "target_gap",
+      "upside_pct": 51.3,
+      "pos": 0.38
     },
     {
       "ticker": "AEP",
-      "type": "TARGET_GAP",
-      "upside_pct": 16.56,
-      "pos": 0.44
+      "type": "target_gap",
+      "upside_pct": 15.9,
+      "pos": 0.47
+    },
+    {
+      "ticker": "DLR",
+      "type": "target_gap",
+      "upside_pct": 15.5,
+      "pos": 0.68
     }
   ],
-  "watchlist_setups_as_of": "2026-08-24"
+  "watchlist_setups_as_of": "2026-08-25"
 }
