@@ -69,6 +69,14 @@ BUCKET_DIRECTION = {
     "REVERSAL - TRIM WATCH": "down", "CAPITAL ROTATION": "down",
     "NEW HEADWINDS": "down",
     "EARNINGS PROXIMITY": None, "POLICY IMPACT": None, "INSIDER ACTIVITY": None,
+    # Added 2026-08-25 (self-learning Phase 1 audit): these three ARE journaled by
+    # smith-signals (11 entries found: 6 PEER LEADER, 4 PEER LAGGARD, 1 BREAKDOWN) but were
+    # simply absent here, so every one scored "n/a" permanently regardless of what actually
+    # happened to the price. Directions taken from smith_risk.SIGNAL_POLARITY, which already
+    # classifies PEER LEADER/BREAKOUT/STRONG UPTREND as bullish and PEER LAGGARD/BREAKDOWN/
+    # STRONG DOWNTREND as bearish -- matched here rather than re-derived, so the two tables
+    # cannot silently disagree about the same bucket name.
+    "PEER LEADER": "up", "PEER LAGGARD": "down", "BREAKDOWN": "down",
 }
 
 VERDICT_THRESHOLD_PCT = 2.0  # move must exceed this to call worked/failed vs neutral

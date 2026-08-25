@@ -35,6 +35,22 @@
       "evidence": "smith_core.py:307-313",
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "correction",
+      "text": "Corrects an earlier same-day guess (see the lesson about cmd_journal survivorship bias): the direction of the bias was assumed to be optimistic (excluded losers inflate hit rates). VERIFIED WRONG on first real backfill of 16 exited tickers / 14 newly-scoreable entries: TARGET GAP moved UP 23.1%->36.8% (n=13->19) because the excluded entries were disproportionately WINNERS this time (IREN +10.8%, LITE +15.2%, ORCL +17.8% x2, DLR +4.5%), while MOMENTUM+VOLUME stayed flat at 0% (n=7->11) with no direction change. The real defect is that exclusion itself is non-random -- an exited name correlates with volatile price action in EITHER direction (that volatility is often why it triggered a stop), not uniformly bad. Do not assume a direction for this bias when reasoning about it in future work; the fix (inject exited-ticker prices) is correct, the assumed mechanism was not.",
+      "evidence": "journal.json backfill 2026-08-25, /tmp/journal_v2.json vs /tmp/journal_v3.json",
+      "source_run": null,
+      "supersedes": 2
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "calibration",
+      "text": "First real shadow-trigger hit rates now exist (trigger_journal.json scored for the first time, 2026-08-25): laggard_rotation 0% (n=3) -- every laggard-rotation candidate flagged so far failed to catch up; scale_out_ladder 100% (n=5) -- every scale-out trim so far was followed by the price falling, validating the trim. profit_ratchet stays permanently n/a by design (a stop-management action, not a directional price bet). derisk_journal's narrow_stretch queue_state is 0% (n=3) -- none of the three names flagged as fragile/stretched have underperformed since. All four n are far below any reasonable promotion gate (want n>=20-30 before treating a shadow trigger's hit rate as real) -- these are early reads to watch, not yet a basis for promoting anything from shadow to live.",
+      "evidence": "trigger_journal.json, derisk_journal.json, scored 2026-08-25",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

@@ -8,7 +8,12 @@
       "derisk_score": 87.5,
       "queue_state": "narrow_stretch",
       "price_at_flag": 1354.8019,
-      "scored": false
+      "scored": true,
+      "price_now": 1493.12,
+      "outcome_pct": 10.209,
+      "scored_on": "2026-08-25",
+      "days_old": 25,
+      "verdict": "failed"
     },
     {
       "date": "2026-07-31",
@@ -17,7 +22,12 @@
       "derisk_score": 33.0,
       "queue_state": "narrow_stretch",
       "price_at_flag": 53.6,
-      "scored": false
+      "scored": true,
+      "price_now": 54.28,
+      "outcome_pct": 1.269,
+      "scored_on": "2026-08-25",
+      "days_old": 25,
+      "verdict": "neutral"
     },
     {
       "date": "2026-07-31",
@@ -26,7 +36,12 @@
       "derisk_score": 31.3,
       "queue_state": "narrow_stretch",
       "price_at_flag": 902.88,
-      "scored": false
+      "scored": true,
+      "price_now": 910.43,
+      "outcome_pct": 0.836,
+      "scored_on": "2026-08-25",
+      "days_old": 25,
+      "verdict": "neutral"
     },
     {
       "date": "2026-07-31",
@@ -35,7 +50,12 @@
       "derisk_score": 26.1,
       "queue_state": "narrow_stretch",
       "price_at_flag": 195.3,
-      "scored": false
+      "scored": true,
+      "price_now": 229.29,
+      "outcome_pct": 17.404,
+      "scored_on": "2026-08-25",
+      "days_old": 25,
+      "verdict": "failed"
     },
     {
       "date": "2026-07-31",
@@ -44,10 +64,18 @@
       "derisk_score": 14.3,
       "queue_state": "narrow_stretch",
       "price_at_flag": 1683.959,
-      "scored": false
+      "scored": true,
+      "price_now": 1740.13,
+      "outcome_pct": 3.336,
+      "scored_on": "2026-08-25",
+      "days_old": 25,
+      "verdict": "failed"
     }
   ],
-  "hit_rate": {},
+  "hit_rate": {
+    "n": 3,
+    "hit_rate_pct": 0.0
+  },
   "note": "Shadow log for the De-risk Queue (added 2026-07-31). Every deep run records the top-ranked names WITHOUT acting on them; each entry is scored at 30d/90d on what the name actually did afterwards. The queue does NOT feed strategist proposals until it has a real hit rate -- the desk's existing signal buckets still have zero scored entries, so a new signal class earns its vote before it gets one.",
   "last_run": "2026-07-31",
   "queue_state_history": [
@@ -60,5 +88,12 @@
       ],
       "band": "greed"
     }
-  ]
+  ],
+  "hit_rate_by_key": {
+    "narrow_stretch": {
+      "n": 3,
+      "hit_rate_pct": 0.0
+    }
+  },
+  "last_scored": "2026-08-25"
 }

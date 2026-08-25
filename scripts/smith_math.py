@@ -54,7 +54,7 @@ from smith_core import *  # noqa: F401,F403
 from smith_core import load_json, emit, fail, clamp
 from smith_ledger import cmd_lots, cmd_history
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy
-from smith_lifecycle import cmd_proposals, cmd_score, cmd_stops, cmd_dismiss
+from smith_lifecycle import cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_score_shadow_journal
 from smith_learning import cmd_learn_status, cmd_learn_lessons, cmd_learn_add_lesson
 # explicit: `from x import *` does NOT export underscore-prefixed names
 from smith_core import _prior_run_prices
@@ -549,12 +549,37 @@ def cmd_journal(args):
         if r.get("qty"):
             price_by_ticker[r["ticker"]] = r["market_value_inr"] / r["qty"] / usdinr
 
+    # Injected prices for EXITED tickers (added 2026-08-25, self-learning Phase 1). Without
+    # this, an entry for a ticker no longer held can never price -- current_price stays None
+    # forever, verdict stays "open" forever. Original hypothesis going in was that this biases
+    # every hit rate optimistic (losers get excluded); VERIFIED WRONG on first real backfill
+    # (16 tickers, 14 newly-scoreable entries): TARGET GAP moved 23.1%->36.8% (n=13->19) as
+    # excluded WINNERS like IREN +10.8%, LITE +15.2%, ORCL +17.8% (x2), DLR +4.5% came back in,
+    # while MOMENTUM+VOLUME stayed flat at 0% (n=7->11). The real defect isn't a uniform
+    # direction, it's that EXCLUSION ITSELF is non-random -- an exited name got there via a
+    # stop-out or a deliberate exit, which correlates with volatile price action in EITHER
+    # direction, not uniformly bad. Corrected as a lesson (see learn-add-lesson); don't assume
+    # a direction when reasoning about this fix elsewhere. Injected values win on collision (an
+    # explicit fetch is fresher than a snapshot derived from this run's holdings), matching
+    # cmd_score/cmd_stops' existing --prices-json contract exactly, including the same
+    # probe-with-{} discovery idiom.
+    injected = {}
+    if args.prices_json:
+        injected = load_json(args.prices_json, default={})
+    price_by_ticker = {**price_by_ticker, **injected}
+
     today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+
+    prior_by_key = {}
+    for e in journal.get("entries", []):
+        prior_by_key[(e.get("date"), e.get("ticker"), e.get("bucket"))] = e
 
     updates = []
     bucket_scores = {}  # bucket -> [worked/failed/neutral bools at 30d]
-    name_bucket_scores = {}  # (ticker,bucket) -> list
+    name_bucket_scores = {}  # (ticker,bucket) -> list of (verdict, n) pairs -- see grade() below
     bucket_scores_7d = {}  # same, at 7d -- interim read, see bucket_hit_rates_7d below
+    needs_price = set()  # tickers with an open entry and no price -- surfaced so the caller
+                         # knows exactly which exited names to fetch and re-run with
 
     for e in journal.get("entries", []):
         try:
@@ -562,30 +587,66 @@ def cmd_journal(args):
         except (KeyError, ValueError):
             continue
         days_old = (today - flag_date).days
-        current_price = price_by_ticker.get(e["ticker"])
+        key = (e.get("date"), e.get("ticker"), e.get("bucket"))
+        prior = prior_by_key.get(key, {})
+
+        # LOCK ON FIRST SCORE (added 2026-08-25, fixes the "no scoring window" defect): once an
+        # outcome has been scored, it is NEVER recomputed against a later price. Before this
+        # fix, outcome_30d_pct always compared flag price to TODAY's price regardless of
+        # days_old -- a 44-day-old entry got scored on a 44-day move and labelled "30d" anyway,
+        # because cmd_journal rebuilds bucket_scores from scratch every run with no memory of
+        # what price it scored against last time. Locking means the number an entry is scored
+        # on is fixed at (approximately) the day it first crosses the 7d/30d line, not whatever
+        # day this command happens to run again.
         out = {"date": e["date"], "ticker": e["ticker"], "bucket": e["bucket"],
-               "days_old": days_old, "outcome_7d_pct": None, "outcome_30d_pct": None,
-               "verdict": "open"}
+               "days_old": days_old,
+               "outcome_7d_pct": prior.get("outcome_7d_pct"),
+               "outcome_30d_pct": prior.get("outcome_30d_pct"),
+               "verdict": prior.get("verdict", "open")}
+        already_locked_30d = prior.get("outcome_30d_pct") is not None
+        already_locked_7d = prior.get("outcome_7d_pct") is not None
+
+        # MIGRATION BACKFILL (2026-08-25): entries locked before `_verdict_7d` existed as a
+        # field have outcome_7d_pct set but no cached verdict label. The pct is already locked
+        # -- re-deriving the LABEL from it is not a new price read, just recovering information
+        # that was always computable from what's already stored, so this is a one-time backfill
+        # rather than a re-score. Runs exactly once per entry: after this, _verdict_7d exists
+        # and the branch below never re-enters this path for that entry again.
+        if already_locked_7d and not prior.get("_verdict_7d"):
+            d7 = BUCKET_DIRECTION.get(e["bucket"])
+            if d7 is not None and prior.get("outcome_7d_pct") is not None:
+                s7 = prior["outcome_7d_pct"] if d7 == "up" else -prior["outcome_7d_pct"]
+                prior = dict(prior)  # don't mutate the loaded journal in place
+                prior["_verdict_7d"] = ("worked" if s7 > VERDICT_THRESHOLD_PCT
+                                        else "failed" if s7 < -VERDICT_THRESHOLD_PCT else "neutral")
+
+        current_price = price_by_ticker.get(e["ticker"])
         if current_price is None or not e.get("price_at_flag"):
-            out["verdict"] = "open"
+            if out["verdict"] == "open":
+                needs_price.add(e["ticker"])
+            # Still re-tally anything ALREADY locked, regardless of whether this run can price
+            # the ticker -- an entry locked while the name was still held (e.g. its 7d verdict)
+            # must keep counting even after the name later exits and this run can't re-price it.
+            if prior.get("_verdict_7d"):
+                out["_verdict_7d"] = prior["_verdict_7d"]
+                bucket_scores_7d.setdefault(e["bucket"], []).append(prior["_verdict_7d"])
+            if out["verdict"] in ("worked", "failed", "neutral", "n/a"):
+                bucket_scores.setdefault(e["bucket"], []).append(out["verdict"])
+                name_bucket_scores.setdefault((e["ticker"], e["bucket"]), []).append(out["verdict"])
             updates.append(out)
             continue
+
         pct_move = round((current_price - e["price_at_flag"]) / e["price_at_flag"] * 100, 3)
-        if days_old >= 7:
+
+        if days_old >= 7 and not already_locked_7d:
             out["outcome_7d_pct"] = pct_move
-            # 7d interim verdict (added 2026-08-06, rotation-proposal feature review): same
-            # direction-aware signed-move logic as the 30d verdict below, just usable 23 days
-            # sooner. Kept in a SEPARATE dict (bucket_scores_7d, never bucket_scores) so it can
-            # never contaminate the validated 30d hit rate -- proposal scoring may read the 7d
-            # number, but it must always be visibly labelled interim/lower-confidence, never
-            # presented as the same thing as a matured 30d verdict.
             direction_7d = BUCKET_DIRECTION.get(e["bucket"])
             if direction_7d is not None:
                 signed_7d = pct_move if direction_7d == "up" else -pct_move
                 v7 = ("worked" if signed_7d > VERDICT_THRESHOLD_PCT
                       else "failed" if signed_7d < -VERDICT_THRESHOLD_PCT else "neutral")
-                bucket_scores_7d.setdefault(e["bucket"], []).append(v7)
-        if days_old >= 30:
+                out["_v7_locked_this_run"] = v7  # consumed just below, not persisted
+        if days_old >= 30 and not already_locked_30d:
             out["outcome_30d_pct"] = pct_move
             direction = BUCKET_DIRECTION.get(e["bucket"])
             if direction is None:
@@ -598,6 +659,17 @@ def cmd_journal(args):
                     out["verdict"] = "failed"
                 else:
                     out["verdict"] = "neutral"
+
+        # 7d interim verdict (added 2026-08-06, locking added 2026-08-25): kept in a SEPARATE
+        # dict (bucket_scores_7d, never bucket_scores) so it can never contaminate the
+        # validated 30d hit rate.
+        v7_for_tally = out.pop("_v7_locked_this_run", None) or (
+            prior.get("_verdict_7d") if already_locked_7d else None)
+        if v7_for_tally:
+            out["_verdict_7d"] = v7_for_tally  # persisted so future runs can re-tally without price
+            bucket_scores_7d.setdefault(e["bucket"], []).append(v7_for_tally)
+
+        if out["verdict"] in ("worked", "failed", "neutral", "n/a"):
             bucket_scores.setdefault(e["bucket"], []).append(out["verdict"])
             name_bucket_scores.setdefault((e["ticker"], e["bucket"]), []).append(out["verdict"])
         updates.append(out)
@@ -614,7 +686,7 @@ def cmd_journal(args):
     bucket_hit_rates_7d = {}
     for bucket, verdicts in bucket_scores_7d.items():
         scored = [v for v in verdicts if v in ("worked", "failed")]
-        if len(scored) >= 3:  # same n>=3 floor as name_bucket_grades below -- don't grade on n=1
+        if len(scored) >= 3:  # same n>=3 floor as bucket_hit_rates -- don't publish on n=1
             bucket_hit_rates_7d[bucket] = {
                 "n": len(scored),
                 "hit_rate_pct": round(sum(1 for v in scored if v == "worked") / len(scored) * 100, 1),
@@ -630,20 +702,34 @@ def cmd_journal(args):
             return "C"
         return "F"
 
+    # name_bucket_grades (rebuilt 2026-08-25): the old n>=3-per-(ticker,bucket) gate was
+    # structurally unreachable at this journaling cadence -- audited 2026-08-25, the 48 matured
+    # entries at the time formed 45 distinct pairs and the MAXIMUM count on any single pair was
+    # 2. A gate that nothing can ever clear isn't caution, it's a permanently-false claim
+    # ("34/34 ungraded") dressed as a measurement. Fixed by reporting every pair that has AT
+    # LEAST ONE scored entry, with its n stated alongside the grade -- "low_confidence": true
+    # below n=3 is the honest version of the old binary gate: visible and usable, but never
+    # mistaken for a validated statistic. A pair with ZERO scored entries is omitted entirely
+    # (never "ungraded"), because there is a real difference between "not enough data yet" and
+    # "measured, but on a thin sample" and the old single bucket collapsed both into one lie.
     name_bucket_grades = {}
     for (ticker, bucket), verdicts in name_bucket_scores.items():
         scored = [v for v in verdicts if v in ("worked", "failed")]
-        name_bucket_grades.setdefault(ticker, {})
-        if len(scored) >= 3:
-            hr = sum(1 for v in scored if v == "worked") / len(scored) * 100
-            name_bucket_grades[ticker][bucket] = grade(hr)
-        else:
-            name_bucket_grades[ticker][bucket] = "ungraded"
+        if not scored:
+            continue
+        hr = sum(1 for v in scored if v == "worked") / len(scored) * 100
+        name_bucket_grades.setdefault(ticker, {})[bucket] = {
+            "grade": grade(hr), "n": len(scored), "hit_rate_pct": round(hr, 1),
+            "low_confidence": len(scored) < 3,
+        }
 
     dq = [] if price_by_ticker else ["no current prices available -- all entries left open"]
+    if needs_price:
+        dq.append(f"{len(needs_price)} ticker(s) have an open journal entry and no price -- "
+                  f"likely exited positions, unreachable via holdings.json: "
+                  f"{', '.join(sorted(needs_price)[:12])}. Re-run with --prices-json to score "
+                  f"them (probe with an empty {{}} first to confirm this list).")
 
-    # Flag entries in the 30-day window (approaching scoring threshold, 1.5: 2026-07-26)
-    today = date.today()
     pending_30d = [e for e in updates if 14 <= e.get("days_old", 0) < 30 and e.get("verdict") == "open"]
     if pending_30d:
         dq.append(f"{len(pending_30d)} entries in 14-30d window; hit-rate scoring begins once they cross 30d")
@@ -1717,14 +1803,16 @@ def cmd_triggers(args):
         if prior is None or d > prior:
             recently_exited[tr["ticker"]] = d
 
-    def build_ctx(ticker, thesis_entry, buckets, price, rsi_val, rel_val, earnings_fact_ticker):
-        """One shared context-builder for every conviction trigger, so all nine score the exact
-        same way off the exact same inputs -- divergent scoring per trigger type is how the old
-        engine's five inconsistent thesis-status readers happened (see smith_risk.py's ONE FIELD
-        ONE READER note); this is that discipline applied to conviction."""
+    def _track_record_for(buckets):
+        """Track record: use the interim 7d hit rate of whichever bullish bucket this ticker
+        carries, if any -- same source cmd_proposals already reads for signal_conviction.
+        Extracted 2026-08-25 (self-learning Phase 1) so entry_setup/reentry/bench_diversifier
+        can share it too -- those three were passing track_record: None outright, a dead
+        track_record_multiplier call for 3 of the 9 conviction triggers, found in the same
+        audit that found trigger_journal.json's 0-scored gate. Not everything gets a track
+        record (bench_diversifier has no buckets to read at all), and that's fine -- None is
+        the correct, honest answer there, not a bug to route around."""
         tr = None
-        # track record: use the interim 7d hit rate of whichever bullish bucket this ticker
-        # carries, if any -- same source cmd_proposals already reads for signal_conviction.
         hit_rates_7d = journal.get("bucket_hit_rates_7d", {})
         polarity = smith_risk.classify_signal_polarity(buckets)
         for b in polarity["bullish"]:
@@ -1732,6 +1820,14 @@ def cmd_triggers(args):
             if hr and hr.get("n"):
                 tr = {"hit_rate_pct": hr["hit_rate_pct"], "n": hr["n"]}
                 break
+        return tr
+
+    def build_ctx(ticker, thesis_entry, buckets, price, rsi_val, rel_val, earnings_fact_ticker):
+        """One shared context-builder for every conviction trigger, so all nine score the exact
+        same way off the exact same inputs -- divergent scoring per trigger type is how the old
+        engine's five inconsistent thesis-status readers happened (see smith_risk.py's ONE FIELD
+        ONE READER note); this is that discipline applied to conviction."""
+        tr = _track_record_for(buckets)
         return {
             "ticker": ticker, "thesis_entry": thesis_entry, "factor_catalysts": factor_catalysts,
             "buckets": buckets, "upside_pct": upside_pct_for(ticker, price),
@@ -2129,12 +2225,13 @@ def cmd_triggers(args):
         # real RSI, but a documented, defensible reuse of a number the desk already computed
         # rather than leaving the technical component at a flat 0 for every watchlist name.
         pos = row.get("pos")
+        buckets_for_ticker = signal_history.get(ticker) or []
         ctx = {"ticker": ticker, "thesis_entry": thesis.get(ticker), "factor_catalysts": factor_catalysts,
-               "buckets": signal_history.get(ticker) or [], "upside_pct": row.get("upside_pct"),
+               "buckets": buckets_for_ticker, "upside_pct": row.get("upside_pct"),
                "earnings_fact": earnings_facts.get(ticker),
                "rsi": (pos * 100 if pos is not None else None), "rsi_usable": pos is not None,
                "rel_pp": None, "rel_usable": False, "mention_count": mention_counts.get(ticker, 0),
-               "track_record": None}
+               "track_record": _track_record_for(buckets_for_ticker)}
         conv = smith_conviction.score_conviction(ctx)
         if conv["conviction_tier"] == "none":
             continue
@@ -2161,11 +2258,12 @@ def cmd_triggers(args):
             last_exit_price[tr["ticker"]] = tr.get("price_at_trade")
     for ticker, exit_date in recently_exited.items():
         price = last_exit_price.get(ticker)
+        buckets_for_ticker = signal_history.get(ticker) or []
         ctx = {"ticker": ticker, "thesis_entry": thesis.get(ticker), "factor_catalysts": factor_catalysts,
-               "buckets": signal_history.get(ticker) or [], "upside_pct": upside_pct_for(ticker, price),
+               "buckets": buckets_for_ticker, "upside_pct": upside_pct_for(ticker, price),
                "earnings_fact": earnings_facts.get(ticker), "rsi": rsi_vals.get(ticker), "rsi_usable": rsi_usable,
                "rel_pp": rel_vals.get(ticker), "rel_usable": rel_usable, "mention_count": mention_counts.get(ticker, 0),
-               "track_record": None}
+               "track_record": _track_record_for(buckets_for_ticker)}
         conv = smith_conviction.score_conviction(ctx)
         if conv["conviction_tier"] == "none" or conv["thesis_status"] not in ("intact", "strengthening"):
             continue  # exited-and-still-weak is not a re-entry case, it's confirmation the exit was right
@@ -2197,10 +2295,15 @@ def cmd_triggers(args):
         if not dv.get("clean_diversifier") or dv.get("status") == "stale" or ticker in risk_by_ticker:
             continue
         price = dv.get("price_usd")
+        # buckets stays [] genuinely -- these names carry no signal history in this book (see
+        # the comment above), so _track_record_for([]) correctly returns None rather than
+        # faking a bucket to look up. Wired for consistency with the other 8 triggers rather
+        # than left as a hardcoded None, in case a diversifier candidate later gains signal
+        # coverage without anyone remembering to revisit this site.
         ctx = {"ticker": ticker, "thesis_entry": None, "factor_catalysts": [],
                "buckets": [], "upside_pct": dv.get("upside_pct"), "earnings_fact": None,
                "rsi": None, "rsi_usable": False, "rel_pp": None, "rel_usable": False,
-               "mention_count": mention_counts.get(ticker, 0), "track_record": None}
+               "mention_count": mention_counts.get(ticker, 0), "track_record": _track_record_for([])}
         conv = smith_conviction.score_conviction(ctx)
         if conv["conviction_tier"] == "none":
             continue
@@ -2374,6 +2477,14 @@ def main():
             sp.add_argument("--lots", default=None)
         if name in ("journal", "derisk", "triggers"):
             sp.add_argument("--today", default=None)
+        if name == "journal":
+            sp.add_argument("--prices-json", default=None,
+                            help='optional {"TICKER":price_usd} for tickers with an open '
+                                 '(unscored) journal entry whose ticker is no longer held -- '
+                                 'without this, an exited ticker can never price and stays '
+                                 'verdict:"open" forever (survivorship bias). Omit for the '
+                                 'normal pipeline call; supply on a separate pass once tickers '
+                                 'needing a price are known (same probe-with-{} idiom as score/stops).')
 
     sp = sub.add_parser("sentiment")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
@@ -2451,6 +2562,16 @@ def main():
     sp.add_argument("--dry-run", action="store_true",
                     help="compute and print the scorecard without writing proposals.json")
 
+    sp = sub.add_parser("score-shadow-journal",
+                        help="score trigger_journal.json or derisk_journal.json at 7d/30d")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--file", required=True, choices=["trigger_journal.json", "derisk_journal.json"])
+    sp.add_argument("--prices-json", default=None,
+                    help='{"TICKER":price_usd}. Omit or probe with an empty {} first to see '
+                         'which tickers are needed.')
+    sp.add_argument("--today", default=None)
+    sp.add_argument("--dry-run", action="store_true")
+
     sp = sub.add_parser("learn-status", help="report every learning.json parameter's state/n")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
 
@@ -2474,7 +2595,8 @@ def main():
          "triggers": cmd_triggers, "score": cmd_score, "pipeline": cmd_pipeline, "lots": cmd_lots,
          "history": cmd_history, "maxpain": cmd_maxpain, "compact": cmd_compact, "gaps": cmd_gaps, "slices": cmd_slices,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
-         "dismiss": cmd_dismiss, "stops": cmd_stops, "learn-status": cmd_learn_status,
+         "dismiss": cmd_dismiss, "stops": cmd_stops,
+         "score-shadow-journal": cmd_score_shadow_journal, "learn-status": cmd_learn_status,
          "learn-lessons": cmd_learn_lessons, "learn-add-lesson": cmd_learn_add_lesson}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")

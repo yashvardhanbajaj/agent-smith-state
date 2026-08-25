@@ -1120,6 +1120,131 @@ def cmd_score(args):
     emit({"scored_count": len(rows), "scorecard": scorecard, "rows": rows,
           "written": (not args.dry_run) and p_path or None, "data_quality": dq})
 
+# ---------------------------------------------------------------------------
+# Shadow-journal scorer -- serves BOTH trigger_journal.json and derisk_journal.json
+# ---------------------------------------------------------------------------
+# Added 2026-08-25, self-learning Phase 1. Neither file has ever had a scorer: both were
+# producer-only since the day they were created (cmd_triggers/cmd_derisk write shadow_new with
+# scored:false every run; nothing ever flips it to true). trigger_journal.json is explicitly
+# the shadow->live promotion gate for laggard_rotation/profit_ratchet/scale_out_ladder
+# (SHADOW_TRIGGERS) -- with 0 scored entries, no shadow trigger could EVER earn a live vote,
+# no matter how long it ran. derisk_journal.json has the identical unscored-forever gap on the
+# de-risk queue's own shadow-scoring log (see SKILL.md 2.9c). One scorer because both files
+# share the same shape: a top-level entries[] list, each row carrying date/ticker/price_at_flag/
+# scored, differing only in what OTHER fields ride along and what "direction" means for a row.
+
+# What "up"/"down" means for a shadow-journal entry: laggard_rotation is a BUY call (expects the
+# laggard to catch up, i.e. rise); scale_out_ladder is a TRIM call (expects the trim to have
+# been the right move if the price falls afterward, same "TRIM worked if price fell" convention
+# cmd_score already uses); profit_ratchet is a stop-management action, not a directional price
+# bet, so it is deliberately left unscoreable here (None) rather than forced into a framework
+# that doesn't fit it -- same "None means genuinely doesn't apply" contract as
+# BUCKET_DIRECTION's EARNINGS PROXIMITY/POLICY IMPACT/INSIDER ACTIVITY entries.
+TRIGGER_TYPE_DIRECTION = {"laggard_rotation": "up", "scale_out_ladder": "down",
+                          "profit_ratchet": None}
+
+
+def cmd_score_shadow_journal(args):
+    """Score trigger_journal.json or derisk_journal.json entries at 7d/30d against
+    price_at_flag, same direction-aware verdict logic and LOCK-ON-FIRST-SCORE discipline as
+    cmd_journal (smith_math.py) -- reuses BUCKET_DIRECTION/VERDICT_THRESHOLD_PCT rather than
+    re-deriving them, and never recomputes a verdict once it's been scored, so a shadow
+    trigger's measured hit rate doesn't drift every time this command re-runs against a fresh
+    price. --prices-json is required (same probe-with-{} idiom as score/stops): run once with
+    {} to discover which tickers are needed."""
+    fname = args.file  # "trigger_journal.json" | "derisk_journal.json"
+    if fname not in ("trigger_journal.json", "derisk_journal.json"):
+        fail(f"--file must be trigger_journal.json or derisk_journal.json, got {fname!r}")
+    path = os.path.join(args.base_dir, fname)
+    store = load_json(path, default={})
+    if not store:
+        fail(f"{fname} not found or empty at {path}")
+    entries = store.get("entries", [])
+    prices = load_json(args.prices_json, default={}) if args.prices_json else {}
+    today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+
+    def direction_for(e):
+        if fname == "trigger_journal.json":
+            return TRIGGER_TYPE_DIRECTION.get(e.get("trigger_type"))
+        return "down"  # derisk_journal: flagged as fragile/high-risk -> expects underperformance
+
+    updated, needs_price = [], set()
+    scored_count = 0
+    for e in entries:
+        if e.get("scored"):
+            updated.append(e)  # already locked -- never re-touch
+            continue
+        try:
+            flag_date = datetime.strptime(e["date"], "%Y-%m-%d").date()
+        except (KeyError, ValueError, TypeError):
+            updated.append(e)
+            continue
+        days_old = (today - flag_date).days
+        if days_old < 7:
+            updated.append(e)  # too young to score even at 7d
+            continue
+        price_now = prices.get(e.get("ticker"))
+        if price_now is None or not e.get("price_at_flag"):
+            needs_price.add(e.get("ticker"))
+            updated.append(e)
+            continue
+        pct_move = round((price_now - e["price_at_flag"]) / e["price_at_flag"] * 100, 3)
+        direction = direction_for(e)
+        e = dict(e)
+        e["price_now"] = price_now
+        e["outcome_pct"] = pct_move
+        e["scored_on"] = str(today)
+        e["days_old"] = days_old
+        if direction is None:
+            e["verdict"] = "n/a"
+        else:
+            signed = pct_move if direction == "up" else -pct_move
+            e["verdict"] = ("worked" if signed > VERDICT_THRESHOLD_PCT
+                           else "failed" if signed < -VERDICT_THRESHOLD_PCT else "neutral")
+        e["scored"] = True
+        scored_count += 1
+        updated.append(e)
+
+    scored = [e for e in updated if e.get("verdict") in ("worked", "failed")]
+    hit_rate = None
+    if scored:
+        hit_rate = {"n": len(scored),
+                    "hit_rate_pct": round(sum(1 for e in scored if e["verdict"] == "worked")
+                                          / len(scored) * 100, 1)}
+
+    # per-trigger-type / per-file breakdown -- what a shadow->live promotion decision actually
+    # needs: not one pooled number across laggard_rotation and scale_out_ladder, which measure
+    # unrelated things.
+    by_key = {}
+    key_field = "trigger_type" if fname == "trigger_journal.json" else "queue_state"
+    for e in scored:
+        k = e.get(key_field, "unknown")
+        by_key.setdefault(k, []).append(e["verdict"])
+    hit_rate_by_key = {}
+    for k, verdicts in by_key.items():
+        hit_rate_by_key[k] = {"n": len(verdicts),
+                              "hit_rate_pct": round(sum(1 for v in verdicts if v == "worked")
+                                                    / len(verdicts) * 100, 1)}
+
+    store["entries"] = updated
+    store["hit_rate"] = hit_rate
+    store["hit_rate_by_key"] = hit_rate_by_key
+    store["last_scored"] = str(today)
+
+    dq = []
+    if needs_price:
+        dq.append(f"{len(needs_price)} ticker(s) need a price to score: "
+                  f"{', '.join(sorted(t for t in needs_price if t))}. Probe with an empty {{}} "
+                  f"first to confirm this list, same idiom as score/stops.")
+
+    if not args.dry_run:
+        safe_write(path, store)
+
+    emit({"file": fname, "newly_scored": scored_count, "hit_rate": hit_rate,
+          "hit_rate_by_key": hit_rate_by_key, "written": not args.dry_run,
+          "data_quality": dq})
+
+
 def cmd_stops(args):
     """Stop-loss efficacy: for every stop-loss trade with a known fill price, measure whether
     the stop helped or hurt versus simply holding through -- using PRICE, not narrative.
