@@ -1,8 +1,75 @@
 {
   "schema_version": 1,
   "_readme": "Self-learning substrate. `observations` is the only ground truth -- append-only, never edited in place. `parameters` holds each tunable's STATE (default/shadow/active/escalated) and change history; the numeric value itself is DERIVED from observations on every read via smith_learning.evaluate(), never cached here as authoritative. `lessons` is corrections, decisions not to re-litigate, and dead ends -- read this before proposing a fix that sounds familiar, it may already be lesson #1.",
-  "observations": [],
-  "parameters": {},
+  "observations": [
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-001 scored (missed)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-002 scored (worked)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-003 scored (missed)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-004 scored (missed)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-005 scored (missed)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-006 scored (missed)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-007 scored (missed)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-011 scored (needs_anchor_review)"
+    }
+  ],
+  "parameters": {
+    "phase4.readiness": {
+      "default": 0,
+      "current": 8,
+      "band_pct": null,
+      "n_gate": 100,
+      "state": "default",
+      "note": "Not a calibrated value -- a readiness counter. Phase 4 (conviction WEIGHTS calibration) stays deliberately unbuilt until this reaches 100 scored proposals, per explicit user decision 2026-08-25. See learn-lessons for the full context.",
+      "history": []
+    }
+  },
   "lessons": [
     {
       "date": "2026-08-25",
@@ -57,6 +124,14 @@
       "kind": "calibration",
       "text": "Stop-distance calibration read (Phase 3, n=140 scored stops): overall 48.8%, cascade cohort 50.0% (n=29), deliberate cohort 54.2% (n=79) -- all within +/-10pp of a coin flip, no clear signal to widen or tighten stop_distance_pct in either cohort at current sample size. This CORRECTS a stale SKILL.md claim of '75% deliberate / 25% cascade' that was based on an n=6 snapshot; that divergence did not survive the sample growing to n=108 across the two real cohorts. The 'unknown' cohort (n=32, missing/unparseable fill_time_utc) reads 34.5%, below the coin-flip band, but this cohort's classification is itself data-quality-confounded (a missing timestamp is not a real cascade/deliberate signal) so this reading should not be treated as a genuine finding about stop behavior. Per-ATR-tier calibration (as opposed to cascade/deliberate) is not currently possible -- stops_analysis.json rows carry no ATR-at-fill. No change to policy.json's stop_loss_framework is warranted or was made; this is an escalation-only, no-action-indicated finding.",
       "evidence": "stops_analysis.json, learn-stop-calibration 2026-08-25",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "calibration",
+      "text": "Phase 4 (conviction WEIGHTS calibration -- smith_conviction.py's thesis/catalyst/trend/valuation/earnings/technical/corroboration weights) is EXPLICITLY DEFERRED by user decision on 2026-08-25, not just blocked by data. Currently 8 of the ~100 scored proposals needed to attribute outcome to component. Do not build Phase 4's calibration logic or start wiring WEIGHTS to learning.json until proposals.json's scored count (outcome_verdict present) reaches 100 -- check with 'smith_math.py score' + counting outcome_verdict, same method used here. When it does, the user wants Phase 4 executed then, not skipped. Until then this is a known, deliberate pause, not a forgotten task.",
+      "evidence": "proposals.json: 8/159 scored as of 2026-08-25; plans/clever-watching-hinton.md Phase 4",
       "source_run": null,
       "supersedes": null
     }
