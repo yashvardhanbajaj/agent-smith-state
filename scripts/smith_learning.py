@@ -221,6 +221,13 @@ def promote(base_dir, param_id, default, aggregator, band_pct=DEFAULT_BAND_PCT,
         })
     prior["state"] = result["state"]
     prior["current"] = result["value"]
+    # `measured` persisted alongside `current` (added 2026-08-25) specifically so a later
+    # `user_force_approve` can read back "what was this parameter actually asking for" without
+    # re-running the aggregator -- promote() is the only place that HAS the aggregator, since
+    # it's supplied per-call by whichever pipeline step owns this param_id; nothing downstream
+    # (the dashboard, sync-decisions) can re-derive it generically.
+    prior["measured"] = result["measured"]
+    prior["n"] = result["n"]
     prior["default"] = default
     prior["band_pct"] = band_pct
     prior["n_gate"] = n_gate
@@ -228,6 +235,38 @@ def promote(base_dir, param_id, default, aggregator, band_pct=DEFAULT_BAND_PCT,
     if write and moved:
         write_store(base_dir, store)
     return {"param_id": param_id, "moved": moved, **result}
+
+
+def user_force_approve(base_dir, param_id, today=None, run_dir=None, why=None, write=True):
+    """The ONE deliberate bypass of promote()'s gate -- and it exists precisely because the
+    gate is right to refuse on its own authority. `evaluate()`'s "escalated" state means a
+    parameter has enough n to have an opinion but wants to move further than its bounded band
+    allows; promote() will never self-apply that. This function is what a human's explicit
+    approval looks like: it reads the CURRENT escalated value and writes it as `active`,
+    stamping the history entry with why (defaults to a generic dashboard-approval note, but the
+    interactive-dashboard sync path should always pass a real one). Added 2026-08-25 for the
+    dashboard's Approve/Defer buttons on learning-parameter escalations -- Defer needs no
+    function at all, since doing nothing IS deferring; only Approve is a write.
+
+    Silently no-ops (returns None) if the parameter isn't actually in `escalated` state --
+    a stale dashboard click on a parameter that has since moved (e.g. new observations pulled
+    it back inside its band before the click was reconciled) must never force a value that
+    isn't what the user was actually looking at when they clicked."""
+    store = load_store(base_dir)
+    stored = store.get("parameters", {}).get(param_id)
+    if not stored or stored.get("state") != "escalated":
+        return None
+    from_state = stored["state"]
+    stored["state"] = "active"
+    stored["current"] = stored.get("measured", stored["current"])
+    stored.setdefault("history", []).append({
+        "date": str(today or date.today()), "from": from_state, "to": "active",
+        "n": stored.get("n"), "why": why or "user-approved via dashboard", "run_dir": run_dir,
+    })
+    store.setdefault("parameters", {})[param_id] = stored
+    if write:
+        write_store(base_dir, store)
+    return {"param_id": param_id, "from": from_state, "to": "active", "value": stored["current"]}
 
 
 # ---------------------------------------------------------------------------

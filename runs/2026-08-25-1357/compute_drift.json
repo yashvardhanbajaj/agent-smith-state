@@ -9,22 +9,6 @@
   "cluster_denominator_reason": "cash 8.5% within the normal band -- cluster breaches tested on invested equity",
   "cluster_table": [
     {
-      "cluster": "AI Semis/Fabs",
-      "actual_pct": 23.653,
-      "target_pct": 30,
-      "band_pct": [
-        25,
-        35
-      ],
-      "drift_pt": -6.347,
-      "breach": true,
-      "actual_pct_of_equity": 23.653,
-      "actual_pct_of_total_book": 21.65,
-      "breach_edge": "under",
-      "ceiling_tested_on": "invested_equity",
-      "floor_tested_on": "invested_equity"
-    },
-    {
       "cluster": "AI Memory/Storage",
       "actual_pct": 8.135,
       "target_pct": 15,
@@ -41,17 +25,33 @@
       "floor_tested_on": "invested_equity"
     },
     {
+      "cluster": "AI Semis/Fabs",
+      "actual_pct": 25.61,
+      "target_pct": 30,
+      "band_pct": [
+        25,
+        35
+      ],
+      "drift_pt": -4.39,
+      "breach": false,
+      "actual_pct_of_equity": 25.61,
+      "actual_pct_of_total_book": 23.441,
+      "breach_edge": null,
+      "ceiling_tested_on": "invested_equity",
+      "floor_tested_on": "invested_equity"
+    },
+    {
       "cluster": "AI Networking/Optics",
-      "actual_pct": 12.305,
+      "actual_pct": 15.288,
       "target_pct": 15,
       "band_pct": [
         10,
         20
       ],
-      "drift_pt": -2.695,
+      "drift_pt": 0.288,
       "breach": false,
-      "actual_pct_of_equity": 12.305,
-      "actual_pct_of_total_book": 11.263,
+      "actual_pct_of_equity": 15.288,
+      "actual_pct_of_total_book": 13.993,
       "breach_edge": null,
       "ceiling_tested_on": "invested_equity",
       "floor_tested_on": "invested_equity"
@@ -153,20 +153,6 @@
       "floor_tested_on": "invested_equity"
     },
     {
-      "cluster": "Unclassified",
-      "actual_pct": 4.94,
-      "target_pct": null,
-      "band_pct": null,
-      "drift_pt": null,
-      "breach": false,
-      "note": "no policy target for this cluster",
-      "actual_pct_of_equity": 4.94,
-      "actual_pct_of_total_book": 4.522,
-      "breach_edge": null,
-      "ceiling_tested_on": null,
-      "floor_tested_on": null
-    },
-    {
       "cluster": "Financials/Alt-Asset Diversifier",
       "actual_pct": 3.777,
       "target_pct": null,
@@ -238,12 +224,12 @@
   ],
   "cash_breach_vs_normal": false,
   "cash_pct_denominator": "total_book",
-  "ai_capex_pct": 78.257,
+  "ai_capex_pct": 83.198,
   "ai_capex_cap_pct": 100,
   "ai_capex_breach": false,
   "ai_capex_denominator": "invested_equity",
-  "ai_capex_pct_of_equity": 78.257,
-  "ai_capex_pct_of_total_book": 71.629,
+  "ai_capex_pct_of_equity": 83.198,
+  "ai_capex_pct_of_total_book": 76.151,
   "total_book_usd": 41309.73,
   "peak_total_book_usd": 44873.02,
   "drawdown_pct": -7.941,

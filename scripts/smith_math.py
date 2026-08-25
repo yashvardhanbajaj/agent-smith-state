@@ -54,8 +54,11 @@ from smith_core import *  # noqa: F401,F403
 from smith_core import load_json, emit, fail, clamp
 from smith_ledger import cmd_lots, cmd_history
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy
-from smith_lifecycle import cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_score_shadow_journal
-from smith_learning import (cmd_learn_status, cmd_learn_lessons, cmd_learn_add_lesson,
+from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss,
+                             cmd_score_shadow_journal, dismiss_proposal_core)
+from smith_learning import (load_store as learn_load_store, write_store as learn_write_store,
+                            record_observation, user_force_approve,
+                            cmd_learn_status, cmd_learn_lessons, cmd_learn_add_lesson,
                             cmd_learn_revealed_preference, cmd_learn_priority_params,
                             cmd_learn_stop_calibration)
 # explicit: `from x import *` does NOT export underscore-prefixed names
@@ -2234,6 +2237,8 @@ def cmd_triggers(args):
         ticker = row.get("ticker")
         if not ticker or ticker in risk_by_ticker:
             continue
+        if smith_risk.is_watchlist_suppressed(state, ticker):
+            continue  # user clicked "Not interested" on the dashboard -- see smith_risk's reader
         # watchlist_setups' `pos` (0-1 within the 52-week range) is real technical signal that
         # was going unused here -- reused as an RSI-scale proxy (pos*100) so a name near its
         # 52wk low reads as oversold-ish, same as a genuine RSI would. Not a substitute for a
@@ -2309,6 +2314,8 @@ def cmd_triggers(args):
     for ticker, dv in diversifier_candidates.items():
         if not dv.get("clean_diversifier") or dv.get("status") == "stale" or ticker in risk_by_ticker:
             continue
+        if smith_risk.is_watchlist_suppressed(state, ticker):
+            continue  # shares the watchlist suppression list -- see smith_risk's reader
         price = dv.get("price_usd")
         # buckets stays [] genuinely -- these names carry no signal history in this book (see
         # the comment above), so _track_record_for([]) correctly returns None rather than
@@ -2480,6 +2487,284 @@ def cmd_triggers(args):
     })
 
 
+# ---------------------------------------------------------------------------
+# sync-decisions -- reconciles the interactive dashboard's button clicks
+# ---------------------------------------------------------------------------
+# Added 2026-08-25. Lives HERE, not in smith_lifecycle.py (where cmd_dismiss/cmd_proposals
+# live), because smith_learning.py already imports from smith_lifecycle
+# (_proposal_parse_date) -- putting this in smith_lifecycle and importing smith_learning from
+# it would be circular. smith_math.py already imports both, so it's the natural home for
+# anything that needs to reach across both modules, same reasoning as every other
+# cross-cutting CLI command in this file.
+#
+# THE BRIDGE THIS CLOSES: no capability lets a published page write to this Mac's filesystem
+# (checked against the real contract before designing anything -- only downloads/mcp/self
+# exist). `self.publish` lets the page durably hold data (by republishing itself) until a
+# future Agent Smith run fetches the live artifact and reconciles it here. That fetch is the
+# orchestrator's job (WebFetch, per SKILL.md's new step 1.7); parsing and applying what it
+# finds is this function's job -- deterministic, never eyeballed.
+
+_DECISIONS_BLOB_RE = re.compile(
+    r'<script type="application/json" id="smith-decisions">(.*?)</script>', re.S)
+
+
+def _extract_decisions(html):
+    """Pull the decisions[] array out of fetched dashboard HTML. Returns [] (never raises) if
+    the tag is missing or unparseable -- a malformed/absent blob means 'nothing to reconcile',
+    not 'crash the run'. A freshly-built dashboard always ships this tag empty, so its absence
+    from an OLDER cached fetch is also a legitimate empty case, not just a parse failure."""
+    m = _DECISIONS_BLOB_RE.search(html)
+    if not m:
+        return []
+    try:
+        parsed = json.loads(m.group(1))
+    except ValueError:
+        return []
+    return parsed if isinstance(parsed, list) else []
+
+
+def cmd_sync_decisions(args):
+    with open(args.html_file) as f:
+        html = f.read()
+    decisions = _extract_decisions(html)
+    today = args.today or str(date.today())
+
+    p_path = os.path.join(args.base_dir, "proposals.json")
+    s_path = os.path.join(args.base_dir, "state.json")
+    proposals_store = load_json(p_path, default={"proposals": [], "scorecard": {}})
+    state = load_json(s_path, default={})
+    props = proposals_store.get("proposals", [])
+
+    reconciled, skipped, errors = [], [], []
+    proposals_dirty = False
+    state_dirty = False
+
+    def prop_by_id(pid):
+        return next((p for p in props if p.get("id") == pid), None)
+
+    for d in decisions:
+        surface = d.get("surface")
+        element_id = d.get("element_id")
+        decision = d.get("decision")
+        reason = d.get("reason") or None
+        try:
+            if surface == "proposal":
+                pr = prop_by_id(element_id)
+                if pr is None:
+                    skipped.append({"surface": surface, "element_id": element_id, "why": "no such proposal"})
+                    continue
+                if decision == "reject":
+                    if pr.get("status") != "open":
+                        skipped.append({"surface": surface, "element_id": element_id, "why": f"already {pr.get('status')}"})
+                        continue
+                    dismiss_proposal_core(props, element_id, reason, actor="user (dashboard)")
+                    proposals_dirty = True
+                elif decision == "accept":
+                    if pr.get("status") != "open":
+                        skipped.append({"surface": surface, "element_id": element_id, "why": f"already {pr.get('status')}"})
+                        continue
+                    # Deliberately NOT "executed"/"fulfilled"/"filled" -- those mean a
+                    # ledger-confirmed fill. A button click is a stated intent, never proof of
+                    # a trade; conflating the two would let an unconfirmed click into
+                    # outcome-scoring's SCOREABLE set.
+                    pr["status"] = "accepted_by_user"
+                    pr["accepted_on"] = today
+                    pr["accepted_reason"] = reason
+                    proposals_dirty = True
+                elif decision == "hold":
+                    if pr.get("status") != "open":
+                        skipped.append({"surface": surface, "element_id": element_id, "why": f"already {pr.get('status')}"})
+                        continue
+                    pr.setdefault("held_on", []).append(today)
+                    pr["held_reason"] = reason
+                    proposals_dirty = True
+                else:
+                    skipped.append({"surface": surface, "element_id": element_id, "why": f"unknown decision {decision!r}"})
+                    continue
+                record_observation(args.base_dir, "dashboard.decision.proposal",
+                                   {"element_id": element_id, "decision": decision, "reason": reason,
+                                    "ticker": pr.get("ticker"), "trigger_type": pr.get("trigger_type")},
+                                   today=today, write=True)
+                reconciled.append({"surface": surface, "element_id": element_id, "decision": decision})
+
+            elif surface == "auto_retired_proposal":
+                pr = prop_by_id(element_id)
+                if pr is None or pr.get("status") != "auto_retired":
+                    skipped.append({"surface": surface, "element_id": element_id, "why": "not auto_retired"})
+                    continue
+                if decision == "revive":
+                    pr["status"] = "open"
+                    pr["retired_reason"] = None
+                    pr["revived_by_user_on"] = today
+                    proposals_dirty = True
+                    record_observation(args.base_dir, "dashboard.decision.auto_retired_proposal",
+                                       {"element_id": element_id, "decision": decision, "reason": reason,
+                                        "ticker": pr.get("ticker")}, today=today, write=True)
+                    reconciled.append({"surface": surface, "element_id": element_id, "decision": decision})
+                else:
+                    skipped.append({"surface": surface, "element_id": element_id, "why": f"unknown decision {decision!r}"})
+
+            elif surface == "watchlist":
+                ticker = element_id
+                if decision == "not_interested":
+                    state.setdefault("watchlist_suppressed", {})[ticker] = {"date": today, "reason": reason}
+                    state_dirty = True
+                elif decision == "watch_closely":
+                    state.setdefault("watchlist_priority", {})[ticker] = {"date": today, "reason": reason}
+                    state_dirty = True
+                else:
+                    skipped.append({"surface": surface, "element_id": element_id, "why": f"unknown decision {decision!r}"})
+                    continue
+                record_observation(args.base_dir, "dashboard.decision.watchlist",
+                                   {"ticker": ticker, "decision": decision, "reason": reason},
+                                   today=today, write=True)
+                reconciled.append({"surface": surface, "element_id": element_id, "decision": decision})
+
+            elif surface == "diversifier":
+                ticker = element_id
+                if decision != "not_interested":
+                    skipped.append({"surface": surface, "element_id": element_id, "why": f"unknown decision {decision!r}"})
+                    continue
+                state.setdefault("watchlist_suppressed", {})[ticker] = {"date": today, "reason": reason}
+                state_dirty = True
+                record_observation(args.base_dir, "dashboard.decision.diversifier",
+                                   {"ticker": ticker, "decision": decision, "reason": reason},
+                                   today=today, write=True)
+                reconciled.append({"surface": surface, "element_id": element_id, "decision": decision})
+
+            elif surface == "derisk":
+                ticker = element_id
+                if decision != "disagree":
+                    skipped.append({"surface": surface, "element_id": element_id, "why": f"unknown decision {decision!r}"})
+                    continue
+                # Never removes the ticker from the queue -- cmd_derisk reports the override
+                # ALONGSIDE its own computed score (smith_risk.derisk_override_for), never
+                # instead of it. A real risk signal is never suppressed, only annotated.
+                state.setdefault("derisk_overrides", {})[ticker] = {"date": today, "reason": reason}
+                state_dirty = True
+                record_observation(args.base_dir, "dashboard.decision.derisk",
+                                   {"ticker": ticker, "decision": decision, "reason": reason},
+                                   today=today, write=True)
+                reconciled.append({"surface": surface, "element_id": element_id, "decision": decision})
+
+            elif surface == "gap":
+                gap_id = element_id
+                gaps = state.get("known_gaps") or []
+                g = next((x for x in gaps if x.get("id") == gap_id), None)
+                if g is None or decision != "resolve":
+                    skipped.append({"surface": surface, "element_id": element_id, "why": "no such open gap or unknown decision"})
+                    continue
+                # Found live during testing (2026-08-25, fixture picked G18): a gap carrying a
+                # `user_decision` field already has a standing directive attached by a real
+                # interactive session (e.g. G18's own "confirmed LEAVE AS wont_fix... do not
+                # re-open, do not re-evaluate sources"). A dashboard click must never silently
+                # override that -- Mark Resolved is meant for ordinary gaps, not ones a prior
+                # conversation already reasoned through explicitly.
+                if g.get("user_decision"):
+                    skipped.append({"surface": surface, "element_id": element_id,
+                                    "why": "gap carries a standing user_decision -- resolve it "
+                                    "in chat, not via a dashboard click, so the standing "
+                                    "directive is reviewed rather than silently overwritten"})
+                    continue
+                g["status"] = "closed"
+                g["resolution"] = reason or "closed via dashboard"
+                g["closed_by"] = "user (dashboard)"
+                g["closed"] = today
+                state_dirty = True
+                reconciled.append({"surface": surface, "element_id": element_id, "decision": decision})
+                # no learning observation -- pure convenience, not a preference signal
+
+            elif surface == "learning_param":
+                param_id = element_id
+                if decision == "approve":
+                    res = user_force_approve(args.base_dir, param_id, today=today,
+                                             why=("user-approved via dashboard" + (f": {reason}" if reason else "")),
+                                             write=True)
+                    if res is None:
+                        skipped.append({"surface": surface, "element_id": element_id,
+                                        "why": "parameter is no longer in escalated state -- stale click, not applied"})
+                        continue
+                    reconciled.append({"surface": surface, "element_id": element_id, "decision": decision, "result": res})
+                elif decision == "defer":
+                    # Doing nothing IS deferring -- re-surfaces next run since it's still escalated.
+                    reconciled.append({"surface": surface, "element_id": element_id, "decision": decision})
+                else:
+                    skipped.append({"surface": surface, "element_id": element_id, "why": f"unknown decision {decision!r}"})
+
+            elif surface == "thesis":
+                ticker = element_id
+                thesis_map = state.get("thesis", {})
+                entry = thesis_map.get(ticker)
+                if entry is None or not isinstance(entry, dict):
+                    skipped.append({"surface": surface, "element_id": element_id, "why": "no thesis entry to act on"})
+                    continue
+                if decision == "confirm":
+                    # Never bumps `verified` -- a click is not a primary source. Logged as an
+                    # observation only; the thesis entry itself is untouched.
+                    record_observation(args.base_dir, "dashboard.decision.thesis",
+                                       {"ticker": ticker, "decision": decision, "reason": reason,
+                                        "status_at_confirm": entry.get("status")},
+                                       today=today, write=True)
+                    reconciled.append({"surface": surface, "element_id": element_id, "decision": decision})
+                elif decision == "override":
+                    if not reason:
+                        skipped.append({"surface": surface, "element_id": element_id,
+                                        "why": "override requires a reason, none supplied"})
+                        continue
+                    new_status = d.get("new_status")
+                    if new_status not in smith_risk.KNOWN_STATUSES:
+                        skipped.append({"surface": surface, "element_id": element_id,
+                                        "why": f"override new_status {new_status!r} not a known thesis status"})
+                        continue
+                    entry.setdefault("evidence_for" if new_status in ("strengthening", "intact") else "evidence_against",
+                                     []).append({"claim": reason, "date": today, "source": "user (dashboard override)"})
+                    entry["status"] = new_status
+                    # `user_stated` is a real, distinct evidence tier -- it can move a status
+                    # (a human's own judgment is real signal), but it never masquerades as a
+                    # primary/secondary source check.
+                    entry["verified"] = "user_stated"
+                    entry["verified_against"] = "user override via dashboard"
+                    entry["verified_on"] = today
+                    thesis_map[ticker] = entry
+                    state["thesis"] = thesis_map
+                    state_dirty = True
+                    record_observation(args.base_dir, "dashboard.decision.thesis",
+                                       {"ticker": ticker, "decision": decision, "reason": reason,
+                                        "new_status": new_status}, today=today, write=True)
+                    reconciled.append({"surface": surface, "element_id": element_id, "decision": decision})
+                else:
+                    skipped.append({"surface": surface, "element_id": element_id, "why": f"unknown decision {decision!r}"})
+
+            elif surface == "catalyst":
+                if decision != "priced_in":
+                    skipped.append({"surface": surface, "element_id": element_id, "why": f"unknown decision {decision!r}"})
+                    continue
+                headline, cat_date = d.get("headline"), d.get("date")
+                state.setdefault("catalyst_suppressed", []).append(
+                    {"headline": headline, "date": cat_date, "suppressed_on": today, "reason": reason})
+                state_dirty = True
+                reconciled.append({"surface": surface, "element_id": element_id, "decision": decision})
+                # no learning observation -- decluttering, not a preference signal
+
+            else:
+                skipped.append({"surface": surface, "element_id": element_id, "why": f"unknown surface {surface!r}"})
+        except Exception as e:
+            errors.append({"surface": surface, "element_id": element_id, "error": str(e)})
+
+    if proposals_dirty:
+        proposals_store["proposals"] = props
+        safe_write(p_path, proposals_store)
+    if state_dirty:
+        safe_write(s_path, state)
+    # learning.json observations and the learning_param approve write themselves individually
+    # above (record_observation/user_force_approve both write=True) -- each is a single small
+    # append, and decision volume per run is small enough that per-decision writes cost nothing
+    # worth batching for.
+
+    emit({"decisions_found": len(decisions), "reconciled": reconciled, "skipped": skipped,
+          "errors": errors, "proposals_written": proposals_dirty, "state_written": state_dirty})
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -2615,6 +2900,12 @@ def main():
                         help="cohort win-rate read on stop distance -- escalation only, never auto-applies")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
 
+    sp = sub.add_parser("sync-decisions",
+                        help="reconcile the interactive dashboard's accumulated button clicks")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--html-file", required=True, help="fetched dashboard HTML (WebFetch output saved to disk)")
+    sp.add_argument("--today", default=None)
+
     args = p.parse_args()
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
@@ -2627,7 +2918,8 @@ def main():
          "learn-lessons": cmd_learn_lessons, "learn-add-lesson": cmd_learn_add_lesson,
          "learn-revealed-preference": cmd_learn_revealed_preference,
          "learn-priority-params": cmd_learn_priority_params,
-         "learn-stop-calibration": cmd_learn_stop_calibration}[args.cmd](args)
+         "learn-stop-calibration": cmd_learn_stop_calibration,
+         "sync-decisions": cmd_sync_decisions}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")
 

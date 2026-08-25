@@ -49,6 +49,57 @@ def esc(s):
     return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
 
 
+def esc_attr(s):
+    """Same as esc() plus quote-escaping -- for values going into an HTML attribute rather
+    than text content (e.g. a catalyst headline riding along in a data-* attribute so the
+    'priced in' button can carry it without a lookup). esc() alone is safe for the tickers/
+    proposal-ids/gap-ids most attributes here carry, but not for arbitrary prose."""
+    return esc(s).replace('"', "&quot;").replace("'", "&#39;")
+
+
+# Buttons per surface -- (decision_key, label, css_class). One table, read by both
+# decision_buttons() (server-side render) and the client JS's BUTTON_LABELS mirror below, so
+# the two can never drift out of sync with each other.
+DECISION_BUTTONS = {
+    "proposal": [("accept", "Accept", "b-accept"), ("reject", "Reject", "b-reject"),
+                 ("hold", "Hold", "b-hold")],
+    "auto_retired_proposal": [("revive", "Revive", "b-revive")],
+    "watchlist": [("watch_closely", "Watch closely", "b-watch"),
+                  ("not_interested", "Not interested", "b-reject")],
+    "diversifier": [("not_interested", "Not interested", "b-reject")],
+    "derisk": [("disagree", "Disagree — not fragile", "b-disagree")],
+    "gap": [("resolve", "Mark resolved", "b-resolve")],
+    "learning_param": [("approve", "Approve", "b-approve"), ("defer", "Defer", "b-hold")],
+    "thesis": [("confirm", "Confirm", "b-confirm"), ("override", "Override", "b-override")],
+    "catalyst": [("priced_in", "Already priced in", "b-hold")],
+}
+
+
+def decision_buttons(surface, element_id, extra_attrs=""):
+    """Renders the standard button-group + optional-reason-input markup for one interactive
+    row. `extra_attrs` carries surface-specific data-* attributes the JS needs at click time
+    (e.g. a catalyst's headline+date, since 'catalyst' rows are addressed by a synthetic id
+    rather than a natural key) -- kept as a raw string the caller assembles, since the shape
+    differs per surface and forcing one generic parameter shape here would just move the
+    per-surface branching from smith_math.py's sync side into this render function instead.
+    The 'thesis' surface additionally needs a new-status <select>, added inline since it's the
+    one surface whose Override decision carries a THIRD piece of data (not just decision+reason).
+    """
+    buttons = DECISION_BUTTONS[surface]
+    btn_html = "".join(f'<button type="button" class="{cls}" data-decision="{dk}">{esc(label)}</button>'
+                       for dk, label, cls in buttons)
+    select_html = ""
+    if surface == "thesis":
+        opts = "".join(f'<option value="{s}">{s}</option>' for s in
+                       ("strengthening", "intact", "watch", "broken"))
+        select_html = f'<select class="new-status" aria-label="new thesis status">{opts}</select>'
+    return (f'<div class="decide" data-surface="{esc_attr(surface)}" '
+           f'data-element-id="{esc_attr(element_id)}"{extra_attrs}>'
+           f'{btn_html}{select_html}'
+           f'<input class="reason" type="text" placeholder="reason (optional)" maxlength="200">'
+           f'</div>')
+
+
 def charts(base):
     r = subprocess.run([sys.executable, os.path.join(base, "scripts", "smith_charts.py"),
                         "all", "--base-dir", base], capture_output=True, text=True)
@@ -466,7 +517,137 @@ details .body{padding:2px 0 17px;font-size:12.5px;color:var(--ink-2);line-height
 .rule{height:1px;background:var(--line-soft);border:0;margin:0}
 footer{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:10px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ============ interactive decisions (added 2026-08-25) ============ */
+.decide{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.decide button{font:inherit;font-size:11.5px;padding:3px 9px;border-radius:6px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-2);cursor:pointer}
+.decide button:hover{border-color:var(--accent);color:var(--ink)}
+.decide button.b-accept,.decide button.b-approve,.decide button.b-revive,
+.decide button.b-confirm,.decide button.b-resolve,.decide button.b-watch{
+  border-color:var(--good);color:var(--good)}
+.decide button.b-reject,.decide button.b-disagree,.decide button.b-override{
+  border-color:var(--critical);color:var(--critical)}
+.decide input.reason{font:inherit;font-size:11.5px;padding:3px 7px;border-radius:6px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-2);flex:1;min-width:140px}
+.decide select.new-status{font:inherit;font-size:11.5px;padding:3px 5px;border-radius:6px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-2)}
+.decide .recorded{font-size:11.5px;color:var(--ink-3);font-style:italic}
+.decide.readonly{display:none}
 """
+
+
+# Interactive-decisions client JS (added 2026-08-25). This dashboard was deliberately JS-free
+# until now -- every prior interactive need was covered by <details>/<summary>, which has no
+# landmine surface. This feature genuinely needs JS: there is no capability that lets a
+# published page write to the local filesystem (checked against the real contract before
+# designing anything -- only downloads/mcp/self exist), so a click can only persist by having
+# the page republish ITSELF via window.claude.self.publish(), with the decision embedded in the
+# republished HTML. A future Agent Smith run fetches the live artifact and reconciles what it
+# finds (smith_math.py's sync-decisions) -- see plans/clever-watching-hinton.md for the design.
+#
+# THE PATTERN, per window.claude.self's own contract (self.d.ts): "do not serialize the live
+# DOM... instead keep the page's canonical source... and render the replacement from that."
+# This captures document.documentElement.outerHTML ONCE, as the very first statement, before
+# any click can mutate anything -- that is the pristine, server-authored source, safe to
+# republish. Every subsequent publish does a TARGETED STRING REPLACE on that captured pristine
+# copy (never on the live, possibly-already-mutated DOM), swapping in the updated decisions
+# blob and that one row's "recorded" state.
+#
+# LANDMINE, stated plainly so a future edit doesn't reintroduce it silently: the string-replace
+# anchor is the literal substring `data-surface="X" data-element-id="Y"`, which
+# decision_buttons() emits as one contiguous run at the START of each `.decide` div's opening
+# tag. If a future edit reorders those two attributes, or inserts something between them, this
+# anchor breaks and decisions stop visually marking as recorded (they'd still PERSIST correctly
+# -- the blob swap is a separate, independent regex match -- but the optimistic "recorded" UI
+# would silently stop working). Keep `data-surface` immediately followed by `data-element-id`
+# in decision_buttons() if you touch it.
+DASHBOARD_JS = r"""<script>
+(function(){
+  var PRISTINE = document.documentElement.outerHTML;
+
+  function decisionsFrom(html){
+    var m = html.match(/<script type="application\/json" id="smith-decisions">([\s\S]*?)<\/script>/);
+    if (!m) return [];
+    try { return JSON.parse(m[1]); } catch(e){ return []; }
+  }
+
+  function setReadOnly(msg){
+    document.querySelectorAll('.decide').forEach(function(el){ el.classList.add('readonly'); });
+    var note = document.createElement('p');
+    note.className = 'note';
+    note.textContent = msg || 'This view is read-only -- decisions cannot be recorded from here.';
+    var wrap = document.querySelector('.wrap');
+    if (wrap) wrap.insertBefore(note, wrap.firstChild);
+  }
+
+  if (!window.claude || !window.claude.self){
+    setReadOnly();
+    return;
+  }
+
+  document.body.addEventListener('click', function(ev){
+    var btn = ev.target.closest('.decide button');
+    if (!btn) return;
+    var group = btn.closest('.decide');
+    var surface = group.getAttribute('data-surface');
+    var elementId = group.getAttribute('data-element-id');
+    var decision = btn.getAttribute('data-decision');
+    var reasonInput = group.querySelector('input.reason');
+    var reason = (reasonInput && reasonInput.value.trim()) ? reasonInput.value.trim() : null;
+    var payload = {surface: surface, element_id: elementId, decision: decision, reason: reason,
+                   decided_on: new Date().toISOString().slice(0,10)};
+
+    if (surface === 'thesis' && decision === 'override'){
+      var sel = group.querySelector('select.new-status');
+      payload.new_status = sel ? sel.value : null;
+      if (!reason){ alert('Override needs a reason -- your own read of the company is the point.'); return; }
+    }
+    if (surface === 'catalyst'){
+      payload.headline = group.getAttribute('data-headline');
+      payload.date = group.getAttribute('data-date');
+    }
+
+    var controls = group.querySelectorAll('button, input, select');
+    controls.forEach(function(x){ x.disabled = true; });
+
+    var decisions = decisionsFrom(PRISTINE);
+    decisions.push(payload);
+    var blobJson = JSON.stringify(decisions);
+
+    var anchor = 'data-surface="' + surface + '" data-element-id="' + elementId + '"';
+    var startIdx = PRISTINE.indexOf(anchor);
+    var newHtml = PRISTINE;
+    if (startIdx !== -1){
+      var divStart = PRISTINE.lastIndexOf('<div class="decide"', startIdx);
+      var divEnd = PRISTINE.indexOf('</div>', startIdx) + '</div>'.length;
+      if (divStart !== -1 && divEnd > divStart){
+        var recordedText = 'Recorded: ' + decision + (reason ? ' — ' + reason : '') +
+          ' (syncs on the next Agent Smith run)';
+        var recorded = '<div class="decide recorded-block"><span class="recorded">' +
+          recordedText.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span></div>';
+        newHtml = PRISTINE.slice(0, divStart) + recorded + PRISTINE.slice(divEnd);
+      }
+    }
+    newHtml = newHtml.replace(
+      /<script type="application\/json" id="smith-decisions">[\s\S]*?<\/script>/,
+      '<script type="application/json" id="smith-decisions">' + blobJson + '<\/script>'
+    );
+
+    window.claude.self.publish('<!doctype html>' + newHtml).catch(function(err){
+      var code = err && err.code;
+      if (code === 'conflict') return;  // view is already reloading to the winning version
+      if (code === 'not_writer' || code === 'not_granted' || code === 'consent_required'){
+        setReadOnly();
+        return;
+      }
+      alert('Could not record that decision (' + (code || 'unknown error') +
+            '). It was not saved -- try again.');
+      controls.forEach(function(x){ x.disabled = false; });
+    });
+  });
+})();
+</script>"""
 
 
 def status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift, book_compute):
@@ -572,7 +753,13 @@ def build(base, out):
     H.append(f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
              f'<meta name="viewport" content="width=device-width,initial-scale=1">'
              f'<title>Agent Smith - US Book</title><style>{CSS}{chart_css(base)}</style>'
-             f'</head><body><div class="wrap">')
+             f'</head><body><div class="wrap">'
+             # Always emitted empty on a freshly-built page (added 2026-08-25) -- sync-decisions
+             # has already drained whatever the live artifact was holding BEFORE this rebuild
+             # ran (see SKILL.md's step 1.7), so a fresh build never has pending decisions to
+             # carry forward. The client JS below appends to this array and republishes; it is
+             # never populated server-side.
+             '<script type="application/json" id="smith-decisions">[]</script>')
 
     # ---------------- masthead ----------------
     mode_label = "US Deep Review" if state.get("mode") == "deep" else "US"
@@ -666,10 +853,11 @@ def build(base, out):
             conv = p.get("conviction_score")
             conv_s = (f'<span class="stopline">conviction {conv:.0f} ({esc(p.get("conviction_tier",""))})'
                       f'</span>') if conv is not None else ""
+            decide_s = decision_buttons("proposal", pid) if pid else ""
             return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
                     f'{esc(p.get("action",""))}{clus_s}</span>'
                     f'<span class="why">{esc(short)}{more}{live_s}{flag_s}{tranche_s}{retires_s}'
-                    f'{conv_s}{stop_s}{shares_s}{clamped_s}{meta}</span>'
+                    f'{conv_s}{stop_s}{shares_s}{clamped_s}{meta}{decide_s}</span>'
                     f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
 
         # -- rotation ideas: paired trim+buy proposals sharing a pair_id (added 2026-08-06,
@@ -754,10 +942,11 @@ def build(base, out):
                      f'<div class="pbody"><div>{"".join(hrows)}</div></div></section>')
 
     # -- factor catalysts --
-    catalysts = state.get("factor_catalysts", [])
+    catalysts = [c for c in state.get("factor_catalysts", [])
+                if not smith_risk.catalyst_is_suppressed(state, c.get("headline"), c.get("date"))]
     if catalysts:
         rows = []
-        for c in catalysts[:6]:
+        for i, c in enumerate(catalysts[:6]):
             dirn = {"threat": "THREAT", "tailwind": "TAILWIND"}.get(c.get("direction", ""), "AMBIGUOUS")
             # FIXED 2026-08-08 (user-reported: "&middot" rendering as literal text): affects was
             # joined with the RAW "&middot;" entity, then the whole joined string was passed
@@ -768,10 +957,16 @@ def build(base, out):
             affects = " &middot; ".join(esc(x) for x in c.get("affects", []))
             exp = c.get("exposure_pct_equity")
             exp_s = f' &mdash; {exp:.1f}% equity' if isinstance(exp, (int, float)) else ""
+            # "catalyst" has no natural stable id (headline+date is the real key) -- synthesize
+            # one for the button's data-element-id and carry the real key along as extra data-*
+            # attributes, which sync-decisions reads directly rather than looking anything up.
+            extra = (f' data-headline="{esc_attr(c.get("headline",""))}" '
+                    f'data-date="{esc_attr(c.get("date",""))}"')
+            decide_s = decision_buttons("catalyst", f"c{i}", extra)
             rows.append(f'<div class="ci"><span class="cb {dirn}">{dirn}</span><div>'
                         f'<div class="hh">{esc(c.get("headline",""))}</div>'
                         f'<div class="mm">{esc(c.get("magnitude",""))}</div>'
-                        f'<div class="aa">{affects}{exp_s}</div></div></div>')
+                        f'<div class="aa">{affects}{exp_s}</div>{decide_s}</div></div>')
         H.append('<section class="panel"><div class="phead"><h2>Factor catalysts</h2></div>'
                  f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
 
@@ -893,12 +1088,19 @@ def build(base, out):
             f'title="{esc(v.get("thesis",""))} | target ${v.get("target_usd","-")} '
             f'({v.get("upside_pct","-")}% upside)">{esc(tk)}<i>{v.get("upside_pct","-")}%</i></span>'
             for tk, v in rows)
+        # Buttons render as a compact separate list rather than inside the chips themselves --
+        # decision_buttons() emits a <div>, which doesn't nest inside the existing <span> chip
+        # markup without breaking it, and the chips stay the at-a-glance view either way.
+        decide_rows = "".join(
+            f'<div class="srow"><span class="slab">{esc(tk)}</span>'
+            f'<span>{decision_buttons("diversifier", tk)}</span></div>' for tk, v in rows)
         H.append('<section class="panel"><div class="phead"><h2>Diversifier bench'
                  '<span class="sub">non-AI-capex candidates, not held</span></h2>'
                  '<span class="pill">green = clean diversifier &middot; amber = has AI-adjacent overlap</span>'
                  f'</div><div class="pbody"><div class="chips">{chips}</div>'
                  '<p class="note">Priced by smith-scout each deep run; not a proposal to buy, a bench '
                  'of what a genuine hedge to this book\'s single-factor concentration would look like.</p>'
+                 f'<details><summary>Not interested in one of these?</summary><div class="body">{decide_rows}</div></details>'
                  '</div></section>')
 
     # -- rotation analysis --
@@ -1234,6 +1436,26 @@ def build(base, out):
     H.append('<section class="panel"><div class="phead"><h2>The week ahead</h2></div>'
              f'<div class="pbody"><div class="cal">{"".join(days)}</div></div></section>')
 
+    # -- watchlist setups (added 2026-08-25, interactive dashboard). Previously fed only into
+    # entry_setup triggers with no standalone rendering of its own -- these buttons let a
+    # setup get suppressed or promoted directly, which entry_setup/bench_diversifier trigger
+    # generation reads back via smith_risk.is_watchlist_suppressed.
+    wl_setups = [w for w in (state.get("watchlist_setups") or [])
+                if not smith_risk.is_watchlist_suppressed(state, w.get("ticker"))]
+    if wl_setups:
+        wrows = "".join(
+            f'<div class="srow"><span class="slab">{esc(w.get("ticker",""))} '
+            f'<i>{esc(w.get("type",""))}</i></span>'
+            f'<span style="font-size:12.5px">{w.get("upside_pct","-")}% upside, '
+            f'pos {w.get("pos","-")}{decision_buttons("watchlist", w.get("ticker",""))}</span></div>'
+            for w in sorted(wl_setups, key=lambda w: -(w.get("upside_pct") or 0)))
+        H.append('<section class="panel"><div class="phead"><h2>Watchlist setups'
+                 '<span class="sub">not held -- entry candidates smith-watchlist scans for</span></h2></div>'
+                 f'<div class="pbody"><div>{wrows}</div>'
+                 f'<p class="note">As of {esc(state.get("watchlist_setups_as_of","-"))}. '
+                 'Not a proposal to buy -- the raw material entry_setup triggers score against.</p>'
+                 '</div></section>')
+
     # ================= TIER: BOOK COMPOSITION =================
     H.append('<div class="tier"><h2>Book composition</h2><div class="ln"></div></div>')
 
@@ -1256,6 +1478,18 @@ def build(base, out):
             w = max(0.0, min(100.0, v or 0.0))
             return f'<span class="mbar"><i class="{cls}" style="width:{w:.0f}%"></i></span>'
 
+        def _derisk_cell(r):
+            # An override never removes the ticker from the queue -- see
+            # smith_risk.derisk_override_for's own docstring: a real risk signal is only ever
+            # annotated, not suppressed. Already-overridden tickers show the standing note
+            # instead of the button (re-disagreeing with yourself isn't a new data point).
+            ov = smith_risk.derisk_override_for(state, r["ticker"])
+            if ov:
+                return (f'<span class="rvf">&#9888;&#65039; user disagrees: '
+                       f'{esc((ov.get("reason") or "")[:120] or "no reason given")} '
+                       f'({esc(ov.get("date",""))})</span>')
+            return decision_buttons("derisk", r["ticker"])
+
         body = "".join(
             f'<tr><td class="num">{r["rank"]}</td><td><b>{esc(r["ticker"])}</b></td>'
             f'<td class="num"><b>{r["derisk_score"]:.0f}</b></td>'
@@ -1266,7 +1500,7 @@ def build(base, out):
             f'<td class="num">{(f"{r["rel_strength_1m_pp"]:+.1f}" if r.get("rel_strength_1m_pp") is not None else "&mdash;")}</td>'
             f'<td class="num">{(f"{r["cap_multiple"]:.2f}x" if r.get("cap_multiple") else "&mdash;")}</td>'
             f'<td class="num">${r["market_value_usd"]:,.0f}</td>'
-            f'<td class="sub">{esc("; ".join(r.get("friction_reasons") or []) or "-")}</td></tr>'
+            f'<td class="sub">{esc("; ".join(r.get("friction_reasons") or []) or "-")}{_derisk_cell(r)}</td></tr>'
             for r in shown)
 
         H.append(
@@ -1489,8 +1723,20 @@ def build(base, out):
                f'<b>{n_two_sided} of {len(thesis)}</b> carry two-sided evidence (G58); the rest are '
                f'pre-migration entries still holding a single-sided one-liner and are treated as '
                f'<i>unverified</i> until smith-thesis next revisits them.</p>')
+        # Confirm/Override rows, one per held name -- a separate compact list rather than
+        # embedded in each chip (the chips are deliberately tiny; a button group doesn't fit).
+        thesis_decide_rows = "".join(
+            f'<div class="srow"><span class="slab">{esc(tk)} <i>{esc(thesis_status(txt) or "?")}</i></span>'
+            f'<span>{decision_buttons("thesis", tk)}</span></div>'
+            for tk, txt in sorted(thesis.items(), key=lambda kv: kv[0]))
         H.append(f'<details><summary>Thesis map<span class="c">{len(thesis)} of {len(held_tickers)} held</span></summary>'
-                 f'<div class="body">{"".join(blocks)}{cov}</div></details>')
+                 f'<div class="body">{"".join(blocks)}{cov}'
+                 f'<details style="margin-top:10px"><summary>Confirm or override a verdict</summary>'
+                 f'<div class="body">{thesis_decide_rows}'
+                 f'<p class="note" style="margin-top:6px">Override requires a reason -- your own '
+                 f'read of the company is real signal and can move the status, but it is recorded '
+                 f'as <code>user_stated</code>, never upgraded to a sourced verification.</p>'
+                 f'</div></details></div></details>')
 
     # -- signal history, grouped bullish/bearish --
     signal_history = {k: v for k, v in (state.get("signal_history") or {}).items() if v}
@@ -1528,11 +1774,35 @@ def build(base, out):
     # -- open (non-closed) data gaps --
     gaps = [g for g in state.get("known_gaps", []) if g.get("status") not in ("closed", "wont_fix")]
     if gaps:
-        rows = "".join(f'<div class="srow"><span class="slab"><b>{esc(g.get("id",""))}</b></span>'
-                       f'<span style="font-size:12.5px;color:var(--ink-2)">{esc(g.get("description",""))[:280]}</span></div>'
-                       for g in gaps)
+        rows = []
+        for g in gaps:
+            # A gap carrying a standing user_decision is never given a Mark Resolved button --
+            # sync-decisions' server-side guard would skip the click anyway (see smith_math.py),
+            # but not offering the button at all is the honest version of that same rule: it
+            # tells the reader up front this one needs a chat conversation, not a tap.
+            decide_s = "" if g.get("user_decision") else decision_buttons("gap", g.get("id", ""))
+            rows.append(f'<div class="srow"><span class="slab"><b>{esc(g.get("id",""))}</b></span>'
+                       f'<span style="font-size:12.5px;color:var(--ink-2)">{esc(g.get("description",""))[:280]}{decide_s}</span></div>')
         H.append(f'<details><summary>Open data gaps<span class="c">{len(gaps)} open</span></summary>'
-                 f'<div class="body">{rows}</div></details>')
+                 f'<div class="body">{"".join(rows)}</div></details>')
+
+    # -- auto-retired proposals, with a Revive button (added 2026-08-25, interactive dashboard).
+    # Today's HIGH/MEDIUM/LOW tiers only ever show OPEN proposals -- once something auto-retires
+    # there was previously no way to say "no, I disagree, keep this" short of a chat message
+    # re-deriving why. Scoped to the most recent 15 so this doesn't become an ever-growing wall;
+    # a revive is meant to catch something that JUST retired, not resurrect old history.
+    retired_recent = sorted([p for p in props.get("proposals", []) if p.get("status") == "auto_retired"],
+                            key=lambda p: p.get("retired_on") or "", reverse=True)[:15]
+    if retired_recent:
+        rows = []
+        for p in retired_recent:
+            decide_s = decision_buttons("auto_retired_proposal", p.get("id", ""))
+            rows.append(f'<div class="srow"><span class="slab"><b>{esc(p.get("id",""))}</b> '
+                       f'{esc(p.get("action",""))}</span>'
+                       f'<span style="font-size:12.5px;color:var(--ink-2)">'
+                       f'{esc((p.get("retired_reason") or "")[:200])}{decide_s}</span></div>')
+        H.append(f'<details><summary>Recently auto-retired<span class="c">{len(retired_recent)} shown</span></summary>'
+                 f'<div class="body">{"".join(rows)}</div></details>')
 
     # -- execution log (added 2026-08-06, dashboard feature review). trades.json holds 61
     # trades with captured rationale ("why", not just "what") and had never been rendered.
@@ -1630,6 +1900,25 @@ def build(base, out):
             rows.append(f'<details><summary>Recent lessons<span class="c">{len(lessons)} shown, '
                        f'{len(learning_store.get("lessons") or [])} total</span></summary>'
                        f'<div class="body">{lbits}</div></details>')
+        # Escalated parameters (added 2026-08-25, interactive dashboard) -- this is the ONE
+        # surface across all 9 where a click IS the intended learning mechanism, not a proxy
+        # for one: `escalated` means a parameter has enough n to have a real opinion but wants
+        # to move further than its bounded band allows, and promote() will never self-apply
+        # that (see smith_learning.py's own comment on the point of the state). Approve is the
+        # explicit human sign-off the state machine has been waiting for; Defer just leaves it
+        # escalated, re-surfacing next run.
+        escalated = {pid: p for pid, p in (learning_store.get("parameters") or {}).items()
+                    if p.get("state") == "escalated"}
+        if escalated:
+            erows = "".join(
+                f'<div class="srow"><span class="slab">{esc(pid)}</span>'
+                f'<span style="font-size:12.5px">default {p.get("default")} &rarr; wants '
+                f'{p.get("measured")} (n={p.get("n")}, band &plusmn;{p.get("band_pct")}%)'
+                f'{decision_buttons("learning_param", pid)}</span></div>'
+                for pid, p in escalated.items())
+            rows.append(f'<details open><summary>Escalated parameters -- your call'
+                       f'<span class="c">{len(escalated)} waiting</span></summary>'
+                       f'<div class="body">{erows}</div></details>')
         H.append('<details><summary>Self-learning<span class="c">Phase 0-2</span></summary>'
                  f'<div class="body">{"".join(rows)}</div>'
                  '<p class="note" style="margin-top:8px">Observational only -- nothing here '
@@ -1669,6 +1958,7 @@ def build(base, out):
              f'risk budget {esc(str(mandate.get("risk_budget_pct","-")))}%.</p>')
     H.append('</footer>')
 
+    H.append(DASHBOARD_JS)
     H.append('</div></body></html>')
 
     html = "\n".join(H)

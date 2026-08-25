@@ -297,3 +297,41 @@ def gap_is_live(entry):
     """True when a gap still needs attention. An UNREADABLE status counts as live, deliberately:
     if the desk cannot tell whether something is fixed, the safe default is that it is not."""
     return gap_status(entry) in (None, "open", "partially_closed", "blocked")
+
+
+# ---------------------------------------------------------------------------
+# Dashboard-decision suppression/override readers (added 2026-08-25, interactive
+# dashboard feature). Three small generic readers rather than three copies of the same
+# "is this ticker in a dict, and is the entry still fresh" check -- ONE FIELD, ONE READER,
+# same discipline as thesis_status/gap_status above. All three share one shape:
+# {"TICKER": {"date": "YYYY-MM-DD", "reason": "..."}}. None of them ever DELETE a real
+# signal -- a suppression/override is always reported ALONGSIDE the underlying computed
+# value, never instead of it (see smith_dashboard.py's de-risk queue rendering and
+# smith-catalyst's dispatch prompt for the two call sites that read these).
+
+def is_watchlist_suppressed(state, ticker):
+    """True if the user clicked 'Not interested' on this ticker's watchlist/diversifier
+    entry and it hasn't been explicitly reopened. Read by entry_setup/bench_diversifier
+    trigger generation in smith_math.py -- a suppressed ticker is skipped when building
+    new candidates, never retroactively hidden from history."""
+    sup = (state or {}).get("watchlist_suppressed") or {}
+    return ticker in sup
+
+
+def catalyst_is_suppressed(state, headline, date):
+    """True if the user marked this exact (headline, date) catalyst 'already priced in'.
+    Matched on the pair, not headline alone -- the same story can legitimately resurface
+    dated differently (e.g. an update to an ongoing situation), and that update is not
+    what the user suppressed."""
+    sup = (state or {}).get("catalyst_suppressed") or []
+    return any(s.get("headline") == headline and s.get("date") == date for s in sup)
+
+
+def derisk_override_for(state, ticker):
+    """Returns the user's disagreement note for a de-risk-queue ticker, or None. Never
+    used to drop the ticker from the queue -- cmd_derisk reports the override ALONGSIDE
+    its own computed score (see smith_core's standing rule: never suppress a real risk
+    signal, only annotate the disagreement) so the disagreement itself becomes a labelled
+    data point the shadow-scoring hit-rate can eventually measure against."""
+    ov = (state or {}).get("derisk_overrides") or {}
+    return ov.get(ticker)

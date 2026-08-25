@@ -1422,6 +1422,26 @@ def cmd_stops(args):
     safe_write(out_path, out)
     emit({"written": out_path, "scored_count": len(scored), "overall": overall, "by_cohort": by_cohort})
 
+def dismiss_proposal_core(props, proposal_id, reason, actor="user"):
+    """The actual dismiss mutation, extracted (2026-08-25, interactive dashboard feature) so
+    cmd_dismiss (a chat-driven 'dismiss P-014') and sync-decisions' Reject button (a
+    dashboard-driven click) share exactly one implementation of 'what dismissing means' rather
+    than maintaining two. Mutates `props` in place; returns the matched proposal dict, or None
+    if `proposal_id` doesn't exist or isn't open. Caller owns loading/writing proposals.json."""
+    for pr in props:
+        if pr.get("id") == proposal_id:
+            if pr.get("status") not in ("open",):
+                return None
+            pr["status"] = "dismissed_by_user"
+            stamp = f" | dismissed by {actor} {datetime.now().isoformat(timespec='minutes')}"
+            pr["dismiss_reason"] = reason or None
+            if reason:
+                stamp += f": {reason}"
+            pr["note"] = (pr.get("note", "") + stamp).strip(" |")
+            return pr
+    return None
+
+
 def cmd_dismiss(args):
     """Mark one proposal dismissed_by_user by its stable id (see cmd_proposals). This is the
     write path behind a chat request like "dismiss P-014" -- the user's way of saying "don't
@@ -1431,34 +1451,27 @@ def cmd_dismiss(args):
     p_path = os.path.join(args.base_dir, "proposals.json")
     proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
     props = proposals.get("proposals", [])
-    for pr in props:
-        if pr.get("id") == args.id:
-            if pr.get("status") not in ("open",):
-                fail(f"proposal {args.id} is status={pr.get('status')!r}, not open -- nothing to dismiss")
-            pr["status"] = "dismissed_by_user"
-            stamp = f" | dismissed by user {datetime.now().isoformat(timespec='minutes')}"
-            # `dismiss_reason` is stored as its OWN structured field (added 2026-08-25), not
-            # only folded into the free-text `note` -- a dismissal is the single most
-            # informative NEGATIVE label revealed-preference learning has (see
-            # smith_learning.py), and "never parse prose" (the codebase's standing discipline,
-            # burned twice already -- the 2026-07-29 breach-cleared voider and a near-miss
-            # this session parsing rationale text for a reentry date) means a learner must be
-            # able to read the reason as a typed field, not regex it back out of `note`.
-            # Every one of the 9 dismissals on record before this change has no reason at all
-            # (`dismiss` always accepted --reason and the orchestrator never asked) -- flagged
-            # in the emitted result rather than silently accepted, so the interactive caller
-            # (SKILL.md's TASK, per PROPOSAL ACTIONS: NO CONFIRMATION) has a cue to ask next time.
-            pr["dismiss_reason"] = args.reason or None
-            if args.reason:
-                stamp += f": {args.reason}"
-            pr["note"] = (pr.get("note", "") + stamp).strip(" |")
-            proposals["proposals"] = props
-            safe_write(p_path, proposals)
-            result = {"dismissed": args.id, "action": pr.get("action"), "written": True}
-            if not args.reason:
-                result["data_quality"] = [f"{args.id} dismissed with no reason -- the most "
-                                           "informative negative label for revealed-preference "
-                                           "learning is missing; ask for one next time"]
-            emit(result)
-            return
-    fail(f"no proposal with id {args.id}")
+    pr = dismiss_proposal_core(props, args.id, args.reason, actor="user")
+    if pr is None:
+        # distinguish "no such id" from "exists but not open" for a clearer error
+        match = next((p for p in props if p.get("id") == args.id), None)
+        if match is not None:
+            fail(f"proposal {args.id} is status={match.get('status')!r}, not open -- nothing to dismiss")
+        fail(f"no proposal with id {args.id}")
+    proposals["proposals"] = props
+    safe_write(p_path, proposals)
+    # `dismiss_reason` is stored as its OWN structured field (added 2026-08-25), not only
+    # folded into the free-text `note` -- a dismissal is the single most informative NEGATIVE
+    # label revealed-preference learning has (see smith_learning.py), and "never parse prose"
+    # (burned twice already -- the 2026-07-29 breach-cleared voider and a near-miss this
+    # session parsing rationale text for a reentry date) means a learner must be able to read
+    # the reason as a typed field, not regex it back out of `note`. Every one of the 9
+    # dismissals on record before this change has no reason at all (`dismiss` always accepted
+    # --reason and the orchestrator never asked) -- flagged in the emitted result rather than
+    # silently accepted, so the interactive caller has a cue to ask next time.
+    result = {"dismissed": args.id, "action": pr.get("action"), "written": True}
+    if not args.reason:
+        result["data_quality"] = [f"{args.id} dismissed with no reason -- the most "
+                                   "informative negative label for revealed-preference "
+                                   "learning is missing; ask for one next time"]
+    emit(result)
