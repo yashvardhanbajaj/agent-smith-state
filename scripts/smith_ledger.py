@@ -307,10 +307,7 @@ def cmd_lots(args):
                              "corporate_action rows in trades.json instead."),
                    "_rebuilt": str(date.today())}
         payload.update(out)
-        tmp = path + ".tmp"
-        with open(tmp, "w") as fh:
-            json.dump(payload, fh, indent=2)
-        os.replace(tmp, path)
+        safe_write(path, payload)
         written = path
 
     emit({"tickers": len(out),

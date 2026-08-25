@@ -64,6 +64,42 @@ RETENTION = {
     },
 }
 
+# STANDALONE JOURNAL FILES (added 2026-08-25, self-learning Phase 0). journal.json,
+# trigger_journal.json, derisk_journal.json and the new learning.json were never in RETENTION
+# at all -- unmanaged since the day each was created, unlike everything above which lives
+# nested inside state.json. All four share a compatible shape (a top-level `entries` list, each
+# row carrying `date`/`ticker`/`scored`), so one generic eviction pass in cmd_compact (below)
+# handles all of them rather than four bespoke ones. A row is only eligible once `scored` is
+# true -- an unscored row is still live work, never evicted regardless of age, same
+# NEVER-EVICT-SOMETHING-STILL-LIVE invariant as everything else in this table.
+STANDALONE_JOURNAL_RETENTION = {
+    "journal.json": {
+        "archive": "journal-archive.json", "payload": "entries",
+        "keep_recent": 60, "terminal_after_days": 365,
+        "why": "a 30d-scored signal entry a year old has nothing left to teach a live decision; "
+               "bucket_hit_rates/name_bucket_grades are recomputed from what remains, not archived",
+    },
+    "trigger_journal.json": {
+        "archive": "trigger-journal-archive.json", "payload": "entries",
+        "keep_recent": 60, "terminal_after_days": 365,
+        "why": "shadow-trigger observations past their scoring window and past a year of "
+               "relevance to the shadow->live promotion decision",
+    },
+    "derisk_journal.json": {
+        "archive": "derisk-journal-archive.json", "payload": "entries",
+        "keep_recent": 60, "terminal_after_days": 365,
+        "why": "same as trigger_journal -- the composite queue's own shadow-scoring log",
+    },
+    "learning.json": {
+        "archive": "learning-archive.json", "payload": "observations",
+        "keep_recent": 500, "terminal_after_days": 730,
+        "why": "learning.json's observations are the source parameters are DERIVED from on "
+               "every read (never pinned) -- kept generously long since pruning them changes "
+               "what a parameter's current value computes to, unlike the other three journals "
+               "where old scored rows are purely historical record",
+    },
+}
+
 TERMINAL_PROPOSAL_STATUSES = ("superseded", "auto_retired", "dismissed_by_user",
                               "executed", "fulfilled", "filled")
 
@@ -95,14 +131,11 @@ def _archive_merge(arc, payload_key, records):
     arc[payload_key] = cur
     return arc
 
-def _safe_write(path, obj):
-    """.bak then tmp-then-mv -- the WRITE SAFETY contract for memory-of-record files."""
-    if os.path.exists(path):
-        with open(path) as f_in, open(path + ".bak", "w") as f_out:
-            f_out.write(f_in.read())
-    with open(path + ".tmp", "w") as f:
-        json.dump(obj, f, indent=2)
-    os.replace(path + ".tmp", path)
+# _safe_write used to be defined here; promoted to smith_core.safe_write 2026-08-25 so every
+# module can reach it via the `from smith_core import *` they already do, instead of each
+# needing a one-off cross-module import. Kept as a thin alias so existing call sites in this
+# file (and anything external still spelling the old private name) keep working unchanged.
+_safe_write = safe_write
 
 def cmd_compact(args):
     """Enforce RETENTION across every memory-of-record file. Dry run unless --write."""
@@ -176,6 +209,48 @@ def cmd_compact(args):
             merged = dict(praw); merged["proposals"] = kept
             writes["__proposals__"] = merged
 
+    # --- standalone journals: evict scored rows past keep_recent/terminal_after_days ---------
+    # Generic because all four files share one shape (entries[], each row carrying date/
+    # ticker/scored) -- see STANDALONE_JOURNAL_RETENTION above for why these were unmanaged
+    # until now. `journal_writes` is kept separate from `writes` (which is keyed by archive
+    # filename for the state.json-nested passes above) because these hot files are NOT
+    # state.json sub-keys -- they are top-level files in their own right and need their own
+    # read-modify-write, not a merge into `state`.
+    journal_writes = {}
+    for fname, cfg in STANDALONE_JOURNAL_RETENTION.items():
+        fpath = os.path.join(base, fname)
+        # load_json's `default` param only kicks in when truthy (`if default is not None`
+        # reads as "was a default given", but `None` itself fails that test and falls through
+        # to raise) -- pass {} so a missing file (learning.json doesn't exist until Phase 0's
+        # smith_learning.py creates it) degrades to "nothing to compact" instead of a crash.
+        raw = load_json(fpath, default={})
+        if not raw:
+            continue
+        rows = raw.get(cfg["payload"]) or []
+        if not rows:
+            continue
+        def _row_age(r):
+            d = _proposal_parse_date(r.get("date", "") or "")
+            return (today - d).days if d else None
+        scored_rows = [r for r in rows if r.get("scored")]
+        eligible = [r for r in scored_rows if (_row_age(r) or 0) > cfg["terminal_after_days"]]
+        eligible.sort(key=lambda r: r.get("date") or "", reverse=True)
+        evict = eligible[cfg["keep_recent"]:]
+        if not evict:
+            continue
+        evict_ids = {id(r) for r in evict}
+        kept_rows = [r for r in rows if id(r) not in evict_ids]
+        moves.append({"file": fname, "moved": len(evict), "to": cfg["archive"],
+                      "kept": len(kept_rows), "why": cfg["why"]})
+        arc = _archive_load(os.path.join(base, cfg["archive"]))
+        _archive_merge(arc, cfg["payload"], evict)
+        journal_writes[cfg["archive"]] = arc
+        # kept_rows already includes every unscored row (never eligible) plus every scored row
+        # that didn't make the eviction list -- unscored_rows above is used only to decide
+        # eligibility, not re-assembled here.
+        merged = dict(raw); merged[cfg["payload"]] = kept_rows
+        journal_writes[fname] = merged
+
     after = len(json.dumps(state))
     out = {"dry_run": not args.write, "moves": moves,
            "state_bytes_before": before, "state_bytes_after": after,
@@ -192,6 +267,8 @@ def cmd_compact(args):
                 _safe_write(os.path.join(base, "proposals.json"), payload)
             else:
                 _safe_write(os.path.join(base, path), payload)
+        for path, payload in journal_writes.items():
+            _safe_write(os.path.join(base, path), payload)
         _safe_write(os.path.join(base, "state.json"), state)
         out["written"] = True
     emit(out)
@@ -400,6 +477,39 @@ def validate_thesis_schema(state, base_dir="."):
             f"thesis gate silently; they are not blocked, they are simply never considered.")
     return defects
 
+def validate_learning_schema(base_dir):
+    """Guard learning.json's shape (added 2026-08-25, self-learning Phase 0). Absent entirely is
+    fine (first run, or the feature simply unused yet) -- only checks shape once the file exists,
+    same "missing is not a defect, malformed is" contract as the rest of this validator."""
+    defects = []
+    path = os.path.join(base_dir, "learning.json")
+    if not os.path.exists(path):
+        return defects
+    store = load_json(path, default={})
+    for key, want in (("observations", list), ("parameters", dict), ("lessons", list)):
+        if key in store and not isinstance(store[key], want):
+            defects.append(f"LEARNING SCHEMA: learning.json's '{key}' is "
+                           f"{type(store[key]).__name__}, expected {want.__name__}.")
+    for o in store.get("observations", []) if isinstance(store.get("observations"), list) else []:
+        if not isinstance(o, dict) or "param_id" not in o or "date" not in o:
+            defects.append("LEARNING SCHEMA: an observation is missing 'param_id' or 'date' -- "
+                           "every observation must be attributable to a parameter and dated, or "
+                           "evaluate()'s aggregation and any future audit cannot trust it.")
+            break
+    for kind_defect_pid, p in (store.get("parameters") or {}).items():
+        if p.get("state") not in (None, "default", "shadow", "active", "escalated"):
+            defects.append(f"LEARNING SCHEMA: parameter '{kind_defect_pid}' has state "
+                           f"{p.get('state')!r}, not one of default/shadow/active/escalated.")
+        if "default" not in p:
+            defects.append(f"LEARNING SCHEMA: parameter '{kind_defect_pid}' has no 'default' -- "
+                           "every learned parameter must keep its hand-set original recoverable.")
+    for l in store.get("lessons", []) if isinstance(store.get("lessons"), list) else []:
+        if not isinstance(l, dict) or l.get("kind") not in ("correction", "calibration", "dead_end"):
+            defects.append("LEARNING SCHEMA: a lesson has an unrecognised or missing 'kind' -- "
+                           "must be correction|calibration|dead_end.")
+            break
+    return defects
+
 def cmd_validate(args):
     policy = load_json(os.path.join(args.base_dir, "policy.json"), default=None)
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
@@ -412,7 +522,8 @@ def cmd_validate(args):
 
     cache_defects = validate_cache_events(state)
     thesis_defects = validate_thesis_schema(state, args.base_dir)
-    all_defects = policy_defects + cache_defects + thesis_defects
+    learning_defects = validate_learning_schema(args.base_dir)
+    all_defects = policy_defects + cache_defects + thesis_defects + learning_defects
 
     emit({
         "policy_present": policy is not None,

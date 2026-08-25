@@ -55,6 +55,7 @@ from smith_core import load_json, emit, fail, clamp
 from smith_ledger import cmd_lots, cmd_history
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy
 from smith_lifecycle import cmd_proposals, cmd_score, cmd_stops, cmd_dismiss
+from smith_learning import cmd_learn_status, cmd_learn_lessons, cmd_learn_add_lesson
 # explicit: `from x import *` does NOT export underscore-prefixed names
 from smith_core import _prior_run_prices
 from smith_ledger import _avg_cost_from_lots, _months_between
@@ -2450,6 +2451,22 @@ def main():
     sp.add_argument("--dry-run", action="store_true",
                     help="compute and print the scorecard without writing proposals.json")
 
+    sp = sub.add_parser("learn-status", help="report every learning.json parameter's state/n")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+
+    sp = sub.add_parser("learn-lessons", help="list recorded lessons (corrections/dead ends)")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--kind", default=None, choices=["correction", "calibration", "dead_end"])
+
+    sp = sub.add_parser("learn-add-lesson", help="record a lesson into learning.json")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--kind", required=True, choices=["correction", "calibration", "dead_end"])
+    sp.add_argument("--text", required=True)
+    sp.add_argument("--evidence", default=None)
+    sp.add_argument("--source-run", default=None)
+    sp.add_argument("--supersedes", default=None, type=int)
+    sp.add_argument("--today", default=None)
+
     args = p.parse_args()
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
@@ -2457,7 +2474,8 @@ def main():
          "triggers": cmd_triggers, "score": cmd_score, "pipeline": cmd_pipeline, "lots": cmd_lots,
          "history": cmd_history, "maxpain": cmd_maxpain, "compact": cmd_compact, "gaps": cmd_gaps, "slices": cmd_slices,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
-         "dismiss": cmd_dismiss, "stops": cmd_stops}[args.cmd](args)
+         "dismiss": cmd_dismiss, "stops": cmd_stops, "learn-status": cmd_learn_status,
+         "learn-lessons": cmd_learn_lessons, "learn-add-lesson": cmd_learn_add_lesson}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")
 

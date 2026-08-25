@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "_readme": "Self-learning substrate. `observations` is the only ground truth -- append-only, never edited in place. `parameters` holds each tunable's STATE (default/shadow/active/escalated) and change history; the numeric value itself is DERIVED from observations on every read via smith_learning.evaluate(), never cached here as authoritative. `lessons` is corrections, decisions not to re-litigate, and dead ends -- read this before proposing a fix that sounds familiar, it may already be lesson #1.",
+  "observations": [],
+  "parameters": {},
+  "lessons": [
+    {
+      "date": "2026-08-25",
+      "kind": "dead_end",
+      "text": "Revealed-preference size effect (acted-on median $700 vs ignored $360) evaporated under a within-month control: July acted $705 vs ignored $700, August $325 vs $300 -- size does not predict whether the user acts. The apparent effect was pure time-confounding (8/9 acted-on rows are July, 33/37 ignored rows are August). Do not re-derive or auto-apply a sizing correction from pooled acted-vs-ignored size comparisons; always split by period first.",
+      "evidence": "proposals.json, session audit 2026-08-25",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "correction",
+      "text": "cmd_journal prices tickers only from the current run's holdings.json, so an exited ticker can never be priced and its journal entry stays verdict:open forever. This creates survivorship bias in every bucket hit rate -- entries that fail to score are disproportionately the ones that went wrong enough to get stopped out. Fix (Phase 1): give cmd_journal an injected --prices-json like cmd_score/cmd_stops already have.",
+      "evidence": "smith_math.py:559 cmd_journal, journal.json audit 2026-08-25",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "correction",
+      "text": "The tier-cliff bug: CONVICTION_TIERS' step-function pct field, looked up directly, meant two candidates one point apart on either side of a tier boundary (e.g. score 44 vs 46 across the 45pt low/medium line) got a 2x size difference for a 1-point difference in conviction. WDC reached the highest evidence tier (primary verification) and its size did not move at all because it stayed on the low side of the 45pt line. Fixed same-day by splitting tier LABEL (still discrete, for display) from tier PCT (now piecewise-linear interpolation via TIER_PCT_ANCHORS).",
+      "evidence": "smith_conviction.py, commit cff2e7c",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "dead_end",
+      "text": "smith_core.load_json(path, default=X)'s missing-file branch only returns X when X is truthy-checked as 'is not None' -- so calling with default=None (indistinguishable from omitting it) always raises FileNotFoundError instead of returning None. Bit smith_memory.py's new standalone-journal compaction pass and smith_learning.py's own load_store during this session. Workaround used both times: pass default={} and test emptiness, not default=None + is None. Root cause in smith_core.py:307-313 is unfixed -- flagged here so a future session doesn't waste time rediscovering the same trap, and can consider fixing load_json itself (risk: unclear if any existing caller relies on the raise-on-explicit-None behavior).",
+      "evidence": "smith_core.py:307-313",
+      "source_run": null,
+      "supersedes": null
+    }
+  ]
+}

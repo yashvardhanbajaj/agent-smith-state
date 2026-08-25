@@ -322,6 +322,23 @@ def fail(msg):
 def clamp(x, lo=0.0, hi=100.0):
     return max(lo, min(hi, x))
 
+
+def safe_write(path, obj):
+    """WRITE SAFETY contract for any memory-of-record file: .bak (one rolling generation) then
+    tmp-then-mv. An interrupted run leaves either the old file intact or a stray .tmp, never a
+    truncated file. Promoted here 2026-08-25 from smith_memory._safe_write (added 2026-08-16) --
+    that copy was the only one three places actually used; five other call sites
+    (smith_ledger.py, four in smith_lifecycle.py) had each hand-rolled a WEAKER version that
+    skips the .bak half entirely (tmp-then-mv only). Every module already does
+    `from smith_core import *`, so this is reachable everywhere without a new import -- the
+    prior home in smith_memory required a manual cross-module import that nobody added."""
+    if os.path.exists(path):
+        with open(path) as f_in, open(path + ".bak", "w") as f_out:
+            f_out.write(f_in.read())
+    with open(path + ".tmp", "w") as f:
+        json.dump(obj, f, indent=2)
+    os.replace(path + ".tmp", path)
+
 def _prior_run_prices(base_dir, run_dir, state):
     """Last-known price per ticker from the PREVIOUS run's compute_book.json.
 
