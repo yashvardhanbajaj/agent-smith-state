@@ -1,0 +1,36 @@
+{
+  "fed_funds_pct": 3.63,
+  "fomc_stance": "hawkish",
+  "fomc_note": "cached — no new FOMC meeting since last check (cache dated for next_check_date 2026-09-17, today 2026-08-29 precedes it)",
+  "options_sentiment": {
+    "spy_pcr_oi": 2.54,
+    "spy_pcr_oi_source": "barchart",
+    "spy_pcr_vol": 1.14,
+    "spy_pcr_vol_source": "barchart",
+    "spy_put_oi": 13504224,
+    "spy_call_oi": 5307673,
+    "spy_put_vol": 1864982,
+    "spy_call_vol": 1632769,
+    "spy_max_pain": null,
+    "qqq_pcr_oi": 1.25,
+    "qqq_pcr_oi_source": "barchart",
+    "qqq_pcr_vol": 1.34,
+    "qqq_pcr_vol_source": "barchart",
+    "qqq_put_oi": 6294095,
+    "qqq_call_oi": 5028503,
+    "qqq_put_vol": 1220764,
+    "qqq_call_vol": 909089,
+    "qqq_max_pain": null,
+    "vix": 14.43,
+    "note": "Both SPY and QQQ OI-based PCR (2.54 and 1.25) and volume-based PCR (1.14 and 1.34) sit above the 1.0 bearish threshold, indicating substantial hedging/put positioning stacked into both names — yet VIX at 14.43 is low/complacent, a divergence: options market is quietly buying protection (esp. SPY OI skew, likely index-hedge overlay flow) while the headline fear gauge stays sanguine. Max-pain unavailable — G18, wont_fix (yfinance chain returns 0 OI on every strike/expiry; Barchart publishes aggregate ratios only, not per-strike OI)."
+  },
+  "calendar": {
+    "next_fomc": "2026-09-16",
+    "next_cpi": "2026-09-11",
+    "next_nfp": "2026-09-04",
+    "earnings_season_window": false,
+    "flags_within_5_trading_days": ["NFP 2026-09-04 falls on the 5th trading day from today (Mon 8/31–Fri 9/4) — flag for portfolio volatility watch"]
+  },
+  "regime_read": "VIX at 14.43 signals broad-market complacency even as SMH is down -3.47% and the book's core semis/AI-capex names are under idiosyncratic pressure — a narrow-rotation regime, not a systemic risk-off. US10y at 4.72% with a hawkish Fed (funds 3.63%, cache-confirmed) keeps discount-rate pressure squarely on long-duration, high-multiple growth — the AI-capex chain (forward-multiple semicap/memory/datacenter names) feels this first and hardest. Rate-sensitive/long-duration growth clusters outside the book's core thesis would also lag in this setup. Defensive/diversifier names are the regime's relative beneficiary: low VIX means no urgency to add hedges, but the DXY near 99.7 and elevated 10y argue for keeping some ballast rather than chasing the semis dip. Elevated put OI skew in both SPY and QQQ despite low VIX suggests smart-money hedging into month-end/NFP week — a mild caution signal ahead of the 9/4 jobs print.",
+  "data_quality": ["SPY/QQQ max-pain unavailable — G18, wont_fix, yfinance chain OI is 0 on every strike", "fomc_cache reused verbatim, no new search performed for rate/stance"]
+}

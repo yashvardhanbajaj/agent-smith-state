@@ -1,19 +1,19 @@
 {
-  "mode": "quick",
-  "today": "2026-08-17",
-  "market_session": "intraday",
-  "gate_classification": "AMBIGUOUS",
+  "mode": "deep",
+  "today": "2026-08-29",
+  "market_session": "closed_weekend",
+  "gate_classification": "ESCALATING",
   "macro": {
-    "us10y": 4.724,
-    "vix": 15.16,
-    "dxy": 99.59,
-    "spx": 7757.45,
-    "ndx": 26653.398,
-    "es_f": 7778.0,
-    "nq_f": 30100.75,
-    "smh": 595.79
+    "usdinr": 95.38,
+    "us10y": 4.72,
+    "vix": 14.43,
+    "dxy": 99.677,
+    "spx": 7711.76,
+    "ndx": 26402.424,
+    "smh": 553.11,
+    "smh_change_pct": -3.47
   },
-  "usdinr": 95.592,
+  "usdinr": 95.38,
   "known_gaps": [
     {
       "id": "G69",
@@ -24,17 +24,48 @@
       "id": "G78",
       "status": "open",
       "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    },
+    {
+      "id": "G18",
+      "status": "open",
+      "gap": "SPY/QQQ max-pain unavailable -- single-expiry options pull returned near-zero/null open interest across nearly all strikes (yfinance data gap)"
+    },
+    {
+      "id": "G79",
+      "status": "partially_closed",
+      "gap": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are there"
+    },
+    {
+      "id": "G80",
+      "status": "open",
+      "gap": "SHADOW-SCORED TRIGGER PROPOSALS ARE STRUCTURALLY EXEMPT FROM CONDITION-BASED AUTO-RETIREMENT. Any proposal whose trigger_type is a shadow trigger (profit_ratchet, scale_out_ladder) is written with retires_when = 'n/a -- shadow-scored, track"
+    },
+    {
+      "id": "G81",
+      "status": "open",
+      "gap": "PROXIMATE CAUSE OF THE 2026-08-18 SEMIS ROUT IS UNRESOLVED, AND THE FIRST ANSWER WAS WRONG. smith-catalyst returned, as its lead catalyst, that the 30-year UST hit a 19-year high of 5.33% on Tuesday and repriced high-multiple AI hardware. C"
+    },
+    {
+      "id": "G82",
+      "status": "open",
+      "gap": "BX (Blackstone) was re-entered 2026-08-24 (10sh, 3.67% weight) after a full exit on 2026-08-17. smith-thesis classified it into a brand-new satellite cluster 'Financials/Alt-Asset Diversifier' because it does not fit any existing policy.jso"
+    },
+    {
+      "id": "G83",
+      "status": "open",
+      "gap": "BX's re-entry lot is dated 2026-08-21 in trades.json/lots.json, but state/G82 and this run's dispatch both stated the re-entry happened 2026-08-24 -- a 3-day discrepancy independently caught by smith-book, smith-tax, and the strategist this"
     }
   ],
   "known_gaps_truncated": 0,
   "agent": "smith-thesis",
-  "output_file": "/Users/yb/Claude/AgentSmith/runs/2026-08-17-2354/smith-thesis-output.md",
-  "holdings_path": "/Users/yb/Claude/AgentSmith/runs/2026-08-17-2354/holdings.json",
+  "output_file": "runs/2026-08-29-0816/smith-thesis-output.md",
+  "holdings_path": "runs/2026-08-29-0816/holdings.json",
   "read_these_files": {
-    "thesis": "/Users/yb/Claude/AgentSmith/runs/2026-08-17-2354/shared/thesis.0aac63ad.json",
-    "open_flags": "/Users/yb/Claude/AgentSmith/runs/2026-08-17-2354/shared/open_flags.c266c166.json",
-    "hbm_tracker": "/Users/yb/Claude/AgentSmith/runs/2026-08-17-2354/shared/hbm_tracker.json",
-    "holdings": "/Users/yb/Claude/AgentSmith/runs/2026-08-17-2354/shared/holdings_trim.d66076ce.json"
+    "thesis": "runs/2026-08-29-0816/shared/thesis.ef641e3a.json",
+    "open_flags": "runs/2026-08-29-0816/shared/open_flags.7460550d.json",
+    "data_cache.earnings_facts": "runs/2026-08-29-0816/shared/data_cache_earnings_facts.a2d82f10.json",
+    "hbm_tracker": "runs/2026-08-29-0816/shared/hbm_tracker.json",
+    "holdings": "runs/2026-08-29-0816/shared/holdings_trim.fc1d8ab1.json"
   },
   "sector_map": {
     "NVDA": "AI Semis/Fabs",
@@ -44,8 +75,6 @@
     "QCOM": "AI Semis/Fabs",
     "TSM": "AI Semis/Fabs",
     "MU": "AI Memory/Storage",
-    "SNDK": "AI Memory/Storage",
-    "DRAM": "AI Memory/Storage",
     "MRVL": "AI Networking/Optics",
     "AVGO": "AI Networking/Optics",
     "CIEN": "AI Networking/Optics",
@@ -53,26 +82,27 @@
     "GEV": "AI Power/Cooling/DC Infra",
     "VRT": "AI Power/Cooling/DC Infra",
     "AMD": "AI Semis/Fabs",
-    "ORCL": "Compute/Hyperscaler",
-    "COHR": "AI Networking/Optics",
-    "ARM": "AI Semis/Fabs",
     "AMZN": "Compute/Hyperscaler",
     "CEG": "AI Power/Cooling/DC Infra",
-    "NBIS": "Compute/Hyperscaler OEM",
-    "IREN": "Compute/Hyperscaler",
     "BE": "AI Power/Cooling/DC Infra",
     "GLW": "AI Networking/Optics",
     "BABA": "China Internet/Diversifier",
     "LRCX": "AI Semis/Fabs",
-    "NOW": "Enterprise Software",
-    "SKHY": "AI Memory/Storage",
     "MSFT": "Compute/Hyperscaler",
     "INTC": "AI Semis/Fabs",
     "FLTW": "Diversified/Regional ETF",
     "STM": "Analog/Industrial Semis",
-    "TXN": "Analog/Industrial Semis"
+    "GOOG": "Compute/Hyperscaler",
+    "WDC": "AI Memory/Storage",
+    "NBIS": "Compute/Hyperscaler",
+    "SKHY": "AI Memory/Storage",
+    "BX": "Financials/Alt-Asset Diversifier",
+    "KLAC": "AI Semis/Fabs",
+    "COHR": "AI Networking/Optics",
+    "LITE": "AI Networking/Optics",
+    "SMCI": "Compute/Hyperscaler OEM"
   },
-  "news_watermark": "2026-08-17",
+  "news_watermark": "2026-08-29",
   "data_cache.etf_constituents": {
     "DRAM": {
       "as_of": "2026-08-07",
@@ -154,44 +184,5 @@
       ]
     }
   },
-  "data_cache.earnings_facts": {
-    "VRT": {
-      "period": "Q2 2026",
-      "reported_date": "2026-08-06",
-      "revenue_actual": 3270000000,
-      "revenue_consensus": 3380000000,
-      "eps_actual": 1.52,
-      "eps_consensus": 1.43,
-      "guide_next_q": 3750000000,
-      "guide_consensus": 3710000000,
-      "source": "stockanalysis.com/stocks/vrt",
-      "verified_on": "2026-08-14"
-    },
-    "AMD": {
-      "period": "Q2 FY2026",
-      "reported_date": "2026-08-04",
-      "revenue_actual": 11540000000,
-      "revenue_consensus": null,
-      "eps_actual": 1.66,
-      "eps_consensus": null,
-      "guide_next_q": null,
-      "guide_consensus": null,
-      "source": "INDmoney news + stockanalysis.com",
-      "verified_on": "2026-08-14"
-    },
-    "COHR": {
-      "period": "Q4 FY2026",
-      "reported_date": "2026-08-12",
-      "revenue_actual": 2045000000,
-      "revenue_consensus": 2025000000,
-      "eps_actual": 1.74,
-      "eps_consensus": 1.65,
-      "guide_next_q": "$2.2-2.4B rev / $1.85-2.05 EPS (raised above the reported quarter)",
-      "guide_consensus": null,
-      "source": "Benzinga + stockanalysis.com",
-      "verified_on": "2026-08-15",
-      "note": "BEAT on revenue and EPS with a stronger-than-expected FY27 outlook; stock fell DESPITE the beat. Recorded because smith-catalyst mischaracterised it as a miss."
-    }
-  },
-  "inputs_digest": "3c5251ca57d0"
+  "inputs_digest": "a48174b33e5a"
 }

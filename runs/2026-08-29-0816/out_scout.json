@@ -1,0 +1,27 @@
+{
+  "session_read": {
+    "futures": {"es_pct": -0.26, "nq_pct": -0.69},
+    "asia": {"nikkei_pct": 0.41, "kospi_pct": -1.79, "taiex_pct": 0.77},
+    "europe": {"stoxx50_pct": 0.95, "asml_as_pct": 0.54, "stmpa_pa_pct": -0.52, "tsm_2330tw_pct": 0.41},
+    "adr_gap_flags": [],
+    "headline_scan": ["skipped this run for tool-call budget -- smith-catalyst owns per-holding depth"]
+  },
+  "sentiment_narrative": "Score 67 (greed, unchanged from prior_band) but the composite is stale relative to Friday's session: VIX sub-component reads 85.2 (near a 1-year-low 14.43, -0.55% on the day) and price-vs-52wk-high reads 100 (SPX/NDX still near highs), so the broad-market tape looks complacent even as the book's core factor -- semis -- sold off -3.47% (SMH) in the same session, the move that alone triggers this run's ESCALATING gate. That is a real divergence, not noise: broad-index greed is not protecting a ~89%-AI-capex-adjacent book from a concentrated single-factor drawdown. action_hint is null (not extreme), so no forced sizing discipline applies, but the strategist should treat the sentiment score as describing the S&P/Nasdaq, not this book, this week.",
+  "monday_open_read": "Weekend read, no live pre-market: Friday's close was ES -0.26% / NQ -0.69% -- a mild risk-off tilt on the broad indices, dwarfed by the -3.47% single-session SMH move that is the actual story for this book. Asia's Friday session (already closed, informing Monday's Tokyo/Seoul/Taipei open, not the US) showed Nikkei +0.41% (not notable) and Taiex +0.77% (not notable, TSM/FLTW-relevant) but KOSPI -1.79% is notable and relevant to the SKHY (SK hynix ADR, 2.02% weight) position -- watch for Monday follow-through pressure on SKHY if 000660.KS extends the Friday weakness. Europe/home-listing leads for ADR holdings (ASML.AS +0.54%, STMPA.PA -0.52%, TSM's Taipei listing 2330.TW +0.41%) all moved under the 2% gap-risk threshold -- no explicit ADR gap flags this run. Net: Monday's open risk for this book is dominated by whatever follow-through (or stabilization) shows up in SMH/semicap names Monday morning, not by a specific overnight gap catalyst.",
+  "diversifier_candidates": {
+    "VST": {"price_usd": 137.09, "target_usd": 223.17, "upside_pct": 62.8, "thesis": "Merchant power gen, beta 1.43 -- AI-load adjacent, NOT clean", "status": "active", "clean_diversifier": false},
+    "UNH": {"price_usd": 392.95, "target_usd": 471.65, "upside_pct": 20.0, "thesis": "Managed care rebound, no capex correlation, beta 0.63", "status": "active", "clean_diversifier": true},
+    "DUK": {"price_usd": 120.25, "target_usd": 138.61, "upside_pct": 15.3, "thesis": "Regulated utility, beta 0.37 -- rate-sensitive", "status": "active", "clean_diversifier": true},
+    "SO": {"price_usd": 88.25, "target_usd": 101.45, "upside_pct": 15.0, "thesis": "Regulated SE utility, beta 0.33", "status": "active", "clean_diversifier": true},
+    "PG": {"price_usd": 143.78, "target_usd": 163.35, "upside_pct": 13.6, "thesis": "Staples ballast, beta 0.38", "status": "active", "clean_diversifier": true},
+    "LLY": {"price_usd": 1174.61, "target_usd": 1270.37, "upside_pct": 8.2, "thesis": "Pharma/GLP-1, beta 0.51 -- pulled back from 52wk high, upside reopened", "status": "active", "clean_diversifier": true},
+    "NEM": {"price_usd": 127.98, "target_usd": 133.0, "upside_pct": 3.9, "thesis": "Gold miner, beta 0.50 -- upside still compressed, -3.3% Friday on its own", "status": "active", "clean_diversifier": true},
+    "JNJ": {"price_usd": 268.04, "target_usd": 269.95, "upside_pct": 0.7, "thesis": "Diversified pharma/medtech, beta 0.23 -- essentially at target, thin margin of safety", "status": "stale", "clean_diversifier": true}
+  },
+  "data_quality": [
+    "Headline scan for weekend/overnight holding news skipped this run for tool-call budget -- smith-catalyst owns per-holding depth, this is gap-risk framing only",
+    "Diversifier analyst-mean targets NOT refetched this run (unchanged from prior); only live prices refreshed via yfinance -- upside% recomputed against stale targets",
+    "JNJ has sat at ~0% upside for 2 consecutive runs with no fresh coverage pulled -- flagging for likely drop from the bench next run absent a target refresh",
+    "market_inputs.json es_change_pct/nq_change_pct represent Friday's regular-session close-to-close change, not live pre-market futures (market closed Saturday) -- framed accordingly, not presented as a live pre-market read"
+  ]
+}
