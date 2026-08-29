@@ -510,6 +510,425 @@ def validate_learning_schema(base_dir):
             break
     return defects
 
+def validate_proposals_schema(base_dir):
+    """Guard proposals.json's `action` field shape (added 2026-08-29, same-day incident).
+
+    The dashboard renders `action` verbatim as the row's human-readable label (e.g. "Sell
+    ASML"), separately from the machine-readable `ticker`/`direction_bucket` fields the
+    lifecycle logic actually keys off. On 2026-08-29 a hand-written batch of 7 proposals set
+    `action` to a bare direction word ("SELL", "BUY", "TRIM") instead of a verb+ticker
+    sentence -- internally harmless (direction/ticker still parsed fine from the separate
+    fields), but the dashboard rendered "SELL SELL" / "BUY BUY" / "TRIM TRIM" because the
+    ticker was never actually in the label. The user caught it, not the system.
+
+    The check: `action` must not equal a bare direction keyword once whitespace-stripped, and
+    if `ticker` is set, it must appear as a substring of `action` (case-insensitive) -- the
+    same contract `_proposal_infer_ticker` already assumes when it back-derives a ticker from
+    action text. This is a *rendering* contract validated at the schema boundary, exactly the
+    class of thing the thesis/known_gaps checks above already do for their own fields.
+    """
+    defects = []
+    path = os.path.join(base_dir, "proposals.json")
+    if not os.path.exists(path):
+        return defects
+    proposals = load_json(path, default={})
+    props = proposals.get("proposals", []) if isinstance(proposals, dict) else proposals
+    bare_direction_words = {"BUY", "SELL", "TRIM", "HOLD", "ADD", "EXIT", "REDUCE", "REBUILD"}
+    bad_bare = []
+    bad_no_ticker_in_label = []
+    bad_bucket = []
+    bad_size = []
+    no_ticker = []
+    for pr in props:
+        if pr.get("status") not in ("open", "accepted_by_user"):
+            # terminal/historical rows are never re-rendered as a live row's label; don't
+            # force a schema fix on history that will never be displayed this way again.
+            continue
+        pid = pr.get("id", "?")
+        action = (pr.get("action") or "").strip()
+        ticker = pr.get("ticker")
+        bucket = pr.get("direction_bucket")
+        if action.upper() in bare_direction_words:
+            bad_bare.append(pid)
+        elif ticker and ticker.upper() not in action.upper():
+            bad_no_ticker_in_label.append(pid)
+        # a HOLD-bucket proposal is legitimately allowed to be portfolio-level/multi-ticker
+        # (e.g. "Rebuild cash buffer", "Hold fire on ... (CLS/BE/NBIS/MRVL)") -- only a
+        # single-instrument BUY/SELL/TRIM is required to name its ticker.
+        if not ticker and bucket in ("BUY", "SELL", "TRIM"):
+            no_ticker.append(pid)
+        if bucket is not None and bucket not in ("BUY", "TRIM", "SELL", "HOLD"):
+            bad_bucket.append(pid)
+        size = pr.get("size_usd")
+        if size is not None and not isinstance(size, (int, float)):
+            bad_size.append(pid)
+    if bad_bare:
+        defects.append(
+            f"PROPOSAL ACTION SCHEMA: {len(bad_bare)} open proposal(s) have a bare direction "
+            f"word as `action` instead of a verb+ticker sentence ({', '.join(bad_bare[:10])}"
+            f"{' ...' if len(bad_bare) > 10 else ''}) -- the dashboard renders `action` "
+            f"verbatim as the row label and will show e.g. \"SELL SELL\". Use `add-proposal` "
+            f"or set action to \"Sell TICKER\"/\"Buy TICKER\"/\"Trim TICKER\".")
+    if bad_no_ticker_in_label:
+        defects.append(
+            f"PROPOSAL ACTION SCHEMA: {len(bad_no_ticker_in_label)} proposal(s) have a "
+            f"`ticker` that does not appear in their `action` label ({', '.join(bad_no_ticker_in_label[:10])}"
+            f"{' ...' if len(bad_no_ticker_in_label) > 10 else ''}) -- the label will not name "
+            f"the instrument it's about.")
+    if no_ticker:
+        defects.append(
+            f"PROPOSAL SCHEMA: {len(no_ticker)} open proposal(s) have no `ticker` field at all "
+            f"({', '.join(no_ticker[:10])}{' ...' if len(no_ticker) > 10 else ''}) -- every "
+            f"downstream check (void-on-exit, dedup, retirement) that keys off ticker silently "
+            f"skips these.")
+    if bad_bucket:
+        defects.append(
+            f"PROPOSAL SCHEMA: {len(bad_bucket)} proposal(s) have a `direction_bucket` that "
+            f"isn't one of BUY/TRIM/SELL/HOLD ({', '.join(bad_bucket[:10])}).")
+    if bad_size:
+        defects.append(
+            f"PROPOSAL SCHEMA: {len(bad_size)} proposal(s) have a non-numeric `size_usd` "
+            f"({', '.join(bad_size[:10])}).")
+    return defects
+
+
+def validate_policy_narrative_drift(base_dir):
+    """Guard against a number quoted in narrative prose drifting from the number policy.json
+    actually holds (added 2026-08-29, same-day incident). On 2026-08-29 four consecutive
+    ledger.csv rows asserted a drawdown "8% warn line" -- there is no such threshold anywhere
+    in policy.json (drawdown_warn_pct is 15). The phantom number was typed once, then copied
+    forward run over run, and both the strategist and the orchestrator repeated it in the same
+    session without either checking policy.json. This check can't catch every possible prose
+    drift, but it catches the recurring, high-stakes one: any narrative claiming a drawdown
+    warn/risk-off percentage that doesn't match policy.json's actual thresholds.
+    """
+    defects = []
+    policy = load_json(os.path.join(base_dir, "policy.json"), default=None)
+    if not policy:
+        return defects
+    warn_pct = policy.get("drawdown_warn_pct")
+    risk_off_pct = policy.get("drawdown_risk_off_pct")
+    ledger_path = os.path.join(base_dir, "ledger.csv")
+    if not os.path.exists(ledger_path) or warn_pct is None:
+        return defects
+    import csv as _csv
+    import re as _re
+    pat = _re.compile(r"(-?\d+(?:\.\d+)?)\s*%\s*warn\s*(?:line|threshold)?", _re.IGNORECASE)
+    with open(ledger_path, newline="") as f:
+        rows = list(_csv.reader(f))
+    # only check the MOST RECENT row -- this is a drift-detector for "did the run that just
+    # finished repeat the error", not an archaeology project. Older rows are permanent record
+    # (never rewritten); a historical mistake belongs in known_gaps, not in a check that
+    # blocks every future run from reading clean once the record moves on.
+    for row in rows[-1:]:
+        if not row:
+            continue
+        notes = row[-1] if len(row) else ""
+        if "CORRECTION" in notes.upper():
+            # a row that already narrates its own correction (see G84) is not a fresh drift --
+            # it's the record of having caught one. Don't re-flag the phrase inside the fix.
+            continue
+        for m in pat.finditer(notes):
+            claimed = float(m.group(1))
+            if abs(claimed) != abs(warn_pct):
+                defects.append(
+                    f"NARRATIVE/POLICY DRIFT: ledger.csv row (ts={row[0] if row else '?'}) "
+                    f"claims a {claimed}% drawdown warn line, but policy.json's "
+                    f"drawdown_warn_pct is {warn_pct}. A narrative number that isn't read from "
+                    f"policy.json will drift silently -- state the threshold from policy.json "
+                    f"directly in future briefings, never retype it.")
+                break  # one defect per row is enough signal
+    return defects
+
+
+LEDGER_HEADER = ["ts", "mode", "value_usd", "usdinr", "wallet_usd", "spx", "ndx", "smh",
+                  "smh_asof", "est_net_flows_usd", "external_flow_usd", "value_trust", "notes"]
+LEDGER_SUMMARY_MAX_CHARS = 300
+
+
+def cmd_append_ledger(args):
+    """The only sanctioned way to append a ledger.csv row (added 2026-08-29, same-day
+    incident). Before this command existed, a run's whole narrative -- often 3,000-4,000
+    characters -- was hand-typed directly into the `notes` cell. That is precisely the medium
+    a fact drifts in: on 2026-08-29 a nonexistent "8% drawdown warn line" (policy.json's real
+    threshold is 15%) was typed once into a notes blob, then effectively copied forward by the
+    next run reading the previous one's narrative as context, across four consecutive rows,
+    before anyone checked it against policy.json.
+
+    This command enforces a hard split: `--summary` is a SHORT one-liner (capped at
+    LEDGER_SUMMARY_MAX_CHARS, refused if longer) that goes into the CSV `notes` cell -- short
+    enough to skim, short enough that `validate_policy_narrative_drift` can actually check it.
+    The full run narrative goes to `--briefing-file` (a path under runs/<ts>/, written by the
+    orchestrator BEFORE calling this command), and the CSV cell carries only a pointer to it.
+    Long-form narrative still exists and is still readable -- it just isn't the thing every
+    future run re-ingests as compressed "context," which is how a single typo becomes a
+    standing belief.
+
+    Skipped entirely on a weekend/holiday mini-briefing (no ledger row at all) per the
+    existing HOLIDAY CALENDAR CHECK rule -- this command does not change when a row is
+    written, only what a row is allowed to contain.
+    """
+    if len(args.summary) > LEDGER_SUMMARY_MAX_CHARS:
+        fail(f"--summary is {len(args.summary)} chars, over the {LEDGER_SUMMARY_MAX_CHARS}-char "
+             f"cap -- put the full narrative in --briefing-file and shorten the summary to a "
+             f"skimmable one-liner (this is the enforcement mechanism, not a style suggestion: "
+             f"a 4,000-char notes blob is exactly how the 2026-08-29 phantom-8%-warn-line "
+             f"incident propagated unnoticed for four runs).")
+    briefing_path = args.briefing_file
+    if briefing_path and not os.path.exists(briefing_path):
+        fail(f"--briefing-file {briefing_path!r} does not exist -- write the full narrative "
+             f"there before calling append-ledger, so the pointer this command stores is real.")
+    notes = args.summary
+    if briefing_path:
+        rel = os.path.relpath(briefing_path, args.base_dir)
+        notes = f"{notes} [full: {rel}]"
+
+    import csv
+    ledger_path = os.path.join(args.base_dir, "ledger.csv")
+    is_new = not os.path.exists(ledger_path)
+    row = [args.ts, args.mode, args.value_usd, args.usdinr, args.wallet_usd, args.spx,
+           args.ndx, args.smh or "", args.smh_asof or "", args.est_net_flows_usd or "",
+           args.external_flow_usd or "", args.value_trust, notes]
+    with open(ledger_path, "a", newline="") as f:
+        w = csv.writer(f)
+        if is_new:
+            w.writerow(LEDGER_HEADER)
+        w.writerow(row)
+    emit({"appended": True, "ts": args.ts, "notes_chars": len(notes),
+          "briefing_file": briefing_path})
+
+
+def _load_agent_tail(path):
+    """Read a Stage-1 agent's out_<agent>.json file, which per SKILL.md's own STAGE 1 contract
+    ("returns a prose summary PLUS its fenced JSON tail verbatim") is often prose text ending
+    in a ```json fenced block, not pure JSON. Tries a straight json.load first (some agents do
+    write pure JSON); on failure, extracts the LAST fenced ```json ... ``` or ``` ... ``` block
+    in the file and parses that. Raises the original JSONDecodeError, unmodified, if neither
+    works -- a merge-tails caller should see a real parse failure, not a silently empty merge.
+    """
+    with open(path) as f:
+        text = f.read()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as e:
+        import re as _re
+        blocks = _re.findall(r"```(?:json)?\s*\n(.*?)\n```", text, _re.DOTALL)
+        if blocks:
+            try:
+                return json.loads(blocks[-1])
+            except json.JSONDecodeError:
+                pass
+        raise e
+
+
+def _merge_thesis(out, state, today):
+    changed = out.get("thesis", {}).get("changed", {})
+    for tk, entry in changed.items():
+        if "evidence_for" not in entry or "evidence_against" not in entry:
+            entry.setdefault("evidence_for", [])
+            entry.setdefault("evidence_against", [])
+            entry.setdefault("verified", "unverified")
+        state["thesis"][tk] = entry
+    sm_changed = out.get("sector_map", {}).get("changed", {})
+    state.setdefault("sector_map", {}).update(sm_changed)
+    for tk, fact in out.get("earnings_facts", {}).items():
+        state["data_cache"].setdefault("earnings_facts", {})[tk] = fact
+    return {"thesis_changed": list(changed), "sector_map_changed": list(sm_changed)}
+
+
+def _merge_signals(out, state, today, scanned_tickers=None):
+    changed = out.get("signal_history", {}).get("changed", {})
+    state.setdefault("signal_history", {}).update(changed)
+    stamp_tickers = set(changed) | set(scanned_tickers or [])
+    state.setdefault("signal_history_as_of", {})
+    for tk in stamp_tickers:
+        state["signal_history_as_of"][tk] = today
+    return {"signal_history_changed": list(changed), "stamped": len(stamp_tickers)}
+
+
+def _merge_catalyst(out, state, today):
+    cats = out.get("catalysts")
+    if cats is not None:
+        state["factor_catalysts"] = cats  # REPLACE, never append -- point-in-time snapshot (G50)
+    themes = out.get("theme_updates", {})
+    if isinstance(themes, dict) and themes.get("id") is not None:
+        for t in state.setdefault("factor_themes", {}).setdefault("themes", []):
+            if t.get("id") == themes["id"]:
+                t[f"live_{today.replace('-', '_')}"] = themes.get("update")
+    return {"factor_catalysts_replaced": cats is not None}
+
+
+def _merge_earnings(out, state, today):
+    updates = out.get("earnings_facts_updates", {})
+    state["data_cache"].setdefault("earnings_facts", {}).update(updates)
+    return {"earnings_facts_updated": list(updates)}
+
+
+def _merge_book(out, state, today):
+    betas = out.get("refreshed_betas", {})
+    for tk, v in betas.items():
+        state["data_cache"].setdefault("betas", {})[tk] = {"value": v, "as_of": today, "benchmark": "SMH"}
+    return {"betas_refreshed": list(betas)}
+
+
+def _merge_scout(out, state, today):
+    dc = out.get("diversifier_candidates")
+    if dc is not None:
+        state["diversifier_candidates"] = dc
+    return {"diversifier_candidates_replaced": dc is not None}
+
+
+def _merge_watchlist(out, state, today):
+    cursor = out.get("watchlist_scan_cursor")
+    if cursor is not None:
+        state["watchlist_scan_cursor"] = cursor
+    ec = out.get("earnings_calendar_updates", {})
+    state["data_cache"].setdefault("earnings_calendar", {}).update(ec)
+    return {"watchlist_scan_cursor": cursor}
+
+
+def _merge_macro(out, state, today):
+    upd = out.get("fomc_cache_update")
+    if upd is not None:
+        state["fomc_cache"] = upd
+    return {"fomc_cache_updated": upd is not None}
+
+
+# One entry per Stage-1 agent whose tail this command knows how to fold into state.json.
+# Mirrors AGENT_SLICES (the outbound embed table) in spirit -- this is the inbound counterpart.
+# Extend this table, don't hand-merge, when a new agent's output needs to land in state.
+MERGE_RULES = {
+    "thesis": _merge_thesis,
+    "signals": _merge_signals,
+    "catalyst": _merge_catalyst,
+    "earnings": _merge_earnings,
+    "book": _merge_book,
+    "scout": _merge_scout,
+    "watchlist": _merge_watchlist,
+    "macro": _merge_macro,
+}
+
+
+def cmd_merge_tails(args):
+    """Fold Stage-1 sub-agent output files (runs/<ts>/out_<agent>.json) into state.json,
+    mechanically, per MERGE_RULES (added 2026-08-29, same-day cleanup). Before this command
+    existed, this was ~80 lines of one-off Python written fresh in the same session it was
+    used -- exactly the kind of hand-assembly step SKILL.md already warns about for the
+    OUTBOUND embed direction (see AGENT_SLICES's own docstring: "hand-assembly of a spec that
+    already exists in writing is a copying exercise, and copying silently drops fields"). This
+    is the same principle applied to the INBOUND merge direction.
+
+    Reads runs/<run-dir>/out_<agent>.json for every agent named in --agents (or every agent in
+    MERGE_RULES whose out_*.json file exists, if --agents is omitted). Agents not yet covered
+    by MERGE_RULES (currently: rebound, ledger, tax, quality, cycle, strategist -- their state
+    writes are either handled by dedicated commands like `lots`/`proposals`, or don't merge
+    into state.json at all) are skipped and reported, not silently ignored.
+
+    Writes state.json with WRITE SAFETY (.bak then tmp-then-mv). Does NOT run `validate` or
+    `compact` -- run those as separate, explicit steps after, same as every other PERSIST
+    sub-step.
+
+    OPERATIONAL CAVEAT, found while building this (2026-08-29): an agent's out_<agent>.json
+    file is not always byte-identical to the fenced JSON tail it returned in its chat
+    response -- on this same run, smith-earnings and smith-macro's output files held a
+    DIFFERENT (older/interim) tail than what the notification actually reported, apparently
+    because those two agents wrote state directly themselves at some point mid-task. The
+    orchestrator's job is therefore to WRITE each agent's exact returned tail into
+    runs/<ts>/out_<agent>.json itself the moment the notification arrives (a plain Write call,
+    overwriting whatever the agent already left there) BEFORE calling this command -- the
+    returned tail is the authoritative source, the agent's own file write is a convenience,
+    not a guarantee. This command trusts whatever is in the file; making that file trustworthy
+    is a separate, one-line discipline at dispatch time.
+    """
+    state_path = os.path.join(args.base_dir, "state.json")
+    state = load_json(state_path, default={})
+    state.setdefault("data_cache", {})
+    state.setdefault("thesis", {})
+
+    today = args.today or date.today().isoformat()
+    requested = args.agents.split(",") if args.agents else list(MERGE_RULES)
+
+    results = {}
+    skipped_no_file = []
+    skipped_no_rule = []
+    for agent in requested:
+        if agent not in MERGE_RULES:
+            skipped_no_rule.append(agent)
+            continue
+        out_path = os.path.join(args.run_dir, f"out_{agent}.json")
+        if not os.path.exists(out_path):
+            skipped_no_file.append(agent)
+            continue
+        out = _load_agent_tail(out_path)
+        extra = {}
+        if agent == "signals":
+            holdings = load_json(os.path.join(args.run_dir, "holdings.json"), default={})
+            extra["scanned_tickers"] = [h["ticker"] for h in holdings.get("holdings_inr", [])]
+        results[agent] = MERGE_RULES[agent](out, state, today, **extra)
+
+    safe_write(state_path, state)
+    emit({"merged": list(results), "results": results,
+          "skipped_no_output_file": skipped_no_file, "skipped_no_merge_rule": skipped_no_rule,
+          "written": True,
+          "next_step": "run smith_math.py validate before trusting this state"})
+
+
+TECHNICAL_CACHE_HARD_STALE_DAYS = TRIGGER_CACHE_MAX_AGE_DAYS * 2  # 20 days
+
+
+def validate_technical_cache_staleness(base_dir):
+    """Escalate a chronically-stale rsi14/rel_strength_1m cache from a quiet per-run
+    data_quality note into a hard `validate` defect (added 2026-08-29).
+
+    `cmd_triggers` already gates on TRIGGER_CACHE_MAX_AGE_DAYS (10) and silently suppresses
+    oversold_reversion/overbought_distribution/laggard_rotation when the cache is older than
+    that -- correct behaviour for a single stale run (never fire a trigger on data that old).
+    But by 2026-08-29 this had happened on THREE CONSECUTIVE runs (two deep, one quick), each
+    time reported only as one line in that run's data_quality and each time deferred again "on
+    cost grounds" -- and oversold/overbought triggers are the single most-requested feature in
+    this desk's history (2026-08-12 user report, the whole reason `oversold_reversion`/
+    `overbought_distribution` exist as LIVE triggers at all). A per-run soft note that nobody
+    is forced to act on is exactly how a standing request goes dark for weeks without anyone
+    deciding that on purpose.
+
+    This check does not change cmd_triggers' behaviour at all -- it still suppresses
+    correctly, every time. It adds a SEPARATE, LOUDER signal: once the cache is stale beyond
+    TECHNICAL_CACHE_HARD_STALE_DAYS (double the trigger's own suppression threshold), `validate`
+    stops reporting clean until either the cache is refreshed or the run explicitly records
+    (in `state.data_cache.rsi14.stale_ack_on` / `.rel_strength_1m.stale_ack_on`) that skipping
+    the refresh was a deliberate, dated decision -- not a default nobody made.
+    """
+    defects = []
+    state = load_json(os.path.join(base_dir, "state.json"), default={})
+    dc = state.get("data_cache", {}) or {}
+    today = date.today()
+    for cache_name, values_key in (("rsi14", "values"), ("rel_strength_1m", "values_pp")):
+        cache = dc.get(cache_name, {}) or {}
+        as_of = cache.get("as_of")
+        if not as_of or not cache.get(values_key):
+            continue  # absent entirely is already reported by cmd_triggers each run; not this check's job
+        try:
+            as_of_date = datetime.strptime(as_of, "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            continue
+        age = (today - as_of_date).days
+        if age <= TECHNICAL_CACHE_HARD_STALE_DAYS:
+            continue
+        ack_on = cache.get("stale_ack_on")
+        if ack_on == today.isoformat():
+            continue  # today's run explicitly acknowledged the staleness in writing -- allowed through once
+        defects.append(
+            f"TECHNICAL CACHE CHRONICALLY STALE: data_cache.{cache_name} is {age} days old "
+            f"(hard threshold {TECHNICAL_CACHE_HARD_STALE_DAYS}d, 2x cmd_triggers' own "
+            f"{TRIGGER_CACHE_MAX_AGE_DAYS}d suppression floor) -- oversold/overbought/laggard "
+            f"triggers have been silently dark well past a single deferred run. Either refresh "
+            f"it this run (deep mode, 3-symbol yfinance batches, same cost as ATR20 which "
+            f"shares the daily-bars fetch) or set data_cache.{cache_name}.stale_ack_on = "
+            f"today's date to record that skipping it again was a deliberate, dated choice, "
+            f"not a silent default.")
+    return defects
+
+
 def cmd_validate(args):
     policy = load_json(os.path.join(args.base_dir, "policy.json"), default=None)
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
@@ -523,7 +942,11 @@ def cmd_validate(args):
     cache_defects = validate_cache_events(state)
     thesis_defects = validate_thesis_schema(state, args.base_dir)
     learning_defects = validate_learning_schema(args.base_dir)
-    all_defects = policy_defects + cache_defects + thesis_defects + learning_defects
+    proposals_defects = validate_proposals_schema(args.base_dir)
+    narrative_defects = validate_policy_narrative_drift(args.base_dir)
+    staleness_defects = validate_technical_cache_staleness(args.base_dir)
+    all_defects = (policy_defects + cache_defects + thesis_defects + learning_defects
+                   + proposals_defects + narrative_defects + staleness_defects)
 
     emit({
         "policy_present": policy is not None,

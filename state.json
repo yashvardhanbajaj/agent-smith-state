@@ -2523,6 +2523,15 @@
       "opened": "2026-08-24",
       "owner": "smith-ledger (next interactive run)",
       "gap": "BX's re-entry lot is dated 2026-08-21 in trades.json/lots.json, but state/G82 and this run's dispatch both stated the re-entry happened 2026-08-24 -- a 3-day discrepancy independently caught by smith-book, smith-tax, and the strategist this run. Immaterial for tax (all lots are short-term regardless), but the record disagrees with itself and should be reconciled against the actual INDmoney confirmation email at the next interactive run."
+    },
+    {
+      "id": "G84",
+      "description": "2026-08-29 deep review: strategist and orchestrator both asserted a nonexistent '8% drawdown warn line' (policy.json's real drawdown_warn_pct is 15) across the ledger narrative and the chat briefing. Root cause: a number lived only in free-text narrative with nothing checking it against policy.json, so it could be typed once and copied forward. Fixed same-day: smith_memory.py's validate command now has validate_policy_narrative_drift(), which flags the MOST RECENT ledger row if it quotes a drawdown warn/risk-off percentage that disagrees with policy.json.",
+      "opened": "2026-08-29",
+      "owner": "orchestrator",
+      "status": "closed",
+      "closed": "2026-08-29",
+      "resolution": "Corrected the 2026-08-29 ledger row's narrative text in place (a factual error, not a historical value); added validate_policy_narrative_drift() as a standing guard against recurrence."
     }
   ],
   "sentiment": {

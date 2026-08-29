@@ -53,8 +53,8 @@ import smith_conviction
 from smith_core import *  # noqa: F401,F403
 from smith_core import load_json, emit, fail, clamp
 from smith_ledger import cmd_lots, cmd_history
-from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy
-from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss,
+from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails
+from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_add_proposal,
                              cmd_score_shadow_journal, dismiss_proposal_core)
 from smith_learning import (load_store as learn_load_store, write_store as learn_write_store,
                             record_observation, user_force_approve,
@@ -2805,6 +2805,34 @@ def main():
     sp.add_argument("--id", required=True, help="stable proposal id, e.g. P-014")
     sp.add_argument("--reason", default=None, help="optional free-text note on why the user dismissed it")
 
+    sp = sub.add_parser("add-proposal", help="the only sanctioned way to append new proposals -- builds `action` from ticker+direction so it can't be a bare direction word")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--proposals-json", required=True, help="path to a JSON array of proposal specs (see cmd_add_proposal docstring)")
+    sp.add_argument("--today", default=None)
+
+    sp = sub.add_parser("append-ledger", help="the only sanctioned way to append a ledger.csv row -- short summary in the CSV, full narrative in a separate briefing file")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--ts", required=True)
+    sp.add_argument("--mode", required=True, choices=["quick", "deep"])
+    sp.add_argument("--value-usd", required=True, type=float)
+    sp.add_argument("--usdinr", required=True, type=float)
+    sp.add_argument("--wallet-usd", required=True, type=float)
+    sp.add_argument("--spx", required=True, type=float)
+    sp.add_argument("--ndx", required=True, type=float)
+    sp.add_argument("--smh", type=float, default=None)
+    sp.add_argument("--smh-asof", default=None)
+    sp.add_argument("--est-net-flows-usd", default=None)
+    sp.add_argument("--external-flow-usd", default=None)
+    sp.add_argument("--value-trust", default="ok")
+    sp.add_argument("--summary", required=True, help=f"short one-liner, max {300} chars -- full narrative goes in --briefing-file")
+    sp.add_argument("--briefing-file", default=None, help="path to the full run narrative (e.g. runs/<ts>/briefing.md); the ledger notes cell stores a pointer to it, not the text itself")
+
+    sp = sub.add_parser("merge-tails", help="fold Stage-1 sub-agent out_<agent>.json files into state.json per the declarative MERGE_RULES table")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--today", default=None)
+    sp.add_argument("--agents", default=None, help="comma-separated agent names to merge (default: every agent MERGE_RULES knows how to merge)")
+
     sp = sub.add_parser("stops")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--prices-json", required=True, help='{"TICKER":price_usd} for tickers with an unscored stop')
@@ -2913,7 +2941,8 @@ def main():
          "triggers": cmd_triggers, "score": cmd_score, "pipeline": cmd_pipeline, "lots": cmd_lots,
          "history": cmd_history, "maxpain": cmd_maxpain, "compact": cmd_compact, "gaps": cmd_gaps, "slices": cmd_slices,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
-         "dismiss": cmd_dismiss, "stops": cmd_stops,
+         "dismiss": cmd_dismiss, "add-proposal": cmd_add_proposal,
+         "append-ledger": cmd_append_ledger, "merge-tails": cmd_merge_tails, "stops": cmd_stops,
          "score-shadow-journal": cmd_score_shadow_journal, "learn-status": cmd_learn_status,
          "learn-lessons": cmd_learn_lessons, "learn-add-lesson": cmd_learn_add_lesson,
          "learn-revealed-preference": cmd_learn_revealed_preference,

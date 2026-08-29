@@ -1475,3 +1475,100 @@ def cmd_dismiss(args):
                                    "informative negative label for revealed-preference "
                                    "learning is missing; ask for one next time"]
     emit(result)
+
+
+_BARE_DIRECTION_WORDS = {"BUY", "SELL", "TRIM", "HOLD", "ADD", "EXIT", "REDUCE", "REBUILD"}
+
+
+def cmd_add_proposal(args):
+    """The ONLY sanctioned way to append new proposals to proposals.json (added 2026-08-29,
+    same-day incident). Before this command existed, a new batch of proposals was appended by
+    hand-writing a JSON dict per proposal -- and on 2026-08-29 that hand-written batch set
+    `action` to a bare direction word ("SELL") instead of a verb+ticker sentence ("Sell ASML"),
+    which the dashboard renders verbatim as the row's label. Internally harmless (ticker/
+    direction_bucket are separate fields the lifecycle logic actually keys off), but the
+    dashboard showed "SELL SELL" / "BUY BUY" / "TRIM TRIM" -- the user caught it, not the
+    system, because nothing enforced the label's shape at the point of writing.
+
+    This command builds `action` FROM `ticker` + `direction`, so the bug class can't recur by
+    construction (there is no code path where a caller supplies `action` directly), and it
+    refuses to write if any resulting proposal would still fail the same shape check
+    `smith_memory.validate_proposals_schema` runs at the validation boundary -- belt and
+    braces, since a future caller could still pass a malformed spec.
+
+    Input: --proposals-json points to a JSON array of specs, one per proposal:
+      {"direction": "BUY"|"SELL"|"TRIM"|"HOLD", "ticker": "ASML" (required unless direction is
+       HOLD and "action" is given explicitly for a portfolio-level hold), "size_usd": 520.97,
+       "price_at_proposal": 1559.08 (or null), "rationale": "...", "trigger_type": "..." or
+       null, "pair_id": "..." or null, "pair_role": "sell"|"buy" or null, "cluster": "..." or
+       null, "action": "..." (only for a ticker-less HOLD, e.g. "Rebuild cash buffer")}
+
+    Does NOT assign `id` -- that stays cmd_proposals' job (it already assigns ids to any
+    freshly-appended proposal missing one, "once, never reused"), so ids stay allocated from
+    one place. Run `smith_math.py proposals` next to dedup/retire/prioritize as usual.
+    """
+    verb_word = {"BUY": "Buy", "SELL": "Sell", "TRIM": "Trim", "HOLD": "Hold"}
+    specs = load_json(args.proposals_json, default=None)
+    if specs is None or not isinstance(specs, list):
+        fail(f"--proposals-json must point to a JSON array of proposal specs, got: {args.proposals_json}")
+
+    p_path = os.path.join(args.base_dir, "proposals.json")
+    proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
+    props = proposals.get("proposals", [])
+
+    today = args.today or date.today().isoformat()
+    ts = f"{today}T00:00:00Z" if "T" not in today else today
+
+    built = []
+    rejected = []
+    for i, spec in enumerate(specs):
+        direction = (spec.get("direction") or "").upper()
+        ticker = spec.get("ticker")
+        if direction not in ("BUY", "SELL", "TRIM", "HOLD"):
+            rejected.append({"index": i, "reason": f"direction must be BUY/SELL/TRIM/HOLD, got {spec.get('direction')!r}"})
+            continue
+        if ticker:
+            action = f"{verb_word[direction]} {ticker}"
+        elif direction == "HOLD" and spec.get("action"):
+            # the one sanctioned escape hatch: a portfolio-level HOLD with no single ticker
+            # ("Rebuild cash buffer", "Hold fire on ... (CLS/BE/NBIS/MRVL)") -- these are real
+            # and legitimate (see P-009/P-046/P-047), so require an explicit human-written
+            # label rather than fabricating one, and skip the ticker-in-label check for them.
+            action = spec["action"]
+        else:
+            rejected.append({"index": i, "reason": "ticker is required unless direction=HOLD and an explicit 'action' label is given"})
+            continue
+        pr = {
+            "action": action,
+            "ticker": ticker,
+            "direction_bucket": direction,
+            "size_usd": spec.get("size_usd"),
+            "price_at_proposal": spec.get("price_at_proposal"),
+            "rationale": spec.get("rationale", ""),
+            "trigger_type": spec.get("trigger_type"),
+            "date": ts,
+            "status": "open",
+        }
+        for optional in ("pair_id", "pair_role", "cluster"):
+            if spec.get(optional) is not None:
+                pr[optional] = spec[optional]
+        # belt-and-braces: re-run the exact same shape check the schema validator uses, on
+        # THIS proposal, before it ever touches the file. A future caller passing a malformed
+        # spec (e.g. a ticker that isn't actually in a hand-supplied `action`) gets rejected
+        # here rather than silently written.
+        if action.strip().upper() in _BARE_DIRECTION_WORDS:
+            rejected.append({"index": i, "reason": f"constructed action {action!r} is still a bare direction word -- this should be unreachable, report as a bug"})
+            continue
+        if ticker and ticker.upper() not in action.upper():
+            rejected.append({"index": i, "reason": f"ticker {ticker!r} does not appear in constructed action {action!r}"})
+            continue
+        built.append(pr)
+
+    if rejected:
+        fail(f"{len(rejected)} of {len(specs)} proposal spec(s) rejected before writing anything: {rejected}")
+
+    props.extend(built)
+    proposals["proposals"] = props
+    safe_write(p_path, proposals)
+    emit({"added": len(built), "tickers": [p["ticker"] for p in built], "written": True,
+          "next_step": "run smith_math.py proposals to assign ids, dedup and prioritize"})
