@@ -1312,6 +1312,52 @@ def _place(sl, key, value, shared_dir, shared_once, name=None):
     sl["read_these_files"][key] = path
 
 
+def _thesis_tiers(thesis, state, base_dir):
+    """Split the thesis map into names this run may ACT on (full text + both evidence arrays)
+    and the quiet remainder (status only).
+
+    SKILL.md 3 has prescribed exactly this since 2026-08-07 and nobody implemented it -- the
+    slice shipped the whole map. Measured on the 2026-08-25 run that map was 32-35KB and went
+    to three agents, and because it legitimately changes mid-run, content-addressing correctly
+    produced TWO copies in one run directory: 68KB of one artefact.
+
+    The tiering is safe precisely because G48 and G58 were both about names being ACTED ON:
+    G48, a WATCH verdict that could not be revised because its slice carried only the status
+    word and not the original rationale; G58, a verdict that could not be CHALLENGED downstream
+    because its countervailing evidence had been dropped. Both hazards live entirely in the
+    full tier, which keeps the complete text and BOTH arrays. A name that is intact, quiet,
+    unflagged and carries no open proposal is not being reasoned about this run.
+
+    `note` states which names got which treatment, because the same section requires saying so
+    -- a reader who cannot tell a trimmed entry from a complete one will read absence of
+    evidence as absence of evidence.
+    """
+    props = load_json(os.path.join(base_dir, "proposals.json"), default={}).get("proposals", [])
+    open_tickers = {p.get("ticker") for p in props if p.get("status") == "open"}
+    # "anything in this run's signal buckets" (SKILL.md 3's wording) does not discriminate on
+    # this book: TARGET GAP alone fires on ~28 of 31 names, so ANY-bucket qualified 30 of 31
+    # and the tiering saved nothing. The intent behind the wording is "names likely to be acted
+    # on", and what puts a thesis at risk of REVISION is a BEARISH read, not a bullish or
+    # ambiguous one -- a name with a bullish TARGET GAP is not about to have its verdict
+    # challenged. Bearish buckets only, per smith_risk.SIGNAL_POLARITY.
+    bearish = smith_risk.SIGNAL_POLARITY.get("bearish", set())
+    flagged = {t for t, b in (state.get("signal_history") or {}).items()
+               if any(x in bearish for x in (b or []))}
+    full, brief = {}, {}
+    for t, entry in thesis.items():
+        status = smith_risk.thesis_status(entry)
+        act = (status not in HEALTHY_THESIS) or (t in flagged) or (t in open_tickers)
+        if act or not isinstance(entry, dict):
+            full[t] = entry
+        else:
+            brief[t] = {"status": status, "verified": entry.get("verified"),
+                        "reviewed_on": entry.get("reviewed_on"),
+                        "_trimmed": "quiet name -- intact/strengthening, no live signal bucket, "
+                                    "no open proposal. Full text and both evidence arrays are in "
+                                    "state.json; ask for it if you need to revise this verdict."}
+    return full, brief, open_tickers, flagged
+
+
 def cmd_slices(args):
     """Render each agent's embed: small state inline, everything file-backed by reference."""
     base, rd = args.base_dir, args.run_dir
@@ -1414,6 +1460,18 @@ def cmd_slices(args):
             v = state.get(k)
             if k in ("thesis", "sector_map") and isinstance(v, dict):
                 v = {t: x for t, x in v.items() if t in held}
+            if k == "thesis" and isinstance(v, dict):
+                full, brief, open_t, flagged = _thesis_tiers(v, state, base)
+                v = dict(full)
+                v.update(brief)
+                sl["thesis_tiering"] = {
+                    "full_text": sorted(full), "status_only": sorted(brief),
+                    "reason_full": "watch/broken status, a BEARISH signal bucket, or an open proposal",
+                    "note": (f"{len(full)} of {len(full) + len(brief)} entries carry full text and "
+                             f"both evidence arrays; the remaining {len(brief)} are quiet names "
+                             f"reduced to status. This is a TRIM, not an absence of evidence -- "
+                             f"if you need to revise a status-only verdict, say so and ask for it."),
+                }
             if k == "open_flags":
                 v = (v or [])[-FLAGS_CAP:]
             _place(sl, k, v, shared_dir, shared_once)
