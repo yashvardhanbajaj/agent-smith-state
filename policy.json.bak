@@ -1,0 +1,213 @@
+{
+ "schema_version": 1,
+ "confirmed": true,
+ "as_of": "2026-08-06",
+ "mandate": {
+  "confirmed_date": "2026-07-26",
+  "objective": "aggressive_single_factor_conviction_bet",
+  "benchmark": "SMH",
+  "benchmark_note": "Success = beating SMH (the zero-effort passive version of this same thesis) on total return. If concentration doesn't beat SMH, the extra risk bought nothing.",
+  "horizon_years": [
+   2,
+   5
+  ],
+  "risk_budget_pct": 25,
+  "risk_budget_note": "Matches drawdown_risk_off_pct below -- this is the user's actual sustainable-loss ceiling, not an unexamined default. The drawdown_trim_ladder exists so this line is never discovered by hitting it.",
+  "liquidity_floor_pct": 0,
+  "liquidity_floor_note": "No external constraint -- all cash here is tactical dry powder for the ladder/rebalancing, not a protected reserve. cash_band_pct below is a discipline band, not a liquidity requirement.",
+  "glide_path": [
+   {
+    "at_years": 3,
+    "action": "raise cash floor toward 15-20%, independent of any drawdown trigger",
+    "status": "not yet automated"
+   },
+   {
+    "at_years": 4,
+    "action": "AI-capex ceiling steps down from 100% to ~70% of invested equity",
+    "status": "not yet automated"
+   },
+   {
+    "at_years": 5,
+    "action": "full mandate review and explicit renewal, or convert to core-holding profile",
+    "status": "not yet automated"
+   }
+  ],
+  "review_cadence": "annual, or on a glide-path transition, or on user request, or after a -25% risk-off event actually fires -- never renegotiated mid-drawdown as a reaction to that drawdown",
+  "full_document": "INVESTMENT-POLICY-STATEMENT.md"
+ },
+ "cluster_targets": {
+  "AI Semis/Fabs": {
+   "target_pct": 30,
+   "band_pct": [
+    25,
+    35
+   ]
+  },
+  "AI Memory/Storage": {
+   "target_pct": 15,
+   "band_pct": [
+    10,
+    20
+   ]
+  },
+  "AI Networking/Optics": {
+   "target_pct": 15,
+   "band_pct": [
+    10,
+    20
+   ]
+  },
+  "AI Power/Cooling/DC Infra": {
+   "target_pct": 15,
+   "band_pct": [
+    10,
+    20
+   ]
+  },
+  "Compute/Hyperscaler OEM": {
+   "target_pct": 5,
+   "band_pct": [
+    0,
+    10
+   ]
+  },
+  "Compute/Hyperscaler": {
+   "target_pct": 20,
+   "band_pct": [
+    15,
+    25
+   ]
+  },
+  "Diversified/Regional ETF": {
+   "target_pct": 0,
+   "band_pct": [
+    0,
+    10
+   ]
+  },
+  "Enterprise Software": {
+   "target_pct": 0,
+   "band_pct": [
+    0,
+    5
+   ]
+  },
+  "Critical Minerals/Rare Earth": {
+   "target_pct": 0,
+   "band_pct": [
+    0,
+    5
+   ],
+   "added": "2026-08-06",
+   "rationale": "Created by the MP Materials entry 2026-08-05 (10sh @ $47.47, dca-into-diversification). Banded 0%/[0,5] mirroring Enterprise Software's treatment -- a satellite non-AI-capex diversifier with room to grow but no target obligation. User-selected 2026-08-06 over a larger 5%/[0,10] sleeve."
+  }
+ },
+ "ai_capex_clusters": [
+  "AI Semis/Fabs",
+  "AI Memory/Storage",
+  "AI Networking/Optics",
+  "AI Power/Cooling/DC Infra",
+  "Compute/Hyperscaler OEM",
+  "Compute/Hyperscaler"
+ ],
+ "max_single_position_pct": 12,
+ "cash_band_pct": [
+  5,
+  15
+ ],
+ "max_ai_capex_factor_pct": 100,
+ "ai_capex_factor_flag_threshold_pct": null,
+ "drawdown_warn_pct": 15,
+ "drawdown_risk_off_pct": 25,
+ "prefer_ltcg": true,
+ "ltcg_boundary_months": 24,
+ "notes": [
+  "Full decision rationale (cluster targets, denominators, AI-capex cap history, risk-control set) moved to POLICY-DECISIONS.md 2026-07-26 to keep this file to live values. Read that file before proposing any change to a value below.",
+  "AI-capex concentration is INTENTIONAL (user decision, 2026-07-25) -- do not treat max_ai_capex_factor_pct=100 as a bug or re-flag the concentration as drift.",
+  "LTCG per-lot purchase dates unavailable -- lots.json needs seeding from INDmoney order history (known_gaps G1, LOTS-SEEDING-GUIDE.md). prefer_ltcg is true on principle but not yet appliable name-by-name.",
+  "2026-07-27: cluster_targets revised (Memory 20->15, Optics 20->15, Hyperscaler 10->20) and stop_loss_framework added, both on explicit user instruction. See cluster_targets_rationale and stop_loss_framework.",
+  "2026-07-28: cash band replaced with a two-regime rule (normal [5,15]%, post-stop-event [5,40]%) on user instruction. See cash_regimes.",
+  "2026-07-28: Power/DC cluster floor was found to cap total deployable equity at ~$30,010 with only GEV+VRT in the cluster -- breadth, not capital, is the binding constraint. A third Power/DC name was screened and proposed (CEG) to relieve it.",
+  "2026-07-28: cluster denominator made conditional on cash regime (user-raised). See cluster_denominator_conditional."
+ ],
+ "cluster_target_denominator": "invested_equity",
+ "cash_pct_denominator": "total_book",
+ "ai_capex_denominator": "invested_equity",
+ "concentration_is_intentional": true,
+ "drawdown_trim_ladder": [
+  {
+   "drawdown_pct": -15,
+   "phase": "warn",
+   "equity_trim_action": "none",
+   "duration_days": null,
+   "rationale": "Monitor only; trigger volatility alert in briefing"
+  },
+  {
+   "drawdown_pct": -18,
+   "phase": "de-risk_batch_1",
+   "equity_trim_action": "trim_10pct_of_watchlist",
+   "duration_days": 30,
+   "rationale": "De-risk batch 1 (lowest-conviction names from strategist watchlist)"
+  },
+  {
+   "drawdown_pct": -22,
+   "phase": "de-risk_batch_2",
+   "equity_trim_action": "trim_20pct_of_watchlist",
+   "duration_days": 14,
+   "rationale": "De-risk batch 2 (mid-conviction names from strategist watchlist)"
+  },
+  {
+   "drawdown_pct": -25,
+   "phase": "risk_off",
+   "equity_trim_action": "move_to_cash",
+   "duration_days": 0,
+   "rationale": "Immediate risk-off; freeze new deployments, rotate to cash"
+  }
+ ],
+ "cluster_targets_rationale": "REVISED 2026-07-27 on explicit user instruction (option 3 of the 07-27 redeployment review). Prior mix (Memory 20 / Optics 20 / Hyperscaler 10) forced capital into the highest-volatility links of the AI-capex chain -- precisely the names that mass-stopped on 2026-07-24 (11 of 24 positions in one session). Memory and Optics each step down 20->15 and Compute/Hyperscaler steps up 10->20, funded from them. Hyperscalers are the only part of the chain that BENEFITS from an AI-capex slowdown (they are the buyers, not the sellers), so this raises internal hedging without leaving the single-factor mandate. Targets still sum to 100%. Benchmark remains SMH.",
+ "stop_loss_framework": {
+  "confirmed_by_user": "2026-07-27",
+  "method": "volatility-scaled stop with constant dollar-risk position sizing",
+  "stop_distance_rule": "2x the name's trailing average daily range ((high-low)/close), floored at 3%",
+  "risk_per_position_pct_of_book": 0.5,
+  "position_size_formula": "max_position_usd = (0.005 * total_book_usd) / stop_distance_pct",
+  "aggregate_open_risk_cap_pct_of_book": 10,
+  "rationale": "The user runs tight, large-quantum stops by design and will continue to (confirmed 2026-07-27); the stops are an emotional-tolerance control, not a technical signal. The prior failure mode was stop distance set without reference to a name's volatility -- a 3% stop on a name that ranges 8-9% intraday is a near-certain whipsaw. Constant-risk sizing resolves the apparent tension between 'wide stops' and 'small losses': a wider stop automatically produces a SMALLER position, so the dollar loss stays capped at 0.5% of book either way. Worst case with every stop firing is ~7.4% of book, which sits deliberately inside the -15% drawdown_warn rung so the stop system can never by itself trigger the de-risking ladder.",
+  "review_note": "Daily-range inputs should be refreshed from a trailing 20-day window, not a single session; the 2026-07-27 seeding used Friday 07-24 ranges only."
+ },
+ "monthly_contribution_usd": 1000,
+ "monthly_contribution_note": "User commits USD 1,000 of NEW external cash per month starting 2026-08 (confirmed 2026-07-27). ~2.5% of current book per month. Deployment rule: direct each month's contribution to the cluster furthest BELOW its target_pct, and within that cluster to the lowest-volatility name with the most headroom under its constant-risk position cap. This is the structural antidote to the stop-out cycle -- fresh capital arrives every month regardless of whether stops fired, so redeployment never depends on conviction returning at a low.",
+ "cash_regimes": {
+  "confirmed_by_user": "2026-07-28",
+  "normal": {
+   "band_pct": [
+    5,
+    15
+   ],
+   "description": "Steady-state operating band. Applies when no stop-loss event has fired in the prior 15 trading sessions."
+  },
+  "post_stop_event": {
+   "band_pct": [
+    5,
+    40
+   ],
+   "trigger": "Any session in which stop-outs raise cash above 20% of total book. Regime persists for 15 trading sessions from the last stop-out, or until cash re-enters the normal band, whichever comes first.",
+   "glide": "Redeploy toward the normal band at whatever pace the volatility-scaled position caps permit (stop_loss_framework: 0.5% risk per position at 2x ATR20). Redeployment is NEVER forced by the calendar -- if the caps do not allow it, cash stays high and that is a correct outcome, not a breach.",
+   "description": "Elevated band that applies after a mass stop-out. Recognises that a tight, large-quantum stop discipline on a maximally-correlated book structurally converts equity to cash in single sessions.",
+   "trigger_cash_pct": 20,
+   "window_sessions": 15
+  },
+  "rationale": "REVISED 2026-07-28 on explicit user instruction. The prior single [3,15]% band was an inherited default -- policy.json's own notes flagged it as not derived from this book's behaviour. It is incompatible with the user's confirmed stop-loss method, which has now twice liquidated a large fraction of the book in one session (2026-07-24: cash to 45.8%; 2026-07-28: cash to 60.5%). Under the old band, every post-stop-event day reported a severe breach the desk could not cure without violating the position-risk framework -- a false alarm that trained the reader to ignore a real control. The two-regime band separates 'cash is high because stops fired' (expected, tolerated to 40%) from 'cash is high because we are not deploying' (a genuine breach). Above 40% remains a real breach requiring action in either regime.",
+  "current_note": "As of 2026-07-28 cash is ~47.9% of book -- above even the post_stop_event ceiling of 40%, so this remains a live breach, not a tolerated level."
+ },
+ "cluster_denominator_conditional": {
+  "enabled": true,
+  "confirmed_by_user": "2026-07-28",
+  "rule": "While cash exceeds the NORMAL band top (15%), cluster CEILINGS are tested on TOTAL BOOK; cluster FLOORS are always tested on INVESTED EQUITY. Below that cash level both edges use invested equity.",
+  "rationale": "User-raised 2026-07-28 and accepted. Rebuilding a book from a large cash position takes weeks, and cluster percentages computed on a shrunken equity base manufacture breaches that cannot be cured without violating the position-risk framework -- the third instance of the same denominator defect this week (Power floor binding at $29,870; cash band reporting an uncurable breach; now cluster ceilings). Cash is genuinely uncorrelated, so total book is the honest measure of factor risk while it is elevated. WHAT THIS DOES NOT DO: it does not relax per-position risk caps. A name at 1.6x its 0.5%-risk cap is oversized on either denominator -- SNDK on 2026-07-28 is the live example.",
+  "both_emitted": "cmd_drift always emits actual_pct_of_equity and actual_pct_of_total_book regardless of basis tested.",
+  "why_split": "A ceiling asks 'am I over-exposed to this factor?' -- idle cash is uncorrelated, so total book is the honest denominator. A floor asks 'is the invested portfolio the right shape?' -- that is a construction question, and 'hold 10% of TOTAL BOOK in Power' is incoherent while deliberately holding 48% cash. Testing both edges on one denominator was tried first and manufactured five phantom floor breaches."
+ },
+ "confirmed_date": "2026-08-06",
+ "confirmation_note": "Top-level confirmation given by the user 2026-08-06 in an interactive Agent Smith session. Individual components had already been confirmed separately on their own dates (mandate 2026-07-26; stop_loss_framework 2026-07-27; monthly_contribution 2026-07-27; cash_regimes 2026-07-28); this flips the whole document from draft to binding, so drift/breach analysis is no longer provisional. Per the desk's standing rule, a confirmed policy is never modified again without an explicit user instruction."
+}
