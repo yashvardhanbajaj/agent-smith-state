@@ -934,11 +934,20 @@ def cmd_drift(args):
             "band_pct": target.get("band_pct"), "drift_pt": round(actual - target.get("target_pct", 0), 3),
             "breach": breach,
         })
+    unpoliced_pct = 0.0
+    unpoliced_clusters = []
     for cluster, actual in cluster_actual.items():
         if cluster not in cluster_targets:
+            unpoliced_pct += actual
+            unpoliced_clusters.append(cluster)
             cluster_table.append({"cluster": cluster, "actual_pct": round(actual, 3),
                                    "target_pct": None, "band_pct": None, "drift_pt": None,
                                    "breach": False, "note": "no policy target for this cluster"})
+    # SURFACE THE HOLE AS A NUMBER (added 2026-08-30). A reader had to notice `target_pct: null`
+    # on individual rows and add them up to discover that 8% of equity could not breach anything;
+    # nobody did, for weeks. A cluster with no policy target is not merely untargeted, it is
+    # UNPOLICEABLE -- breach is False by construction however far it drifts.
+    unpoliced_pct = round(unpoliced_pct, 3)
 
     # ADDED 2026-07-28: conditional cluster denominator. Cluster weights on INVESTED EQUITY are the
     # right measure of concentration inside the deployed sleeve, but while a large cash balance is
@@ -1100,6 +1109,8 @@ def cmd_drift(args):
             "cash %.1f%% within the normal band -- cluster breaches tested on invested equity"
             % cash_pct_pre),
         "cluster_table": sorted(cluster_table, key=lambda c: c["breach"], reverse=True),
+        "unpoliced_pct_of_equity": unpoliced_pct,
+        "unpoliced_clusters": sorted(unpoliced_clusters),
         "position_breaches": position_breaches,
         "cash_pct": cash_pct, "cash_band_pct": cash_band, "cash_breach": cash_breach,
         "cash_regime": cash_regime, "cash_regime_reason": regime_reason,

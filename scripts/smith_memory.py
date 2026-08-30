@@ -168,6 +168,40 @@ def cmd_compact(args):
         writes.setdefault(cfg["archive"], _archive_load(os.path.join(base, cfg["archive"])))
         _archive_merge(writes[cfg["archive"]], cfg["payload"], evict)
 
+    # --- RESTORE BEFORE EVICTING (added 2026-08-30) --------------------------
+    # The archive was WRITE-ONLY. compact evicted thesis/sector_map for names no longer held,
+    # and nothing ever read them back when a name RETURNED. Measured on 2026-08-30: 12 archived
+    # tickers were held again. Four (AMKR, SMCI, LITE, IREN = 6.53% of book) had no live
+    # classification at all and were invisible to cluster accounting; the other eight had been
+    # re-derived from scratch by smith-thesis, which is wasted work with a worse failure mode --
+    # two came back under DIFFERENT cluster names (BX 'Alternative Asset Manager/Diversifier' ->
+    # 'Financials/Alt-Asset Diversifier'; BABA 'China Consumer/Cloud' -> 'China Internet/
+    # Diversifier'). cmd_drift matches policy.cluster_targets by EXACT STRING, so a rename drops
+    # a cluster out of drift tracking entirely -- the G73 hazard, reached by a different route.
+    #
+    # ARCHIVE-NEVER-DELETE already guaranteed the record survived. The missing half was reading
+    # it back. This matters more now that the universe's T2_ALUMNI tier makes re-entry a
+    # first-class path rather than an accident.
+    #
+    # RESTORE COPIES, NEVER MOVES: the archive keeps its entry, so a name that exits again is
+    # not re-archiving something that has since been deleted, and the archive stays a complete
+    # history rather than a queue.
+    restored = {}
+    if held:
+        for key in ("thesis", "sector_map"):
+            cfg = RETENTION[key]
+            arch = _archive_load(os.path.join(base, cfg["archive"])).get(cfg["payload"], {}) or {}
+            live = state.setdefault(key, {})
+            back = {t: v for t, v in arch.items() if t in held and t not in live}
+            if back:
+                live.update(back)
+                restored[key] = sorted(back)
+                moves.append({"file": f"state.{key}", "restored": len(back),
+                              "from": cfg["archive"], "ids": sorted(back)[:12],
+                              "why": "held again -- archived on a prior exit and never read back; "
+                                     "an unrestored name is invisible to cluster accounting and "
+                                     "gets re-derived from scratch under a possibly different name"})
+
     # --- thesis + sector_map: evict names no longer held ---------------------
     if held:
         for key in ("thesis", "sector_map"):
@@ -252,7 +286,7 @@ def cmd_compact(args):
         journal_writes[fname] = merged
 
     after = len(json.dumps(state))
-    out = {"dry_run": not args.write, "moves": moves,
+    out = {"dry_run": not args.write, "moves": moves, "restored": restored,
            "state_bytes_before": before, "state_bytes_after": after,
            "state_bytes_freed": before - after,
            "state_pct_freed": round((before - after) / before * 100, 1) if before else 0,
@@ -311,7 +345,7 @@ def cmd_gaps(args):
 # ---------------------------------------------------------------------------
 # drift
 # ---------------------------------------------------------------------------
-def validate_policy(policy):
+def validate_policy(policy, state=None):
     """Structural checks on policy.json. Returns a list of defect strings (empty == clean).
 
     Exists because the draft carried an arithmetically impossible target set from 2026-07-12 to
@@ -356,6 +390,30 @@ def validate_policy(policy):
     # and you cannot reach 100 if every ceiling together falls short.
     lo_sum = sum((t.get("band_pct") or [0, 0])[0] or 0 for t in targets.values())
     hi_sum = sum((t.get("band_pct") or [0, 0])[1] or 0 for t in targets.values())
+    # LIVE-BOOK CHECKS (added 2026-08-30). Everything above validates the DOCUMENT against
+    # itself, which is how a 14.53%-of-equity hole stayed invisible for weeks: the target sum
+    # checked only the clusters policy declares, so clusters the book actually holds and policy
+    # has never heard of simply did not enter the arithmetic. cmd_drift emits those with
+    # target_pct: null and breach: false -- reported, but structurally unable to breach.
+    if state:
+        sm = state.get("sector_map") or {}
+        held = [h.get("ticker") for h in (state.get("holdings") or []) if h.get("ticker")]
+        unclassified = sorted(t for t in held if t not in sm)
+        if unclassified:
+            defects.append(
+                f"{len(unclassified)} held ticker(s) have no sector_map entry "
+                f"({', '.join(unclassified[:8])}) -- they sit outside cluster accounting "
+                f"entirely and cannot breach any band. Usually an archived classification that "
+                f"was never restored on re-entry; `compact` now restores these.")
+        live_clusters = {sm[t] for t in held if t in sm}
+        orphan = sorted(live_clusters - set(targets))
+        if orphan:
+            defects.append(
+                f"cluster(s) held but absent from cluster_targets: {', '.join(orphan)} -- "
+                f"cmd_drift matches policy by EXACT STRING, so these are reported with a null "
+                f"target and can never breach. Either give each a target/band or reclassify "
+                f"the holdings into an existing cluster.")
+
     if lo_sum > 100:
         defects.append(f"band floors sum to {lo_sum:g}% (>100%) -- no allocation can satisfy every floor at once.")
     if hi_sum < 100:
@@ -1120,7 +1178,7 @@ def cmd_validate(args):
     if policy is None:
         policy_defects = ["no policy.json"]
     else:
-        policy_defects = validate_policy(policy)
+        policy_defects = validate_policy(policy, state)
 
     cache_defects = validate_cache_events(state)
     thesis_defects = validate_thesis_schema(state, args.base_dir)
@@ -1130,9 +1188,11 @@ def cmd_validate(args):
     earnings_pending_defects = validate_pending_earnings_staleness(args.base_dir)
     freshness_defects = validate_freshness(args.base_dir)
     ledger_defects = validate_ledger_schema(args.base_dir)
+    aggrisk_defects = validate_aggregate_risk(args.base_dir, state)
     all_defects = (policy_defects + cache_defects + thesis_defects + learning_defects
                    + proposals_defects + narrative_defects
-                   + earnings_pending_defects + freshness_defects + ledger_defects)
+                   + earnings_pending_defects + freshness_defects + ledger_defects
+                   + aggrisk_defects)
 
     emit({
         "policy_present": policy is not None,
@@ -1771,6 +1831,33 @@ def evaluate_freshness(state, today=None):
     return rows
 
 
+def validate_aggregate_risk(base_dir, state):
+    """Fail when the book's aggregate open risk exceeds its own policy cap.
+
+    `cmd_risk` computes `aggregate_open_risk_pct` and `aggregate_over_cap` on EVERY run and no
+    validator ever read them. That is how a breach ran for weeks as a line in a table: 11.947%
+    against a 10% cap on 2026-08-30, and 13.028% on 08-26. The stop framework's own rationale
+    still claims worst-case-if-every-stop-fires is "~7.4% of book, deliberately inside the -15%
+    drawdown_warn rung" -- a stated safety property that stopped being true and that nothing was
+    positioned to notice.
+
+    Reads the newest run's compute_risk.json rather than recomputing: this is a validator, not a
+    second implementation of the risk math (ONE FIELD, ONE READER).
+    """
+    rd = state.get("last_run_dir")
+    path = os.path.join(base_dir, rd, "compute_risk.json") if rd else None
+    if not path or not os.path.exists(path):
+        return []  # no run yet, or pruned -- absence is not a defect
+    risk = load_json(path, default={})
+    if not risk.get("aggregate_over_cap"):
+        return []
+    return [f"AGGREGATE OPEN RISK OVER CAP: {risk.get('aggregate_open_risk_pct')}% against a "
+            f"{risk.get('aggregate_open_risk_cap_pct')}% policy cap "
+            f"(${risk.get('aggregate_open_risk_usd', 0):,.0f}). Every new position competes for a "
+            f"budget that is already overdrawn, so a rebound or re-entry must be FUNDED by "
+            f"reducing risk elsewhere, not added on top."]
+
+
 def validate_ledger_schema(base_dir):
     """Every ledger.csv row must have exactly as many fields as the header.
 
@@ -2211,6 +2298,42 @@ def _report_weekly(base_dir, run_dir, today, state, freshness_rows):
         for d, row in (sc.get("by_direction") or {}).items():
             L.append(f"  - {d}: {row.get('accuracy_pct')}% (n={row.get('n')})")
         L.append("")
+
+    # --- external contributions: track, never assume -------------------------
+    # policy.json commits $1,000/month of new external cash from 2026-08 with a stated
+    # deployment rule. `append-ledger --external-flow-usd` has existed the whole time and was
+    # populated in 0 of 38 rows, so nothing knew whether it arrived. Two consequences: deposits
+    # were indistinguishable from returns in attribution, and smith_charts deliberately refuses
+    # to plot cumulative book-vs-SMH while the column is empty, so the benchmark chart was
+    # missing for a reason nobody had connected.
+    #
+    # The user's instruction is TRACK BUT NEVER ASSUME: contributions are irregular, so this
+    # reports what was actually recorded and never projects a future one. Nothing downstream may
+    # size a proposal against an expected contribution.
+    committed = (load_json(os.path.join(base_dir, "policy.json"), default={})
+                 .get("monthly_contribution_usd"))
+    flows = [(r["ts"][:10], _f(r.get("external_flow_usd")))
+             for r in ledger if _f(r.get("external_flow_usd"))]
+    wk_flows = [(d_, v) for d_, v in flows if d_ >= monday.isoformat()]
+    L.append("## External contributions")
+    L.append("")
+    if wk_flows:
+        L.append(f"Recorded this week: " + ", ".join(f"{d_} {_r_money(v)}" for d_, v in wk_flows))
+    else:
+        L.append("None recorded this week.")
+    if committed:
+        L.append("")
+        L.append(f"Policy notes a ${committed:,} monthly commitment. **Irregular by the user's own "
+                 f"instruction — recorded when it happens, never assumed.** Total recorded to date: "
+                 f"{len(flows)} deposit(s), {_r_money(sum(v for _, v in flows)) if flows else '$0.00'}. "
+                 f"No proposal may be sized against an expected future contribution.")
+    if not flows:
+        L.append("")
+        L.append("> `external_flow_usd` has never been populated. While it is empty, deposits are "
+                 "indistinguishable from returns in attribution, and the cumulative book-vs-SMH "
+                 "chart stays suppressed by design. Pass `--external-flow-usd` to `append-ledger` "
+                 "on any run where cash arrived from outside.")
+    L.append("")
 
     # --- signal hit rates, advisory only ------------------------------------
     j = load_json(os.path.join(base_dir, "journal.json"), default={})
