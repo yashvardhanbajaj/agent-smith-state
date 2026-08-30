@@ -197,6 +197,123 @@
       },
       "run_dir": null,
       "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-183",
+        "decision": "reject",
+        "reason": null,
+        "ticker": "BE",
+        "trigger_type": "quality_flag"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-180",
+        "decision": "accept",
+        "reason": null,
+        "ticker": "IREN",
+        "trigger_type": "trend_breakdown"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-178",
+        "decision": "hold",
+        "reason": null,
+        "ticker": "AMZN",
+        "trigger_type": "catalyst_threat"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-178",
+        "decision": "hold",
+        "reason": null,
+        "ticker": "AMZN",
+        "trigger_type": "catalyst_threat"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-186",
+        "decision": "accept",
+        "reason": null,
+        "ticker": "CIEN",
+        "trigger_type": "profit_rotation"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-187",
+        "decision": "accept",
+        "reason": null,
+        "ticker": "AMAT",
+        "trigger_type": "conviction_average"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-149",
+        "decision": "accept",
+        "reason": null,
+        "ticker": "WDC",
+        "trigger_type": null
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-178",
+        "decision": "hold",
+        "reason": null,
+        "ticker": "AMZN",
+        "trigger_type": "catalyst_threat"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-178",
+        "decision": "hold",
+        "reason": null,
+        "ticker": "AMZN",
+        "trigger_type": "catalyst_threat"
+      },
+      "run_dir": null,
+      "note": null
     }
   ],
   "parameters": {
@@ -320,6 +437,14 @@
       "kind": "correction",
       "text": "smith-scout re-fetched analyst mean price targets for all ~8 diversifier_candidates every single deep run, even though a target and its one-line thesis rarely move week to week -- only the live price genuinely needs refreshing every run. Fixed 2026-08-30: diversifier_candidates entries now carry 'as_of'; smith-scout.md instructs reusing target_usd/thesis/clean_diversifier unchanged unless as_of is >7 days old or the candidate is new, refreshing only price_usd/upside_pct every run. Apply the same as_of-gated-reuse pattern to any other agent output where one field moves daily (price) and other fields in the same record move roughly weekly (analyst targets, thesis text, sector classification) -- do not refetch the slow-moving fields just because the fast-moving one needs a refresh.",
       "evidence": "smith-scout.md diversifier bench TARGET/THESIS TTL, commit cdd45df",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "correction",
+      "text": "A source recorded as BLOCKED must record WHAT was tried and WHY it failed. On 2026-08-31 all three smith-quality findings sat at verified:unverified because SKILL.md said FMP secFilings was ACCESS DENIED and sec.gov 403s to WebFetch, plus 'don't re-probe them'. Two unrelated causes had been fused into one closed door: the FMP block is a vendor plan-tier limit that says nothing about the SEC, and the 403 is WebFetch not sending the User-Agent EDGAR's Fair Access rules require -- curl declaring one gets HTTP 200 from every EDGAR endpoint. A missing request header had been recorded as an unreachable regulator for three weeks. Cost: every primary-source check the desk skipped in that window, and re-verification then changed all three findings (AMZN's figures were a quarter stale, INTC's equity drop was sequential not YoY plus 16.8% dilution nobody flagged, BE's dilution and leverage both larger than reported). Generalise: 'don't re-probe' is only safe when the recorded reason is specific enough to distinguish a permission limit from a malformed request.",
+      "evidence": null,
       "source_run": null,
       "supersedes": null
     }

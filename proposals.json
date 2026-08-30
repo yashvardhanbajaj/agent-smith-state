@@ -5135,7 +5135,7 @@
       "ticker": "WDC",
       "size_usd": 150,
       "price_at_proposal": 462.35,
-      "status": "open",
+      "status": "accepted_by_user",
       "trigger_type": null,
       "direction_bucket": "BUY",
       "cluster": "AI Memory/Storage",
@@ -5167,7 +5167,9 @@
       "review_flags": [],
       "revalidated_on": "2026-08-31",
       "retires_when": null,
-      "proposal_class": "idea"
+      "proposal_class": "idea",
+      "accepted_on": "2026-08-31",
+      "accepted_reason": null
     },
     {
       "date": "2026-08-24T14:45:00+05:30",
@@ -6375,7 +6377,11 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-31",
-      "retires_when": "AMZN no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "AMZN no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "held_on": [
+        "2026-08-31"
+      ],
+      "held_reason": null
     },
     {
       "action": "Trim MU",
@@ -6419,7 +6425,7 @@
       "rationale": "trend_breakdown: STRONG DOWNTREND (-12.53% earnings-day move, abnormal vs ATR). WATCH thesis contested, sizing off computed trigger not thesis label.",
       "trigger_type": "trend_breakdown",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open",
+      "status": "accepted_by_user",
       "id": "P-180",
       "direction_bucket": "TRIM",
       "priority_score": 3,
@@ -6436,7 +6442,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-31",
-      "retires_when": "IREN no longer appears in this run's live trend_breakdown list (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "IREN no longer appears in this run's live trend_breakdown list (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "accepted_on": "2026-08-31",
+      "accepted_reason": null
     },
     {
       "action": "Trim NVDA",
@@ -6467,7 +6475,11 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-31",
-      "retires_when": "NVDA RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "NVDA RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)",
+      "held_on": [
+        "2026-08-31"
+      ],
+      "held_reason": null
     },
     {
       "action": "Buy GOOG",
@@ -6509,7 +6521,7 @@
       "rationale": "Three independent legs, none of them price. (1) smith-quality, first persisted audit: diluted share count +37.6pct YoY and total debt +86pct YoY to 2.81bn USD -- growth funded by issuance in the exact window NVDA's CDS doubled and ORCL was cut to BBB-, and BE is named in force_thesis_review. (2) Worst over-cap position in the book after the ATR refresh: cap_multiple 1.316 on a 7.97pct ATR20, headroom negative. (3) Highest beta in the held book at 2.105 against an SMH-benchmarked late-cycle read. evidence_against, stated: revenue +41.8pct YoY with operating income and FCF both turning positive this quarter, so this is funding a real demand ramp, not covering losses -- which is why this is a TRIM sized to restore cap headroom and not an exit. VERIFIED AGAINST AS-FILED SEC XBRL 2026-08-31 (smith_edgar.py), and the case is STRONGER than the yfinance figures it was written on: diluted shares 230.21M to 319.71M year-on-year is +38.9% (audit said +37.6%, confirmed), and long-term debt 1.016bn to 2.599bn is +155.8% (audit said +86%, badly understated). The counter-evidence is also stronger and is stated: revenue 319M to 746M is +134% YoY, not +41.8%. BE is diluting and levering considerably harder than the audit said, into demand also growing harder than the audit said -- which is why this remains a cap-restoring TRIM and not an exit. Limitation: EDGAR XBRL frames for BE are current to 2026-03-31 while a Q2 10-Q was filed 2026-07-28, so this is a clean Q1-on-Q1 comparison one quarter behind.",
       "trigger_type": "quality_flag",
       "date": "2026-08-31T00:00:00Z",
-      "status": "open",
+      "status": "dismissed_by_user",
       "cluster": "AI Power/Cooling/DC Infra",
       "id": "P-183",
       "priority_score": 4,
@@ -6532,7 +6544,9 @@
       "review_flags": [],
       "revalidated_on": "2026-08-31",
       "retires_when": "BE drops under its ATR risk cap",
-      "evidence_verified": "primary"
+      "evidence_verified": "primary",
+      "dismiss_reason": null,
+      "note": "dismissed by user (dashboard) 2026-08-31T02:00"
     },
     {
       "action": "Hold AVGO",
@@ -6590,7 +6604,7 @@
       "rationale": "Live profit_rotation sell leg, re-proposed after the prior CIEN pairing died with the ASML dismissal. CIEN is stretched (+7.39pp vs SMH) on a WATCH thesis -- the engine's exact definition of real profit to book. Independent second leg: CIEN reports 2026-09-03 having run +14.6pct INTO the print, and smith-earnings records its beats decaying every quarter. Trimming a stretched watch-thesis name ahead of a print it has already been paid for is the opposite of the AVGO case (P-184), where the desk declines to BUY an oversold name into a print -- selling strength into an event and buying weakness into an event are not symmetric.",
       "trigger_type": "profit_rotation",
       "date": "2026-08-31T00:00:00Z",
-      "status": "open",
+      "status": "accepted_by_user",
       "pair_id": "monday-cien-amat",
       "pair_role": "sell",
       "cluster": "AI Networking/Optics",
@@ -6610,7 +6624,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-31",
-      "retires_when": "the profit_rotation pairing monday-cien-amat is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the profit_rotation pairing monday-cien-amat is no longer live this run -- both legs retire together, never one alone",
+      "accepted_on": "2026-08-31",
+      "accepted_reason": null
     },
     {
       "action": "Buy AMAT",
@@ -6621,7 +6637,7 @@
       "rationale": "Highest conviction_score in the book at 34.3 and the only name firing conviction_average and oversold_reversion together: RSI14 33.3, strengthening thesis, -3.12pp vs SMH, +18.7pct to mean target, cap_multiple 0.45 so it is well inside its own risk cap. The cycle logic is the reason this is the buy rather than a levered supplier: smith-cycle calls the position LATE-BY-COST -- margins peaking on memory input cost while physical demand still accelerates -- and its single strongest evidence_AGAINST a late read is upstream semicap, where lead times are EXTENDING (etch and deposition doubled to 12 months, packaging/test beyond 18) and ASML and KLA are both raising capacity plans. AMAT is upstream equipment: it is paid by the capex being committed, it is not the name absorbing the memory cost inflation, and it carries none of the debt-funded-growth flags smith-quality raised against AMZN, BE or INTC. If the late call is right, this is the part of the chain that is late last.",
       "trigger_type": "conviction_average",
       "date": "2026-08-31T00:00:00Z",
-      "status": "open",
+      "status": "accepted_by_user",
       "pair_id": "monday-cien-amat",
       "pair_role": "buy",
       "cluster": "AI Semis/Fabs",
@@ -6637,7 +6653,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-31",
-      "retires_when": "AMAT no longer appears in this run's live conviction_average list"
+      "retires_when": "AMAT no longer appears in this run's live conviction_average list",
+      "accepted_on": "2026-08-31",
+      "accepted_reason": null
     }
   ],
   "retracted": [

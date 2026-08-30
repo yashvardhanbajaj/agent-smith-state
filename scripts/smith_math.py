@@ -2844,7 +2844,16 @@ def cmd_sync_decisions(args):
                     if pr.get("status") != "open":
                         skipped.append({"surface": surface, "element_id": element_id, "why": f"already {pr.get('status')}"})
                         continue
-                    pr.setdefault("held_on", []).append(today)
+                    # Same-day dedup: the decisions blob is CUMULATIVE -- every republish of
+                    # the page carries every decision ever made on it, so a Hold is re-presented
+                    # to this code on each sync. Accept/reject are naturally idempotent because
+                    # they reach a terminal status that the skip-check sees; hold deliberately
+                    # is NOT terminal (the proposal stays open), so nothing stopped it appending
+                    # a duplicate date every run. P-178 read "held 2x" on 2026-08-31 from a
+                    # single click.
+                    holds = pr.setdefault("held_on", [])
+                    if today not in holds:
+                        holds.append(today)
                     pr["held_reason"] = reason
                     proposals_dirty = True
                 else:

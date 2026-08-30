@@ -76,6 +76,27 @@ DECISION_BUTTONS = {
 }
 
 
+def held_badge(prop):
+    """A visible marker for a proposal the user has already put on Hold.
+
+    Hold was durably captured and synced (SKILL.md 1.7: the proposal stays open and gains
+    `held_on`) but NOTHING on the page rendered it -- the row redrew with the same three fresh
+    buttons, so a held proposal was indistinguishable from an undecided one and the natural
+    next move was to click Hold again. The decision survived; the feedback did not. Added
+    2026-08-31 after exactly that happened with P-178.
+    """
+    held = prop.get("held_on")
+    if not held:
+        return ""
+    when = held[-1] if isinstance(held, list) else held
+    why = prop.get("held_reason")
+    tail = f" -- {esc(str(why))}" if why else ""
+    n = len(held) if isinstance(held, list) else 1
+    times = f" (held {n}x)" if n > 1 else ""
+    return (f'<span class="held-badge" title="You put this on hold; it stays open until you '
+            f'accept or reject it.">HELD {esc(str(when))}{times}{tail}</span>')
+
+
 def decision_buttons(surface, element_id, extra_attrs=""):
     """Renders the standard button-group + optional-reason-input markup for one interactive
     row. `extra_attrs` carries surface-specific data-* attributes the JS needs at click time
@@ -147,6 +168,9 @@ def trim_lead(text, max_len=180):
 
 CSS = """
 *{box-sizing:border-box}
+.held-badge{display:inline-block;margin-left:.5rem;padding:.08rem .4rem;border-radius:3px;
+  font-size:.72rem;font-weight:600;letter-spacing:.02em;
+  background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
 /* ============ tokens ============ */
 :root{
   --ground:#f2f4f5; --surface:#ffffff; --surface-2:#f7f9f9;
@@ -855,8 +879,9 @@ def build(base, out):
             conv_s = (f'<span class="stopline">conviction {conv:.0f} ({esc(p.get("conviction_tier",""))})'
                       f'</span>') if conv is not None else ""
             decide_s = decision_buttons("proposal", pid) if pid else ""
+            held_s = held_badge(p)
             return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
-                    f'{esc(p.get("action",""))}{clus_s}</span>'
+                    f'{esc(p.get("action",""))}{clus_s}{held_s}</span>'
                     f'<span class="why">{esc(short)}{more}{live_s}{flag_s}{tranche_s}{retires_s}'
                     f'{conv_s}{stop_s}{shares_s}{clamped_s}{meta}{decide_s}</span>'
                     f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
