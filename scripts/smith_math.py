@@ -1696,7 +1696,7 @@ def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
         bump("correction", f"breadth: {len(fallen)}/{len(held)} held names down "
                            f"{REBOUND_BREADTH_FALL_PCT}%+ over 1m ({breadth:.0%})")
 
-    # THE SCREEN IS ONLY AS CURRENT AS ITS FALL DATA. Every `fall_1m_pct` here comes from the
+    # THE SCREEN IS ONLY AS CURRENT AS ITS FALL DATA. Every `fall_pct` here comes from the
     # rel_strength_1m cache, so a stale cache means the 1-month window PREDATES the very selloff
     # this screen exists to find -- and the failure is silent: it returns a short, plausible
     # candidate list rather than an error. Measured on 2026-08-30 the cache was 18 days old with
@@ -1707,7 +1707,7 @@ def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
     if not rel_usable:
         stale_warning = (f"REBOUND CANDIDATES ARE PROVISIONAL: rel_strength_1m is "
                          f"{rel_age if rel_age is not None else 'unknown'}d old, so every "
-                         f"fall_1m_pct below measures a window that may predate this correction "
+                         f"fall figure below measures a window that may predate this correction "
                          f"entirely. Breadth and the benchmark route are equally affected. The "
                          f"correction STATE is still sound -- it was reached on live book "
                          f"drawdown. Refresh the cache and re-run before sizing anything.")
