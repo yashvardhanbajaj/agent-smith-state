@@ -32,7 +32,13 @@ Both agents were reading price action and headlines, not actuals. **Your job is 
 - FMP `secFilings` `search-by-symbol` — **works**; confirms a filing exists on the claimed date.
 - yfinance `get_earnings` — quarterly `reportedDate` and actuals.
 - yfinance `get_options` — **open interest is populated again as of 2026-08-16** (the long-standing G18 gap closed), so implied move is computable.
-- **ACCESS DENIED on this plan tier, do NOT retry:** FMP `statements`, FMP `earningsTranscript`, FMP `quote`. `sec.gov` returns **403** to WebFetch (G59).
+- **ACCESS DENIED on this plan tier, do NOT retry:** FMP `statements`, FMP `earningsTranscript`, FMP `quote`.
+**PRIMARY-SOURCE VERIFICATION — use `python3 /Users/yb/Claude/AgentSmith/scripts/smith_edgar.py` FIRST (added 2026-08-31).** It reads SEC EDGAR's XBRL API and returns AS-FILED figures with form, fiscal period, filing date and accession number attached, which is what makes a check primary rather than asserted:
+- `verify --ticker AMZN --concepts ocf,capex,lt_debt,equity,diluted_shares,net_income,op_income,pretax,revenue,sbc,interest_exp`
+- `tags --ticker BE --match debt` — what THIS issuer actually calls a line, when a concept comes back empty
+- `filings --ticker INTC --form 10-Q --limit 3` — document URLs
+Two traps it already handles, both hit on first real use: an issuer can ABANDON a tag (AMZN's old capex tag stops in 2017, so the tool picks the tag with the freshest data, never the first that returns anything), and `companyconcept` can return HTTP 200 with an EMPTY body while `companyfacts` holds the data (BE), so it falls back automatically. Always report the `end` date you used — comparing the wrong quarter is the most likely way to be confidently wrong here, and it is exactly what happened on 2026-08-30 when yfinance served Q1 figures as current.
+`sec.gov` 403s only because WebFetch sends no identifying User-Agent; EDGAR itself is open and this tool declares one. FMP `statements`/`earningsTranscript` remain ACCESS DENIED on this plan tier — that is a vendor limit, not a statement about the SEC. `stockanalysis.com` works and stays allow-listed for anything XBRL does not cover.
 
 ## PROCESS
 

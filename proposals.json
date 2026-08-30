@@ -6504,7 +6504,7 @@
       "direction_bucket": "TRIM",
       "size_usd": 253.0,
       "price_at_proposal": 210.77,
-      "rationale": "Three independent legs, none of them price. (1) smith-quality, first persisted audit: diluted share count +37.6pct YoY and total debt +86pct YoY to 2.81bn USD -- growth funded by issuance in the exact window NVDA's CDS doubled and ORCL was cut to BBB-, and BE is named in force_thesis_review. (2) Worst over-cap position in the book after the ATR refresh: cap_multiple 1.316 on a 7.97pct ATR20, headroom negative. (3) Highest beta in the held book at 2.105 against an SMH-benchmarked late-cycle read. evidence_against, stated: revenue +41.8pct YoY with operating income and FCF both turning positive this quarter, so this is funding a real demand ramp, not covering losses -- which is why this is a TRIM sized to restore cap headroom and not an exit.",
+      "rationale": "Three independent legs, none of them price. (1) smith-quality, first persisted audit: diluted share count +37.6pct YoY and total debt +86pct YoY to 2.81bn USD -- growth funded by issuance in the exact window NVDA's CDS doubled and ORCL was cut to BBB-, and BE is named in force_thesis_review. (2) Worst over-cap position in the book after the ATR refresh: cap_multiple 1.316 on a 7.97pct ATR20, headroom negative. (3) Highest beta in the held book at 2.105 against an SMH-benchmarked late-cycle read. evidence_against, stated: revenue +41.8pct YoY with operating income and FCF both turning positive this quarter, so this is funding a real demand ramp, not covering losses -- which is why this is a TRIM sized to restore cap headroom and not an exit. VERIFIED AGAINST AS-FILED SEC XBRL 2026-08-31 (smith_edgar.py), and the case is STRONGER than the yfinance figures it was written on: diluted shares 230.21M to 319.71M year-on-year is +38.9% (audit said +37.6%, confirmed), and long-term debt 1.016bn to 2.599bn is +155.8% (audit said +86%, badly understated). The counter-evidence is also stronger and is stated: revenue 319M to 746M is +134% YoY, not +41.8%. BE is diluting and levering considerably harder than the audit said, into demand also growing harder than the audit said -- which is why this remains a cap-restoring TRIM and not an exit. Limitation: EDGAR XBRL frames for BE are current to 2026-03-31 while a Q2 10-Q was filed 2026-07-28, so this is a clean Q1-on-Q1 comparison one quarter behind.",
       "trigger_type": "quality_flag",
       "date": "2026-08-31T00:00:00Z",
       "status": "open",
@@ -6529,7 +6529,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-31",
-      "retires_when": "BE drops under its ATR risk cap"
+      "retires_when": "BE drops under its ATR risk cap",
+      "evidence_verified": "primary"
     },
     {
       "action": "Hold AVGO",
@@ -6560,7 +6561,7 @@
       "direction_bucket": "HOLD",
       "size_usd": 0,
       "price_at_proposal": 266.43,
-      "rationale": "Resolves a direct trigger-versus-quality conflict rather than averaging it. oversold_reversion fires BUY on AMZN at RSI14 29.8 with a strengthening thesis; catalyst_threat and open proposal P-178 fire TRIM. smith-quality breaks the tie with a balance sheet, not a price: quarterly capex 44.2bn USD now EXCEEDS operating cash flow 26.03bn USD, free cash flow swung from +14.94bn to -18.17bn USD in one quarter, and long-term debt rose 81.4pct YoY to 119.07bn USD -- the book's single clearest instance of the precise pattern the market is repricing, and AMZN is in force_thesis_review. The RSI is low BECAUSE the market is pricing what the audit found; that makes it an explanation, not a discount. Existing trim P-178 stands, no add. Note the finding is verified:unverified -- FMP secFilings returned ACCESS DENIED this run -- so this holds rather than escalates.",
+      "rationale": "Resolves a direct trigger-versus-quality conflict rather than averaging it. oversold_reversion fires BUY on AMZN at RSI14 29.8 with a strengthening thesis; catalyst_threat and open proposal P-178 fire TRIM. smith-quality breaks the tie with a balance sheet, not a price: quarterly capex 44.2bn USD now EXCEEDS operating cash flow 26.03bn USD, free cash flow swung from +14.94bn to -18.17bn USD in one quarter, and long-term debt rose 81.4pct YoY to 119.07bn USD -- the book's single clearest instance of the precise pattern the market is repricing, and AMZN is in force_thesis_review. The RSI is low BECAUSE the market is pricing what the audit found; that makes it an explanation, not a discount. Existing trim P-178 stands, no add. Note the finding is verified:unverified -- FMP secFilings returned ACCESS DENIED this run -- so this holds rather than escalates. VERIFIED AGAINST AS-FILED SEC XBRL 2026-08-31 (smith_edgar.py), and the audit's figures were a QUARTER STALE -- yfinance served Q1 2026 as current. Latest 10-Q (period 2026-06-30, filed 2026-07-31, accn 0001018724-26-000026): OCF 45.39bn against capex 54.20bn. Capex STILL exceeds operating cash flow, so the finding stands and the HOLD stands -- but the gap has NARROWED from -18.2bn to -8.8bn, i.e. it is improving, which the original framing missed. Long-term debt is the leg that was understated: 128.89bn at 2026-06-30 against 50.72bn a year earlier is +154% YoY, not +81.4%. Net: the reason to hold rather than add is intact and now primary-sourced; the reason not to escalate to a larger trim is that the cash-flow gap is closing.",
       "trigger_type": "conflict_resolution",
       "date": "2026-08-31T00:00:00Z",
       "status": "open",
@@ -6575,7 +6576,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-31",
-      "retires_when": null
+      "retires_when": null,
+      "evidence_verified": "primary"
     },
     {
       "action": "Sell CIEN",

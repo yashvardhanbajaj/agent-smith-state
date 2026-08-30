@@ -3880,7 +3880,55 @@
     },
     "book_pct_flagged": 20.4,
     "top_concern": "AMZN and BE both show growth now being funded by debt issuance rather than operating cash flow, in the same window NVDA CDS has roughly doubled and ORCL was cut to BBB- - the market's AI-capex credit repricing has a real balance-sheet echo inside this book, not just a sentiment one",
-    "as_of": "2026-08-31"
+    "as_of": "2026-08-31",
+    "primary_source_verification": {
+      "verified_on": "2026-08-31",
+      "method": "SEC EDGAR XBRL companyfacts/companyconcept via scripts/smith_edgar.py (as-filed values, form+period+accession attached)",
+      "supersedes": "the 2026-08-30 audit's verified:'unverified' status, which was caused by FMP secFilings ACCESS DENIED plus the mistaken belief (G59) that sec.gov is unreachable",
+      "findings": {
+        "AMZN": {
+          "verdict": "CONFIRMED, with a period correction and an understatement",
+          "detail": "The audit's figures (capex 44.2bn vs OCF 26.03bn, FCF -18.17bn) are Q1 2026 (Jan-Mar), not the latest filed quarter. The latest 10-Q (period 2026-06-30, filed 2026-07-31, accn 0001018724-26-000026) reports Q2 OCF 45.39bn against capex 54.20bn -- capex STILL exceeds OCF, but the gap narrowed from -18.2bn to -8.8bn. Long-term debt is understated by the audit: 128.89bn at 2026-06-30 vs 50.72bn at 2025-06-30 is +154% YoY, not +81.4%. Finding stands; direction correct, magnitude wrong in both directions.",
+          "filed_values": {
+            "ocf_q2_2026_usd": 45387000000,
+            "capex_q2_2026_usd": 54200000000,
+            "ocf_q1_2026_usd": 26032000000,
+            "capex_q1_2026_usd": 44200000000,
+            "lt_debt_2026_06_30_usd": 128894000000,
+            "lt_debt_2025_06_30_usd": 50718000000
+          },
+          "verified": "primary"
+        },
+        "INTC": {
+          "verdict": "CONFIRMED on the charge, CORRECTED on the equity comparison, plus one finding the audit missed",
+          "detail": "Operating income +1.80bn against pretax -10.82bn for the quarter ended 2026-06-27 = a 12.62bn gap (audit cited ~12.8bn using a slightly different operating figure). Net loss -11.03bn confirmed exactly. Equity 87.54bn confirmed, BUT -21.4% is SEQUENTIAL (from 111.39bn at 2026-03-28), not year-on-year; the YoY change is -10.6% from 97.88bn. MISSED BY THE AUDIT: diluted share count went 4,369M to 5,104M year-on-year, +16.8% dilution, which is material for a name held on a turnaround thesis and was not in the flag.",
+          "filed_values": {
+            "op_income_q2_2026_usd": 1800000000,
+            "pretax_q2_2026_usd": -10820000000,
+            "net_income_q2_2026_usd": -11030000000,
+            "equity_2026_06_27_usd": 87540000000,
+            "equity_2026_03_28_usd": 111390000000,
+            "equity_2025_06_28_usd": 97880000000,
+            "diluted_shares_q2_2026": 5104000000,
+            "diluted_shares_q2_2025": 4369000000
+          },
+          "verified": "primary"
+        },
+        "BE": {
+          "verdict": "CONFIRMED and understated on both legs; the counter-evidence is also stronger than stated",
+          "detail": "Diluted shares 230.21M (Q1 2025) to 319.71M (Q1 2026) = +38.9% YoY, confirming the audit's +37.6%. Long-term debt 1.016bn to 2.599bn = +155.8% YoY, well above the audit's +86%. But the evidence_against is understated too: revenue 319M to 746M = +134% YoY, not +41.8%. So BE is diluting and levering harder than the audit said, into demand that is also growing harder than the audit said. LIMITATION: EDGAR's XBRL frames for BE are current only to 2026-03-31 even though a Q2 10-Q was filed 2026-07-28, so this is a clean Q1-on-Q1 comparison, one quarter behind.",
+          "filed_values": {
+            "diluted_shares_q1_2026": 319708000,
+            "diluted_shares_q1_2025": 230210000,
+            "lt_debt_2026_03_31_usd": 2599000000,
+            "lt_debt_2025_03_31_usd": 1016000000,
+            "revenue_q1_2026_usd": 746000000,
+            "revenue_q1_2025_usd": 319000000
+          },
+          "verified": "primary"
+        }
+      }
+    }
   },
   "latest_run_dir": "runs/2026-08-30-1910"
 }
