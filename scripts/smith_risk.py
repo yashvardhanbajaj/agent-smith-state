@@ -22,6 +22,13 @@ definition and are excluded here, even though BUCKET_DIRECTION maps both to
 see the G34 plan notes -- not an oversight.
 """
 
+# smith_risk is otherwise dependency-free by design. This single import is safe and deliberate:
+# smith_core does not import smith_risk (it only mentions it in a comment), so there is no cycle,
+# and duplicating the constant here instead would create the two-sources-of-truth problem this
+# codebase's ONE FIELD, ONE READER rule exists to prevent.
+from smith_core import REBOUND_STOP_ATR_FLOOR_MULT
+
+
 SIGNAL_POLARITY = {
     "bullish": {
         "BREAKOUT", "STRONG UPTREND", "NEW TAILWINDS", "PEER LEADER",
@@ -50,6 +57,68 @@ def classify_signal_polarity(buckets):
     return {
         "bullish": bullish, "bearish": bearish, "ambiguous": ambiguous,
         "unrecognized": unrecognized, "net": len(bullish) - len(bearish),
+    }
+
+
+def support_anchored_cap(atr_pct, price_usd, support_usd, total_book_usd, policy):
+    """Position cap for a REBOUND ENTRY sized off its actual stop, not off 2xATR-below-spot.
+
+    Returns the same shape as stop_and_cap plus provenance, or {"refused": <reason>} when the
+    inputs do not justify the exception. Refusing is the common case and is not an error --
+    the caller falls back to the standard cap.
+
+    The exception exists because a rebound entry is bought AT a level, so its stop sits just
+    under that level rather than 2x the noise band below spot. Same 0.5% risk budget, shorter
+    stop, larger position: the risk is not increased, it is measured where it really sits.
+
+    Three guards, and each one is load-bearing:
+      * A REAL support level below spot. No level, no exception -- an arbitrary tight stop is
+        precisely what the 2xATR rule exists to prevent.
+      * Floored at REBOUND_STOP_ATR_FLOOR_MULT x ATR (half a daily range). You may stop tighter
+        than 2x the noise because you have a level; never inside half a day's normal movement.
+        This also bounds the uplift to 4x the standard cap by construction.
+      * The policy's own 3% absolute floor still applies underneath both.
+    """
+    if atr_pct is None or price_usd is None or not total_book_usd:
+        return {"refused": "missing atr20, price or book value -- never estimate either"}
+    if support_usd is None:
+        return {"refused": "no support level supplied; the exception requires a real level, "
+                           "and without one an arbitrary tight stop is the whipsaw the 2xATR "
+                           "rule exists to prevent"}
+    if support_usd >= price_usd:
+        return {"refused": f"support ${support_usd:.2f} is at or above spot ${price_usd:.2f} -- "
+                           f"not a support level for an entry here"}
+
+    framework = (policy or {}).get("stop_loss_framework", {})
+    risk_pct = framework.get("risk_per_position_pct_of_book", 0.5)
+    standard_stop = max(2 * atr_pct, 3.0)
+
+    raw = 100.0 * (price_usd - support_usd) / price_usd
+    atr_floor = REBOUND_STOP_ATR_FLOOR_MULT * atr_pct
+    stop_distance_pct = max(raw, atr_floor, 3.0)
+    bound_by = ("support" if stop_distance_pct == raw else
+                "atr_floor" if stop_distance_pct == atr_floor else "absolute_3pct_floor")
+
+    if stop_distance_pct >= standard_stop:
+        return {"refused": f"support-anchored stop {stop_distance_pct:.2f}% is no tighter than "
+                           f"the standard {standard_stop:.2f}% -- the exception would not help; "
+                           f"use the standard cap"}
+
+    max_position_usd = (risk_pct / 100 * total_book_usd) / (stop_distance_pct / 100)
+    standard_max = (risk_pct / 100 * total_book_usd) / (standard_stop / 100)
+    return {
+        "atr20_pct": atr_pct,
+        "support_usd": round(support_usd, 4),
+        "raw_distance_to_support_pct": round(raw, 3),
+        "atr_floor_pct": round(atr_floor, 3),
+        "stop_distance_pct": round(stop_distance_pct, 3),
+        "bound_by": bound_by,
+        "stop_price_usd": round(price_usd * (1 - stop_distance_pct / 100), 4),
+        "max_position_usd": round(max_position_usd, 2),
+        "standard_max_position_usd": round(standard_max, 2),
+        "uplift_x": round(max_position_usd / standard_max, 2) if standard_max else None,
+        "risk_at_cap_usd": round(max_position_usd * stop_distance_pct / 100, 2),
+        "basis": "support_anchored",
     }
 
 

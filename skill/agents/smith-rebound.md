@@ -139,7 +139,7 @@ If there are zero stay-outs this run, write `STAY-OUT: none`.
  "basis":{"total_book_usd":0,"stock_usd":0,"wallet_usd":0,"ai_capex_pct_total_book":0,"ai_capex_pct_stock":0,"ai_capex_cap_pct":0},
  "gate":{"classification":"escalating|stabilizing|ambiguous","vix_chg_pct":0,"es_pct":0,"nq_pct":0,"worst_asia_pct":0,"worst_asia_index":"","smh_pct":0,"orchestrator_gate":"","downgrade_blocked":false,"news_call_used":false},
  "sl_forensics":[{"ticker":"","action":"exit|trim","qty_change":0,"est_price":0,"current_price":0,"delta_pct":0,"cluster_peer_median_delta_pct":0,"classifier":"macro_driven|idio_weak"}],
- "proposals":[{"ticker":"","action":"rebuy|average|extend|new_entry|stay_out","tier":"T1_HELD|T2_ALUMNI|T4_WATCHLIST","fall_1m_pct":0,"atr20_pct":0,"fall_atr_mult":0,"thesis_known":true,"size_usd":0,"current_price":0,"support_usd":0,"secondary_support_usd":0,"support_source":"live|prime_cache","headroom_usd_total_book":0,"gate":"now|stage_in|wait","tags":["macro_driven"],"rationale":""}],
+ "proposals":[{"ticker":"","action":"rebuy|average|extend|new_entry|stay_out","trigger_type":"rebound","tier":"T1_HELD|T2_ALUMNI|T4_WATCHLIST","fall_pct":0,"fall_window":"5d|1m_fallback","atr20_pct":0,"fall_atr_mult":0,"thesis_known":true,"size_usd":0,"current_price":0,"support_usd":0,"secondary_support_usd":0,"support_source":"live|prime_cache","headroom_usd_total_book":0,"gate":"now|stage_in|wait","tags":["macro_driven"],"rationale":""}],
  "considered_excluded":[{"ticker":"","reason":"cluster_full|thin_dip"}],
  "data_quality":[]}
 ```
@@ -168,6 +168,41 @@ STAY-OUT: MU[INSIDER_SELL,WATCH_THESIS] AMAT[INSIDER_SELL] AVGO[INSIDER_SELL,WAT
 ```
 
 Nothing appears before line 1 or after the JSON tail. Never invent a price, flag, or thesis status you didn't actually pull from `state.json` or a live fetch — omit and note in `data_quality`. If `state.json`'s `holdings` matches live holdings exactly, say so via the headline template's optional clause and skip straight to the average/extend scan — don't manufacture forensics on a quiet day.
+
+
+## SIZING: YOUR SUPPORT LEVEL IS NOW LOAD-BEARING (added 2026-08-30)
+
+Until now `support_usd` was decoration — a level in your output that nothing consumed. It is now
+the input to a real policy exception, so getting it right matters more than it used to.
+
+**Why it exists.** The standard rule sizes every position off a stop 2×ATR below spot, which is
+correct when you have no view on where a name should hold. You do: a rebound entry is bought AT a
+level, so its stop belongs just under that level. Same 0.5%-of-book risk, much shorter stop,
+therefore a much larger position — the risk is not increased, it is measured where it actually
+sits. Constant-dollar-risk sizing otherwise penalises exactly the high-volatility names this
+desk's rebound mandate is about: a 14%-ATR name gets roughly one seventh the allowance of a
+2%-ATR one.
+
+**What you must supply**, per candidate you propose: `trigger_type: "rebound"`, `support_usd`
+(a real level, below spot), and `price_at_proposal`. The orchestrator passes these to
+`smith_math.py add-proposal`, which does the arithmetic. **You do not compute the size** — the
+exception is applied in code, and your `size_usd` is treated as a request that gets clamped to
+the computed cap.
+
+**The floor that protects you.** The support-anchored stop is floored at `0.5 × atr20_pct` and at
+3% absolute. A 4% stop on a 14%-ATR name is precisely the whipsaw the 2×ATR rule was written to
+prevent, so you cannot stop inside half a daily range however close support looks. That floor is
+also why the exception can never size more than 4× the standard cap.
+
+**No level, no exception.** If you cannot identify a real support level for a candidate, omit
+`support_usd`. The proposal is then sized by the standard rule and stamped as such with the
+reason — which is a correct, honest outcome. Do **not** invent a level to unlock a bigger
+position; that inverts the entire safeguard.
+
+**The aggregate cap still binds and is currently breached.** Every entry competes for a
+book-level open-risk budget that is over its cap, so the sizing path stamps a `FUNDING REQUIRED`
+flag naming how much risk must be freed elsewhere. Frame your top candidates as the buy leg of a
+rotation and name what funds them; a standalone add on an overdrawn budget is not actionable.
 
 ## GUARDRAILS (standing — apply to every run)
 - (Tool-call budget: the SPEED CONTRACT's ≤8 calls above IS the budget — no separate cap.)

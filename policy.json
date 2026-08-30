@@ -155,7 +155,8 @@
     "2026-07-28: cash band replaced with a two-regime rule (normal [5,15]%, post-stop-event [5,40]%) on user instruction. See cash_regimes.",
     "2026-07-28: Power/DC cluster floor was found to cap total deployable equity at ~$30,010 with only GEV+VRT in the cluster -- breadth, not capital, is the binding constraint. A third Power/DC name was screened and proposed (CEG) to relieve it.",
     "2026-07-28: cluster denominator made conditional on cash regime (user-raised). See cluster_denominator_conditional.",
-    "2026-08-30: cluster_targets revised (three diversifier clusters given real targets, AI targets stepped down to keep the sum at 100%); ai_capex_factor_flag_threshold_pct set to 90 as an OBSERVATION threshold only; stale LTCG note removed -- lots.json now carries 74 lots with zero null dates, so G1 is closed and prefer_ltcg is applicable name-by-name."
+    "2026-08-30: cluster_targets revised (three diversifier clusters given real targets, AI targets stepped down to keep the sum at 100%); ai_capex_factor_flag_threshold_pct set to 90 as an OBSERVATION threshold only; stale LTCG note removed -- lots.json now carries 74 lots with zero null dates, so G1 is closed and prefer_ltcg is applicable name-by-name.",
+    "2026-08-30: stop_loss_framework.support_anchored_exception added on user instruction -- rebound entries size off their real stop (floored at 0.5x ATR and 3%), same 0.5% risk budget, uplift bounded to 4x by the floor. Aggregate open-risk cap unchanged and still binding."
   ],
   "cluster_target_denominator": "invested_equity",
   "cash_pct_denominator": "total_book",
@@ -200,7 +201,22 @@
     "position_size_formula": "max_position_usd = (0.005 * total_book_usd) / stop_distance_pct",
     "aggregate_open_risk_cap_pct_of_book": 10,
     "rationale": "The user runs tight, large-quantum stops by design and will continue to (confirmed 2026-07-27); the stops are an emotional-tolerance control, not a technical signal. The prior failure mode was stop distance set without reference to a name's volatility -- a 3% stop on a name that ranges 8-9% intraday is a near-certain whipsaw. Constant-risk sizing resolves the apparent tension between 'wide stops' and 'small losses': a wider stop automatically produces a SMALLER position, so the dollar loss stays capped at 0.5% of book either way. DESIGN INTENT: worst case with every stop firing sits inside the -15% drawdown_warn rung, so the stop system can never by itself trigger the de-risking ladder. CORRECTED 2026-08-30 -- this file asserted that worst case was '~7.4% of book' as though it were a standing property. It is not; it is an OUTCOME of how much is deployed and at what volatility, and it drifts. Measured 11.947% on 2026-08-30 and 13.028% on 08-26, against the 10% aggregate_open_risk_cap_pct_of_book below -- i.e. the cap has been BREACHED, not merely approached. `smith_math.py validate` now fails on aggregate_over_cap so this can never again run for weeks as an unread line in a table. Any new position competes for a budget that is currently overdrawn and must be funded by reducing risk elsewhere.",
-    "review_note": "Daily-range inputs should be refreshed from a trailing 20-day window, not a single session; the 2026-07-27 seeding used Friday 07-24 ranges only."
+    "review_note": "Daily-range inputs should be refreshed from a trailing 20-day window, not a single session; the 2026-07-27 seeding used Friday 07-24 ranges only.",
+    "support_anchored_exception": {
+      "confirmed_by_user": "2026-08-30",
+      "applies_to": [
+        "rebound",
+        "rebound_entry"
+      ],
+      "rule": "For a REBOUND ENTRY only, and only when a real support level below spot is supplied and cited, size off the actual stop -- just under that support -- instead of 2xATR below spot. stop_distance_pct = max(distance_to_support, 0.5 x atr20_pct, 3.0).",
+      "risk_per_position_pct_of_book": 0.5,
+      "risk_is_unchanged": "This does NOT loosen the risk budget. The same 0.5% of book is at risk if the stop fires; it is simply measured where the stop actually sits rather than at an arbitrary 2xATR. Verified: risk-at-cap is identical to the standard rule for every volatility tier.",
+      "atr_floor_mult": 0.5,
+      "why_the_floor": "A 4% stop on a 14%-ATR name is exactly the whipsaw this framework's main rationale was written to prevent. The support-anchored stop may be tighter than 2x the noise band because it rests on a real level, but never inside HALF a day's normal movement. The floor doubles as the uplift bound and is why no separate cap is needed: standard is 2xATR and the tightest permitted is 0.5xATR, so the exception can never size more than 4x the standard cap.",
+      "aggregate_cap_still_binds": "aggregate_open_risk_cap_pct_of_book applies unchanged. As of 2026-08-30 it is BREACHED (13.2% vs 10%), so a rebound entry must be FUNDED by reducing risk elsewhere -- typically the buy leg of a paired rotation -- not added on top. The sizing path stamps the funding shortfall on the proposal.",
+      "max_single_position_pct_still_binds": true,
+      "rationale": "Added 2026-08-30 on explicit user instruction, after modelling showed the standard rule structurally penalises exactly the names a rebound mandate wants. Constant-dollar-risk sizing makes max_position inversely proportional to ATR, so a 14%-ATR name gets ~1/7th the allowance of a 1.9%-ATR name and is flagged over-cap 38% of the time against 11% for low-vol names. That is correct for an entry with no view on where the name holds, and wrong for one bought AT a level. smith-rebound already computes support_usd; this makes the sizing consume it."
+    }
   },
   "monthly_contribution_usd": 1000,
   "monthly_contribution_note": "User commits USD 1,000 of NEW external cash per month starting 2026-08 (confirmed 2026-07-27). ~2.5% of current book per month. Deployment rule: direct each month's contribution to the cluster furthest BELOW its target_pct, and within that cluster to the lowest-volatility name with the most headroom under its constant-risk position cap. This is the structural antidote to the stop-out cycle -- fresh capital arrives every month regardless of whether stops fired, so redeployment never depends on conviction returning at a low.",

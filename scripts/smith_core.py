@@ -174,6 +174,28 @@ REBOUND_MIN_FALL_PCT = -8.0          # over 5 days
 REBOUND_MIN_FALL_PCT_1M_FALLBACK = -12.0
 REBOUND_MIN_ATR_PCT = 6.0
 
+# SUPPORT-ANCHORED STOP EXCEPTION (added 2026-08-30, explicit user instruction).
+# The general rule sizes every position off a stop 2xATR below SPOT, which is correct when you
+# have no view on where the name should hold. A rebound entry does: it is bought AT a support
+# level, so the stop belongs just under that level -- a much shorter distance, and therefore a
+# larger position at the SAME 0.5% dollar risk. No extra risk is taken; the risk is measured
+# where it actually sits.
+#
+# THE DANGER, and the floor that answers it. A 4% stop on a 14%-ATR name is exactly the whipsaw
+# policy.json's own rationale was written to prevent ("a 3% stop on a name that ranges 8-9%
+# intraday is a near-certain whipsaw"). So the support-anchored stop is floored at half the
+# name's average daily range: you may stop tighter than 2x the noise band because you have a
+# real level, but never inside half a day's normal movement.
+#
+# That floor doubles as the uplift bound, which is why it needs no separate cap: the standard
+# stop is 2xATR and the tightest permitted is 0.5xATR, so this exception can never size more
+# than 4x the standard cap for any name where 2xATR clears the 3% absolute floor.
+REBOUND_STOP_ATR_FLOOR_MULT = 0.5
+
+# Trigger types allowed to use the exception. Deliberately narrow: this is a rebound-entry
+# mechanism, not a general loosening of position sizing.
+SUPPORT_ANCHORED_TRIGGERS = {"rebound", "rebound_entry"}
+
 CORRECTION_STATES = ("none", "pullback", "correction", "deep_correction")
 
 TRIGGER_CACHE_MIN_COVERAGE_PCT = 85.0

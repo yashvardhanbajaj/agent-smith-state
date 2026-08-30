@@ -1480,6 +1480,70 @@ def cmd_dismiss(args):
 _BARE_DIRECTION_WORDS = {"BUY", "SELL", "TRIM", "HOLD", "ADD", "EXIT", "REDUCE", "REBUILD"}
 
 
+def _size_support_anchored(spec, base_dir):
+    """Size a rebound entry off its real stop, and stamp what bound it.
+
+    Returns {"fields": {...}, "rejected": None|reason}. Never silently substitutes a number:
+    if the exception does not apply, the caller's own size_usd stands and the reason is
+    recorded on the proposal, because a size that quietly changed basis is worse than one
+    that is merely wrong.
+    """
+    policy = load_json(os.path.join(base_dir, "policy.json"), default={})
+    state = load_json(os.path.join(base_dir, "state.json"), default={})
+    atr = ((state.get("data_cache", {}) or {}).get("atr20", {}) or {}).get("values_pct", {}) or {}
+    ticker, price = spec.get("ticker"), spec.get("price_at_proposal")
+    rd = state.get("last_run_dir")
+    risk_file = os.path.join(base_dir, rd, "compute_risk.json") if rd else None
+    risk = load_json(risk_file, default={}) if risk_file and os.path.exists(risk_file) else {}
+    total_book = risk.get("total_book_usd") or (state.get("us", {}) or {}).get("total_book_usd")
+
+    if spec.get("support_usd") is None:
+        return {"fields": {"sizing_basis": "standard",
+                           "support_anchored_refused": "no support_usd on the spec -- smith-rebound "
+                                                       "computes support levels (rule G); a rebound "
+                                                       "entry without one is sized by the standard "
+                                                       "2xATR rule and is not eligible for the "
+                                                       "exception"}, "rejected": None}
+    res = smith_risk.support_anchored_cap(atr.get(ticker), price, spec.get("support_usd"),
+                                          total_book, policy)
+    if "refused" in res:
+        return {"fields": {"sizing_basis": "standard",
+                           "support_anchored_refused": res["refused"]}, "rejected": None}
+
+    size = spec.get("size_usd")
+    fields = {
+        "sizing_basis": "support_anchored",
+        "support_usd": res["support_usd"],
+        "stop_price_usd": res["stop_price_usd"],
+        "stop_distance_pct": res["stop_distance_pct"],
+        "stop_bound_by": res["bound_by"],
+        "max_position_usd": res["max_position_usd"],
+        "standard_max_position_usd": res["standard_max_position_usd"],
+        "uplift_x": res["uplift_x"],
+        "risk_at_cap_usd": res["risk_at_cap_usd"],
+    }
+    # The exception raises the CAP; it never raises a size the caller did not ask for.
+    if size is not None and size > res["max_position_usd"]:
+        fields["size_usd"] = res["max_position_usd"]
+        fields["clamped_by"] = "support_anchored_cap"
+        fields["size_requested_usd"] = size
+
+    # THE AGGREGATE CAP STILL BINDS, and on 2026-08-30 it is breached. A rebound entry that
+    # adds risk to an overdrawn budget must say so on its face -- this is the difference
+    # between "buy the bounce" and "buy the bounce with money you have already spent".
+    if risk.get("aggregate_over_cap"):
+        over = (risk.get("aggregate_open_risk_usd", 0)
+                - risk.get("aggregate_open_risk_cap_pct", 10) / 100 * (total_book or 0))
+        added = (fields.get("size_usd") or size or 0) * res["stop_distance_pct"] / 100
+        fields.setdefault("review_flags", []).append(
+            f"FUNDING REQUIRED: aggregate open risk is already ${over:,.0f} over its "
+            f"{risk.get('aggregate_open_risk_cap_pct')}% cap "
+            f"({risk.get('aggregate_open_risk_pct')}%), and this entry adds ${added:,.0f} more. "
+            f"Free at least ${over + added:,.0f} of risk elsewhere first -- this is the buy leg "
+            f"of a rotation, not a standalone add.")
+    return {"fields": fields, "rejected": None}
+
+
 def cmd_add_proposal(args):
     """The ONLY sanctioned way to append new proposals to proposals.json (added 2026-08-29,
     same-day incident). Before this command existed, a new batch of proposals was appended by
@@ -1552,6 +1616,23 @@ def cmd_add_proposal(args):
         for optional in ("pair_id", "pair_role", "cluster"):
             if spec.get(optional) is not None:
                 pr[optional] = spec[optional]
+
+        # --- SUPPORT-ANCHORED SIZING (added 2026-08-30) -------------------------------
+        # A rebound entry is bought AT a level, so its stop belongs just under that level
+        # rather than 2xATR below spot -- same 0.5% risk budget, shorter stop, larger
+        # position. The arithmetic is done HERE rather than by the agent, per COMPUTE-FIRST:
+        # this is the point where a proposal is created, so it is the last place the size can
+        # be made deterministic before it becomes a dollar figure someone acts on.
+        if spec.get("trigger_type") in SUPPORT_ANCHORED_TRIGGERS:
+            # Stamp the basis even when the exception does NOT apply. A rebound proposal sized
+            # by the standard rule should say so and say why -- otherwise a reader cannot tell
+            # a deliberate fallback from a forgotten support level, and the two want very
+            # different responses.
+            sized = _size_support_anchored(spec, args.base_dir)
+            pr.update(sized["fields"])
+            if sized["rejected"]:
+                rejected.append({"index": i, "reason": sized["rejected"]})
+                continue
         # belt-and-braces: re-run the exact same shape check the schema validator uses, on
         # THIS proposal, before it ever touches the file. A future caller passing a malformed
         # spec (e.g. a ticker that isn't actually in a hand-supplied `action`) gets rejected
