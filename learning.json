@@ -322,6 +322,14 @@
       "evidence": "smith-scout.md diversifier bench TARGET/THESIS TTL, commit cdd45df",
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "correction",
+      "text": "A source recorded as BLOCKED must record WHAT was tried and WHY it failed. On 2026-08-31 all three smith-quality findings sat at verified:unverified because SKILL.md said FMP secFilings was ACCESS DENIED and sec.gov 403s to WebFetch, plus 'don't re-probe them'. Two unrelated causes had been fused into one closed door: the FMP block is a vendor plan-tier limit that says nothing about the SEC, and the 403 is WebFetch not sending the User-Agent EDGAR's Fair Access rules require -- curl declaring one gets HTTP 200 from every EDGAR endpoint. A missing request header had been recorded as an unreachable regulator for three weeks. Cost: every primary-source check the desk skipped in that window, and re-verification then changed all three findings (AMZN's figures were a quarter stale, INTC's equity drop was sequential not YoY plus 16.8% dilution nobody flagged, BE's dilution and leverage both larger than reported). Generalise: 'don't re-probe' is only safe when the recorded reason is specific enough to distinguish a permission limit from a malformed request.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

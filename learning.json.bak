@@ -314,6 +314,14 @@
       "evidence": "smith_memory.py validate_pending_earnings_staleness (EARNINGS_PENDING_HARD_STALE_DAYS=0), commits cdd45df, d300edb",
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "smith-scout re-fetched analyst mean price targets for all ~8 diversifier_candidates every single deep run, even though a target and its one-line thesis rarely move week to week -- only the live price genuinely needs refreshing every run. Fixed 2026-08-30: diversifier_candidates entries now carry 'as_of'; smith-scout.md instructs reusing target_usd/thesis/clean_diversifier unchanged unless as_of is >7 days old or the candidate is new, refreshing only price_usd/upside_pct every run. Apply the same as_of-gated-reuse pattern to any other agent output where one field moves daily (price) and other fields in the same record move roughly weekly (analyst targets, thesis text, sector classification) -- do not refetch the slow-moving fields just because the fast-moving one needs a refresh.",
+      "evidence": "smith-scout.md diversifier bench TARGET/THESIS TTL, commit cdd45df",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }
