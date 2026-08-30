@@ -1607,6 +1607,140 @@ def _parse_as_of(raw):
 
 
 
+def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
+                    rel_usable=True, rel_age=None):
+    """Measure whether the book is in a broad correction, and if so which names have fallen
+    far enough — and are volatile enough — to be worth watching for a relief rally.
+
+    THE VOLATILITY TENSION, stated because it is the whole design question here. The user wants
+    HIGH-volatility names: they fall hardest in a broad selloff and bounce hardest on the
+    relief, which is what makes the trade worth taking. But this desk's own signal doctrine
+    normalises moves by each name's ATR precisely so that a big move on a loud name is not
+    mistaken for a real dislocation — and applying that here would de-select exactly the names
+    the mandate is about.
+
+    Both readings are kept, and neither is allowed to silently win. Selection and ranking
+    follow the mandate (fall depth x volatility, both positive). `fall_atr_mult` is computed
+    and reported ALONGSIDE, so a candidate whose 20% fall is only 1.3 of its own average daily
+    ranges is visibly ordinary rather than dressed up as a dislocation. The screen picks the
+    candidate; the normaliser tells you how unusual it actually is.
+    """
+    warn = abs(policy.get("drawdown_warn_pct") or 15.0)
+    dd = book.get("drawdown_pct")
+    rel = dc.get("rel_strength_1m", {}) or {}
+    abs_1m = rel.get("values_abs_pct", {}) or {}
+    bench_1m = rel.get("benchmark_return_1m_pct")
+    atr = (dc.get("atr20", {}) or {}).get("values_pct", {}) or {}
+    held = [r["ticker"] for r in risk.get("positions", [])]
+
+    fallen = [t for t in held if (abs_1m.get(t) is not None
+                                  and abs_1m[t] <= REBOUND_BREADTH_FALL_PCT)]
+    breadth = (len(fallen) / len(held)) if held else 0.0
+
+    reasons = []
+    state = "none"
+
+    def worse(a, b):
+        return CORRECTION_STATES.index(a) > CORRECTION_STATES.index(b)
+
+    def bump(to, why):
+        nonlocal state
+        if worse(to, state):
+            state = to
+        reasons.append(why)
+
+    if dd is not None:
+        if dd <= -warn * REBOUND_DEEP_FRACTION_OF_WARN:
+            bump("deep_correction", f"book drawdown {dd:.2f}% at or past the policy warn line ({-warn:.0f}%)")
+        elif dd <= -warn * REBOUND_CORRECTION_FRACTION_OF_WARN:
+            bump("correction", f"book drawdown {dd:.2f}% past half the policy warn line ({-warn/2:.1f}%)")
+        elif dd <= -warn * REBOUND_PULLBACK_FRACTION_OF_WARN:
+            bump("pullback", f"book drawdown {dd:.2f}% past a quarter of the policy warn line ({-warn/4:.1f}%)")
+    if bench_1m is not None:
+        if bench_1m <= REBOUND_BENCH_1M_CORRECTION_PCT:
+            bump("correction", f"benchmark 1m {bench_1m:.2f}% at or past {REBOUND_BENCH_1M_CORRECTION_PCT}%")
+        elif bench_1m <= REBOUND_BENCH_1M_PULLBACK_PCT:
+            bump("pullback", f"benchmark 1m {bench_1m:.2f}% at or past {REBOUND_BENCH_1M_PULLBACK_PCT}%")
+    if held and breadth >= REBOUND_BREADTH_SHARE:
+        bump("correction", f"breadth: {len(fallen)}/{len(held)} held names down "
+                           f"{REBOUND_BREADTH_FALL_PCT}%+ over 1m ({breadth:.0%})")
+
+    # THE SCREEN IS ONLY AS CURRENT AS ITS FALL DATA. Every `fall_1m_pct` here comes from the
+    # rel_strength_1m cache, so a stale cache means the 1-month window PREDATES the very selloff
+    # this screen exists to find -- and the failure is silent: it returns a short, plausible
+    # candidate list rather than an error. Measured on 2026-08-30 the cache was 18 days old with
+    # a benchmark 1m of +0.73%, i.e. a flat window, while the book sat 7.9% below its peak. Note
+    # that the correction STATE was still detected correctly, because the book-drawdown route
+    # reads live prices; it is the per-name candidate screen that degrades.
+    stale_warning = None
+    if not rel_usable:
+        stale_warning = (f"REBOUND CANDIDATES ARE PROVISIONAL: rel_strength_1m is "
+                         f"{rel_age if rel_age is not None else 'unknown'}d old, so every "
+                         f"fall_1m_pct below measures a window that may predate this correction "
+                         f"entirely. Breadth and the benchmark route are equally affected. The "
+                         f"correction STATE is still sound -- it was reached on live book "
+                         f"drawdown. Refresh the cache and re-run before sizing anything.")
+    out = {"correction_state": state, "reasons": reasons,
+           "inputs_usable": bool(rel_usable), "rel_cache_age_days": rel_age,
+           "stale_warning": stale_warning,
+           "book_drawdown_pct": dd, "benchmark_1m_pct": bench_1m,
+           "breadth_fallen_share": round(breadth, 3),
+           "policy_warn_pct": -warn, "candidates": [], "considered": 0,
+           "excluded": {"thesis_blocked": [], "too_quiet": [], "not_fallen_enough": [], "no_data": []}}
+    if state == "none":
+        out["note"] = "No broad correction by any of the three routes -- no rebound screen run."
+        return out
+
+    # THE CANDIDATE POOL IS THE UNIVERSE, NOT THE HOLDINGS. A name exited during the selloff is
+    # exactly the kind of candidate this is for, and it was structurally invisible before.
+    pool = [r for r in (universe.get("tickers") or [])
+            if r.get("tier") in ("T1_HELD", "T2_ALUMNI", "T4_WATCHLIST") and not r.get("suppressed")]
+    for row in pool:
+        t = row["ticker"]
+        fall, a = abs_1m.get(t), atr.get(t)
+        if fall is None or a is None:
+            out["excluded"]["no_data"].append(t)
+            continue
+        out["considered"] += 1
+        if fall > REBOUND_MIN_FALL_PCT:
+            out["excluded"]["not_fallen_enough"].append(t)
+            continue
+        if a < REBOUND_MIN_ATR_PCT:
+            # Not a rejection of the name, only of the TRADE: a low-vol name that fell this far
+            # is a different (and slower) thesis than a relief-rally bounce.
+            out["excluded"]["too_quiet"].append(t)
+            continue
+        status = smith_risk.thesis_status(thesis.get(t))
+        if status is not None and status not in HEALTHY_THESIS:
+            # Same falling-knife gate oversold_reversion already uses: a technical dip on an
+            # intact thesis is a setup; a dip alongside a broken one is a knife.
+            out["excluded"]["thesis_blocked"].append(f"{t} ({status})")
+            continue
+        out["candidates"].append({
+            "ticker": t, "tier": row["tier"], "cluster": row.get("cluster"),
+            "fall_1m_pct": round(fall, 2), "atr20_pct": round(a, 2),
+            "thesis_status": status,
+            "thesis_known": status is not None,
+            # Depth of fall in units of the name's own daily range -- the honest counterweight.
+            "fall_atr_mult": round(abs(fall) / a, 2),
+            "rebound_score": round(abs(fall) * (a / 10.0), 1),
+            "last_held_date": row.get("last_held_date"),
+        })
+    out["candidates"].sort(key=lambda c: -c["rebound_score"])
+    ordinary = [c["ticker"] for c in out["candidates"] if c["fall_atr_mult"] < 1.5]
+    if ordinary:
+        out["note"] = (f"CONTEXT, not a veto: {', '.join(ordinary)} fell less than 1.5x their own "
+                       f"average daily range -- loud names being loud, not obvious dislocations. "
+                       f"Ranked on the mandate (fall x volatility) regardless; weigh this when sizing.")
+    unknown = [c["ticker"] for c in out["candidates"] if not c["thesis_known"]]
+    if unknown:
+        out["thesis_gap"] = (f"{len(unknown)} candidate(s) have NO thesis entry and so passed the "
+                             f"falling-knife gate unexamined rather than on the evidence "
+                             f"({', '.join(unknown[:8])}). state.thesis is seeded from current "
+                             f"holdings, so alumni and watchlist names are absent by construction.")
+    return out
+
+
 def cmd_triggers(args):
     """Deterministic candidate generation for the seven non-ATR proposal triggers.
 
@@ -2491,6 +2625,15 @@ def cmd_triggers(args):
     conviction_average.sort(key=lambda x: -(x.get("conviction_score") or 0))
     conviction_exit.sort(key=lambda x: -(x.get("negative_signal_count") or 0))
     entry_setup.sort(key=lambda x: -(x.get("conviction_score") or 0))
+    rebound = _rebound_screen(book, risk, policy, dc, universe, thesis, today,
+                              rel_usable=rel_usable, rel_age=rel_age)
+
+    if rebound.get("stale_warning"):
+        dq.append(rebound["stale_warning"])
+    if rebound["correction_state"] != "none":
+        dq.append(f"correction_state={rebound['correction_state']} "
+                  f"({'; '.join(rebound['reasons'])}) -- dispatch smith-rebound this run.")
+
     if _reentry_no_thesis:
         dq.append(f"reentry: {len(_reentry_no_thesis)} alumni could not be JUDGED at all -- no "
                   f"state.thesis entry exists for them ({', '.join(sorted(_reentry_no_thesis)[:10])}"
@@ -2539,6 +2682,7 @@ def cmd_triggers(args):
         "trend_entry": trend_entry, "trend_breakdown": trend_breakdown,
         "conviction_average": conviction_average, "conviction_exit": conviction_exit,
         "entry_setup": entry_setup, "reentry": reentry, "bench_diversifier": bench_diversifier,
+        "rebound": rebound, "correction_state": rebound["correction_state"],
         "profit_rotation": profit_rotation, "cluster_rotation": cluster_rotation,
         "laggard_rotation": laggard, "profit_ratchet": ratchet, "scale_out_ladder": ladder,
         "shadow_new": shadow_new,

@@ -122,6 +122,51 @@ TRIGGER_CACHE_MAX_AGE_DAYS = 10
 # when rsi14 and rel_strength_1m each covered 31 of 35 held names. Set at 85% rather than 100%
 # because a genuinely new or short-history listing (SKHY's ADR has too few closes for RSI14) is a
 # legitimate permanent gap, not a refresh failure; the flag should fire on neglect, not on physics.
+# ---------------------------------------------------------------------------
+# REBOUND / BROAD-CORRECTION SCREEN (added 2026-08-30)
+# ---------------------------------------------------------------------------
+# smith-rebound's mandate was RESTATED by the user on 2026-08-30 and it is not what the agent
+# had been built to do. Its file framed it as a "Drawdown-Day Rapid Redeployment Desk" whose
+# rule A is stop-loss forensics (diff holdings, find what got stopped out) and whose rule E
+# only scans names ALREADY HELD. So the orchestrator skipped it, correctly under that framing,
+# on runs with no stop-outs and no spare cash -- 2026-08-26 and 08-29 both say so in the ledger.
+#
+# The real mandate: find names that have fallen too far in a BROAD CORRECTION, biased toward
+# HIGH-VOLATILITY names, as candidates to buy for a relief rally. That needs none of the three
+# things it was being gated on -- it does not require a stop-out, does not require spare cash
+# (the candidates are equally the buy leg of a rotation), and must not be limited to current
+# holdings, since a name exited in the selloff is exactly the kind of candidate wanted.
+#
+# So the dispatch condition becomes a MEASURED correction state rather than a pre-market
+# futures gate. The futures gate answers "is this morning scary", which is a different and much
+# noisier question than "has this book actually corrected".
+#
+# Thresholds are derived from policy.drawdown_warn_pct rather than invented, so they track the
+# user's own stated risk appetite instead of drifting away from it: `deep` is the policy warn
+# line itself, `correction` is half of it, `pullback` a quarter. On the day this was written the
+# book sat at -7.94% -- a real correction by any reading, and less than a third of the way to the
+# policy warn line, which is precisely the zone the old gate had no way to name.
+REBOUND_DEEP_FRACTION_OF_WARN = 1.0
+REBOUND_CORRECTION_FRACTION_OF_WARN = 0.5
+REBOUND_PULLBACK_FRACTION_OF_WARN = 0.25
+
+# Benchmark confirmation, independent of the book's own peak. A book can be near its peak while
+# its sector is mid-correction (and vice versa after a large deposit), so either route qualifies.
+REBOUND_BENCH_1M_CORRECTION_PCT = -6.0
+REBOUND_BENCH_1M_PULLBACK_PCT = -3.0
+
+# Breadth: a correction that has hit half the book is a correction whatever the peak says.
+REBOUND_BREADTH_FALL_PCT = -10.0
+REBOUND_BREADTH_SHARE = 0.50
+
+# Candidate screen. A name must have fallen at least this much to be a rebound candidate at all,
+# and must carry at least this much volatility -- the high vol IS the thesis here (it is what
+# makes the relief rally worth catching), not a risk to be screened out.
+REBOUND_MIN_FALL_PCT = -12.0
+REBOUND_MIN_ATR_PCT = 6.0
+
+CORRECTION_STATES = ("none", "pullback", "correction", "deep_correction")
+
 TRIGGER_CACHE_MIN_COVERAGE_PCT = 85.0
 
 # A weekly move in a sector ETF beyond this is not a market event, it is a corrupt cell.
@@ -256,6 +301,9 @@ FRESHNESS = {
     "macro_read":                  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-macro",     "on_stale": "flag"},
     "tax_read":                    {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-tax",       "on_stale": "flag"},
     # --- monthly agents: a missed month must be a defect, not a silence (G50 shape) ---
+    # Only meaningful during a correction, so a short TTL: a rebound list from a fortnight ago
+    # describes a selloff that has already resolved one way or the other.
+    "rebound_candidates":          {"stamp": "field:as_of", "ttl_days": 5,  "owner": "smith-rebound", "on_stale": "flag"},
     "cycle_position":              {"stamp": "field:as_of", "ttl_days": 35, "owner": "smith-cycle",   "on_stale": "escalate"},
     "quality_read":                {"stamp": "field:as_of", "ttl_days": 35, "owner": "smith-quality", "on_stale": "escalate"},
 }

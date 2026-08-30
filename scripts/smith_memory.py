@@ -870,6 +870,28 @@ def _merge_tax(out, state, today):
             "trim_sequencing": len(out.get("trim_sequencing", []) or [])}
 
 
+def _merge_rebound(out, state, today):
+    """smith-rebound had NO merge rule and NO state key, so every candidate list it ever
+    produced was discarded at the end of the run -- the 2026-08-24 run named four rebuy
+    candidates and none of them survived to the next run, the dashboard or any report. Same
+    shape as the cycle_position and factor_catalysts (G50) losses: an agent dispatched, its
+    output landing nowhere the persist table names.
+
+    That is also part of why the agent looked unused. It was not only being skipped; on the
+    runs it DID work, nothing kept what it found."""
+    props = out.get("proposals")
+    if props is None:
+        return {"rebound_candidates": 0, "note": "tail carried no proposals array"}
+    state["rebound_candidates"] = {
+        "as_of": today,
+        "correction_state": out.get("correction_state"),
+        "gate": out.get("gate", {}),
+        "candidates": props,
+        "considered_excluded": out.get("considered_excluded", []),
+    }
+    return {"rebound_candidates": len(props)}
+
+
 # Which state keys each agent OWNS the freshness of. After a successful merge, `<key>_as_of`
 # is stamped so smith_core.FRESHNESS can age it. Generalises the one case that already worked
 # (signal_history_as_of) instead of leaving every other artefact undateable -- which is how
@@ -897,6 +919,7 @@ MERGE_RULES = {
     "scout": _merge_scout,
     "watchlist": _merge_watchlist,
     "macro": _merge_macro,
+    "rebound": _merge_rebound,
     "cycle": _merge_cycle,
     "quality": _merge_quality,
     "tax": _merge_tax,
@@ -914,7 +937,7 @@ def cmd_merge_tails(args):
 
     Reads runs/<run-dir>/out_<agent>.json for every agent named in --agents (or every agent in
     MERGE_RULES whose out_*.json file exists, if --agents is omitted). Agents not yet covered
-    by MERGE_RULES (currently: rebound, ledger, strategist -- their state
+    by MERGE_RULES (currently: ledger, strategist -- their state
     writes are either handled by dedicated commands like `lots`/`proposals`, or don't merge
     into state.json at all) are skipped and reported, not silently ignored.
 
@@ -1942,6 +1965,45 @@ def _report_daily(base_dir, run_dir, today, state, freshness_rows):
                  f"({triggers.get('rel_age_days')}d old, {triggers.get('rel_coverage_pct')}% coverage)")
         L.append(f"- Deployable cash for ideas: {_r_money(triggers.get('deployable_cash_for_ideas_usd'))}")
         L.append(f"- Live triggers fired: {', '.join(f'{k} ×{v}' for k, v in sorted(fired.items())) or 'none'}")
+        L.append("")
+
+    # --- 3b. correction state + rebound candidates ---------------------------
+    reb = (triggers or {}).get("rebound") or {}
+    if reb:
+        L.append("## Correction & rebound")
+        L.append("")
+        cs = reb.get("correction_state", "none")
+        L.append(f"**correction_state: {cs}**"
+                 + (f" — {'; '.join(reb.get('reasons') or [])}" if reb.get("reasons") else ""))
+        L.append("")
+        if cs == "none":
+            L.append("No broad correction by drawdown, benchmark or breadth — smith-rebound not dispatched.")
+        else:
+            L.append("smith-rebound dispatches on this state — not on stop-outs, spare cash, or the "
+                     "pre-market gate, each of which wrongly suppressed it before.")
+            if reb.get("stale_warning"):
+                L.append("")
+                L.append(f"> {reb['stale_warning']}")
+            cands = reb.get("candidates") or []
+            if cands:
+                L.append("")
+                L.append("| ticker | tier | 1m fall | ATR20 | fall / ATR | score | thesis |\n|---|---|---|---|---|---|---|")
+                for c in cands[:8]:
+                    L.append(f"| {c['ticker']} | {c['tier'].split('_', 1)[1].lower()} | "
+                             f"{c['fall_1m_pct']}% | {c['atr20_pct']}% | {c['fall_atr_mult']}× | "
+                             f"{c['rebound_score']} | {c.get('thesis_status') or '**none**'} |")
+                L.append("")
+                L.append("*Ranked on the mandate — fall depth × volatility, where high volatility is the "
+                         "thesis. `fall / ATR` is the counterweight: under ~1.5× is a loud name being "
+                         "loud rather than a dislocation. Size with it; never veto on it.*")
+            else:
+                L.append("")
+                L.append("No candidates cleared the screen (fall depth, volatility floor, falling-knife "
+                         "thesis gate). See `compute_triggers.json` → `rebound.excluded` for what was "
+                         "considered and why each was dropped.")
+            if reb.get("thesis_gap"):
+                L.append("")
+                L.append(f"*{reb['thesis_gap']}*")
         L.append("")
 
     # --- 4. the candidate set ------------------------------------------------
