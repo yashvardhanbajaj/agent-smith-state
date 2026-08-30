@@ -929,12 +929,13 @@ def validate_technical_cache_staleness(base_dir):
     return defects
 
 
-EARNINGS_PENDING_HARD_STALE_DAYS = 3
+EARNINGS_PENDING_HARD_STALE_DAYS = 0  # flag on the very first run at/after reported_date -- see G84-class rationale below
 
 
 def validate_pending_earnings_staleness(base_dir):
-    """Escalate an earnings_facts entry stuck at status=PENDING past its own reported_date
-    into a hard `validate` defect (added 2026-08-30).
+    """Escalate an earnings_facts entry stuck at status=PENDING at/past its own reported_date
+    into a hard `validate` defect (added 2026-08-30, tightened same-day after user feedback
+    that a multi-day grace period was too slow -- "no 3 days stuck").
 
     smith-earnings exists specifically to "own the words beat/miss for the whole fleet" and
     write verified actuals into data_cache.earnings_facts so no other agent re-derives a
@@ -946,9 +947,16 @@ def validate_pending_earnings_staleness(base_dir):
     verification effort AND exactly the un-scripted-residue risk EVIDENCE PRINCIPLE exists to
     close, just for a fact that was cheap to settle days earlier.
 
+    EARNINGS_PENDING_HARD_STALE_DAYS is 0: this fires on the FIRST run at or after
+    reported_date, not after a grace period -- both on quick and deep sweeps (see SKILL.md's
+    EARNINGS VERIFY trigger, which is deliberately NOT gated to deep-only, since a verify-only
+    dispatch is cheap and the whole point is closing the gap same-day). A same-day print (an
+    after-hours report that yfinance hasn't indexed yet) may legitimately still come back
+    unresolved on the very first attempt -- that's fine and not a bug; the check just makes
+    the orchestrator try immediately and every run after, rather than waiting for a threshold.
+
     This check does not dispatch anything itself (validate is read-only) -- it makes the gap
-    loud enough that the orchestrator adds an EARNINGS VERIFY trigger to Stage 1 rather than
-    leaving smith-earnings PRE-print-only forever.
+    loud enough that the orchestrator dispatches a verify pass immediately.
     """
     defects = []
     state = load_json(os.path.join(base_dir, "state.json"), default={})

@@ -1,6 +1,6 @@
 ---
 name: smith-earnings
-description: Agent Smith sub-agent — Earnings analyst for the US portfolio. Owns the words "beat" and "miss" for the whole fleet, plus option-implied expected move, per-name surprise history and post-earnings drift. Populates data_cache.earnings_facts so no other agent has to re-derive a print. Deep runs with a held name reporting inside 5 trading days, or on demand. No personality, no user-facing briefing.
+description: Agent Smith sub-agent — Earnings analyst for the US portfolio. Owns the words "beat" and "miss" for the whole fleet, plus option-implied expected move, per-name surprise history and post-earnings drift. Populates data_cache.earnings_facts so no other agent has to re-derive a print. Deep runs with a held name reporting inside 5 trading days, or on demand. ALSO dispatched narrowly (VERIFY-ONLY, one or two tickers, any run mode including quick) the moment `smith_math.py validate` flags an earnings_facts entry stuck at status=PENDING at/past its reported_date — see EARNINGS VERIFY trigger in SKILL.md, added 2026-08-30 to close a same-day gap, not a multi-day one. No personality, no user-facing briefing.
 model: opus
 ---
 
