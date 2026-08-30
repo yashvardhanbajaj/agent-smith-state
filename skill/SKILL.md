@@ -37,7 +37,7 @@ EVIDENCE PRINCIPLE (the qualitative counterpart to COMPUTE-FIRST above — full 
 **READ THIS MAP FIRST.** This section mixes two different things, and conflating them is why the numbering looks odd. Section numbers are STABLE IDENTIFIERS (22 places across the fleet cite `§2.9c`, `§6`, `§7`) — they are **not** a running order. Renumbering would break every one of those citations, so the numbers stay put and this map carries the sequence.
 
 **THE ORDERED SEQUENCE — what actually happens, in order:**
-`0 LOCK` → `0.5 refresher check` → `1 MEMORY` → **`freshness`** → `1.5 market inputs` → `1.6 holiday check` → `1.7 dashboard decision sync` → `2 prefetch + ticker resolution + COMPUTE (pipeline)` → **`slices`** → `3 STAGE 1 (parallel analysts)` → `4 STAGE 2 (strategist)` → `5 SYNTHESIZE` → `6 DASHBOARD` → `7 PERSIST` → **`compact`** → release lock.
+`0 LOCK` → `0.5 refresher check` → `1 MEMORY` → **`freshness`** → `1.5 market inputs` → `1.6 holiday check` → `1.7 dashboard decision sync` → `2 prefetch + ticker resolution + COMPUTE (pipeline)` → **`slices`** → `3 STAGE 1 (parallel analysts)` → `4 STAGE 2 (strategist)` → `5 SYNTHESIZE` → **`report`** → `6 DASHBOARD` → `7 PERSIST` → **`compact`** → release lock.
 
 **THE REFERENCE SECTIONS — policies the steps above cite, not steps themselves:**
 `2.5b` price source · `2.6` persist gate · `2.7` data-fetch methods · `2.8` cache TTLs · `2.9` trade-rationale capture · `2.9b` lots backfill · `2.9c` de-risk queue · `2.9d` non-ATR triggers.
@@ -355,6 +355,11 @@ Header: **Agent Smith — US** (quick) or **Agent Smith — US Deep Review** (de
 12. PROPOSAL OUTCOMES (deep/monthly) — **run `smith_math.py score` first; this section is no longer allowed to say "no proposals have matured yet" without having actually run it.** From proposals.json's `scorecard`: overall/trim/buy accuracy with the n behind each (an accuracy on n=1 is not a finding — state the n), any rows quarantined for anchor review and why, and past proposals scored at 30/90d ("trim NVDA at $120 hit $118 at 30d — worked"), per-proposal success rate, aggregate strategist scorecard.
 13. STANDING GAPS — the known_gaps registry, one compact line per open gap (only NEW gaps get full prose; existing ones are cited by ID).
 14. PREFERENCES (optional) — if user noted "don't show X", state it once in character.
+**15. WRITE THE DATED REPORT (added 2026-08-30, every run).**
+`python3 scripts/smith_math.py report --kind daily --base-dir . --run-dir runs/<ts> --today <date>` → `reports/daily/YYYY-MM-DD.md`, and on the first DEEP run of an ISO week also `--kind weekly` → `reports/weekly/YYYY-Www.md`. **Run it on EVERY run including a market-closed mini-briefing and a refresher** — a gap in the daily series reads as a missed run rather than a quiet day, and the whole value of a dated series is that its holes mean something.
+
+Until this existed the desk produced exactly two artefacts: a chat briefing that lived only in scrollback, and ONE dashboard overwritten every run. There was no dated record and no week-over-week view. **Generated, never hand-authored** — the same rule as the dashboard, for the reason G84 records: a hand-typed narrative is the medium a fact drifts in. The weekly is the one that answers what a daily cannot — proposals *made* against proposals *acted on* (engagement ran 2 of 50 the week this shipped), the staleness ledger by owning agent, and the cycle position with its falsifier. Do not retype any of it into the briefing; the briefing is the narrative, the report is the record.
+
 Close with: "Open the Portfolio Sweep artifact for the live dashboard." Then the MILESTONE block.
 
 ### 6. DASHBOARD ARTIFACT

@@ -124,6 +124,12 @@ TRIGGER_CACHE_MAX_AGE_DAYS = 10
 # legitimate permanent gap, not a refresh failure; the flag should fire on neglect, not on physics.
 TRIGGER_CACHE_MIN_COVERAGE_PCT = 85.0
 
+# A weekly move in a sector ETF beyond this is not a market event, it is a corrupt cell.
+# ledger.csv's `smh` column mixes real levels (~545-570) with values from another series
+# entirely, which rendered a '+254.09%' weekly benchmark move. Same doctrine as the charts:
+# a corrupt reading never sets an axis and never counts as performance.
+BENCHMARK_WEEKLY_PLAUSIBLE_PCT = 25.0
+
 LAGGARD_PCTILE = 25.0            # bottom quartile of 1m relative strength = "yet to run"
 
 RATCHET_MIN_GAIN_PCT = 15.0      # gain before a stop is worth ratcheting to breakeven
