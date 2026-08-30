@@ -52,7 +52,7 @@ import smith_risk
 import smith_conviction
 from smith_core import *  # noqa: F401,F403
 from smith_core import load_json, emit, fail, clamp
-from smith_ledger import cmd_lots, cmd_history
+from smith_ledger import cmd_lots, cmd_history, cmd_universe
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails, cmd_freshness
 from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_add_proposal,
                              cmd_score_shadow_journal, dismiss_proposal_core)
@@ -1343,6 +1343,7 @@ def cmd_pipeline(args):
     STAGES = [
         ("freshness",   [],                                          lambda d: d.get("artefacts")),
         ("book",        ["holdings.json"],                          lambda d: d.get("value_usd")),
+        ("universe",    ["holdings.json"],                          lambda d: d.get("total")),
         ("risk",        ["compute_book.json"],                      lambda d: d.get("positions")),
         ("drift",       ["compute_book.json"],                      lambda d: d.get("cluster_table")),
         ("journal",     ["holdings.json"],                          lambda d: True),
@@ -1803,27 +1804,51 @@ def cmd_triggers(args):
         if isinstance(entry, dict) and entry.get("verified_on") == today.isoformat():
             _bump(t)
 
-    # recently-exited tickers (added 2026-08-24) -- a `reentry` candidate pool. trades.json's
-    # `action == "exit"` is the objective, already-recorded signal (never inferred from a bare
-    # qty diff), scoped to the last 20 trading days so a name exited months ago on since-stale
-    # reasoning doesn't resurface as a re-entry idea.
+    # EVER-EXITED tickers -- the `reentry` candidate pool. Sourced from compute_universe.json's
+    # T2_ALUMNI tier when present, falling back to a trades.json scan.
+    #
+    # REWRITTEN 2026-08-30, and both changes matter:
+    #
+    # (a) The pool was scoped to names exited in the last "20 trading days" -- which the code
+    #     computed as 20 CALENDAR days, so it was really about fourteen. Either way it made 35
+    #     of the 70 tickers this book has ever traded permanently invisible to the proposal
+    #     engine: an alumnus went stale roughly three weeks after exit and could never be
+    #     proposed again, however good it later looked. The window is gone. It was carrying a
+    #     job it was never needed for -- the conviction + thesis gate a few lines below already
+    #     rejects "exited and still weak", which is the actual thing worth filtering. A time
+    #     limit filtered on WHEN rather than on WHETHER THE CASE IS GOOD NOW. `exited_on`
+    #     survives as CONTEXT for the rationale, never as an eligibility gate.
+    #
+    # (b) The pool keyed on `action == "exit"`. SKILL.md 2.9 already warns that `action`
+    #     strings have drifted inconsistently across trades.json's history and that `qty_diff`
+    #     is the unambiguous signal; the universe derives membership from quantity math
+    #     instead of a label, so it sees exits that were never labelled as such.
     trades = load_json(os.path.join(args.base_dir, "trades.json"), default={"trades": []})
-    exit_cutoff = today.toordinal() - 20
+    universe = load_json(os.path.join(args.run_dir, "compute_universe.json"), default={})
     recently_exited = {}
-    for tr in trades.get("trades", []):
-        if tr.get("action") != "exit":
-            continue
-        try:
-            d = date.fromisoformat(tr.get("date", ""))
-        except ValueError:
-            continue
-        if d.toordinal() < exit_cutoff:
-            continue
-        if tr["ticker"] in risk_by_ticker:
-            continue  # already re-entered
-        prior = recently_exited.get(tr["ticker"])
-        if prior is None or d > prior:
-            recently_exited[tr["ticker"]] = d
+    alumni_rows = [r for r in (universe.get("tickers") or [])
+                   if r.get("tier") == "T2_ALUMNI" and not r.get("suppressed")]
+    if alumni_rows:
+        for r in alumni_rows:
+            if r["ticker"] in risk_by_ticker:
+                continue  # already re-entered
+            try:
+                recently_exited[r["ticker"]] = date.fromisoformat(r.get("last_held_date") or "")
+            except (ValueError, TypeError):
+                continue
+    else:
+        dq.append("compute_universe.json absent or empty -- reentry fell back to a trades.json "
+                  "action=='exit' scan. Run `universe` before `triggers` for full alumni coverage.")
+        for tr in trades.get("trades", []):
+            if tr.get("action") != "exit" or tr.get("ticker") in risk_by_ticker:
+                continue
+            try:
+                d = date.fromisoformat(tr.get("date", ""))
+            except ValueError:
+                continue
+            prior = recently_exited.get(tr["ticker"])
+            if prior is None or d > prior:
+                recently_exited[tr["ticker"]] = d
 
     def _track_record_for(buckets):
         """Track record: use the measured hit rate of whichever bullish bucket this ticker
@@ -2289,9 +2314,13 @@ def cmd_triggers(args):
     # the engine sizes its re-entry at $0": recently_exited tickers, priced from the last known
     # fill (trades.json), sized via policy_max_position_usd at qty=0 (works for unheld names by
     # construction -- see smith_conviction's module note).
+    _reentry_no_thesis, _reentry_judged_out = [], []
     last_exit_price = {}
-    for tr in trades.get("trades", []):
-        if tr.get("action") == "exit" and tr.get("ticker") in recently_exited:
+    for tr in sorted(trades.get("trades", []), key=lambda r: r.get("date") or ""):
+        # Chronological, so the LAST priced fill wins -- and keyed on the ticker being in the
+        # pool rather than on the row carrying an "exit" label, since the universe finds exits
+        # that were never labelled one.
+        if tr.get("ticker") in recently_exited and tr.get("price_at_trade"):
             last_exit_price[tr["ticker"]] = tr.get("price_at_trade")
     for ticker, exit_date in recently_exited.items():
         price = last_exit_price.get(ticker)
@@ -2303,7 +2332,14 @@ def cmd_triggers(args):
                "track_record": _track_record_for(buckets_for_ticker)}
         conv = smith_conviction.score_conviction(ctx)
         if conv["conviction_tier"] == "none" or conv["thesis_status"] not in ("intact", "strengthening"):
-            continue  # exited-and-still-weak is not a re-entry case, it's confirmation the exit was right
+            # exited-and-still-weak is not a re-entry case, it's confirmation the exit was right.
+            # BUT distinguish "judged and rejected" from "could not be judged": state.thesis is
+            # seeded from CURRENT holdings, so an alumnus usually has NO thesis entry at all and
+            # fails this gate for absence of evidence rather than on the evidence. That is the
+            # G72 shape again -- a name is silent in a file that cannot represent it. Count both
+            # so the gap is visible instead of looking like "no candidates today".
+            (_reentry_no_thesis if thesis.get(ticker) is None else _reentry_judged_out).append(ticker)
+            continue
         atr_pct = atr_vals.get(ticker)
         pmax = smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy) if (atr_pct and price) else None
         target, wanted = ((None, None) if not pmax else
@@ -2315,7 +2351,7 @@ def cmd_triggers(args):
                         "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
                         "size_wanted_usd": wanted, "suggested_size_usd": size_final, "clamped_by": clamped_by,
                         "stop_price_usd": pmax.get("stop_price_usd") if pmax else None,
-                        "retires_when": f"{ticker}'s thesis leaves intact/strengthening, or 20 trading days pass since exit",
+                        "retires_when": f"{ticker}'s thesis leaves intact/strengthening",
                         "reasons": [f"exited {exit_date.isoformat()} at ${price:.2f}" if price else f"exited {exit_date.isoformat()}"]
                                   + conv["conviction_reasons"],
                         "blockers": ([] if pmax else [f"no live ATR for {ticker} -- exit price is last-known, not live"])})
@@ -2455,6 +2491,16 @@ def cmd_triggers(args):
     conviction_average.sort(key=lambda x: -(x.get("conviction_score") or 0))
     conviction_exit.sort(key=lambda x: -(x.get("negative_signal_count") or 0))
     entry_setup.sort(key=lambda x: -(x.get("conviction_score") or 0))
+    if _reentry_no_thesis:
+        dq.append(f"reentry: {len(_reentry_no_thesis)} alumni could not be JUDGED at all -- no "
+                  f"state.thesis entry exists for them ({', '.join(sorted(_reentry_no_thesis)[:10])}"
+                  f"{'...' if len(_reentry_no_thesis) > 10 else ''}). state.thesis is seeded from "
+                  f"CURRENT holdings, so an exited name is absent by construction and fails the "
+                  f"conviction gate for lack of evidence, not on the evidence. These are not "
+                  f"rejected candidates; they are unexamined ones.")
+    if _reentry_judged_out:
+        dq.append(f"reentry: {len(_reentry_judged_out)} alumni judged and rejected on a real "
+                  f"thesis/conviction read ({', '.join(sorted(_reentry_judged_out)[:10])}).")
     reentry.sort(key=lambda x: -(x.get("conviction_score") or 0))
     bench_diversifier.sort(key=lambda x: -(x.get("conviction_score") or 0))
 
@@ -2896,6 +2942,12 @@ def main():
     sp.add_argument("--today", default=None)
     sp.add_argument("--write", action="store_true", help="apply (default: dry run)")
 
+    sp = sub.add_parser("universe",
+                        help="the candidate set: held + ever-held + peers + watchlist + discovery")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", default=None, help="uses holdings.json for T1; falls back to lots.json")
+    sp.add_argument("--today", default=None)
+
     sp = sub.add_parser("history", help="authoritative was-this-ever-held lookup for a ticker (G72)")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--ticker", required=True, help="one ticker, or a comma-separated list")
@@ -2964,7 +3016,7 @@ def main():
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
          "triggers": cmd_triggers, "score": cmd_score, "pipeline": cmd_pipeline, "lots": cmd_lots,
-         "history": cmd_history, "maxpain": cmd_maxpain, "compact": cmd_compact, "gaps": cmd_gaps, "slices": cmd_slices,
+         "history": cmd_history, "universe": cmd_universe, "maxpain": cmd_maxpain, "compact": cmd_compact, "gaps": cmd_gaps, "slices": cmd_slices,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "freshness": cmd_freshness,
          "dismiss": cmd_dismiss, "add-proposal": cmd_add_proposal,

@@ -375,3 +375,153 @@ def cmd_history(args):
           "note": ("G72 fix. state.thesis and state.signal_history are seeded from CURRENT "
                    "holdings, so an exited name is silent in both by construction. Answer "
                    "'was this ever held' from THIS command only.")})
+
+
+# ---------------------------------------------------------------------------
+# UNIVERSE (added 2026-08-30) -- the candidate set the desk is allowed to reason over
+# ---------------------------------------------------------------------------
+# Built because idea sourcing had no funnel. A proposal could only ever name a currently-held
+# ticker, an INDmoney watchlist name, or a name exited within the last 20 trading days (the
+# `reentry` trigger's expiry). Everything else was invisible BY CONSTRUCTION -- including the
+# 35 distinct tickers this book has traded and no longer holds, sitting in trades.json, which
+# is the one file that records positions that no longer exist (the G72 lesson, one level up:
+# a source that cannot represent a thing cannot be used to rule it out, and a funnel that
+# cannot see a name cannot propose it).
+#
+# The tiers are SEEDS OF STATED INTEREST, not a fence. T1-T4 are names the user has already
+# demonstrated interest in by holding, having held, holding a peer of, or watchlisting. T5 is
+# how genuinely new names get in, capped and weekly, because a book that can only re-rank what
+# it already owns stays single-factor by construction.
+#
+# Deterministic and network-free, like every other compute stage: everything here is already
+# on disk. T3 needs data_cache.etf_constituents seeded for the ETFs peer_map references --
+# without it, "peers of what I hold" is simply not derivable, which was the state on the day
+# this was written (etf_constituents held DRAM and EWY; peer_map referenced SMH, XLK, XLU,
+# XLF and REMX).
+
+UNIVERSE_TIERS = ("T1_HELD", "T2_ALUMNI", "T3_PEERS", "T4_WATCHLIST", "T5_MARKET")
+
+
+def cmd_universe(args):
+    base = args.base_dir
+    trades = load_json(os.path.join(base, "trades.json"), default={"trades": []}).get("trades", [])
+    state = load_json(os.path.join(base, "state.json"), default={})
+    dc = state.get("data_cache", {}) or {}
+
+    holdings = []
+    if getattr(args, "run_dir", None):
+        holdings = load_json(os.path.join(args.run_dir, "holdings.json"),
+                             default={}).get("holdings_inr", []) or []
+    held = {(h.get("ticker") or "").upper() for h in holdings if h.get("ticker")}
+    if not held:  # standalone invocation with no run dir -- fall back to the lot file
+        lots = load_json(os.path.join(base, "lots.json"), default={})
+        held = {t for t, v in smith_risk.data_entries(lots, value_type=list)
+                if sum((l.get("qty") or 0) for l in v) > SHARE_EPS}
+
+    # --- per-ticker trade history, one pass over the ledger ---
+    hist = {}
+    for r in trades:
+        tk = (r.get("ticker") or "").upper()
+        if not tk:
+            continue
+        h = hist.setdefault(tk, {"first": None, "last": None, "n": 0, "last_sell": None})
+        d = r.get("date")
+        h["n"] += 1
+        if d:
+            h["first"] = min(h["first"], d) if h["first"] else d
+            h["last"] = max(h["last"], d) if h["last"] else d
+            if (r.get("qty_change") or 0) < 0:
+                h["last_sell"] = max(h["last_sell"], d) if h["last_sell"] else d
+
+    sector_map = state.get("sector_map", {}) or {}
+    peer_map = state.get("peer_map", {}) or {}
+    wl_suppressed = state.get("watchlist_suppressed", {}) or {}
+    scr_suppressed = state.get("screener_suppressed", {}) or {}
+
+    watchlist = {(t or "").upper() for t in (state.get("watchlist_universe") or [])}
+    watchlist |= {(s.get("ticker") or "").upper()
+                  for s in (state.get("watchlist_setups") or []) if s.get("ticker")}
+    watchlist |= {(t or "").upper() for t in (state.get("diversifier_candidates") or {})}
+    watchlist.discard("")
+
+    # T3: constituents of the peer ETFs the book's own names map to. Not "the whole market" --
+    # the ETFs are chosen by peer_map, which is itself derived from what is held.
+    peer_etfs = sorted({(v or {}).get("peer_etf") for v in peer_map.values()
+                        if isinstance(v, dict) and (v or {}).get("peer_etf")})
+    etf_cache = dc.get("etf_constituents", {}) or {}
+    peers, peer_source = {}, {}
+    for etf in peer_etfs:
+        entry = etf_cache.get(etf) or {}
+        for tk in (entry.get("constituents") or []):
+            tk = (tk or "").upper()
+            if tk:
+                peers.setdefault(tk, etf)
+    peer_source = peers
+
+    market = {(t or "").upper() for t in (state.get("screener_candidates") or {})}
+    market.discard("")
+
+    # Tier precedence: strongest claim wins. A held name is T1 even though it is also its own
+    # peer; an alumnus is T2 even if it is also watchlisted, because "you owned this once" is
+    # a stronger statement of interest than "you listed it".
+    rows, seen = [], set()
+    def add(tk, tier):
+        if not tk or tk in seen:
+            return
+        seen.add(tk)
+        h = hist.get(tk, {})
+        ever = bool(h.get("n"))
+        rows.append({
+            "ticker": tk,
+            "tier": tier,
+            "cluster": sector_map.get(tk),
+            "ever_held": ever,
+            "trade_count": h.get("n", 0),
+            "first_trade": h.get("first"),
+            "last_trade": h.get("last"),
+            # For an alumnus this is when the position was closed out, which is the context a
+            # re-entry rationale needs. It is CONTEXT, never an eligibility gate -- see the
+            # note on `reentry`'s retired expiry below.
+            "last_held_date": None if tier == "T1_HELD" else h.get("last_sell") or h.get("last"),
+            "in_watchlist": tk in watchlist,
+            "peer_of_etf": peer_source.get(tk),
+            "suppressed": (tk in wl_suppressed) or (tk in scr_suppressed),
+            "suppressed_reason": (wl_suppressed.get(tk) or scr_suppressed.get(tk) or {}).get("reason"),
+        })
+
+    for tk in sorted(held):
+        add(tk, "T1_HELD")
+    for tk in sorted(set(hist) - held):
+        add(tk, "T2_ALUMNI")
+    for tk in sorted(watchlist):
+        add(tk, "T4_WATCHLIST")
+    for tk in sorted(peers):
+        add(tk, "T3_PEERS")
+    for tk in sorted(market):
+        add(tk, "T5_MARKET")
+
+    counts = {t: sum(1 for r in rows if r["tier"] == t) for t in UNIVERSE_TIERS}
+    dq = []
+    missing_etfs = [e for e in peer_etfs if not (etf_cache.get(e) or {}).get("constituents")]
+    if missing_etfs:
+        dq.append(f"T3_PEERS is empty or partial: data_cache.etf_constituents has no "
+                  f"constituents for {', '.join(missing_etfs)}, which peer_map references. "
+                  f"Seed them (30-day TTL) or 'peers of what I hold' is not derivable at all.")
+    if not watchlist:
+        dq.append("T4_WATCHLIST is empty -- state.watchlist_universe unset and no live setups. "
+                  "smith-watchlist should persist the full INDmoney list, not only its setups.")
+    if not market:
+        dq.append("T5_MARKET is empty -- no screener_candidates persisted. Expected on any run "
+                  "that is not the weekly discovery sweep; not a defect on a daily run.")
+
+    emit({"as_of": (args.today or str(date.today())),
+          "counts": counts,
+          "total": len(rows),
+          "suppressed_count": sum(1 for r in rows if r["suppressed"]),
+          "peer_etfs_referenced": peer_etfs,
+          "tickers": rows,
+          "data_quality": dq,
+          "note": ("Tiers are seeds of stated interest, not a fence. Tier precedence on "
+                   "overlap: T1 > T2 > T4 > T3 > T5. `last_held_date` is CONTEXT for a "
+                   "re-entry rationale, never an eligibility gate -- an ever-held name stays "
+                   "in the universe permanently.")})
