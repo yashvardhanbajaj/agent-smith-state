@@ -57,11 +57,23 @@ OUTPUT — WRITE the full output below to the given output_file (≤120 lines), 
  "journal_new":[{"date":"","ticker":"","bucket":"","price_at_flag":0,"analyst_target":0,"day_atr_mult":null,"rel_sigma":null,"normalized":true}],
  "peer_map_updates":{"TICKER":{"peer_etf":"","label":""}},
  "analyst_targets_updates":{"TICKER":{"mean_target_usd":0,"n_analysts":0,"as_of":"YYYY-MM-DD"}},
+ "ret_5d_updates":{"values_pct":{"TICKER":0},"benchmark_return_pct":0,"benchmark":"SMH"},
  "vol_normalization":{"TICKER":{"atr20_pct":0,"day_atr_mult":0,"rel_sigma":0,"threshold_pct":0}},
  "data_quality":[]}
 ```
 (new watermark = today. Cap data_quality at 6 bullets — anything more durable goes to the orchestrator's known_gaps registry instead of being re-explained every run.)
 `vol_normalization` carries only the names that actually fired a move-based bucket this run, not the whole book — it is the audit trail for the scaling. `journal_new` records `day_atr_mult`/`rel_sigma` at flag time with `normalized:false` on any `[unnormalized]` fallback, so once these entries score at 30d the desk can test whether volatility-scaled flags actually beat the old absolute ones instead of assuming they do.
+`ret_5d_updates` (added 2026-08-30): the trailing **5-trading-day** % return for every name you
+pull daily bars for, plus SMH's. **This is free** — it comes from the same `get_stock_history`
+bars that already produce ATR20 and RSI14, so collect it whenever you refresh either of those.
+
+Why 5 days specifically: a selloff and its relief rally resolve inside about a week, and the
+rebound screen was initially built on the 1-month return purely because that was the only
+per-name return already cached. A 1-month window straddles the rally that preceded the selloff,
+so a name down 18% in five days can read flat over the month and never surface as a candidate at
+all. This is the fall measure `smith_math.py triggers` uses; without it the rebound screen falls
+back to the 1-month number and says so, but it is measuring the wrong thing.
+
 `analyst_targets_updates` (added 2026-08-30): return the mean target you already pulled for
 every name you cite one for. `data_cache.analyst_targets` carried a declared 7-day TTL and was
 an EMPTY DICT, while TARGET GAP was the second most-fired bucket in the book (n=19) and four of

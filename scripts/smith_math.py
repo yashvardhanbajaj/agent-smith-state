@@ -1630,11 +1630,25 @@ def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
     rel = dc.get("rel_strength_1m", {}) or {}
     abs_1m = rel.get("values_abs_pct", {}) or {}
     bench_1m = rel.get("benchmark_return_1m_pct")
+    # 5-day is the primary window: a selloff resolves in about a week, and a 1-month lookback
+    # straddles the rally that preceded it, so a name down 18% in five days can read flat.
+    r5 = dc.get("ret_5d", {}) or {}
+    fall_5d = r5.get("values_pct", {}) or {}
+    bench_5d = r5.get("benchmark_return_pct")
+
+    def _fall(t):
+        """(value, window_label, threshold). 5-day where available, 1-month as a LABELLED
+        fallback -- never silently mixed, since the two are not comparable magnitudes."""
+        if fall_5d.get(t) is not None:
+            return fall_5d[t], "5d", REBOUND_MIN_FALL_PCT
+        if abs_1m.get(t) is not None:
+            return abs_1m[t], "1m_fallback", REBOUND_MIN_FALL_PCT_1M_FALLBACK
+        return None, None, None
     atr = (dc.get("atr20", {}) or {}).get("values_pct", {}) or {}
     held = [r["ticker"] for r in risk.get("positions", [])]
 
-    fallen = [t for t in held if (abs_1m.get(t) is not None
-                                  and abs_1m[t] <= REBOUND_BREADTH_FALL_PCT)]
+    fallen = [t for t in held if (_fall(t)[0] is not None
+                                  and _fall(t)[0] <= REBOUND_BREADTH_FALL_PCT)]
     breadth = (len(fallen) / len(held)) if held else 0.0
 
     reasons = []
@@ -1656,7 +1670,13 @@ def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
             bump("correction", f"book drawdown {dd:.2f}% past half the policy warn line ({-warn/2:.1f}%)")
         elif dd <= -warn * REBOUND_PULLBACK_FRACTION_OF_WARN:
             bump("pullback", f"book drawdown {dd:.2f}% past a quarter of the policy warn line ({-warn/4:.1f}%)")
-    if bench_1m is not None:
+    if bench_5d is not None:
+        # A benchmark that fell this far in a WEEK is the case this screen exists for.
+        if bench_5d <= REBOUND_BENCH_1M_CORRECTION_PCT:
+            bump("correction", f"benchmark 5d {bench_5d:.2f}% at or past {REBOUND_BENCH_1M_CORRECTION_PCT}%")
+        elif bench_5d <= REBOUND_BENCH_1M_PULLBACK_PCT:
+            bump("pullback", f"benchmark 5d {bench_5d:.2f}% at or past {REBOUND_BENCH_1M_PULLBACK_PCT}%")
+    elif bench_1m is not None:
         if bench_1m <= REBOUND_BENCH_1M_CORRECTION_PCT:
             bump("correction", f"benchmark 1m {bench_1m:.2f}% at or past {REBOUND_BENCH_1M_CORRECTION_PCT}%")
         elif bench_1m <= REBOUND_BENCH_1M_PULLBACK_PCT:
@@ -1697,12 +1717,13 @@ def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
             if r.get("tier") in ("T1_HELD", "T2_ALUMNI", "T4_WATCHLIST") and not r.get("suppressed")]
     for row in pool:
         t = row["ticker"]
-        fall, a = abs_1m.get(t), atr.get(t)
+        fall, window, min_fall = _fall(t)
+        a = atr.get(t)
         if fall is None or a is None:
             out["excluded"]["no_data"].append(t)
             continue
         out["considered"] += 1
-        if fall > REBOUND_MIN_FALL_PCT:
+        if fall > min_fall:
             out["excluded"]["not_fallen_enough"].append(t)
             continue
         if a < REBOUND_MIN_ATR_PCT:
@@ -1718,12 +1739,16 @@ def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
             continue
         out["candidates"].append({
             "ticker": t, "tier": row["tier"], "cluster": row.get("cluster"),
-            "fall_1m_pct": round(fall, 2), "atr20_pct": round(a, 2),
+            "fall_pct": round(fall, 2), "fall_window": window, "atr20_pct": round(a, 2),
             "thesis_status": status,
             "thesis_known": status is not None,
             # Depth of fall in units of the name's own daily range -- the honest counterweight.
-            "fall_atr_mult": round(abs(fall) / a, 2),
+            # ATR20 is a DAILY range; comparing a multi-day fall against it directly
+            # would overstate the dislocation. Scale by sqrt(window) -- 5d expected
+            # range is about 2.24x the daily one.
+            "fall_atr_mult": round(abs(fall) / (a * (5 ** 0.5 if window == "5d" else 21 ** 0.5)), 2),
             "rebound_score": round(abs(fall) * (a / 10.0), 1),
+            "window": window,
             "last_held_date": row.get("last_held_date"),
         })
     out["candidates"].sort(key=lambda c: -c["rebound_score"])

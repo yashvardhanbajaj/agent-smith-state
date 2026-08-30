@@ -746,7 +746,7 @@ def _merge_thesis(out, state, today):
     return {"thesis_changed": list(changed), "sector_map_changed": list(sm_changed)}
 
 
-def _merge_signals(out, state, today, scanned_tickers=None):
+def _merge_signals(out, state, today, scanned_tickers=None, base_dir="."):
     changed = out.get("signal_history", {}).get("changed", {})
     state.setdefault("signal_history", {}).update(changed)
     stamp_tickers = set(changed) | set(scanned_tickers or [])
@@ -758,6 +758,44 @@ def _merge_signals(out, state, today, scanned_tickers=None):
     # setups. So every run re-derived targets nothing could audit, against a cache the TTL
     # table claimed existed. signals already pulls mean targets per name to build the bucket;
     # persisting them costs nothing and makes the number checkable.
+    # journal_new: smith-signals has emitted this array since the desk began, and NOTHING EVER
+    # INGESTED IT. `journal_new` appears nowhere in any compute script; entries reached
+    # journal.json only when an orchestrator hand-wrote them at PERSIST. The cost is specific
+    # and measurable: `day_atr_mult`/`rel_sigma`/`normalized` were added to that schema on
+    # 2026-08-01 expressly so 30-day scoring could TEST whether volatility-normalised flags beat
+    # the old absolute thresholds. A month later exactly ONE of 108 journal entries carried
+    # them, so the test could never run and the doctrine stayed unvalidated by default.
+    #
+    # This is the same failure as G50 (factor_catalysts), cycle_position and rebound: an agent
+    # produces output, no table names the write path, the output evaporates. A documented schema
+    # is not a write instruction.
+    jn = out.get("journal_new") or []
+    if jn:
+        jpath = os.path.join(base_dir, "journal.json")
+        jr = load_json(jpath, default={"schema_version": 1, "entries": []})
+        existing = {(e.get("date"), e.get("ticker"), e.get("bucket")) for e in jr.get("entries", [])}
+        added = []
+        for e in jn:
+            key = (e.get("date") or today, e.get("ticker"), e.get("bucket"))
+            if not all(key) or key in existing:
+                continue
+            e.setdefault("date", today)
+            e.setdefault("verdict", "open")
+            jr.setdefault("entries", []).append(e)
+            existing.add(key)
+            added.append(f"{key[1]}/{key[2]}")
+        if added:
+            safe_write(jpath, jr)
+
+    # 5-day returns come from the SAME daily bars as ATR20/RSI14 -- zero marginal fetch cost.
+    r5 = out.get("ret_5d_updates") or {}
+    if r5:
+        cache = state["data_cache"].setdefault("ret_5d", {})
+        cache.setdefault("values_pct", {}).update(r5.get("values_pct") or {})
+        if r5.get("benchmark_return_pct") is not None:
+            cache["benchmark_return_pct"] = r5["benchmark_return_pct"]
+        cache["benchmark"] = r5.get("benchmark", "SMH")
+        cache["as_of"] = today
     targets = out.get("analyst_targets_updates", {}) or {}
     if targets:
         tc = state["data_cache"].setdefault("analyst_targets", {})
@@ -767,7 +805,9 @@ def _merge_signals(out, state, today, scanned_tickers=None):
     if peer_upd:
         state.setdefault("peer_map", {}).update(peer_upd)
     return {"signal_history_changed": list(changed), "stamped": len(stamp_tickers),
-            "analyst_targets_updated": len(targets), "peer_map_updated": len(peer_upd)}
+            "analyst_targets_updated": len(targets), "peer_map_updated": len(peer_upd),
+            "ret_5d_updated": len((r5.get("values_pct") or {}) if r5 else {}),
+            "journal_new_added": added if jn else []}
 
 
 def _merge_catalyst(out, state, today):
@@ -981,6 +1021,7 @@ def cmd_merge_tails(args):
         if agent == "signals":
             holdings = load_json(os.path.join(args.run_dir, "holdings.json"), default={})
             extra["scanned_tickers"] = [h["ticker"] for h in holdings.get("holdings_inr", [])]
+            extra["base_dir"] = args.base_dir
         results[agent] = MERGE_RULES[agent](out, state, today, **extra)
         for key in MERGE_STAMPS.get(agent, []):
             state[f"{key}_as_of"] = today

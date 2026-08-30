@@ -162,7 +162,16 @@ REBOUND_BREADTH_SHARE = 0.50
 # Candidate screen. A name must have fallen at least this much to be a rebound candidate at all,
 # and must carry at least this much volatility -- the high vol IS the thesis here (it is what
 # makes the relief rally worth catching), not a risk to be screened out.
-REBOUND_MIN_FALL_PCT = -12.0
+# WINDOW: a selloff resolves in about a week, so the fall measure must be a WEEK, not a month
+# (user, 2026-08-30). The first cut used rel_strength_1m's `values_abs_pct` purely because it was
+# the only per-name return already cached -- a convenience, not a judgement, and a bad one: a
+# 1-month window straddles the pre-selloff rally, so a name that dropped 18% in five days can
+# read flat over the month and never surface at all. `ret_5d` is computed from the SAME daily
+# bars that already produce ATR20 and RSI14, so it costs nothing extra to collect.
+# ret_1m is kept only as a labelled fallback for names with too little history.
+REBOUND_FALL_WINDOW_DAYS = 5
+REBOUND_MIN_FALL_PCT = -8.0          # over 5 days
+REBOUND_MIN_FALL_PCT_1M_FALLBACK = -12.0
 REBOUND_MIN_ATR_PCT = 6.0
 
 CORRECTION_STATES = ("none", "pullback", "correction", "deep_correction")
@@ -285,6 +294,9 @@ FRESHNESS = {
                                     "owner": "smith-signals", "on_stale": "suppress"},
     # --- technical caches: degrade gracefully (a stale ATR makes stops marginally wide) ---
     "data_cache.atr20":            {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "flag"},
+    # Feeds the rebound screen, which only matters DURING a selloff -- a week-old 5-day return
+    # describes last week's selloff, so this is the tightest TTL in the table.
+    "data_cache.ret_5d":           {"stamp": "field:as_of", "ttl_days": 3,  "owner": "smith-signals",   "on_stale": "suppress"},
     "data_cache.betas":            {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-signals",   "on_stale": "flag"},
     "data_cache.analyst_targets":  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "flag"},
     "data_cache.etf_constituents": {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-thesis",    "on_stale": "flag"},
