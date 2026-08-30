@@ -1,0 +1,263 @@
+{
+  "as_of": "2026-08-30",
+  "counts": {
+    "dark": 2,
+    "fresh": 7,
+    "missing": 5,
+    "stale": 1,
+    "unstamped": 6
+  },
+  "dark": [
+    "data_cache.rel_strength_1m",
+    "data_cache.rsi14"
+  ],
+  "unstamped": [
+    "data_cache.betas",
+    "data_cache.earnings_calendar",
+    "factor_themes",
+    "peer_map",
+    "sector_map",
+    "thesis"
+  ],
+  "missing": [
+    "cycle_position",
+    "data_cache.analyst_targets",
+    "data_cache.ret_5d",
+    "quality_read",
+    "rebound_candidates"
+  ],
+  "stale": [
+    "data_cache.atr20"
+  ],
+  "artefacts": [
+    {
+      "key": "data_cache.rsi14",
+      "owner": "smith-signals",
+      "ttl_days": 7,
+      "on_stale": "suppress",
+      "dark_at_days": 10,
+      "as_of": "2026-08-12",
+      "age_days": 18,
+      "state": "dark"
+    },
+    {
+      "key": "data_cache.rel_strength_1m",
+      "owner": "smith-signals",
+      "ttl_days": 7,
+      "on_stale": "suppress",
+      "dark_at_days": 10,
+      "as_of": "2026-08-12",
+      "age_days": 18,
+      "state": "dark"
+    },
+    {
+      "key": "signal_history",
+      "owner": "smith-signals",
+      "ttl_days": 10,
+      "on_stale": "suppress",
+      "dark_at_days": 10,
+      "as_of": "2026-08-29",
+      "age_days": 1,
+      "state": "fresh",
+      "entries_stamped": 39,
+      "entries_unstamped": 0,
+      "oldest_entries": [
+        "AMAT",
+        "AMD",
+        "AMKR",
+        "AMZN",
+        "ASML"
+      ]
+    },
+    {
+      "key": "data_cache.atr20",
+      "owner": "smith-signals",
+      "ttl_days": 7,
+      "on_stale": "flag",
+      "dark_at_days": 14,
+      "as_of": "2026-08-20",
+      "age_days": 10,
+      "state": "stale"
+    },
+    {
+      "key": "data_cache.ret_5d",
+      "owner": "smith-signals",
+      "ttl_days": 3,
+      "on_stale": "suppress",
+      "dark_at_days": 10,
+      "as_of": null,
+      "age_days": null,
+      "state": "missing"
+    },
+    {
+      "key": "data_cache.betas",
+      "owner": "smith-signals",
+      "ttl_days": 30,
+      "on_stale": "flag",
+      "dark_at_days": 60,
+      "as_of": null,
+      "age_days": null,
+      "state": "unstamped"
+    },
+    {
+      "key": "data_cache.analyst_targets",
+      "owner": "smith-signals",
+      "ttl_days": 7,
+      "on_stale": "flag",
+      "dark_at_days": 14,
+      "as_of": null,
+      "age_days": null,
+      "state": "missing"
+    },
+    {
+      "key": "data_cache.etf_constituents",
+      "owner": "smith-thesis",
+      "ttl_days": 30,
+      "on_stale": "flag",
+      "dark_at_days": 60,
+      "as_of": "2026-08-30",
+      "age_days": 0,
+      "state": "fresh"
+    },
+    {
+      "key": "data_cache.earnings_calendar",
+      "owner": "smith-earnings",
+      "ttl_days": 30,
+      "on_stale": "flag",
+      "dark_at_days": 60,
+      "as_of": null,
+      "age_days": null,
+      "state": "unstamped"
+    },
+    {
+      "key": "thesis",
+      "owner": "smith-thesis",
+      "ttl_days": 21,
+      "on_stale": "escalate",
+      "dark_at_days": 21,
+      "as_of": null,
+      "age_days": null,
+      "state": "unstamped"
+    },
+    {
+      "key": "sector_map",
+      "owner": "smith-thesis",
+      "ttl_days": 30,
+      "on_stale": "flag",
+      "dark_at_days": 60,
+      "as_of": null,
+      "age_days": null,
+      "state": "unstamped"
+    },
+    {
+      "key": "peer_map",
+      "owner": "smith-signals",
+      "ttl_days": 30,
+      "on_stale": "flag",
+      "dark_at_days": 60,
+      "as_of": null,
+      "age_days": null,
+      "state": "unstamped"
+    },
+    {
+      "key": "factor_catalysts",
+      "owner": "smith-catalyst",
+      "ttl_days": 7,
+      "on_stale": "flag",
+      "dark_at_days": 14,
+      "as_of": "2026-08-28",
+      "age_days": 2,
+      "state": "fresh"
+    },
+    {
+      "key": "factor_themes",
+      "owner": "smith-catalyst",
+      "ttl_days": 30,
+      "on_stale": "escalate",
+      "dark_at_days": 30,
+      "as_of": null,
+      "age_days": null,
+      "state": "unstamped"
+    },
+    {
+      "key": "diversifier_candidates",
+      "owner": "smith-scout",
+      "ttl_days": 7,
+      "on_stale": "flag",
+      "dark_at_days": 14,
+      "as_of": "2026-08-29",
+      "age_days": 1,
+      "state": "fresh",
+      "entries_stamped": 8,
+      "entries_unstamped": 0,
+      "oldest_entries": [
+        "DUK",
+        "JNJ",
+        "LLY",
+        "NEM",
+        "PG"
+      ]
+    },
+    {
+      "key": "watchlist_setups",
+      "owner": "smith-watchlist",
+      "ttl_days": 7,
+      "on_stale": "escalate",
+      "dark_at_days": 7,
+      "as_of": "2026-08-25",
+      "age_days": 5,
+      "state": "fresh"
+    },
+    {
+      "key": "macro_read",
+      "owner": "smith-macro",
+      "ttl_days": 7,
+      "on_stale": "flag",
+      "dark_at_days": 14,
+      "as_of": "2026-08-25",
+      "age_days": 5,
+      "state": "fresh"
+    },
+    {
+      "key": "tax_read",
+      "owner": "smith-tax",
+      "ttl_days": 30,
+      "on_stale": "flag",
+      "dark_at_days": 60,
+      "as_of": "2026-08-17",
+      "age_days": 13,
+      "state": "fresh"
+    },
+    {
+      "key": "rebound_candidates",
+      "owner": "smith-rebound",
+      "ttl_days": 5,
+      "on_stale": "flag",
+      "dark_at_days": 10,
+      "as_of": null,
+      "age_days": null,
+      "state": "missing"
+    },
+    {
+      "key": "cycle_position",
+      "owner": "smith-cycle",
+      "ttl_days": 35,
+      "on_stale": "escalate",
+      "dark_at_days": 35,
+      "as_of": null,
+      "age_days": null,
+      "state": "missing"
+    },
+    {
+      "key": "quality_read",
+      "owner": "smith-quality",
+      "ttl_days": 35,
+      "on_stale": "escalate",
+      "dark_at_days": 35,
+      "as_of": null,
+      "age_days": null,
+      "state": "missing"
+    }
+  ],
+  "headline": "Freshness: DARK data_cache.rsi14 18d, data_cache.rel_strength_1m 18d | UNCHECKABLE thesis (unstamped), factor_themes (unstamped), cycle_position (missing), quality_read (missing)"
+}

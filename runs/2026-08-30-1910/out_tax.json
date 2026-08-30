@@ -1,0 +1,100 @@
+{
+ "lot_file_state": {
+  "reconciled": "35/35",
+  "lots_dated": "74/74",
+  "trusted": true
+ },
+ "ltcg_window": {
+  "earliest_open_lot": "2026-07-21",
+  "first_crossing": "2028-07-21",
+  "live_decisions": false
+ },
+ "trim_sequencing": [
+  {
+   "ticker": "ASML",
+   "proposal_id": "P-174",
+   "size_usd": 520.97,
+   "tax_delta_usd": 3.02,
+   "material": false,
+   "realised_gain_usd": -18.79
+  },
+  {
+   "ticker": "AMD",
+   "proposal_id": "P-176",
+   "size_usd": 279.6,
+   "tax_delta_usd": 0.0,
+   "material": false,
+   "realised_gain_usd": -15.34
+  },
+  {
+   "ticker": "AMZN",
+   "proposal_id": "P-178",
+   "size_usd": 320.0,
+   "tax_delta_usd": 0.23,
+   "material": false,
+   "realised_gain_usd": -6.41
+  },
+  {
+   "ticker": "MU",
+   "proposal_id": "P-179",
+   "size_usd": 280.18,
+   "tax_delta_usd": 0.0,
+   "material": false,
+   "realised_gain_usd": -0.16
+  },
+  {
+   "ticker": "IREN",
+   "proposal_id": "P-180",
+   "size_usd": 243.4,
+   "tax_delta_usd": 0.0,
+   "material": false,
+   "realised_gain_usd": -37.35
+  }
+ ],
+ "program_totals": {
+  "realised_gain_fifo_usd": -78.05,
+  "tax_delta_usd": 3.25,
+  "material": false,
+  "recommendation": "execute all five FIFO"
+ },
+ "harvest_candidates": [
+  {
+   "ticker": "GEV",
+   "unrealised_loss_usd": -186.09,
+   "thesis_status": "strengthening",
+   "tension": "largest loss AND 6.9% position with strengthening thesis -- harvesting sells conviction"
+  },
+  {
+   "ticker": "STM",
+   "unrealised_loss_usd": -151.2,
+   "thesis_status": "watch",
+   "tension": "none -- cleanest harvest"
+  },
+  {
+   "ticker": "MRVL",
+   "unrealised_loss_usd": -114.52,
+   "thesis_status": "strengthening",
+   "tension": "harvesting sells conviction"
+  },
+  {
+   "ticker": "VRT",
+   "unrealised_loss_usd": -108.5,
+   "thesis_status": "watch",
+   "tension": "none"
+  }
+ ],
+ "harvest_capacity": {
+  "total_unrealised_loss_usd": -1172.82,
+  "names_below_basis": 23,
+  "pct_of_fy_gain_offsettable": 58.3
+ },
+ "fy_window": {
+  "fy_ends": "2027-03-31",
+  "in_harvest_window": false
+ },
+ "data_quality": [
+  "FY realised +$2,010.79 is an agent FIFO replay, not an engine output",
+  "G83 open: BX lot-date discrepancy, immaterial here",
+  "dispatch cited stale earliest-lot 2026-07-15/71 lots; actual 2026-07-21/74"
+ ]
+}

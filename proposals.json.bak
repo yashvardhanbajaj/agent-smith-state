@@ -5159,15 +5159,15 @@
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "AI Memory/Storage under band (-7.5pt)",
+        "AI Memory/Storage under band (-7.2pt)",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "still_valid_because": [
-        "AI Memory/Storage under band (-7.5pt)",
+        "AI Memory/Storage under band (-7.2pt)",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-26",
+      "revalidated_on": "2026-08-29",
       "retires_when": "AI Memory/Storage re-enters its policy band",
       "proposal_class": "idea"
     },
@@ -5291,15 +5291,15 @@
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "Compute/Hyperscaler under band (-5.0pt)",
+        "Compute/Hyperscaler under band (-5.3pt)",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "still_valid_because": [
-        "Compute/Hyperscaler under band (-5.0pt)",
+        "Compute/Hyperscaler under band (-5.3pt)",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-26",
+      "revalidated_on": "2026-08-29",
       "retires_when": "Compute/Hyperscaler re-enters its policy band",
       "proposal_class": "idea"
     },
@@ -5959,14 +5959,15 @@
       "rationale": "30.0% trim of a stretched, watch-thesis position; also covers the standing catalyst_threat SPV overhang shared with AVGO -- sized off the larger profit_rotation figure rather than double-trimming the same shares.",
       "id": "P-167",
       "date": "2026-08-26T13:15:00+05:30",
-      "status": "open",
+      "status": "auto_retired",
       "direction_bucket": "SELL",
-      "priority_score": 6,
-      "priority": "HIGH",
+      "priority_score": 5,
+      "priority": "MEDIUM",
       "priority_reasons": [
-        "cash short at 0.3% vs a [5,15]% band -- this also rebuilds it",
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
         "BX genuinely stretched: +16.5% 1m, +15.8pp vs SMH -- real profit to take, not just a smaller loss",
-        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+        "profit_rotation was the stated trigger but BX is not in this run's profit_rotation candidate list -- condition is no longer live",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
       ],
       "proposal_class": "idea",
       "cluster": "Financials/Alt-Asset Diversifier",
@@ -5977,7 +5978,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-26",
-      "retires_when": "the profit_rotation pairing profit_rotation-BX-QCOM is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the profit_rotation pairing profit_rotation-BX-QCOM is no longer live this run -- both legs retire together, never one alone",
+      "retired_on": "2026-08-29",
+      "retired_reason": "the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-08-29: the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "action": "BUY QCOM",
@@ -5991,13 +5995,12 @@
       "rationale": "In-cluster laggard (-6.7pp) with a strengthening thesis, funded entirely by the BX sell leg; ample ATR headroom, no clamp.",
       "id": "P-168",
       "date": "2026-08-26T13:15:00+05:30",
-      "status": "open",
+      "status": "auto_retired",
       "direction_bucket": "BUY",
-      "priority_score": 6,
-      "priority": "HIGH",
+      "priority_score": 0,
+      "priority": "LOW",
       "priority_reasons": [
-        "bullish signal 'OVERSOLD BOUNCE' has a 60% INTERIM 7d hit rate (n=5, not yet 30d-validated) in this book",
-        "profit_rotation: conviction 44.9 (unscored) -- laggard (-6.7pp) with a strengthening thesis -- yet to rally"
+        "profit_rotation was the stated trigger but QCOM is not in this run's profit_rotation candidate list -- condition is no longer live"
       ],
       "proposal_class": "idea",
       "cluster": "AI Semis/Fabs",
@@ -6007,7 +6010,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-26",
-      "retires_when": "the profit_rotation pairing profit_rotation-BX-QCOM is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the profit_rotation pairing profit_rotation-BX-QCOM is no longer live this run -- both legs retire together, never one alone",
+      "retired_on": "2026-08-29",
+      "retired_reason": "the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-08-29: the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "action": "TRIM AVGO",
@@ -6064,7 +6070,7 @@
       "rationale": "30% profit-take on a stretched, watch-thesis name (structural China-buildout risk un-escalated, not resolved); pairs with AMAT.",
       "id": "P-170",
       "date": "2026-08-26T13:15:00+05:30",
-      "status": "open",
+      "status": "superseded",
       "direction_bucket": "SELL",
       "priority_score": 6,
       "priority": "HIGH",
@@ -6082,7 +6088,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-26",
-      "retires_when": "the profit_rotation pairing profit_rotation-ASML-AMAT is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the profit_rotation pairing profit_rotation-ASML-AMAT is no longer live this run -- both legs retire together, never one alone",
+      "note": "auto-superseded 2026-08-03 -- folded into P-174 as a repeat of the same open proposal"
     },
     {
       "action": "BUY AMAT",
@@ -6099,7 +6106,7 @@
       "rationale": "In-cluster laggard (-4.1pp) with strengthening thesis; wanted $350.88, clamped to $200.08 by ATR headroom. Sell proceeds exceed the clamped buy, netting +$323.17 to cash -- the one cash-positive decision this run.",
       "id": "P-171",
       "date": "2026-08-26T13:15:00+05:30",
-      "status": "open",
+      "status": "superseded",
       "direction_bucket": "BUY",
       "priority_score": 5,
       "priority": "HIGH",
@@ -6113,7 +6120,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-26",
-      "retires_when": "the profit_rotation pairing profit_rotation-ASML-AMAT is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the profit_rotation pairing profit_rotation-ASML-AMAT is no longer live this run -- both legs retire together, never one alone",
+      "note": "auto-superseded 2026-08-03 -- folded into P-175 as a repeat of the same open proposal"
     },
     {
       "action": "SELL AMD",
@@ -6197,7 +6205,7 @@
       "retired_reason": "recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
-      "action": "SELL",
+      "action": "Sell ASML",
       "ticker": "ASML",
       "size_usd": 520.97,
       "price_at_proposal": 1559.08,
@@ -6206,10 +6214,41 @@
       "pair_id": "profit_rotation-ASML-AMAT",
       "pair_role": "sell",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-174",
+      "direction_bucket": "SELL",
+      "history": [
+        {
+          "date": "2026-08-26T13:15:00+05:30",
+          "size_usd": 523.25,
+          "price_at_proposal": 1744.16,
+          "rationale": "30% profit-take on a stretched, watch-thesis name (structural China-buildout risk un-escalated, not resolved); pairs with AMAT."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-26T13:15:00+05:30, still open",
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "ASML genuinely stretched: +0.8% 1m, +0.1pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "ASML genuinely stretched: +0.8% 1m, +0.1pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-29",
+      "retires_when": "the profit_rotation pairing profit_rotation-ASML-AMAT is no longer live this run -- both legs retire together, never one alone"
     },
     {
-      "action": "BUY",
+      "action": "Buy AMAT",
       "ticker": "AMAT",
       "size_usd": 187.54,
       "price_at_proposal": 462.08,
@@ -6218,10 +6257,37 @@
       "pair_id": "profit_rotation-ASML-AMAT",
       "pair_role": "buy",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-175",
+      "direction_bucket": "BUY",
+      "history": [
+        {
+          "date": "2026-08-26T13:15:00+05:30",
+          "size_usd": 200.08,
+          "price_at_proposal": 480.04,
+          "rationale": "In-cluster laggard (-4.1pp) with strengthening thesis; wanted $350.88, clamped to $200.08 by ATR headroom. Sell proceeds exceed the clamped buy, netting +$323.17 to cash -- the one cash-positive decision this run."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-26T13:15:00+05:30, still open",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "profit_rotation: conviction 22.0 (unscored) -- laggard (-4.1pp) with a strengthening thesis -- yet to rally",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "profit_rotation: conviction 22.0 (unscored) -- laggard (-4.1pp) with a strengthening thesis -- yet to rally",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-29",
+      "retires_when": "the profit_rotation pairing profit_rotation-ASML-AMAT is no longer live this run -- both legs retire together, never one alone"
     },
     {
-      "action": "SELL",
+      "action": "Sell AMD",
       "ticker": "AMD",
       "size_usd": 279.6,
       "price_at_proposal": null,
@@ -6230,10 +6296,27 @@
       "pair_id": "cluster_rotation-AMD-TSM",
       "pair_role": "sell",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-176",
+      "direction_bucket": "SELL",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-11.3pp), watch thesis -- dead money in this cluster"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-11.3pp), watch thesis -- dead money in this cluster"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-29",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TSM is no longer live this run -- both legs retire together, never one alone"
     },
     {
-      "action": "BUY",
+      "action": "Buy TSM",
       "ticker": "TSM",
       "size_usd": 279.6,
       "price_at_proposal": 1283.04,
@@ -6242,37 +6325,110 @@
       "pair_id": "cluster_rotation-AMD-TSM",
       "pair_role": "buy",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-177",
+      "direction_bucket": "BUY",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cluster_rotation: conviction 23.0 (unscored) -- performer within AI Semis/Fabs (+0.7pp), strengthening thesis"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cluster_rotation: conviction 23.0 (unscored) -- performer within AI Semis/Fabs (+0.7pp), strengthening thesis"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-29",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TSM is no longer live this run -- both legs retire together, never one alone"
     },
     {
-      "action": "TRIM",
+      "action": "Trim AMZN",
       "ticker": "AMZN",
       "size_usd": 320.0,
       "price_at_proposal": 266.67,
       "rationale": "catalyst_threat, cap-independent: record-high CDS on AI-financing/vendor-credit names (LSEG, 2026-08-27); thesis stays strengthening.",
       "trigger_type": "catalyst_threat",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-178",
+      "direction_bucket": "TRIM",
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "AMZN genuinely stretched: +9.0% 1m, +8.3pp vs SMH -- real profit to take, not just a smaller loss",
+        "catalyst_threat: CDS on Oracle/SpaceX/Alphabet/Amazon/Meta/Broadcom/Nvidia hit record highs (LSEG) -- AI-financing/vendor-credit risk repricing (2026-08-27) -- directional signal only, no bp level sourced"
+      ],
+      "proposal_class": "idea",
+      "cluster": "Compute/Hyperscaler",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "AMZN genuinely stretched: +9.0% 1m, +8.3pp vs SMH -- real profit to take, not just a smaller loss",
+        "catalyst_threat: CDS on Oracle/SpaceX/Alphabet/Amazon/Meta/Broadcom/Nvidia hit record highs (LSEG) -- AI-financing/vendor-credit risk repricing (2026-08-27) -- directional signal only, no bp level sourced"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-29",
+      "retires_when": "AMZN no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
     },
     {
-      "action": "TRIM",
+      "action": "Trim MU",
       "ticker": "MU",
       "size_usd": 280.18,
       "price_at_proposal": 933.69,
       "rationale": "Double-evidenced: catalyst_threat (CXMT Shanghai debut) AND separately over_cap (headroom -$302.44); WATCH thesis.",
       "trigger_type": "catalyst_threat",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-179",
+      "direction_bucket": "TRIM",
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "MU at 1.27x its ATR risk cap",
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "catalyst_threat: CXMT's +466-531% Shanghai STAR debut (~$480bn mkt cap) remains the standing China-memory-competition overhang cited in Friday's selloff commentary (2026-07-27) -- funding event; CXMT's own 12-layer HBM3 mass-production still slipping toward 2027 per G1"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Memory/Storage",
+      "full_cure_usd": 302.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 93.0,
+      "still_valid_because": [
+        "MU at 1.27x its ATR risk cap",
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "catalyst_threat: CXMT's +466-531% Shanghai STAR debut (~$480bn mkt cap) remains the standing China-memory-competition overhang cited in Friday's selloff commentary (2026-07-27) -- funding event; CXMT's own 12-layer HBM3 mass-production still slipping toward 2027 per G1"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-29",
+      "retires_when": "MU no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
     },
     {
-      "action": "TRIM",
+      "action": "Trim IREN",
       "ticker": "IREN",
       "size_usd": 243.4,
       "price_at_proposal": 40.57,
       "rationale": "trend_breakdown: STRONG DOWNTREND (-12.53% earnings-day move, abnormal vs ATR). WATCH thesis contested, sizing off computed trigger not thesis label.",
       "trigger_type": "trend_breakdown",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-180",
+      "direction_bucket": "TRIM",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "trend_breakdown: conviction -5.2 (none) -- thesis watch (secondary, 3 for / 3 against); signal polarity net -1 (STRONG DOWNTREND); technical: RSI cache stale, degraded to 0 (not estimated); named by 3 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "cluster": "Compute/Hyperscaler",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "trend_breakdown: conviction -5.2 (none) -- thesis watch (secondary, 3 for / 3 against); signal polarity net -1 (STRONG DOWNTREND); technical: RSI cache stale, degraded to 0 (not estimated); named by 3 independent source(s) this run"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-29",
+      "retires_when": "IREN no longer appears in this run's live trend_breakdown list (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
     }
   ],
   "retracted": [

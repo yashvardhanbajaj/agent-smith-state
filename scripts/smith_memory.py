@@ -887,7 +887,29 @@ def _merge_earnings(out, state, today):
 
 
 def _merge_book(out, state, today):
+    """Merge refreshed betas -- and REFUSE to relabel a foreign benchmark as SMH.
+
+    This hardcoded `"benchmark": "SMH"` on every write regardless of what the agent actually
+    computed. Found live 2026-08-30: smith-book returned 21 betas and said plainly in its own
+    data_quality that they were "yfinance NATIVE (SPX-benchmarked), not SMH". Merging them would
+    have stamped SPX betas as SMH ones -- and SKILL.md 2.7 is explicit that the SPX beta is
+    "actively misleading" for this book (it predicted +0.075% for a session that delivered
+    -5.06%), which is the entire reason the desk moved to SMH.
+
+    The agent was honest; the merge rule was not listening. A label written by the consumer
+    rather than the producer is not provenance, it is an assumption wearing provenance's clothes.
+    """
     betas = out.get("refreshed_betas", {})
+    bench = (out.get("beta_benchmark") or "").upper()
+    if betas and bench and bench != "SMH":
+        return {"betas_refreshed": [], "betas_rejected": len(betas),
+                "reason": f"agent returned {bench}-benchmarked betas; this book's betas are "
+                          f"SMH-benchmarked and an SPX beta is documented as actively "
+                          f"misleading here. Not merged, cache left intact."}
+    if betas and not bench:
+        return {"betas_refreshed": [], "betas_rejected": len(betas),
+                "reason": "agent did not state `beta_benchmark`; refusing to assume SMH. "
+                          "Return beta_benchmark:'SMH' explicitly to merge."}
     for tk, v in betas.items():
         state["data_cache"].setdefault("betas", {})[tk] = {"value": v, "as_of": today, "benchmark": "SMH"}
     if betas:
@@ -1433,7 +1455,8 @@ def _place(sl, key, value, shared_dir, shared_once, name=None):
         with open(path, "w") as fh:
             fh.write(blob)
         shared_once[digest] = path
-    sl["read_these_files"][key] = path
+    # Absolute for the same reason as refs: the reader is a sub-agent with its own cwd.
+    sl["read_these_files"][key] = os.path.abspath(path)
 
 
 def _thesis_tiers(thesis, state, base_dir):
@@ -1603,8 +1626,16 @@ def cmd_slices(args):
             _place(sl, f"data_cache.{k}", dc.get(k), shared_dir, shared_once)
 
         for r in spec.get("refs", []):
+            # ABSOLUTE, always (fixed 2026-08-30). These paths were emitted relative to the
+            # orchestrator's cwd -- "./lots.json", "runs/<ts>/compute_book.json". A sub-agent
+            # does not share that cwd (it runs from the session's own working directory), so a
+            # relative ref resolves to nothing on its side. smith-book hit this live on the
+            # 2026-08-30 deep run: "lots.json not found at the supplied path this run", and it
+            # degraded to the orchestrator's prose instead of reading the file. Silent, because
+            # a missing optional input just produces a thinner answer.
             path = (os.path.join(rd, REF_FILES[r]) if r in REF_FILES
                     else os.path.join(base, BASE_REF_FILES[r]) if r in BASE_REF_FILES else None)
+            path = os.path.abspath(path) if path else None
             if path is None:
                 problems.append(f"smith-{agent}: unknown ref '{r}'")
             elif not os.path.exists(path):
@@ -1614,7 +1645,7 @@ def cmd_slices(args):
                 sl["read_these_files"][r] = path
         for sname in spec.get("shared", []):
             if sname in shared_paths:
-                sl["read_these_files"][sname] = shared_paths[sname]
+                sl["read_these_files"][sname] = os.path.abspath(shared_paths[sname])
             else:
                 problems.append(f"smith-{agent}: shared source '{sname}' unavailable this run")
 
