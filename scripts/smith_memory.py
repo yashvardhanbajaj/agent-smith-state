@@ -2115,11 +2115,16 @@ def _report_daily(base_dir, run_dir, today, state, freshness_rows):
             cands = reb.get("candidates") or []
             if cands:
                 L.append("")
-                L.append("| ticker | tier | 1m fall | ATR20 | fall / ATR | score | thesis |\n|---|---|---|---|---|---|---|")
+                L.append("| ticker | tier | fall | window | ATR20 | fall / ATR | score | thesis |\n|---|---|---|---|---|---|---|---|")
                 for c in cands[:8]:
+                    # `fall_pct` + `fall_window` since the 5-day rewrite -- the 1-month figure
+                    # survives only as an explicitly labelled fallback, and the two are not
+                    # comparable magnitudes, so the window is shown rather than assumed.
+                    win = c.get("fall_window") or "?"
                     L.append(f"| {c['ticker']} | {c['tier'].split('_', 1)[1].lower()} | "
-                             f"{c['fall_1m_pct']}% | {c['atr20_pct']}% | {c['fall_atr_mult']}× | "
-                             f"{c['rebound_score']} | {c.get('thesis_status') or '**none**'} |")
+                             f"{c.get('fall_pct')}% | {win} | {c['atr20_pct']}% | "
+                             f"{c['fall_atr_mult']}× | {c['rebound_score']} | "
+                             f"{c.get('thesis_status') or '**none**'} |")
                 L.append("")
                 L.append("*Ranked on the mandate — fall depth × volatility, where high volatility is the "
                          "thesis. `fall / ATR` is the counterweight: under ~1.5× is a loud name being "
