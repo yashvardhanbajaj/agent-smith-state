@@ -739,6 +739,10 @@ def _merge_thesis(out, state, today):
     state.setdefault("sector_map", {}).update(sm_changed)
     for tk, fact in out.get("earnings_facts", {}).items():
         state["data_cache"].setdefault("earnings_facts", {})[tk] = fact
+    etfc = out.get("etf_constituents_updates", {}) or {}
+    if etfc:
+        state["data_cache"].setdefault("etf_constituents", {}).update(etfc)
+        state["data_cache"]["etf_constituents"]["as_of"] = today
     return {"thesis_changed": list(changed), "sector_map_changed": list(sm_changed)}
 
 
@@ -749,7 +753,21 @@ def _merge_signals(out, state, today, scanned_tickers=None):
     state.setdefault("signal_history_as_of", {})
     for tk in stamp_tickers:
         state["signal_history_as_of"][tk] = today
-    return {"signal_history_changed": list(changed), "stamped": len(stamp_tickers)}
+    # analyst_targets had a declared 7-day TTL in cache_policy and was an EMPTY DICT -- while
+    # TARGET GAP was the second most-fired signal bucket (n=19) and 4 of 9 live watchlist
+    # setups. So every run re-derived targets nothing could audit, against a cache the TTL
+    # table claimed existed. signals already pulls mean targets per name to build the bucket;
+    # persisting them costs nothing and makes the number checkable.
+    targets = out.get("analyst_targets_updates", {}) or {}
+    if targets:
+        tc = state["data_cache"].setdefault("analyst_targets", {})
+        tc.update(targets)
+        tc["as_of"] = today
+    peer_upd = out.get("peer_map_updates", {}) or {}
+    if peer_upd:
+        state.setdefault("peer_map", {}).update(peer_upd)
+    return {"signal_history_changed": list(changed), "stamped": len(stamp_tickers),
+            "analyst_targets_updated": len(targets), "peer_map_updated": len(peer_upd)}
 
 
 def _merge_catalyst(out, state, today):
@@ -774,6 +792,8 @@ def _merge_book(out, state, today):
     betas = out.get("refreshed_betas", {})
     for tk, v in betas.items():
         state["data_cache"].setdefault("betas", {})[tk] = {"value": v, "as_of": today, "benchmark": "SMH"}
+    if betas:
+        state["data_cache"]["betas"]["as_of"] = today
     return {"betas_refreshed": list(betas)}
 
 
@@ -789,7 +809,9 @@ def _merge_watchlist(out, state, today):
     if cursor is not None:
         state["watchlist_scan_cursor"] = cursor
     ec = out.get("earnings_calendar_updates", {})
-    state["data_cache"].setdefault("earnings_calendar", {}).update(ec)
+    if ec:
+        state["data_cache"].setdefault("earnings_calendar", {}).update(ec)
+        state["data_cache"]["earnings_calendar"]["as_of"] = today
     setups = out.get("watchlist_setups")
     if setups is not None:
         state["watchlist_setups"] = setups  # REPLACE: a setup list is point-in-time, like catalysts
@@ -823,20 +845,29 @@ def _merge_quality(out, state, today):
     """The monthly audit's cadence was inferred from 'were there deep rows in ledger.csv this
     month', which tests whether a DEEP RUN happened, not whether QUALITY ran. Persist the read
     itself so the trigger can test the real thing."""
-    flags = out.get("flags")
-    if flags is not None:
-        state["quality_read"] = {"flags": flags,
-                                 "flagged_weight_pct": out.get("flagged_weight_pct"),
-                                 "as_of": today}
-    return {"quality_flags": len(flags or [])}
+    flags = out.get("quality_flags")
+    if flags is None:
+        return {"quality_flags": 0, "note": "no quality_flags key in tail"}
+    state["quality_read"] = {"quality_flags": flags,
+                             "book_pct_flagged": out.get("book_pct_flagged"),
+                             "top_concern": out.get("top_concern"),
+                             "as_of": today}
+    return {"quality_flags": len(flags)}
 
 
 def _merge_tax(out, state, today):
-    read = out.get("tax_read")
-    if read is not None:
-        read.setdefault("as_of", today)
-        state["tax_read"] = read
-    return {"tax_read_updated": read is not None}
+    # smith-tax's whole tail IS the read -- there is no single `tax_read` key to lift. Store the
+    # decision-bearing fields and stamp them; the full tail stays in the run dir as always.
+    if not any(k in out for k in ("lot_file_state", "ltcg_window", "trim_sequencing")):
+        return {"tax_read_updated": False, "note": "tail carried no tax fields"}
+    state["tax_read"] = {"lot_file_state": out.get("lot_file_state"),
+                         "ltcg_window": out.get("ltcg_window"),
+                         "trim_sequencing": out.get("trim_sequencing", []),
+                         "harvest_candidates": out.get("harvest_candidates", []),
+                         "fy_window": out.get("fy_window"),
+                         "as_of": today}
+    return {"tax_read_updated": True,
+            "trim_sequencing": len(out.get("trim_sequencing", []) or [])}
 
 
 # Which state keys each agent OWNS the freshness of. After a successful merge, `<key>_as_of`

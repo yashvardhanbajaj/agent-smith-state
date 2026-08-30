@@ -1654,6 +1654,15 @@ def cmd_triggers(args):
     rsi_as_of = _parse_as_of(rsi_cache.get("as_of"))
     rsi_age = (today - rsi_as_of).days if rsi_as_of else None
     rsi_usable = bool(rsi_vals) and rsi_age is not None and rsi_age <= TRIGGER_CACHE_MAX_AGE_DAYS
+    held_tickers = [r["ticker"] for r in risk.get("positions", [])]
+    rsi_missing = sorted(t for t in held_tickers if t not in rsi_vals)
+    rsi_coverage_pct = round(100.0 * (len(held_tickers) - len(rsi_missing)) / len(held_tickers), 1) \
+        if held_tickers else None
+    if rsi_usable and rsi_coverage_pct is not None and rsi_coverage_pct < TRIGGER_CACHE_MIN_COVERAGE_PCT:
+        dq.append(f"rsi14 is fresh but covers only {rsi_coverage_pct}% of held names "
+                  f"({len(rsi_missing)} missing: {', '.join(rsi_missing[:8])}) -- RSI triggers "
+                  f"cannot fire on a name the cache cannot see, so partial coverage shrinks the "
+                  f"candidate set exactly like staleness does. Refresh the missing names.")
     if not rsi_vals:
         dq.append("rsi14 cache absent -- oversold_reversion and overbought_distribution cannot be "
                   "computed this run (never estimated); seed it from the same daily bars ATR20 uses")
@@ -1667,6 +1676,13 @@ def cmd_triggers(args):
     rel_as_of = _parse_as_of(rel_cache.get("as_of"))
     rel_age = (today - rel_as_of).days if rel_as_of else None
     rel_usable = bool(rel_vals) and rel_age is not None and rel_age <= TRIGGER_CACHE_MAX_AGE_DAYS
+    rel_missing = sorted(t for t in held_tickers if t not in rel_vals)
+    rel_coverage_pct = round(100.0 * (len(held_tickers) - len(rel_missing)) / len(held_tickers), 1) \
+        if held_tickers else None
+    if rel_usable and rel_coverage_pct is not None and rel_coverage_pct < TRIGGER_CACHE_MIN_COVERAGE_PCT:
+        dq.append(f"rel_strength_1m is fresh but covers only {rel_coverage_pct}% of held names "
+                  f"({len(rel_missing)} missing: {', '.join(rel_missing[:8])}) -- these names are "
+                  f"invisible to laggard_rotation and to overbought's 'genuinely up' gate.")
     if not rel_usable:
         dq.append(f"rel_strength_1m unusable (age={rel_age}d, n={len(rel_vals)}) -- laggard_rotation "
                   "suppressed and overbought_distribution's 'genuinely up' gate degrades to price-only")
@@ -2461,8 +2477,10 @@ def cmd_triggers(args):
 
     emit({
         "as_of": today.isoformat(),
-        "rsi_as_of": rsi_cache.get("as_of"), "rsi_age_days": rsi_age, "rsi_usable": rsi_usable,
-        "rel_as_of": rel_cache.get("as_of"), "rel_age_days": rel_age, "rel_usable": rel_usable,
+        "rsi_as_of": rsi_cache.get("as_of"), "rsi_age_days": rsi_age, "rsi_usable": rsi_usable, "rsi_coverage_pct": rsi_coverage_pct,
+        "rsi_missing": rsi_missing,
+        "rel_as_of": rel_cache.get("as_of"), "rel_age_days": rel_age, "rel_usable": rel_usable, "rel_coverage_pct": rel_coverage_pct,
+        "rel_missing": rel_missing,
         "deployable_cash_usd": round(deployable, 2),
         "max_single_deploy_usd": round(max_single, 2),
         "thresholds": {"rsi_oversold": RSI_OVERSOLD, "rsi_overbought": RSI_OVERBOUGHT,

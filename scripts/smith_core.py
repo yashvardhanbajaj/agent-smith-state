@@ -117,6 +117,13 @@ RSI_OVERBOUGHT_EXIT = 60.0
 # rather than acting on numbers that no longer describe the market. Never estimate.
 TRIGGER_CACHE_MAX_AGE_DAYS = 10
 
+# A cache can be perfectly fresh and still describe only part of the book, which shrinks the
+# trigger candidate set just as effectively as staleness -- and nothing named it until 2026-08-30,
+# when rsi14 and rel_strength_1m each covered 31 of 35 held names. Set at 85% rather than 100%
+# because a genuinely new or short-history listing (SKHY's ADR has too few closes for RSI14) is a
+# legitimate permanent gap, not a refresh failure; the flag should fire on neglect, not on physics.
+TRIGGER_CACHE_MIN_COVERAGE_PCT = 85.0
+
 LAGGARD_PCTILE = 25.0            # bottom quartile of 1m relative strength = "yet to run"
 
 RATCHET_MIN_GAIN_PCT = 15.0      # gain before a stop is worth ratcheting to breakeven
@@ -243,8 +250,8 @@ FRESHNESS = {
     "macro_read":                  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-macro",     "on_stale": "flag"},
     "tax_read":                    {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-tax",       "on_stale": "flag"},
     # --- monthly agents: a missed month must be a defect, not a silence (G50 shape) ---
-    "cycle_position":              {"stamp": "sibling:cycle_as_of",   "ttl_days": 35, "owner": "smith-cycle",   "on_stale": "escalate"},
-    "quality_read":                {"stamp": "sibling:quality_as_of", "ttl_days": 35, "owner": "smith-quality", "on_stale": "escalate"},
+    "cycle_position":              {"stamp": "field:as_of", "ttl_days": 35, "owner": "smith-cycle",   "on_stale": "escalate"},
+    "quality_read":                {"stamp": "field:as_of", "ttl_days": 35, "owner": "smith-quality", "on_stale": "escalate"},
 }
 
 # How far past ttl an artefact must be before its capability counts as genuinely OFF rather
