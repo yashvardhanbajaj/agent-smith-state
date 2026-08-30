@@ -24,40 +24,25 @@
     },
     "META": {
       "status": "intact",
-      "thesis": "Hyperscaler ad-funded AI capex spender; resolved WATCH->INTACT, no new deterioration since 07-29 Q2 print, oversold RSI is technical not fundamental",
+      "thesis": "Ad-funded hyperscaler AI-capex spender; oversold RSI resolved as technical not fundamental",
       "evidence_for": [
         {
-          "claim": "no new negative catalyst since 07-29 Q2 (-11% post-earnings, already priced in)",
+          "claim": "no new negative catalyst since 07-29 Q2 (-11%, priced in); Strong Buy PT $756.95",
           "date": "2026-08-12",
           "source": "stockanalysis.com/stocks/META"
-        },
-        {
-          "claim": "Strong Buy consensus, PT $756.95, +29.8% upside vs $583.02",
-          "date": "2026-08-12",
-          "source": "stockanalysis.com/stocks/META"
-        },
-        {
-          "claim": "RSI14 34.1, book's only oversold name -- price signal not thesis signal",
-          "date": "2026-08-12",
-          "source": "compute_risk.json"
         }
       ],
       "evidence_against": [
         {
-          "claim": "FCF-down-vs-capex-up tension from Q2 is structural and untested until next print",
+          "claim": "FCF-down-vs-capex-up tension structural, untested until next print",
           "date": "2026-08-12",
-          "source": "embed_thesis.json prior + this run"
-        },
-        {
-          "claim": "stockanalysis.com page lacked granular Q2/Q3 consensus breakdown this run",
-          "date": "2026-08-12",
-          "source": "stockanalysis.com/stocks/META tool limitation"
+          "source": "prior run"
         }
       ],
       "verified": "secondary",
       "verified_against": "stockanalysis.com/stocks/META",
       "verified_on": "2026-08-12",
-      "note": "status change unlocks oversold-reversion dip-buy trigger"
+      "note": "revived unchanged from archive, prior exit was user raise-cash not a stop"
     },
     "BABA": "China AI/cloud recovery: Alibaba Cloud + Qwen-Apple integration, $53B AI/cloud capex pledge | EXITED 2026-07-24",
     "GLW": "Optical fiber/connectivity for datacenter interconnect buildout | strengthening (EXITED 2026-07-24/25)",
@@ -287,6 +272,82 @@
       "verified_against": "stockanalysis.com/stocks/cohr",
       "verified_on": "2026-08-15",
       "note": "qty 2->3 on 08-14. smith-catalyst reported this as an earnings MISS; that is wrong and is corrected here and in factor_catalysts."
+    },
+    "NOW": {
+      "status": "watch",
+      "thesis": "Enterprise ITSM/workflow platform pivoting to agentic AI (AI ACV >$1bn), OpenAI competitive-disruption overhang vs -35% trailing-year decline",
+      "evidence_for": [
+        {
+          "claim": "Q2 beat: 24% revenue growth, raised FY26 subscription guidance, AI ACV >$1B",
+          "date": "2026-08-12",
+          "source": "INDmoney news"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "stock -40.8% trailing year despite consistent beats; Zacks Rank #4 Sell on valuation; OpenAI competitive-disruption overhang cited by CEO",
+          "date": "2026-08-05",
+          "source": "INDmoney news"
+        }
+      ],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "news budget spent this run; status unchanged"
+    },
+    "TXN": {
+      "status": "watch",
+      "thesis": "Analog/embedded semis; lowest beta in book (0.599 vs SMH), most AI-capex-decoupled name held",
+      "evidence_for": [
+        {
+          "claim": "beta vs SMH 0.599 -- lowest in book",
+          "date": "2026-08-12",
+          "source": "compute_risk.json"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "RSI14 42.4, rel -4.88pp vs SMH, mild underperformance, no catalyst check done",
+          "date": "2026-08-12",
+          "source": "compute_risk.json"
+        }
+      ],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "first thesis, no discrete corporate event to verify against this run"
+    },
+    "HOOD": {
+      "status": "watch",
+      "thesis": "Robinhood -- retail brokerage/fintech, no AI-capex link; Friday pop driven by crypto/regulatory sentiment not fundamentals",
+      "evidence_for": [
+        {
+          "claim": "TTM rev $4.93B +38.3%, net income +15.9%, BofA PT $140",
+          "date": "2026-08-20",
+          "source": "stockanalysis.com/stocks/hood"
+        },
+        {
+          "claim": "08-21 +13.7% driven by Bitcoin rebound + crypto-regulation optimism, funded-customer growth",
+          "date": "2026-08-24",
+          "source": "INDmoney news"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "no discrete quarter-vs-consensus print found; beat/miss unconfirmed",
+          "date": "2026-08-20",
+          "source": "stockanalysis.com/stocks/hood"
+        },
+        {
+          "claim": "giving back -1.36% in 08-24 pre-market",
+          "date": "2026-08-24",
+          "source": "INDmoney live quote"
+        }
+      ],
+      "verified": "secondary",
+      "verified_against": "stockanalysis.com/stocks/hood",
+      "verified_on": "2026-08-20",
+      "note": "Friday move is sentiment/crypto-beta driven, not a fundamental thesis change"
     }
   },
   "sector_map": {
@@ -317,6 +378,9 @@
     "SKHY": "AI Memory/Storage",
     "BX": "Alternative Asset Manager/Diversifier",
     "IONQ": "Quantum Computing (Speculative)",
-    "COHR": "AI Networking/Optics"
+    "COHR": "AI Networking/Optics",
+    "NOW": "Enterprise Software",
+    "TXN": "Analog/Industrial Semis",
+    "HOOD": "Fintech/Retail Brokerage"
   }
 }
