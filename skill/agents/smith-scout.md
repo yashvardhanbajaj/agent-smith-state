@@ -24,11 +24,12 @@ TASKS:
 2. SENTIMENT NARRATIVE — one paragraph interpreting compute_sentiment.json's score/band/action_hint in plain language ("VIX near a 1-year low and SPX within 1% of its 52-week high — greed, not yet extreme"). If action_hint is non-null (extreme_greed or extreme_fear), state plainly what it means for this run's proposals (handed to the strategist, who owns actually sizing anything).
 
 3. DIVERSIFIER BENCH — maintain a small persistent candidate table (~8–12 names) of ideas that sit OUTSIDE the book's AI-capex chain (gold miners, power/utilities, healthcare, broad/defensive ETFs — seed from the watchlist agent's non-AI-capex entry setups if diversifier_candidates is empty). For each candidate:
-   - Live price (yfinance) — this is the field the strategist has been missing (`price_at_proposal`), so do not skip it.
-   - Analyst mean target + upside %, one-line mini-thesis, and a status (new / active / stale — drop candidates with no analyst coverage after 2 runs).
+   - Live price (yfinance) — this is the field the strategist has been missing (`price_at_proposal`), so do not skip it. Refresh price EVERY run, cheaply, in the same batched call as the session-read prices above.
+   - **TARGET/THESIS TTL (added 2026-08-30): only re-fetch the analyst mean target and re-derive the mini-thesis if the candidate's `as_of` is missing, >7 days old, or the candidate is new this run.** An analyst target and a one-line thesis don't move meaningfully day to day; re-searching them on every deep run when only the price changed was pure waste. If reusing, carry the existing `target_usd`/`thesis`/`clean_diversifier` forward UNCHANGED and just update `price_usd`/`upside_pct`/`as_of`... no — leave `as_of` at its last refresh date when you did NOT refresh target/thesis, so staleness stays honestly measurable; only bump `as_of` when you actually re-fetched the target.
+   - A status (new / active / stale — drop candidates with no analyst coverage after 2 runs).
    - HONESTY FLAG — some superficially "diversifying" names are secretly correlated to the book's existing bet (e.g. datacenter-power plays like CEG/VST are AI-capex-adjacent, not clean diversifiers). Mark these explicitly as "partial diversifier" rather than silently including them as clean.
    - Rank by (upside % × diversification cleanliness), best first.
-   - Return the updated diversifier_candidates map for the orchestrator to persist.
+   - Return the updated diversifier_candidates map for the orchestrator to persist — `{"price_usd":0,"target_usd":0,"upside_pct":0,"thesis":"","status":"new|active|stale","clean_diversifier":true,"as_of":"YYYY-MM-DD"}`.
 
 OUTPUT — WRITE the full output below to the given output_file, then RETURN a ≤8-line prose summary (sentiment headline, session-read headline, top 2-3 diversifier candidates) PLUS your fenced JSON tail verbatim (small, structured — lets the strategist consume it inline) and the file path as fallback. Full output:
 1. Session read (futures, Asian/European session, ADR gap-risk flags, headline scan).
@@ -38,7 +39,7 @@ OUTPUT — WRITE the full output below to the given output_file, then RETURN a �
 ```json
 {"session_read":{"futures":{"es_pct":0,"nq_pct":0},"asia":{},"europe":{},"adr_gap_flags":[],"headline_scan":[]},
  "sentiment_narrative":"",
- "diversifier_candidates":{"TICKER":{"price_usd":0,"target_usd":0,"upside_pct":0,"thesis":"","status":"new|active|stale","clean_diversifier":true}},
+ "diversifier_candidates":{"TICKER":{"price_usd":0,"target_usd":0,"upside_pct":0,"thesis":"","status":"new|active|stale","clean_diversifier":true,"as_of":"YYYY-MM-DD"}},
  "data_quality":[]}
 ```
 Never invent prices or targets — omit and note in data_quality. Cap the candidate table at 12 names.

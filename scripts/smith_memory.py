@@ -929,6 +929,55 @@ def validate_technical_cache_staleness(base_dir):
     return defects
 
 
+EARNINGS_PENDING_HARD_STALE_DAYS = 3
+
+
+def validate_pending_earnings_staleness(base_dir):
+    """Escalate an earnings_facts entry stuck at status=PENDING past its own reported_date
+    into a hard `validate` defect (added 2026-08-30).
+
+    smith-earnings exists specifically to "own the words beat/miss for the whole fleet" and
+    write verified actuals into data_cache.earnings_facts so no other agent re-derives a
+    quarter from price action (G58/G75's whole lesson). But nothing currently RE-dispatches
+    it after a tracked print date passes -- it only fires on the PRE-print 5-day-window
+    trigger. Found 2026-08-30: NVDA (reported 2026-08-26) and MRVL (reported 2026-08-27) both
+    sat at status=PENDING for 3+ days, so smith-catalyst's 2026-08-29 run had to independently
+    re-search and re-characterise "beat but sold off" from price action and news -- duplicated
+    verification effort AND exactly the un-scripted-residue risk EVIDENCE PRINCIPLE exists to
+    close, just for a fact that was cheap to settle days earlier.
+
+    This check does not dispatch anything itself (validate is read-only) -- it makes the gap
+    loud enough that the orchestrator adds an EARNINGS VERIFY trigger to Stage 1 rather than
+    leaving smith-earnings PRE-print-only forever.
+    """
+    defects = []
+    state = load_json(os.path.join(base_dir, "state.json"), default={})
+    facts = state.get("data_cache", {}).get("earnings_facts", {}) or {}
+    today = date.today()
+    stale = []
+    for tk, f in facts.items():
+        if not isinstance(f, dict) or f.get("status") != "PENDING":
+            continue
+        reported = f.get("reported_date")
+        if not reported:
+            continue
+        try:
+            reported_date = datetime.strptime(reported, "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            continue
+        age = (today - reported_date).days
+        if age >= EARNINGS_PENDING_HARD_STALE_DAYS:
+            stale.append(f"{tk} (reported {reported}, {age}d ago)")
+    if stale:
+        defects.append(
+            f"EARNINGS FACTS STUCK PENDING: {len(stale)} name(s) reported their print but "
+            f"earnings_facts never recorded actuals ({', '.join(stale)}) -- dispatch "
+            f"smith-earnings (or a lighter verify-only pass) to fill in revenue_actual/"
+            f"eps_actual/quarter_verdict/guide_verdict before another agent re-derives "
+            f"beat/miss from price action independently.")
+    return defects
+
+
 def cmd_validate(args):
     policy = load_json(os.path.join(args.base_dir, "policy.json"), default=None)
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
@@ -945,8 +994,10 @@ def cmd_validate(args):
     proposals_defects = validate_proposals_schema(args.base_dir)
     narrative_defects = validate_policy_narrative_drift(args.base_dir)
     staleness_defects = validate_technical_cache_staleness(args.base_dir)
+    earnings_pending_defects = validate_pending_earnings_staleness(args.base_dir)
     all_defects = (policy_defects + cache_defects + thesis_defects + learning_defects
-                   + proposals_defects + narrative_defects + staleness_defects)
+                   + proposals_defects + narrative_defects + staleness_defects
+                   + earnings_pending_defects)
 
     emit({
         "policy_present": policy is not None,
