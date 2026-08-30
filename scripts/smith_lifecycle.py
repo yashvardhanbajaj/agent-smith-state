@@ -1094,6 +1094,31 @@ def cmd_score(args):
                  "dismissed_by_user proposals are excluded -- a user override is not a strategist "
                  "error." % VERDICT_THRESHOLD_PCT),
     }
+    # REFUSE TO SHRINK THE RECORD (added 2026-08-30, found live).
+    #
+    # SKILL.md's own sanctioned procedure is to probe this command with a prices file containing
+    # `{}` so it NAMES the tickers it needs. Doing exactly that on 2026-08-30 overwrote a
+    # scorecard of 19 graded proposals (31.6% accuracy) with `scored_count: 0, overall: null`.
+    # Nothing was lost permanently -- the per-proposal `outcome_verdict` fields survived intact,
+    # so the aggregate is reconstructible -- but the headline figure the strategist reads, and
+    # the one the weekly report prints, silently went to zero.
+    #
+    # This is the IDENTICAL bug class cmd_stops was already hardened against: "cmd_stops REFUSES
+    # to overwrite stops_analysis.json with fewer stops than it already holds ... before that
+    # guard, this exact probe silently destroyed the 94-row efficacy record twice." The lesson
+    # was learned once, for one subcommand, and never generalised to its sibling -- which is how
+    # a documented, sanctioned procedure became a landmine.
+    prior = (proposals.get("scorecard") or {}).get("scored_count")
+    if prior and len(graded) < prior:
+        emit({"refused": True, "reason": (
+                  f"scoring produced {len(graded)} graded rows against {prior} already on record "
+                  f"-- refusing to shrink the scorecard. This is almost always the empty-prices "
+                  f"probe: supply the tickers named in needs_prices and re-run."),
+              "needs_prices": sorted(unpriced),
+              "scorecard_preserved": proposals.get("scorecard", {}).get("as_of"),
+              "prior_scored_count": prior, "would_have_written": len(graded)})
+        return
+
     proposals["scorecard"] = scorecard
 
     dq = []
