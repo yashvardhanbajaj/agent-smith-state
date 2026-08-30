@@ -5156,19 +5156,17 @@
       ],
       "repeat_count": 2,
       "note": "recommended 2x since 2026-08-24T08:55:00+05:30, still open",
-      "priority_score": 3,
-      "priority": "MEDIUM",
+      "priority_score": 1,
+      "priority": "LOW",
       "priority_reasons": [
-        "AI Memory/Storage under band (-7.2pt)",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "still_valid_because": [
-        "AI Memory/Storage under band (-7.2pt)",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-29",
-      "retires_when": "AI Memory/Storage re-enters its policy band",
+      "revalidated_on": "2026-08-31",
+      "retires_when": null,
       "proposal_class": "idea"
     },
     {
@@ -5267,7 +5265,7 @@
       "ticker": "IREN",
       "size_usd": 111,
       "price_at_proposal": 42.0,
-      "status": "open",
+      "status": "dismissed_by_user",
       "trigger_type": null,
       "direction_bucket": "BUY",
       "cluster": "Compute/Hyperscaler",
@@ -5287,7 +5285,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-08-19T11:05:00+05:30, still open",
+      "note": "recommended 2x since 2026-08-19T11:05:00+05:30, still open | dismissed by user 2026-08-31T01:01: Direct contradiction with open P-180 (Trim IREN), which the live engine re-confirms: trend_breakdown fires live, conviction_score -4.0 (tier none), thesis WATCH. The desk cannot hold a re-entry BUY and a breakdown TRIM on the same name in the same run. Trim leg kept, re-entry leg dismissed. Not a user decision.",
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
@@ -5301,7 +5299,8 @@
       "review_flags": [],
       "revalidated_on": "2026-08-29",
       "retires_when": "Compute/Hyperscaler re-enters its policy band",
-      "proposal_class": "idea"
+      "proposal_class": "idea",
+      "dismiss_reason": "Direct contradiction with open P-180 (Trim IREN), which the live engine re-confirms: trend_breakdown fires live, conviction_score -4.0 (tier none), thesis WATCH. The desk cannot hold a re-entry BUY and a breakdown TRIM on the same name in the same run. Trim leg kept, re-entry leg dismissed. Not a user decision."
     },
     {
       "date": "2026-08-24",
@@ -6214,7 +6213,7 @@
       "pair_id": "profit_rotation-ASML-AMAT",
       "pair_role": "sell",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open",
+      "status": "dismissed_by_user",
       "id": "P-174",
       "direction_bucket": "SELL",
       "history": [
@@ -6226,7 +6225,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-08-26T13:15:00+05:30, still open",
+      "note": "recommended 2x since 2026-08-26T13:15:00+05:30, still open | dismissed by user 2026-08-31T01:01: Both evidence legs invalidated by the 2026-08-31 cache refresh. (1) 'Stretched' came from 19-day-old rel_strength; live ASML is -1.76pp vs SMH with RSI14 49.1 -- neutral, not stretched, and it is not in this run's names_stretched. (2) 'Book real profit' is false on lot basis: smith-tax measures the trim as realising -18.79 USD, i.e. a loss. Desk-dismissed on stale-evidence grounds, not a user decision.",
       "priority_score": 7,
       "priority": "HIGH",
       "priority_reasons": [
@@ -6245,7 +6244,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-29",
-      "retires_when": "the profit_rotation pairing profit_rotation-ASML-AMAT is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the profit_rotation pairing profit_rotation-ASML-AMAT is no longer live this run -- both legs retire together, never one alone",
+      "dismiss_reason": "Both evidence legs invalidated by the 2026-08-31 cache refresh. (1) 'Stretched' came from 19-day-old rel_strength; live ASML is -1.76pp vs SMH with RSI14 49.1 -- neutral, not stretched, and it is not in this run's names_stretched. (2) 'Book real profit' is false on lot basis: smith-tax measures the trim as realising -18.79 USD, i.e. a loss. Desk-dismissed on stale-evidence grounds, not a user decision."
     },
     {
       "action": "Buy AMAT",
@@ -6257,7 +6257,7 @@
       "pair_id": "profit_rotation-ASML-AMAT",
       "pair_role": "buy",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "id": "P-175",
       "direction_bucket": "BUY",
       "history": [
@@ -6269,11 +6269,11 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-08-26T13:15:00+05:30, still open",
-      "priority_score": 3,
+      "note": "recommended 2x since 2026-08-26T13:15:00+05:30, still open | auto-retired 2026-08-31: the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "profit_rotation: conviction 22.0 (unscored) -- laggard (-4.1pp) with a strengthening thesis -- yet to rally",
+        "profit_rotation: conviction 0 (unscored) -- ",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "proposal_class": "idea",
@@ -6284,7 +6284,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-29",
-      "retires_when": "the profit_rotation pairing profit_rotation-ASML-AMAT is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the profit_rotation pairing profit_rotation-ASML-AMAT is no longer live this run -- both legs retire together, never one alone",
+      "retired_on": "2026-08-31",
+      "retired_reason": "the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "action": "Sell AMD",
@@ -6296,14 +6298,14 @@
       "pair_id": "cluster_rotation-AMD-TSM",
       "pair_role": "sell",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "id": "P-176",
       "direction_bucket": "SELL",
       "priority_score": 4,
       "priority": "HIGH",
       "priority_reasons": [
         "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
-        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-11.3pp), watch thesis -- dead money in this cluster"
+        "cluster_rotation: conviction 0 (unscored) -- "
       ],
       "proposal_class": "idea",
       "cluster": "AI Semis/Fabs",
@@ -6313,7 +6315,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-29",
-      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TSM is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TSM is no longer live this run -- both legs retire together, never one alone",
+      "retired_on": "2026-08-31",
+      "retired_reason": "the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-08-31: the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "action": "Buy TSM",
@@ -6325,13 +6330,13 @@
       "pair_id": "cluster_rotation-AMD-TSM",
       "pair_role": "buy",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "id": "P-177",
       "direction_bucket": "BUY",
-      "priority_score": 2,
-      "priority": "MEDIUM",
+      "priority_score": 0,
+      "priority": "LOW",
       "priority_reasons": [
-        "cluster_rotation: conviction 23.0 (unscored) -- performer within AI Semis/Fabs (+0.7pp), strengthening thesis"
+        "cluster_rotation was the stated trigger but TSM is not in this run's cluster_rotation candidate list -- condition is no longer live"
       ],
       "proposal_class": "idea",
       "cluster": "AI Semis/Fabs",
@@ -6340,7 +6345,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-29",
-      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TSM is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TSM is no longer live this run -- both legs retire together, never one alone",
+      "retired_on": "2026-08-31",
+      "retired_reason": "the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-08-31: the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "action": "Trim AMZN",
@@ -6353,22 +6361,20 @@
       "status": "open",
       "id": "P-178",
       "direction_bucket": "TRIM",
-      "priority_score": 7,
+      "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
         "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
-        "AMZN genuinely stretched: +9.0% 1m, +8.3pp vs SMH -- real profit to take, not just a smaller loss",
-        "catalyst_threat: CDS on Oracle/SpaceX/Alphabet/Amazon/Meta/Broadcom/Nvidia hit record highs (LSEG) -- AI-financing/vendor-credit risk repricing (2026-08-27) -- directional signal only, no bp level sourced"
+        "catalyst_threat: Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: 'CDS, not EPS' (2026-08-27) -- NVDA CDS ~2x in 2 months; Oracle downgraded to lowest IG rung, CDS 215bp -- directional credit repricing, no absolute NVDA bp level sourced"
       ],
       "proposal_class": "idea",
       "cluster": "Compute/Hyperscaler",
       "still_valid_because": [
         "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
-        "AMZN genuinely stretched: +9.0% 1m, +8.3pp vs SMH -- real profit to take, not just a smaller loss",
-        "catalyst_threat: CDS on Oracle/SpaceX/Alphabet/Amazon/Meta/Broadcom/Nvidia hit record highs (LSEG) -- AI-financing/vendor-credit risk repricing (2026-08-27) -- directional signal only, no bp level sourced"
+        "catalyst_threat: Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: 'CDS, not EPS' (2026-08-27) -- NVDA CDS ~2x in 2 months; Oracle downgraded to lowest IG rung, CDS 215bp -- directional credit repricing, no absolute NVDA bp level sourced"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-29",
+      "revalidated_on": "2026-08-31",
       "retires_when": "AMZN no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
     },
     {
@@ -6379,7 +6385,7 @@
       "rationale": "Double-evidenced: catalyst_threat (CXMT Shanghai debut) AND separately over_cap (headroom -$302.44); WATCH thesis.",
       "trigger_type": "catalyst_threat",
       "date": "2026-08-29T08:16:00Z",
-      "status": "open",
+      "status": "dismissed_by_user",
       "id": "P-179",
       "direction_bucket": "TRIM",
       "priority_score": 7,
@@ -6401,7 +6407,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-29",
-      "retires_when": "MU no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "MU no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "dismiss_reason": "Both evidence legs gone. (1) over_cap headroom -302.44 was computed on an ATR20 window still containing the 07-28 crash; on refreshed ATR (5.31pct) MU cap_multiple is 0.754 and it is NOT over cap. (2) MU does not appear in this run's catalyst_threat set. Live MU is +12.93pp vs SMH with a +38.4pct target gap. Desk-dismissed on stale-evidence grounds, not a user decision.",
+      "note": "dismissed by user 2026-08-31T01:01: Both evidence legs gone. (1) over_cap headroom -302.44 was computed on an ATR20 window still containing the 07-28 crash; on refreshed ATR (5.31pct) MU cap_multiple is 0.754 and it is NOT over cap. (2) MU does not appear in this run's catalyst_threat set. Live MU is +12.93pp vs SMH with a +38.4pct target gap. Desk-dismissed on stale-evidence grounds, not a user decision."
     },
     {
       "action": "Trim IREN",
@@ -6418,17 +6426,214 @@
       "priority": "MEDIUM",
       "priority_reasons": [
         "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
-        "trend_breakdown: conviction -5.2 (none) -- thesis watch (secondary, 3 for / 3 against); signal polarity net -1 (STRONG DOWNTREND); technical: RSI cache stale, degraded to 0 (not estimated); named by 3 independent source(s) this run"
+        "trend_breakdown: conviction -4.0 (none) -- thesis watch (secondary, 3 for / 3 against); ambiguous/structural: IREN FY26: $638.8M noncash bitcoin-rig impairment flips $86.9M profit to $702.6M; signal polarity net -1 (STRONG DOWNTREND); +24.6pp vs benchmark; named by 2 independent source(s) this run"
       ],
       "proposal_class": "idea",
       "cluster": "Compute/Hyperscaler",
       "still_valid_because": [
         "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
-        "trend_breakdown: conviction -5.2 (none) -- thesis watch (secondary, 3 for / 3 against); signal polarity net -1 (STRONG DOWNTREND); technical: RSI cache stale, degraded to 0 (not estimated); named by 3 independent source(s) this run"
+        "trend_breakdown: conviction -4.0 (none) -- thesis watch (secondary, 3 for / 3 against); ambiguous/structural: IREN FY26: $638.8M noncash bitcoin-rig impairment flips $86.9M profit to $702.6M; signal polarity net -1 (STRONG DOWNTREND); +24.6pp vs benchmark; named by 2 independent source(s) this run"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-08-29",
+      "revalidated_on": "2026-08-31",
       "retires_when": "IREN no longer appears in this run's live trend_breakdown list (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "action": "Trim NVDA",
+      "ticker": "NVDA",
+      "direction_bucket": "TRIM",
+      "size_usd": 271.94,
+      "price_at_proposal": 217.55,
+      "rationale": "Double-evidenced and the only TRIM in the book carrying both a technical and a credit leg. (1) overbought_distribution fired LIVE for the first time in this book's history on the 08-31 cache refresh: RSI14 70.4, the highest in the book, +6.34pp vs SMH. (2) catalyst_threat: NVDA's own 5-year CDS has roughly doubled in two months and it is backstopping ~125bn USD of a ~500bn USD third-party compute-financing platform. smith-cycle's late-cycle call rests substantially on NVDA's own guidance -- gross margin stepping 75pct to 74pct to a 71-72pct Q4 trough on memory cost, with component commitments up 119bn to 279bn USD in a single quarter. Trimming 25pct of a strengthening-thesis name is a de-risk of the financing leg, not a thesis exit; NVDA stays a position. Funds the GOOG leg.",
+      "trigger_type": "overbought_distribution",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "monday-nvda-goog",
+      "pair_role": "sell",
+      "cluster": "AI Semis/Fabs",
+      "id": "P-181",
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "NVDA genuinely stretched: +8.1% 1m, +6.3pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 70.4 > 70 (overbought); up +8.1% on the month -- real gain to protect"
+      ],
+      "proposal_class": "housekeeping",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "NVDA genuinely stretched: +8.1% 1m, +6.3pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 70.4 > 70 (overbought); up +8.1% on the month -- real gain to protect"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "NVDA RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "action": "Buy GOOG",
+      "ticker": "GOOG",
+      "direction_bucket": "BUY",
+      "size_usd": 271.94,
+      "price_at_proposal": 342.88,
+      "rationale": "The one buyer that has not been bid. smith-cycle's central finding is that capital is paying up for the investment-grade balance sheets BUYING the capex and marking down the levered suppliers selling it -- AMZN +3.97pct, MSFT +1.68pct, GOOG +1.53pct on 08-28 while SMH fell 3.47pct. GOOG sits on the favoured side of that rotation and is nonetheless -13.06pp vs SMH over one month with RSI14 28.9, firing oversold_reversion AND laggard_rotation together on a strengthening thesis, +18.8pct to mean target, capital-raised its capex ceiling to 205bn USD. DISCRIMINATION STATED EXPLICITLY: catalyst_threat also fires a TRIM on GOOG, but that trigger applies the generic AI-financing-credit story to every Compute/Hyperscaler name uniformly. smith-quality audited the book's financing quality this run and flagged AMZN, BE and INTC -- not GOOG. Buying the name the credit screen cleared and selling the name whose CDS doubled is the whole point of the pair.",
+      "trigger_type": "oversold_reversion",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "monday-nvda-goog",
+      "pair_role": "buy",
+      "cluster": "Compute/Hyperscaler",
+      "id": "P-182",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "oversold_reversion: RSI14 28.9 < 35 (oversold); thesis strengthening -- technical dip, not a fundamental break; within ATR risk cap with $4,465 headroom",
+        "caveat -- no deployable cash above the band ceiling -- setup valid, funding is not"
+      ],
+      "proposal_class": "housekeeping",
+      "still_valid_because": [
+        "oversold_reversion: RSI14 28.9 < 35 (oversold); thesis strengthening -- technical dip, not a fundamental break; within ATR risk cap with $4,465 headroom",
+        "caveat -- no deployable cash above the band ceiling -- setup valid, funding is not"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "GOOG RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening"
+    },
+    {
+      "action": "Trim BE",
+      "ticker": "BE",
+      "direction_bucket": "TRIM",
+      "size_usd": 253.0,
+      "price_at_proposal": 210.77,
+      "rationale": "Three independent legs, none of them price. (1) smith-quality, first persisted audit: diluted share count +37.6pct YoY and total debt +86pct YoY to 2.81bn USD -- growth funded by issuance in the exact window NVDA's CDS doubled and ORCL was cut to BBB-, and BE is named in force_thesis_review. (2) Worst over-cap position in the book after the ATR refresh: cap_multiple 1.316 on a 7.97pct ATR20, headroom negative. (3) Highest beta in the held book at 2.105 against an SMH-benchmarked late-cycle read. evidence_against, stated: revenue +41.8pct YoY with operating income and FCF both turning positive this quarter, so this is funding a real demand ramp, not covering losses -- which is why this is a TRIM sized to restore cap headroom and not an exit.",
+      "trigger_type": "quality_flag",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "id": "P-183",
+      "priority_score": 4,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "BE at 1.32x its ATR risk cap",
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "proposal_class": "idea",
+      "full_cure_usd": 405.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 63.0,
+      "tranche_note": "cures 63% of the risk cap excess ($405) -- roughly 2.0 tranches this size to fully clear it",
+      "still_valid_because": [
+        "BE at 1.32x its ATR risk cap",
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "BE drops under its ATR risk cap"
+    },
+    {
+      "action": "Hold AVGO",
+      "ticker": "AVGO",
+      "direction_bucket": "HOLD",
+      "size_usd": 0,
+      "price_at_proposal": 368.79,
+      "rationale": "STAGED, deliberately not actioned Monday. AVGO is the most oversold name in the book -- RSI14 22.9, -13.31pp vs SMH, strengthening thesis -- and fires oversold_reversion and laggard_rotation together, which on any other week would make it the cleanest buy on the board. It reports 2026-09-02, two sessions out, with a ~8.12pct implied move. Buying a 22.9-RSI name into its own print is not a reversion trade, it is an earnings bet, and the desk does not size those. Revisit 09-03 on the print: a beat that still sells off is the de-rating pattern smith-cycle documented across MRVL and COHR and would make AVGO a stronger buy, not a weaker one.",
+      "trigger_type": "earnings_proximity",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "cluster": "AI Networking/Optics",
+      "id": "P-184",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "no active structural trigger -- kept open on the strategist's judgement, not a breach"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": null
+    },
+    {
+      "action": "Hold AMZN",
+      "ticker": "AMZN",
+      "direction_bucket": "HOLD",
+      "size_usd": 0,
+      "price_at_proposal": 266.43,
+      "rationale": "Resolves a direct trigger-versus-quality conflict rather than averaging it. oversold_reversion fires BUY on AMZN at RSI14 29.8 with a strengthening thesis; catalyst_threat and open proposal P-178 fire TRIM. smith-quality breaks the tie with a balance sheet, not a price: quarterly capex 44.2bn USD now EXCEEDS operating cash flow 26.03bn USD, free cash flow swung from +14.94bn to -18.17bn USD in one quarter, and long-term debt rose 81.4pct YoY to 119.07bn USD -- the book's single clearest instance of the precise pattern the market is repricing, and AMZN is in force_thesis_review. The RSI is low BECAUSE the market is pricing what the audit found; that makes it an explanation, not a discount. Existing trim P-178 stands, no add. Note the finding is verified:unverified -- FMP secFilings returned ACCESS DENIED this run -- so this holds rather than escalates.",
+      "trigger_type": "conflict_resolution",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "cluster": "Compute/Hyperscaler",
+      "id": "P-185",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "no active structural trigger -- kept open on the strategist's judgement, not a breach"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": null
+    },
+    {
+      "action": "Sell CIEN",
+      "ticker": "CIEN",
+      "direction_bucket": "SELL",
+      "size_usd": 341.56,
+      "price_at_proposal": 227.71,
+      "rationale": "Live profit_rotation sell leg, re-proposed after the prior CIEN pairing died with the ASML dismissal. CIEN is stretched (+7.39pp vs SMH) on a WATCH thesis -- the engine's exact definition of real profit to book. Independent second leg: CIEN reports 2026-09-03 having run +14.6pct INTO the print, and smith-earnings records its beats decaying every quarter. Trimming a stretched watch-thesis name ahead of a print it has already been paid for is the opposite of the AVGO case (P-184), where the desk declines to BUY an oversold name into a print -- selling strength into an event and buying weakness into an event are not symmetric.",
+      "trigger_type": "profit_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "monday-cien-amat",
+      "pair_role": "sell",
+      "cluster": "AI Networking/Optics",
+      "id": "P-186",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "CIEN genuinely stretched: +4.0% 1m, +7.4pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- "
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "CIEN genuinely stretched: +4.0% 1m, +7.4pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- "
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the profit_rotation pairing monday-cien-amat is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "action": "Buy AMAT",
+      "ticker": "AMAT",
+      "direction_bucket": "BUY",
+      "size_usd": 341.56,
+      "price_at_proposal": 461.67,
+      "rationale": "Highest conviction_score in the book at 34.3 and the only name firing conviction_average and oversold_reversion together: RSI14 33.3, strengthening thesis, -3.12pp vs SMH, +18.7pct to mean target, cap_multiple 0.45 so it is well inside its own risk cap. The cycle logic is the reason this is the buy rather than a levered supplier: smith-cycle calls the position LATE-BY-COST -- margins peaking on memory input cost while physical demand still accelerates -- and its single strongest evidence_AGAINST a late read is upstream semicap, where lead times are EXTENDING (etch and deposition doubled to 12 months, packaging/test beyond 18) and ASML and KLA are both raising capacity plans. AMAT is upstream equipment: it is paid by the capex being committed, it is not the name absorbing the memory cost inflation, and it carries none of the debt-funded-growth flags smith-quality raised against AMZN, BE or INTC. If the late call is right, this is the part of the chain that is late last.",
+      "trigger_type": "conviction_average",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "monday-cien-amat",
+      "pair_role": "buy",
+      "cluster": "AI Semis/Fabs",
+      "id": "P-187",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "conviction_average: conviction 34.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); RSI14 33 oversold; -3.1pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "conviction_average: conviction 34.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); RSI14 33 oversold; -3.1pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "AMAT no longer appears in this run's live conviction_average list"
     }
   ],
   "retracted": [

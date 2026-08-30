@@ -1,34 +1,18 @@
 {
-  "as_of": "2026-08-30",
+  "as_of": "2026-08-31",
   "counts": {
-    "dark": 2,
-    "fresh": 7,
-    "missing": 5,
-    "stale": 1,
-    "unstamped": 6
+    "fresh": 19,
+    "missing": 1,
+    "unstamped": 1
   },
-  "dark": [
-    "data_cache.rel_strength_1m",
-    "data_cache.rsi14"
-  ],
+  "dark": [],
   "unstamped": [
-    "data_cache.betas",
-    "data_cache.earnings_calendar",
-    "factor_themes",
-    "peer_map",
-    "sector_map",
-    "thesis"
+    "data_cache.betas"
   ],
   "missing": [
-    "cycle_position",
-    "data_cache.analyst_targets",
-    "data_cache.ret_5d",
-    "quality_read",
     "rebound_candidates"
   ],
-  "stale": [
-    "data_cache.atr20"
-  ],
+  "stale": [],
   "artefacts": [
     {
       "key": "data_cache.rsi14",
@@ -36,9 +20,9 @@
       "ttl_days": 7,
       "on_stale": "suppress",
       "dark_at_days": 10,
-      "as_of": "2026-08-12",
-      "age_days": 18,
-      "state": "dark"
+      "as_of": "2026-08-31",
+      "age_days": 0,
+      "state": "fresh"
     },
     {
       "key": "data_cache.rel_strength_1m",
@@ -46,9 +30,9 @@
       "ttl_days": 7,
       "on_stale": "suppress",
       "dark_at_days": 10,
-      "as_of": "2026-08-12",
-      "age_days": 18,
-      "state": "dark"
+      "as_of": "2026-08-31",
+      "age_days": 0,
+      "state": "fresh"
     },
     {
       "key": "signal_history",
@@ -57,16 +41,15 @@
       "on_stale": "suppress",
       "dark_at_days": 10,
       "as_of": "2026-08-29",
-      "age_days": 1,
+      "age_days": 2,
       "state": "fresh",
       "entries_stamped": 39,
       "entries_unstamped": 0,
       "oldest_entries": [
-        "AMAT",
-        "AMD",
-        "AMKR",
-        "AMZN",
-        "ASML"
+        "HOOD",
+        "META",
+        "NOW",
+        "TXN"
       ]
     },
     {
@@ -75,9 +58,9 @@
       "ttl_days": 7,
       "on_stale": "flag",
       "dark_at_days": 14,
-      "as_of": "2026-08-20",
-      "age_days": 10,
-      "state": "stale"
+      "as_of": "2026-08-31",
+      "age_days": 0,
+      "state": "fresh"
     },
     {
       "key": "data_cache.ret_5d",
@@ -85,9 +68,9 @@
       "ttl_days": 3,
       "on_stale": "suppress",
       "dark_at_days": 10,
-      "as_of": null,
-      "age_days": null,
-      "state": "missing"
+      "as_of": "2026-08-31",
+      "age_days": 0,
+      "state": "fresh"
     },
     {
       "key": "data_cache.betas",
@@ -105,9 +88,9 @@
       "ttl_days": 7,
       "on_stale": "flag",
       "dark_at_days": 14,
-      "as_of": null,
-      "age_days": null,
-      "state": "missing"
+      "as_of": "2026-08-31",
+      "age_days": 0,
+      "state": "fresh"
     },
     {
       "key": "data_cache.etf_constituents",
@@ -116,7 +99,7 @@
       "on_stale": "flag",
       "dark_at_days": 60,
       "as_of": "2026-08-30",
-      "age_days": 0,
+      "age_days": 1,
       "state": "fresh"
     },
     {
@@ -125,9 +108,9 @@
       "ttl_days": 30,
       "on_stale": "flag",
       "dark_at_days": 60,
-      "as_of": null,
-      "age_days": null,
-      "state": "unstamped"
+      "as_of": "2026-08-31",
+      "age_days": 0,
+      "state": "fresh"
     },
     {
       "key": "thesis",
@@ -135,9 +118,18 @@
       "ttl_days": 21,
       "on_stale": "escalate",
       "dark_at_days": 21,
-      "as_of": null,
-      "age_days": null,
-      "state": "unstamped"
+      "as_of": "2026-08-31",
+      "age_days": 0,
+      "state": "fresh",
+      "entries_stamped": 35,
+      "entries_unstamped": 0,
+      "oldest_entries": [
+        "AMAT",
+        "AMD",
+        "AMKR",
+        "AMZN",
+        "ASML"
+      ]
     },
     {
       "key": "sector_map",
@@ -145,9 +137,9 @@
       "ttl_days": 30,
       "on_stale": "flag",
       "dark_at_days": 60,
-      "as_of": null,
-      "age_days": null,
-      "state": "unstamped"
+      "as_of": "2026-08-31",
+      "age_days": 0,
+      "state": "fresh"
     },
     {
       "key": "peer_map",
@@ -155,9 +147,9 @@
       "ttl_days": 30,
       "on_stale": "flag",
       "dark_at_days": 60,
-      "as_of": null,
-      "age_days": null,
-      "state": "unstamped"
+      "as_of": "2026-08-31",
+      "age_days": 0,
+      "state": "fresh"
     },
     {
       "key": "factor_catalysts",
@@ -165,7 +157,7 @@
       "ttl_days": 7,
       "on_stale": "flag",
       "dark_at_days": 14,
-      "as_of": "2026-08-28",
+      "as_of": "2026-08-29",
       "age_days": 2,
       "state": "fresh"
     },
@@ -175,9 +167,9 @@
       "ttl_days": 30,
       "on_stale": "escalate",
       "dark_at_days": 30,
-      "as_of": null,
-      "age_days": null,
-      "state": "unstamped"
+      "as_of": "2026-08-31",
+      "age_days": 0,
+      "state": "fresh"
     },
     {
       "key": "diversifier_candidates",
@@ -186,7 +178,7 @@
       "on_stale": "flag",
       "dark_at_days": 14,
       "as_of": "2026-08-29",
-      "age_days": 1,
+      "age_days": 2,
       "state": "fresh",
       "entries_stamped": 8,
       "entries_unstamped": 0,
@@ -204,8 +196,8 @@
       "ttl_days": 7,
       "on_stale": "escalate",
       "dark_at_days": 7,
-      "as_of": "2026-08-25",
-      "age_days": 5,
+      "as_of": "2026-08-31",
+      "age_days": 0,
       "state": "fresh"
     },
     {
@@ -215,7 +207,7 @@
       "on_stale": "flag",
       "dark_at_days": 14,
       "as_of": "2026-08-25",
-      "age_days": 5,
+      "age_days": 6,
       "state": "fresh"
     },
     {
@@ -224,8 +216,8 @@
       "ttl_days": 30,
       "on_stale": "flag",
       "dark_at_days": 60,
-      "as_of": "2026-08-17",
-      "age_days": 13,
+      "as_of": "2026-08-31",
+      "age_days": 0,
       "state": "fresh"
     },
     {
@@ -244,9 +236,9 @@
       "ttl_days": 35,
       "on_stale": "escalate",
       "dark_at_days": 35,
-      "as_of": null,
-      "age_days": null,
-      "state": "missing"
+      "as_of": "2026-08-31",
+      "age_days": 0,
+      "state": "fresh"
     },
     {
       "key": "quality_read",
@@ -254,10 +246,10 @@
       "ttl_days": 35,
       "on_stale": "escalate",
       "dark_at_days": 35,
-      "as_of": null,
-      "age_days": null,
-      "state": "missing"
+      "as_of": "2026-08-31",
+      "age_days": 0,
+      "state": "fresh"
     }
   ],
-  "headline": "Freshness: DARK data_cache.rsi14 18d, data_cache.rel_strength_1m 18d | UNCHECKABLE thesis (unstamped), factor_themes (unstamped), cycle_position (missing), quality_read (missing)"
+  "headline": "Freshness: all artefacts within TTL."
 }

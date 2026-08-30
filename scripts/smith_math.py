@@ -1413,6 +1413,30 @@ def cmd_pipeline(args):
             break
         results.append({"stage": name, "status": "ok"})
 
+    # latest_run_dir: stamped HERE, by the only code that always knows which run dir it just
+    # populated. Added 2026-08-31 after `validate` reported a 13.183% aggregate-risk breach that
+    # had ALREADY been resolved -- it was grading runs/2026-08-29-0816 while two later runs sat
+    # on disk, because `state.last_run_dir` is hand-written at PERSIST and had been missed twice.
+    #
+    # This is a NEW field, not a repair of `last_run_dir`, and the distinction is load-bearing:
+    # `last_run_dir` means "the PREVIOUS run" to `_prior_run_prices`, which needs the run before
+    # this one to price full exits and carries an explicit self-reference guard for the case
+    # where it points at the current run. `validate` and the dashboard read the same key meaning
+    # "the LATEST run". One field, two contradictory contracts -- so the fix is to give the
+    # latest-run readers a field that actually means that, not to redefine one out from under
+    # the other. Written only on a successful pipeline, so a failed run never advances it.
+    if not failed:
+        try:
+            st_path = os.path.join(base, "state.json")
+            st = load_json(st_path, default=None)
+            if isinstance(st, dict):
+                rel = os.path.relpath(os.path.realpath(run_dir), os.path.realpath(base))
+                if st.get("latest_run_dir") != rel:
+                    st["latest_run_dir"] = rel
+                    safe_write(st_path, st)
+        except (OSError, ValueError):
+            pass  # a stamp failure must never take down a completed pipeline
+
     emit({"run_dir": run_dir,
           "stages": results,
           "completed": [r["stage"] for r in results if r["status"] == "ok"],

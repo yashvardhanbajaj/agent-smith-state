@@ -859,12 +859,54 @@ def _merge_signals(out, state, today, scanned_tickers=None, base_dir="."):
         tc = state["data_cache"].setdefault("analyst_targets", {})
         tc.update(targets)
         tc["as_of"] = today
+    # rsi14 / rel_strength_1m / atr20 -- THE THREE CACHES THE WHOLE FRESHNESS CONTRACT EXISTS
+    # TO POLICE, and until 2026-08-31 the only signals outputs with NO WRITE PATH HERE. The
+    # 08-30 run dispatched smith-signals expressly to lift the 19-day-dark trigger layer; the
+    # agent returned all five caches correctly and this function merged two of them and dropped
+    # rsi14, rel_strength_1m and atr20 on the floor. `freshness` then still reported DARK, which
+    # is the only reason it was caught. Same shape as G50 / cycle_position / journal_new: the
+    # agent produced it, no table named the write path, the output evaporated -- except this
+    # instance silently defeated the specific repair it had been dispatched to perform.
+    #
+    # UNITS ARE NOT ASSUMED. rel_strength_1m_updates carries a `benchmark` key and its values are
+    # PERCENTAGE POINTS RELATIVE to that benchmark, matching the existing cache's `values_pp`;
+    # writing them into `values_abs_pct` would silently corrupt every relative-strength read.
+    # Per the _merge_book benchmark guard: refuse rather than guess.
+    rsi_upd = {k: v for k, v in (out.get("rsi14_updates") or {}).items()
+               if isinstance(v, (int, float))}
+    if rsi_upd:
+        c = state["data_cache"].setdefault("rsi14", {})
+        c.setdefault("values", {}).update(rsi_upd)
+        c["as_of"] = today
+    atr_upd = {k: v for k, v in (out.get("atr20_updates") or {}).items()
+               if isinstance(v, (int, float))}
+    if atr_upd:
+        c = state["data_cache"].setdefault("atr20", {})
+        c.setdefault("values_pct", {}).update(atr_upd)
+        c["as_of"] = today
+    rel_raw = out.get("rel_strength_1m_updates") or {}
+    rel_bench = (rel_raw.get("benchmark") or "").upper()
+    rel_upd = {k: v for k, v in rel_raw.items() if isinstance(v, (int, float))}
+    rel_rejected = 0
+    if rel_upd and rel_bench != "SMH":
+        rel_rejected, rel_upd = len(rel_upd), {}
+    elif rel_upd:
+        c = state["data_cache"].setdefault("rel_strength_1m", {})
+        c.setdefault("values_pp", {}).update(rel_upd)
+        c["benchmark"] = "SMH"
+        if rel_raw.get("benchmark_return_1m_pct") is not None:
+            c["benchmark_return_1m_pct"] = rel_raw["benchmark_return_1m_pct"]
+        c["as_of"] = today
+
     peer_upd = out.get("peer_map_updates", {}) or {}
     if peer_upd:
         state.setdefault("peer_map", {}).update(peer_upd)
     return {"signal_history_changed": list(changed), "stamped": len(stamp_tickers),
             "analyst_targets_updated": len(targets), "peer_map_updated": len(peer_upd),
             "ret_5d_updated": len((r5.get("values_pct") or {}) if r5 else {}),
+            "rsi14_updated": len(rsi_upd), "atr20_updated": len(atr_upd),
+            "rel_strength_1m_updated": len(rel_upd),
+            "rel_strength_1m_rejected": rel_rejected,
             "journal_new_added": added if jn else []}
 
 
@@ -1875,7 +1917,11 @@ def validate_aggregate_risk(base_dir, state):
     Reads the newest run's compute_risk.json rather than recomputing: this is a validator, not a
     second implementation of the risk math (ONE FIELD, ONE READER).
     """
-    rd = state.get("last_run_dir")
+    # Prefer `latest_run_dir` (stamped by cmd_pipeline, always the run just completed) and fall
+    # back to `last_run_dir` only when it is absent. See cmd_pipeline: `last_run_dir` means the
+    # PREVIOUS run to _prior_run_prices, and trusting it here graded a two-day-old file on
+    # 2026-08-31 -- reporting a 13.183% breach that a fresh ATR20 had already resolved to 9.331%.
+    rd = state.get("latest_run_dir") or state.get("last_run_dir")
     path = os.path.join(base_dir, rd, "compute_risk.json") if rd else None
     if not path or not os.path.exists(path):
         return []  # no run yet, or pruned -- absence is not a defect

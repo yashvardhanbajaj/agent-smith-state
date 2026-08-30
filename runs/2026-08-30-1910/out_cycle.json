@@ -1,0 +1,96 @@
+{
+ "cycle_position": "late",
+ "confidence": "medium",
+ "cycle_as_of": "2026-08-30",
+ "falsifier": "If TrendForce's 4Q26 conventional-DRAM contract forecast comes in at or above the 3Q26 +13-18% QoQ pace (sequential rate stops decelerating) AND NVDA's Q3 print does not confirm the guided step-down to ~74% gross margin, both the second-derivative and margin-peak legs fail and this moves back to `mid`. Conversely a single hyperscaler capex guidance CUT, or rising channel inventory days, moves it to `rolling`.",
+ "priced_in_read": "LESS per unit of capex growth than 3m ago. Suppliers are de-rating on accelerating fundamentals: MRVL beat and guided ~4% above consensus, -10.28%; COHR beat rev+EPS with raised FY27 outlook, fell; NVDA beat +6.16% EPS with -5.3% 2d drift; SMH -3.47% on 08-28 while AMZN +3.97%, MSFT +1.68%, GOOG +1.53%. Capital is paying up for the investment-grade balance sheets buying the capex and marking down the levered suppliers selling it. This is a de-rating market, not a fully-priced one.",
+ "evidence_for": [
+  {
+   "claim": "NVDA gross margin guided down from 75% (Q2) to 74% (Q3) to a 71-72% Q4 trough, recovering only to 72-73% in FY28 - margin regime peaking, driven by memory cost not demand",
+   "date": "2026-08-27",
+   "source": "matterfact.com AI Accelerators 019; fool.com 2026/08/28"
+  },
+  {
+   "claim": "Conventional DRAM contract price gains decelerating hard while level still rises: +90-95% QoQ 1Q26, +58-63% 2Q26, +13-18% 3Q26 with gains explicitly narrowing - roughly 5x slowdown in the rate over two quarters",
+   "date": "2026-07-03 / 2026-07-31",
+   "source": "trendforce.com 20260703-13134; pcmasterinsider.com PC DRAM contract Aug 2026"
+  },
+  {
+   "claim": "NVDA component commitments $119bn -> $279bn in one quarter, mostly memory; memory share of rack BOM 5-10% (Blackwell) -> 25-30% (Vera Rubin), ~$370k -> ~$2M per rack; NVDA passing through +15% on AI servers",
+   "date": "2026-08-27",
+   "source": "tomshardware.com nvidia-warns-customers-15-percent-price-hikes; beri.net server-DRAM-BOM-repricing"
+  },
+  {
+   "claim": "Credit, not earnings, is the repricing mechanism: NVDA 5Y CDS roughly doubled in two months, ORCL cut to BBB- with CDS at 215bp, ~$500bn AI-related debt issued in 2026, NVDA backstopping ~$125bn of a $500bn third-party compute-financing platform",
+   "date": "2026-08-27",
+   "source": "investing.com nvidias-rising-cds-4816626; goldmansachs.com how-AI-debt-is-reshaping-credit; smith-catalyst 2026-08-29"
+  },
+  {
+   "claim": "Good prints punished across the supply chain: MRVL beat and guided ~4% above consensus, -10.28%; COHR beat rev+EPS with raised FY27 guide and fell; NVDA beat +6.16% EPS with 2d drift -5.3%",
+   "date": "2026-08-27 to 2026-08-28",
+   "source": "data_cache.earnings_facts (smith-earnings verified 2026-08-30); cnbc.com 2026/08/28 marvell-q2-earnings-outlook"
+  },
+  {
+   "claim": "Supplier/buyer bifurcation on a single session: SMH -3.47% while AMZN +3.97%, MSFT +1.68%, GOOG +1.53%",
+   "date": "2026-08-28",
+   "source": "market_inputs.json (Friday close); 247wallst.com optics-stocks-slide-as-ai-hardware-trade-cools"
+  }
+ ],
+ "evidence_against": [
+  {
+   "claim": "Hyperscaler capex guidance is being RAISED, not held or cut - META lifted FY26 to $125-145bn from $115-135bn (second raise), GOOGL raised its ceiling to $205bn; combined ~$700-725bn for 2026, +77% YoY vs $410bn",
+   "date": "2026-07/08",
+   "source": "finance.yahoo.com hyperscalers-hit-700-billion-2026; aiweekly.co 725B-AI-capex; cnbc.com 2026/07/28"
+  },
+  {
+   "claim": "Semicap lead times EXTENDING, the classic accelerating tell: etch and thin-film deposition doubled to 12 months, high-end packaging/test >18 months, imported RF power supply to 24 months",
+   "date": "2026-08-19",
+   "source": "trendforce.com/news/2026/08/19 chip-equipment-crunch-lead-times-24-months"
+  },
+  {
+   "claim": "ASML raised its 2026 and 2027 capacity plans on accelerating customer demand; KLA guides 2H26 revenue ~20% above 1H with Sep-quarter revenue at $4.0bn",
+   "date": "2026-07-28 / 2026-08",
+   "source": "KLAC Q4 FY26 call read-through; fffinstill.com ASML-LRCX-AMAT-KLAC comparison"
+  },
+  {
+   "claim": "The classic late-cycle inventory tell is ABSENT - no rising channel inventory days found; evidence runs the other way (reduced authorised-distributor stock, allocation notes, shorter quotation windows)",
+   "date": "2026-06-10 / 2026-08",
+   "source": "digitimes.com a20260610PD221; aetrixelec.com semiconductor-supply-chain-pressure-2026"
+  },
+  {
+   "claim": "HBM 2027 contract prices expected to rise by multiples as the three memory makers hold absolute pricing power; HBM to reach 30% of DRAM wafer starts in 2027",
+   "date": "2026-06-02",
+   "source": "trendforce.com/presscenter/news/20260602-13074.html"
+  },
+  {
+   "claim": "A major data-centre construction bond priced at T+165, the tightest spread ever recorded - AI credit is not uniformly stressed",
+   "date": "2026-08",
+   "source": "itiger.com five-debt-hotspots-ai-data-centre-boom"
+  }
+ ],
+ "components": {
+  "hyperscaler_capex_revisions": "raised",
+  "memory_contract_direction": "up",
+  "memory_spot_direction": "down",
+  "weighted": "CONTRACT. HBM has no spot market at all; the only true daily-moving memory spot series available is Huaqiangbei/Shenzhen used consumer modules, a consumer-channel signal that does not map to this book's AI-capex exposure.",
+  "semicap_book_to_bill": null,
+  "inventory_days_trend": "falling",
+  "margin_regime": "peaking"
+ },
+ "hbm_tracker_corrections_checked": [
+  "C1",
+  "C2"
+ ],
+ "prior_position": null,
+ "position_changed": false,
+ "data_quality": [
+  "HBMTracker consumer_view.json generated 2026-08-05, 25 days stale as of this run - inside but approaching the file's own ~30-day degrade threshold. Contributes to MEDIUM rather than high confidence.",
+  "C1 checked: the -51% HBM3E decline is a contract-quote-to-stack-derived basis artifact and is NOT cited. Within-basis truth used: HBM3 and HBM3E FLAT at $9.00/GB stack-derived, 2026-07-19 to 2026-08-05.",
+  "C2 checked: the HBM4 +14.29% is source-spread widening across two bases, not a price move, and is NOT cited. Defensible figure used: ~$10.42/GB.",
+  "HBM tracker G5 open: no contract-basis HBM $/GB quote newer than 2026-01-15. All HBM contract direction cited is percentage guidance from TrendForce, not an observed level.",
+  "semicap_book_to_bill is null: no actual book-to-bill ratio sourced this run; lead-time extension used as a directional proxy and labelled as such.",
+  "prior_position is null - state.cycle_position has never been persisted. position_changed=false reflects the absence of a prior, not a confirmed hold.",
+  "Book P&L was deliberately excluded as cycle evidence per the no-circular-reasoning rule; exposure context only.",
+  "The 2026-08-28 tape is a FRIDAY close read on a Sunday-dated run, not a live session."
+ ]
+}

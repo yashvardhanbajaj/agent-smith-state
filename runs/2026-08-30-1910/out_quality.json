@@ -1,0 +1,148 @@
+{
+ "quality_flags": {
+  "AMZN": [
+   {
+    "finding": "Capex now exceeds OCF; quarter funded by debt issuance not operations",
+    "metric": "FCF, long-term debt YoY",
+    "magnitude": "FCF swung +$14.94B to -$18.17B QoQ; LT debt +81.4% YoY to $119.07B",
+    "evidence_for": [
+     {
+      "claim": "Quarterly FCF swung from +$14.94B to -$18.17B as capex ($44.2B) exceeded OCF ($26.03B); long-term debt up 81.4% YoY to $119.07B",
+      "date": "2026-08-30",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "Net income still $30.26B this quarter, cash $101.82B, AA-tier IG credit; looks like deliberate capex tempo, not distress",
+      "date": "2026-08-30",
+      "source": "yfinance balance sheet/income statement"
+     }
+    ],
+    "verified": "unverified",
+    "verified_against": "none this run - FMP secFilings ACCESS DENIED",
+    "verified_on": "2026-08-30"
+   }
+  ],
+  "BE": [
+   {
+    "finding": "Heavy share dilution and debt-funded growth in a merchant/power-adjacent AI-capex name",
+    "metric": "diluted shares YoY, total debt YoY, SBC % revenue",
+    "magnitude": "dilution +37.6% YoY; debt +86% YoY; SBC 5.3% of revenue",
+    "evidence_for": [
+     {
+      "claim": "Diluted share count +37.6% YoY; total debt +86% YoY to $2.81B; SBC 5.3% of revenue",
+      "date": "2026-08-30",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "Revenue +41.8% YoY, operating income and OCF/FCF turned solidly positive this quarter - funding a genuine demand ramp, not covering losses",
+      "date": "2026-08-30",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "verified": "unverified",
+    "verified_against": "none this run",
+    "verified_on": "2026-08-30"
+   }
+  ],
+  "INTC": [
+   {
+    "finding": "Large non-operating charge drove a $11.03B net loss; equity eroding against high debt load",
+    "metric": "pretax vs operating income gap, stockholders equity YoY",
+    "magnitude": "~$12.8B gap operating-to-pretax income; equity -21.4% YoY",
+    "evidence_for": [
+     {
+      "claim": "~$12.8B gap between operating income (+$1.97B) and pretax income (-$10.82B) this quarter; equity down 21.4% YoY to $87.54B against $50.54B total debt",
+      "date": "2026-08-30",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "OCF trailing quarter positive at $7.01B, cash $12.87B; charges likely tied to known ongoing foundry restructuring/impairment program, not a fresh credit event - could not confirm nature against 10-Q this run",
+      "date": "2026-08-30",
+      "source": "yfinance; INTC 10-Q unreachable this run"
+     }
+    ],
+    "verified": "unverified",
+    "verified_against": "none this run - FMP secFilings ACCESS DENIED",
+    "verified_on": "2026-08-30"
+   }
+  ],
+  "MRVL": [
+   {
+    "finding": "Interest coverage math revisits the known G44 false alarm - same quarter, acquisition-financing signature, not re-escalating",
+    "metric": "interest coverage",
+    "magnitude": "n/a - not escalating, informational only",
+    "evidence_for": [
+     {
+      "claim": "yfinance shows interest expense $256.1M this quarter vs $50.8M prior, nominal coverage 1.37x",
+      "date": "2026-08-30",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "MRVL's own 10-Q for the same quarter reports interest expense of $52.8M (~6.6x coverage); goodwill/debt jumped same quarter on Celestial AI + XConn acquisitions plus a $1.0B note - documented and closed as G44",
+      "date": "2026-08-07",
+      "source": "prior smith-quality investigation G44, citing MRVL 10-Q"
+     }
+    ],
+    "verified": "secondary",
+    "verified_against": "prior-run primary-source 10-Q read (G44), not re-verified this run",
+    "verified_on": "2026-08-07"
+   }
+  ],
+  "STM": [
+   {
+    "finding": "Cash conversion thin despite rising net income; capex-heavy funding fab capacity",
+    "metric": "FCF/PAT, total debt YoY",
+    "magnitude": "FCF <1% of net income this quarter; debt +44.6% YoY",
+    "evidence_for": [
+     {
+      "claim": "FCF $18M vs net income $222M this quarter; debt +44.6% YoY to $4.03B",
+      "date": "2026-08-30",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "Interest expense only $15M against EBITDA $762M - coverage comfortable; capex funding fab capacity in a cyclically recovering business",
+      "date": "2026-08-30",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "verified": "unverified",
+    "verified_against": "none this run",
+    "verified_on": "2026-08-30"
+   }
+  ]
+ },
+ "force_thesis_review": [
+  {
+   "ticker": "AMZN",
+   "reason": "First quarter this book has observed AMZN capex exceeding OCF with the gap financed by an 81.4% YoY jump in long-term debt - directly on the AI-capex-credit thesis the strategist flagged this run; thesis engine currently shows 0 broken/16 parked and should re-score this against the financing-quality dimension"
+  },
+  {
+   "ticker": "BE",
+   "reason": "37.6% YoY share dilution plus 86% YoY debt growth in a merchant-power/AI-capex-adjacent name explicitly named in this run's focus - thesis should weigh dilution-adjusted returns, not just revenue growth"
+  },
+  {
+   "ticker": "INTC",
+   "reason": "~$12.8B gap between operating and pretax income this quarter with equity down 21.4% YoY against $50.54B debt; could not verify the charge's nature against the 10-Q (secFilings denied) - thesis review should resolve whether this is known restructuring or a new deterioration before the next sizing decision"
+  }
+ ],
+ "quality_as_of": "2026-08-30T19:10Z",
+ "book_pct_flagged": 20.4,
+ "top_concern": "AMZN and BE both show growth now being funded by debt issuance rather than operating cash flow, in the same window NVDA CDS has roughly doubled and ORCL was cut to BBB- - the market's AI-capex credit repricing has a real balance-sheet echo inside this book, not just a sentiment one",
+ "data_quality": [
+  "quality_read was MISSING/never persisted before this run - this is the first stamp",
+  "audited 8 of top-15 holdings by weight (GEV, VRT, BE, MRVL, MU, AMZN, STM, INTC) due to tool-call budget; TSM, ASML, GOOG, LRCX, GLW, QCOM, BX not pulled this run",
+  "FMP secFilings endpoint returned ACCESS DENIED this run for both INTC and AMZN search-by-symbol queries (new denial beyond the previously-logged G59 statements/earningsTranscript block) - all findings in this run are therefore verified:unverified except MRVL which relies on a prior run's primary-source read",
+  "sec.gov blocked to WebFetch per standing instruction; stockanalysis.com not queried this run (budget)",
+  "yfinance fundamentals only - no independent audit-opinion or going-concern-language source was reachable this run"
+ ]
+}
