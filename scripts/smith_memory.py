@@ -1065,9 +1065,10 @@ def cmd_validate(args):
     narrative_defects = validate_policy_narrative_drift(args.base_dir)
     earnings_pending_defects = validate_pending_earnings_staleness(args.base_dir)
     freshness_defects = validate_freshness(args.base_dir)
+    ledger_defects = validate_ledger_schema(args.base_dir)
     all_defects = (policy_defects + cache_defects + thesis_defects + learning_defects
                    + proposals_defects + narrative_defects
-                   + earnings_pending_defects + freshness_defects)
+                   + earnings_pending_defects + freshness_defects + ledger_defects)
 
     emit({
         "policy_present": policy is not None,
@@ -1646,6 +1647,44 @@ def evaluate_freshness(state, today=None):
             row["state"], row["acknowledged"] = "stale", True
         rows.append(row)
     return rows
+
+
+def validate_ledger_schema(base_dir):
+    """Every ledger.csv row must have exactly as many fields as the header.
+
+    Found 2026-08-30: four rows (2026-07-29, 08-25, 08-26, 08-29) carried TWELVE fields against
+    a thirteen-column header, having omitted `external_flow_usd`. Every column from `smh`
+    onward was therefore shifted left by one, which put the run narrative into `value_trust`
+    and the trust flag into `external_flow_usd`.
+
+    That is not cosmetic. smith_charts' stated honesty constraint is that ledger rows whose
+    `value_trust` is not `ok` are drawn ringed and EXCLUDED from scales and win/loss counts --
+    so a shifted row reads as untrusted and silently drops out of every chart. Four of
+    thirty-nine rows, including the three most recent, were being excluded from the desk's own
+    performance history by a missing comma.
+
+    A column-count check is the cheapest possible guard and there was none. Note this is NOT a
+    cmd_append_ledger bug -- that function builds all thirteen fields correctly, and the oldest
+    bad row predates it by a month. These were hand-written rows, which is the same argument
+    for a sanctioned write path that G84 already made.
+    """
+    import csv as _csv
+    path = os.path.join(base_dir, "ledger.csv")
+    if not os.path.exists(path):
+        return []
+    with open(path, newline="") as fh:
+        rows = list(_csv.reader(fh))
+    if not rows:
+        return []
+    n = len(rows[0])
+    bad = [(r[0] if r else "?", len(r)) for r in rows[1:] if len(r) != n]
+    if not bad:
+        return []
+    return [f"LEDGER SCHEMA: {len(bad)} row(s) do not have {n} fields "
+            f"({', '.join(f'{ts} has {k}' for ts, k in bad[:5])}) -- a short row shifts every "
+            f"later column, which puts prose into value_trust and silently excludes the row "
+            f"from every chart (smith_charts drops value_trust != 'ok'). Repair by reinserting "
+            f"the omitted column, and append rows only via `smith_math.py append-ledger`."]
 
 
 def validate_freshness(base_dir):
