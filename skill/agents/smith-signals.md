@@ -56,11 +56,19 @@ OUTPUT — WRITE the full output below to the given output_file (≤120 lines), 
  "news_watermark":"YYYY-MM-DD","resolved_flags":[],"new_flags":[],
  "journal_new":[{"date":"","ticker":"","bucket":"","price_at_flag":0,"analyst_target":0,"day_atr_mult":null,"rel_sigma":null,"normalized":true}],
  "peer_map_updates":{"TICKER":{"peer_etf":"","label":""}},
+ "analyst_targets_updates":{"TICKER":{"mean_target_usd":0,"n_analysts":0,"as_of":"YYYY-MM-DD"}},
  "vol_normalization":{"TICKER":{"atr20_pct":0,"day_atr_mult":0,"rel_sigma":0,"threshold_pct":0}},
  "data_quality":[]}
 ```
 (new watermark = today. Cap data_quality at 6 bullets — anything more durable goes to the orchestrator's known_gaps registry instead of being re-explained every run.)
 `vol_normalization` carries only the names that actually fired a move-based bucket this run, not the whole book — it is the audit trail for the scaling. `journal_new` records `day_atr_mult`/`rel_sigma` at flag time with `normalized:false` on any `[unnormalized]` fallback, so once these entries score at 30d the desk can test whether volatility-scaled flags actually beat the old absolute ones instead of assuming they do.
+`analyst_targets_updates` (added 2026-08-30): return the mean target you already pulled for
+every name you cite one for. `data_cache.analyst_targets` carried a declared 7-day TTL and was
+an EMPTY DICT, while TARGET GAP was the second most-fired bucket in the book (n=19) and four of
+nine live watchlist setups — so every run re-derived a number nothing could audit, against a
+cache the TTL table claimed existed. You are already reading these to build the bucket;
+returning them costs nothing and makes the figure checkable next run.
+
 Never invent news or targets — omit and note in data_quality.
 
 ## GUARDRAILS (standing — apply to every run)

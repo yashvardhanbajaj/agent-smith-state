@@ -68,7 +68,7 @@ OUTPUT — WRITE the full output below to the given output_file (≤100 lines), 
 4. HBMTracker reconciliation (if HBM-sensitive names held): one section per tension with metric, current ASP + its basis, within-basis trend, whether a cross-basis comparison was refused, corrections checked, forward forecast, and verdict implications (upgrade / downgrade / no action).
 5. Fenced JSON tail. If most of the book is unchanged since the last run, return DELTAS only — `{"changed":{...},"unchanged_count":N}` for both thesis and sector_map — instead of the full 28-entry maps; the orchestrator merges into its full copy in state.json:
 ```json
-{"thesis":{"changed":{"TICKER":{"status":"intact|strengthening|broken|watch","thesis":"one-liner summarising BOTH arrays below","evidence_for":[{"claim":"","date":"","source":""}],"evidence_against":[{"claim":"","date":"","source":""}],"verified":"primary|secondary|unverified","verified_against":"","verified_on":"","note":""}},"unchanged_count":0},
+{"thesis":{"changed":{"TICKER":{"status":"intact|strengthening|broken|watch","thesis":"one-liner summarising BOTH arrays below","evidence_for":[{"claim":"","date":"","source":""}],"evidence_against":[{"claim":"","date":"","source":""}],"verified":"primary|secondary|unverified","verified_against":"","verified_on":"","note":""}},"unchanged_count":0,"reviewed_unchanged":[]},
  "sector_map":{"changed":{"TICKER":"cluster"},"unchanged_count":0},
  "etf_constituents_updates":{"TICKER":{"constituents":[],"checked":""}},
  "earnings_facts":{"TICKER":{"period":"","reported_date":"","revenue_actual":null,"revenue_consensus":null,"eps_actual":null,"eps_consensus":null,"guide_next_q":null,"guide_consensus":null,"source":"","verified_on":""}},
@@ -78,6 +78,26 @@ OUTPUT — WRITE the full output below to the given output_file (≤100 lines), 
 **The example above is a SHAPE, not an answer — every value is a placeholder.** A prior version of this block hardcoded `current_usd_per_gb:9, peak_usd_per_gb:18.5, decline_pct:-51` as the illustrative HBM3E tension — that figure was itself the phantom-decline artifact from correction C1 (2026-08-05), sitting in this file's own tail schema even after the reconciliation task above was corrected. It went unnoticed for a full pass because it was in a different section from where the fix was applied. Derive every field from data read this run; never carry a number from this template into real output, and when editing this file again, grep the whole file for stray figures before treating any single fix as complete.
 
 Judgments must be evidence-based; when evidence is thin, say so rather than manufacturing conviction. Cap data_quality at 6 bullets — durable gaps go to the orchestrator's known_gaps registry.
+
+
+## FRESHNESS: `reviewed_unchanged` (added 2026-08-30)
+
+`thesis` is the highest-authority input on this desk -- `thesis_break` is a live trigger, a
+status gates `oversold_reversion`'s falling-knife exclusion, and SKILL.md 2g gives a thesis
+verdict precedence over a computed drift breach. Until 2026-08-30 no entry carried a review
+date, so a verdict of **unknown age was outranking arithmetic of known age**, and nothing
+could tell a conviction confirmed this week from one nobody had looked at since July.
+
+The orchestrator now stamps `reviewed_on` on every entry in `thesis.changed`. That alone is
+not enough: a name you examined and found genuinely unchanged would still age as if abandoned,
+which would push you to invent a change just to refresh the clock. So **list every ticker you
+actually re-examined and concluded was unchanged in `reviewed_unchanged`** -- those get the
+same stamp. Only names you did not look at this run stay unstamped, which is exactly the
+signal the freshness table is trying to surface.
+
+Do not pad this list. A ticker in `reviewed_unchanged` is a claim that you read its current
+evidence and stand behind the existing verdict today; `smith_math.py freshness` treats a map
+with unstamped entries as never fully current, and that is the honest reading.
 
 ## GUARDRAILS (standing — apply to every run)
 - TOOL-CALL BUDGET: soft cap ~14-16 tool calls per run (allows the single HBMTracker consumer_view.json read plus up to 5 G58 verification calls across at most 3 names -- see task 3's hard cap). On hitting it: stop fetching, write what you have, add "budget exceeded — output truncated" to data_quality. Never retry a failing tool more than once.
