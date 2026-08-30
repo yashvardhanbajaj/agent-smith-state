@@ -2852,8 +2852,22 @@ def cmd_sync_decisions(args):
                     # a duplicate date every run. P-178 read "held 2x" on 2026-08-31 from a
                     # single click.
                     holds = pr.setdefault("held_on", [])
-                    if today not in holds:
-                        holds.append(today)
+                    if today in holds:
+                        # Already applied today. Report it as SKIPPED, not reconciled, and fall
+                        # through to `continue` so no observation is logged: the dedup below
+                        # kept proposals.json correct, but the caller still recorded a fresh
+                        # `dashboard.decision.proposal` observation into learning.json on every
+                        # sync of the same cumulative blob (found 2026-08-31, P-178 logged
+                        # twice). That substrate measures revealed preference and engagement
+                        # rate, so duplicate holds would inflate the hold count and bias any
+                        # calibration built on it -- a quieter version of the same bug, one
+                        # layer down. record_observation is right to never mutate a prior
+                        # observation; the fix belongs here, in not recording an event this
+                        # sync did not actually apply.
+                        skipped.append({"surface": surface, "element_id": element_id,
+                                        "why": f"already held on {today}"})
+                        continue
+                    holds.append(today)
                     pr["held_reason"] = reason
                     proposals_dirty = True
                 else:
