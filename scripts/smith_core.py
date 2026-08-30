@@ -176,6 +176,83 @@ THESIS_OVERRIDES_STALE_BUCKET_DAYS = 7
 # default, so unknown age must fail open, not closed.
 HEADWIND_BUCKET_MAX_AGE_DAYS = 10
 
+# ---------------------------------------------------------------------------
+# FRESHNESS -- one declarative table for every artefact that can go stale (2026-08-30)
+# ---------------------------------------------------------------------------
+# Counterpart to smith_memory's RETENTION, and written for the same reason. RETENTION exists
+# because eviction was a per-file afterthought; FRESHNESS exists because STALENESS was too.
+#
+# Audited 2026-08-30 across ~11k lines: exactly THREE age constants existed anywhere --
+# TRIGGER_CACHE_MAX_AGE_DAYS (10), HEADWIND_BUCKET_MAX_AGE_DAYS (10) and
+# EARNINGS_PENDING_HARD_STALE_DAYS (0) -- plus validate_cache_events for fomc_cache and
+# HOLD_MAX_AGE_DAYS for hold proposals. Meanwhile data_cache.cache_policy.ttl_days DECLARED
+# NINE TTLs, of which two were enforced anywhere at all; the rest were documentation.
+#
+# Worse: only data CACHES were checked. No sub-agent OUTPUT was age-checked at any point. On
+# the day this table was written the live state carried factor_themes at 33 days old, tax_read
+# at 13, a `thesis` map of 35 entries with no review date on any of them, and cycle_position
+# -- which SKILL.md §3 calls "the highest-leverage single read on the book" -- simply absent,
+# the same shape as the G50 factor-catalysts loss (agent dispatched, output silently discarded).
+#
+# The invariant this table encodes: A DECLARED TTL MUST HAVE AN ENFORCER. If an artefact
+# matters enough to carry a refresh cadence, going past that cadence has to produce a visible
+# consequence -- not a data_quality bullet nobody is obliged to read. That failure mode is
+# documented verbatim in validate_technical_cache_staleness' own docstring: rsi14 sat stale
+# across three consecutive runs, each noting it quietly, each deferring "on cost grounds",
+# while the desk's single most-requested feature stayed dark.
+#
+# FIELDS
+#   key       dotted path into state.json ("data_cache.rsi14", "factor_themes")
+#   stamp     how to find its as_of date:
+#               "field:<name>"      -- a date string on the artefact dict itself
+#               "sibling:<name>"    -- a sibling key on state ("watchlist_setups_as_of")
+#               "max_date"          -- newest `date` across a list of records
+#               "per_entry:<name>"  -- each entry carries its own stamp; the artefact's age is
+#                                     the age of its OLDEST entry, because a 35-name map goes
+#                                     stale unevenly and a single map-level date hides exactly
+#                                     the names nobody has looked at
+#   ttl_days  refresh cadence
+#   owner     the agent responsible -- so a stale artefact names who stopped contributing
+#   on_stale  what going past ttl means, and hence when the artefact counts as DARK:
+#               "suppress" -- a live consumer already refuses to use it (dark past
+#                             TRIGGER_CACHE_MAX_AGE_DAYS); the capability is genuinely off
+#               "escalate" -- no consumer suppresses, so staleness is invisible without this;
+#                             dark the moment it passes ttl
+#               "flag"     -- degrades gracefully; dark only at 2x ttl
+FRESHNESS = {
+    # --- technical caches: feed LIVE proposal triggers, suppressed by cmd_triggers ---
+    "data_cache.rsi14":            {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "suppress"},
+    "data_cache.rel_strength_1m":  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "suppress"},
+    "signal_history":              {"stamp": "per_entry:signal_history_as_of", "ttl_days": HEADWIND_BUCKET_MAX_AGE_DAYS,
+                                    "owner": "smith-signals", "on_stale": "suppress"},
+    # --- technical caches: degrade gracefully (a stale ATR makes stops marginally wide) ---
+    "data_cache.atr20":            {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "flag"},
+    "data_cache.betas":            {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-signals",   "on_stale": "flag"},
+    "data_cache.analyst_targets":  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "flag"},
+    "data_cache.etf_constituents": {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-thesis",    "on_stale": "flag"},
+    "data_cache.earnings_calendar":{"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-earnings",  "on_stale": "flag"},
+    # --- sub-agent OUTPUTS: nothing checked any of these before this table existed ---
+    "thesis":                      {"stamp": "per_entry:reviewed_on", "ttl_days": 21, "owner": "smith-thesis",  "on_stale": "escalate"},
+    "sector_map":                  {"stamp": "sibling:sector_map_as_of", "ttl_days": 30, "owner": "smith-thesis", "on_stale": "flag"},
+    "peer_map":                    {"stamp": "sibling:peer_map_as_of",   "ttl_days": 30, "owner": "smith-signals","on_stale": "flag"},
+    "factor_catalysts":            {"stamp": "max_date",   "ttl_days": 7,  "owner": "smith-catalyst",  "on_stale": "flag"},
+    "factor_themes":               {"stamp": "sibling:factor_themes_as_of", "ttl_days": 30, "owner": "smith-catalyst", "on_stale": "escalate"},
+    "diversifier_candidates":      {"stamp": "per_entry:as_of", "ttl_days": 7, "owner": "smith-scout", "on_stale": "flag"},
+    "watchlist_setups":            {"stamp": "sibling:watchlist_setups_as_of", "ttl_days": 7,
+                                    "owner": "smith-watchlist", "on_stale": "escalate"},
+    "macro_read":                  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-macro",     "on_stale": "flag"},
+    "tax_read":                    {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-tax",       "on_stale": "flag"},
+    # --- monthly agents: a missed month must be a defect, not a silence (G50 shape) ---
+    "cycle_position":              {"stamp": "sibling:cycle_as_of",   "ttl_days": 35, "owner": "smith-cycle",   "on_stale": "escalate"},
+    "quality_read":                {"stamp": "sibling:quality_as_of", "ttl_days": 35, "owner": "smith-quality", "on_stale": "escalate"},
+}
+
+# How far past ttl an artefact must be before its capability counts as genuinely OFF rather
+# than merely overdue. Keyed by on_stale, because "dark" means different things: a suppressed
+# cache is dark when its live consumer stops reading it; an escalate-class artefact has no
+# consumer that suppresses, so it is dark the moment it lapses; a flag-class one degrades.
+DARK_MULTIPLIER = {"suppress": None, "escalate": 1.0, "flag": 2.0}
+
 HEALTHY_THESIS = {"intact", "strengthening"}
 
 LIVE_TRIGGERS = {"oversold_reversion", "overbought_distribution", "catalyst_threat", "thesis_break"}

@@ -728,7 +728,13 @@ def _merge_thesis(out, state, today):
             entry.setdefault("evidence_for", [])
             entry.setdefault("evidence_against", [])
             entry.setdefault("verified", "unverified")
+        entry["reviewed_on"] = today
         state["thesis"][tk] = entry
+    # Names the agent explicitly confirmed unchanged were still LOOKED AT this run, so they
+    # are reviewed too -- otherwise a name that is genuinely stable ages as if abandoned.
+    for tk in out.get("thesis", {}).get("reviewed_unchanged", []) or []:
+        if tk in state["thesis"] and isinstance(state["thesis"][tk], dict):
+            state["thesis"][tk]["reviewed_on"] = today
     sm_changed = out.get("sector_map", {}).get("changed", {})
     state.setdefault("sector_map", {}).update(sm_changed)
     for tk, fact in out.get("earnings_facts", {}).items():
@@ -784,7 +790,10 @@ def _merge_watchlist(out, state, today):
         state["watchlist_scan_cursor"] = cursor
     ec = out.get("earnings_calendar_updates", {})
     state["data_cache"].setdefault("earnings_calendar", {}).update(ec)
-    return {"watchlist_scan_cursor": cursor}
+    setups = out.get("watchlist_setups")
+    if setups is not None:
+        state["watchlist_setups"] = setups  # REPLACE: a setup list is point-in-time, like catalysts
+    return {"watchlist_scan_cursor": cursor, "watchlist_setups_replaced": setups is not None}
 
 
 def _merge_macro(out, state, today):
@@ -792,6 +801,57 @@ def _merge_macro(out, state, today):
     if upd is not None:
         state["fomc_cache"] = upd
     return {"fomc_cache_updated": upd is not None}
+
+
+def _merge_cycle(out, state, today):
+    """smith-cycle's position had NO merge rule and NO state key, despite SKILL.md 3 saying
+    'persist its position and date so the next run can check the falsifier' and calling it the
+    highest-leverage single read on the book. Same shape as G50: dispatched, then discarded."""
+    pos = out.get("cycle_position")
+    if pos is not None:
+        state["cycle_position"] = {
+            "position": pos,
+            "confidence": out.get("confidence"),
+            # The falsifier is the whole point -- a cycle call nothing can disprove is a mood.
+            "falsifier": out.get("falsifier"),
+            "as_of": today,
+        }
+    return {"cycle_position": pos}
+
+
+def _merge_quality(out, state, today):
+    """The monthly audit's cadence was inferred from 'were there deep rows in ledger.csv this
+    month', which tests whether a DEEP RUN happened, not whether QUALITY ran. Persist the read
+    itself so the trigger can test the real thing."""
+    flags = out.get("flags")
+    if flags is not None:
+        state["quality_read"] = {"flags": flags,
+                                 "flagged_weight_pct": out.get("flagged_weight_pct"),
+                                 "as_of": today}
+    return {"quality_flags": len(flags or [])}
+
+
+def _merge_tax(out, state, today):
+    read = out.get("tax_read")
+    if read is not None:
+        read.setdefault("as_of", today)
+        state["tax_read"] = read
+    return {"tax_read_updated": read is not None}
+
+
+# Which state keys each agent OWNS the freshness of. After a successful merge, `<key>_as_of`
+# is stamped so smith_core.FRESHNESS can age it. Generalises the one case that already worked
+# (signal_history_as_of) instead of leaving every other artefact undateable -- which is how
+# factor_themes reached 33 days and `thesis` reached 35 entries with no review date at all.
+# Keys whose stamp lives INSIDE the artefact (macro_read.as_of, cycle_position.as_of) are set
+# by their merge function and deliberately absent here -- one writer per stamp.
+MERGE_STAMPS = {
+    "thesis":    ["sector_map"],
+    "signals":   ["peer_map"],
+    "catalyst":  ["factor_themes"],
+    # scout: diversifier_candidates carries its own per-entry `as_of`; no sibling stamp.
+    "watchlist": ["watchlist_setups"],
+}
 
 
 # One entry per Stage-1 agent whose tail this command knows how to fold into state.json.
@@ -806,6 +866,9 @@ MERGE_RULES = {
     "scout": _merge_scout,
     "watchlist": _merge_watchlist,
     "macro": _merge_macro,
+    "cycle": _merge_cycle,
+    "quality": _merge_quality,
+    "tax": _merge_tax,
 }
 
 
@@ -820,7 +883,7 @@ def cmd_merge_tails(args):
 
     Reads runs/<run-dir>/out_<agent>.json for every agent named in --agents (or every agent in
     MERGE_RULES whose out_*.json file exists, if --agents is omitted). Agents not yet covered
-    by MERGE_RULES (currently: rebound, ledger, tax, quality, cycle, strategist -- their state
+    by MERGE_RULES (currently: rebound, ledger, strategist -- their state
     writes are either handled by dedicated commands like `lots`/`proposals`, or don't merge
     into state.json at all) are skipped and reported, not silently ignored.
 
@@ -865,6 +928,8 @@ def cmd_merge_tails(args):
             holdings = load_json(os.path.join(args.run_dir, "holdings.json"), default={})
             extra["scanned_tickers"] = [h["ticker"] for h in holdings.get("holdings_inr", [])]
         results[agent] = MERGE_RULES[agent](out, state, today, **extra)
+        for key in MERGE_STAMPS.get(agent, []):
+            state[f"{key}_as_of"] = today
 
     safe_write(state_path, state)
     emit({"merged": list(results), "results": results,
@@ -873,60 +938,26 @@ def cmd_merge_tails(args):
           "next_step": "run smith_math.py validate before trusting this state"})
 
 
-TECHNICAL_CACHE_HARD_STALE_DAYS = TRIGGER_CACHE_MAX_AGE_DAYS * 2  # 20 days
-
-
-def validate_technical_cache_staleness(base_dir):
-    """Escalate a chronically-stale rsi14/rel_strength_1m cache from a quiet per-run
-    data_quality note into a hard `validate` defect (added 2026-08-29).
-
-    `cmd_triggers` already gates on TRIGGER_CACHE_MAX_AGE_DAYS (10) and silently suppresses
-    oversold_reversion/overbought_distribution/laggard_rotation when the cache is older than
-    that -- correct behaviour for a single stale run (never fire a trigger on data that old).
-    But by 2026-08-29 this had happened on THREE CONSECUTIVE runs (two deep, one quick), each
-    time reported only as one line in that run's data_quality and each time deferred again "on
-    cost grounds" -- and oversold/overbought triggers are the single most-requested feature in
-    this desk's history (2026-08-12 user report, the whole reason `oversold_reversion`/
-    `overbought_distribution` exist as LIVE triggers at all). A per-run soft note that nobody
-    is forced to act on is exactly how a standing request goes dark for weeks without anyone
-    deciding that on purpose.
-
-    This check does not change cmd_triggers' behaviour at all -- it still suppresses
-    correctly, every time. It adds a SEPARATE, LOUDER signal: once the cache is stale beyond
-    TECHNICAL_CACHE_HARD_STALE_DAYS (double the trigger's own suppression threshold), `validate`
-    stops reporting clean until either the cache is refreshed or the run explicitly records
-    (in `state.data_cache.rsi14.stale_ack_on` / `.rel_strength_1m.stale_ack_on`) that skipping
-    the refresh was a deliberate, dated decision -- not a default nobody made.
-    """
-    defects = []
-    state = load_json(os.path.join(base_dir, "state.json"), default={})
-    dc = state.get("data_cache", {}) or {}
-    today = date.today()
-    for cache_name, values_key in (("rsi14", "values"), ("rel_strength_1m", "values_pp")):
-        cache = dc.get(cache_name, {}) or {}
-        as_of = cache.get("as_of")
-        if not as_of or not cache.get(values_key):
-            continue  # absent entirely is already reported by cmd_triggers each run; not this check's job
-        try:
-            as_of_date = datetime.strptime(as_of, "%Y-%m-%d").date()
-        except (ValueError, TypeError):
-            continue
-        age = (today - as_of_date).days
-        if age <= TECHNICAL_CACHE_HARD_STALE_DAYS:
-            continue
-        ack_on = cache.get("stale_ack_on")
-        if ack_on == today.isoformat():
-            continue  # today's run explicitly acknowledged the staleness in writing -- allowed through once
-        defects.append(
-            f"TECHNICAL CACHE CHRONICALLY STALE: data_cache.{cache_name} is {age} days old "
-            f"(hard threshold {TECHNICAL_CACHE_HARD_STALE_DAYS}d, 2x cmd_triggers' own "
-            f"{TRIGGER_CACHE_MAX_AGE_DAYS}d suppression floor) -- oversold/overbought/laggard "
-            f"triggers have been silently dark well past a single deferred run. Either refresh "
-            f"it this run (deep mode, 3-symbol yfinance batches, same cost as ATR20 which "
-            f"shares the daily-bars fetch) or set data_cache.{cache_name}.stale_ack_on = "
-            f"today's date to record that skipping it again was a deliberate, dated choice, "
-            f"not a silent default.")
-    return defects
+# NOTE (2026-08-30): TECHNICAL_CACHE_HARD_STALE_DAYS and validate_technical_cache_staleness
+# lived here and have been retired into smith_core.FRESHNESS + validate_freshness, which check
+# rsi14/rel_strength_1m through the same declarative table as every other artefact instead of
+# as a one-off. Running both produced two defects per cache saying the same thing with
+# different thresholds in the text. The original rationale is kept, because it is the clearest
+# statement of why FRESHNESS exists at all:
+#
+#   cmd_triggers already suppressed oversold_reversion/overbought_distribution/laggard_rotation
+#   whenever the cache passed TRIGGER_CACHE_MAX_AGE_DAYS -- correct behaviour for a single
+#   stale run. But by 2026-08-29 that had happened on THREE CONSECUTIVE runs (two deep, one
+#   quick), each reported as one line in that run's data_quality and each deferred again "on
+#   cost grounds", while oversold/overbought remained the single most-requested feature in this
+#   desk's history. A per-run soft note that nobody is forced to act on is exactly how a
+#   standing request goes dark for weeks without anyone deciding that on purpose.
+#
+# The original escalation threshold was TRIGGER_CACHE_MAX_AGE_DAYS * 2, so the system was
+# DESIGNED to tolerate up to 10 FURTHER days of dark triggers before saying anything loudly --
+# on 2026-08-30 the caches were 18 days old and validate still reported clean. FRESHNESS sets
+# the dark line at the suppression floor itself for suppress-class artefacts: escalation fires
+# when the capability dies, not at twice that. The stale_ack_on escape hatch survives unchanged.
 
 
 EARNINGS_PENDING_HARD_STALE_DAYS = 0  # flag on the very first run at/after reported_date -- see G84-class rationale below
@@ -1001,11 +1032,11 @@ def cmd_validate(args):
     learning_defects = validate_learning_schema(args.base_dir)
     proposals_defects = validate_proposals_schema(args.base_dir)
     narrative_defects = validate_policy_narrative_drift(args.base_dir)
-    staleness_defects = validate_technical_cache_staleness(args.base_dir)
     earnings_pending_defects = validate_pending_earnings_staleness(args.base_dir)
+    freshness_defects = validate_freshness(args.base_dir)
     all_defects = (policy_defects + cache_defects + thesis_defects + learning_defects
-                   + proposals_defects + narrative_defects + staleness_defects
-                   + earnings_pending_defects)
+                   + proposals_defects + narrative_defects
+                   + earnings_pending_defects + freshness_defects)
 
     emit({
         "policy_present": policy is not None,
@@ -1473,3 +1504,185 @@ def cmd_slices(args):
                    "path in `read_these_files`, never copied. Shared external sources are "
                    "snapshotted once into runs/<ts>/shared/ -- fewer fetches, and every agent "
                    "this run sees identical bytes.")})
+
+
+# ---------------------------------------------------------------------------
+# FRESHNESS EVALUATION (added 2026-08-30) -- the enforcer for smith_core.FRESHNESS
+# ---------------------------------------------------------------------------
+# smith_core.FRESHNESS declares WHAT may go stale and what staleness means. This is the half
+# that actually looks. Deliberately one pass over one table rather than a per-artefact check
+# bolted on wherever someone happened to notice, which is how the codebase arrived at three
+# age constants covering nine declared TTLs.
+#
+# Note the fifth state, `unstamped`, which is not the same as `missing`: the artefact is
+# present and in active use but carries no date at all, so its age is UNKNOWABLE rather than
+# large. `thesis` was in exactly this position -- 35 live entries, no review date on any of
+# them, feeding a live trigger and outranking computed drift breaches under SKILL.md §2g. An
+# unknown age is worse than a known-bad one, because nothing can even flag it.
+
+def _fresh_lookup(state, dotted):
+    node = state
+    for part in dotted.split("."):
+        if not isinstance(node, dict):
+            return None
+        node = node.get(part)
+    return node
+
+
+def _fresh_stamp(state, artefact, spec):
+    """Resolve an artefact's as_of date per its `stamp` rule. Returns (date_str, detail)."""
+    kind, _, name = spec.partition(":")
+    if kind == "field":
+        return (artefact.get(name) if isinstance(artefact, dict) else None), None
+    if kind == "sibling":
+        return state.get(name), None
+    if kind == "max_date":
+        dates = [r.get("date") for r in artefact if isinstance(r, dict) and r.get("date")] \
+            if isinstance(artefact, list) else []
+        return (max(dates) if dates else None), None
+    if kind == "per_entry":
+        # Stamps may live in a sibling map keyed by ticker (signal_history_as_of) or on each
+        # entry itself (diversifier_candidates[t].as_of). Try the sibling map first.
+        stamps = {}
+        sibling = state.get(name)
+        if isinstance(sibling, dict) and isinstance(artefact, dict):
+            stamps = {k: v for k, v in sibling.items()
+                      if k in artefact and isinstance(v, str)}
+        if not stamps and isinstance(artefact, dict):
+            stamps = {k: v.get(name) for k, v in artefact.items()
+                      if isinstance(v, dict) and isinstance(v.get(name), str)}
+        if not stamps:
+            return None, None
+        oldest = min(stamps.values())
+        # The age of the OLDEST entry is the artefact's age -- a map-level date would hide
+        # precisely the names nobody has looked at, which is the whole reason for per-entry.
+        unstamped = [k for k in (artefact or {}) if k not in stamps]
+        detail = {"entries_stamped": len(stamps), "entries_unstamped": len(unstamped),
+                  "oldest_entries": sorted(k for k, v in stamps.items() if v == oldest)[:5]}
+        if unstamped:
+            detail["unstamped_sample"] = sorted(unstamped)[:5]
+        return oldest, detail
+    return None, None
+
+
+def evaluate_freshness(state, today=None):
+    """Return one row per FRESHNESS artefact: age, ttl, owner, and fresh|stale|dark|unstamped|missing."""
+    today = today or date.today()
+    rows = []
+    for key, cfg in FRESHNESS.items():
+        artefact = _fresh_lookup(state, key)
+        ttl = cfg["ttl_days"]
+        on_stale = cfg["on_stale"]
+        mult = DARK_MULTIPLIER.get(on_stale)
+        dark_at = TRIGGER_CACHE_MAX_AGE_DAYS if mult is None else int(ttl * mult)
+        row = {"key": key, "owner": cfg["owner"], "ttl_days": ttl, "on_stale": on_stale,
+               "dark_at_days": dark_at, "as_of": None, "age_days": None, "state": None}
+
+        if artefact is None or (isinstance(artefact, (dict, list, str)) and len(artefact) == 0):
+            row["state"] = "missing"
+            rows.append(row)
+            continue
+
+        as_of, detail = _fresh_stamp(state, artefact, cfg["stamp"])
+        if detail:
+            row.update(detail)
+        if not as_of:
+            row["state"] = "unstamped"
+            rows.append(row)
+            continue
+
+        try:
+            age = (today - datetime.strptime(str(as_of)[:10], "%Y-%m-%d").date()).days
+        except (ValueError, TypeError):
+            row["as_of"] = as_of
+            row["state"] = "unstamped"
+            rows.append(row)
+            continue
+
+        row["as_of"], row["age_days"] = as_of, age
+        row["state"] = "fresh" if age <= ttl else ("dark" if age > dark_at else "stale")
+        # A map is only as current as its least-examined entry. Taking the oldest STAMPED
+        # entry's age silently skips entries with no stamp at all -- precisely the names
+        # nobody has looked at -- so a partially-stamped map may never read as fresh.
+        if row.get("entries_unstamped") and row["state"] == "fresh":
+            row["state"] = "stale"
+            row["partial"] = True
+        # Same one-day written-acknowledgement escape hatch as validate_technical_cache_staleness:
+        # skipping a refresh is allowed, pretending it didn't happen is not.
+        ack = artefact.get("stale_ack_on") if isinstance(artefact, dict) else None
+        ack = ack or state.get(key.split(".")[-1] + "_stale_ack_on")
+        if row["state"] == "dark" and ack == today.isoformat():
+            row["state"], row["acknowledged"] = "stale", True
+        rows.append(row)
+    return rows
+
+
+def validate_freshness(base_dir):
+    """Turn the freshness table into hard `validate` defects.
+
+    Proportionality is the whole design here. A DARK artefact is a defect regardless of class,
+    because dark means a capability is genuinely off -- that is the rsi14 case this was built
+    for. But `missing` and `unstamped` are only defects for the ESCALATE class: those are the
+    artefacts with no downstream consumer that suppresses on them, so nothing else in the
+    system would ever notice. A flag-class cache that is merely absent (analyst_targets) shows
+    up as a freshness row and stays out of the defect list -- otherwise validate goes
+    permanently red and stops meaning anything, which is the failure mode one level up from
+    the one this fixes.
+    """
+    state = load_json(os.path.join(base_dir, "state.json"), default={})
+    defects = []
+    for row in evaluate_freshness(state):
+        key, owner, st = row["key"], row["owner"], row["state"]
+        if st == "dark":
+            defects.append(
+                f"FRESHNESS DARK: {key} is {row['age_days']}d old (ttl {row['ttl_days']}d, dark "
+                f"past {row['dark_at_days']}d, owner {owner}) -- its consumer has stopped using "
+                f"it. Refresh it this run, or set stale_ack_on to today's date to record that "
+                f"skipping it again was a deliberate, dated choice.")
+        elif st == "unstamped" and row["on_stale"] == "escalate":
+            defects.append(
+                f"FRESHNESS UNSTAMPED: {key} is present and in use but carries no date, so its "
+                f"age cannot be checked at all (owner {owner}). An unknown age is worse than a "
+                f"known-bad one -- nothing can flag it. Stamp it on the next merge-tails.")
+        elif st == "missing" and row["on_stale"] == "escalate":
+            defects.append(
+                f"FRESHNESS MISSING: {key} does not exist in state.json, though {owner} is "
+                f"meant to produce it (ttl {row['ttl_days']}d). Either the agent has not run "
+                f"or its output is being discarded at PERSIST -- the G50 shape.")
+    return defects
+
+
+def cmd_freshness(args):
+    """Report every FRESHNESS artefact's age and state; write compute_freshness.json if asked."""
+    state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    rows = evaluate_freshness(state, today)
+    by_state = {}
+    for r in rows:
+        by_state.setdefault(r["state"], []).append(r["key"])
+    payload = {
+        "as_of": today.isoformat(),
+        "counts": {k: len(v) for k, v in sorted(by_state.items())},
+        "dark": sorted(by_state.get("dark", [])),
+        "unstamped": sorted(by_state.get("unstamped", [])),
+        "missing": sorted(by_state.get("missing", [])),
+        "stale": sorted(by_state.get("stale", [])),
+        "artefacts": rows,
+        # One line the briefing header can print verbatim -- the point of this whole table is
+        # that staleness is SEEN, not logged somewhere nobody is obliged to look.
+        "headline": _freshness_headline(rows),
+    }
+    emit(payload)
+
+
+def _freshness_headline(rows):
+    dark = [r for r in rows if r["state"] == "dark"]
+    blind = [r for r in rows if r["state"] in ("unstamped", "missing") and r["on_stale"] == "escalate"]
+    if not dark and not blind:
+        return "Freshness: all artefacts within TTL."
+    bits = []
+    if dark:
+        bits.append("DARK " + ", ".join(f"{r['key']} {r['age_days']}d" for r in dark))
+    if blind:
+        bits.append("UNCHECKABLE " + ", ".join(f"{r['key']} ({r['state']})" for r in blind))
+    return "Freshness: " + " | ".join(bits)

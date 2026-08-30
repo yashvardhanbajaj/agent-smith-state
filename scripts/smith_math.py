@@ -53,7 +53,7 @@ import smith_conviction
 from smith_core import *  # noqa: F401,F403
 from smith_core import load_json, emit, fail, clamp
 from smith_ledger import cmd_lots, cmd_history
-from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails
+from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails, cmd_freshness
 from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_add_proposal,
                              cmd_score_shadow_journal, dismiss_proposal_core)
 from smith_learning import (load_store as learn_load_store, write_store as learn_write_store,
@@ -1341,6 +1341,7 @@ def cmd_pipeline(args):
 
     # (stage, required input files, "emptiness" probe on its own output)
     STAGES = [
+        ("freshness",   [],                                          lambda d: d.get("artefacts")),
         ("book",        ["holdings.json"],                          lambda d: d.get("value_usd")),
         ("risk",        ["compute_book.json"],                      lambda d: d.get("positions")),
         ("drift",       ["compute_book.json"],                      lambda d: d.get("cluster_table")),
@@ -2795,6 +2796,12 @@ def main():
     sp = sub.add_parser("validate")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
 
+    sp = sub.add_parser("freshness",
+                        help="age every artefact in smith_core.FRESHNESS: fresh|stale|dark|unstamped|missing")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", default=None, help="if given, also writes compute_freshness.json there")
+    sp.add_argument("--today", default=None)
+
     sp = sub.add_parser("proposals")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--run-dir", required=True, help="this run's directory containing compute_drift.json and holdings.json")
@@ -2941,6 +2948,7 @@ def main():
          "triggers": cmd_triggers, "score": cmd_score, "pipeline": cmd_pipeline, "lots": cmd_lots,
          "history": cmd_history, "maxpain": cmd_maxpain, "compact": cmd_compact, "gaps": cmd_gaps, "slices": cmd_slices,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
+         "freshness": cmd_freshness,
          "dismiss": cmd_dismiss, "add-proposal": cmd_add_proposal,
          "append-ledger": cmd_append_ledger, "merge-tails": cmd_merge_tails, "stops": cmd_stops,
          "score-shadow-journal": cmd_score_shadow_journal, "learn-status": cmd_learn_status,
