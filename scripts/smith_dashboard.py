@@ -26,6 +26,7 @@ Usage:  smith_dashboard.py --base-dir DIR [--out dashboard.html]
 """
 import argparse
 import json
+from smith_core import ticker_rows
 import os
 import subprocess
 import sys
@@ -1406,7 +1407,7 @@ def build(base, out):
         H.append(f'<div class="grid2">{left}{right}</div>')
 
     # ================= the week ahead =================
-    earnings_cal = state.get("data_cache", {}).get("earnings_calendar", {})
+    earnings_cal = dict(ticker_rows(state.get("data_cache", {}).get("earnings_calendar", {})))
     fomc = state.get("fomc_cache", {})
     try:
         today = datetime.strptime(ts[:10], "%Y-%m-%d").date() if ts else datetime.now().date()

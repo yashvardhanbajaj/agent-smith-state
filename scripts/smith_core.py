@@ -519,6 +519,33 @@ def safe_write(path, obj):
         json.dump(obj, f, indent=2)
     os.replace(path + ".tmp", path)
 
+# Metadata keys that live ALONGSIDE ticker entries inside a stamped cache map. `as_of` is
+# written as a sibling of the tickers in earnings_calendar and analyst_targets (see
+# _merge_watchlist / _merge_signals) because that is where the FRESHNESS table reads it from.
+# The cost is that a naive `.items()` over such a map yields a fake ticker called "as_of" whose
+# value is a string -- which crashed the dashboard build on 2026-08-31 with
+# `'str' object has no attribute 'get'`, a latent break introduced whenever the stamp was first
+# added and invisible until the next rebuild. Iterate stamped maps through ticker_rows() rather
+# than fixing each call site as it blows up.
+CACHE_META_KEYS = {"as_of", "ttl_days", "period", "method", "window", "source", "note",
+                   "benchmark", "benchmark_return_pct", "benchmark_return_1m_pct",
+                   "coverage_pct", "schema_version"}
+
+
+def ticker_rows(cache, want=dict):
+    """(ticker, value) pairs from a stamped cache map, excluding metadata siblings.
+
+    `want` filters by value type so a caller that needs dict rows never receives a bare string;
+    pass want=None to accept any value. Returns a list, not a generator, so callers can len()
+    it -- coverage counts are the usual second question after "what is in here".
+    """
+    if not isinstance(cache, dict):
+        return []
+    return [(k, v) for k, v in cache.items()
+            if k not in CACHE_META_KEYS and not k.startswith("_")
+            and (want is None or isinstance(v, want))]
+
+
 def _prior_run_prices(base_dir, run_dir, state):
     """Last-known price per ticker from the PREVIOUS run's compute_book.json.
 
