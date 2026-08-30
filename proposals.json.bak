@@ -6444,12 +6444,12 @@
       "direction_bucket": "TRIM",
       "size_usd": 271.94,
       "price_at_proposal": 217.55,
-      "rationale": "Double-evidenced and the only TRIM in the book carrying both a technical and a credit leg. (1) overbought_distribution fired LIVE for the first time in this book's history on the 08-31 cache refresh: RSI14 70.4, the highest in the book, +6.34pp vs SMH. (2) catalyst_threat: NVDA's own 5-year CDS has roughly doubled in two months and it is backstopping ~125bn USD of a ~500bn USD third-party compute-financing platform. smith-cycle's late-cycle call rests substantially on NVDA's own guidance -- gross margin stepping 75pct to 74pct to a 71-72pct Q4 trough on memory cost, with component commitments up 119bn to 279bn USD in a single quarter. Trimming 25pct of a strengthening-thesis name is a de-risk of the financing leg, not a thesis exit; NVDA stays a position. Funds the GOOG leg.",
+      "rationale": "Double-evidenced and the only TRIM in the book carrying both a technical and a credit leg. (1) overbought_distribution fired LIVE for the first time in this book's history on the 08-31 cache refresh: RSI14 70.4, the highest in the book, +6.34pp vs SMH. (2) catalyst_threat: NVDA's own 5-year CDS has roughly doubled in two months and it is backstopping ~125bn USD of a ~500bn USD third-party compute-financing platform. smith-cycle's late-cycle call rests substantially on NVDA's own guidance -- gross margin stepping 75pct to 74pct to a 71-72pct Q4 trough on memory cost, with component commitments up 119bn to 279bn USD in a single quarter. Trimming 25pct of a strengthening-thesis name is a de-risk of the financing leg, not a thesis exit; NVDA stays a position. RE-BASED 2026-08-31: the GOOG buy leg this was paired to (P-182) was dismissed after primary-source verification killed its premise, so this now stands ALONE -- and it does not need a buy leg. Cash is 3.005% of book against a policy floor of 5% (cash_breach true), so an unfunded trim is not idle capital, it is the cheapest available way to rebuild the buffer back toward its band. The two reasons to trim NVDA are untouched by the GOOG finding: RSI14 70.4 firing overbought_distribution, and the credit leg (5-year CDS roughly doubled in two months, ~125bn USD backstop of a third-party compute-financing platform, guided gross margin stepping to a 71-72% Q4 trough on memory cost). Deliberately NOT re-paired with a substitute buy: manufacturing a new buy leg to preserve the shape of a rotation would be reverse-engineering evidence to fit a trade I had already decided on.",
       "trigger_type": "overbought_distribution",
       "date": "2026-08-31T00:00:00Z",
       "status": "open",
-      "pair_id": "monday-nvda-goog",
-      "pair_role": "sell",
+      "pair_id": null,
+      "pair_role": null,
       "cluster": "AI Semis/Fabs",
       "id": "P-181",
       "priority_score": 7,
@@ -6478,7 +6478,7 @@
       "rationale": "The one buyer that has not been bid. smith-cycle's central finding is that capital is paying up for the investment-grade balance sheets BUYING the capex and marking down the levered suppliers selling it -- AMZN +3.97pct, MSFT +1.68pct, GOOG +1.53pct on 08-28 while SMH fell 3.47pct. GOOG sits on the favoured side of that rotation and is nonetheless -13.06pp vs SMH over one month with RSI14 28.9, firing oversold_reversion AND laggard_rotation together on a strengthening thesis, +18.8pct to mean target, capital-raised its capex ceiling to 205bn USD. DISCRIMINATION STATED EXPLICITLY: catalyst_threat also fires a TRIM on GOOG, but that trigger applies the generic AI-financing-credit story to every Compute/Hyperscaler name uniformly. smith-quality audited the book's financing quality this run and flagged AMZN, BE and INTC -- not GOOG. Buying the name the credit screen cleared and selling the name whose CDS doubled is the whole point of the pair.",
       "trigger_type": "oversold_reversion",
       "date": "2026-08-31T00:00:00Z",
-      "status": "open",
+      "status": "dismissed_by_user",
       "pair_id": "monday-nvda-goog",
       "pair_role": "buy",
       "cluster": "Compute/Hyperscaler",
@@ -6496,7 +6496,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-31",
-      "retires_when": "GOOG RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening"
+      "retires_when": "GOOG RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening",
+      "dismiss_reason": "DESK-DISMISSED: the premise was false and I verified it against as-filed SEC XBRL myself rather than take the agent's word. P-182 rested explicitly on 'smith-quality flagged AMZN, BE, INTC -- not GOOG'. GOOG had not been cleared; it had not been AUDITED, and I presented an absence of evidence as evidence of absence, which is the exact G72 error this desk has a standing rule against. Audited now: Q2 2026 capex 44.93bn exceeded OCF 39.07bn (FCF -5.86bn), long-term debt rose 26.7pct sequentially to 98.17bn and +354pct in three quarters from 21.61bn, interest expense doubled to 1.28bn, and H1 capex is +103pct YoY against OCF +33pct. That is the SAME pattern for which the AMZN oversold_reversion buy was refused in P-185. GOOG's balance sheet is genuinely stronger (31.9x coverage, leverage under 1x annual operating income) but the discrimination the pair was built on does not exist, and applying one standard to AMZN and another to GOOG would be the real error. Not a user decision.",
+      "note": "dismissed by user 2026-08-31T01:51: DESK-DISMISSED: the premise was false and I verified it against as-filed SEC XBRL myself rather than take the agent's word. P-182 rested explicitly on 'smith-quality flagged AMZN, BE, INTC -- not GOOG'. GOOG had not been cleared; it had not been AUDITED, and I presented an absence of evidence as evidence of absence, which is the exact G72 error this desk has a standing rule against. Audited now: Q2 2026 capex 44.93bn exceeded OCF 39.07bn (FCF -5.86bn), long-term debt rose 26.7pct sequentially to 98.17bn and +354pct in three quarters from 21.61bn, interest expense doubled to 1.28bn, and H1 capex is +103pct YoY against OCF +33pct. That is the SAME pattern for which the AMZN oversold_reversion buy was refused in P-185. GOOG's balance sheet is genuinely stronger (31.9x coverage, leverage under 1x annual operating income) but the discrimination the pair was built on does not exist, and applying one standard to AMZN and another to GOOG would be the real error. Not a user decision."
     },
     {
       "action": "Trim BE",
@@ -6504,7 +6506,7 @@
       "direction_bucket": "TRIM",
       "size_usd": 253.0,
       "price_at_proposal": 210.77,
-      "rationale": "Three independent legs, none of them price. (1) smith-quality, first persisted audit: diluted share count +37.6pct YoY and total debt +86pct YoY to 2.81bn USD -- growth funded by issuance in the exact window NVDA's CDS doubled and ORCL was cut to BBB-, and BE is named in force_thesis_review. (2) Worst over-cap position in the book after the ATR refresh: cap_multiple 1.316 on a 7.97pct ATR20, headroom negative. (3) Highest beta in the held book at 2.105 against an SMH-benchmarked late-cycle read. evidence_against, stated: revenue +41.8pct YoY with operating income and FCF both turning positive this quarter, so this is funding a real demand ramp, not covering losses -- which is why this is a TRIM sized to restore cap headroom and not an exit.",
+      "rationale": "Three independent legs, none of them price. (1) smith-quality, first persisted audit: diluted share count +37.6pct YoY and total debt +86pct YoY to 2.81bn USD -- growth funded by issuance in the exact window NVDA's CDS doubled and ORCL was cut to BBB-, and BE is named in force_thesis_review. (2) Worst over-cap position in the book after the ATR refresh: cap_multiple 1.316 on a 7.97pct ATR20, headroom negative. (3) Highest beta in the held book at 2.105 against an SMH-benchmarked late-cycle read. evidence_against, stated: revenue +41.8pct YoY with operating income and FCF both turning positive this quarter, so this is funding a real demand ramp, not covering losses -- which is why this is a TRIM sized to restore cap headroom and not an exit. VERIFIED AGAINST AS-FILED SEC XBRL 2026-08-31 (smith_edgar.py), and the case is STRONGER than the yfinance figures it was written on: diluted shares 230.21M to 319.71M year-on-year is +38.9% (audit said +37.6%, confirmed), and long-term debt 1.016bn to 2.599bn is +155.8% (audit said +86%, badly understated). The counter-evidence is also stronger and is stated: revenue 319M to 746M is +134% YoY, not +41.8%. BE is diluting and levering considerably harder than the audit said, into demand also growing harder than the audit said -- which is why this remains a cap-restoring TRIM and not an exit. Limitation: EDGAR XBRL frames for BE are current to 2026-03-31 while a Q2 10-Q was filed 2026-07-28, so this is a clean Q1-on-Q1 comparison one quarter behind.",
       "trigger_type": "quality_flag",
       "date": "2026-08-31T00:00:00Z",
       "status": "open",
@@ -6529,7 +6531,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-31",
-      "retires_when": "BE drops under its ATR risk cap"
+      "retires_when": "BE drops under its ATR risk cap",
+      "evidence_verified": "primary"
     },
     {
       "action": "Hold AVGO",
@@ -6560,7 +6563,7 @@
       "direction_bucket": "HOLD",
       "size_usd": 0,
       "price_at_proposal": 266.43,
-      "rationale": "Resolves a direct trigger-versus-quality conflict rather than averaging it. oversold_reversion fires BUY on AMZN at RSI14 29.8 with a strengthening thesis; catalyst_threat and open proposal P-178 fire TRIM. smith-quality breaks the tie with a balance sheet, not a price: quarterly capex 44.2bn USD now EXCEEDS operating cash flow 26.03bn USD, free cash flow swung from +14.94bn to -18.17bn USD in one quarter, and long-term debt rose 81.4pct YoY to 119.07bn USD -- the book's single clearest instance of the precise pattern the market is repricing, and AMZN is in force_thesis_review. The RSI is low BECAUSE the market is pricing what the audit found; that makes it an explanation, not a discount. Existing trim P-178 stands, no add. Note the finding is verified:unverified -- FMP secFilings returned ACCESS DENIED this run -- so this holds rather than escalates.",
+      "rationale": "Resolves a direct trigger-versus-quality conflict rather than averaging it. oversold_reversion fires BUY on AMZN at RSI14 29.8 with a strengthening thesis; catalyst_threat and open proposal P-178 fire TRIM. smith-quality breaks the tie with a balance sheet, not a price: quarterly capex 44.2bn USD now EXCEEDS operating cash flow 26.03bn USD, free cash flow swung from +14.94bn to -18.17bn USD in one quarter, and long-term debt rose 81.4pct YoY to 119.07bn USD -- the book's single clearest instance of the precise pattern the market is repricing, and AMZN is in force_thesis_review. The RSI is low BECAUSE the market is pricing what the audit found; that makes it an explanation, not a discount. Existing trim P-178 stands, no add. Note the finding is verified:unverified -- FMP secFilings returned ACCESS DENIED this run -- so this holds rather than escalates. VERIFIED AGAINST AS-FILED SEC XBRL 2026-08-31 (smith_edgar.py), and the audit's figures were a QUARTER STALE -- yfinance served Q1 2026 as current. Latest 10-Q (period 2026-06-30, filed 2026-07-31, accn 0001018724-26-000026): OCF 45.39bn against capex 54.20bn. Capex STILL exceeds operating cash flow, so the finding stands and the HOLD stands -- but the gap has NARROWED from -18.2bn to -8.8bn, i.e. it is improving, which the original framing missed. Long-term debt is the leg that was understated: 128.89bn at 2026-06-30 against 50.72bn a year earlier is +154% YoY, not +81.4%. Net: the reason to hold rather than add is intact and now primary-sourced; the reason not to escalate to a larger trim is that the cash-flow gap is closing.",
       "trigger_type": "conflict_resolution",
       "date": "2026-08-31T00:00:00Z",
       "status": "open",
@@ -6575,7 +6578,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-31",
-      "retires_when": null
+      "retires_when": null,
+      "evidence_verified": "primary"
     },
     {
       "action": "Sell CIEN",
@@ -6589,7 +6593,24 @@
       "status": "open",
       "pair_id": "monday-cien-amat",
       "pair_role": "sell",
-      "cluster": "AI Networking/Optics"
+      "cluster": "AI Networking/Optics",
+      "id": "P-186",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "CIEN genuinely stretched: +4.0% 1m, +7.4pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- "
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "CIEN genuinely stretched: +4.0% 1m, +7.4pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- "
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the profit_rotation pairing monday-cien-amat is no longer live this run -- both legs retire together, never one alone"
     },
     {
       "action": "Buy AMAT",
@@ -6603,7 +6624,20 @@
       "status": "open",
       "pair_id": "monday-cien-amat",
       "pair_role": "buy",
-      "cluster": "AI Semis/Fabs"
+      "cluster": "AI Semis/Fabs",
+      "id": "P-187",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "conviction_average: conviction 34.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); RSI14 33 oversold; -3.1pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "conviction_average: conviction 34.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); RSI14 33 oversold; -3.1pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "AMAT no longer appears in this run's live conviction_average list"
     }
   ],
   "retracted": [

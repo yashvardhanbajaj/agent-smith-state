@@ -1006,15 +1006,49 @@ def _merge_cycle(out, state, today):
 def _merge_quality(out, state, today):
     """The monthly audit's cadence was inferred from 'were there deep rows in ledger.csv this
     month', which tests whether a DEEP RUN happened, not whether QUALITY ran. Persist the read
-    itself so the trigger can test the real thing."""
+    itself so the trigger can test the real thing.
+
+    MERGES PER TICKER, never replaces (changed 2026-08-31). The audit is budget-bound and
+    routinely covers PART of the book -- the 08-30 run reached 8 of the top 15 and stopped, so
+    the 7 remaining names were audited in a second pass. Under the previous wholesale-replace
+    the second pass would have silently deleted the first pass's 8 findings AND the
+    primary-source verification block attached to them, leaving a `quality_read` that looked
+    complete and covered a third of what it claimed. Partial coverage is the NORMAL case for
+    this agent, so the merge has to be additive: same-ticker findings are overwritten by the
+    newer audit, untouched tickers survive, and any sibling key (e.g. primary_source_
+    verification) is preserved rather than clobbered.
+
+    `audited_on` per ticker is what makes partial coverage legible afterwards -- without it a
+    name audited five weeks ago is indistinguishable from one audited today."""
     flags = out.get("quality_flags")
-    if flags is None:
+    cleared = out.get("cleared") or []
+    if flags is None and not cleared:
         return {"quality_flags": 0, "note": "no quality_flags key in tail"}
-    state["quality_read"] = {"quality_flags": flags,
-                             "book_pct_flagged": out.get("book_pct_flagged"),
-                             "top_concern": out.get("top_concern"),
-                             "as_of": today}
-    return {"quality_flags": len(flags)}
+    flags = flags or {}
+    prior = state.get("quality_read") or {}
+    merged = dict(prior.get("quality_flags") or {})
+    merged.update(flags)
+    audited = dict(prior.get("audited_on") or {})
+    for tk in list(flags) + list(cleared):
+        audited[tk] = today
+    cleared_all = sorted(set(prior.get("cleared") or []) - set(flags) | set(cleared))
+    ftr = {r.get("ticker"): r for r in (prior.get("force_thesis_review") or [])
+           if isinstance(r, dict) and r.get("ticker")}
+    for r in (out.get("force_thesis_review") or []):
+        if isinstance(r, dict) and r.get("ticker"):
+            ftr[r["ticker"]] = r
+    read = dict(prior)                      # keep siblings (primary_source_verification, ...)
+    read.update({"quality_flags": merged,
+                 "cleared": cleared_all,
+                 "audited_on": audited,
+                 "force_thesis_review": list(ftr.values()),
+                 "book_pct_flagged": out.get("book_pct_flagged"),
+                 "top_concern": out.get("top_concern") or prior.get("top_concern"),
+                 "as_of": today})
+    state["quality_read"] = read
+    return {"quality_flags": len(merged), "flags_this_pass": len(flags),
+            "cleared_this_pass": len(cleared), "tickers_audited_total": len(audited),
+            "force_thesis_review": len(ftr)}
 
 
 def _merge_tax(out, state, today):
