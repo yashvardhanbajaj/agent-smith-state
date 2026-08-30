@@ -274,6 +274,54 @@
       "evidence": "proposals.json: 8/159 scored as of 2026-08-25; plans/clever-watching-hinton.md Phase 4",
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "A proposal's 'action' field must be a verb+ticker sentence ('Sell ASML'), never a bare direction word ('SELL') -- the dashboard renders it verbatim as the row label. A hand-written batch of 7 proposals set action to a bare direction on 2026-08-29 and the dashboard showed 'SELL SELL'/'BUY BUY'/'TRIM TRIM'; the user caught it, not the system. Fix: never hand-write a proposal dict. Use 'smith_math.py add-proposal --proposals-json <specs>', which builds action FROM ticker+direction so the bug class can't recur, and validate_proposals_schema now makes this a hard validate defect if it ever does.",
+      "evidence": "smith_lifecycle.py cmd_add_proposal, smith_memory.py validate_proposals_schema, commit 023beac",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "Never hand-type a run's full narrative into ledger.csv's 'notes' cell -- it is exactly the medium a fact drifts in. A nonexistent '8% drawdown warn line' (policy.json's real drawdown_warn_pct is 15) was typed once into a ~4,000-char notes blob and effectively copied forward across four consecutive runs before anyone checked it against policy.json. Fix: use 'smith_math.py append-ledger --summary <short, max 300 chars> --briefing-file <full narrative path>' -- the short cell is what validate_policy_narrative_drift actually checks, so a repeat is now catchable same-run.",
+      "evidence": "smith_memory.py cmd_append_ledger, validate_policy_narrative_drift, G84, commit 8451f62",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "An agent's self-written output_file (runs/<ts>/out_<agent>.json) is not reliably identical to the fenced JSON tail it actually returned in its chat response -- found 2026-08-29, smith-earnings and smith-macro's files held a different/older tail than their notifications reported (both agents apparently wrote state directly mid-task). The orchestrator must WRITE each agent's exact returned tail into that file itself the moment the notification arrives, before treating the file as trustworthy input to 'smith_math.py merge-tails'. Do not hand-assemble the state merge in one-off Python (~80 lines were written and immediately discarded this way on 2026-08-29) -- merge-tails' declarative MERGE_RULES table replaces it and was verified to reproduce a hand-merge almost exactly when the file was actually authoritative.",
+      "evidence": "smith_memory.py cmd_merge_tails docstring OPERATIONAL CAVEAT, commit 8451f62",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "Agent Smith and The Operator each independently fetched USD/INR (and their own full macro strip) every run with zero sharing, even though it is the identical real-world number and both books are often run close together in the same session -- pure duplicated MCP-call cost. Fix: both skills' market-inputs step now checks /Users/yb/Claude/shared/market_cache.py (stdlib-only, no dependency on either skill's own code, 20-min TTL, merge-not-replace) before fetching, and writes back what it fetches fresh so the other skill can reuse it. Check this cache first for ANY field a sibling portfolio skill might have just fetched, not only USD/INR, before adding a new cross-skill data need.",
+      "evidence": "shared/market_cache.py, commit cdd45df",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "earnings_facts entries were only ever verified PRE-print (a name reporting within 5 trading days); nothing re-dispatched smith-earnings AFTER a tracked print date passed, so NVDA/MRVL sat status=PENDING for days post-print while smith-catalyst and other agents independently re-derived 'beat but sold off' from price action each run -- duplicated search effort and the exact G58 misread risk smith-earnings exists to prevent. Fixed 2026-08-30, then tightened same-day after user feedback ('no 3 days stuck'): validate_pending_earnings_staleness fires with ZERO grace days (the very first run at/after reported_date), on every run mode including quick, not gated to deep. A same-day print not yet indexed by a data provider may legitimately still come back unresolved on the first attempt -- that is expected, retry next run, never fall back to another agent guessing from price action.",
+      "evidence": "smith_memory.py validate_pending_earnings_staleness (EARNINGS_PENDING_HARD_STALE_DAYS=0), commits cdd45df, d300edb",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "smith-scout re-fetched analyst mean price targets for all ~8 diversifier_candidates every single deep run, even though a target and its one-line thesis rarely move week to week -- only the live price genuinely needs refreshing every run. Fixed 2026-08-30: diversifier_candidates entries now carry 'as_of'; smith-scout.md instructs reusing target_usd/thesis/clean_diversifier unchanged unless as_of is >7 days old or the candidate is new, refreshing only price_usd/upside_pct every run. Apply the same as_of-gated-reuse pattern to any other agent output where one field moves daily (price) and other fields in the same record move roughly weekly (analyst targets, thesis text, sector classification) -- do not refetch the slow-moving fields just because the fast-moving one needs a refresh.",
+      "evidence": "smith-scout.md diversifier bench TARGET/THESIS TTL, commit cdd45df",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }
