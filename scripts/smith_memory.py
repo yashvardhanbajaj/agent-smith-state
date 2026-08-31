@@ -101,6 +101,7 @@ STANDALONE_JOURNAL_RETENTION = {
 }
 
 TERMINAL_PROPOSAL_STATUSES = ("superseded", "auto_retired", "dismissed_by_user",
+                              "dismissed_by_desk",
                               "executed", "fulfilled", "filled")
 
 def _archive_load(path):
@@ -1841,6 +1842,28 @@ def cmd_slices(args):
 # them, feeding a live trigger and outranking computed drift breaches under SKILL.md §2g. An
 # unknown age is worse than a known-bad one, because nothing can even flag it.
 
+def freshness_root(base_dir, state=None):
+    """The lookup root for FRESHNESS keys.
+
+    Almost every tracked artefact lives in state.json, so the root IS state -- but not all of
+    them. `proposals.scorecard` lives in proposals.json, and until 2026-08-31 that meant the
+    outcome scorecard was the one decision-bearing artefact with NO freshness coverage at all.
+    It had been frozen at 2026-08-29 and nothing said so: `score` correctly refused to shrink
+    it (19 rows on record, only 14 gradable), because the orchestrator's price source is
+    holdings.json and 6 of the 19 rows reference tickers that are NOT HELD -- exited names,
+    watchlist names and GOOGL against a book that holds GOOG. A correct anti-shrink guard plus
+    a structurally incomplete price source is a permanent deadlock, and a deadlock nobody can
+    see is indistinguishable from a healthy artefact.
+
+    Exposing proposals.json under the `proposals.` prefix keeps FRESHNESS a flat declarative
+    table rather than growing per-artefact file-loading special cases.
+    """
+    root = dict(state if state is not None
+                else load_json(os.path.join(base_dir, "state.json"), default={}))
+    root["proposals"] = load_json(os.path.join(base_dir, "proposals.json"), default={})
+    return root
+
+
 def _fresh_lookup(state, dotted):
     node = state
     for part in dotted.split("."):
@@ -2021,7 +2044,7 @@ def validate_freshness(base_dir):
     """
     state = load_json(os.path.join(base_dir, "state.json"), default={})
     defects = []
-    for row in evaluate_freshness(state):
+    for row in evaluate_freshness(freshness_root(base_dir, state)):
         key, owner, st = row["key"], row["owner"], row["state"]
         if st == "dark":
             defects.append(
@@ -2046,7 +2069,7 @@ def cmd_freshness(args):
     """Report every FRESHNESS artefact's age and state; write compute_freshness.json if asked."""
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
     today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
-    rows = evaluate_freshness(state, today)
+    rows = evaluate_freshness(freshness_root(args.base_dir, state), today)
     by_state = {}
     for r in rows:
         by_state.setdefault(r["state"], []).append(r["key"])

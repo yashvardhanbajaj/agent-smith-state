@@ -1003,10 +1003,23 @@ def cmd_score(args):
     # statuses that represent a real, closed recommendation worth grading
     SCOREABLE = {"executed", "fulfilled", "filled", "auto_retired", "superseded", "deferred", "watch"}
     EXCLUDED = {"dismissed_by_user"}
+    # A DESK withdrawal is excluded from ACCURACY too -- the trade never happened, so there is
+    # no outcome to grade -- but it is counted and reported separately rather than folded into
+    # the user-override bucket. The rationale above ("the user overriding a proposal is not the
+    # strategist being wrong") is true of a user dismissal and exactly BACKWARDS for a desk one:
+    # the desk withdrawing its own faulty proposal IS a strategist miss, and burying it in the
+    # same silent exclusion inflates measured accuracy by hiding the desk's own errors. Four
+    # such withdrawals happened on 2026-08-31 alone.
+    DESK_WITHDRAWN = {"dismissed_by_desk"}
 
     rows, unpriced, excluded_n, too_young = [], [], 0, 0
+    desk_withdrawn = []
     for pr in props:
         st = pr.get("status")
+        if st in DESK_WITHDRAWN:
+            desk_withdrawn.append({"id": pr.get("id"), "action": pr.get("action"),
+                                   "reason": (pr.get("dismiss_reason") or "")[:160]})
+            continue
         if st in EXCLUDED:
             excluded_n += 1
             continue
@@ -1087,6 +1100,8 @@ def cmd_score(args):
         "scored_count": len(graded),
         "quarantined_anchor_review": len(review),
         "excluded_dismissed_by_user": excluded_n,
+        "withdrawn_by_desk": len(desk_withdrawn),
+        "withdrawn_by_desk_detail": desk_withdrawn,
         "not_yet_30d": too_young,
         "note": ("Direction-aware: a TRIM 'worked' if the price FELL after it, a BUY if it ROSE, "
                  "a HOLD if the move stayed inside the +/-%.1f%% noise band. Threshold shared with "
@@ -1457,7 +1472,17 @@ def dismiss_proposal_core(props, proposal_id, reason, actor="user"):
         if pr.get("id") == proposal_id:
             if pr.get("status") not in ("open",):
                 return None
-            pr["status"] = "dismissed_by_user"
+            # WHO dismissed this is now STRUCTURAL, not prose. `actor` has existed since this
+            # function was extracted, but it only ever reached the free-text `note` -- the
+            # status was hardcoded `dismissed_by_user` whoever called. This file's own rule is
+            # "never parse prose" (see cmd_dismiss), and the actor was prose, so nothing could
+            # read it. Consequence found 2026-08-31: four proposals the ORCHESTRATOR withdrew
+            # for its own faulty evidence (P-152, P-174, P-179, P-182) sat on record as the
+            # USER rejecting those ideas -- feeding smith_learning's revealed-preference
+            # profiles a preference the user never expressed, and hiding four strategist
+            # misses inside the scorecard's user-override exclusion.
+            pr["status"] = "dismissed_by_desk" if str(actor).startswith("desk") else "dismissed_by_user"
+            pr["dismissed_by"] = actor
             stamp = f" | dismissed by {actor} {datetime.now().isoformat(timespec='minutes')}"
             pr["dismiss_reason"] = reason or None
             if reason:
@@ -1476,7 +1501,8 @@ def cmd_dismiss(args):
     p_path = os.path.join(args.base_dir, "proposals.json")
     proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
     props = proposals.get("proposals", [])
-    pr = dismiss_proposal_core(props, args.id, args.reason, actor="user")
+    pr = dismiss_proposal_core(props, args.id, args.reason,
+                               actor=getattr(args, "by", "user"))
     if pr is None:
         # distinguish "no such id" from "exists but not open" for a clearer error
         match = next((p for p in props if p.get("id") == args.id), None)
@@ -1494,7 +1520,8 @@ def cmd_dismiss(args):
     # dismissals on record before this change has no reason at all (`dismiss` always accepted
     # --reason and the orchestrator never asked) -- flagged in the emitted result rather than
     # silently accepted, so the interactive caller has a cue to ask next time.
-    result = {"dismissed": args.id, "action": pr.get("action"), "written": True}
+    result = {"dismissed": args.id, "action": pr.get("action"),
+              "status": pr.get("status"), "by": pr.get("dismissed_by"), "written": True}
     if not args.reason:
         result["data_quality"] = [f"{args.id} dismissed with no reason -- the most "
                                    "informative negative label for revealed-preference "

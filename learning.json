@@ -355,6 +355,22 @@
       "evidence": null,
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "correction",
+      "text": "Attribution of a decision must be STRUCTURAL, never prose. dismiss_proposal_core carried an 'actor' argument from the day it was extracted, but wrote it only into the free-text 'note' while hardcoding status='dismissed_by_user' for every caller. The same file's own rule is 'never parse prose', so the actor was unreadable by design. Result found 2026-08-31: four proposals the ORCHESTRATOR withdrew for its own faulty evidence (P-152 self-contradicting pair, P-174 stale relative strength, P-179 evaporated over-cap leg, P-182 premise built on an unaudited name) were on record as the USER rejecting them -- feeding smith_learning's revealed-preference profiles a preference the user never expressed, and hiding four strategist misses inside the scorecard's 'user override is not a strategist miss' exclusion, which is true of a user dismissal and exactly backwards for a desk one. Fix: dismissed_by_desk status, dismiss --by user|desk, and a withdrawn_by_desk bucket the scorecard reports rather than buries. Generalise: when a field records WHO or WHY and something downstream will branch on it, it needs its own typed field at the moment of writing.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "correction",
+      "text": "A correct safety guard plus a structurally incomplete input equals a permanent, invisible deadlock. cmd_score refuses to shrink the scorecard (right -- it saved 19 rows from an empty-prices probe on 2026-08-30). But the orchestrator's price source is holdings.json, which by construction holds only CURRENT holdings, while 6 of the 19 scorecard rows reference exited names, watchlist names and GOOGL against a book holding GOOG. So score could only ever grade 14 of 19, the guard refused every time, and the scorecard froze at 2026-08-29 with nothing reporting it -- it was the one decision-bearing artefact absent from the FRESHNESS table. Unblocked by fetching the 6 non-held quotes (20 rows scored); prevented by adding proposals.scorecard to FRESHNESS via a freshness_root() that exposes proposals.json. Generalise: whenever a guard refuses, ask what supplies its input and whether that source can EVER satisfy it -- and put anything a guard can freeze under a freshness stamp.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

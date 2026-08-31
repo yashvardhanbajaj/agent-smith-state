@@ -3107,7 +3107,12 @@ def main():
     sp = sub.add_parser("dismiss")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--id", required=True, help="stable proposal id, e.g. P-014")
-    sp.add_argument("--reason", default=None, help="optional free-text note on why the user dismissed it")
+    sp.add_argument("--reason", default=None, help="optional free-text note on why it was dismissed")
+    sp.add_argument("--by", choices=("user", "desk"), default="user",
+                    help="who dismissed it. 'user' (default) is a revealed preference, excluded "
+                         "from the scorecard as a user override. 'desk' means the orchestrator "
+                         "withdrew its OWN proposal -- not a user preference, and counted "
+                         "separately as a strategist miss rather than hidden.")
 
     sp = sub.add_parser("add-proposal", help="the only sanctioned way to append new proposals -- builds `action` from ticker+direction so it can't be a bare direction word")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)

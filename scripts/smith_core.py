@@ -321,6 +321,13 @@ FRESHNESS = {
     "data_cache.ret_5d":           {"stamp": "field:as_of", "ttl_days": 3,  "owner": "smith-signals",   "on_stale": "suppress"},
     "data_cache.betas":            {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-signals",   "on_stale": "flag"},
     "data_cache.analyst_targets":  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "flag"},
+    # Lives in proposals.json, not state.json -- reachable via freshness_root()'s `proposals.`
+    # prefix. Added 2026-08-31: this is the artefact that measures whether the desk's own
+    # proposals WORK, and it was the only decision-bearing one with no freshness coverage. It
+    # sat frozen for two days behind a correctly-refusing anti-shrink guard, because grading it
+    # needs prices for exited/watchlist tickers that holdings.json structurally cannot supply.
+    # 14 days, not 7: it only scores at 30-day maturity, so a week-old scorecard is normal.
+    "proposals.scorecard":         {"stamp": "field:as_of", "ttl_days": 14, "owner": "orchestrator", "on_stale": "flag"},
     "data_cache.etf_constituents": {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-thesis",    "on_stale": "flag"},
     "data_cache.earnings_calendar":{"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-earnings",  "on_stale": "flag"},
     # --- sub-agent OUTPUTS: nothing checked any of these before this table existed ---

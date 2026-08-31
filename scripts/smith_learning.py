@@ -334,9 +334,17 @@ def cmd_learn_add_lesson(args):
 ACTED_STATUSES = {"executed", "fulfilled", "filled"}
 IGNORED_STATUSES = {"auto_retired"}
 DISMISSED_STATUSES = {"dismissed_by_user"}
+# A DESK withdrawal is not a revealed preference. Added 2026-08-31: `dismiss` stamped
+# `dismissed_by_user` regardless of who called it, so four proposals the orchestrator withdrew
+# for its own faulty evidence (P-152, P-174, P-179, P-182 -- stale relative strength, an
+# evaporated over-cap leg, a self-contradicting pair, and a premise built on an unaudited name)
+# were on record as the USER rejecting those ideas. This module measures what the user prefers;
+# feeding it the desk's own retractions teaches it a preference the user never expressed.
+DESK_WITHDRAWN_STATUSES = {"dismissed_by_desk"}
 DEFERRED_STATUSES = {"deferred", "watch"}
-# Deliberately excluded from every profile: "open" (outcome not yet known) and "superseded"
-# (a mechanical dedup merge into a restated duplicate, not a user decision about the idea).
+# Deliberately excluded from every profile: "open" (outcome not yet known), "superseded"
+# (a mechanical dedup merge into a restated duplicate, not a user decision about the idea),
+# and "dismissed_by_desk" (the desk withdrawing its own proposal -- not a user decision at all).
 
 
 def _period_key(proposal_date_str):
