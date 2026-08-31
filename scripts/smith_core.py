@@ -327,6 +327,11 @@ FRESHNESS = {
     # sat frozen for two days behind a correctly-refusing anti-shrink guard, because grading it
     # needs prices for exited/watchlist tickers that holdings.json structurally cannot supply.
     # 14 days, not 7: it only scores at 30-day maturity, so a week-old scorecard is normal.
+    # The six-scenario stress table. Added to FRESHNESS 2026-08-31 in the same change that gave
+    # it a structured output and a write path -- an artefact with a persist path but no age check
+    # is only half out of the dark. 7 days: it is a deep-run product and a stress picture built
+    # against a fortnight-old rate/VIX strip is describing a different market.
+    "stress_table":                {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-strategist", "on_stale": "flag"},
     "proposals.scorecard":         {"stamp": "field:as_of", "ttl_days": 14, "owner": "orchestrator", "on_stale": "flag"},
     "data_cache.etf_constituents": {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-thesis",    "on_stale": "flag"},
     "data_cache.earnings_calendar":{"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-earnings",  "on_stale": "flag"},

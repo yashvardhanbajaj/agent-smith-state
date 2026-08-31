@@ -87,6 +87,11 @@ Write the full output to `output_file` AND return it (the orchestrator quotes pr
 
 ```json
 {"policy_draft":null,
+ "stress_table":{"as_of":"YYYY-MM-DD",
+   "anchored_to":{"us10y_pct":0,"vix":0,"dxy":0,"fed_rate_pct":0,"fed_stance":""},
+   "scenarios":[{"scenario":"","impact_pct_low":0,"impact_pct_high":0,"most_exposed":[""],
+                 "mechanism":"","basis":"live|static_assumption","note":""}],
+   "data_quality":[]},
  "proposals":[{"direction":"BUY|SELL|TRIM|HOLD","ticker":"","size_usd":0,"price_at_proposal":0,"rationale":"",
    "trigger_type":null,"trigger_bucket":null,"pair_id":null,"pair_role":null,
    "size_wanted_usd":null,"clamped_by":null,"stop_price_usd":null,"exited_on":null,
@@ -94,6 +99,26 @@ Write the full output to `output_file` AND return it (the orchestrator quotes pr
  "scorecard_read":"your INTERPRETATION of the stored scorecard, with n stated -- NOT recomputed figures",
  "deemphasize_buckets":[],"data_quality":[]}
 ```
+
+**`stress_table` IS STRUCTURED OUTPUT NOW (added 2026-08-31).** Until this date the six-scenario
+table was emitted as a prose markdown table in the output file and NOWHERE ELSE: no key in the
+JSON tail, no key in state.json, nothing rendered on the dashboard. It was rebuilt from scratch
+every deep run, survived only in `runs/<ts>/`, and could not be compared against the previous
+run's version even though "did the stress picture change" is the entire point of running it
+repeatedly. That is the same shape as the `factor_catalysts` loss (G50) and the missing
+`cycle_position`: an agent produces a real deliverable and no table names its write path.
+
+Requirements, because the prose version could not satisfy them:
+- **`impact_pct_low` / `impact_pct_high` are NUMBERS, negative for a loss** (a "-12% to -18%"
+  row is `impact_pct_low: -18.0, impact_pct_high: -12.0` — low is the WORSE end). Prose ranges
+  cannot be summed, ranked or diffed across runs; numbers can.
+- **`most_exposed` is a ticker ARRAY**, not a sentence. Put the reasoning in `mechanism`.
+- **`basis`** is `live` when the row was computed against this run's refreshed macro strip, and
+  `static_assumption` when it carries a standing rule-of-thumb that was not re-derived. The
+  2026-08-31 run correctly flagged its rate rows as static in prose; that flag must survive into
+  data so a reader can tell which rows are actually current.
+- Keep emitting the readable markdown table in the output file as well. The JSON is for the
+  desk's memory; the table is for a human reading the run.
 
 `proposal_outcomes` and a hand-filled `scorecard` are **deliberately absent** from this schema — they live in proposals.json, written by `score`. Numbers rigorous, sizes rounded, no false precision. Every proposal is a suggestion for review, never an instruction to execute.
 

@@ -1052,6 +1052,41 @@ def _merge_quality(out, state, today):
             "force_thesis_review": len(ftr)}
 
 
+def _merge_strategist(out, state, today):
+    """Persist the strategist's stress table (added 2026-08-31).
+
+    smith-strategist was the ONLY Stage-1/2 agent with no merge rule at all. That was defensible
+    for its main deliverable -- proposals go through `add-proposal`, the sanctioned write path --
+    but it silently meant its OTHER deliverable, the six-scenario stress table, had no write path
+    anywhere. It was rebuilt from scratch every deep run, lived only in runs/<ts>/, and could not
+    be compared against the previous run even though "did the stress picture change" is the whole
+    reason for producing it repeatedly. Same shape as G50 and cycle_position.
+
+    Keeps ONE prior generation as `stress_table_prev` so the next run can diff rather than merely
+    overwrite -- the cheapest possible version of the comparison the table exists to support.
+    """
+    st = out.get("stress_table")
+    if not isinstance(st, dict) or not st.get("scenarios"):
+        return {"stress_table": None, "note": "tail carried no stress_table scenarios"}
+    scen = st.get("scenarios") or []
+    # Numbers, not prose: a row whose impact bounds are not numeric cannot be ranked or diffed,
+    # which is the entire point of structuring this. Surface such rows rather than storing them
+    # as if they were usable.
+    unusable = [x.get("scenario") for x in scen
+                if not isinstance(x.get("impact_pct_low"), (int, float))
+                or not isinstance(x.get("impact_pct_high"), (int, float))]
+    prior = state.get("stress_table")
+    if prior:
+        state["stress_table_prev"] = prior
+    st.setdefault("as_of", today)
+    state["stress_table"] = st
+    worst = min([x["impact_pct_low"] for x in scen
+                 if isinstance(x.get("impact_pct_low"), (int, float))], default=None)
+    return {"stress_table": len(scen), "worst_case_pct": worst,
+            "rows_without_numeric_impact": unusable,
+            "kept_prior_for_diff": bool(prior)}
+
+
 def _merge_tax(out, state, today):
     # smith-tax's whole tail IS the read -- there is no single `tax_read` key to lift. Store the
     # decision-bearing fields and stamp them; the full tail stays in the run dir as always.
@@ -1119,6 +1154,7 @@ MERGE_RULES = {
     "rebound": _merge_rebound,
     "cycle": _merge_cycle,
     "quality": _merge_quality,
+    "strategist": _merge_strategist,
     "tax": _merge_tax,
 }
 
@@ -2514,6 +2550,56 @@ def _report_weekly(base_dir, run_dir, today, state, freshness_rows):
     else:
         L.append("Not recorded. smith-cycle runs on the first deep review of a calendar month; "
                  "if that has passed without this being set, its output is being discarded.")
+    L.append("")
+
+    # --- stress table (added 2026-08-31, the run that gave it a structured contract) ---------
+    # A persisted key nothing reads is the same defect as no key at all, so the artefact and its
+    # reader landed together. The weekly is the right reader: this is a deep-run product and the
+    # question it answers -- how much of the book is exposed to each way the thesis can fail --
+    # is a weekly question, not a daily one.
+    stress = state.get("stress_table") or {}
+    scen = stress.get("scenarios") or []
+    L.append("## Stress table")
+    L.append("")
+    if scen:
+        anch = stress.get("anchored_to") or {}
+        worst = min([x["impact_pct_low"] for x in scen
+                     if isinstance(x.get("impact_pct_low"), (int, float))], default=None)
+        bits = [f"{k.replace('_pct','').replace('_',' ')} {v}"
+                for k, v in anch.items() if v not in (None, "")]
+        L.append(f"As of {stress.get('as_of', 'n/a')}"
+                 + (f" · anchored to {', '.join(bits)}" if bits else "") + ".")
+        L.append("")
+        L.append("| scenario | impact | most exposed | basis |")
+        L.append("|---|---|---|---|")
+        for x in sorted(scen, key=lambda r: (r.get("impact_pct_low")
+                                             if isinstance(r.get("impact_pct_low"), (int, float))
+                                             else 0)):
+            lo, hi = x.get("impact_pct_low"), x.get("impact_pct_high")
+            rng = (f"{lo:+.0f}% to {hi:+.0f}%"
+                   if isinstance(lo, (int, float)) and isinstance(hi, (int, float))
+                   else "not quantified")
+            exposed = ", ".join(x.get("most_exposed") or []) or "—"
+            basis = x.get("basis") or "—"
+            flag = " ⚠" if basis == "static_assumption" else ""
+            L.append(f"| {x.get('scenario','')} | {rng} | {exposed} | {basis}{flag} |")
+        L.append("")
+        if worst is not None:
+            L.append(f"Worst modelled single scenario: **{worst:+.0f}%** of book. These are "
+                     "independent scenarios, not additive, and a `static_assumption` basis means "
+                     "that row carries a standing rule of thumb rather than a figure re-derived "
+                     "against this run's macro strip.")
+        prev = state.get("stress_table_prev") or {}
+        if prev.get("scenarios"):
+            pw = min([x["impact_pct_low"] for x in prev["scenarios"]
+                      if isinstance(x.get("impact_pct_low"), (int, float))], default=None)
+            if pw is not None and worst is not None and pw != worst:
+                L.append("")
+                L.append(f"Worst case moved {pw:+.0f}% → {worst:+.0f}% since the previous run "
+                         f"(as of {prev.get('as_of', 'n/a')}).")
+    else:
+        L.append("Not recorded. smith-strategist emits `stress_table` on every deep run; "
+                 "if this is empty after one, its output is being discarded.")
     L.append("")
 
     # --- what has gone stale, and who owns it --------------------------------

@@ -387,6 +387,14 @@
       "evidence": null,
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "correction",
+      "text": "Ship the artefact and its reader in the same change. The strategist's six-scenario stress table was produced every deep run as a prose markdown table and had NO structured output, NO state key and NO renderer -- rebuilt from scratch each time, surviving only in runs/<ts>/, and impossible to compare against the previous run even though 'did the stress picture change' is the entire reason for repeating it. Same shape as G50 and cycle_position. Fixed 2026-08-31 in one change: a structured stress_table contract in the agent tail (numeric impact_pct_low/high so rows can be ranked and diffed, most_exposed as a ticker array, and a basis field of live|static_assumption so a reader can tell which rows are actually current), a _merge_strategist rule -- smith-strategist was the only agent with no merge rule at all -- a FRESHNESS entry so it can go stale visibly, and a weekly-report section that renders it including a worst-case-moved diff against the retained prior generation. Generalise: a persisted key nothing reads is the same defect as no key, so the persist path and the read path are one change, not two.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }
