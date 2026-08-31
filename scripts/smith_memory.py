@@ -2537,7 +2537,12 @@ def cmd_report(args):
     """Write the dated daily or weekly report. Generated from state and the compute files."""
     today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
-    rows = evaluate_freshness(state, today)
+    # freshness_root, not bare state -- the report's staleness ledger reported
+    # `proposals.scorecard` as MISSING on the first W36 run while the scorecard was present and
+    # stamped today, because that artefact lives in proposals.json and only resolves through the
+    # `proposals.` prefix. A staleness ledger that invents a missing artefact is worse than none:
+    # it sends the reader hunting for a limb that is working.
+    rows = evaluate_freshness(freshness_root(args.base_dir, state), today)
     if args.kind == "weekly":
         body = _report_weekly(args.base_dir, args.run_dir, today, state, rows)
         rel = os.path.join("reports", "weekly", f"{_iso_week(today)}.md")
