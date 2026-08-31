@@ -12,7 +12,7 @@
       "ticker": "TSM",
       "id": "P-001",
       "direction_bucket": "BUY",
-      "outcome_pct": -2.66,
+      "outcome_pct": -2.42,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -28,7 +28,7 @@
       "ticker": "LRCX",
       "id": "P-002",
       "direction_bucket": "TRIM",
-      "outcome_pct": 9.44,
+      "outcome_pct": 8.81,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -60,7 +60,7 @@
       "ticker": "VRT",
       "id": "P-004",
       "direction_bucket": "HOLD",
-      "outcome_pct": -15.64,
+      "outcome_pct": -15.62,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -77,7 +77,7 @@
       "id": "P-005",
       "direction_bucket": "BUY",
       "cluster": "AI Power/Cooling/DC Infra",
-      "outcome_pct": -15.95,
+      "outcome_pct": -15.93,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -95,7 +95,7 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-006",
       "direction_bucket": "BUY",
-      "outcome_pct": -27.92,
+      "outcome_pct": -27.93,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -111,7 +111,7 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-007",
       "direction_bucket": "BUY",
-      "outcome_pct": -8.04,
+      "outcome_pct": -8.64,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -250,7 +250,7 @@
       "note": "Executed early by the user ahead of the proposed post-FOMC window, at $1,973 vs $1,335 proposed (1.48x size).",
       "id": "P-017",
       "direction_bucket": "BUY",
-      "outcome_pct": 10.3,
+      "outcome_pct": 11.01,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -327,7 +327,7 @@
       "note": "auto-superseded 2026-07-29 -- duplicate of another open CEG BUY proposal same day",
       "id": "P-022",
       "direction_bucket": "BUY",
-      "outcome_pct": 4.94,
+      "outcome_pct": 5.06,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -360,7 +360,7 @@
         "AMD at 1.22x its ATR risk cap"
       ],
       "cluster": "AI Semis/Fabs",
-      "outcome_pct": 2.41,
+      "outcome_pct": 2.66,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -382,7 +382,7 @@
         "discretionary add -- no active breach behind it"
       ],
       "cluster": "AI Semis/Fabs",
-      "outcome_pct": -3.1,
+      "outcome_pct": -2.82,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -398,7 +398,7 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-026",
       "direction_bucket": "BUY",
-      "outcome_pct": -4.63,
+      "outcome_pct": -4.61,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -420,7 +420,7 @@
         "discretionary add -- no active breach behind it"
       ],
       "cluster": "AI Power/Cooling/DC Infra",
-      "outcome_pct": -3.33,
+      "outcome_pct": -4.81,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -436,7 +436,7 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-028",
       "direction_bucket": "TRIM",
-      "outcome_pct": -7.15,
+      "outcome_pct": -8.51,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -452,7 +452,7 @@
       "id": "P-029",
       "direction_bucket": "TRIM",
       "note": "auto-superseded 2026-08-03 -- folded into P-035 as a repeat of the same open proposal",
-      "outcome_pct": -10.21,
+      "outcome_pct": -9.88,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
       "outcome_scored_on": "2026-08-31"
@@ -6469,18 +6469,20 @@
       "pair_role": null,
       "cluster": "AI Semis/Fabs",
       "id": "P-181",
-      "priority_score": 7,
+      "priority_score": 8,
       "priority": "HIGH",
       "priority_reasons": [
         "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
         "NVDA genuinely stretched: +8.1% 1m, +6.3pp vs SMH -- real profit to take, not just a smaller loss",
-        "overbought_distribution: RSI14 70.4 > 70 (overbought); up +8.1% on the month -- real gain to protect"
+        "overbought_distribution: RSI14 70.4 > 70 (overbought); up +8.1% on the month -- real gain to protect",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "proposal_class": "housekeeping",
       "still_valid_because": [
         "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
         "NVDA genuinely stretched: +8.1% 1m, +6.3pp vs SMH -- real profit to take, not just a smaller loss",
-        "overbought_distribution: RSI14 70.4 > 70 (overbought); up +8.1% on the month -- real gain to protect"
+        "overbought_distribution: RSI14 70.4 > 70 (overbought); up +8.1% on the month -- real gain to protect",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-31",
@@ -6488,7 +6490,17 @@
       "held_on": [
         "2026-08-31"
       ],
-      "held_reason": null
+      "held_reason": null,
+      "history": [
+        {
+          "date": "2026-08-31T00:00:00Z",
+          "size_usd": 273.68,
+          "price_at_proposal": 218.94,
+          "rationale": "RSI14 70.4>70, up 8.1% on the month, comfortably inside ATR cap (preferred candidate, cap-independent by design). Trims straight to cash, helping close the 3.0%-vs-5% floor gap."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-31T00:00:00Z, still open"
     },
     {
       "action": "Buy GOOG",
@@ -6680,7 +6692,37 @@
       "date": "2026-08-31T00:00:00Z",
       "status": "open",
       "pair_id": "profit_rotation-FLTW-WDC",
-      "pair_role": "sell_leg"
+      "pair_role": "sell_leg",
+      "id": "P-188",
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "FLTW genuinely stretched: +6.2% 1m, +7.6pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "cluster": "Diversified/Regional ETF",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "FLTW genuinely stretched: +6.2% 1m, +7.6pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the profit_rotation pairing profit_rotation-FLTW-WDC is no longer live this run -- both legs retire together, never one alone",
+      "history": [
+        {
+          "date": "2026-08-31T00:00:00Z",
+          "size_usd": 311.43,
+          "price_at_proposal": 103.81,
+          "rationale": "Stretched, watch thesis (unverified) -- real profit to book, funds WDC buy leg."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-31T00:00:00Z, still open"
     },
     {
       "action": "Buy WDC",
@@ -6693,7 +6735,33 @@
       "date": "2026-08-31T00:00:00Z",
       "status": "open",
       "pair_id": "profit_rotation-FLTW-WDC",
-      "pair_role": "buy_leg"
+      "pair_role": "buy_leg",
+      "id": "P-189",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "profit_rotation: conviction 32.0 (unscored) -- laggard (-13.7pp) with a strengthening thesis -- yet to rally",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Memory/Storage",
+      "still_valid_because": [
+        "profit_rotation: conviction 32.0 (unscored) -- laggard (-13.7pp) with a strengthening thesis -- yet to rally",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the profit_rotation pairing profit_rotation-FLTW-WDC is no longer live this run -- both legs retire together, never one alone",
+      "history": [
+        {
+          "date": "2026-08-31T00:00:00Z",
+          "size_usd": 311.43,
+          "price_at_proposal": 459.0,
+          "rationale": "Laggard -13.7pp, thesis strengthening (verified PRIMARY, 8-K/10-K, FY26 rev +36%). Standalone wanted $327.20; funded to $311.43 by sell proceeds (under $555 headroom)."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-31T00:00:00Z, still open"
     },
     {
       "action": "Sell AMD",
@@ -6704,9 +6772,26 @@
       "rationale": "Laggard within AI Semis/Fabs (-2.7pp, computed), thesis watch (secondary: guide-below-consensus, debt-funded capex, strategist's own 08-15 no-further-adds ruling) -- weak-thesis laggard, dead money in this cluster; fund TER add.",
       "trigger_type": "cluster_rotation",
       "date": "2026-08-31T00:00:00Z",
-      "status": "open",
+      "status": "superseded",
       "pair_id": "cluster_rotation-AMD-TER",
-      "pair_role": "sell_leg"
+      "pair_role": "sell_leg",
+      "id": "P-190",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone",
+      "note": "auto-superseded 2026-08-03 -- folded into P-203 as a repeat of the same open proposal"
     },
     {
       "action": "Buy TER",
@@ -6717,9 +6802,24 @@
       "rationale": "Performer within AI Semis/Fabs (+2.8pp, computed), strengthening thesis (secondary), conviction 30.5 tier low -- back the performer over the laggard within the cluster.",
       "trigger_type": "cluster_rotation",
       "date": "2026-08-31T00:00:00Z",
-      "status": "open",
+      "status": "superseded",
       "pair_id": "cluster_rotation-AMD-TER",
-      "pair_role": "buy_leg"
+      "pair_role": "buy_leg",
+      "id": "P-191",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cluster_rotation: conviction 30.5 (unscored) -- performer within AI Semis/Fabs (+2.8pp), strengthening thesis"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cluster_rotation: conviction 30.5 (unscored) -- performer within AI Semis/Fabs (+2.8pp), strengthening thesis"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone",
+      "note": "auto-superseded 2026-08-03 -- folded into P-204 as a repeat of the same open proposal"
     },
     {
       "action": "Trim MRVL",
@@ -6732,7 +6832,30 @@
       "date": "2026-08-31T00:00:00Z",
       "status": "open",
       "pair_id": "cap_rotation-MRVL-AMAT",
-      "pair_role": "sell_leg"
+      "pair_role": "sell_leg",
+      "id": "P-192",
+      "priority_score": 6,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "MRVL at 1.11x its ATR risk cap",
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "MRVL genuinely stretched: +6.1% 1m, +34.1pp vs SMH -- real profit to take, not just a smaller loss",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Networking/Optics",
+      "full_cure_usd": 195.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 113.0,
+      "still_valid_because": [
+        "MRVL at 1.11x its ATR risk cap",
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "MRVL genuinely stretched: +6.1% 1m, +34.1pp vs SMH -- real profit to take, not just a smaller loss",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "MRVL drops under its ATR risk cap"
     },
     {
       "action": "Buy AMAT",
@@ -6745,7 +6868,321 @@
       "date": "2026-08-31T00:00:00Z",
       "status": "open",
       "pair_id": "cap_rotation-MRVL-AMAT",
-      "pair_role": "buy_leg"
+      "pair_role": "buy_leg",
+      "id": "P-193",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "conviction_average: conviction 34.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); RSI14 33 oversold; -3.1pp vs benchmark; named by 1 independent source(s) this run",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "conviction_average: conviction 34.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); RSI14 33 oversold; -3.1pp vs benchmark; named by 1 independent source(s) this run",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "AMAT no longer appears in this run's live conviction_average list",
+      "history": [
+        {
+          "date": "2026-08-31T00:00:00Z",
+          "size_usd": 341.47,
+          "price_at_proposal": 463.0415,
+          "rationale": "Laggard -3.1pp, thesis strengthening (verified secondary, 8-K/10-Q). Standalone conviction_average wanted $486.77, clamped to $0 by deployable cash; rotation funds $341.47 (smaller of sell proceeds vs $1,134 ATR headroom)."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-31T00:00:00Z, still open"
+    },
+    {
+      "action": "Trim NVDA",
+      "ticker": "NVDA",
+      "direction_bucket": "TRIM",
+      "size_usd": 273.68,
+      "price_at_proposal": 218.94,
+      "rationale": "RSI14 70.4>70, up 8.1% on the month, comfortably inside ATR cap (preferred candidate, cap-independent by design). Trims straight to cash, helping close the 3.0%-vs-5% floor gap.",
+      "trigger_type": "overbought_distribution",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "superseded",
+      "id": "P-194",
+      "note": "auto-superseded 2026-08-03 -- folded into P-181 as a repeat of the same open proposal"
+    },
+    {
+      "action": "Sell CIEN",
+      "ticker": "CIEN",
+      "direction_bucket": "SELL",
+      "size_usd": 341.47,
+      "price_at_proposal": 378.3412,
+      "rationale": "Stretched (names_stretched), watch thesis (unverified) -- real profit to book, funds AMAT buy leg.",
+      "trigger_type": "profit_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "dismissed_by_desk",
+      "pair_id": "profit_rotation-CIEN-AMAT",
+      "pair_role": "sell",
+      "id": "P-195",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "CIEN genuinely stretched: +4.0% 1m, +7.4pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Networking/Optics",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "CIEN genuinely stretched: +4.0% 1m, +7.4pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the profit_rotation pairing profit_rotation-CIEN-AMAT is no longer live this run -- both legs retire together, never one alone",
+      "dismiss_reason": "Duplicates the CIEN-AMAT rotation already accepted by the user today via P-186/P-187 (accepted_on 2026-08-31) -- same trade, different pair_id string (profit_rotation-CIEN-AMAT vs monday-cien-amat) so dedup didn't catch it since dedup only merges into open, not accepted, proposals. Orchestrator-caught same-day duplicate, not a user rejection.",
+      "note": "dismissed by user 2026-08-31T16:15: Duplicates the CIEN-AMAT rotation already accepted by the user today via P-186/P-187 (accepted_on 2026-08-31) -- same trade, different pair_id string (profit_rotation-CIEN-AMAT vs monday-cien-amat) so dedup didn't catch it since dedup only merges into open, not accepted, proposals. Orchestrator-caught same-day duplicate, not a stale restatement. | dismissed by desk 2026-08-31T16:16: Duplicates the CIEN-AMAT rotation already accepted by the user today via P-186/P-187 (accepted_on 2026-08-31) -- same trade, different pair_id string (profit_rotation-CIEN-AMAT vs monday-cien-amat) so dedup didn't catch it since dedup only merges into open, not accepted, proposals. Orchestrator-caught same-day duplicate, not a user rejection.",
+      "dismissed_by": "desk"
+    },
+    {
+      "action": "Buy AMAT",
+      "ticker": "AMAT",
+      "direction_bucket": "BUY",
+      "size_usd": 341.47,
+      "price_at_proposal": 463.0415,
+      "rationale": "Laggard -3.1pp, thesis strengthening (verified secondary, 8-K/10-Q). Standalone conviction_average wanted $486.77, clamped to $0 by deployable cash; rotation funds $341.47 (smaller of sell proceeds vs $1,134 ATR headroom).",
+      "trigger_type": "profit_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "superseded",
+      "pair_id": "profit_rotation-CIEN-AMAT",
+      "pair_role": "buy",
+      "id": "P-196",
+      "note": "auto-superseded 2026-08-03 -- folded into P-193 as a repeat of the same open proposal"
+    },
+    {
+      "action": "Sell FLTW",
+      "ticker": "FLTW",
+      "direction_bucket": "SELL",
+      "size_usd": 311.43,
+      "price_at_proposal": 103.81,
+      "rationale": "Stretched, watch thesis (unverified) -- real profit to book, funds WDC buy leg.",
+      "trigger_type": "profit_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "superseded",
+      "pair_id": "profit_rotation-FLTW-WDC",
+      "pair_role": "sell",
+      "id": "P-197",
+      "note": "auto-superseded 2026-08-03 -- folded into P-188 as a repeat of the same open proposal"
+    },
+    {
+      "action": "Buy WDC",
+      "ticker": "WDC",
+      "direction_bucket": "BUY",
+      "size_usd": 311.43,
+      "price_at_proposal": 459.0,
+      "rationale": "Laggard -13.7pp, thesis strengthening (verified PRIMARY, 8-K/10-K, FY26 rev +36%). Standalone wanted $327.20; funded to $311.43 by sell proceeds (under $555 headroom).",
+      "trigger_type": "profit_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "superseded",
+      "pair_id": "profit_rotation-FLTW-WDC",
+      "pair_role": "buy",
+      "id": "P-198",
+      "note": "auto-superseded 2026-08-03 -- folded into P-189 as a repeat of the same open proposal"
+    },
+    {
+      "action": "Sell NBIS",
+      "ticker": "NBIS",
+      "direction_bucket": "SELL",
+      "size_usd": 310.3,
+      "price_at_proposal": 206.87,
+      "rationale": "Stretched, watch thesis (verified secondary -- real dilution/data-center concerns) -- real profit to book, funds KLAC buy leg.",
+      "trigger_type": "profit_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "profit_rotation-NBIS-KLAC",
+      "pair_role": "sell",
+      "id": "P-199",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "NBIS genuinely stretched: +6.9% 1m, +33.8pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "proposal_class": "idea",
+      "cluster": "Compute/Hyperscaler",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "NBIS genuinely stretched: +6.9% 1m, +33.8pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the profit_rotation pairing profit_rotation-NBIS-KLAC is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "action": "Buy KLAC",
+      "ticker": "KLAC",
+      "direction_bucket": "BUY",
+      "size_usd": 310.3,
+      "price_at_proposal": 176.18,
+      "rationale": "Laggard -5.7pp, thesis strengthening (verified secondary), conviction 25.1. Also carries a STRONG DOWNTREND polarity flag alongside the strengthening thesis -- price says caution, thesis says buy; kept to pair-funded size vs $405 wanted.",
+      "trigger_type": "profit_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "profit_rotation-NBIS-KLAC",
+      "pair_role": "buy",
+      "id": "P-200",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "profit_rotation: conviction 25.1 (unscored) -- laggard (-5.7pp) with a strengthening thesis -- yet to rally"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "profit_rotation: conviction 25.1 (unscored) -- laggard (-5.7pp) with a strengthening thesis -- yet to rally"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the profit_rotation pairing profit_rotation-NBIS-KLAC is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "action": "Sell MSFT",
+      "ticker": "MSFT",
+      "direction_bucket": "SELL",
+      "size_usd": 305.96,
+      "price_at_proposal": 509.94,
+      "rationale": "Stretched, watch thesis (UNVERIFIED) -- weakest-evidenced sell leg in this batch; funds QCOM buy leg.",
+      "trigger_type": "profit_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "profit_rotation-MSFT-QCOM",
+      "pair_role": "sell",
+      "id": "P-201",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "MSFT genuinely stretched: +24.7% 1m, +15.7pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "proposal_class": "idea",
+      "cluster": "Compute/Hyperscaler",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "MSFT genuinely stretched: +24.7% 1m, +15.7pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-QCOM is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "action": "Buy QCOM",
+      "ticker": "QCOM",
+      "direction_bucket": "BUY",
+      "size_usd": 305.96,
+      "price_at_proposal": 164.4307,
+      "rationale": "Laggard -7.8pp, thesis strengthening (UNVERIFIED), conviction 21.8, no stop on file. Most discretionary pair of the five -- both legs rest on unverified thesis tags, flagged per evidence gate rather than dropped since the relative-strength gap is real and computed.",
+      "trigger_type": "profit_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "profit_rotation-MSFT-QCOM",
+      "pair_role": "buy",
+      "id": "P-202",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "profit_rotation: conviction 21.8 (unscored) -- laggard (-7.8pp) with a strengthening thesis -- yet to rally"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "profit_rotation: conviction 21.8 (unscored) -- laggard (-7.8pp) with a strengthening thesis -- yet to rally"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-QCOM is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "action": "Sell AMD",
+      "ticker": "AMD",
+      "direction_bucket": "SELL",
+      "size_usd": 280.03,
+      "price_at_proposal": 466.72,
+      "rationale": "Laggard within AI Semis/Fabs -2.7pp, watch thesis (verified secondary) -- dead money in this cluster. Directionally consistent with the strategist's original 2026-08-12 HOLD/no-further-adds call on AMD, which the 08-15 re-entry had contradicted.",
+      "trigger_type": "cluster_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "cluster_rotation-AMD-TER",
+      "pair_role": "sell",
+      "id": "P-203",
+      "history": [
+        {
+          "date": "2026-08-31T00:00:00Z",
+          "size_usd": 279.35,
+          "price_at_proposal": null,
+          "rationale": "Laggard within AI Semis/Fabs (-2.7pp, computed), thesis watch (secondary: guide-below-consensus, debt-funded capex, strategist's own 08-15 no-further-adds ruling) -- weak-thesis laggard, dead money in this cluster; fund TER add."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-31T00:00:00Z, still open",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "action": "Buy TER",
+      "ticker": "TER",
+      "direction_bucket": "BUY",
+      "size_usd": 280.03,
+      "price_at_proposal": 355.9391,
+      "rationale": "Cluster performer +2.8pp, thesis strengthening (verified secondary, 8-K/10-Q, Q3 guide above consensus), conviction 30.5. Standalone wanted $346.83; funded to $280.03 by sell proceeds (under $918 headroom).",
+      "trigger_type": "cluster_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "cluster_rotation-AMD-TER",
+      "pair_role": "buy",
+      "id": "P-204",
+      "history": [
+        {
+          "date": "2026-08-31T00:00:00Z",
+          "size_usd": 279.35,
+          "price_at_proposal": 354.97,
+          "rationale": "Performer within AI Semis/Fabs (+2.8pp, computed), strengthening thesis (secondary), conviction 30.5 tier low -- back the performer over the laggard within the cluster."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-31T00:00:00Z, still open",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cluster_rotation: conviction 30.5 (unscored) -- performer within AI Semis/Fabs (+2.8pp), strengthening thesis",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cluster_rotation: conviction 30.5 (unscored) -- performer within AI Semis/Fabs (+2.8pp), strengthening thesis",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone"
     }
   ],
   "retracted": [
@@ -6768,7 +7205,7 @@
         "missed": 4,
         "neutral": 0,
         "accuracy_pct": 20.0,
-        "avg_benefit_pct": -7.54
+        "avg_benefit_pct": -7.87
       },
       "BUY": {
         "n": 12,
@@ -6776,7 +7213,7 @@
         "missed": 7,
         "neutral": 0,
         "accuracy_pct": 41.7,
-        "avg_benefit_pct": -2.98
+        "avg_benefit_pct": -3.01
       },
       "HOLD": {
         "n": 2,
@@ -6784,7 +7221,7 @@
         "missed": 2,
         "neutral": 0,
         "accuracy_pct": 0.0,
-        "avg_benefit_pct": -8.96
+        "avg_benefit_pct": -8.95
       }
     },
     "overall": {
@@ -6793,7 +7230,7 @@
       "missed": 13,
       "neutral": 0,
       "accuracy_pct": 31.6,
-      "avg_benefit_pct": -4.81
+      "avg_benefit_pct": -4.92
     },
     "scored_count": 19,
     "quarantined_anchor_review": 1,

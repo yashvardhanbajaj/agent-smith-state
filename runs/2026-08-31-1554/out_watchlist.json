@@ -1,0 +1,11 @@
+{"watchlist_setups":[
+ {"ticker":"CORZ","type":"oversold_bounce","upside_pct":124.9,"pos":0.19},
+ {"ticker":"PENG","type":"target_gap","upside_pct":43.4,"pos":0.45},
+ {"ticker":"MU","type":"target_gap","upside_pct":38.4,"pos":0.72},
+ {"ticker":"AVGO","type":"target_gap","upside_pct":29.9,"pos":0.39},
+ {"ticker":"NVDA","type":"target_gap","upside_pct":32.7,"pos":0.74},
+ {"ticker":"ASML","type":"target_gap","upside_pct":20.9,"pos":0.76},
+ {"ticker":"GOOG","type":"target_gap","upside_pct":18.8,"pos":0.69}],
+ "earnings_calendar_updates":{},
+ "watchlist_scan_cursor":85,
+ "data_quality":["Prior JSON tail not included in this run's slice, so the 'always re-scan names with an existing setup' coverage rule could not be applied -- only the rotating 15-name slice (idx 70-84) plus AVGO/CIEN earnings were checked.","yfinance get_earnings_calendar(2026-08-31..2026-09-07) returned empty -- treated as a data gap, not confirmation of no earnings; relied on data_cache.earnings_calendar instead.","MRVL earnings_calendar entry (2026-08-27) is now in the past -- stale cache entry, flagging for smith-earnings to verify/refresh (date only, no verdict rendered here).","CORZ and GOOG setups cite target-price data only; no fresh news segment was returned for either in this pull."]}
