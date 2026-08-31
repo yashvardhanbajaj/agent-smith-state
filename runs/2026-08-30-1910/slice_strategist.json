@@ -1,6 +1,6 @@
 {
   "mode": "deep",
-  "today": "2026-08-30",
+  "today": "2026-08-31",
   "market_session": "post-close",
   "gate_classification": "ESCALATING",
   "macro": {
@@ -59,7 +59,7 @@
   "output_file": "runs/2026-08-30-1910/smith-strategist-output.md",
   "holdings_path": "runs/2026-08-30-1910/holdings.json",
   "read_these_files": {
-    "thesis": "/Users/yb/Claude/AgentSmith/runs/2026-08-30-1910/shared/thesis.f792f9a6.json",
+    "thesis": "/Users/yb/Claude/AgentSmith/runs/2026-08-30-1910/shared/thesis.bd587b0e.json",
     "preferences": "/Users/yb/Claude/AgentSmith/runs/2026-08-30-1910/shared/preferences.b6a7f928.json",
     "open_flags": "/Users/yb/Claude/AgentSmith/runs/2026-08-30-1910/shared/open_flags.7460550d.json",
     "drift": "/Users/yb/Claude/AgentSmith/runs/2026-08-30-1910/compute_drift.json",
@@ -73,7 +73,6 @@
   },
   "thesis_tiering": {
     "full_text": [
-      "AMAT",
       "AMD",
       "AMKR",
       "AMZN",
@@ -89,30 +88,31 @@
       "INTC",
       "IREN",
       "KLAC",
-      "LITE",
       "MRVL",
       "MSFT",
       "MU",
       "NBIS",
+      "NVDA",
       "SMCI",
       "STM",
-      "TSM",
-      "VRT",
-      "WDC"
+      "VRT"
     ],
     "status_only": [
+      "AMAT",
       "BE",
       "COHR",
       "GEV",
       "GLW",
+      "LITE",
       "LRCX",
-      "NVDA",
       "QCOM",
       "SKHY",
-      "TER"
+      "TER",
+      "TSM",
+      "WDC"
     ],
     "reason_full": "watch/broken status, a BEARISH signal bucket, or an open proposal",
-    "note": "26 of 35 entries carry full text and both evidence arrays; the remaining 9 are quiet names reduced to status. This is a TRIM, not an absence of evidence -- if you need to revise a status-only verdict, say so and ask for it."
+    "note": "23 of 35 entries carry full text and both evidence arrays; the remaining 12 are quiet names reduced to status. This is a TRIM, not an absence of evidence -- if you need to revise a status-only verdict, say so and ask for it."
   },
   "sector_map": {
     "NVDA": "AI Semis/Fabs",
@@ -151,5 +151,5 @@
     "SMCI": "Compute/Hyperscaler OEM",
     "AMKR": "AI Semis/Fabs"
   },
-  "inputs_digest": "ae2e5b028271"
+  "inputs_digest": "350bb8d1096c"
 }

@@ -1,0 +1,177 @@
+{
+ "policy_draft": null,
+ "proposals": [
+  {
+   "action": "TRIM",
+   "ticker": "NVDA",
+   "size_usd": 271.94,
+   "price_at_proposal": 217.55,
+   "rationale": "RSI14 70.4 overbought (computed), +8.1% on the month (computed) -- profit-take independent of the ATR cap; corroborated by catalyst_threat (unverified CDS story) but sized off overbought_distribution, not the catalyst.",
+   "trigger_type": "overbought_distribution",
+   "trigger_bucket": "housekeeping",
+   "pair_id": null,
+   "pair_role": null,
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 1,
+    "computed": 2,
+    "unverified": 1
+   }
+  },
+  {
+   "action": "TRIM",
+   "ticker": "IREN",
+   "size_usd": 212.7,
+   "price_at_proposal": 35.45,
+   "rationale": "STRONG DOWNTREND signal polarity (computed), conviction_score -4.0 tier none (computed); thesis is watch not broken -- sized off the technical trigger given the thesis is genuinely contested (3-for/3-against) and this is IREN's third stop-out-prone entry.",
+   "trigger_type": "trend_breakdown",
+   "trigger_bucket": "housekeeping",
+   "pair_id": null,
+   "pair_role": null,
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 2,
+    "unverified": 0
+   }
+  },
+  {
+   "action": "SELL",
+   "ticker": "FLTW",
+   "size_usd": 310.32,
+   "price_at_proposal": 100.41,
+   "rationale": "Stretched (beat SMH, up on month), thesis watch/unverified and thin -- book the modest real gain, fund WDC add.",
+   "trigger_type": "profit_rotation",
+   "trigger_bucket": "idea",
+   "pair_id": "profit_rotation-FLTW-WDC",
+   "pair_role": "sell_leg",
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 1,
+    "unverified": 1
+   }
+  },
+  {
+   "action": "BUY",
+   "ticker": "WDC",
+   "size_usd": 310.32,
+   "price_at_proposal": 459.45,
+   "rationale": "Laggard -13.65pp vs SMH (computed) with a strengthening thesis (verified: primary) -- yet to rally; conviction 32.0 tier low; stop $395.59 clears blended entry $461.84.",
+   "trigger_type": "profit_rotation",
+   "trigger_bucket": "idea",
+   "pair_id": "profit_rotation-FLTW-WDC",
+   "pair_role": "buy_leg",
+   "size_wanted_usd": 326.41,
+   "clamped_by": "deployable cash (cleared by FLTW proceeds)",
+   "stop_price_usd": 395.5864,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 1,
+    "computed": 2,
+    "unverified": 0
+   }
+  },
+  {
+   "action": "SELL",
+   "ticker": "AMD",
+   "size_usd": 279.35,
+   "price_at_proposal": null,
+   "rationale": "Laggard within AI Semis/Fabs (-2.7pp, computed), thesis watch (secondary: guide-below-consensus, debt-funded capex, strategist's own 08-15 no-further-adds ruling) -- weak-thesis laggard, dead money in this cluster; fund TER add.",
+   "trigger_type": "cluster_rotation",
+   "trigger_bucket": "idea",
+   "pair_id": "cluster_rotation-AMD-TER",
+   "pair_role": "sell_leg",
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 1,
+    "unverified": 0
+   }
+  },
+  {
+   "action": "BUY",
+   "ticker": "TER",
+   "size_usd": 279.35,
+   "price_at_proposal": 354.97,
+   "rationale": "Performer within AI Semis/Fabs (+2.8pp, computed), strengthening thesis (secondary), conviction 30.5 tier low -- back the performer over the laggard within the cluster.",
+   "trigger_type": "cluster_rotation",
+   "trigger_bucket": "idea",
+   "pair_id": "cluster_rotation-AMD-TER",
+   "pair_role": "buy_leg",
+   "size_wanted_usd": 345.99,
+   "clamped_by": "deployable cash (cleared by AMD proceeds)",
+   "stop_price_usd": 310.3858,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 2,
+    "unverified": 0
+   }
+  },
+  {
+   "action": "TRIM",
+   "ticker": "MRVL",
+   "size_usd": 220.0,
+   "price_at_proposal": null,
+   "rationale": "Over ATR cap (computed, cap_multiple 1.118, headroom -$206.54), derisk queue rank #2 (fragility 72.2 computed). Thesis strengthening (secondary) but evidence_against flags CEO insider selling ahead of the 08-27 print -- partial trim into strength, not a thesis reversal; fund AMAT add.",
+   "trigger_type": null,
+   "trigger_bucket": "housekeeping",
+   "pair_id": "cap_rotation-MRVL-AMAT",
+   "pair_role": "sell_leg",
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 2,
+    "unverified": 0
+   }
+  },
+  {
+   "action": "BUY",
+   "ticker": "AMAT",
+   "size_usd": 220.0,
+   "price_at_proposal": 461.67,
+   "rationale": "RSI14 33.3 oversold (computed), thesis strengthening (secondary), conviction 34.3 tier low; size_wanted $485.60 was clamped to $0 by cash in the raw trigger -- this pair supplies the funding. Blended entry $486.58 clears the $415.87 stop.",
+   "trigger_type": "conviction_average",
+   "trigger_bucket": "idea",
+   "pair_id": "cap_rotation-MRVL-AMAT",
+   "pair_role": "buy_leg",
+   "size_wanted_usd": 485.6,
+   "clamped_by": "deployable cash (partially cleared by MRVL proceeds; full size still unfunded)",
+   "stop_price_usd": 415.8723,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 3,
+    "unverified": 0
+   }
+  }
+ ],
+ "scorecard_read": "Stored scorecard as_of 2026-08-31, n=19 scored (110 not yet 30d, 1 quarantined -- P-011 excluded). TRIM/SELL 20.0% (n=5, avg -7.54%), BUY 41.7% (n=12, avg -2.98%), HOLD 0.0% (n=2, not evaluable at n<3), overall 31.6% (n=19, avg -4.81%). Neither TRIM nor BUY clears the >=40%-over->=5-entries de-emphasis bar with confidence (TRIM is below it but thin at n=5); no bucket de-emphasized this run. TRIM is this desk's demonstrably weakest limb and both prior evidence-gate failures were TRIM-side -- this run's two standalone trims (NVDA, IREN) and three rotation sell legs (FLTW, AMD, MRVL) were held to a higher bar accordingly: each leads on a computed trigger or verified/secondary thesis item rather than an unverified claim, and contested theses (IREN, AMKR-omitted, MRVL) are named as contested rather than treated as settled.",
+ "deemphasize_buckets": [],
+ "data_quality": [
+  "AMZN and GOOG oversold_reversion BUY signals directly conflict with their catalyst_threat TRIM rows -- neither side proposed for either name; AMZN additionally carries a user-HELD trim (P-178) so re-litigating it needs stronger evidence than the unverified CDS story supplies.",
+  "AVGO oversold_reversion BUY genuinely unfunded and deliberately staged (per instruction) ahead of its 2026-09-02 print -- not proposed.",
+  "AMKR trend_breakdown is a real computed signal (conviction -8.0) but its thesis evidence is contested (BofA/UBS Buy initiations vs guide-below-consensus); not sized this run given the desk's weak TRIM record and two higher-conviction trims already proposed.",
+  "RMBS/TLN/NRG entry_setup triggers are live but blocked on missing live price/ATR this run -- cannot size responsibly, not proposed.",
+  "profit_rotation-CIEN-AMAT and profit_rotation-MSFT-KLAC sell legs (CIEN, MSFT) duplicate already-accepted P-186/P-164 -- skipped to avoid double-counting proceeds.",
+  "No LTCG deferral proposed: earliest open lot is 2026-07-15, 24-month boundary is mid-2028 -- nothing near the window this run.",
+  "Drawdown -8.95% (total_book) is close to the 8% policy warn line even though risk_off_status reads normal -- worth watching next run, not actioned here since the computed status has not flipped.",
+  "Stress table's rate-sensitive rows are static-assumption, not independently macro-refreshed this run beyond the supplied 10-yr/VIX/DXY/Fed strip -- flagged per the anchoring instruction."
+ ]
+}

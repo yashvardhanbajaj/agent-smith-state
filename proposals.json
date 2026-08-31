@@ -6668,6 +6668,183 @@
       "retires_when": "AMAT no longer appears in this run's live conviction_average list",
       "accepted_on": "2026-08-31",
       "accepted_reason": null
+    },
+    {
+      "action": "Sell FLTW",
+      "ticker": "FLTW",
+      "direction_bucket": "SELL",
+      "size_usd": 310.32,
+      "price_at_proposal": 100.41,
+      "rationale": "Stretched (beat SMH, up on month), thesis watch/unverified and thin -- book the modest real gain, fund WDC add.",
+      "trigger_type": "profit_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "profit_rotation-FLTW-WDC",
+      "pair_role": "sell_leg",
+      "id": "P-188",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "FLTW genuinely stretched: +6.2% 1m, +7.6pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "proposal_class": "idea",
+      "cluster": "Diversified/Regional ETF",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "FLTW genuinely stretched: +6.2% 1m, +7.6pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the profit_rotation pairing profit_rotation-FLTW-WDC is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "action": "Buy WDC",
+      "ticker": "WDC",
+      "direction_bucket": "BUY",
+      "size_usd": 310.32,
+      "price_at_proposal": 459.45,
+      "rationale": "Laggard -13.65pp vs SMH (computed) with a strengthening thesis (verified: primary) -- yet to rally; conviction 32.0 tier low; stop $395.59 clears blended entry $461.84.",
+      "trigger_type": "profit_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "profit_rotation-FLTW-WDC",
+      "pair_role": "buy_leg",
+      "id": "P-189",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "profit_rotation: conviction 32.0 (unscored) -- laggard (-13.7pp) with a strengthening thesis -- yet to rally"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Memory/Storage",
+      "still_valid_because": [
+        "profit_rotation: conviction 32.0 (unscored) -- laggard (-13.7pp) with a strengthening thesis -- yet to rally"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the profit_rotation pairing profit_rotation-FLTW-WDC is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "action": "Sell AMD",
+      "ticker": "AMD",
+      "direction_bucket": "SELL",
+      "size_usd": 279.35,
+      "price_at_proposal": null,
+      "rationale": "Laggard within AI Semis/Fabs (-2.7pp, computed), thesis watch (secondary: guide-below-consensus, debt-funded capex, strategist's own 08-15 no-further-adds ruling) -- weak-thesis laggard, dead money in this cluster; fund TER add.",
+      "trigger_type": "cluster_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "cluster_rotation-AMD-TER",
+      "pair_role": "sell_leg",
+      "id": "P-190",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "action": "Buy TER",
+      "ticker": "TER",
+      "direction_bucket": "BUY",
+      "size_usd": 279.35,
+      "price_at_proposal": 354.97,
+      "rationale": "Performer within AI Semis/Fabs (+2.8pp, computed), strengthening thesis (secondary), conviction 30.5 tier low -- back the performer over the laggard within the cluster.",
+      "trigger_type": "cluster_rotation",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "cluster_rotation-AMD-TER",
+      "pair_role": "buy_leg",
+      "id": "P-191",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cluster_rotation: conviction 30.5 (unscored) -- performer within AI Semis/Fabs (+2.8pp), strengthening thesis"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cluster_rotation: conviction 30.5 (unscored) -- performer within AI Semis/Fabs (+2.8pp), strengthening thesis"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "action": "Trim MRVL",
+      "ticker": "MRVL",
+      "direction_bucket": "TRIM",
+      "size_usd": 220.0,
+      "price_at_proposal": null,
+      "rationale": "Over ATR cap (computed, cap_multiple 1.118, headroom -$206.54), derisk queue rank #2 (fragility 72.2 computed). Thesis strengthening (secondary) but evidence_against flags CEO insider selling ahead of the 08-27 print -- partial trim into strength, not a thesis reversal; fund AMAT add.",
+      "trigger_type": null,
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "cap_rotation-MRVL-AMAT",
+      "pair_role": "sell_leg",
+      "id": "P-192",
+      "priority_score": 6,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "MRVL at 1.12x its ATR risk cap",
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "MRVL genuinely stretched: +6.1% 1m, +34.1pp vs SMH -- real profit to take, not just a smaller loss",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Networking/Optics",
+      "full_cure_usd": 207.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 107.0,
+      "still_valid_because": [
+        "MRVL at 1.12x its ATR risk cap",
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "MRVL genuinely stretched: +6.1% 1m, +34.1pp vs SMH -- real profit to take, not just a smaller loss",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "MRVL drops under its ATR risk cap"
+    },
+    {
+      "action": "Buy AMAT",
+      "ticker": "AMAT",
+      "direction_bucket": "BUY",
+      "size_usd": 220.0,
+      "price_at_proposal": 461.67,
+      "rationale": "RSI14 33.3 oversold (computed), thesis strengthening (secondary), conviction 34.3 tier low; size_wanted $485.60 was clamped to $0 by cash in the raw trigger -- this pair supplies the funding. Blended entry $486.58 clears the $415.87 stop.",
+      "trigger_type": "conviction_average",
+      "date": "2026-08-31T00:00:00Z",
+      "status": "open",
+      "pair_id": "cap_rotation-MRVL-AMAT",
+      "pair_role": "buy_leg",
+      "id": "P-193",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "conviction_average: conviction 34.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); RSI14 33 oversold; -3.1pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "conviction_average: conviction 34.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); RSI14 33 oversold; -3.1pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "AMAT no longer appears in this run's live conviction_average list"
     }
   ],
   "retracted": [

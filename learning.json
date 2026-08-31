@@ -379,6 +379,14 @@
       "evidence": null,
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "correction",
+      "text": "An agent's output contract must match the write path that consumes it. smith-strategist's tail specified proposals with an 'action' field filled with a bare direction word (TRIM), while add-proposal -- the only sanctioned write path -- requires 'direction' and builds 'action' itself precisely so a row can never render as SELL SELL MSFT. Every leg of the 2026-08-31 batch would have failed the shape check, and all 8 had to be hand-translated, which is exactly the hand-assembly add-proposal was written to eliminate. The agent .md and the command had drifted apart with nothing testing the join. The same run also re-proposed an NVDA trim already HELD and an IREN trim already ACCEPTED at a larger size, despite the dispatch naming both. Generalise: when a tool is introduced as THE sanctioned write path, update the emitting agents' tail schemas in the same change, and state live accepted/held/dismissed rows as exclusions the agent must honour, not as context.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }
