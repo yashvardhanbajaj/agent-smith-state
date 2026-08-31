@@ -363,6 +363,14 @@
       "evidence": null,
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "correction",
+      "text": "A correct safety guard plus a structurally incomplete input equals a permanent, invisible deadlock. cmd_score refuses to shrink the scorecard (right -- it saved 19 rows from an empty-prices probe on 2026-08-30). But the orchestrator's price source is holdings.json, which by construction holds only CURRENT holdings, while 6 of the 19 scorecard rows reference exited names, watchlist names and GOOGL against a book holding GOOG. So score could only ever grade 14 of 19, the guard refused every time, and the scorecard froze at 2026-08-29 with nothing reporting it -- it was the one decision-bearing artefact absent from the FRESHNESS table. Unblocked by fetching the 6 non-held quotes (20 rows scored); prevented by adding proposals.scorecard to FRESHNESS via a freshness_root() that exposes proposals.json. Generalise: whenever a guard refuses, ask what supplies its input and whether that source can EVER satisfy it -- and put anything a guard can freeze under a freshness stamp.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

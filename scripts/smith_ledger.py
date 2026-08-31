@@ -296,6 +296,35 @@ def cmd_lots(args):
                  "mismatches": sorted(mismatches, key=lambda m: -abs(m["delta"])),
                  "orphaned_positions": sorted(orphans, key=lambda o: -o["lots_sum"])}
 
+    # --write-if-clean: the sanctioned way to keep lots.json current automatically (added
+    # 2026-08-31, lots-engine cutover formally adopted). The cutover itself was already de facto
+    # complete -- lots.json has carried this engine's own `_rebuilt` header since 2026-08-29, and
+    # a fresh run reproduces it exactly: 35/35 tickers, 74/74 lots, identical qty/date/price, all
+    # 74 retaining email_confirmed provenance, reconciling 35/35 against broker quantities with
+    # zero mismatches, orphans or phantom shorts. What was missing was not confidence in the
+    # engine but any code path that RE-RAN it, so lots.json drifted from trades.json until a
+    # human remembered -- the same write-path-with-no-refresh shape as the dark technical caches.
+    #
+    # Reconcile-FIRST, never a blind auto-write. The engine faithfully propagates whatever
+    # trades.json says, and G83 is live evidence the trade record can carry a wrong date (BX
+    # dated 2026-08-21 there against 2026-08-24 in state). So this writes ONLY when the rebuild
+    # reconciles cleanly against broker quantities, and otherwise leaves the existing file
+    # untouched and says why -- a silent overwrite on a bad trade record is exactly how the P&L
+    # spine gets corrupted, and that spine is where every serious incident in this system has
+    # lived (G3, G64, G71).
+    write_blocked = None
+    if getattr(args, "write_if_clean", False):
+        if recon is None:
+            write_blocked = ("--write-if-clean requires --holdings: without broker quantities "
+                             "there is nothing to reconcile against, and an unreconciled "
+                             "rebuild must never overwrite the lots spine")
+        elif recon["mismatches"] or recon["orphaned_positions"] or shorts:
+            write_blocked = (f"reconciliation not clean -- {len(recon['mismatches'])} mismatch(es), "
+                             f"{len(recon['orphaned_positions'])} orphan(s), {len(shorts)} phantom "
+                             f"short(s). lots.json left exactly as it was; fix trades.json first.")
+        else:
+            args.write = True
+
     written = None
     if args.write:
         path = os.path.join(args.base_dir, "lots.json")
@@ -317,6 +346,7 @@ def cmd_lots(args):
           "reconciliation": recon,
           "warnings": warnings,
           "written": written,
+          "write_blocked": write_blocked,
           "note": ("phantom_shorts are sells/conversions that consumed more than the record shows "
                    "arriving -- surfaced rather than clamped to zero. A non-empty list means the "
                    "trade record is missing share-creating events (see G68/G71).")})

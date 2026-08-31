@@ -1353,6 +1353,11 @@ def cmd_pipeline(args):
     # (stage, required input files, "emptiness" probe on its own output)
     STAGES = [
         ("freshness",   [],                                          lambda d: d.get("artefacts")),
+        # `lots` runs BEFORE book, which consumes lots.json for its LTCG/basis work. Added to
+        # the pipeline 2026-08-31: the engine was trusted and adopted, but nothing re-ran it,
+        # so the lots spine drifted from trades.json until a human remembered. Writes only when
+        # the rebuild reconciles cleanly against broker quantities (see cmd_lots).
+        ("lots",        ["holdings.json"],                          lambda d: d.get("total_lots")),
         ("book",        ["holdings.json"],                          lambda d: d.get("value_usd")),
         ("universe",    ["holdings.json"],                          lambda d: d.get("total")),
         ("risk",        ["compute_book.json"],                      lambda d: d.get("positions")),
@@ -1384,6 +1389,10 @@ def cmd_pipeline(args):
             cmd += ["--today", args.today]
         if name == "book" and args.lots:
             cmd += ["--lots", args.lots]
+        if name == "lots":
+            # cmd_lots takes --holdings, not --run-dir; strip the run-dir the loop added.
+            cmd = [c for c in cmd if c not in ("--run-dir", run_dir)]
+            cmd += ["--holdings", os.path.join(run_dir, "holdings.json"), "--write-if-clean"]
 
         proc = subprocess.run(cmd, capture_output=True, text=True)
         if proc.returncode != 0:
@@ -3156,6 +3165,10 @@ def main():
     sp.add_argument("--holdings", default=None,
                     help="a run's holdings.json, to reconcile lot sums against broker quantities")
     sp.add_argument("--write", action="store_true", help="write lots.json (default: dry run)")
+    sp.add_argument("--write-if-clean", action="store_true",
+                    help="write lots.json ONLY if the rebuild reconciles cleanly against the "
+                         "--holdings broker quantities (no mismatches, orphans or phantom "
+                         "shorts). Requires --holdings. This is what the pipeline uses.")
 
     sp = sub.add_parser("maxpain", help="max-pain + put/call OI ratio from a saved options chain (G18)")
     sp.add_argument("--chain", required=True, help="JSON chain file: {underlyingPrice, data:{expiry:{calls,puts}}}")

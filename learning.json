@@ -371,6 +371,14 @@
       "evidence": null,
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "calibration",
+      "text": "Retire an optimisation by measuring it, not by arguing about it. smith-rebound's pre-open priming self-schedule was retired 2026-08-31 on three numbers: rebound_prime.json last written 2026-07-17 (45 days, 31 ledger-d runs, never refreshed), zero smith-rebound-primer tasks ever created per list_scheduled_tasks, and the agent's own Step 0 requiring the cache be dated TODAY -- so the measured benefit was not small, it was structurally zero. The cost was a heat-check, self-scheduling under four containment rules, a hygiene step and a self-contained prompt template. The agent itself was kept: it fired on correction_state as recently as 2026-08-30. Generalise: before defending a caching or priming layer, check whether its artefact has actually been written recently and whether its own freshness precondition could ever be satisfied -- a cache that can never be fresh enough to use is pure cost.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

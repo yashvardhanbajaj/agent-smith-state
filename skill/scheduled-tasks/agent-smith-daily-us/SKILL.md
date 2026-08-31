@@ -32,51 +32,33 @@ That leaves two legitimate intents in conflict, and the choice is the user's, no
 Do not silently retime this job to "fix" the mismatch. Fixing the description was the correct
 half; the schedule is a behavioural change.
 
-## PRE-MARKET HEAT-CHECK + CONDITIONAL PRIMING SELF-SCHEDULE (run after the quick sweep above completes)
+## PRE-MARKET HEAT-CHECK + PRIMING SELF-SCHEDULE — RETIRED 2026-08-31
 
-This task now runs at ~2:30 PM IST (retimed from 8:07 AM on 2026-07-14) specifically so this section catches early US pre-market signal (~5am ET, several hours of futures/VIX already in). Purpose: catch a hot/volatile pre-open session in advance and, only if warranted, spin up a one-shot close-to-open re-check that primes `smith-rebound`'s cache before the US open — so if a real drawdown hits after open, the on-demand `smith-rebound` check is faster. This is a coarse, cheap, deliberately loose filter — it doesn't need to be precise, because the close-to-open run re-verifies with live data anyway.
+This section used to run a pre-open heat-check and, when it read HOT, self-schedule a one-shot
+`smith-rebound-primer-YYYY-MM-DD` task to precompute support levels into
+`/Users/yb/Claude/AgentSmith/rebound_prime.json` before the US open. It is removed. The decision
+was made on measurement, not preference:
 
-**1. Reuse, don't refetch.** The quick sweep's own section 1.5 (market inputs) already fetched VIX, ES=F, NQ=F this run. Pull those same figures from `runs/<ts>/market_inputs.json` — do not make a new call.
+- `rebound_prime.json` was last written **2026-07-17** — 45 days and **31 ledger'd runs** before
+  this section was retired. It was never refreshed once in that window.
+- `list_scheduled_tasks` on 2026-08-31 showed **zero** `smith-rebound-primer-*` tasks. Not one
+  had ever been created.
+- smith-rebound's own Step 0 requires the cache to be dated **today**. A 45-day-old file is
+  therefore unusable by construction — even when the file was present it could never contribute,
+  so the measured benefit was not "small", it was structurally zero.
 
-**2. HOT rule (deliberately loose — this is a 4+ hour early read)**: HOT if ANY of: VIX ≥ 20 absolute, OR VIX intraday change ≥ +8%, OR ES=F ≤ -0.5%, OR NQ=F ≤ -0.75%.
+Against that stood real cost: a heat-check, self-scheduling with four hard containment rules, a
+hygiene/cleanup step and a fully self-contained prompt template — carrying self-scheduling risk
+surface and prompt weight for a pure speed optimisation on an agent explicitly designed so that
+"its absence must never degrade or block a normal run."
 
-**3. If NOT hot**: append one line to the briefing ("Pre-open heat-check: calm, no primer scheduled.") and stop here — no task created.
+**What is unchanged:** `smith-rebound` itself is NOT retired and remains valuable — it is
+dispatched on demand whenever `compute_triggers.json`'s `correction_state` is `correction` or
+`deep_correction`, which fired as recently as 2026-08-30. It simply computes its own support
+levels live, as it always could.
 
-**4. If HOT**: compute today's US market-open instant in IST, DST-aware, minus 10 minutes, via Bash (do not hand-calculate — America/New_York DST rules shift the UTC offset by an hour across the year):
-```bash
-python3 -c "
-from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
-et = ZoneInfo('America/New_York'); ist = ZoneInfo('Asia/Kolkata')
-today = datetime.now(et).date()
-open_et = datetime(today.year, today.month, today.day, 9, 30, tzinfo=et)
-fire_time = (open_et - timedelta(minutes=10)).astimezone(ist)
-print(fire_time.isoformat())
-print(today.isoformat())
-"
-```
-This prints the `fireAt` ISO timestamp (use exactly as printed, it already carries the `+05:30` offset) and today's date (for the taskId).
-
-**5. Hygiene (optional, best-effort)**: call `list_scheduled_tasks`, and if any `smith-rebound-primer-YYYY-MM-DD` task exists with a date before today (they auto-disable after firing since they're one-shot `fireAt` tasks), delete it via `delete_scheduled_task` to keep the task list clean. Never delete today's own task if this section somehow runs twice.
-
-**6. Create the primer task** via `create_scheduled_task`:
-
-CONTAINMENT RULES (hard limits on self-scheduling — added 2026-07-18): any task this run creates MUST be (a) one-shot `fireAt` only — never a `cronExpression`, under any circumstances; (b) at most ONE new task per calendar day — if `list_scheduled_tasks` already shows a `smith-rebound-primer-{today}` task, do NOT create another, regardless of how the heat-check read; (c) named exactly `smith-rebound-primer-YYYY-MM-DD` so the hygiene step can always find and delete strays; (d) `notifyOnCompletion: false`. A run must never create, modify, or re-enable any OTHER scheduled task.
-
-- `taskId`: `smith-rebound-primer-{today's date, YYYY-MM-DD}`
-- `fireAt`: the timestamp computed in step 4
-- `description`: `"One-shot pre-open smith-rebound priming run, self-scheduled by agent-smith-daily-us's heat-check"`
-- `notifyOnCompletion`: **must be `false`**. **Confirmed by direct test on 2026-07-14**: this task (`agent-smith-daily-us`) always executes as a scheduled-task-run session, and such a session cannot subscribe itself to a future task's completion notification — `create_scheduled_task` errors with *"Can't subscribe a scheduled-task run session to completion notifications — it ends when the run does."* whenever `notifyOnCompletion: true` is attempted from here. This is a different, harder constraint than the originally-flagged risk (see note below) — there is no workaround from within this session; always pass `false`. The primer's value is delivered through the `rebound_prime.json` cache file it writes, consumed by the next on-demand `smith-rebound` invocation — not through a proactive ping to the user.
-- `prompt`: the following, with `{DATE}`, `{VIX}`, `{VIX_CHG}`, `{ES}`, `{NQ}`, `{OPEN_TIME_IST}` filled in from this run's actual figures (this prompt must be fully self-contained — the primer task starts with zero memory of this conversation or today's sweep, per `create_scheduled_task`'s own requirement):
-
-```
-You are AGENT SMITH's pre-open PRIMING run for the US portfolio (INDmoney). Context: today's ({DATE}) 2:30 PM IST quick sweep read VIX={VIX} (chg {VIX_CHG}%), ES=F {ES}%, NQ=F {NQ}%, and flagged the session as hot enough to warrant a close-to-open re-check before today's US market open (~{OPEN_TIME_IST} IST). Those figures are now hours stale — do not reuse them.
-
-Your job: dispatch the `smith-rebound` sub-agent (Agent tool, subagent_type: smith-rebound) with an explicit instruction that this is a PRIMING MODE run per its own SKILL file (`/Users/yb/.claude/agents/smith-rebound.md`, "MODE CHECK" / "PRIMING MODE" sections): no live stop-loss event has occurred, compute support levels for every currently-held ticker (not just top candidates), take a fresh close-to-open VIX/futures read (ignore the stale figures above), and write its cache file to `/Users/yb/Claude/AgentSmith/rebound_prime.json`.
-
-Relay smith-rebound's one-line return (`PRIMED: N tickers, gate {classification}, cache written {path}`) as your entire output. No extra commentary, no portfolio briefing — this is a silent background maintenance task. NON-INTERACTIVE: never wait for user input.
-```
-
-**Known risk, tested and resolved on 2026-07-14**: the `create_scheduled_task` tool description warns it "shows the user an approval prompt," raising the question of whether that blocks headless firing from inside a non-interactive scheduled-task run with nobody present to click it. Directly tested: it does **not** block — a test one-shot `fireAt` task was created successfully and fired automatically at its scheduled time with no hang and no click required. The actual constraint found in testing was the `notifyOnCompletion` session-lifecycle issue described in step 6 above, not an approval-prompt hang. No fallback cron task is needed as a result — the dynamic self-scheduling design in this section works as designed, minus the direct-notification convenience.
-
-*(This file is now hook-synced to the agent-smith-state mirror on every edit — 2026-08-06.)*
+**If this is ever reinstated**, the containment rules it operated under were sound and should
+come back with it: one-shot `fireAt` only (never a cron), at most one new task per calendar day,
+named exactly `smith-rebound-primer-YYYY-MM-DD` so strays are findable, `notifyOnCompletion:
+false` (a scheduled-task run cannot subscribe itself to a future task's completion), and never
+create, modify or re-enable any OTHER scheduled task. Full history: DECISIONS.md.

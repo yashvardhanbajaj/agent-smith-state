@@ -27,7 +27,7 @@ Target **≤8 tool calls and <90 seconds**. If you catch yourself reaching for a
 
 ## INPUTS — self-sufficient, fixed call list
 
-**Step 0 — cache check (local read, not counted against the call budget).** Before anything else, check `/Users/yb/Claude/AgentSmith/rebound_prime.json`. If it exists AND its `date` field is today's date AND its `ts` shows it was written earlier today: load `support_levels` (per-ticker `support_usd`/`secondary_support_usd`) and `news_context` from it. For any ticker the cache covers, skip the equivalent live fetch in step 6 below and reuse the cached level directly, citing `"source":"prime_cache"` in that proposal's provenance. If the file is absent, its date isn't today, or it otherwise looks stale, proceed exactly as normal — no cache, no error, fully self-sufficient either way. This cache is the speed win from the pre-market priming pass; its absence must never degrade or block a normal run.
+**Step 0 — no cache to check (2026-08-31).** This agent used to read a pre-open `rebound_prime.json` built by `agent-smith-daily-us`'s heat-check. That priming self-schedule is retired: the cache was last written 2026-07-17 and never refreshed across 31 subsequent runs, no primer task was ever created, and Step 0 required the file to be dated TODAY — so it could never contribute. Compute support levels live in step 6, as this agent has always been able to. Nothing else changes.
 
 1. `networth_holdings(US_STOCK)` — live positions.
 2. `networth_snapshot` — live wallet/cash.
@@ -90,31 +90,13 @@ Top 5 by `rebound_score`. If cash is thin, still return them and frame the top o
 
 **F. Fixed tag vocabulary — mandatory, not optional.** Every stay-out and every proposal's "why" is expressed ONLY as one or more of these bracketed codes, never as a written clause, never in the visible output: `MACRO_DRIVEN`, `IDIO_WEAK`, `INSIDER_SELL`, `WATCH_THESIS`, `OVERBOUGHT`, `CLUSTER_FULL`, `THIN_DIP`. If a real situation doesn't fit any code, use the closest one and add ONE clause of nuance to the JSON tail's `data_quality` only — never invent a new code, never fall back to prose in the visible table or strip. Full rationale sentences (one clause max, per row) live ONLY inside the JSON tail's `rationale` field — they must never appear in the scorecard or stay-out strip.
 
-**G. Support level computation (deterministic, feeds the `Support` column and each proposal's `support_usd`/`secondary_support_usd`).** For every ticker with an `action` of `rebuy`/`average`/`extend` (from E) — and, in PRIMING MODE, every currently-held ticker — use the Barchart MA ladder (step 6, or the prime cache if step 0 covered it) plus the live price from step 5:
+**G. Support level computation (deterministic, feeds the `Support` column and each proposal's `support_usd`/`secondary_support_usd`).** For every ticker with an `action` of `rebuy`/`average`/`extend` (from E) use the Barchart MA ladder (step 6) plus the live price from step 5:
 - `support_usd` = the highest moving average (of 5/20/50/100/200-day) that sits BELOW the current live price, less a 0.5% buffer.
 - `secondary_support_usd` = the next MA down the ladder, less the same buffer. If only one MA sits below price, set secondary equal to primary and flag it.
 - If price sits below ALL five MAs (broken trend — e.g. ORCL/CLS/DRAM/IREN on 2026-07-17): `support_usd` = price − 2×ATR(14d), tag the proposal's rationale "below all MAs — ATR floor only, broken trend", and treat it as a soft stay-out signal for rebuy purposes.
 - History-series fallback (single-symbol daily fetches only, per step 6): support = higher of {20-day low, 50-day SMA} below price; secondary = 100-day low or 200-day SMA, whichever is lower. Flag `"<100d history for {T}, secondary approximate"` for recent IPOs/spinoffs (e.g. SNDK).
 No trendline-drawing, no chart-pattern judgment — pure arithmetic on fetched indicator values, same "deterministic, not narrative" philosophy as the rest of this agent.
 
-## MODE CHECK — read before DECISION LOGIC
-If the dispatch prompt explicitly says this is a **priming run** (pre-open, no live SL event expected — dispatched by `agent-smith-daily-us`'s heat-check, or manually for a test), follow PRIMING MODE below INSTEAD OF the normal DECISION LOGIC + OUTPUT FORMAT LOCK sections, then stop. Otherwise proceed normally through DECISION LOGIC and OUTPUT FORMAT LOCK as already written.
-
-## PRIMING MODE — pre-open whole-book support cache build
-Runs before the SL event that normal mode reacts to, so there is no exited/trimmed list yet — cover the whole book instead of a candidate shortlist.
-1. Steps 1–4 of INPUTS apply unchanged (live holdings, wallet, state.json, policy.json).
-2. ONE batched quote call: every currently-held ticker + `^GSPC ^IXIC ^VIX ES=F NQ=F ^KS11 ^TWII ^N225 SMH` — this is the "fresh, close-to-open" read the gate rule (D) uses. It may RAISE severity vs the daily sweep's earlier gauge; per rule D.2 it may only lower it if every v2 term (including the Asia indices and SMH here) was actually evaluated.
-3. Barchart technical-analysis WebFetches (per step 6's method — parallel blocks of 5–6, ~300 tokens each) covering every currently-held ticker. Apply SUPPORT LEVEL COMPUTATION (G) to every ticker, not just top-5 candidates. Never use batched multi-symbol `get_stock_history` (G10 — weekly-aggregation truncation makes it unusable); single-symbol daily history is the per-ticker fallback only.
-4. OPTIONAL, capped at one call: if any ticker carries an `open_flags` entry or a `WATCH`/`BROKEN` thesis status (same universe as flag carry-over, section C), spend one news call (top 3 per ticker, batched into one call across that bounded set) to cache a one-line gist per ticker into `news_context`. Skip entirely if that set is empty.
-5. Compute the gate classification (D) from step 2's fresh data.
-6. Write `/Users/yb/Claude/AgentSmith/rebound_prime.json` (the only file this agent may ever write; still read-only against `state.json`/`ledger.csv`/`journal.json`/`proposals.json`/`policy.json`):
-```json
-{"date":"YYYY-MM-DD","ts":"ISO timestamp","gate":{"classification":"escalating|stabilizing|ambiguous","vix_chg_pct":0,"es_pct":0,"nq_pct":0,"worst_asia_pct":0,"worst_asia_index":"","smh_pct":0,"orchestrator_gate":"","downgrade_blocked":false},
- "support_levels":{"TICKER":{"support_usd":0,"secondary_support_usd":0,"current_price":0}},
- "news_context":{"TICKER":"one-line cached gist"},
- "data_quality":[]}
-```
-7. Return exactly one line, nothing else — no headline template, no scorecard, no stay-out strip (those belong to normal-mode OUTPUT only): `PRIMED: {N} tickers, gate {classification}, cache written {path}`.
 
 ## OUTPUT — FORMAT LOCK
 
@@ -139,7 +121,7 @@ If there are zero stay-outs this run, write `STAY-OUT: none`.
  "basis":{"total_book_usd":0,"stock_usd":0,"wallet_usd":0,"ai_capex_pct_total_book":0,"ai_capex_pct_stock":0,"ai_capex_cap_pct":0},
  "gate":{"classification":"escalating|stabilizing|ambiguous","vix_chg_pct":0,"es_pct":0,"nq_pct":0,"worst_asia_pct":0,"worst_asia_index":"","smh_pct":0,"orchestrator_gate":"","downgrade_blocked":false,"news_call_used":false},
  "sl_forensics":[{"ticker":"","action":"exit|trim","qty_change":0,"est_price":0,"current_price":0,"delta_pct":0,"cluster_peer_median_delta_pct":0,"classifier":"macro_driven|idio_weak"}],
- "proposals":[{"ticker":"","action":"rebuy|average|extend|new_entry|stay_out","trigger_type":"rebound","tier":"T1_HELD|T2_ALUMNI|T4_WATCHLIST","fall_pct":0,"fall_window":"5d|1m_fallback","atr20_pct":0,"fall_atr_mult":0,"thesis_known":true,"size_usd":0,"current_price":0,"support_usd":0,"secondary_support_usd":0,"support_source":"live|prime_cache","headroom_usd_total_book":0,"gate":"now|stage_in|wait","tags":["macro_driven"],"rationale":""}],
+ "proposals":[{"ticker":"","action":"rebuy|average|extend|new_entry|stay_out","trigger_type":"rebound","tier":"T1_HELD|T2_ALUMNI|T4_WATCHLIST","fall_pct":0,"fall_window":"5d|1m_fallback","atr20_pct":0,"fall_atr_mult":0,"thesis_known":true,"size_usd":0,"current_price":0,"support_usd":0,"secondary_support_usd":0,"support_source":"live","headroom_usd_total_book":0,"gate":"now|stage_in|wait","tags":["macro_driven"],"rationale":""}],
  "considered_excluded":[{"ticker":"","reason":"cluster_full|thin_dip"}],
  "data_quality":[]}
 ```
