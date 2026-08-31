@@ -798,6 +798,70 @@ def build(base, out):
     # ================= TIER: DECISIONS =================
     H.append('<div class="tier"><h2>Decisions</h2><div class="ln"></div></div>')
 
+    # ---- ACCEPTED, AWAITING EXECUTION (added 2026-08-31) ----------------------------------
+    # Accepting a proposal used to make it VANISH from the dashboard. SKILL.md 1.7 is explicit
+    # that a click is stated intent and NEVER proof of a trade -- so the moment the user
+    # committed to something, the page stopped showing it, and the list of what they had
+    # decided to do existed only in chat scrollback. On 2026-08-31 that was six trades.
+    # This is the same shape as the invisible Hold badge: the decision persisted correctly and
+    # nothing rendered it back. A proposal leaves this panel only when a real fill moves it to
+    # executed/fulfilled/filled via the ledger -- never because it was merely acknowledged.
+    accepted = [p for p in props.get("proposals", []) if p.get("status") == "accepted_by_user"]
+    if accepted:
+        # Legacy rows from the hand-written batches predating `add-proposal` carry a BARE
+        # DIRECTION WORD as their action ("SELL MSFT", not "Sell MSFT"), which renders as
+        # "SELL SELL MSFT" once the direction badge is prepended -- the identical defect that
+        # caused add-proposal to be written (it builds `action` from ticker+direction so the
+        # shape cannot recur going forward). Those old rows are still on file and this panel is
+        # the first surface to render them, so strip a leading direction word that merely
+        # repeats the badge. Display-only: the stored action is never rewritten, because
+        # editing history to fix a rendering bug is how an audit trail stops being one.
+        _DIR_WORDS = {"BUY", "SELL", "TRIM", "HOLD", "ADD", "EXIT", "REDUCE", "REBUILD"}
+
+        def _clean_action(p, bucket):
+            act = (p.get("action") or "").strip()
+            head, _, tail = act.partition(" ")
+            if tail and head.isupper() and head in _DIR_WORDS:
+                return tail.strip()
+            return act
+
+        def _bucket(p):
+            b = (p.get("direction_bucket") or "").upper()
+            if b:
+                return b
+            act = (p.get("action") or "").lower()
+            return "SELL" if ("sell" in act or "trim" in act) else "BUY"
+
+        sells = sum(p.get("size_usd") or 0 for p in accepted if _bucket(p) in ("SELL", "TRIM"))
+        buys = sum(p.get("size_usd") or 0 for p in accepted if _bucket(p) not in ("SELL", "TRIM"))
+        net = sells - buys
+        rows = []
+        for p in sorted(accepted, key=lambda x: (0 if _bucket(x) in ("SELL", "TRIM") else 1,
+                                                 -(x.get("size_usd") or 0))):
+            b = _bucket(p)
+            pid = p.get("id", "")
+            when = p.get("accepted_on") or ""
+            pair = p.get("pair_id")
+            pair_s = (f'<span class="stopline">paired with the '
+                      f'{"buy" if b in ("SELL", "TRIM") else "sell"} leg &mdash; self-funding</span>'
+                      if pair else "")
+            rows.append(
+                f'<div class="pr"><span class="act2"><span class="dirb {b}">{b}</span>'
+                f'{esc(_clean_action(p, b))}</span>'
+                f'<span class="why">{esc(pid)}{" &middot; accepted " + esc(when) if when else ""}'
+                f'{pair_s}</span>'
+                f'<span class="amt {b}">${p.get("size_usd", 0):,.0f}</span></div>')
+        net_word = "raises cash by" if net >= 0 else "needs cash of"
+        H.append(
+            '<section class="panel act"><div class="phead"><h2>Accepted &mdash; awaiting execution</h2>'
+            f'<span class="pill a">{len(accepted)} decided, not yet filled</span></div>'
+            f'<div class="pbody"><div>{"".join(rows)}</div>'
+            f'<p class="note"><b>${sells:,.0f}</b> of sells/trims against <b>${buys:,.0f}</b> of buys '
+            f'&mdash; net {net_word} <b>${abs(net):,.0f}</b>. '
+            'Accepting is a stated intention, not a trade: Agent Smith never places orders. '
+            'A row leaves this panel only when the actual fill reaches the ledger.</p></div></section>')
+
+
     open_props = [p for p in props.get("proposals", []) if p.get("status") == "open"]
     cap = policy.get("max_single_position_pct", 12)
     breaches = []
