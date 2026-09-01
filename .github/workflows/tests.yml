@@ -1,0 +1,29 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install test dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run unit tests
+        run: python3 -m pytest tests/unit/ -v
+
+      - name: Run golden-master regression checks
+        run: |
+          ./tests/verify_triggers.sh
+          ./tests/verify_proposals.sh
+          ./tests/verify_dashboard.sh
