@@ -1,5 +1,7 @@
 # Agent Smith — state directory
 
+[![tests](https://github.com/yashvardhanbajaj/agent-smith-state/workflows/tests/badge.svg)](https://github.com/yashvardhanbajaj/agent-smith-state/actions/workflows/tests.yml)
+
 Durable memory for the Agent Smith US portfolio agent. Smith reads these files at the start of every run and writes them at the end. Files are bootstrapped on first v3+ run — don't create them by hand (but you may edit `policy.json` anytime; Smith treats your edits as authoritative).
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the agent fleet/flow reference, [CHANGELOG.md](CHANGELOG.md) for dated fixes and decisions, [POLICY-DECISIONS.md](POLICY-DECISIONS.md) for why policy.json's values are what they are, and [LOTS-SEEDING-GUIDE.md](LOTS-SEEDING-GUIDE.md) for unblocking LTCG tracking. `archive/session-docs-2026-07-26/` holds retired status docs from a single work session, superseded by the four files above — kept for the record, not for reading.
