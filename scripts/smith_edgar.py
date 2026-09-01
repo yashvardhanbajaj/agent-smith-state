@@ -29,12 +29,82 @@ Usage:
   python3 smith_edgar.py concept --ticker INTC --tag StockholdersEquity --quarters 6
   python3 smith_edgar.py filings --ticker BE --form 10-Q --limit 3
 """
-import argparse, json, subprocess, sys, time
+import argparse, json, os, subprocess, sys, time
+from datetime import date, datetime, timedelta
 
 UA = "AgentSmith-PortfolioResearch yashvardhanbajaj@gmail.com"
 TICKER_URL = "https://www.sec.gov/files/company_tickers.json"
 CONCEPT_URL = "https://data.sec.gov/api/xbrl/companyconcept/CIK{cik}/us-gaap/{tag}.json"
 SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
+
+# ---------------------------------------------------------------------------
+# PERSISTENT CACHE (added 2026-09-01, cache-awareness audit).
+# ---------------------------------------------------------------------------
+# Found while auditing this desk's caching for gaps: this module had NO cross-process cache at
+# all -- _TICKER_CACHE/_FACTS_CACHE below are plain dicts that vanish the instant a `smith_edgar.py`
+# subprocess exits, which is every single invocation (each verify/concept/tags/filings call is
+# its own process, spawned via Bash by whichever agent needs it). That means:
+#   (a) EVERY call re-downloaded the FULL SEC ticker->CIK master list (thousands of entries)
+#       just to resolve ONE ticker, even though a CIK never changes once assigned to a company.
+#   (b) A ticker verified in one run and checked again days later (a stubborn quality finding
+#       re-audited, or two different agents needing the same company's same concept) re-fetched
+#       from EDGAR every time, even though AS-FILED SEC DATA IS IMMUTABLE for a given fiscal
+#       period -- the whole reason this module exists as a primary source. There is no more
+#       cache-worthy data in this codebase than an as-filed XBRL fact.
+# Fix: a disk-backed cache at `<base_dir>/edgar_cache.json`, two sections with different TTLs
+# reflecting how often each actually changes:
+#   - ticker_cik: essentially permanent (180 days -- a CIK reassignment/ticker change is rare
+#     enough that re-resolving it every 6 months is plenty safe, and free if it hasn't moved).
+#   - concepts, keyed "{cik}:{tag}": short (3 days) -- long enough that a same-week re-check of
+#     the same fact costs nothing, short enough that a fresh quarterly filing is picked up
+#     within days, never staler than the freshness this module's own callers already tolerate
+#     (smith-quality is monthly cadence; smith-thesis's occasional 1-3-name verification is not
+#     time-critical to the hour).
+EDGAR_CACHE_FILENAME = "edgar_cache.json"
+TTL_DAYS_CIK = 180
+TTL_DAYS_CONCEPT = 3
+_BASE_DIR = "."
+_disk_cache = None  # lazy-loaded, then held for the life of this process
+
+
+def _cache_path():
+    return os.path.join(_BASE_DIR, EDGAR_CACHE_FILENAME)
+
+
+def _load_disk_cache():
+    global _disk_cache
+    if _disk_cache is not None:
+        return _disk_cache
+    try:
+        with open(_cache_path()) as f:
+            _disk_cache = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        _disk_cache = {"schema_version": 1, "ticker_cik": {}, "ticker_cik_fetched_at": None,
+                        "concepts": {}}
+    _disk_cache.setdefault("ticker_cik", {})
+    _disk_cache.setdefault("concepts", {})
+    return _disk_cache
+
+
+def _save_disk_cache():
+    if _disk_cache is None:
+        return
+    # Same WRITE SAFETY spirit as the rest of this codebase (.bak then tmp-then-mv), scaled
+    # down: this is a cache, not a memory-of-record file, so a single tmp-then-mv is enough --
+    # worst case on an interrupted write is a cache miss next run, never data loss.
+    tmp = _cache_path() + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(_disk_cache, f, indent=1)
+    os.replace(tmp, _cache_path())
+
+
+def _days_since(iso_date_str):
+    if not iso_date_str:
+        return None
+    try:
+        return (date.today() - datetime.strptime(iso_date_str, "%Y-%m-%d").date()).days
+    except ValueError:
+        return None
 
 # Named shorthands for the concepts a quality audit actually asks about. Several map to a LIST
 # of tags because issuers legitimately choose different us-gaap tags for the same line -- the
@@ -123,21 +193,29 @@ def _pick_freshest(cik, tags, quarters):
     return best[0], best[1], best[2], considered
 
 
-_TICKER_CACHE = {}
+_FACTS_CACHE = {}  # in-process only -- companyfacts fallback, fetched at most once per process
 
 
 def cik_for(ticker):
-    if not _TICKER_CACHE:
-        data = _get(TICKER_URL) or {}
-        for row in data.values():
-            _TICKER_CACHE[row["ticker"].upper()] = str(row["cik_str"]).zfill(10)
-    cik = _TICKER_CACHE.get(ticker.upper())
+    """Ticker->CIK, disk-cached at TTL_DAYS_CIK. A CIK is assigned once and essentially never
+    changes, so this is the single highest-value cache in this module: without it, every
+    invocation downloaded the ENTIRE SEC ticker file (thousands of rows) to resolve one ticker."""
+    cache = _load_disk_cache()
+    ticker = ticker.upper()
+    age = _days_since(cache.get("ticker_cik_fetched_at"))
+    if ticker in cache["ticker_cik"] and age is not None and age <= TTL_DAYS_CIK:
+        return cache["ticker_cik"][ticker]
+    # Stale, missing entirely, or this specific ticker isn't in a stale cache yet -- refetch the
+    # whole map (it's one call regardless of how many tickers we need) and overwrite the section.
+    data = _get(TICKER_URL) or {}
+    fresh = {row["ticker"].upper(): str(row["cik_str"]).zfill(10) for row in data.values()}
+    cache["ticker_cik"] = fresh
+    cache["ticker_cik_fetched_at"] = str(date.today())
+    _save_disk_cache()
+    cik = fresh.get(ticker)
     if not cik:
         raise SystemExit(json.dumps({"error": f"no CIK on file for {ticker}"}))
     return cik
-
-
-_FACTS_CACHE = {}
 
 
 def _facts(cik):
@@ -149,7 +227,10 @@ def _facts(cik):
 
 
 def _units_for(cik, tag):
-    """Unit->rows for one tag, from companyconcept, FALLING BACK to companyfacts.
+    """Unit->rows for one tag, from companyconcept, FALLING BACK to companyfacts. Disk-cached
+    per (cik, tag) at TTL_DAYS_CONCEPT: as-filed data for a completed fiscal period never
+    changes, so a re-check within the TTL window is a pure cache hit, not a re-verification --
+    the only reason the TTL isn't infinite is to pick up a newly-filed quarter within a few days.
 
     Bloom Energy (CIK 1664703) is why the fallback exists: its companyconcept endpoint returns
     HTTP 200 with `units` present but EMPTY for StockholdersEquity, LongTermDebt and diluted
@@ -157,14 +238,26 @@ def _units_for(cik, tag):
     "success wearing a green light" failure cmd_pipeline's emptiness probe was built for --
     and here it would have silently produced "BE files no equity data", which is false and
     would have quietly killed a real quality finding rather than confirming or refuting it."""
+    cache = _load_disk_cache()
+    key = f"{cik}:{tag}"
+    entry = cache["concepts"].get(key)
+    if entry and _days_since(entry.get("fetched_at")) is not None and \
+       _days_since(entry.get("fetched_at")) <= TTL_DAYS_CONCEPT:
+        via = entry["via"]
+        return entry["units"], (via + " (cached)") if via else None
+
     doc = _get(CONCEPT_URL.format(cik=cik, tag=tag))
     units = (doc or {}).get("units") or {}
+    via = None
     if any(units.values()):
-        return units, "companyconcept"
-    body = _facts(cik).get(tag)
-    if body and any((body.get("units") or {}).values()):
-        return body["units"], "companyfacts"
-    return {}, None
+        via = "companyconcept"
+    else:
+        body = _facts(cik).get(tag)
+        if body and any((body.get("units") or {}).values()):
+            units, via = body["units"], "companyfacts"
+    cache["concepts"][key] = {"units": units, "via": via, "fetched_at": str(date.today())}
+    _save_disk_cache()
+    return units, via
 
 
 def _rows(cik, tag, quarters, unit_pref=("USD", "shares")):
@@ -263,7 +356,10 @@ def cmd_tags(a):
 
 
 def main():
+    global _BASE_DIR
     p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--base-dir", default=".",
+                   help="where edgar_cache.json lives/gets written (default: cwd)")
     sub = p.add_subparsers(dest="cmd", required=True)
     v = sub.add_parser("verify"); v.add_argument("--ticker", required=True)
     v.add_argument("--concepts", required=True, help="comma list, e.g. ocf,capex,lt_debt")
@@ -279,6 +375,7 @@ def main():
     f.add_argument("--form", default=None); f.add_argument("--limit", type=int, default=5)
     f.set_defaults(fn=cmd_filings)
     a = p.parse_args()
+    _BASE_DIR = a.base_dir
     a.fn(a)
 
 
