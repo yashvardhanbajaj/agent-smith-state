@@ -555,6 +555,14 @@
       "evidence": "runs/2026-09-01-2205: out_signals.json analyst_targets_updates and out_watchlist.json watchlist_setups both cite AVGO/NVDA/MU/ASML/TER/TSM/GEV/INTC/GOOG same run; SKILL.md 2.9 vs 3 LEDGER trigger both gated on identical qty_changes-non-empty signal",
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "Checked get_stock_history usage across all 3 agents that call it (smith-signals, smith-rebound, smith-book) specifically for cross-agent duplication, per the same pull-once audit that found the price/analyst-target/email dupes. Result: NO duplication exists there -- the three agents use genuinely different tools/purposes (smith-signals: raw daily bars via get_stock_history for ATR20/RSI14/rel_strength_1m; smith-book: a direct pre-computed beta FIELD via yfinance, no get_stock_history at all; smith-rebound: Barchart WebFetch as primary source for support-level MAs/ATR, get_stock_history only as a single-symbol fallback). Worth recording explicitly as a checked-and-cleared finding, not just silence, so a future audit doesn't re-spend time re-deriving the same negative result. Two REAL bugs surfaced while checking, unrelated to duplication: (1) smith-rebound.md's step 6 (SUPPORT LEVELS) still referenced 'step 0's cache' and a 'skip if the cache covers every candidate' branch that could never fire, because step 0's own 2026-08-31 retirement note ('no cache to check') was never propagated to step 6 in the same file -- fixed, step 6 now always fetches Barchart per candidate with no dead cache-check language. (2) smith_core.py's FRESHNESS table attributed data_cache.betas to owner:smith-signals, but smith-signals.md never touches betas at all -- smith-book.md is the actual and only documented owner (its whole file description centers on 'refreshing expired beta cache entries'), corroborated by DECISIONS.md's own text ('smith-book/the ATR refresh path to seed atr20/betas'). Wrong owner attribution matters operationally: betas currently sit UNSTAMPED (confirmed via freshness), and anyone debugging that staleness by dispatching the attributed owner would dispatch smith-signals (which runs on quick too, and would silently do nothing) instead of smith-book (deep-only, the agent that actually needs dispatching). Fixed: owner corrected to smith-book. Generalise: a 'checked, found nothing' result from a targeted audit is worth recording as explicitly as a 'checked, found a bug' result -- both save a future re-derivation, and the second kind of audit (checking an area methodically) tends to surface adjacent bugs the original question didn't ask about.",
+      "evidence": "smith-rebound.md step 0 vs step 6 (fixed 2026-09-01); smith_core.py FRESHNESS['data_cache.betas'] vs smith-book.md/smith-signals.md content, DECISIONS.md line 269",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

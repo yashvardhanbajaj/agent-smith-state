@@ -370,7 +370,7 @@ FRESHNESS = {
     # Feeds the rebound screen, which only matters DURING a selloff -- a week-old 5-day return
     # describes last week's selloff, so this is the tightest TTL in the table.
     "data_cache.ret_5d":           {"stamp": "field:as_of", "ttl_days": 3,  "owner": "smith-signals",   "on_stale": "suppress"},
-    "data_cache.betas":            {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-signals",   "on_stale": "flag"},
+    "data_cache.betas":            {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-book",      "on_stale": "flag"},
     "data_cache.analyst_targets":  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "flag"},
     # Lives in proposals.json, not state.json -- reachable via freshness_root()'s `proposals.`
     # prefix. Added 2026-08-31: this is the artefact that measures whether the desk's own

@@ -1,552 +1,560 @@
 {
- "schema_version": 1,
- "_readme": "Self-learning substrate. `observations` is the only ground truth -- append-only, never edited in place. `parameters` holds each tunable's STATE (default/shadow/active/escalated) and change history; the numeric value itself is DERIVED from observations on every read via smith_learning.evaluate(), never cached here as authoritative. `lessons` is corrections, decisions not to re-litigate, and dead ends -- read this before proposing a fix that sounds familiar, it may already be lesson #1.",
- "observations": [
-  {
-   "date": "2026-08-24",
-   "param_id": "phase4.readiness",
-   "value": 1,
-   "run_dir": null,
-   "note": "proposal P-001 scored (missed)"
+  "schema_version": 1,
+  "_readme": "Self-learning substrate. `observations` is the only ground truth -- append-only, never edited in place. `parameters` holds each tunable's STATE (default/shadow/active/escalated) and change history; the numeric value itself is DERIVED from observations on every read via smith_learning.evaluate(), never cached here as authoritative. `lessons` is corrections, decisions not to re-litigate, and dead ends -- read this before proposing a fix that sounds familiar, it may already be lesson #1.",
+  "observations": [
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-001 scored (missed)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-002 scored (worked)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-003 scored (missed)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-004 scored (missed)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-005 scored (missed)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-006 scored (missed)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-007 scored (missed)"
+    },
+    {
+      "date": "2026-08-24",
+      "param_id": "phase4.readiness",
+      "value": 1,
+      "run_dir": null,
+      "note": "proposal P-011 scored (needs_anchor_review)"
+    },
+    {
+      "date": "2026-08-25",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-165",
+        "decision": "accept",
+        "reason": null,
+        "ticker": "CLS",
+        "trigger_type": "profit_rotation"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-25",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-164",
+        "decision": "accept",
+        "reason": null,
+        "ticker": "MSFT",
+        "trigger_type": "profit_rotation"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-25",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-163",
+        "decision": "reject",
+        "reason": null,
+        "ticker": "BX",
+        "trigger_type": "catalyst_threat"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-25",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-162",
+        "decision": "hold",
+        "reason": null,
+        "ticker": "AVGO",
+        "trigger_type": "catalyst_threat"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-25",
+      "param_id": "dashboard.decision.watchlist",
+      "value": {
+        "ticker": "SMR",
+        "decision": "watch_closely",
+        "reason": null
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-29",
+      "param_id": "dashboard.decision.watchlist",
+      "value": {
+        "ticker": "IREN",
+        "decision": "watch_closely",
+        "reason": null
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-183",
+        "decision": "reject",
+        "reason": null,
+        "ticker": "BE",
+        "trigger_type": "quality_flag"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-180",
+        "decision": "accept",
+        "reason": null,
+        "ticker": "IREN",
+        "trigger_type": "trend_breakdown"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-178",
+        "decision": "hold",
+        "reason": null,
+        "ticker": "AMZN",
+        "trigger_type": "catalyst_threat"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-186",
+        "decision": "accept",
+        "reason": null,
+        "ticker": "CIEN",
+        "trigger_type": "profit_rotation"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-187",
+        "decision": "accept",
+        "reason": null,
+        "ticker": "AMAT",
+        "trigger_type": "conviction_average"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-149",
+        "decision": "accept",
+        "reason": null,
+        "ticker": "WDC",
+        "trigger_type": null
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-08-31",
+      "param_id": "dashboard.decision.proposal",
+      "value": {
+        "element_id": "P-181",
+        "decision": "hold",
+        "reason": null,
+        "ticker": "NVDA",
+        "trigger_type": "overbought_distribution"
+      },
+      "run_dir": null,
+      "note": null
+    },
+    {
+      "date": "2026-09-01",
+      "param_id": "usage:smith-rebound",
+      "value": {
+        "tokens": 102499,
+        "tool_calls": 7,
+        "duration_s": 150.173,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-01-2205",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-01",
+      "param_id": "usage:smith-watchlist",
+      "value": {
+        "tokens": 101430,
+        "tool_calls": 14,
+        "duration_s": 193.007,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-01-2205",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-01",
+      "param_id": "usage:smith-ledger",
+      "value": {
+        "tokens": 156583,
+        "tool_calls": 48,
+        "duration_s": 378.141,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-01-2205",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-01",
+      "param_id": "usage:smith-thesis",
+      "value": {
+        "tokens": 139163,
+        "tool_calls": 15,
+        "duration_s": 367.367,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-01-2205",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-01",
+      "param_id": "usage:smith-signals",
+      "value": {
+        "tokens": 204094,
+        "tool_calls": 17,
+        "duration_s": 428.216,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-01-2205",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-01",
+      "param_id": "usage:smith-strategist",
+      "value": {
+        "tokens": 137948,
+        "tool_calls": 8,
+        "duration_s": 413.812,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-01-2205",
+      "note": "mode=quick"
+    }
+  ],
+  "parameters": {
+    "phase4.readiness": {
+      "default": 0,
+      "current": 8,
+      "band_pct": null,
+      "n_gate": 100,
+      "state": "default",
+      "note": "Not a calibrated value -- a readiness counter. Phase 4 (conviction WEIGHTS calibration) stays deliberately unbuilt until this reaches 100 scored proposals, per explicit user decision 2026-08-25. See learn-lessons for the full context.",
+      "history": []
+    }
   },
-  {
-   "date": "2026-08-24",
-   "param_id": "phase4.readiness",
-   "value": 1,
-   "run_dir": null,
-   "note": "proposal P-002 scored (worked)"
-  },
-  {
-   "date": "2026-08-24",
-   "param_id": "phase4.readiness",
-   "value": 1,
-   "run_dir": null,
-   "note": "proposal P-003 scored (missed)"
-  },
-  {
-   "date": "2026-08-24",
-   "param_id": "phase4.readiness",
-   "value": 1,
-   "run_dir": null,
-   "note": "proposal P-004 scored (missed)"
-  },
-  {
-   "date": "2026-08-24",
-   "param_id": "phase4.readiness",
-   "value": 1,
-   "run_dir": null,
-   "note": "proposal P-005 scored (missed)"
-  },
-  {
-   "date": "2026-08-24",
-   "param_id": "phase4.readiness",
-   "value": 1,
-   "run_dir": null,
-   "note": "proposal P-006 scored (missed)"
-  },
-  {
-   "date": "2026-08-24",
-   "param_id": "phase4.readiness",
-   "value": 1,
-   "run_dir": null,
-   "note": "proposal P-007 scored (missed)"
-  },
-  {
-   "date": "2026-08-24",
-   "param_id": "phase4.readiness",
-   "value": 1,
-   "run_dir": null,
-   "note": "proposal P-011 scored (needs_anchor_review)"
-  },
-  {
-   "date": "2026-08-25",
-   "param_id": "dashboard.decision.proposal",
-   "value": {
-    "element_id": "P-165",
-    "decision": "accept",
-    "reason": null,
-    "ticker": "CLS",
-    "trigger_type": "profit_rotation"
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-08-25",
-   "param_id": "dashboard.decision.proposal",
-   "value": {
-    "element_id": "P-164",
-    "decision": "accept",
-    "reason": null,
-    "ticker": "MSFT",
-    "trigger_type": "profit_rotation"
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-08-25",
-   "param_id": "dashboard.decision.proposal",
-   "value": {
-    "element_id": "P-163",
-    "decision": "reject",
-    "reason": null,
-    "ticker": "BX",
-    "trigger_type": "catalyst_threat"
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-08-25",
-   "param_id": "dashboard.decision.proposal",
-   "value": {
-    "element_id": "P-162",
-    "decision": "hold",
-    "reason": null,
-    "ticker": "AVGO",
-    "trigger_type": "catalyst_threat"
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-08-25",
-   "param_id": "dashboard.decision.watchlist",
-   "value": {
-    "ticker": "SMR",
-    "decision": "watch_closely",
-    "reason": null
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-08-29",
-   "param_id": "dashboard.decision.watchlist",
-   "value": {
-    "ticker": "IREN",
-    "decision": "watch_closely",
-    "reason": null
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-08-31",
-   "param_id": "dashboard.decision.proposal",
-   "value": {
-    "element_id": "P-183",
-    "decision": "reject",
-    "reason": null,
-    "ticker": "BE",
-    "trigger_type": "quality_flag"
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-08-31",
-   "param_id": "dashboard.decision.proposal",
-   "value": {
-    "element_id": "P-180",
-    "decision": "accept",
-    "reason": null,
-    "ticker": "IREN",
-    "trigger_type": "trend_breakdown"
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-08-31",
-   "param_id": "dashboard.decision.proposal",
-   "value": {
-    "element_id": "P-178",
-    "decision": "hold",
-    "reason": null,
-    "ticker": "AMZN",
-    "trigger_type": "catalyst_threat"
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-08-31",
-   "param_id": "dashboard.decision.proposal",
-   "value": {
-    "element_id": "P-186",
-    "decision": "accept",
-    "reason": null,
-    "ticker": "CIEN",
-    "trigger_type": "profit_rotation"
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-08-31",
-   "param_id": "dashboard.decision.proposal",
-   "value": {
-    "element_id": "P-187",
-    "decision": "accept",
-    "reason": null,
-    "ticker": "AMAT",
-    "trigger_type": "conviction_average"
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-08-31",
-   "param_id": "dashboard.decision.proposal",
-   "value": {
-    "element_id": "P-149",
-    "decision": "accept",
-    "reason": null,
-    "ticker": "WDC",
-    "trigger_type": null
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-08-31",
-   "param_id": "dashboard.decision.proposal",
-   "value": {
-    "element_id": "P-181",
-    "decision": "hold",
-    "reason": null,
-    "ticker": "NVDA",
-    "trigger_type": "overbought_distribution"
-   },
-   "run_dir": null,
-   "note": null
-  },
-  {
-   "date": "2026-09-01",
-   "param_id": "usage:smith-rebound",
-   "value": {
-    "tokens": 102499,
-    "tool_calls": 7,
-    "duration_s": 150.173,
-    "mode": "quick"
-   },
-   "run_dir": "2026-09-01-2205",
-   "note": "mode=quick"
-  },
-  {
-   "date": "2026-09-01",
-   "param_id": "usage:smith-watchlist",
-   "value": {
-    "tokens": 101430,
-    "tool_calls": 14,
-    "duration_s": 193.007,
-    "mode": "quick"
-   },
-   "run_dir": "2026-09-01-2205",
-   "note": "mode=quick"
-  },
-  {
-   "date": "2026-09-01",
-   "param_id": "usage:smith-ledger",
-   "value": {
-    "tokens": 156583,
-    "tool_calls": 48,
-    "duration_s": 378.141,
-    "mode": "quick"
-   },
-   "run_dir": "2026-09-01-2205",
-   "note": "mode=quick"
-  },
-  {
-   "date": "2026-09-01",
-   "param_id": "usage:smith-thesis",
-   "value": {
-    "tokens": 139163,
-    "tool_calls": 15,
-    "duration_s": 367.367,
-    "mode": "quick"
-   },
-   "run_dir": "2026-09-01-2205",
-   "note": "mode=quick"
-  },
-  {
-   "date": "2026-09-01",
-   "param_id": "usage:smith-signals",
-   "value": {
-    "tokens": 204094,
-    "tool_calls": 17,
-    "duration_s": 428.216,
-    "mode": "quick"
-   },
-   "run_dir": "2026-09-01-2205",
-   "note": "mode=quick"
-  },
-  {
-   "date": "2026-09-01",
-   "param_id": "usage:smith-strategist",
-   "value": {
-    "tokens": 137948,
-    "tool_calls": 8,
-    "duration_s": 413.812,
-    "mode": "quick"
-   },
-   "run_dir": "2026-09-01-2205",
-   "note": "mode=quick"
-  }
- ],
- "parameters": {
-  "phase4.readiness": {
-   "default": 0,
-   "current": 8,
-   "band_pct": null,
-   "n_gate": 100,
-   "state": "default",
-   "note": "Not a calibrated value -- a readiness counter. Phase 4 (conviction WEIGHTS calibration) stays deliberately unbuilt until this reaches 100 scored proposals, per explicit user decision 2026-08-25. See learn-lessons for the full context.",
-   "history": []
-  }
- },
- "lessons": [
-  {
-   "date": "2026-08-25",
-   "kind": "dead_end",
-   "text": "Revealed-preference size effect (acted-on median $700 vs ignored $360) evaporated under a within-month control: July acted $705 vs ignored $700, August $325 vs $300 -- size does not predict whether the user acts. The apparent effect was pure time-confounding (8/9 acted-on rows are July, 33/37 ignored rows are August). Do not re-derive or auto-apply a sizing correction from pooled acted-vs-ignored size comparisons; always split by period first.",
-   "evidence": "proposals.json, session audit 2026-08-25",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-25",
-   "kind": "correction",
-   "text": "cmd_journal prices tickers only from the current run's holdings.json, so an exited ticker can never be priced and its journal entry stays verdict:open forever. This creates survivorship bias in every bucket hit rate -- entries that fail to score are disproportionately the ones that went wrong enough to get stopped out. Fix (Phase 1): give cmd_journal an injected --prices-json like cmd_score/cmd_stops already have.",
-   "evidence": "smith_math.py:559 cmd_journal, journal.json audit 2026-08-25",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-25",
-   "kind": "correction",
-   "text": "The tier-cliff bug: CONVICTION_TIERS' step-function pct field, looked up directly, meant two candidates one point apart on either side of a tier boundary (e.g. score 44 vs 46 across the 45pt low/medium line) got a 2x size difference for a 1-point difference in conviction. WDC reached the highest evidence tier (primary verification) and its size did not move at all because it stayed on the low side of the 45pt line. Fixed same-day by splitting tier LABEL (still discrete, for display) from tier PCT (now piecewise-linear interpolation via TIER_PCT_ANCHORS).",
-   "evidence": "smith_conviction.py, commit cff2e7c",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-25",
-   "kind": "dead_end",
-   "text": "smith_core.load_json(path, default=X)'s missing-file branch only returns X when X is truthy-checked as 'is not None' -- so calling with default=None (indistinguishable from omitting it) always raises FileNotFoundError instead of returning None. Bit smith_memory.py's new standalone-journal compaction pass and smith_learning.py's own load_store during this session. Workaround used both times: pass default={} and test emptiness, not default=None + is None. Root cause in smith_core.py:307-313 is unfixed -- flagged here so a future session doesn't waste time rediscovering the same trap, and can consider fixing load_json itself (risk: unclear if any existing caller relies on the raise-on-explicit-None behavior).",
-   "evidence": "smith_core.py:307-313",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-25",
-   "kind": "correction",
-   "text": "Corrects an earlier same-day guess (see the lesson about cmd_journal survivorship bias): the direction of the bias was assumed to be optimistic (excluded losers inflate hit rates). VERIFIED WRONG on first real backfill of 16 exited tickers / 14 newly-scoreable entries: TARGET GAP moved UP 23.1%->36.8% (n=13->19) because the excluded entries were disproportionately WINNERS this time (IREN +10.8%, LITE +15.2%, ORCL +17.8% x2, DLR +4.5%), while MOMENTUM+VOLUME stayed flat at 0% (n=7->11) with no direction change. The real defect is that exclusion itself is non-random -- an exited name correlates with volatile price action in EITHER direction (that volatility is often why it triggered a stop), not uniformly bad. Do not assume a direction for this bias when reasoning about it in future work; the fix (inject exited-ticker prices) is correct, the assumed mechanism was not.",
-   "evidence": "journal.json backfill 2026-08-25, /tmp/journal_v2.json vs /tmp/journal_v3.json",
-   "source_run": null,
-   "supersedes": 2
-  },
-  {
-   "date": "2026-08-25",
-   "kind": "calibration",
-   "text": "First real shadow-trigger hit rates now exist (trigger_journal.json scored for the first time, 2026-08-25): laggard_rotation 0% (n=3) -- every laggard-rotation candidate flagged so far failed to catch up; scale_out_ladder 100% (n=5) -- every scale-out trim so far was followed by the price falling, validating the trim. profit_ratchet stays permanently n/a by design (a stop-management action, not a directional price bet). derisk_journal's narrow_stretch queue_state is 0% (n=3) -- none of the three names flagged as fragile/stretched have underperformed since. All four n are far below any reasonable promotion gate (want n>=20-30 before treating a shadow trigger's hit rate as real) -- these are early reads to watch, not yet a basis for promoting anything from shadow to live.",
-   "evidence": "trigger_journal.json, derisk_journal.json, scored 2026-08-25",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-25",
-   "kind": "calibration",
-   "text": "Stop-distance calibration read (Phase 3, n=140 scored stops): overall 48.8%, cascade cohort 50.0% (n=29), deliberate cohort 54.2% (n=79) -- all within +/-10pp of a coin flip, no clear signal to widen or tighten stop_distance_pct in either cohort at current sample size. This CORRECTS a stale SKILL.md claim of '75% deliberate / 25% cascade' that was based on an n=6 snapshot; that divergence did not survive the sample growing to n=108 across the two real cohorts. The 'unknown' cohort (n=32, missing/unparseable fill_time_utc) reads 34.5%, below the coin-flip band, but this cohort's classification is itself data-quality-confounded (a missing timestamp is not a real cascade/deliberate signal) so this reading should not be treated as a genuine finding about stop behavior. Per-ATR-tier calibration (as opposed to cascade/deliberate) is not currently possible -- stops_analysis.json rows carry no ATR-at-fill. No change to policy.json's stop_loss_framework is warranted or was made; this is an escalation-only, no-action-indicated finding.",
-   "evidence": "stops_analysis.json, learn-stop-calibration 2026-08-25",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-25",
-   "kind": "calibration",
-   "text": "Phase 4 (conviction WEIGHTS calibration -- smith_conviction.py's thesis/catalyst/trend/valuation/earnings/technical/corroboration weights) is EXPLICITLY DEFERRED by user decision on 2026-08-25, not just blocked by data. Currently 8 of the ~100 scored proposals needed to attribute outcome to component. Do not build Phase 4's calibration logic or start wiring WEIGHTS to learning.json until proposals.json's scored count (outcome_verdict present) reaches 100 -- check with 'smith_math.py score' + counting outcome_verdict, same method used here. When it does, the user wants Phase 4 executed then, not skipped. Until then this is a known, deliberate pause, not a forgotten task.",
-   "evidence": "proposals.json: 8/159 scored as of 2026-08-25; plans/clever-watching-hinton.md Phase 4",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-30",
-   "kind": "correction",
-   "text": "A proposal's 'action' field must be a verb+ticker sentence ('Sell ASML'), never a bare direction word ('SELL') -- the dashboard renders it verbatim as the row label. A hand-written batch of 7 proposals set action to a bare direction on 2026-08-29 and the dashboard showed 'SELL SELL'/'BUY BUY'/'TRIM TRIM'; the user caught it, not the system. Fix: never hand-write a proposal dict. Use 'smith_math.py add-proposal --proposals-json <specs>', which builds action FROM ticker+direction so the bug class can't recur, and validate_proposals_schema now makes this a hard validate defect if it ever does.",
-   "evidence": "smith_lifecycle.py cmd_add_proposal, smith_memory.py validate_proposals_schema, commit 023beac",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-30",
-   "kind": "correction",
-   "text": "Never hand-type a run's full narrative into ledger.csv's 'notes' cell -- it is exactly the medium a fact drifts in. A nonexistent '8% drawdown warn line' (policy.json's real drawdown_warn_pct is 15) was typed once into a ~4,000-char notes blob and effectively copied forward across four consecutive runs before anyone checked it against policy.json. Fix: use 'smith_math.py append-ledger --summary <short, max 300 chars> --briefing-file <full narrative path>' -- the short cell is what validate_policy_narrative_drift actually checks, so a repeat is now catchable same-run.",
-   "evidence": "smith_memory.py cmd_append_ledger, validate_policy_narrative_drift, G84, commit 8451f62",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-30",
-   "kind": "correction",
-   "text": "An agent's self-written output_file (runs/<ts>/out_<agent>.json) is not reliably identical to the fenced JSON tail it actually returned in its chat response -- found 2026-08-29, smith-earnings and smith-macro's files held a different/older tail than their notifications reported (both agents apparently wrote state directly mid-task). The orchestrator must WRITE each agent's exact returned tail into that file itself the moment the notification arrives, before treating the file as trustworthy input to 'smith_math.py merge-tails'. Do not hand-assemble the state merge in one-off Python (~80 lines were written and immediately discarded this way on 2026-08-29) -- merge-tails' declarative MERGE_RULES table replaces it and was verified to reproduce a hand-merge almost exactly when the file was actually authoritative.",
-   "evidence": "smith_memory.py cmd_merge_tails docstring OPERATIONAL CAVEAT, commit 8451f62",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-30",
-   "kind": "correction",
-   "text": "Agent Smith and The Operator each independently fetched USD/INR (and their own full macro strip) every run with zero sharing, even though it is the identical real-world number and both books are often run close together in the same session -- pure duplicated MCP-call cost. Fix: both skills' market-inputs step now checks /Users/yb/Claude/shared/market_cache.py (stdlib-only, no dependency on either skill's own code, 20-min TTL, merge-not-replace) before fetching, and writes back what it fetches fresh so the other skill can reuse it. Check this cache first for ANY field a sibling portfolio skill might have just fetched, not only USD/INR, before adding a new cross-skill data need.",
-   "evidence": "shared/market_cache.py, commit cdd45df",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-30",
-   "kind": "correction",
-   "text": "earnings_facts entries were only ever verified PRE-print (a name reporting within 5 trading days); nothing re-dispatched smith-earnings AFTER a tracked print date passed, so NVDA/MRVL sat status=PENDING for days post-print while smith-catalyst and other agents independently re-derived 'beat but sold off' from price action each run -- duplicated search effort and the exact G58 misread risk smith-earnings exists to prevent. Fixed 2026-08-30, then tightened same-day after user feedback ('no 3 days stuck'): validate_pending_earnings_staleness fires with ZERO grace days (the very first run at/after reported_date), on every run mode including quick, not gated to deep. A same-day print not yet indexed by a data provider may legitimately still come back unresolved on the first attempt -- that is expected, retry next run, never fall back to another agent guessing from price action.",
-   "evidence": "smith_memory.py validate_pending_earnings_staleness (EARNINGS_PENDING_HARD_STALE_DAYS=0), commits cdd45df, d300edb",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-30",
-   "kind": "correction",
-   "text": "smith-scout re-fetched analyst mean price targets for all ~8 diversifier_candidates every single deep run, even though a target and its one-line thesis rarely move week to week -- only the live price genuinely needs refreshing every run. Fixed 2026-08-30: diversifier_candidates entries now carry 'as_of'; smith-scout.md instructs reusing target_usd/thesis/clean_diversifier unchanged unless as_of is >7 days old or the candidate is new, refreshing only price_usd/upside_pct every run. Apply the same as_of-gated-reuse pattern to any other agent output where one field moves daily (price) and other fields in the same record move roughly weekly (analyst targets, thesis text, sector classification) -- do not refetch the slow-moving fields just because the fast-moving one needs a refresh.",
-   "evidence": "smith-scout.md diversifier bench TARGET/THESIS TTL, commit cdd45df",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-31",
-   "kind": "correction",
-   "text": "A source recorded as BLOCKED must record WHAT was tried and WHY it failed. On 2026-08-31 all three smith-quality findings sat at verified:unverified because SKILL.md said FMP secFilings was ACCESS DENIED and sec.gov 403s to WebFetch, plus 'don't re-probe them'. Two unrelated causes had been fused into one closed door: the FMP block is a vendor plan-tier limit that says nothing about the SEC, and the 403 is WebFetch not sending the User-Agent EDGAR's Fair Access rules require -- curl declaring one gets HTTP 200 from every EDGAR endpoint. A missing request header had been recorded as an unreachable regulator for three weeks. Cost: every primary-source check the desk skipped in that window, and re-verification then changed all three findings (AMZN's figures were a quarter stale, INTC's equity drop was sequential not YoY plus 16.8% dilution nobody flagged, BE's dilution and leverage both larger than reported). Generalise: 'don't re-probe' is only safe when the recorded reason is specific enough to distinguish a permission limit from a malformed request.",
-   "evidence": null,
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-31",
-   "kind": "correction",
-   "text": "Attribution of a decision must be STRUCTURAL, never prose. dismiss_proposal_core carried an 'actor' argument from the day it was extracted, but wrote it only into the free-text 'note' while hardcoding status='dismissed_by_user' for every caller. The same file's own rule is 'never parse prose', so the actor was unreadable by design. Result found 2026-08-31: four proposals the ORCHESTRATOR withdrew for its own faulty evidence (P-152 self-contradicting pair, P-174 stale relative strength, P-179 evaporated over-cap leg, P-182 premise built on an unaudited name) were on record as the USER rejecting them -- feeding smith_learning's revealed-preference profiles a preference the user never expressed, and hiding four strategist misses inside the scorecard's 'user override is not a strategist miss' exclusion, which is true of a user dismissal and exactly backwards for a desk one. Fix: dismissed_by_desk status, dismiss --by user|desk, and a withdrawn_by_desk bucket the scorecard reports rather than buries. Generalise: when a field records WHO or WHY and something downstream will branch on it, it needs its own typed field at the moment of writing.",
-   "evidence": null,
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-31",
-   "kind": "correction",
-   "text": "A correct safety guard plus a structurally incomplete input equals a permanent, invisible deadlock. cmd_score refuses to shrink the scorecard (right -- it saved 19 rows from an empty-prices probe on 2026-08-30). But the orchestrator's price source is holdings.json, which by construction holds only CURRENT holdings, while 6 of the 19 scorecard rows reference exited names, watchlist names and GOOGL against a book holding GOOG. So score could only ever grade 14 of 19, the guard refused every time, and the scorecard froze at 2026-08-29 with nothing reporting it -- it was the one decision-bearing artefact absent from the FRESHNESS table. Unblocked by fetching the 6 non-held quotes (20 rows scored); prevented by adding proposals.scorecard to FRESHNESS via a freshness_root() that exposes proposals.json. Generalise: whenever a guard refuses, ask what supplies its input and whether that source can EVER satisfy it -- and put anything a guard can freeze under a freshness stamp.",
-   "evidence": null,
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-31",
-   "kind": "calibration",
-   "text": "Retire an optimisation by measuring it, not by arguing about it. smith-rebound's pre-open priming self-schedule was retired 2026-08-31 on three numbers: rebound_prime.json last written 2026-07-17 (45 days, 31 ledger-d runs, never refreshed), zero smith-rebound-primer tasks ever created per list_scheduled_tasks, and the agent's own Step 0 requiring the cache be dated TODAY -- so the measured benefit was not small, it was structurally zero. The cost was a heat-check, self-scheduling under four containment rules, a hygiene step and a self-contained prompt template. The agent itself was kept: it fired on correction_state as recently as 2026-08-30. Generalise: before defending a caching or priming layer, check whether its artefact has actually been written recently and whether its own freshness precondition could ever be satisfied -- a cache that can never be fresh enough to use is pure cost.",
-   "evidence": null,
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-31",
-   "kind": "correction",
-   "text": "An agent's output contract must match the write path that consumes it. smith-strategist's tail specified proposals with an 'action' field filled with a bare direction word (TRIM), while add-proposal -- the only sanctioned write path -- requires 'direction' and builds 'action' itself precisely so a row can never render as SELL SELL MSFT. Every leg of the 2026-08-31 batch would have failed the shape check, and all 8 had to be hand-translated, which is exactly the hand-assembly add-proposal was written to eliminate. The agent .md and the command had drifted apart with nothing testing the join. The same run also re-proposed an NVDA trim already HELD and an IREN trim already ACCEPTED at a larger size, despite the dispatch naming both. Generalise: when a tool is introduced as THE sanctioned write path, update the emitting agents' tail schemas in the same change, and state live accepted/held/dismissed rows as exclusions the agent must honour, not as context.",
-   "evidence": null,
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-08-31",
-   "kind": "correction",
-   "text": "Ship the artefact and its reader in the same change. The strategist's six-scenario stress table was produced every deep run as a prose markdown table and had NO structured output, NO state key and NO renderer -- rebuilt from scratch each time, surviving only in runs/<ts>/, and impossible to compare against the previous run even though 'did the stress picture change' is the entire reason for repeating it. Same shape as G50 and cycle_position. Fixed 2026-08-31 in one change: a structured stress_table contract in the agent tail (numeric impact_pct_low/high so rows can be ranked and diffed, most_exposed as a ticker array, and a basis field of live|static_assumption so a reader can tell which rows are actually current), a _merge_strategist rule -- smith-strategist was the only agent with no merge rule at all -- a FRESHNESS entry so it can go stale visibly, and a weekly-report section that renders it including a worst-case-moved diff against the retained prior generation. Generalise: a persisted key nothing reads is the same defect as no key, so the persist path and the read path are one change, not two.",
-   "evidence": null,
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-09-01",
-   "kind": "correction",
-   "text": "A terminal-looking status can silently remove a row from a check that still needs it. cmd_proposals' dedup keys on OPEN proposals, and accepting a proposal moves it to accepted_by_user -- so ACCEPTANCE REMOVED A TRADE FROM THE DUPLICATE CHECK WHILE LEAVING THE TRADE UNDONE, making the window where double-counting is most likely the one window that was unguarded. Found 2026-08-31: P-164 Sell MSFT 437.92 accepted and awaiting execution alongside P-201 Sell MSFT 305.96 open -- 743.88 combined against a 1019.88 position, 73pct of the holding, across two rows neither referencing the other. Fix flags rather than auto-retires, because two of the three live stacks that day (WDC 50pct, AMAT 60pct, both BUY) were plausibly deliberate incremental adds funded by different rotations and silently killing a legitimate second leg trades one failure mode for another; sell-side stacks escalate at 50pct because you cannot sell more than you hold, making a large combined percentage a concrete checkable error. Generalise: when a status change is used as a filter, ask what OTHER checks that status now excludes the row from -- and whether the underlying obligation is actually finished.",
-   "evidence": null,
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-09-01",
-   "kind": "correction",
-   "text": "A run is evidenced by its ARTEFACTS, never by session or scheduler metadata. Two opposite errors a day apart. (1) agent-smith-weekly-us fired 2026-08-31 09:08 IST, hung 22 seconds in, left no run dir, no ledger row and no report, and its session stayed flagged isRunning for 30 hours -- nothing on the desk noticed, and any check asking 'did something run today' saw the daily succeed and called the Monday healthy. (2) The reverse: on 2026-09-01 a session's lastActivityAt was read as proof the daily had run that morning; it had not. A scheduler's lastRunAt is no better, because it reports that a task FIRED, which is exactly what a task that fires and dies also does. Fix: smith_math.py runs reconciles expected scheduled runs against run-dir-plus-ledger-row evidence, PER TASK not per day (the weekly is tested on a deep-mode ledger row of its own), and validate fails on a scheduled run that left nothing. It immediately found two previously unnoticed missed weekdays, 08-27 and 08-28. Generalise: when asking whether an automated job ran, name the artefact it must leave and look for that -- status fields describe intent, artefacts describe outcome.",
-   "evidence": null,
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-09-01",
-   "kind": "correction",
-   "text": "smith_math.py merge-tails does a raw overwrite on state.thesis entries, not a field-preserving merge. When smith-thesis returns an exit-flag stub for a name absent from its slice (just {exited,held,exited_as_of,note} with no status/thesis/evidence, exactly as its own note instructed: 'MERGE ONLY -- do not replace existing thesis/evidence text'), merge-tails wrote that stub verbatim over the ticker's full existing entry, wiping status/thesis/evidence_for/evidence_against for 7 names (AMZN, BX, FLTW, LITE, CEG, AMKR, BABA) on the 2026-09-01 quick sweep -- caught only because validate immediately flagged all 7 as THESIS STATUS UNREADABLE (exited stub has no 'status' key). Fixed by hand-restoring each ticker's pre-merge thesis fields from state.json.bak and layering the exit metadata on top, rather than replacing. Generalise: a sub-agent's own instruction to the orchestrator ('merge only, don't replace') is not self-enforcing if the actual merge tool does a plain dict overwrite for that key -- either the agent's exit-stub schema needs to carry the prior fields forward itself, or merge-tails' thesis merge needs to preserve status/thesis/evidence when the incoming entry lacks them, and validate should keep catching this class as a hard defect either way.",
-   "evidence": "state.json.bak vs post-merge state.json diff, runs/2026-09-01-2205, validate_thesis_status_unreadable",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-09-01",
-   "kind": "correction",
-   "text": "merge-tails' _merge_signals (and likely _merge_thesis/_merge_watchlist) never reads/writes state.news_watermark from an agent's returned tail, even though smith-signals/smith-thesis/smith-watchlist all include news_watermark in their standard tail shape and SKILL.md's PERSIST section documents it as a merged field. Found 2026-09-01: after merge-tails ran for signals/thesis/watchlist, state.news_watermark still read 2026-08-29 (three runs stale) despite smith-signals returning news_watermark:2026-09-01 in its tail. Orchestrator set it by hand this run as a scalar persist (same class of direct write as last_run_dir/us/holdings, not a hand-authored merge). Generalise: a field documented in PERSIST's schema as agent-merged is not necessarily wired into merge-tails' actual per-agent merge function -- check the merge function body, not just the schema comment, before assuming a returned field lands automatically.",
-   "evidence": "smith_memory.py _merge_signals (lines ~829-900) has no news_watermark handling; state.json news_watermark stuck at 2026-08-29 post-merge on the 2026-09-01 run",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-09-01",
-   "kind": "correction",
-   "text": "SKILL.md (444 lines, ~70-90K tokens) is read cold and in full at the start of EVERY run, including quick runs, even though ~90% of it is deep-mode-only reference material (macro dispatch, quality/tax/cycle triggers, dashboard build spec). This is the single largest fixed orchestrator cost and it recurs daily. The codebase already solved the identical problem once for smith_math.py -- split from a 4,085-line monolith into smith_core/risk/ledger/memory/lifecycle/math specifically because 'state.json is read every run and sliced into every prompt' -- but SKILL.md itself never got the same treatment, and reference/dashboard.md + reference/proposals-engine.md already prove the pattern works. Fixed 2026-09-01: SKILL.md restructured into a lean quick-mode core plus reference/deep-mode-dispatch.md (macro/quality/tax/cycle/earnings/catalyst dispatch rules) and reference/quick-vs-deep.md is not needed -- the split follows the existing reference/ convention. Generalise: any prompt or state file that is loaded in full on every run, regardless of mode, is a candidate for this split the moment most of its content only applies to one mode.",
-   "evidence": "measured 2026-09-01 quick sweep: SKILL.md read cost dwarfed all 6 subagents combined on a per-artifact basis; reference/dashboard.md and reference/proposals-engine.md are the existing precedent",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-09-01",
-   "kind": "correction",
-   "text": "Price fetches happen in overlapping waves instead of one consolidated batch. Measured on the 2026-09-01 quick sweep: market inputs (9 tickers) -> holdings (30 tickers) -> score-probe (18 tickers, ~12 overlapping with holdings) -> stops-probe (57 tickers, ~25 overlapping with holdings) -- 4 separate yfinance batch calls with heavy ticker overlap, when the union of every ticker any stage would eventually need (macro proxies + held names + score/stops-probe named tickers) was knowable before the first fetch. Fixed 2026-09-01: SKILL.md section 2.5b now instructs fetching the full known ticker union in ONE batched pass at the top of PREFETCH, caching it in holdings.json's live_quotes map, and having score/stops reuse that cache before falling back to a second targeted fetch only for tickers the cache doesn't cover. Generalise: before adding a second price-fetch call anywhere in the pipeline, check whether an earlier stage this run already pulled the same ticker -- the orchestrator's own live_quotes map (added 2026-08-07, G32) already exists for exactly this reuse and was underused.",
-   "evidence": "runs/2026-09-01-2205: 4 yfinance batches (9+30+18+57 tickers) with ~37 ticker-calls of overlap out of 114 total symbol-fetches",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-09-01",
-   "kind": "correction",
-   "text": "smith-rebound re-derives gate_classification from fresh data even when the orchestrator already hands it the authoritative gate inline in the dispatch prompt -- on the 2026-09-01 run it re-fetched VIX and all 4 Asia indices to 'independently check' a value it was explicitly told to treat as authoritative, which is most of why it ran 150s against its own <90s budget (it stayed within its 8-call cap, but the extra fetch pass ate the time budget). Its own agent file's rule D.2 ('may ratchet severity UP on fresher data but forbids downgrading without re-checking all v2 terms') was written to prevent silently trusting a stale gate after G42 -- but it does not require re-deriving the SAME-run gate the orchestrator just computed seconds earlier, only a materially older one. Fixed 2026-09-01: smith-rebound.md now distinguishes 'the orchestrator's this-run gate, stated in the dispatch prompt' (trust it, cite it) from 'a gate carried over from a prior run's stale state' (the actual G42 case rule D.2 exists for) -- only the second case triggers independent re-verification. Generalise: a standing-order rule written to fix one incident (trusting STALE data) can accidentally also block trusting FRESH data from the same run if the rule doesn't distinguish the two -- check which one a re-verification instruction is actually guarding against before applying it broadly.",
-   "evidence": "runs/2026-09-01-2205 out_rebound.json data_quality: 'gate kept AMBIGUOUS...independently checked full v2 terms on fresh data' + 150s duration vs an <90s target with only 7/8 tool calls used",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-09-01",
-   "kind": "correction",
-   "text": "smith-ledger's initial email search returns truncated snippets that cut off before the Shares:/Order Type: fields, forcing a second round-trip get_thread call per truncated result -- on the 2026-09-01 19-ticker reconciliation, 12 of 23 found confirmations needed a follow-up full-thread fetch, i.e. roughly half its 48 tool calls were this second pass. Fixed 2026-09-01: smith-ledger.md now instructs requesting a longer snippet / full body on the INITIAL search_threads call for INDmoney transaction-confirmation searches specifically (these are short, templated emails -- a longer snippet costs little and usually captures the whole confirmation in one call), rather than defaulting to a short snippet and conditionally following up. Generalise: for any email search whose target field is known to sit past the default snippet cutoff on a predictable email template, request more text upfront rather than paying for a conditional second call on most results.",
-   "evidence": "runs/2026-09-01-2205 smith-ledger reconciliation: 23 confirmations found, 12 needed a follow-up get_thread call, 48 total tool calls for a 19-ticker reconciliation",
-   "source_run": null,
-   "supersedes": null
-  },
-  {
-   "date": "2026-09-01",
-   "kind": "correction",
-   "text": "CORRECTION to the prior lesson (idx 7): 'request a longer snippet on the initial search' is not achievable -- search_threads' snippet field is a fixed Gmail-provided field with no length parameter; the tool schema has no such knob. The real fix is process, not a request parameter: smith-ledger.md's own step 3 already knew the snippet 'almost always' truncates before Shares:/Order Type: and calls the get_thread follow-up 'not optional' -- so treating it as a CONDITIONAL check-then-fetch (search, read snippet, decide it's insufficient, then fetch) wastes a full reasoning pass per row on a decision whose answer is already known. Fixed 2026-09-01: smith-ledger.md now skips the snippet-sufficiency check for BUY/SELL confirmation threads specifically and goes straight to a batch of get_thread calls for every thread search_threads returns, since experience says the snippet is insufficient essentially every time for this specific email template. This does not reduce the total get_thread call count (still ~1 per confirmation) but removes a wasted per-row snippet-inspection decision step, and lets the follow-up fetches be issued as one clearly-planned batch instead of a conditional loop. Generalise: when a fallback path fires on close to 100% of rows for a known reason, stop treating it as a fallback and make it the default path -- the branch that never gets taken is pure overhead.",
-   "evidence": "search_threads/get_thread tool schemas (ToolSearch, 2026-09-01): search_threads has no snippet-length or maxBodyChars parameter, only query/pageSize/pageToken/view",
-   "source_run": null,
-   "supersedes": 7
-  },
-  {
-   "date": "2026-09-01",
-   "kind": "correction",
-   "text": "USAGE AUDIT (auto-logged, 2026-09-01-2205): smith-rebound ran 150s this run vs its stated budget of <90s. Investigate whether this run's dispatch prompt asked smith-rebound to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
-   "evidence": "usage-audit run_id=2026-09-01-2205, agent=smith-rebound, tokens=102499, tool_calls=7, duration_s=150.173",
-   "source_run": "2026-09-01-2205",
-   "supersedes": null
-  }
- ]
+  "lessons": [
+    {
+      "date": "2026-08-25",
+      "kind": "dead_end",
+      "text": "Revealed-preference size effect (acted-on median $700 vs ignored $360) evaporated under a within-month control: July acted $705 vs ignored $700, August $325 vs $300 -- size does not predict whether the user acts. The apparent effect was pure time-confounding (8/9 acted-on rows are July, 33/37 ignored rows are August). Do not re-derive or auto-apply a sizing correction from pooled acted-vs-ignored size comparisons; always split by period first.",
+      "evidence": "proposals.json, session audit 2026-08-25",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "correction",
+      "text": "cmd_journal prices tickers only from the current run's holdings.json, so an exited ticker can never be priced and its journal entry stays verdict:open forever. This creates survivorship bias in every bucket hit rate -- entries that fail to score are disproportionately the ones that went wrong enough to get stopped out. Fix (Phase 1): give cmd_journal an injected --prices-json like cmd_score/cmd_stops already have.",
+      "evidence": "smith_math.py:559 cmd_journal, journal.json audit 2026-08-25",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "correction",
+      "text": "The tier-cliff bug: CONVICTION_TIERS' step-function pct field, looked up directly, meant two candidates one point apart on either side of a tier boundary (e.g. score 44 vs 46 across the 45pt low/medium line) got a 2x size difference for a 1-point difference in conviction. WDC reached the highest evidence tier (primary verification) and its size did not move at all because it stayed on the low side of the 45pt line. Fixed same-day by splitting tier LABEL (still discrete, for display) from tier PCT (now piecewise-linear interpolation via TIER_PCT_ANCHORS).",
+      "evidence": "smith_conviction.py, commit cff2e7c",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "dead_end",
+      "text": "smith_core.load_json(path, default=X)'s missing-file branch only returns X when X is truthy-checked as 'is not None' -- so calling with default=None (indistinguishable from omitting it) always raises FileNotFoundError instead of returning None. Bit smith_memory.py's new standalone-journal compaction pass and smith_learning.py's own load_store during this session. Workaround used both times: pass default={} and test emptiness, not default=None + is None. Root cause in smith_core.py:307-313 is unfixed -- flagged here so a future session doesn't waste time rediscovering the same trap, and can consider fixing load_json itself (risk: unclear if any existing caller relies on the raise-on-explicit-None behavior).",
+      "evidence": "smith_core.py:307-313",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "correction",
+      "text": "Corrects an earlier same-day guess (see the lesson about cmd_journal survivorship bias): the direction of the bias was assumed to be optimistic (excluded losers inflate hit rates). VERIFIED WRONG on first real backfill of 16 exited tickers / 14 newly-scoreable entries: TARGET GAP moved UP 23.1%->36.8% (n=13->19) because the excluded entries were disproportionately WINNERS this time (IREN +10.8%, LITE +15.2%, ORCL +17.8% x2, DLR +4.5%), while MOMENTUM+VOLUME stayed flat at 0% (n=7->11) with no direction change. The real defect is that exclusion itself is non-random -- an exited name correlates with volatile price action in EITHER direction (that volatility is often why it triggered a stop), not uniformly bad. Do not assume a direction for this bias when reasoning about it in future work; the fix (inject exited-ticker prices) is correct, the assumed mechanism was not.",
+      "evidence": "journal.json backfill 2026-08-25, /tmp/journal_v2.json vs /tmp/journal_v3.json",
+      "source_run": null,
+      "supersedes": 2
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "calibration",
+      "text": "First real shadow-trigger hit rates now exist (trigger_journal.json scored for the first time, 2026-08-25): laggard_rotation 0% (n=3) -- every laggard-rotation candidate flagged so far failed to catch up; scale_out_ladder 100% (n=5) -- every scale-out trim so far was followed by the price falling, validating the trim. profit_ratchet stays permanently n/a by design (a stop-management action, not a directional price bet). derisk_journal's narrow_stretch queue_state is 0% (n=3) -- none of the three names flagged as fragile/stretched have underperformed since. All four n are far below any reasonable promotion gate (want n>=20-30 before treating a shadow trigger's hit rate as real) -- these are early reads to watch, not yet a basis for promoting anything from shadow to live.",
+      "evidence": "trigger_journal.json, derisk_journal.json, scored 2026-08-25",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "calibration",
+      "text": "Stop-distance calibration read (Phase 3, n=140 scored stops): overall 48.8%, cascade cohort 50.0% (n=29), deliberate cohort 54.2% (n=79) -- all within +/-10pp of a coin flip, no clear signal to widen or tighten stop_distance_pct in either cohort at current sample size. This CORRECTS a stale SKILL.md claim of '75% deliberate / 25% cascade' that was based on an n=6 snapshot; that divergence did not survive the sample growing to n=108 across the two real cohorts. The 'unknown' cohort (n=32, missing/unparseable fill_time_utc) reads 34.5%, below the coin-flip band, but this cohort's classification is itself data-quality-confounded (a missing timestamp is not a real cascade/deliberate signal) so this reading should not be treated as a genuine finding about stop behavior. Per-ATR-tier calibration (as opposed to cascade/deliberate) is not currently possible -- stops_analysis.json rows carry no ATR-at-fill. No change to policy.json's stop_loss_framework is warranted or was made; this is an escalation-only, no-action-indicated finding.",
+      "evidence": "stops_analysis.json, learn-stop-calibration 2026-08-25",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-25",
+      "kind": "calibration",
+      "text": "Phase 4 (conviction WEIGHTS calibration -- smith_conviction.py's thesis/catalyst/trend/valuation/earnings/technical/corroboration weights) is EXPLICITLY DEFERRED by user decision on 2026-08-25, not just blocked by data. Currently 8 of the ~100 scored proposals needed to attribute outcome to component. Do not build Phase 4's calibration logic or start wiring WEIGHTS to learning.json until proposals.json's scored count (outcome_verdict present) reaches 100 -- check with 'smith_math.py score' + counting outcome_verdict, same method used here. When it does, the user wants Phase 4 executed then, not skipped. Until then this is a known, deliberate pause, not a forgotten task.",
+      "evidence": "proposals.json: 8/159 scored as of 2026-08-25; plans/clever-watching-hinton.md Phase 4",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "A proposal's 'action' field must be a verb+ticker sentence ('Sell ASML'), never a bare direction word ('SELL') -- the dashboard renders it verbatim as the row label. A hand-written batch of 7 proposals set action to a bare direction on 2026-08-29 and the dashboard showed 'SELL SELL'/'BUY BUY'/'TRIM TRIM'; the user caught it, not the system. Fix: never hand-write a proposal dict. Use 'smith_math.py add-proposal --proposals-json <specs>', which builds action FROM ticker+direction so the bug class can't recur, and validate_proposals_schema now makes this a hard validate defect if it ever does.",
+      "evidence": "smith_lifecycle.py cmd_add_proposal, smith_memory.py validate_proposals_schema, commit 023beac",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "Never hand-type a run's full narrative into ledger.csv's 'notes' cell -- it is exactly the medium a fact drifts in. A nonexistent '8% drawdown warn line' (policy.json's real drawdown_warn_pct is 15) was typed once into a ~4,000-char notes blob and effectively copied forward across four consecutive runs before anyone checked it against policy.json. Fix: use 'smith_math.py append-ledger --summary <short, max 300 chars> --briefing-file <full narrative path>' -- the short cell is what validate_policy_narrative_drift actually checks, so a repeat is now catchable same-run.",
+      "evidence": "smith_memory.py cmd_append_ledger, validate_policy_narrative_drift, G84, commit 8451f62",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "An agent's self-written output_file (runs/<ts>/out_<agent>.json) is not reliably identical to the fenced JSON tail it actually returned in its chat response -- found 2026-08-29, smith-earnings and smith-macro's files held a different/older tail than their notifications reported (both agents apparently wrote state directly mid-task). The orchestrator must WRITE each agent's exact returned tail into that file itself the moment the notification arrives, before treating the file as trustworthy input to 'smith_math.py merge-tails'. Do not hand-assemble the state merge in one-off Python (~80 lines were written and immediately discarded this way on 2026-08-29) -- merge-tails' declarative MERGE_RULES table replaces it and was verified to reproduce a hand-merge almost exactly when the file was actually authoritative.",
+      "evidence": "smith_memory.py cmd_merge_tails docstring OPERATIONAL CAVEAT, commit 8451f62",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "Agent Smith and The Operator each independently fetched USD/INR (and their own full macro strip) every run with zero sharing, even though it is the identical real-world number and both books are often run close together in the same session -- pure duplicated MCP-call cost. Fix: both skills' market-inputs step now checks /Users/yb/Claude/shared/market_cache.py (stdlib-only, no dependency on either skill's own code, 20-min TTL, merge-not-replace) before fetching, and writes back what it fetches fresh so the other skill can reuse it. Check this cache first for ANY field a sibling portfolio skill might have just fetched, not only USD/INR, before adding a new cross-skill data need.",
+      "evidence": "shared/market_cache.py, commit cdd45df",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "earnings_facts entries were only ever verified PRE-print (a name reporting within 5 trading days); nothing re-dispatched smith-earnings AFTER a tracked print date passed, so NVDA/MRVL sat status=PENDING for days post-print while smith-catalyst and other agents independently re-derived 'beat but sold off' from price action each run -- duplicated search effort and the exact G58 misread risk smith-earnings exists to prevent. Fixed 2026-08-30, then tightened same-day after user feedback ('no 3 days stuck'): validate_pending_earnings_staleness fires with ZERO grace days (the very first run at/after reported_date), on every run mode including quick, not gated to deep. A same-day print not yet indexed by a data provider may legitimately still come back unresolved on the first attempt -- that is expected, retry next run, never fall back to another agent guessing from price action.",
+      "evidence": "smith_memory.py validate_pending_earnings_staleness (EARNINGS_PENDING_HARD_STALE_DAYS=0), commits cdd45df, d300edb",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-30",
+      "kind": "correction",
+      "text": "smith-scout re-fetched analyst mean price targets for all ~8 diversifier_candidates every single deep run, even though a target and its one-line thesis rarely move week to week -- only the live price genuinely needs refreshing every run. Fixed 2026-08-30: diversifier_candidates entries now carry 'as_of'; smith-scout.md instructs reusing target_usd/thesis/clean_diversifier unchanged unless as_of is >7 days old or the candidate is new, refreshing only price_usd/upside_pct every run. Apply the same as_of-gated-reuse pattern to any other agent output where one field moves daily (price) and other fields in the same record move roughly weekly (analyst targets, thesis text, sector classification) -- do not refetch the slow-moving fields just because the fast-moving one needs a refresh.",
+      "evidence": "smith-scout.md diversifier bench TARGET/THESIS TTL, commit cdd45df",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "correction",
+      "text": "A source recorded as BLOCKED must record WHAT was tried and WHY it failed. On 2026-08-31 all three smith-quality findings sat at verified:unverified because SKILL.md said FMP secFilings was ACCESS DENIED and sec.gov 403s to WebFetch, plus 'don't re-probe them'. Two unrelated causes had been fused into one closed door: the FMP block is a vendor plan-tier limit that says nothing about the SEC, and the 403 is WebFetch not sending the User-Agent EDGAR's Fair Access rules require -- curl declaring one gets HTTP 200 from every EDGAR endpoint. A missing request header had been recorded as an unreachable regulator for three weeks. Cost: every primary-source check the desk skipped in that window, and re-verification then changed all three findings (AMZN's figures were a quarter stale, INTC's equity drop was sequential not YoY plus 16.8% dilution nobody flagged, BE's dilution and leverage both larger than reported). Generalise: 'don't re-probe' is only safe when the recorded reason is specific enough to distinguish a permission limit from a malformed request.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "correction",
+      "text": "Attribution of a decision must be STRUCTURAL, never prose. dismiss_proposal_core carried an 'actor' argument from the day it was extracted, but wrote it only into the free-text 'note' while hardcoding status='dismissed_by_user' for every caller. The same file's own rule is 'never parse prose', so the actor was unreadable by design. Result found 2026-08-31: four proposals the ORCHESTRATOR withdrew for its own faulty evidence (P-152 self-contradicting pair, P-174 stale relative strength, P-179 evaporated over-cap leg, P-182 premise built on an unaudited name) were on record as the USER rejecting them -- feeding smith_learning's revealed-preference profiles a preference the user never expressed, and hiding four strategist misses inside the scorecard's 'user override is not a strategist miss' exclusion, which is true of a user dismissal and exactly backwards for a desk one. Fix: dismissed_by_desk status, dismiss --by user|desk, and a withdrawn_by_desk bucket the scorecard reports rather than buries. Generalise: when a field records WHO or WHY and something downstream will branch on it, it needs its own typed field at the moment of writing.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "correction",
+      "text": "A correct safety guard plus a structurally incomplete input equals a permanent, invisible deadlock. cmd_score refuses to shrink the scorecard (right -- it saved 19 rows from an empty-prices probe on 2026-08-30). But the orchestrator's price source is holdings.json, which by construction holds only CURRENT holdings, while 6 of the 19 scorecard rows reference exited names, watchlist names and GOOGL against a book holding GOOG. So score could only ever grade 14 of 19, the guard refused every time, and the scorecard froze at 2026-08-29 with nothing reporting it -- it was the one decision-bearing artefact absent from the FRESHNESS table. Unblocked by fetching the 6 non-held quotes (20 rows scored); prevented by adding proposals.scorecard to FRESHNESS via a freshness_root() that exposes proposals.json. Generalise: whenever a guard refuses, ask what supplies its input and whether that source can EVER satisfy it -- and put anything a guard can freeze under a freshness stamp.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "calibration",
+      "text": "Retire an optimisation by measuring it, not by arguing about it. smith-rebound's pre-open priming self-schedule was retired 2026-08-31 on three numbers: rebound_prime.json last written 2026-07-17 (45 days, 31 ledger-d runs, never refreshed), zero smith-rebound-primer tasks ever created per list_scheduled_tasks, and the agent's own Step 0 requiring the cache be dated TODAY -- so the measured benefit was not small, it was structurally zero. The cost was a heat-check, self-scheduling under four containment rules, a hygiene step and a self-contained prompt template. The agent itself was kept: it fired on correction_state as recently as 2026-08-30. Generalise: before defending a caching or priming layer, check whether its artefact has actually been written recently and whether its own freshness precondition could ever be satisfied -- a cache that can never be fresh enough to use is pure cost.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "correction",
+      "text": "An agent's output contract must match the write path that consumes it. smith-strategist's tail specified proposals with an 'action' field filled with a bare direction word (TRIM), while add-proposal -- the only sanctioned write path -- requires 'direction' and builds 'action' itself precisely so a row can never render as SELL SELL MSFT. Every leg of the 2026-08-31 batch would have failed the shape check, and all 8 had to be hand-translated, which is exactly the hand-assembly add-proposal was written to eliminate. The agent .md and the command had drifted apart with nothing testing the join. The same run also re-proposed an NVDA trim already HELD and an IREN trim already ACCEPTED at a larger size, despite the dispatch naming both. Generalise: when a tool is introduced as THE sanctioned write path, update the emitting agents' tail schemas in the same change, and state live accepted/held/dismissed rows as exclusions the agent must honour, not as context.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-08-31",
+      "kind": "correction",
+      "text": "Ship the artefact and its reader in the same change. The strategist's six-scenario stress table was produced every deep run as a prose markdown table and had NO structured output, NO state key and NO renderer -- rebuilt from scratch each time, surviving only in runs/<ts>/, and impossible to compare against the previous run even though 'did the stress picture change' is the entire reason for repeating it. Same shape as G50 and cycle_position. Fixed 2026-08-31 in one change: a structured stress_table contract in the agent tail (numeric impact_pct_low/high so rows can be ranked and diffed, most_exposed as a ticker array, and a basis field of live|static_assumption so a reader can tell which rows are actually current), a _merge_strategist rule -- smith-strategist was the only agent with no merge rule at all -- a FRESHNESS entry so it can go stale visibly, and a weekly-report section that renders it including a worst-case-moved diff against the retained prior generation. Generalise: a persisted key nothing reads is the same defect as no key, so the persist path and the read path are one change, not two.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "A terminal-looking status can silently remove a row from a check that still needs it. cmd_proposals' dedup keys on OPEN proposals, and accepting a proposal moves it to accepted_by_user -- so ACCEPTANCE REMOVED A TRADE FROM THE DUPLICATE CHECK WHILE LEAVING THE TRADE UNDONE, making the window where double-counting is most likely the one window that was unguarded. Found 2026-08-31: P-164 Sell MSFT 437.92 accepted and awaiting execution alongside P-201 Sell MSFT 305.96 open -- 743.88 combined against a 1019.88 position, 73pct of the holding, across two rows neither referencing the other. Fix flags rather than auto-retires, because two of the three live stacks that day (WDC 50pct, AMAT 60pct, both BUY) were plausibly deliberate incremental adds funded by different rotations and silently killing a legitimate second leg trades one failure mode for another; sell-side stacks escalate at 50pct because you cannot sell more than you hold, making a large combined percentage a concrete checkable error. Generalise: when a status change is used as a filter, ask what OTHER checks that status now excludes the row from -- and whether the underlying obligation is actually finished.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "A run is evidenced by its ARTEFACTS, never by session or scheduler metadata. Two opposite errors a day apart. (1) agent-smith-weekly-us fired 2026-08-31 09:08 IST, hung 22 seconds in, left no run dir, no ledger row and no report, and its session stayed flagged isRunning for 30 hours -- nothing on the desk noticed, and any check asking 'did something run today' saw the daily succeed and called the Monday healthy. (2) The reverse: on 2026-09-01 a session's lastActivityAt was read as proof the daily had run that morning; it had not. A scheduler's lastRunAt is no better, because it reports that a task FIRED, which is exactly what a task that fires and dies also does. Fix: smith_math.py runs reconciles expected scheduled runs against run-dir-plus-ledger-row evidence, PER TASK not per day (the weekly is tested on a deep-mode ledger row of its own), and validate fails on a scheduled run that left nothing. It immediately found two previously unnoticed missed weekdays, 08-27 and 08-28. Generalise: when asking whether an automated job ran, name the artefact it must leave and look for that -- status fields describe intent, artefacts describe outcome.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "smith_math.py merge-tails does a raw overwrite on state.thesis entries, not a field-preserving merge. When smith-thesis returns an exit-flag stub for a name absent from its slice (just {exited,held,exited_as_of,note} with no status/thesis/evidence, exactly as its own note instructed: 'MERGE ONLY -- do not replace existing thesis/evidence text'), merge-tails wrote that stub verbatim over the ticker's full existing entry, wiping status/thesis/evidence_for/evidence_against for 7 names (AMZN, BX, FLTW, LITE, CEG, AMKR, BABA) on the 2026-09-01 quick sweep -- caught only because validate immediately flagged all 7 as THESIS STATUS UNREADABLE (exited stub has no 'status' key). Fixed by hand-restoring each ticker's pre-merge thesis fields from state.json.bak and layering the exit metadata on top, rather than replacing. Generalise: a sub-agent's own instruction to the orchestrator ('merge only, don't replace') is not self-enforcing if the actual merge tool does a plain dict overwrite for that key -- either the agent's exit-stub schema needs to carry the prior fields forward itself, or merge-tails' thesis merge needs to preserve status/thesis/evidence when the incoming entry lacks them, and validate should keep catching this class as a hard defect either way.",
+      "evidence": "state.json.bak vs post-merge state.json diff, runs/2026-09-01-2205, validate_thesis_status_unreadable",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "merge-tails' _merge_signals (and likely _merge_thesis/_merge_watchlist) never reads/writes state.news_watermark from an agent's returned tail, even though smith-signals/smith-thesis/smith-watchlist all include news_watermark in their standard tail shape and SKILL.md's PERSIST section documents it as a merged field. Found 2026-09-01: after merge-tails ran for signals/thesis/watchlist, state.news_watermark still read 2026-08-29 (three runs stale) despite smith-signals returning news_watermark:2026-09-01 in its tail. Orchestrator set it by hand this run as a scalar persist (same class of direct write as last_run_dir/us/holdings, not a hand-authored merge). Generalise: a field documented in PERSIST's schema as agent-merged is not necessarily wired into merge-tails' actual per-agent merge function -- check the merge function body, not just the schema comment, before assuming a returned field lands automatically.",
+      "evidence": "smith_memory.py _merge_signals (lines ~829-900) has no news_watermark handling; state.json news_watermark stuck at 2026-08-29 post-merge on the 2026-09-01 run",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "SKILL.md (444 lines, ~70-90K tokens) is read cold and in full at the start of EVERY run, including quick runs, even though ~90% of it is deep-mode-only reference material (macro dispatch, quality/tax/cycle triggers, dashboard build spec). This is the single largest fixed orchestrator cost and it recurs daily. The codebase already solved the identical problem once for smith_math.py -- split from a 4,085-line monolith into smith_core/risk/ledger/memory/lifecycle/math specifically because 'state.json is read every run and sliced into every prompt' -- but SKILL.md itself never got the same treatment, and reference/dashboard.md + reference/proposals-engine.md already prove the pattern works. Fixed 2026-09-01: SKILL.md restructured into a lean quick-mode core plus reference/deep-mode-dispatch.md (macro/quality/tax/cycle/earnings/catalyst dispatch rules) and reference/quick-vs-deep.md is not needed -- the split follows the existing reference/ convention. Generalise: any prompt or state file that is loaded in full on every run, regardless of mode, is a candidate for this split the moment most of its content only applies to one mode.",
+      "evidence": "measured 2026-09-01 quick sweep: SKILL.md read cost dwarfed all 6 subagents combined on a per-artifact basis; reference/dashboard.md and reference/proposals-engine.md are the existing precedent",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "Price fetches happen in overlapping waves instead of one consolidated batch. Measured on the 2026-09-01 quick sweep: market inputs (9 tickers) -> holdings (30 tickers) -> score-probe (18 tickers, ~12 overlapping with holdings) -> stops-probe (57 tickers, ~25 overlapping with holdings) -- 4 separate yfinance batch calls with heavy ticker overlap, when the union of every ticker any stage would eventually need (macro proxies + held names + score/stops-probe named tickers) was knowable before the first fetch. Fixed 2026-09-01: SKILL.md section 2.5b now instructs fetching the full known ticker union in ONE batched pass at the top of PREFETCH, caching it in holdings.json's live_quotes map, and having score/stops reuse that cache before falling back to a second targeted fetch only for tickers the cache doesn't cover. Generalise: before adding a second price-fetch call anywhere in the pipeline, check whether an earlier stage this run already pulled the same ticker -- the orchestrator's own live_quotes map (added 2026-08-07, G32) already exists for exactly this reuse and was underused.",
+      "evidence": "runs/2026-09-01-2205: 4 yfinance batches (9+30+18+57 tickers) with ~37 ticker-calls of overlap out of 114 total symbol-fetches",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "smith-rebound re-derives gate_classification from fresh data even when the orchestrator already hands it the authoritative gate inline in the dispatch prompt -- on the 2026-09-01 run it re-fetched VIX and all 4 Asia indices to 'independently check' a value it was explicitly told to treat as authoritative, which is most of why it ran 150s against its own <90s budget (it stayed within its 8-call cap, but the extra fetch pass ate the time budget). Its own agent file's rule D.2 ('may ratchet severity UP on fresher data but forbids downgrading without re-checking all v2 terms') was written to prevent silently trusting a stale gate after G42 -- but it does not require re-deriving the SAME-run gate the orchestrator just computed seconds earlier, only a materially older one. Fixed 2026-09-01: smith-rebound.md now distinguishes 'the orchestrator's this-run gate, stated in the dispatch prompt' (trust it, cite it) from 'a gate carried over from a prior run's stale state' (the actual G42 case rule D.2 exists for) -- only the second case triggers independent re-verification. Generalise: a standing-order rule written to fix one incident (trusting STALE data) can accidentally also block trusting FRESH data from the same run if the rule doesn't distinguish the two -- check which one a re-verification instruction is actually guarding against before applying it broadly.",
+      "evidence": "runs/2026-09-01-2205 out_rebound.json data_quality: 'gate kept AMBIGUOUS...independently checked full v2 terms on fresh data' + 150s duration vs an <90s target with only 7/8 tool calls used",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "smith-ledger's initial email search returns truncated snippets that cut off before the Shares:/Order Type: fields, forcing a second round-trip get_thread call per truncated result -- on the 2026-09-01 19-ticker reconciliation, 12 of 23 found confirmations needed a follow-up full-thread fetch, i.e. roughly half its 48 tool calls were this second pass. Fixed 2026-09-01: smith-ledger.md now instructs requesting a longer snippet / full body on the INITIAL search_threads call for INDmoney transaction-confirmation searches specifically (these are short, templated emails -- a longer snippet costs little and usually captures the whole confirmation in one call), rather than defaulting to a short snippet and conditionally following up. Generalise: for any email search whose target field is known to sit past the default snippet cutoff on a predictable email template, request more text upfront rather than paying for a conditional second call on most results.",
+      "evidence": "runs/2026-09-01-2205 smith-ledger reconciliation: 23 confirmations found, 12 needed a follow-up get_thread call, 48 total tool calls for a 19-ticker reconciliation",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "CORRECTION to the prior lesson (idx 7): 'request a longer snippet on the initial search' is not achievable -- search_threads' snippet field is a fixed Gmail-provided field with no length parameter; the tool schema has no such knob. The real fix is process, not a request parameter: smith-ledger.md's own step 3 already knew the snippet 'almost always' truncates before Shares:/Order Type: and calls the get_thread follow-up 'not optional' -- so treating it as a CONDITIONAL check-then-fetch (search, read snippet, decide it's insufficient, then fetch) wastes a full reasoning pass per row on a decision whose answer is already known. Fixed 2026-09-01: smith-ledger.md now skips the snippet-sufficiency check for BUY/SELL confirmation threads specifically and goes straight to a batch of get_thread calls for every thread search_threads returns, since experience says the snippet is insufficient essentially every time for this specific email template. This does not reduce the total get_thread call count (still ~1 per confirmation) but removes a wasted per-row snippet-inspection decision step, and lets the follow-up fetches be issued as one clearly-planned batch instead of a conditional loop. Generalise: when a fallback path fires on close to 100% of rows for a known reason, stop treating it as a fallback and make it the default path -- the branch that never gets taken is pure overhead.",
+      "evidence": "search_threads/get_thread tool schemas (ToolSearch, 2026-09-01): search_threads has no snippet-length or maxBodyChars parameter, only query/pageSize/pageToken/view",
+      "source_run": null,
+      "supersedes": 7
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "USAGE AUDIT (auto-logged, 2026-09-01-2205): smith-rebound ran 150s this run vs its stated budget of <90s. Investigate whether this run's dispatch prompt asked smith-rebound to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
+      "evidence": "usage-audit run_id=2026-09-01-2205, agent=smith-rebound, tokens=102499, tool_calls=7, duration_s=150.173",
+      "source_run": "2026-09-01-2205",
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "Extended the pull-once principle (idx for the price-fetch lesson) beyond prices to two more confirmed duplications, both found by inspecting actual 2026-09-01 run data rather than guessing: (1) smith-watchlist independently fetched analyst target prices with zero cache awareness, even though smith-signals already populates data_cache.analyst_targets for every holding as a free byproduct of a call it makes anyway -- roughly a third of any watchlist slice overlaps with current holdings (AVGO/NVDA/MU/ASML/TER/TSM/GEV/INTC/GOOG recurred in both smith-signals' analyst_targets_updates AND smith-watchlist's target-gap setups on the SAME run). Fixed: smith-watchlist.md now checks the embedded analyst_targets cache first, same pattern as its existing earnings_calendar check. (2) SKILL.md section 2.9's scheduled-run email-search fallback and section 3's LEDGER trigger both fire off the identical signal (qty_changes non-empty) and, as written, both would run their own search_threads for the same from:transactions.indmoney.com query on the same run -- avoided today only by orchestrator judgment, not by anything in the file. Fixed: 2.9's fallback now explicitly skips entirely whenever smith-ledger was dispatched. Generalise: when auditing for duplicated pulls, don't stop at the first instance found (prices) -- check every OTHER external-data-fetching agent pair for the same shape (two things wanting the same fact, dispatched close enough in time that neither knows the other already has it).",
+      "evidence": "runs/2026-09-01-2205: out_signals.json analyst_targets_updates and out_watchlist.json watchlist_setups both cite AVGO/NVDA/MU/ASML/TER/TSM/GEV/INTC/GOOG same run; SKILL.md 2.9 vs 3 LEDGER trigger both gated on identical qty_changes-non-empty signal",
+      "source_run": null,
+      "supersedes": null
+    }
+  ]
 }
