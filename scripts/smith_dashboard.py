@@ -735,88 +735,8 @@ def status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift, book_com
         f'<span class="s">{esc(s)}</span></div>' for cls, k, v, s in cells) + '</section>')
 
 
-def build(base, out):
-    state = load(os.path.join(base, "state.json"), {}) or {}
-    policy = load(os.path.join(base, "policy.json"), {}) or {}
-    props = load(os.path.join(base, "proposals.json"), {}) or {}
-    narr = load(os.path.join(base, "narrative.json"), {}) or {}
-    stops_data = load(os.path.join(base, "stops_analysis.json"), {}) or {}
-    trades_data = load(os.path.join(base, "trades.json"), {}) or {}
-    ch = charts(base)
-
-    last_run_dir = state.get("last_run_dir", "")
-
-    def run_file(name):
-        return load(os.path.join(base, last_run_dir, name), {}) or {} if last_run_dir else {}
-
-    drift = run_file("compute_drift.json")
-    market_inputs = run_file("market_inputs.json")
-    risk = run_file("compute_risk.json")
-    rotation = run_file("compute_rotation.json")
-    derisk = run_file("compute_derisk.json")
-    triggers = run_file("compute_triggers.json")
-    book_compute = run_file("compute_book.json")
-
-    us = state.get("us", {})
-    equity = us.get("value_usd") or 0
-    cash = us.get("wallet_usd") or 0
-    total = equity + cash
-    # peak_total_book_usd/drawdown_pct are computed fresh each run in compute_book.json /
-    # compute_drift.json -- state["us"] only ever carries peak_value_usd (equity peak, not
-    # total-book peak), so falling back to that key here silently zeroed drawdown out.
-    peak = (drift.get("peak_total_book_usd") or book_compute.get("peak_total_book_usd")
-            or us.get("peak_value_usd") or total)
-    dd = drift.get("drawdown_pct")
-    if dd is None:
-        dd = book_compute.get("drawdown_pct")
-    if dd is None:
-        dd = (total - peak) / peak * 100 if peak else 0
-    cash_pct = cash / total * 100 if total else 0
-    cash_band = drift.get("cash_band_pct") or policy.get("cash_band_pct", [3, 15])
-    cash_breach = drift.get("cash_breach")
-    if cash_breach is None:
-        cash_breach = cash_pct < cash_band[0] or cash_pct > cash_band[1]
-    mandate = policy.get("mandate", {})
-    ts = state.get("ts", "")
-    sector_map = state.get("sector_map", {})
-    held_tickers = {h["ticker"] for h in state.get("holdings", [])}
-    # moved up from the positions-table section (2026-08-08) so the cluster-expand feature below
-    # can use it too -- single definition, both call sites read the same dict.
-    risk_by_ticker = {r["ticker"]: r for r in risk.get("positions", [])}
-
-    # These three were local reimplementations of a shape-parse that also existed three times
-    # over in smith_math. Consolidated 2026-08-16 into smith_risk, which every consumer already
-    # imports. This copy was the only CORRECT one (it whitelisted known statuses instead of
-    # returning raw rpartition output) -- that behaviour is what the shared version adopted.
-    thesis_status = smith_risk.thesis_status
-    thesis_text = smith_risk.thesis_text
-
-    thesis_evidence = smith_risk.thesis_evidence
-
-    H = []
-    H.append(f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
-             f'<meta name="viewport" content="width=device-width,initial-scale=1">'
-             f'<title>Agent Smith - US Book</title><style>{CSS}{chart_css(base)}</style>'
-             f'</head><body><div class="wrap">'
-             # Always emitted empty on a freshly-built page (added 2026-08-25) -- sync-decisions
-             # has already drained whatever the live artifact was holding BEFORE this rebuild
-             # ran (see SKILL.md's step 1.7), so a fresh build never has pending decisions to
-             # carry forward. The client JS below appends to this array and republishes; it is
-             # never populated server-side.
-             '<script type="application/json" id="smith-decisions">[]</script>')
-
-    # ---------------- masthead ----------------
-    mode_label = "US Deep Review" if state.get("mode") == "deep" else "US"
-    H.append(f'<header class="mast"><h1>Agent Smith <span>&middot; {esc(mode_label)}</span></h1>'
-             f'<div class="stamp">{esc(ts[:16].replace("T"," "))}'
-             f'<br>USD/INR {us.get("usdinr","-")} &middot; stops on ATR20 &middot; betas vs SMH</div></header>')
-
-    # ---------------- status strip ----------------
-    H.append(status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift, book_compute))
-
-    # ================= TIER: DECISIONS =================
-    H.append('<div class="tier"><h2>Decisions</h2><div class="ln"></div></div>')
-
+def _render_accepted_awaiting_execution(props):
+    out = []
     # ---- ACCEPTED, AWAITING EXECUTION (added 2026-08-31) ----------------------------------
     # Accepting a proposal used to make it VANISH from the dashboard. SKILL.md 1.7 is explicit
     # that a click is stated intent and NEVER proof of a trade -- so the moment the user
@@ -871,7 +791,7 @@ def build(base, out):
                 f'{pair_s}</span>'
                 f'<span class="amt {b}">${p.get("size_usd", 0):,.0f}</span></div>')
         net_word = "raises cash by" if net >= 0 else "needs cash of"
-        H.append(
+        out.append(
             '<section class="panel act"><div class="phead"><h2>Accepted &mdash; awaiting execution</h2>'
             f'<span class="pill a">{len(accepted)} decided, not yet filled</span></div>'
             f'<div class="pbody"><div>{"".join(rows)}</div>'
@@ -880,7 +800,11 @@ def build(base, out):
             'Accepting is a stated intention, not a trade: Agent Smith never places orders. '
             'A row leaves this panel only when the actual fill reaches the ledger.</p></div></section>')
 
+    return out
 
+
+def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, cash_band):
+    out = []
     open_props = [p for p in props.get("proposals", []) if p.get("status") == "open"]
     cap = policy.get("max_single_position_pct", 12)
     breaches = []
@@ -1015,14 +939,14 @@ def build(base, out):
 
         idea_rows = [pair_card(it[1]) if it[0] == "pair" else prop_row(it[1]) for it in ranked_items]
         if idea_rows:
-            H.append('<section class="panel act"><div class="phead"><h2>Ideas</h2>'
+            out.append('<section class="panel act"><div class="phead"><h2>Ideas</h2>'
                      '<span class="pill a">Ranked by conviction &mdash; for review, never executed</span></div>'
                      f'<div class="pbody"><div>{"".join(idea_rows)}</div>'
                      '<p class="note">To drop an idea you don\'t want to act on, just tell '
                      'Agent Smith &mdash; e.g. "dismiss P-014" &mdash; citing the id shown under '
                      'its action. It will not be re-proposed.</p></div></section>')
         else:
-            H.append('<section class="panel act"><div class="phead"><h2>Ideas</h2>'
+            out.append('<section class="panel act"><div class="phead"><h2>Ideas</h2>'
                      '<span class="pill a">Ranked by conviction</span></div>'
                      '<div class="pbody"><p class="note">No ideas this week &mdash; book within '
                      'policy, nothing cleared the conviction bar.</p></div></section>')
@@ -1047,10 +971,15 @@ def build(base, out):
                         f'<span class="n">{len(items)}</span></summary>'
                         f'<div class="body">{"".join(prop_row(p) for p in items)}</div></details>')
         if hrows:
-            H.append('<section class="panel act"><div class="phead"><h2>Risk housekeeping</h2>'
+            out.append('<section class="panel act"><div class="phead"><h2>Risk housekeeping</h2>'
                      '<span class="pill a">Sized &amp; actionable &mdash; not ranked against ideas</span></div>'
                      f'<div class="pbody"><div>{"".join(hrows)}</div></div></section>')
 
+    return out
+
+
+def _render_factor_catalysts(state):
+    out = []
     # -- factor catalysts --
     catalysts = [c for c in state.get("factor_catalysts", [])
                 if not smith_risk.catalyst_is_suppressed(state, c.get("headline"), c.get("date"))]
@@ -1077,9 +1006,14 @@ def build(base, out):
                         f'<div class="hh">{esc(c.get("headline",""))}</div>'
                         f'<div class="mm">{esc(c.get("magnitude",""))}</div>'
                         f'<div class="aa">{affects}{exp_s}</div>{decide_s}</div></div>')
-        H.append('<section class="panel"><div class="phead"><h2>Factor catalysts</h2></div>'
+        out.append('<section class="panel"><div class="phead"><h2>Factor catalysts</h2></div>'
                  f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
 
+    return out
+
+
+def _render_trade_triggers(triggers):
+    out = []
     # -- trade triggers (added 2026-08-12, user-reported: "still most of the proposals are based on
     # ATR risk-cap... I prefer oversold/overbought proposals to catch a bounce back for the good
     # stocks... book profit if something had a good enough run and put my money of another stock
@@ -1134,7 +1068,7 @@ def build(base, out):
             hdr_pill = ('<span class="pill bad">STALE INPUTS</span>' if stale else
                         f'<span class="pill good">RSI {triggers.get("rsi_as_of","-")}</span>')
             dq = "".join(f'<li>{esc(x)}</li>' for x in (triggers.get("data_quality") or []))
-            H.append(
+            out.append(
                 '<section class="panel act"><div class="phead"><h2>Trade triggers'
                 '<span class="sub">non-ATR candidate screens &mdash; what was available, not what was proposed</span></h2>'
                 f'{hdr_pill}</div><div class="pbody">'
@@ -1164,6 +1098,11 @@ def build(base, out):
                 + (f'<br><br><b>Data quality this run:</b><ul>{dq}</ul>' if dq else "")
                 + '</div></details></div></section>')
 
+    return out
+
+
+def _render_factor_themes(state):
+    out = []
     # -- factor themes (added 2026-08-06, dashboard feature review). Standing structural view,
     # companion to Factor catalysts above: catalysts are event-driven (this week's news),
     # themes are the persistent watch list each catalyst gets checked against. state.factor_themes
@@ -1181,10 +1120,15 @@ def build(base, out):
                         f'<div class="hh">{esc(th.get("name",""))}</div>'
                         f'<div class="mm" style="font-style:italic">{esc(th.get("watch",""))}</div>'
                         f'{live_s}<div class="aa">{maps}</div></div></div>')
-        H.append('<section class="panel"><div class="phead"><h2>Factor themes'
+        out.append('<section class="panel"><div class="phead"><h2>Factor themes'
                  '<span class="sub">the standing watch list catalysts get checked against</span></h2></div>'
                  f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
 
+    return out
+
+
+def _render_diversifier_bench(state):
+    out = []
     # -- diversifier bench (added 2026-08-06, dashboard feature review). smith-scout's bench of
     # non-AI-capex candidates, priced every run, rendered nowhere -- for a book whose mandate is
     # explicitly a concentrated single-factor bet, the list of what a genuine hedge would even
@@ -1204,7 +1148,7 @@ def build(base, out):
         decide_rows = "".join(
             f'<div class="srow"><span class="slab">{esc(tk)}</span>'
             f'<span>{decision_buttons("diversifier", tk)}</span></div>' for tk, v in rows)
-        H.append('<section class="panel"><div class="phead"><h2>Diversifier bench'
+        out.append('<section class="panel"><div class="phead"><h2>Diversifier bench'
                  '<span class="sub">non-AI-capex candidates, not held</span></h2>'
                  '<span class="pill">green = clean diversifier &middot; amber = has AI-adjacent overlap</span>'
                  f'</div><div class="pbody"><div class="chips">{chips}</div>'
@@ -1213,6 +1157,11 @@ def build(base, out):
                  f'<details><summary>Not interested in one of these?</summary><div class="body">{decide_rows}</div></details>'
                  '</div></section>')
 
+    return out
+
+
+def _render_rotation_analysis(rotation):
+    out = []
     # -- rotation analysis --
     rtickers = rotation.get("tickers", {})
     if rtickers:
@@ -1242,7 +1191,7 @@ def build(base, out):
             f'<b class="rct">{len(items)}</b></div><div class="chips">'
             + "".join(rchip(tk, v) for tk, v in items) + '</div></div>'
             for dot, label, items in cols)
-        H.append('<section class="panel"><div class="phead"><h2>Rotation analysis</h2>'
+        out.append('<section class="panel"><div class="phead"><h2>Rotation analysis</h2>'
                  '<span class="pill">thesis &times; signal history &times; risk headroom</span></div>'
                  '<div class="pbody"><p class="note">Rule-based: <b>Accumulate</b> = strengthening thesis + '
                  'net-bullish signals. <b>Rotate out</b> = watch thesis + net-bearish signals. '
@@ -1253,6 +1202,11 @@ def build(base, out):
                  'or bearish.</p>'
                  f'<div class="rgrid">{rgrid}</div></div></section>')
 
+    return out
+
+
+def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map):
+    out = []
     # -- clusters (moved 2026-08-07: swapped position with de-risk queue, per user request --
     # user wanted Clusters surfaced as a decision-relevant section, not buried after the
     # composition treemap) --
@@ -1344,7 +1298,7 @@ def build(base, out):
                 f'<div class="tgt" style="left:{pc(tgt):.1f}%"></div>'
                 f'<div class="mk{" bad" if breach else ""}" style="left:{pc(actual):.1f}%"></div></div>'
                 f'</div></summary><div class="body">{body}</div></details>')
-        H.append(
+        out.append(
             '<section class="panel"><div class="phead"><h2>Clusters</h2>'
             '<span class="pill">ceiling on book &middot; floor on equity &middot; click a cluster to see its holdings</span></div>'
             f'<div class="pbody" style="gap:0"><div class="clus-hdr"><span></span>'
@@ -1352,6 +1306,11 @@ def build(base, out):
             '<span class="num">Band</span><span></span></div>'
             f'{"".join(rows)}</div></section>')
 
+    return out
+
+
+def _render_stop_loss_efficacy(stops_data):
+    out = []
     # -- stop-loss efficacy (added 2026-08-06, dashboard feature review) --
     # trades.json had 24 stop-loss fills with exact prices and was referenced by this generator
     # zero times. The computation (smith_math.py cmd_stops, writes stops_analysis.json) measures
@@ -1401,7 +1360,7 @@ def build(base, out):
 
         dq_s = ("".join(f'<p class="note">{esc(x)}</p>' for x in (stops_data.get("data_quality") or [])))
 
-        H.append(
+        out.append(
             '<section class="panel"><div class="phead"><h2>Stop-loss efficacy'
             '<span class="sub">did the stop help or hurt, vs simply holding through</span></h2>'
             f'<span class="pill">as of {esc(stops_data.get("as_of",""))}</span></div>'
@@ -1415,6 +1374,11 @@ def build(base, out):
             'have been worth more); SAVED means it fell further after the stop fired.</p>'
             f'{dq_s}</div></section>')
 
+    return out
+
+
+def _render_the_read_and_macro(narr, market_inputs, state, book_compute):
+    out = []
     # -- the read + macro strip --
     session_text = narr.get("session_read")
     if session_text:
@@ -1424,7 +1388,7 @@ def build(base, out):
         gate = market_inputs.get("gate_classification")
         gate_pill = (f'<span class="pill {"b" if gate=="ESCALATING" else ("w" if gate=="AMBIGUOUS" else "g")}">'
                      f'Gate {esc(gate.title())}</span>') if gate else ""
-        H.append(f'<section class="panel"><div class="phead"><h2>The read</h2>'
+        out.append(f'<section class="panel"><div class="phead"><h2>The read</h2>'
                  f'<div class="pills">{gate_pill}</div></div>'
                  f'<div class="pbody"><p class="voice">{esc(short)}</p>{more}')
 
@@ -1450,11 +1414,16 @@ def build(base, out):
         if beta is not None:
             macro_cells.append(("Beta vs SMH", f'{beta:.3f}', ""))
         if macro_cells:
-            H.append('<hr class="rule"><div class="macro">' + "".join(
+            out.append('<hr class="rule"><div class="macro">' + "".join(
                 f'<div class="col"><span class="k">{esc(k)}</span><span class="v">{esc(v)}</span>'
                 f'<span class="s">{esc(s)}</span></div>' for k, v, s in macro_cells) + '</div>')
-        H.append('</div></section>')
+        out.append('</div></section>')
 
+    return out
+
+
+def _render_sentiment_session_grid(state, market_inputs):
+    out = []
     # ================= grid2: sentiment gauge + intraday session =================
     left = right = ""
     sentiment = state.get("sentiment", {})
@@ -1513,8 +1482,13 @@ def build(base, out):
                  f'<div class="pbody"><div class="kv">{"".join(rows)}</div>{sub}</div></section>')
 
     if left or right:
-        H.append(f'<div class="grid2">{left}{right}</div>')
+        out.append(f'<div class="grid2">{left}{right}</div>')
 
+    return out
+
+
+def _render_week_ahead(state, ts):
+    out = []
     # ================= the week ahead =================
     earnings_cal = dict(ticker_rows(state.get("data_cache", {}).get("earnings_calendar", {})))
     fomc = state.get("fomc_cache", {})
@@ -1543,9 +1517,14 @@ def build(base, out):
         label = "Today" if i == 0 else d.strftime("%a %-d")
         days.append(f'<div class="day{" hot" if hot else ""}"><span class="d">{esc(label)}</span>'
                     + "".join(events) + '</div>')
-    H.append('<section class="panel"><div class="phead"><h2>The week ahead</h2></div>'
+    out.append('<section class="panel"><div class="phead"><h2>The week ahead</h2></div>'
              f'<div class="pbody"><div class="cal">{"".join(days)}</div></div></section>')
 
+    return out
+
+
+def _render_watchlist_setups(state):
+    out = []
     # -- watchlist setups (added 2026-08-25, interactive dashboard). Previously fed only into
     # entry_setup triggers with no standalone rendering of its own -- these buttons let a
     # setup get suppressed or promoted directly, which entry_setup/bench_diversifier trigger
@@ -1559,23 +1538,18 @@ def build(base, out):
             f'<span style="font-size:12.5px">{w.get("upside_pct","-")}% upside, '
             f'pos {w.get("pos","-")}{decision_buttons("watchlist", w.get("ticker",""))}</span></div>'
             for w in sorted(wl_setups, key=lambda w: -(w.get("upside_pct") or 0)))
-        H.append('<section class="panel"><div class="phead"><h2>Watchlist setups'
+        out.append('<section class="panel"><div class="phead"><h2>Watchlist setups'
                  '<span class="sub">not held -- entry candidates smith-watchlist scans for</span></h2></div>'
                  f'<div class="pbody"><div>{wrows}</div>'
                  f'<p class="note">As of {esc(state.get("watchlist_setups_as_of","-"))}. '
                  'Not a proposal to buy -- the raw material entry_setup triggers score against.</p>'
                  '</div></section>')
 
-    # ================= TIER: BOOK COMPOSITION =================
-    H.append('<div class="tier"><h2>Book composition</h2><div class="ln"></div></div>')
+    return out
 
-    # FIXED 2026-08-08: fig()'s `sub` param is passed through esc() internally (see its
-    # definition above), so it needs the literal "·" character here, not the "&middot;" HTML
-    # entity -- esc() would escape the "&" a second time into the literal text "&middot;".
-    H.append(fig(ch.get("treemap"), "Allocation treemap",
-                 "size = weight · color = cluster · red outline = over risk cap"))
 
-    # -- de-risk queue (moved 2026-08-07: swapped position with clusters, per user request) --
+def _render_derisk_queue(derisk, state):
+    out = []
     if derisk and derisk.get("queue"):
         q = derisk["queue"]
         st = derisk.get("queue_state")
@@ -1613,7 +1587,7 @@ def build(base, out):
             f'<td class="sub">{esc("; ".join(r.get("friction_reasons") or []) or "-")}{_derisk_cell(r)}</td></tr>'
             for r in shown)
 
-        H.append(
+        out.append(
             '<section class="panel"><div class="phead"><h2>De-risk queue'
             '<span class="sub">ranked by damage-if-a-drawdown-comes, not by prediction</span></h2>'
             f'<span class="pill {st_cls}">{esc(st_lbl)}</span></div><div class="pbody">'
@@ -1643,6 +1617,11 @@ def build(base, out):
             'decisions only once it has a real hit rate.'
             '</div></details></div></section>')
 
+    return out
+
+
+def _render_risk_cap_and_ltcg(risk, book_compute, base):
+    out = []
     risk_rows = sorted([r for r in risk.get("positions", []) if r.get("over_cap")],
                        key=lambda r: (r.get("headroom_usd") or 0))
     riskcap_html = ""
@@ -1662,7 +1641,7 @@ def build(base, out):
                         '</div></section>')
 
     if riskcap_html:
-        H.append(riskcap_html)
+        out.append(riskcap_html)
 
     # -- LTCG watch (added 2026-08-06, dashboard feature review). compute_book.json computes
     # ltcg_flags every run from lots.json (now fully populated with email-confirmed dates) and
@@ -1679,17 +1658,22 @@ def build(base, out):
             f'{("past boundary by " + str(abs(f["months_to_ltcg"])) + "mo") if f["months_to_ltcg"]<=0 else (str(f["months_to_ltcg"]) + "mo to go")}'
             f'</span></div>'
             for f in sorted(ltcg_flags, key=lambda f: f["months_to_ltcg"]))
-        H.append(f'<section class="panel"><div class="phead"><h2>LTCG watch'
+        out.append(f'<section class="panel"><div class="phead"><h2>LTCG watch'
                  f'<span class="sub">lots within 6mo of the {ltcg_months}-month boundary</span></h2>'
                  f'<span class="pill w">{len(ltcg_flags)} lots</span></div>'
                  f'<div class="pbody">{rows}</div></section>')
     elif os.path.exists(os.path.join(base, "lots.json")):
-        H.append(f'<section class="panel"><div class="phead"><h2>LTCG watch'
+        out.append(f'<section class="panel"><div class="phead"><h2>LTCG watch'
                  f'<span class="sub">lots within 6mo of the {ltcg_months}-month boundary</span></h2>'
                  '<span class="pill g">clear</span></div>'
                  '<div class="pbody"><p class="note">No lot sits within 6 months of the '
                  f'{ltcg_months}-month LTCG boundary right now.</p></div></section>')
 
+    return out
+
+
+def _render_positions_table(state, risk_by_ticker, sector_map, risk, book_compute):
+    out = []
     holdings = sorted(state.get("holdings", []), key=lambda h: -(h.get("weight_pct") or 0))
     if holdings:
         tot_value = sum((risk_by_ticker.get(h["ticker"], {}).get("market_value_usd") or 0) for h in holdings)
@@ -1734,16 +1718,17 @@ def build(base, out):
                f'<td>${tot_value:,.0f}</td><td class="blank">{tot_weight:.1f}%</td><td class="blank"></td>'
                f'{c_beta_book}{c_risk_foot}</tr></tfoot>')
 
-        H.append(f'<section class="panel"><div class="phead"><h2>Positions<span class="sub">'
+        out.append(f'<section class="panel"><div class="phead"><h2>Positions<span class="sub">'
                  f'{len(holdings)}</span></h2></div><div class="pbody"><div class="scroll"><table>'
                  '<thead><tr><th>Name</th><th>Cluster</th><th>Qty</th><th>Price</th><th>Value</th><th>Wt</th>'
                  '<th>ATR20</th><th>&beta;</th><th>Stop</th><th>Stop px</th><th>Cap</th><th>Headroom</th></tr></thead>'
                  f'<tbody>{"".join(rows)}</tbody>{foot}</table></div></div></section>')
 
-    # ================= TIER: DIAGNOSTICS =================
-    H.append('<div class="tier"><h2>Diagnostics</h2><div class="ln"></div></div>')
-    H.append('<div class="t3">')
+    return out
 
+
+def _render_thesis_map(state, held_tickers, sector_map, thesis_status, thesis_text, thesis_evidence):
+    out = []
     def _thesis_chips(items):
         """Render thesis chips with both evidence sides in the tooltip (G58, 2026-08-10).
 
@@ -1839,7 +1824,7 @@ def build(base, out):
             f'<div class="srow"><span class="slab">{esc(tk)} <i>{esc(thesis_status(txt) or "?")}</i></span>'
             f'<span>{decision_buttons("thesis", tk)}</span></div>'
             for tk, txt in sorted(thesis.items(), key=lambda kv: kv[0]))
-        H.append(f'<details><summary>Thesis map<span class="c">{len(thesis)} of {len(held_tickers)} held</span></summary>'
+        out.append(f'<details><summary>Thesis map<span class="c">{len(thesis)} of {len(held_tickers)} held</span></summary>'
                  f'<div class="body">{"".join(blocks)}{cov}'
                  f'<details style="margin-top:10px"><summary>Confirm or override a verdict</summary>'
                  f'<div class="body">{thesis_decide_rows}'
@@ -1848,6 +1833,11 @@ def build(base, out):
                  f'as <code>user_stated</code>, never upgraded to a sourced verification.</p>'
                  f'</div></details></div></details>')
 
+    return out
+
+
+def _render_signal_history(state, held_tickers):
+    out = []
     # -- signal history, grouped bullish/bearish --
     signal_history = {k: v for k, v in (state.get("signal_history") or {}).items() if v}
     if signal_history:
@@ -1878,9 +1868,14 @@ def build(base, out):
         if bear_rows:
             body += f'<div class="grp-h" style="margin-top:14px"><span class="dot-b"></span>Bearish</div>{"".join(bear_rows)}'
         body += '<p class="note" style="margin-top:10px">Struck-through tickers are no longer held.</p>'
-        H.append(f'<details><summary>Signal history<span class="c">bullish / bearish</span></summary>'
+        out.append(f'<details><summary>Signal history<span class="c">bullish / bearish</span></summary>'
                  f'<div class="body">{body}</div></details>')
 
+    return out
+
+
+def _render_open_gaps(state):
+    out = []
     # -- open (non-closed) data gaps --
     gaps = [g for g in state.get("known_gaps", []) if g.get("status") not in ("closed", "wont_fix")]
     if gaps:
@@ -1893,9 +1888,14 @@ def build(base, out):
             decide_s = "" if g.get("user_decision") else decision_buttons("gap", g.get("id", ""))
             rows.append(f'<div class="srow"><span class="slab"><b>{esc(g.get("id",""))}</b></span>'
                        f'<span style="font-size:12.5px;color:var(--ink-2)">{esc(g.get("description",""))[:280]}{decide_s}</span></div>')
-        H.append(f'<details><summary>Open data gaps<span class="c">{len(gaps)} open</span></summary>'
+        out.append(f'<details><summary>Open data gaps<span class="c">{len(gaps)} open</span></summary>'
                  f'<div class="body">{"".join(rows)}</div></details>')
 
+    return out
+
+
+def _render_retired_recent(props):
+    out = []
     # -- auto-retired proposals, with a Revive button (added 2026-08-25, interactive dashboard).
     # Today's HIGH/MEDIUM/LOW tiers only ever show OPEN proposals -- once something auto-retires
     # there was previously no way to say "no, I disagree, keep this" short of a chat message
@@ -1911,9 +1911,14 @@ def build(base, out):
                        f'{esc(p.get("action",""))}</span>'
                        f'<span style="font-size:12.5px;color:var(--ink-2)">'
                        f'{esc((p.get("retired_reason") or "")[:200])}{decide_s}</span></div>')
-        H.append(f'<details><summary>Recently auto-retired<span class="c">{len(retired_recent)} shown</span></summary>'
+        out.append(f'<details><summary>Recently auto-retired<span class="c">{len(retired_recent)} shown</span></summary>'
                  f'<div class="body">{"".join(rows)}</div></details>')
 
+    return out
+
+
+def _render_execution_log(trades_data):
+    out = []
     # -- execution log (added 2026-08-06, dashboard feature review). trades.json holds 61
     # trades with captured rationale ("why", not just "what") and had never been rendered.
     exec_trades = sorted(trades_data.get("trades", []), key=lambda t: t.get("date") or "", reverse=True)
@@ -1931,12 +1936,17 @@ def build(base, out):
                         f'<span class="rsn"><b>{esc(t.get("ticker",""))}</b> {qty_s} &middot; '
                         f'{esc((t.get("reason") or "").replace("-"," "))}</span>'
                         f'<span class="px {side}">{price_s}</span></div>')
-        H.append(f'<details><summary>Execution log<span class="c">{len(exec_trades)} trades, '
+        out.append(f'<details><summary>Execution log<span class="c">{len(exec_trades)} trades, '
                  f'most recent 25 shown</span></summary><div class="body">{"".join(rows)}'
                  '<p class="note" style="margin-top:8px">Every entry carries the rationale '
                  'captured at the time -- hover the notes in trades.json for the full text.</p>'
                  '</div></details>')
 
+    return out
+
+
+def _render_data_quality(state, book_compute, risk, drift, derisk):
+    out = []
     # -- data quality (added 2026-08-06, dashboard feature review). Every compute step already
     # self-reports its own caveats (stale feeds, defaulted betas, missing coverage) into
     # data_quality arrays that were computed and never surfaced -- a dashboard that hides its
@@ -1948,9 +1958,14 @@ def build(base, out):
         rows = "".join(f'<div class="srow"><span class="slab"></span>'
                        f'<span style="font-size:12.5px;color:var(--ink-2)">{esc(x)}</span></div>'
                        for x in dq_all)
-        H.append(f'<details><summary>Data quality caveats<span class="c">{len(dq_all)} this run</span></summary>'
+        out.append(f'<details><summary>Data quality caveats<span class="c">{len(dq_all)} this run</span></summary>'
                  f'<div class="body">{rows}</div></details>')
 
+    return out
+
+
+def _render_self_learning(base):
+    out = []
     # -- self-learning (added 2026-08-25, Phase 2). Nothing surfaced the engagement-rate
     # collapse before this -- it is the single most important number about this system right
     # now (61.5% of terminal proposals acted-on in July, 2.4% in August) and was sitting
@@ -2029,15 +2044,19 @@ def build(base, out):
             rows.append(f'<details open><summary>Escalated parameters -- your call'
                        f'<span class="c">{len(escalated)} waiting</span></summary>'
                        f'<div class="body">{erows}</div></details>')
-        H.append('<details><summary>Self-learning<span class="c">Phase 0-2</span></summary>'
+        out.append('<details><summary>Self-learning<span class="c">Phase 0-2</span></summary>'
                  f'<div class="body">{"".join(rows)}</div>'
                  '<p class="note" style="margin-top:8px">Observational only -- nothing here '
                  'auto-sizes a position yet. See learning.json / learn-status for the full '
                  'parameter state machine.</p></details>')
 
-    H.append('</div>')  # /t3
+    return out
 
+
+def _render_historical_charts(ch, policy):
+    out = []
     # -- historical charts, separate collapsed panel --
+    cap = policy.get("max_single_position_pct", 12)
     hist_charts = "".join([
         fig(ch.get("bookvalue"), "Book value & cash", "every ledger row"),
         fig(ch.get("drawdown"), "Drawdown vs trim ladder", "pre-committed rungs"),
@@ -2045,11 +2064,160 @@ def build(base, out):
         fig(ch.get("weights"), "Position weights", f"against the {cap}% cap"),
     ])
     if hist_charts:
-        H.append('<section class="panel"><div class="pbody" style="gap:0">'
+        out.append('<section class="panel"><div class="pbody" style="gap:0">'
                  '<details><summary>Historical charts<span class="c">ledger &middot; drawdown &middot; '
                  'benchmark &middot; weights</span></summary>'
                  f'<div class="body" style="display:flex;flex-direction:column;gap:26px">{hist_charts}</div>'
                  '</details></div></section>')
+
+    return out
+
+
+def build(base, out):
+    state = load(os.path.join(base, "state.json"), {}) or {}
+    policy = load(os.path.join(base, "policy.json"), {}) or {}
+    props = load(os.path.join(base, "proposals.json"), {}) or {}
+    narr = load(os.path.join(base, "narrative.json"), {}) or {}
+    stops_data = load(os.path.join(base, "stops_analysis.json"), {}) or {}
+    trades_data = load(os.path.join(base, "trades.json"), {}) or {}
+    ch = charts(base)
+
+    last_run_dir = state.get("last_run_dir", "")
+
+    def run_file(name):
+        return load(os.path.join(base, last_run_dir, name), {}) or {} if last_run_dir else {}
+
+    drift = run_file("compute_drift.json")
+    market_inputs = run_file("market_inputs.json")
+    risk = run_file("compute_risk.json")
+    rotation = run_file("compute_rotation.json")
+    derisk = run_file("compute_derisk.json")
+    triggers = run_file("compute_triggers.json")
+    book_compute = run_file("compute_book.json")
+
+    us = state.get("us", {})
+    equity = us.get("value_usd") or 0
+    cash = us.get("wallet_usd") or 0
+    total = equity + cash
+    # peak_total_book_usd/drawdown_pct are computed fresh each run in compute_book.json /
+    # compute_drift.json -- state["us"] only ever carries peak_value_usd (equity peak, not
+    # total-book peak), so falling back to that key here silently zeroed drawdown out.
+    peak = (drift.get("peak_total_book_usd") or book_compute.get("peak_total_book_usd")
+            or us.get("peak_value_usd") or total)
+    dd = drift.get("drawdown_pct")
+    if dd is None:
+        dd = book_compute.get("drawdown_pct")
+    if dd is None:
+        dd = (total - peak) / peak * 100 if peak else 0
+    cash_pct = cash / total * 100 if total else 0
+    cash_band = drift.get("cash_band_pct") or policy.get("cash_band_pct", [3, 15])
+    cash_breach = drift.get("cash_breach")
+    if cash_breach is None:
+        cash_breach = cash_pct < cash_band[0] or cash_pct > cash_band[1]
+    mandate = policy.get("mandate", {})
+    ts = state.get("ts", "")
+    sector_map = state.get("sector_map", {})
+    held_tickers = {h["ticker"] for h in state.get("holdings", [])}
+    # moved up from the positions-table section (2026-08-08) so the cluster-expand feature below
+    # can use it too -- single definition, both call sites read the same dict.
+    risk_by_ticker = {r["ticker"]: r for r in risk.get("positions", [])}
+
+    # These three were local reimplementations of a shape-parse that also existed three times
+    # over in smith_math. Consolidated 2026-08-16 into smith_risk, which every consumer already
+    # imports. This copy was the only CORRECT one (it whitelisted known statuses instead of
+    # returning raw rpartition output) -- that behaviour is what the shared version adopted.
+    thesis_status = smith_risk.thesis_status
+    thesis_text = smith_risk.thesis_text
+
+    thesis_evidence = smith_risk.thesis_evidence
+
+    H = []
+    H.append(f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
+             f'<meta name="viewport" content="width=device-width,initial-scale=1">'
+             f'<title>Agent Smith - US Book</title><style>{CSS}{chart_css(base)}</style>'
+             f'</head><body><div class="wrap">'
+             # Always emitted empty on a freshly-built page (added 2026-08-25) -- sync-decisions
+             # has already drained whatever the live artifact was holding BEFORE this rebuild
+             # ran (see SKILL.md's step 1.7), so a fresh build never has pending decisions to
+             # carry forward. The client JS below appends to this array and republishes; it is
+             # never populated server-side.
+             '<script type="application/json" id="smith-decisions">[]</script>')
+
+    # ---------------- masthead ----------------
+    mode_label = "US Deep Review" if state.get("mode") == "deep" else "US"
+    H.append(f'<header class="mast"><h1>Agent Smith <span>&middot; {esc(mode_label)}</span></h1>'
+             f'<div class="stamp">{esc(ts[:16].replace("T"," "))}'
+             f'<br>USD/INR {us.get("usdinr","-")} &middot; stops on ATR20 &middot; betas vs SMH</div></header>')
+
+    # ---------------- status strip ----------------
+    H.append(status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift, book_compute))
+
+    # ================= TIER: DECISIONS =================
+    H.append('<div class="tier"><h2>Decisions</h2><div class="ln"></div></div>')
+
+    H.extend(_render_accepted_awaiting_execution(props))
+
+    H.extend(_render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, cash_band))
+
+    H.extend(_render_factor_catalysts(state))
+
+    H.extend(_render_trade_triggers(triggers))
+
+    H.extend(_render_factor_themes(state))
+
+    H.extend(_render_diversifier_bench(state))
+
+    H.extend(_render_rotation_analysis(rotation))
+
+    H.extend(_render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map))
+
+    H.extend(_render_stop_loss_efficacy(stops_data))
+
+    H.extend(_render_the_read_and_macro(narr, market_inputs, state, book_compute))
+
+    H.extend(_render_sentiment_session_grid(state, market_inputs))
+
+    H.extend(_render_week_ahead(state, ts))
+
+    H.extend(_render_watchlist_setups(state))
+
+    # ================= TIER: BOOK COMPOSITION =================
+    H.append('<div class="tier"><h2>Book composition</h2><div class="ln"></div></div>')
+
+    # FIXED 2026-08-08: fig()'s `sub` param is passed through esc() internally (see its
+    # definition above), so it needs the literal "·" character here, not the "&middot;" HTML
+    # entity -- esc() would escape the "&" a second time into the literal text "&middot;".
+    H.append(fig(ch.get("treemap"), "Allocation treemap",
+                 "size = weight · color = cluster · red outline = over risk cap"))
+
+    # -- de-risk queue (moved 2026-08-07: swapped position with clusters, per user request) --
+    H.extend(_render_derisk_queue(derisk, state))
+
+    H.extend(_render_risk_cap_and_ltcg(risk, book_compute, base))
+
+    H.extend(_render_positions_table(state, risk_by_ticker, sector_map, risk, book_compute))
+
+    # ================= TIER: DIAGNOSTICS =================
+    H.append('<div class="tier"><h2>Diagnostics</h2><div class="ln"></div></div>')
+    H.append('<div class="t3">')
+
+    H.extend(_render_thesis_map(state, held_tickers, sector_map, thesis_status, thesis_text, thesis_evidence))
+
+    H.extend(_render_signal_history(state, held_tickers))
+
+    H.extend(_render_open_gaps(state))
+
+    H.extend(_render_retired_recent(props))
+
+    H.extend(_render_execution_log(trades_data))
+
+    H.extend(_render_data_quality(state, book_compute, risk, drift, derisk))
+
+    H.extend(_render_self_learning(base))
+
+    H.append('</div>')  # /t3
+
+    H.extend(_render_historical_charts(ch, policy))
 
     # ---------------- footer ----------------
     confirm_flags = [f for f in state.get("open_flags", [])
