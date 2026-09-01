@@ -1810,6 +1810,595 @@ def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
     return out
 
 
+# ---------------------------------------------------------------------------
+# cmd_triggers helpers -- one function per lettered trigger section, extracted
+# 2026-09-02 so each is independently readable and callable. This is a MECHANICAL
+# extraction (each function's body is the original inline block, unchanged) verified
+# byte-identical against a golden-master fixture (tests/golden/triggers_case1.json) --
+# see tests/verify_triggers.sh. Every function takes its inputs as explicit named
+# parameters (no hidden closure over cmd_triggers' locals) and appends its result
+# directly to the caller-supplied output list(s), matching the original code's own
+# side-effecting style so the diff against the original block is minimal and auditable.
+# ---------------------------------------------------------------------------
+
+def _trigger_oversold_reversion(base, ticker, status, healthy, rsi_usable, rsi, over_cap,
+                                 headroom, max_single, fundamental_headwind, oversold, dq):
+    """Section A: oversold_reversion (BUY, live)."""
+    if rsi_usable and rsi is not None and rsi < RSI_OVERSOLD and healthy \
+            and not over_cap and (headroom or 0) > 0 and not fundamental_headwind:
+        size = min(headroom, max_single) if max_single else 0.0
+        oversold.append({**base, "trigger_type": "oversold_reversion", "direction": "BUY",
+                         "vote": "live",
+                         "headroom_usd": round(headroom, 2),
+                         "suggested_size_usd": round(size, 2),
+                         "retires_when": f"{ticker} RSI14 recovers above {RSI_OVERSOLD_EXIT:g} "
+                                         "(setup consumed) or its thesis leaves intact/strengthening",
+                         "reasons": [f"RSI14 {rsi:.1f} < {RSI_OVERSOLD:g} (oversold)",
+                                     f"thesis {status} -- technical dip, not a fundamental break",
+                                     f"within ATR risk cap with ${headroom:,.0f} headroom"],
+                         "blockers": ([] if size > 0 else
+                                      ["no deployable cash above the band ceiling -- setup valid, "
+                                       "funding is not"])})
+    elif rsi_usable and rsi is not None and rsi < RSI_OVERSOLD and not healthy:
+        dq.append(f"{ticker} is oversold (RSI {rsi:.1f}) but thesis is '{status}' -- deliberately "
+                  "not a bounce candidate (falling knife, not a dip)")
+
+
+def _trigger_overbought_distribution(base, ticker, rsi_usable, rsi, rel_usable, abs_pct, mv,
+                                     sector_map, cluster_rows, rel_vals, risk_by_ticker, thesis,
+                                     overbought):
+    """Section B: overbought_distribution (TRIM, live). Deliberately INDEPENDENT of over_cap:
+    booking profit on a name that ran is the point, and gating it on a risk-cap breach is
+    precisely what made every trim an ATR trim."""
+    if rsi_usable and rsi is not None and rsi > RSI_OVERBOUGHT:
+        genuinely_up = (abs_pct is not None and abs_pct > 0) if rel_usable else None
+        if genuinely_up is not False:
+            size = mv * OVERBOUGHT_TRIM_FRACTION
+            reasons = [f"RSI14 {rsi:.1f} > {RSI_OVERBOUGHT:g} (overbought)"]
+            if genuinely_up:
+                reasons.append(f"up {abs_pct:+.1f}% on the month -- real gain to protect")
+            blockers = []
+            if genuinely_up is None:
+                blockers.append("1m return unavailable (stale rel_strength) -- 'genuinely up' "
+                                "gate unverified, confirm the position is actually in profit")
+            # CLUSTER TENSION (added 2026-08-12). The trim itself stays cap-independent and
+            # cluster-independent -- "this name ran, book some" is a valid standalone reason and
+            # gating it on cluster state would recreate the ATR-only monoculture in a new form.
+            # But a trim of a name whose cluster is UNDER its floor makes that underweight worse,
+            # and the G56 family of bugs is exactly this: a cluster figure cited in the wrong
+            # direction. Found live on 2026-08-12 -- MSFT tripped overbought while
+            # Compute/Hyperscaler sat 7.74pt UNDER floor. So: flag it, never silently allow a
+            # downstream proposal to cite the cluster as support, and name the intra-cluster
+            # rotation that resolves it (sell the extended name, buy the lagging one in the SAME
+            # cluster -> books the gain, leaves the cluster weight untouched).
+            cl_row = cluster_rows.get(sector_map.get(ticker)) if cluster_rows else None
+            cl_drift = cl_row.get("drift_pt") if cl_row else None
+            cluster_tension = cl_drift is not None and cl_drift < 0
+            rotation_targets = []
+            if cluster_tension:
+                # G63: only recommend an intra-cluster rotation if a target actually EXISTS.
+                # Found live 2026-08-13 on MSFT -- Compute/Hyperscaler was 10.40pt under floor,
+                # yet all three members (MSFT/AMZN/ORCL) were stretched, so the advice sent the
+                # reader hunting for a trade that was not there. Eligible = same cluster, not
+                # this ticker, negative 1m relative strength (genuinely hasn't run), inside its
+                # own ATR cap, and thesis not broken.
+                my_cluster = sector_map.get(ticker)
+                for ot, orow in risk_by_ticker.items():
+                    if ot == ticker or sector_map.get(ot) != my_cluster:
+                        continue
+                    orel = rel_vals.get(ot)
+                    if orel is None or orel >= 0 or orow.get("over_cap"):
+                        continue
+                    if smith_risk.thesis_status(thesis.get(ot)) == "broken":
+                        continue
+                    rotation_targets.append({"ticker": ot, "rel_pp": round(orel, 2),
+                                             "headroom_usd": orow.get("headroom_usd")})
+                rotation_targets.sort(key=lambda x: x["rel_pp"])
+                base_msg = (f"cluster {my_cluster} is {cl_drift:+.2f}pt UNDER its floor -- this "
+                            f"trim deepens an existing underweight. The stretch reason stands on "
+                            f"its own, but do NOT cite the cluster as support (G56).")
+                if rotation_targets:
+                    tgt = ", ".join(f"{t['ticker']} ({t['rel_pp']:+.1f}pp, "
+                                    f"${(t['headroom_usd'] or 0):,.0f} headroom)"
+                                    for t in rotation_targets[:3])
+                    blockers.append(f"{base_msg} Resolve it as an INTRA-CLUSTER ROTATION into: "
+                                    f"{tgt} -- books the gain and leaves the cluster weight "
+                                    f"unchanged.")
+                else:
+                    blockers.append(f"{base_msg} NO intra-cluster rotation is available: every "
+                                    f"other name in {my_cluster} has already run (none has "
+                                    f"negative 1m relative strength while inside its ATR cap). "
+                                    f"So the real choice is trim-anyway and accept a deeper "
+                                    f"underweight, or leave it -- there is no third option this "
+                                    f"run. Do not go looking for one.")
+            overbought.append({**base, "trigger_type": "overbought_distribution",
+                               "direction": "TRIM", "vote": "live",
+                               "suggested_size_usd": round(size, 2),
+                               "trim_fraction": OVERBOUGHT_TRIM_FRACTION,
+                               "over_cap_independent": True,
+                               "cluster_tension": cluster_tension,
+                               "cluster_drift_pt": cl_drift,
+                               "rotation_targets": rotation_targets,
+                               "retires_when": f"{ticker} RSI14 falls below {RSI_OVERBOUGHT_EXIT:g} "
+                                               "or it is no longer up on the month",
+                               "reasons": reasons, "blockers": blockers})
+
+
+def _trigger_laggard_rotation(base, ticker, rel_usable, laggard_set, healthy, over_cap, headroom,
+                              status, rel_pp, rel_cache, max_single, fundamental_headwind, laggard):
+    """Section C: laggard_rotation (BUY, shadow)."""
+    if rel_usable and ticker in laggard_set and healthy and not over_cap \
+            and (headroom or 0) > 0 and not fundamental_headwind:
+        laggard.append({**base, "trigger_type": "laggard_rotation", "direction": "BUY",
+                        "vote": "shadow",
+                        "headroom_usd": round(headroom, 2),
+                        "suggested_size_usd": round(min(headroom, max_single), 2) if max_single else 0.0,
+                        "reasons": [f"bottom-quartile 1m relative strength ({rel_pp:+.1f}pp vs "
+                                    f"{rel_cache.get('benchmark', 'SMH')}) -- has not run yet",
+                                    f"thesis {status}", "within ATR risk cap"],
+                        # Same honesty as oversold_reversion: a $0 size means the SETUP is valid and
+                        # the FUNDING is not. Without this the row rendered "$0" with no explanation,
+                        # which reads as "the screen found nothing worth sizing" -- the opposite of
+                        # what it means. It is also the normal state once cash re-enters its band,
+                        # so it will be seen often; a rotation pair funds it from a sell leg instead.
+                        "blockers": ([] if max_single else
+                                     ["no deployable cash above the band ceiling -- setup valid, "
+                                      "funding is not; fund it from a sell leg (rotation pair) "
+                                      "rather than from the wallet"])})
+
+
+def _trigger_catalyst_threat(base, ticker, mv, catalyst_threats_by_ticker, rotation_by_ticker,
+                             status, catalyst_threat):
+    """Section F: catalyst_threat (TRIM, live). Deliberately independent of over_cap/cluster/cash,
+    same discipline as overbought_distribution -- a structural threat is a reason to trim on its
+    own, not something that should wait for a volatility-budget breach to also be true."""
+    cats = catalyst_threats_by_ticker.get(ticker)
+    if cats:
+        size = mv * CATALYST_THREAT_TRIM_FRACTION
+        reasons = [f"{c.get('headline', '')} ({c.get('date', '')}) -- {c.get('magnitude', '')}"
+                  for c in cats]
+        blockers = []
+        # TENSION, not suppression (same idiom as overbought_distribution's cluster_tension
+        # check above): a name can simultaneously carry a strengthening thesis/accumulate
+        # rotation signal AND a real, dated financing/structural threat -- those are not the
+        # same question, and letting the accumulate signal silently veto the catalyst would
+        # recreate exactly the gap this trigger exists to close (AVGO, 2026-08-17: rotation
+        # said accumulate on a strengthening thesis while a $370bn bond-downgrade tail risk
+        # went unscored). Surface both, let the strategist weigh them.
+        rtk_here = rotation_by_ticker.get(ticker, {})
+        if rtk_here.get("bucket") == "accumulate" and status in HEALTHY_THESIS:
+            blockers.append(f"{ticker} is simultaneously in rotation's accumulate bucket on a "
+                            f"{status} thesis -- the catalyst threat and the accumulate signal "
+                            "are answering different questions (financing-structure risk vs. "
+                            "operating fundamentals); this does not cancel the trigger, but "
+                            "size and priority are a judgement call, not a formula")
+        catalyst_threat.append({**base, "trigger_type": "catalyst_threat", "direction": "TRIM",
+                                "vote": "live",
+                                "suggested_size_usd": round(size, 2),
+                                "trim_fraction": CATALYST_THREAT_TRIM_FRACTION,
+                                "over_cap_independent": True,
+                                "catalyst_sources": [c.get("source") for c in cats],
+                                "retires_when": f"{ticker} no longer appears in a "
+                                                "structural-threat factor catalyst",
+                                "reasons": reasons, "blockers": blockers})
+
+
+def _trigger_thesis_break(base, ticker, status, mv, thesis, thesis_break):
+    """Section G: thesis_break (TRIM, live). A broken thesis has nothing to do with cost basis,
+    so this is its own top-level check, not chained onto the ratchet/ladder logic -- it must
+    fire even when lots.json has no entry for this ticker. LIVE from day one; see the
+    constants-file note (smith_core.py's CATALYST_THREAT_TRIM_FRACTION docstring)."""
+    if status == "broken":
+        ev_for, ev_against, verified = smith_risk.thesis_evidence(thesis.get(ticker))
+        thesis_line = smith_risk.thesis_text(thesis.get(ticker))
+        size = mv * THESIS_BREAK_TRIM_FRACTION
+        reasons = ([thesis_line] if thesis_line else []) + \
+                  [f"broken -- {c.get('claim', '')} ({c.get('date', '')}, {c.get('source', '')})"
+                   for c in (ev_against or [])[:3]]
+        blockers = []
+        if not ev_against:
+            blockers.append(f"{ticker} marked broken with no evidence_against recorded -- "
+                            "sizing proceeds anyway (a status flip is itself the signal) but "
+                            "flag for the next smith-thesis touch to backfill the evidence")
+        thesis_break.append({**base, "trigger_type": "thesis_break", "direction": "TRIM",
+                             "vote": "live",
+                             "suggested_size_usd": round(size, 2),
+                             "trim_fraction": THESIS_BREAK_TRIM_FRACTION,
+                             "over_cap_independent": True,
+                             "evidence_verified": verified,
+                             "retires_when": f"{ticker}'s thesis is no longer 'broken'",
+                             "reasons": reasons, "blockers": blockers})
+
+
+def _trigger_ratchet_and_ladder(base, ticker, r, mv, price, rsi, lots, laggard_set, ratchet,
+                                ladder, dq):
+    """Sections D/E: profit_ratchet + scale_out_ladder (both shadow). Share the same avg-cost
+    precompute, so extracted as one function rather than two -- forcing them apart would mean
+    computing avg_cost/priced_qty/unpriced_qty twice for no benefit."""
+    avg_cost, priced_qty, unpriced_qty = _avg_cost_from_lots(lots.get(ticker))
+    if avg_cost and price:
+        gain_pct = (price - avg_cost) / avg_cost * 100.0
+        stop = r.get("stop_price_usd")
+        basis_note = ([f"{unpriced_qty:g} share(s) have no known cost (G1 synthetic lot) -- "
+                       "average is over the priced portion only"] if unpriced_qty else [])
+        if gain_pct >= RATCHET_MIN_GAIN_PCT and stop is not None and stop < avg_cost:
+            ratchet.append({**base, "trigger_type": "profit_ratchet", "direction": "STOP_RAISE",
+                            "vote": "shadow",
+                            "avg_cost_usd": round(avg_cost, 4), "gain_pct": round(gain_pct, 2),
+                            "current_stop_usd": round(stop, 4),
+                            "suggested_stop_usd": round(avg_cost, 4),
+                            "gain_at_risk_usd": round((avg_cost - stop) * (priced_qty or 0), 2),
+                            "reasons": [f"up {gain_pct:+.1f}% vs a ${avg_cost:,.2f} basis",
+                                        f"stop sits at ${stop:,.2f}, BELOW breakeven -- a "
+                                        "retracement turns this winner into a realised loss"],
+                            "blockers": basis_note})
+        tiers = [{"gain_pct": t, "triggered": gain_pct >= t,
+                  "slice_usd": round(mv * LADDER_FRACTION, 2)} for t in LADDER_TIERS_PCT]
+        if any(t["triggered"] for t in tiers):
+            hit = [t for t in tiers if t["triggered"]]
+            rungs = ", ".join("+%g%%" % t["gain_pct"] for t in hit)
+            ladder.append({**base, "trigger_type": "scale_out_ladder", "direction": "TRIM",
+                           "vote": "shadow",
+                           "avg_cost_usd": round(avg_cost, 4), "gain_pct": round(gain_pct, 2),
+                           "tiers": tiers,
+                           "suggested_size_usd": hit[-1]["slice_usd"],
+                           "reasons": [f"up {gain_pct:+.1f}% vs basis -- "
+                                       f"{len(hit)} of {len(tiers)} scale-out rung(s) reached "
+                                       f"({rungs})"],
+                           "blockers": basis_note})
+    elif ticker in laggard_set or (rsi is not None and rsi > RSI_OVERBOUGHT):
+        if not lots.get(ticker):
+            dq.append(f"{ticker} has no lots.json entry -- profit_ratchet/scale_out_ladder "
+                      "cannot be computed (no cost basis)")
+
+
+def _trigger_conviction_held(base, ticker, r, mv, price, rsi, rel_pp, rsi_usable, healthy,
+                             over_cap, headroom, thesis, signal_history, atr_vals, total_book,
+                             policy, deployable_for_ideas, build_ctx, conviction_by_ticker,
+                             catalyst_threats_by_ticker, lots, trend_entry, trend_breakdown,
+                             conviction_average, conviction_exit, dq):
+    """Sections H/I/J/K: the four conviction-driven triggers on currently-HELD tickers (added
+    2026-08-24). Kept as one function, not four -- all of H/I/J/K share the SAME conv/ctx/
+    buckets/polarity computed once per ticker, and splitting them apart would mean either
+    recomputing that shared state four times or threading it through four call sites, neither
+    of which is safer than the original single pass. Also populates conviction_by_ticker,
+    consumed later by the O/P rotation-pairing pass -- that population must happen here
+    regardless of which of H/I/J/K (if any) actually fires."""
+    buckets = signal_history.get(ticker) or []
+    ctx = build_ctx(ticker, thesis.get(ticker), buckets, price, rsi, rel_pp, ticker)
+    conv = smith_conviction.score_conviction(ctx)
+    conviction_by_ticker[ticker] = {**conv, "cluster": r.get("cluster"), "rel_pp": rel_pp,
+                                    "over_cap": over_cap, "headroom_usd": headroom,
+                                    "market_value_usd": mv, "price": price, "atr_pct": atr_vals.get(ticker)}
+    polarity = smith_risk.classify_signal_polarity(buckets)
+
+    # --- H. trend_entry (BUY, live) -- ORGANISING RULE: price extended/rising + thesis
+    # strong -> hold or add on strength. Fires on a genuine breakout/uptrend bucket, not on
+    # RSI alone (RSI-based entries are oversold_reversion's job) -- this is the direct fix
+    # for "NEW TAILWINDS drives zero logic today": a bullish trend bucket now scores
+    # conviction UP and, past the bar, becomes an add.
+    if healthy and {"BREAKOUT", "STRONG UPTREND"} & set(buckets) and not over_cap \
+            and conv["conviction_tier"] not in ("none",) and (headroom or 0) > 0:
+        atr_pct = atr_vals.get(ticker)
+        pmax = (smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy)
+                if atr_pct and price else None)
+        target, wanted = ((None, None) if not pmax else
+                          smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"]))
+        size_final, clamped_by = smith_conviction.clamp_size(wanted, headroom, None, deployable_for_ideas)
+        trend_entry.append({**base, "trigger_type": "trend_entry", "direction": "BUY", "vote": "live",
+                           "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
+                           "size_wanted_usd": wanted, "suggested_size_usd": size_final, "clamped_by": clamped_by,
+                           "stop_price_usd": pmax.get("stop_price_usd") if pmax else None,
+                           "retires_when": f"{ticker} no longer carries BREAKOUT/STRONG UPTREND or thesis leaves intact/strengthening",
+                           "reasons": conv["conviction_reasons"], "blockers": []})
+
+    # --- I. trend_breakdown (TRIM/SELL, live) -- price falling + thesis weak -> exit the
+    # breakdown. Mirror of H on the bearish side.
+    if not healthy and {"BREAKDOWN", "STRONG DOWNTREND"} & set(buckets):
+        size = mv * 0.30
+        trend_breakdown.append({**base, "trigger_type": "trend_breakdown", "direction": "TRIM", "vote": "live",
+                               "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
+                               "suggested_size_usd": round(size, 2), "over_cap_independent": True,
+                               "retires_when": f"{ticker} no longer carries BREAKDOWN/STRONG DOWNTREND or thesis recovers",
+                               "reasons": conv["conviction_reasons"], "blockers": []})
+
+    # --- J. conviction_average (BUY, live) -- ORGANISING RULE: price lagging/fallen + thesis
+    # strong -> average down. Requires the BLENDED entry to stay ABOVE the current stop --
+    # per user decision, this trigger REFUSES the add rather than quietly widen the stop.
+    # Fair-value anchor = technical support, proxied as price - 2xATR (same fallback rule
+    # smith-rebound already uses live) since no persisted moving-average support level exists.
+    atr_pct = atr_vals.get(ticker)
+    # Gate is "not none", not "medium+" -- the tier already scales size (conviction_tier_pct),
+    # so requiring medium+ here was a redundant second restriction on top of that scaling,
+    # and it starved every candidate whose only available input was an unverified thesis
+    # (the common case -- 22 of 33 in this book) since that alone lands in "low", not "medium".
+    if healthy and atr_pct and price and conv["conviction_tier"] != "none" and not over_cap:
+        # 1x ATR, not 2x -- 2x ATR is literally the STOP distance (policy's own
+        # stop_distance_pct = max(2*atr_pct, 3.0)), so using it as a "support" level made
+        # this trigger require price to have fallen almost all the way to its own stop
+        # before ever registering as a dip -- confirmed live: GLW needed to fall to ~$115
+        # from $145 (2x ATR) when smith-rebound's own live moving-average support sat at
+        # $140.23, a ~3.5% dip. 1x ATR is a rougher compute-only proxy for that same idea
+        # (no persisted moving-average level exists to read directly) and should be
+        # superseded by a live-dispatched agent's real support number when one is available.
+        support = price * (1 - atr_pct / 100.0)
+        avg_cost_h, priced_qty_h, _ = _avg_cost_from_lots(lots.get(ticker))
+        stop_now = r.get("stop_price_usd")
+        # Gate on genuine drawdown vs COST BASIS, not proximity to the ATR-support proxy --
+        # tried the proxy first and it required price within 1x ATR of support, which for a
+        # book running 9-15% ATR20 names meant "has fallen almost to its own support zone",
+        # rarely true for a name merely off its highs. "Price below what you paid" is a
+        # directly-measurable, defensible reading of "drawdown beyond fair price" (fair
+        # price = your own entry), and `support` is still carried on the row as context for
+        # where a real technical floor roughly sits, just not the gating test.
+        if avg_cost_h and priced_qty_h and stop_now is not None and price < avg_cost_h:
+            pmax = smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy)
+            target, wanted = smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"])
+            size_final, clamped_by = smith_conviction.clamp_size(wanted, headroom, None, deployable_for_ideas)
+            add_qty = (size_final / price) if (size_final and price) else 0.0
+            blended = ((avg_cost_h * priced_qty_h) + (price * add_qty)) / (priced_qty_h + add_qty) if add_qty else avg_cost_h
+            if blended > stop_now:
+                conviction_average.append({**base, "trigger_type": "conviction_average", "direction": "BUY",
+                                          "vote": "live", "conviction_score": conv["conviction_score"],
+                                          "conviction_tier": conv["conviction_tier"],
+                                          "support_usd": round(support, 4), "size_wanted_usd": wanted,
+                                          "suggested_size_usd": size_final, "clamped_by": clamped_by,
+                                          "blended_entry_usd": round(blended, 4), "current_stop_usd": round(stop_now, 4),
+                                          "retires_when": f"{ticker} recovers above its support level or thesis leaves intact/strengthening",
+                                          "reasons": conv["conviction_reasons"], "blockers": []})
+            else:
+                dq.append(f"{ticker}: conviction_average setup found but blended entry ${blended:.2f} "
+                          f"would sit below the current stop ${stop_now:.2f} -- refused per standing rule, "
+                          "not sized")
+
+    # --- K. conviction_exit (SELL, live) -- convergence of negatives, not the word 'broken'.
+    # There are 0 broken theses in this book; a broken-keyed exit could never fire. Counts
+    # how many of {thesis, catalyst, trend, technical} independently read negative and exits
+    # only when at least 3 agree -- one bad signal alone never triggers this.
+    neg_count = sum([
+        1 if smith_risk.thesis_status(thesis.get(ticker)) == "watch" else 0,
+        1 if catalyst_threats_by_ticker.get(ticker) else 0,
+        1 if polarity["net"] < 0 else 0,
+        1 if (rsi_usable and rsi is not None and rsi > RSI_OVERBOUGHT and polarity["net"] <= 0) else 0,
+    ])
+    if smith_conviction.convergence_exit_score(neg_count) and not over_cap:
+        size = mv * 0.50  # convergence of negatives is the strongest sell signal this engine has
+        reasons = list(conv["conviction_reasons"])
+        reasons.insert(0, f"{neg_count} independent negative signals converged (thesis/catalyst/trend/technical)")
+        conviction_exit.append({**base, "trigger_type": "conviction_exit", "direction": "SELL", "vote": "live",
+                               "conviction_score": conv["conviction_score"], "negative_signal_count": neg_count,
+                               "suggested_size_usd": round(size, 2), "over_cap_independent": True,
+                               "retires_when": f"fewer than 3 of {ticker}'s independent negative signals remain",
+                               "reasons": reasons, "blockers": []})
+
+
+def _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_history, thesis,
+                              factor_catalysts, earnings_facts, mention_counts, track_record_for,
+                              atr_vals, sector_map, entry_setup):
+    """Section L: entry_setup (BUY, live) -- smith-watchlist's setups, persisted to state.json
+    this run for the first time (previously had NO code path into proposals at all -- 9 setups
+    found on 2026-08-24, 1 reached a proposal, hand-written narrative only). No live price is
+    persisted per setup, so this cannot be sized without a fetch this script cannot make --
+    degrades to suggested_size_usd=None with an explicit blocker rather than estimate one."""
+    for row in watchlist_setups:
+        ticker = row.get("ticker")
+        if not ticker or ticker in risk_by_ticker:
+            continue
+        if smith_risk.is_watchlist_suppressed(state, ticker):
+            continue  # user clicked "Not interested" on the dashboard -- see smith_risk's reader
+        # watchlist_setups' `pos` (0-1 within the 52-week range) is real technical signal that
+        # was going unused here -- reused as an RSI-scale proxy (pos*100) so a name near its
+        # 52wk low reads as oversold-ish, same as a genuine RSI would. Not a substitute for a
+        # real RSI, but a documented, defensible reuse of a number the desk already computed
+        # rather than leaving the technical component at a flat 0 for every watchlist name.
+        pos = row.get("pos")
+        buckets_for_ticker = signal_history.get(ticker) or []
+        ctx = {"ticker": ticker, "thesis_entry": thesis.get(ticker), "factor_catalysts": factor_catalysts,
+               "buckets": buckets_for_ticker, "upside_pct": row.get("upside_pct"),
+               "earnings_fact": earnings_facts.get(ticker),
+               "rsi": (pos * 100 if pos is not None else None), "rsi_usable": pos is not None,
+               "rel_pp": None, "rel_usable": False, "mention_count": mention_counts.get(ticker, 0),
+               "track_record": track_record_for(buckets_for_ticker)}
+        conv = smith_conviction.score_conviction(ctx)
+        if conv["conviction_tier"] == "none":
+            continue
+        atr_pct = atr_vals.get(ticker)
+        blockers = []
+        size_final = None
+        if not atr_pct:
+            blockers.append(f"no live price/ATR for {ticker} this run -- setup valid, sizing needs a fetch")
+        entry_setup.append({"ticker": ticker, "cluster": sector_map.get(ticker), "thesis_status": conv["thesis_status"],
+                            "watchlist_type": row.get("type"), "upside_pct": row.get("upside_pct"),
+                            "trigger_type": "entry_setup", "direction": "BUY", "vote": "live",
+                            "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
+                            "suggested_size_usd": size_final,
+                            "retires_when": f"{ticker} drops off the watchlist setups list or conviction falls to 'none'",
+                            "reasons": conv["conviction_reasons"], "blockers": blockers})
+
+
+def _trigger_reentry_scan(trades, recently_exited, signal_history, thesis, factor_catalysts,
+                          earnings_facts, upside_pct_for, rsi_vals, rsi_usable, rel_vals,
+                          rel_usable, mention_counts, track_record_for, atr_vals, total_book,
+                          policy, deployable_for_ideas, sector_map, reentry, reentry_no_thesis,
+                          reentry_judged_out):
+    """Section M: reentry (BUY, live) -- the direct fix for "an exited name has no headroom row,
+    so the engine sizes its re-entry at $0": recently_exited tickers, priced from the last known
+    fill (trades.json), sized via policy_max_position_usd at qty=0 (works for unheld names by
+    construction -- see smith_conviction's module note). Appends ticker names into
+    reentry_no_thesis/reentry_judged_out (both caller-supplied lists) for the G72-shaped
+    dq message the caller writes after this returns."""
+    last_exit_price = {}
+    for tr in sorted(trades.get("trades", []), key=lambda r: r.get("date") or ""):
+        # Chronological, so the LAST priced fill wins -- and keyed on the ticker being in the
+        # pool rather than on the row carrying an "exit" label, since the universe finds exits
+        # that were never labelled one.
+        if tr.get("ticker") in recently_exited and tr.get("price_at_trade"):
+            last_exit_price[tr["ticker"]] = tr.get("price_at_trade")
+    for ticker, exit_date in recently_exited.items():
+        price = last_exit_price.get(ticker)
+        buckets_for_ticker = signal_history.get(ticker) or []
+        ctx = {"ticker": ticker, "thesis_entry": thesis.get(ticker), "factor_catalysts": factor_catalysts,
+               "buckets": buckets_for_ticker, "upside_pct": upside_pct_for(ticker, price),
+               "earnings_fact": earnings_facts.get(ticker), "rsi": rsi_vals.get(ticker), "rsi_usable": rsi_usable,
+               "rel_pp": rel_vals.get(ticker), "rel_usable": rel_usable, "mention_count": mention_counts.get(ticker, 0),
+               "track_record": track_record_for(buckets_for_ticker)}
+        conv = smith_conviction.score_conviction(ctx)
+        if conv["conviction_tier"] == "none" or conv["thesis_status"] not in ("intact", "strengthening"):
+            # exited-and-still-weak is not a re-entry case, it's confirmation the exit was right.
+            # BUT distinguish "judged and rejected" from "could not be judged": state.thesis is
+            # seeded from CURRENT holdings, so an alumnus usually has NO thesis entry at all and
+            # fails this gate for absence of evidence rather than on the evidence. That is the
+            # G72 shape again -- a name is silent in a file that cannot represent it. Count both
+            # so the gap is visible instead of looking like "no candidates today".
+            (reentry_no_thesis if thesis.get(ticker) is None else reentry_judged_out).append(ticker)
+            continue
+        atr_pct = atr_vals.get(ticker)
+        pmax = smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy) if (atr_pct and price) else None
+        target, wanted = ((None, None) if not pmax else
+                          smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"]))
+        size_final, clamped_by = smith_conviction.clamp_size(wanted, None, None, deployable_for_ideas)
+        reentry.append({"ticker": ticker, "cluster": sector_map.get(ticker), "thesis_status": conv["thesis_status"],
+                        "exited_on": exit_date.isoformat(), "price_usd": price,
+                        "trigger_type": "reentry", "direction": "BUY", "vote": "live",
+                        "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
+                        "size_wanted_usd": wanted, "suggested_size_usd": size_final, "clamped_by": clamped_by,
+                        "stop_price_usd": pmax.get("stop_price_usd") if pmax else None,
+                        "retires_when": f"{ticker}'s thesis leaves intact/strengthening",
+                        "reasons": [f"exited {exit_date.isoformat()} at ${price:.2f}" if price else f"exited {exit_date.isoformat()}"]
+                                  + conv["conviction_reasons"],
+                        "blockers": ([] if pmax else [f"no live ATR for {ticker} -- exit price is last-known, not live"])})
+
+
+def _trigger_bench_diversifier_scan(diversifier_candidates, risk_by_ticker, state, mention_counts,
+                                    track_record_for, atr_vals, total_book, policy,
+                                    deployable_for_ideas, bench_diversifier):
+    """Section N: bench_diversifier (BUY, live) -- smith-scout's diversifier bench, sized for the
+    first time. VST's 63.9% modelled upside had never once been referenced by any proposal.
+    Honest limit: these names carry no thesis, no factor_catalysts, and no pos/RSI proxy in
+    this book (unlike watchlist_setups), so valuation is often the ONLY component available --
+    rarely enough alone to clear even "low" tier. This trigger firing empty on a given run is
+    not a bug; it means the compute-only pass genuinely has too little independently-verified
+    information on these names, not that the bench isn't worth reading (it still renders on
+    the dashboard regardless of whether it clears the bar to become a sized proposal)."""
+    for ticker, dv in diversifier_candidates.items():
+        if not dv.get("clean_diversifier") or dv.get("status") == "stale" or ticker in risk_by_ticker:
+            continue
+        if smith_risk.is_watchlist_suppressed(state, ticker):
+            continue  # shares the watchlist suppression list -- see smith_risk's reader
+        price = dv.get("price_usd")
+        # buckets stays [] genuinely -- these names carry no signal history in this book (see
+        # the comment above), so track_record_for([]) correctly returns None rather than
+        # faking a bucket to look up. Wired for consistency with the other 8 triggers rather
+        # than left as a hardcoded None, in case a diversifier candidate later gains signal
+        # coverage without anyone remembering to revisit this site.
+        ctx = {"ticker": ticker, "thesis_entry": None, "factor_catalysts": [],
+               "buckets": [], "upside_pct": dv.get("upside_pct"), "earnings_fact": None,
+               "rsi": None, "rsi_usable": False, "rel_pp": None, "rel_usable": False,
+               "mention_count": mention_counts.get(ticker, 0), "track_record": track_record_for([])}
+        conv = smith_conviction.score_conviction(ctx)
+        if conv["conviction_tier"] == "none":
+            continue
+        atr_pct = atr_vals.get(ticker)
+        pmax = smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy) if (atr_pct and price) else None
+        target, wanted = ((None, None) if not pmax else
+                          smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"]))
+        size_final, clamped_by = smith_conviction.clamp_size(wanted, None, None, deployable_for_ideas)
+        bench_diversifier.append({"ticker": ticker, "cluster": None, "thesis_status": None,
+                                  "price_usd": price, "trigger_type": "bench_diversifier", "direction": "BUY",
+                                  "vote": "live", "conviction_score": conv["conviction_score"],
+                                  "conviction_tier": conv["conviction_tier"], "size_wanted_usd": wanted,
+                                  "suggested_size_usd": size_final, "clamped_by": clamped_by,
+                                  "stop_price_usd": pmax.get("stop_price_usd") if pmax else None,
+                                  "retires_when": f"{ticker} leaves the diversifier bench or its upside falls below 10%",
+                                  "reasons": conv["conviction_reasons"],
+                                  "blockers": ([] if pmax else [f"no live ATR for {ticker} this run"])})
+
+
+def _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, total_book, policy,
+                             profit_rotation):
+    """Section O: profit_rotation (PAIRED, live). ORGANISING RULE -- sell an EXTENDED name whose
+    thesis is WEAK (book profit), buy a LAGGARD whose thesis is STRONG (yet to rally). This is
+    "sell what ran, buy what hasn't", scoped by thesis so it never contradicts cluster_rotation.
+    One row per rotation idea, never two independently-scored legs -- 19 rotation pairs were
+    attempted all-time before this and 0 survived, because the old pairing scored each leg
+    separately and one half died. Both legs retire TOGETHER (see cmd_proposals's paired
+    retirement rule)."""
+    sell_candidates = [t for t in names_stretched if t in conviction_by_ticker
+                       and smith_risk.thesis_status(thesis.get(t)) == "watch"
+                       and not conviction_by_ticker[t]["over_cap"]]
+    buy_candidates = [t for t in conviction_by_ticker
+                      if conviction_by_ticker[t]["conviction_tier"] != "none"
+                      and smith_risk.thesis_status(thesis.get(t)) in ("intact", "strengthening")
+                      and (conviction_by_ticker[t]["rel_pp"] or 0) < 0
+                      and not conviction_by_ticker[t]["over_cap"]]
+    used_buys = set()
+    for sell_t in sorted(sell_candidates, key=lambda t: -conviction_by_ticker[t]["market_value_usd"]):
+        cands = [t for t in buy_candidates if t not in used_buys and t != sell_t]
+        if not cands:
+            continue
+        buy_t = max(cands, key=lambda t: conviction_by_ticker[t]["conviction_score"])
+        used_buys.add(buy_t)
+        pair_id = f"profit_rotation-{sell_t}-{buy_t}"
+        sell_mv = conviction_by_ticker[sell_t]["market_value_usd"]
+        sell_size = round(sell_mv * 0.30, 2)
+        buy_conv = conviction_by_ticker[buy_t]
+        atr_pct = buy_conv["atr_pct"]
+        pmax = (smith_conviction.policy_max_position_usd(atr_pct, buy_conv["price"], total_book, policy)
+                if atr_pct and buy_conv["price"] else None)
+        target, wanted = ((None, None) if not pmax else
+                          smith_conviction.conviction_size(buy_conv["conviction_tier_pct"], pmax["max_position_usd"]))
+        # buy leg is funded from the sell leg, never sized past the smaller of the two --
+        # sizing past the sell proceeds or the buy's own headroom creates a fresh breach.
+        buy_size, clamped_by = smith_conviction.clamp_size(min(wanted or 0, sell_size), buy_conv["headroom_usd"], None, None)
+        profit_rotation.append({
+            "pair_id": pair_id, "trigger_type": "profit_rotation", "vote": "live",
+            "sell_leg": {"ticker": sell_t, "direction": "SELL", "suggested_size_usd": sell_size,
+                        "market_value_usd": round(sell_mv, 2),
+                        "reasons": [f"stretched (in names_stretched) with a watch thesis -- real profit to book"]},
+            "buy_leg": {"ticker": buy_t, "direction": "BUY", "suggested_size_usd": buy_size, "clamped_by": clamped_by,
+                       "conviction_score": buy_conv["conviction_score"],
+                       "reasons": [f"laggard ({buy_conv['rel_pp']:+.1f}pp) with a {smith_risk.thesis_status(thesis.get(buy_t))} thesis -- yet to rally"]},
+            "retires_when": f"EITHER {sell_t} drops out of the stretched cohort OR {buy_t}'s thesis leaves intact/strengthening"})
+
+
+def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation):
+    """Section P: cluster_rotation (PAIRED, live). ORGANISING RULE -- within the SAME cluster,
+    sell the laggard with a WEAK thesis, buy the performer with a STRONG thesis. This is the
+    opposite price/thesis pairing from profit_rotation and is why the two do not contradict --
+    same price state (laggard), opposite thesis, opposite action."""
+    by_cluster = {}
+    for t, c in conviction_by_ticker.items():
+        by_cluster.setdefault(c["cluster"], []).append(t)
+    for cluster, tickers_here in by_cluster.items():
+        if not cluster or len(tickers_here) < 2:
+            continue
+        laggard_weak = [t for t in tickers_here if (conviction_by_ticker[t]["rel_pp"] or 0) < 0
+                        and smith_risk.thesis_status(thesis.get(t)) == "watch"
+                        and not conviction_by_ticker[t]["over_cap"]]
+        performer_strong = [t for t in tickers_here if (conviction_by_ticker[t]["rel_pp"] or 0) > 0
+                            and smith_risk.thesis_status(thesis.get(t)) in ("intact", "strengthening")
+                            and not conviction_by_ticker[t]["over_cap"]]
+        if not laggard_weak or not performer_strong:
+            continue
+        sell_t = min(laggard_weak, key=lambda t: conviction_by_ticker[t]["rel_pp"] or 0)
+        buy_t = max(performer_strong, key=lambda t: conviction_by_ticker[t]["conviction_score"])
+        if sell_t == buy_t:
+            continue
+        sell_mv = conviction_by_ticker[sell_t]["market_value_usd"]
+        sell_size = round(sell_mv * 0.30, 2)
+        buy_conv = conviction_by_ticker[buy_t]
+        buy_size, clamped_by = smith_conviction.clamp_size(sell_size, buy_conv["headroom_usd"], None, None)
+        cluster_rotation.append({
+            "pair_id": f"cluster_rotation-{sell_t}-{buy_t}", "trigger_type": "cluster_rotation", "vote": "live",
+            "cluster": cluster,
+            "sell_leg": {"ticker": sell_t, "direction": "SELL", "suggested_size_usd": sell_size,
+                        "reasons": [f"laggard within {cluster} ({conviction_by_ticker[sell_t]['rel_pp']:+.1f}pp), watch thesis -- dead money in this cluster"]},
+            "buy_leg": {"ticker": buy_t, "direction": "BUY", "suggested_size_usd": buy_size, "clamped_by": clamped_by,
+                       "conviction_score": buy_conv["conviction_score"],
+                       "reasons": [f"performer within {cluster} ({buy_conv['rel_pp']:+.1f}pp), {smith_risk.thesis_status(thesis.get(buy_t))} thesis"]},
+            "retires_when": f"EITHER {sell_t}'s thesis strengthens OR {buy_t} is no longer the cluster's relative-strength leader"})
+
+
 def cmd_triggers(args):
     """Deterministic candidate generation for the seven non-ATR proposal triggers.
 
@@ -2153,533 +2742,59 @@ def cmd_triggers(args):
                 "price_usd": price, "market_value_usd": round(mv, 2)}
 
         # --- A. oversold_reversion (BUY, live) ---------------------------------
-        if rsi_usable and rsi is not None and rsi < RSI_OVERSOLD and healthy \
-                and not over_cap and (headroom or 0) > 0 and not fundamental_headwind:
-            size = min(headroom, max_single) if max_single else 0.0
-            oversold.append({**base, "trigger_type": "oversold_reversion", "direction": "BUY",
-                             "vote": "live",
-                             "headroom_usd": round(headroom, 2),
-                             "suggested_size_usd": round(size, 2),
-                             "retires_when": f"{ticker} RSI14 recovers above {RSI_OVERSOLD_EXIT:g} "
-                                             "(setup consumed) or its thesis leaves intact/strengthening",
-                             "reasons": [f"RSI14 {rsi:.1f} < {RSI_OVERSOLD:g} (oversold)",
-                                         f"thesis {status} -- technical dip, not a fundamental break",
-                                         f"within ATR risk cap with ${headroom:,.0f} headroom"],
-                             "blockers": ([] if size > 0 else
-                                          ["no deployable cash above the band ceiling -- setup valid, "
-                                           "funding is not"])})
-        elif rsi_usable and rsi is not None and rsi < RSI_OVERSOLD and not healthy:
-            dq.append(f"{ticker} is oversold (RSI {rsi:.1f}) but thesis is '{status}' -- deliberately "
-                      "not a bounce candidate (falling knife, not a dip)")
+        _trigger_oversold_reversion(base, ticker, status, healthy, rsi_usable, rsi, over_cap,
+                                    headroom, max_single, fundamental_headwind, oversold, dq)
 
         # --- B. overbought_distribution (TRIM, live) ---------------------------
-        # Deliberately INDEPENDENT of over_cap: booking profit on a name that ran is the point,
-        # and gating it on a risk-cap breach is precisely what made every trim an ATR trim.
-        if rsi_usable and rsi is not None and rsi > RSI_OVERBOUGHT:
-            genuinely_up = (abs_pct is not None and abs_pct > 0) if rel_usable else None
-            if genuinely_up is not False:
-                size = mv * OVERBOUGHT_TRIM_FRACTION
-                reasons = [f"RSI14 {rsi:.1f} > {RSI_OVERBOUGHT:g} (overbought)"]
-                if genuinely_up:
-                    reasons.append(f"up {abs_pct:+.1f}% on the month -- real gain to protect")
-                blockers = []
-                if genuinely_up is None:
-                    blockers.append("1m return unavailable (stale rel_strength) -- 'genuinely up' "
-                                    "gate unverified, confirm the position is actually in profit")
-                # CLUSTER TENSION (added 2026-08-12). The trim itself stays cap-independent and
-                # cluster-independent -- "this name ran, book some" is a valid standalone reason and
-                # gating it on cluster state would recreate the ATR-only monoculture in a new form.
-                # But a trim of a name whose cluster is UNDER its floor makes that underweight worse,
-                # and the G56 family of bugs is exactly this: a cluster figure cited in the wrong
-                # direction. Found live on 2026-08-12 -- MSFT tripped overbought while
-                # Compute/Hyperscaler sat 7.74pt UNDER floor. So: flag it, never silently allow a
-                # downstream proposal to cite the cluster as support, and name the intra-cluster
-                # rotation that resolves it (sell the extended name, buy the lagging one in the SAME
-                # cluster -> books the gain, leaves the cluster weight untouched).
-                cl_row = cluster_rows.get(sector_map.get(ticker)) if cluster_rows else None
-                cl_drift = cl_row.get("drift_pt") if cl_row else None
-                cluster_tension = cl_drift is not None and cl_drift < 0
-                rotation_targets = []
-                if cluster_tension:
-                    # G63: only recommend an intra-cluster rotation if a target actually EXISTS.
-                    # Found live 2026-08-13 on MSFT -- Compute/Hyperscaler was 10.40pt under floor,
-                    # yet all three members (MSFT/AMZN/ORCL) were stretched, so the advice sent the
-                    # reader hunting for a trade that was not there. Eligible = same cluster, not
-                    # this ticker, negative 1m relative strength (genuinely hasn't run), inside its
-                    # own ATR cap, and thesis not broken.
-                    my_cluster = sector_map.get(ticker)
-                    for ot, orow in risk_by_ticker.items():
-                        if ot == ticker or sector_map.get(ot) != my_cluster:
-                            continue
-                        orel = rel_vals.get(ot)
-                        if orel is None or orel >= 0 or orow.get("over_cap"):
-                            continue
-                        if smith_risk.thesis_status(thesis.get(ot)) == "broken":
-                            continue
-                        rotation_targets.append({"ticker": ot, "rel_pp": round(orel, 2),
-                                                 "headroom_usd": orow.get("headroom_usd")})
-                    rotation_targets.sort(key=lambda x: x["rel_pp"])
-                    base_msg = (f"cluster {my_cluster} is {cl_drift:+.2f}pt UNDER its floor -- this "
-                                f"trim deepens an existing underweight. The stretch reason stands on "
-                                f"its own, but do NOT cite the cluster as support (G56).")
-                    if rotation_targets:
-                        tgt = ", ".join(f"{t['ticker']} ({t['rel_pp']:+.1f}pp, "
-                                        f"${(t['headroom_usd'] or 0):,.0f} headroom)"
-                                        for t in rotation_targets[:3])
-                        blockers.append(f"{base_msg} Resolve it as an INTRA-CLUSTER ROTATION into: "
-                                        f"{tgt} -- books the gain and leaves the cluster weight "
-                                        f"unchanged.")
-                    else:
-                        blockers.append(f"{base_msg} NO intra-cluster rotation is available: every "
-                                        f"other name in {my_cluster} has already run (none has "
-                                        f"negative 1m relative strength while inside its ATR cap). "
-                                        f"So the real choice is trim-anyway and accept a deeper "
-                                        f"underweight, or leave it -- there is no third option this "
-                                        f"run. Do not go looking for one.")
-                overbought.append({**base, "trigger_type": "overbought_distribution",
-                                   "direction": "TRIM", "vote": "live",
-                                   "suggested_size_usd": round(size, 2),
-                                   "trim_fraction": OVERBOUGHT_TRIM_FRACTION,
-                                   "over_cap_independent": True,
-                                   "cluster_tension": cluster_tension,
-                                   "cluster_drift_pt": cl_drift,
-                                   "rotation_targets": rotation_targets,
-                                   "retires_when": f"{ticker} RSI14 falls below {RSI_OVERBOUGHT_EXIT:g} "
-                                                   "or it is no longer up on the month",
-                                   "reasons": reasons, "blockers": blockers})
+        _trigger_overbought_distribution(base, ticker, rsi_usable, rsi, rel_usable, abs_pct, mv,
+                                         sector_map, cluster_rows, rel_vals, risk_by_ticker,
+                                         thesis, overbought)
 
         # --- C. laggard_rotation (BUY, shadow) --------------------------------
-        if rel_usable and ticker in laggard_set and healthy and not over_cap \
-                and (headroom or 0) > 0 and not fundamental_headwind:
-            laggard.append({**base, "trigger_type": "laggard_rotation", "direction": "BUY",
-                            "vote": "shadow",
-                            "headroom_usd": round(headroom, 2),
-                            "suggested_size_usd": round(min(headroom, max_single), 2) if max_single else 0.0,
-                            "reasons": [f"bottom-quartile 1m relative strength ({rel_pp:+.1f}pp vs "
-                                        f"{rel_cache.get('benchmark', 'SMH')}) -- has not run yet",
-                                        f"thesis {status}", "within ATR risk cap"],
-                            # Same honesty as oversold_reversion: a $0 size means the SETUP is valid and
-                            # the FUNDING is not. Without this the row rendered "$0" with no explanation,
-                            # which reads as "the screen found nothing worth sizing" -- the opposite of
-                            # what it means. It is also the normal state once cash re-enters its band,
-                            # so it will be seen often; a rotation pair funds it from a sell leg instead.
-                            "blockers": ([] if max_single else
-                                         ["no deployable cash above the band ceiling -- setup valid, "
-                                          "funding is not; fund it from a sell leg (rotation pair) "
-                                          "rather than from the wallet"])})
+        _trigger_laggard_rotation(base, ticker, rel_usable, laggard_set, healthy, over_cap,
+                                  headroom, status, rel_pp, rel_cache, max_single,
+                                  fundamental_headwind, laggard)
 
         # --- D/E. profit_ratchet + scale_out_ladder (shadow) -------------------
-        avg_cost, priced_qty, unpriced_qty = _avg_cost_from_lots(lots.get(ticker))
-        if avg_cost and price:
-            gain_pct = (price - avg_cost) / avg_cost * 100.0
-            stop = r.get("stop_price_usd")
-            basis_note = ([f"{unpriced_qty:g} share(s) have no known cost (G1 synthetic lot) -- "
-                           "average is over the priced portion only"] if unpriced_qty else [])
-            if gain_pct >= RATCHET_MIN_GAIN_PCT and stop is not None and stop < avg_cost:
-                ratchet.append({**base, "trigger_type": "profit_ratchet", "direction": "STOP_RAISE",
-                                "vote": "shadow",
-                                "avg_cost_usd": round(avg_cost, 4), "gain_pct": round(gain_pct, 2),
-                                "current_stop_usd": round(stop, 4),
-                                "suggested_stop_usd": round(avg_cost, 4),
-                                "gain_at_risk_usd": round((avg_cost - stop) * (priced_qty or 0), 2),
-                                "reasons": [f"up {gain_pct:+.1f}% vs a ${avg_cost:,.2f} basis",
-                                            f"stop sits at ${stop:,.2f}, BELOW breakeven -- a "
-                                            "retracement turns this winner into a realised loss"],
-                                "blockers": basis_note})
-            tiers = [{"gain_pct": t, "triggered": gain_pct >= t,
-                      "slice_usd": round(mv * LADDER_FRACTION, 2)} for t in LADDER_TIERS_PCT]
-            if any(t["triggered"] for t in tiers):
-                hit = [t for t in tiers if t["triggered"]]
-                rungs = ", ".join("+%g%%" % t["gain_pct"] for t in hit)
-                ladder.append({**base, "trigger_type": "scale_out_ladder", "direction": "TRIM",
-                               "vote": "shadow",
-                               "avg_cost_usd": round(avg_cost, 4), "gain_pct": round(gain_pct, 2),
-                               "tiers": tiers,
-                               "suggested_size_usd": hit[-1]["slice_usd"],
-                               "reasons": [f"up {gain_pct:+.1f}% vs basis -- "
-                                           f"{len(hit)} of {len(tiers)} scale-out rung(s) reached "
-                                           f"({rungs})"],
-                               "blockers": basis_note})
-        elif ticker in laggard_set or (rsi is not None and rsi > RSI_OVERBOUGHT):
-            if not lots.get(ticker):
-                dq.append(f"{ticker} has no lots.json entry -- profit_ratchet/scale_out_ladder "
-                          "cannot be computed (no cost basis)")
+        _trigger_ratchet_and_ladder(base, ticker, r, mv, price, rsi, lots, laggard_set, ratchet,
+                                    ladder, dq)
 
         # --- F. catalyst_threat (TRIM, live) ------------------------------------
-        # Deliberately independent of over_cap/cluster/cash, same discipline as
-        # overbought_distribution -- a structural threat is a reason to trim on its own, not
-        # something that should wait for a volatility-budget breach to also be true. See the
-        # constants-file note (smith_core.py) for why this is LIVE, not shadow-first.
-        cats = catalyst_threats_by_ticker.get(ticker)
-        if cats:
-            size = mv * CATALYST_THREAT_TRIM_FRACTION
-            reasons = [f"{c.get('headline', '')} ({c.get('date', '')}) -- {c.get('magnitude', '')}"
-                      for c in cats]
-            blockers = []
-            # TENSION, not suppression (same idiom as overbought_distribution's cluster_tension
-            # check above): a name can simultaneously carry a strengthening thesis/accumulate
-            # rotation signal AND a real, dated financing/structural threat -- those are not the
-            # same question, and letting the accumulate signal silently veto the catalyst would
-            # recreate exactly the gap this trigger exists to close (AVGO, 2026-08-17: rotation
-            # said accumulate on a strengthening thesis while a $370bn bond-downgrade tail risk
-            # went unscored). Surface both, let the strategist weigh them.
-            rtk_here = rotation_by_ticker.get(ticker, {})
-            if rtk_here.get("bucket") == "accumulate" and status in HEALTHY_THESIS:
-                blockers.append(f"{ticker} is simultaneously in rotation's accumulate bucket on a "
-                                f"{status} thesis -- the catalyst threat and the accumulate signal "
-                                "are answering different questions (financing-structure risk vs. "
-                                "operating fundamentals); this does not cancel the trigger, but "
-                                "size and priority are a judgement call, not a formula")
-            catalyst_threat.append({**base, "trigger_type": "catalyst_threat", "direction": "TRIM",
-                                    "vote": "live",
-                                    "suggested_size_usd": round(size, 2),
-                                    "trim_fraction": CATALYST_THREAT_TRIM_FRACTION,
-                                    "over_cap_independent": True,
-                                    "catalyst_sources": [c.get("source") for c in cats],
-                                    "retires_when": f"{ticker} no longer appears in a "
-                                                    "structural-threat factor catalyst",
-                                    "reasons": reasons, "blockers": blockers})
+        _trigger_catalyst_threat(base, ticker, mv, catalyst_threats_by_ticker, rotation_by_ticker,
+                                 status, catalyst_threat)
 
         # --- G. thesis_break (TRIM, live) ---------------------------------------
-        # A broken thesis has nothing to do with cost basis, so this is its own top-level check,
-        # not chained onto the ratchet/ladder if/elif above -- it must fire even when lots.json
-        # has no entry for this ticker. LIVE from day one; see the constants-file note.
-        if status == "broken":
-            ev_for, ev_against, verified = smith_risk.thesis_evidence(thesis.get(ticker))
-            thesis_line = smith_risk.thesis_text(thesis.get(ticker))
-            size = mv * THESIS_BREAK_TRIM_FRACTION
-            reasons = ([thesis_line] if thesis_line else []) + \
-                      [f"broken -- {c.get('claim', '')} ({c.get('date', '')}, {c.get('source', '')})"
-                       for c in (ev_against or [])[:3]]
-            blockers = []
-            if not ev_against:
-                blockers.append(f"{ticker} marked broken with no evidence_against recorded -- "
-                                "sizing proceeds anyway (a status flip is itself the signal) but "
-                                "flag for the next smith-thesis touch to backfill the evidence")
-            thesis_break.append({**base, "trigger_type": "thesis_break", "direction": "TRIM",
-                                 "vote": "live",
-                                 "suggested_size_usd": round(size, 2),
-                                 "trim_fraction": THESIS_BREAK_TRIM_FRACTION,
-                                 "over_cap_independent": True,
-                                 "evidence_verified": verified,
-                                 "retires_when": f"{ticker}'s thesis is no longer 'broken'",
-                                 "reasons": reasons, "blockers": blockers})
+        _trigger_thesis_break(base, ticker, status, mv, thesis, thesis_break)
 
         # --- H/I/J/K. conviction-driven triggers on HELD tickers (added 2026-08-24) -----------
-        buckets = signal_history.get(ticker) or []
-        ctx = build_ctx(ticker, thesis.get(ticker), buckets, price, rsi, rel_pp, ticker)
-        conv = smith_conviction.score_conviction(ctx)
-        conviction_by_ticker[ticker] = {**conv, "cluster": r.get("cluster"), "rel_pp": rel_pp,
-                                        "over_cap": over_cap, "headroom_usd": headroom,
-                                        "market_value_usd": mv, "price": price, "atr_pct": atr_vals.get(ticker)}
-        polarity = smith_risk.classify_signal_polarity(buckets)
+        _trigger_conviction_held(base, ticker, r, mv, price, rsi, rel_pp, rsi_usable, healthy,
+                                 over_cap, headroom, thesis, signal_history, atr_vals, total_book,
+                                 policy, deployable_for_ideas, build_ctx, conviction_by_ticker,
+                                 catalyst_threats_by_ticker, lots, trend_entry, trend_breakdown,
+                                 conviction_average, conviction_exit, dq)
 
-        # --- H. trend_entry (BUY, live) -- ORGANISING RULE: price extended/rising + thesis
-        # strong -> hold or add on strength. Fires on a genuine breakout/uptrend bucket, not on
-        # RSI alone (RSI-based entries are oversold_reversion's job) -- this is the direct fix
-        # for "NEW TAILWINDS drives zero logic today": a bullish trend bucket now scores
-        # conviction UP and, past the bar, becomes an add.
-        if healthy and {"BREAKOUT", "STRONG UPTREND"} & set(buckets) and not over_cap \
-                and conv["conviction_tier"] not in ("none",) and (headroom or 0) > 0:
-            atr_pct = atr_vals.get(ticker)
-            pmax = (smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy)
-                    if atr_pct and price else None)
-            target, wanted = ((None, None) if not pmax else
-                              smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"]))
-            size_final, clamped_by = smith_conviction.clamp_size(wanted, headroom, None, deployable_for_ideas)
-            trend_entry.append({**base, "trigger_type": "trend_entry", "direction": "BUY", "vote": "live",
-                               "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
-                               "size_wanted_usd": wanted, "suggested_size_usd": size_final, "clamped_by": clamped_by,
-                               "stop_price_usd": pmax.get("stop_price_usd") if pmax else None,
-                               "retires_when": f"{ticker} no longer carries BREAKOUT/STRONG UPTREND or thesis leaves intact/strengthening",
-                               "reasons": conv["conviction_reasons"], "blockers": []})
+    # --- L. entry_setup (BUY, live) --------------------------------------------------------
+    _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_history, thesis,
+                              factor_catalysts, earnings_facts, mention_counts, _track_record_for,
+                              atr_vals, sector_map, entry_setup)
 
-        # --- I. trend_breakdown (TRIM/SELL, live) -- price falling + thesis weak -> exit the
-        # breakdown. Mirror of H on the bearish side.
-        if not healthy and {"BREAKDOWN", "STRONG DOWNTREND"} & set(buckets):
-            size = mv * 0.30
-            trend_breakdown.append({**base, "trigger_type": "trend_breakdown", "direction": "TRIM", "vote": "live",
-                                   "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
-                                   "suggested_size_usd": round(size, 2), "over_cap_independent": True,
-                                   "retires_when": f"{ticker} no longer carries BREAKDOWN/STRONG DOWNTREND or thesis recovers",
-                                   "reasons": conv["conviction_reasons"], "blockers": []})
-
-        # --- J. conviction_average (BUY, live) -- ORGANISING RULE: price lagging/fallen + thesis
-        # strong -> average down. Requires the BLENDED entry to stay ABOVE the current stop --
-        # per user decision, this trigger REFUSES the add rather than quietly widen the stop.
-        # Fair-value anchor = technical support, proxied as price - 2xATR (same fallback rule
-        # smith-rebound already uses live) since no persisted moving-average support level exists.
-        atr_pct = atr_vals.get(ticker)
-        # Gate is "not none", not "medium+" -- the tier already scales size (conviction_tier_pct),
-        # so requiring medium+ here was a redundant second restriction on top of that scaling,
-        # and it starved every candidate whose only available input was an unverified thesis
-        # (the common case -- 22 of 33 in this book) since that alone lands in "low", not "medium".
-        if healthy and atr_pct and price and conv["conviction_tier"] != "none" and not over_cap:
-            # 1x ATR, not 2x -- 2x ATR is literally the STOP distance (policy's own
-            # stop_distance_pct = max(2*atr_pct, 3.0)), so using it as a "support" level made
-            # this trigger require price to have fallen almost all the way to its own stop
-            # before ever registering as a dip -- confirmed live: GLW needed to fall to ~$115
-            # from $145 (2x ATR) when smith-rebound's own live moving-average support sat at
-            # $140.23, a ~3.5% dip. 1x ATR is a rougher compute-only proxy for that same idea
-            # (no persisted moving-average level exists to read directly) and should be
-            # superseded by a live-dispatched agent's real support number when one is available.
-            support = price * (1 - atr_pct / 100.0)
-            avg_cost_h, priced_qty_h, _ = _avg_cost_from_lots(lots.get(ticker))
-            stop_now = r.get("stop_price_usd")
-            # Gate on genuine drawdown vs COST BASIS, not proximity to the ATR-support proxy --
-            # tried the proxy first and it required price within 1x ATR of support, which for a
-            # book running 9-15% ATR20 names meant "has fallen almost to its own support zone",
-            # rarely true for a name merely off its highs. "Price below what you paid" is a
-            # directly-measurable, defensible reading of "drawdown beyond fair price" (fair
-            # price = your own entry), and `support` is still carried on the row as context for
-            # where a real technical floor roughly sits, just not the gating test.
-            if avg_cost_h and priced_qty_h and stop_now is not None and price < avg_cost_h:
-                pmax = smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy)
-                target, wanted = smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"])
-                size_final, clamped_by = smith_conviction.clamp_size(wanted, headroom, None, deployable_for_ideas)
-                add_qty = (size_final / price) if (size_final and price) else 0.0
-                blended = ((avg_cost_h * priced_qty_h) + (price * add_qty)) / (priced_qty_h + add_qty) if add_qty else avg_cost_h
-                if blended > stop_now:
-                    conviction_average.append({**base, "trigger_type": "conviction_average", "direction": "BUY",
-                                              "vote": "live", "conviction_score": conv["conviction_score"],
-                                              "conviction_tier": conv["conviction_tier"],
-                                              "support_usd": round(support, 4), "size_wanted_usd": wanted,
-                                              "suggested_size_usd": size_final, "clamped_by": clamped_by,
-                                              "blended_entry_usd": round(blended, 4), "current_stop_usd": round(stop_now, 4),
-                                              "retires_when": f"{ticker} recovers above its support level or thesis leaves intact/strengthening",
-                                              "reasons": conv["conviction_reasons"], "blockers": []})
-                else:
-                    dq.append(f"{ticker}: conviction_average setup found but blended entry ${blended:.2f} "
-                              f"would sit below the current stop ${stop_now:.2f} -- refused per standing rule, "
-                              "not sized")
-
-        # --- K. conviction_exit (SELL, live) -- convergence of negatives, not the word 'broken'.
-        # There are 0 broken theses in this book; a broken-keyed exit could never fire. Counts
-        # how many of {thesis, catalyst, trend, technical} independently read negative and exits
-        # only when at least 3 agree -- one bad signal alone never triggers this.
-        neg_count = sum([
-            1 if smith_risk.thesis_status(thesis.get(ticker)) == "watch" else 0,
-            1 if catalyst_threats_by_ticker.get(ticker) else 0,
-            1 if polarity["net"] < 0 else 0,
-            1 if (rsi_usable and rsi is not None and rsi > RSI_OVERBOUGHT and polarity["net"] <= 0) else 0,
-        ])
-        if smith_conviction.convergence_exit_score(neg_count) and not over_cap:
-            size = mv * 0.50  # convergence of negatives is the strongest sell signal this engine has
-            reasons = list(conv["conviction_reasons"])
-            reasons.insert(0, f"{neg_count} independent negative signals converged (thesis/catalyst/trend/technical)")
-            conviction_exit.append({**base, "trigger_type": "conviction_exit", "direction": "SELL", "vote": "live",
-                                   "conviction_score": conv["conviction_score"], "negative_signal_count": neg_count,
-                                   "suggested_size_usd": round(size, 2), "over_cap_independent": True,
-                                   "retires_when": f"fewer than 3 of {ticker}'s independent negative signals remain",
-                                   "reasons": reasons, "blockers": []})
-
-    # --- L. entry_setup (BUY, live) -- smith-watchlist's setups, persisted to state.json this
-    # run for the first time (previously had NO code path into proposals at all -- 9 setups
-    # found on 2026-08-24, 1 reached a proposal, hand-written narrative only). No live price is
-    # persisted per setup, so this cannot be sized without a fetch this script cannot make --
-    # degrades to suggested_size_usd=None with an explicit blocker rather than estimate one.
-    for row in watchlist_setups:
-        ticker = row.get("ticker")
-        if not ticker or ticker in risk_by_ticker:
-            continue
-        if smith_risk.is_watchlist_suppressed(state, ticker):
-            continue  # user clicked "Not interested" on the dashboard -- see smith_risk's reader
-        # watchlist_setups' `pos` (0-1 within the 52-week range) is real technical signal that
-        # was going unused here -- reused as an RSI-scale proxy (pos*100) so a name near its
-        # 52wk low reads as oversold-ish, same as a genuine RSI would. Not a substitute for a
-        # real RSI, but a documented, defensible reuse of a number the desk already computed
-        # rather than leaving the technical component at a flat 0 for every watchlist name.
-        pos = row.get("pos")
-        buckets_for_ticker = signal_history.get(ticker) or []
-        ctx = {"ticker": ticker, "thesis_entry": thesis.get(ticker), "factor_catalysts": factor_catalysts,
-               "buckets": buckets_for_ticker, "upside_pct": row.get("upside_pct"),
-               "earnings_fact": earnings_facts.get(ticker),
-               "rsi": (pos * 100 if pos is not None else None), "rsi_usable": pos is not None,
-               "rel_pp": None, "rel_usable": False, "mention_count": mention_counts.get(ticker, 0),
-               "track_record": _track_record_for(buckets_for_ticker)}
-        conv = smith_conviction.score_conviction(ctx)
-        if conv["conviction_tier"] == "none":
-            continue
-        atr_pct = atr_vals.get(ticker)
-        blockers = []
-        size_final = None
-        if not atr_pct:
-            blockers.append(f"no live price/ATR for {ticker} this run -- setup valid, sizing needs a fetch")
-        entry_setup.append({"ticker": ticker, "cluster": sector_map.get(ticker), "thesis_status": conv["thesis_status"],
-                            "watchlist_type": row.get("type"), "upside_pct": row.get("upside_pct"),
-                            "trigger_type": "entry_setup", "direction": "BUY", "vote": "live",
-                            "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
-                            "suggested_size_usd": size_final,
-                            "retires_when": f"{ticker} drops off the watchlist setups list or conviction falls to 'none'",
-                            "reasons": conv["conviction_reasons"], "blockers": blockers})
-
-    # --- M. reentry (BUY, live) -- the direct fix for "an exited name has no headroom row, so
-    # the engine sizes its re-entry at $0": recently_exited tickers, priced from the last known
-    # fill (trades.json), sized via policy_max_position_usd at qty=0 (works for unheld names by
-    # construction -- see smith_conviction's module note).
+    # --- M. reentry (BUY, live) -----------------------------------------------------------
     _reentry_no_thesis, _reentry_judged_out = [], []
-    last_exit_price = {}
-    for tr in sorted(trades.get("trades", []), key=lambda r: r.get("date") or ""):
-        # Chronological, so the LAST priced fill wins -- and keyed on the ticker being in the
-        # pool rather than on the row carrying an "exit" label, since the universe finds exits
-        # that were never labelled one.
-        if tr.get("ticker") in recently_exited and tr.get("price_at_trade"):
-            last_exit_price[tr["ticker"]] = tr.get("price_at_trade")
-    for ticker, exit_date in recently_exited.items():
-        price = last_exit_price.get(ticker)
-        buckets_for_ticker = signal_history.get(ticker) or []
-        ctx = {"ticker": ticker, "thesis_entry": thesis.get(ticker), "factor_catalysts": factor_catalysts,
-               "buckets": buckets_for_ticker, "upside_pct": upside_pct_for(ticker, price),
-               "earnings_fact": earnings_facts.get(ticker), "rsi": rsi_vals.get(ticker), "rsi_usable": rsi_usable,
-               "rel_pp": rel_vals.get(ticker), "rel_usable": rel_usable, "mention_count": mention_counts.get(ticker, 0),
-               "track_record": _track_record_for(buckets_for_ticker)}
-        conv = smith_conviction.score_conviction(ctx)
-        if conv["conviction_tier"] == "none" or conv["thesis_status"] not in ("intact", "strengthening"):
-            # exited-and-still-weak is not a re-entry case, it's confirmation the exit was right.
-            # BUT distinguish "judged and rejected" from "could not be judged": state.thesis is
-            # seeded from CURRENT holdings, so an alumnus usually has NO thesis entry at all and
-            # fails this gate for absence of evidence rather than on the evidence. That is the
-            # G72 shape again -- a name is silent in a file that cannot represent it. Count both
-            # so the gap is visible instead of looking like "no candidates today".
-            (_reentry_no_thesis if thesis.get(ticker) is None else _reentry_judged_out).append(ticker)
-            continue
-        atr_pct = atr_vals.get(ticker)
-        pmax = smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy) if (atr_pct and price) else None
-        target, wanted = ((None, None) if not pmax else
-                          smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"]))
-        size_final, clamped_by = smith_conviction.clamp_size(wanted, None, None, deployable_for_ideas)
-        reentry.append({"ticker": ticker, "cluster": sector_map.get(ticker), "thesis_status": conv["thesis_status"],
-                        "exited_on": exit_date.isoformat(), "price_usd": price,
-                        "trigger_type": "reentry", "direction": "BUY", "vote": "live",
-                        "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
-                        "size_wanted_usd": wanted, "suggested_size_usd": size_final, "clamped_by": clamped_by,
-                        "stop_price_usd": pmax.get("stop_price_usd") if pmax else None,
-                        "retires_when": f"{ticker}'s thesis leaves intact/strengthening",
-                        "reasons": [f"exited {exit_date.isoformat()} at ${price:.2f}" if price else f"exited {exit_date.isoformat()}"]
-                                  + conv["conviction_reasons"],
-                        "blockers": ([] if pmax else [f"no live ATR for {ticker} -- exit price is last-known, not live"])})
+    _trigger_reentry_scan(trades, recently_exited, signal_history, thesis, factor_catalysts,
+                          earnings_facts, upside_pct_for, rsi_vals, rsi_usable, rel_vals,
+                          rel_usable, mention_counts, _track_record_for, atr_vals, total_book,
+                          policy, deployable_for_ideas, sector_map, reentry, _reentry_no_thesis,
+                          _reentry_judged_out)
 
-    # --- N. bench_diversifier (BUY, live) -- smith-scout's diversifier bench, sized for the
-    # first time. VST's 63.9% modelled upside had never once been referenced by any proposal.
-    # Honest limit: these names carry no thesis, no factor_catalysts, and no pos/RSI proxy in
-    # this book (unlike watchlist_setups), so valuation is often the ONLY component available --
-    # rarely enough alone to clear even "low" tier. This trigger firing empty on a given run is
-    # not a bug; it means the compute-only pass genuinely has too little independently-verified
-    # information on these names, not that the bench isn't worth reading (it still renders on
-    # the dashboard regardless of whether it clears the bar to become a sized proposal).
-    for ticker, dv in diversifier_candidates.items():
-        if not dv.get("clean_diversifier") or dv.get("status") == "stale" or ticker in risk_by_ticker:
-            continue
-        if smith_risk.is_watchlist_suppressed(state, ticker):
-            continue  # shares the watchlist suppression list -- see smith_risk's reader
-        price = dv.get("price_usd")
-        # buckets stays [] genuinely -- these names carry no signal history in this book (see
-        # the comment above), so _track_record_for([]) correctly returns None rather than
-        # faking a bucket to look up. Wired for consistency with the other 8 triggers rather
-        # than left as a hardcoded None, in case a diversifier candidate later gains signal
-        # coverage without anyone remembering to revisit this site.
-        ctx = {"ticker": ticker, "thesis_entry": None, "factor_catalysts": [],
-               "buckets": [], "upside_pct": dv.get("upside_pct"), "earnings_fact": None,
-               "rsi": None, "rsi_usable": False, "rel_pp": None, "rel_usable": False,
-               "mention_count": mention_counts.get(ticker, 0), "track_record": _track_record_for([])}
-        conv = smith_conviction.score_conviction(ctx)
-        if conv["conviction_tier"] == "none":
-            continue
-        atr_pct = atr_vals.get(ticker)
-        pmax = smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy) if (atr_pct and price) else None
-        target, wanted = ((None, None) if not pmax else
-                          smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"]))
-        size_final, clamped_by = smith_conviction.clamp_size(wanted, None, None, deployable_for_ideas)
-        bench_diversifier.append({"ticker": ticker, "cluster": None, "thesis_status": None,
-                                  "price_usd": price, "trigger_type": "bench_diversifier", "direction": "BUY",
-                                  "vote": "live", "conviction_score": conv["conviction_score"],
-                                  "conviction_tier": conv["conviction_tier"], "size_wanted_usd": wanted,
-                                  "suggested_size_usd": size_final, "clamped_by": clamped_by,
-                                  "stop_price_usd": pmax.get("stop_price_usd") if pmax else None,
-                                  "retires_when": f"{ticker} leaves the diversifier bench or its upside falls below 10%",
-                                  "reasons": conv["conviction_reasons"],
-                                  "blockers": ([] if pmax else [f"no live ATR for {ticker} this run"])})
+    # --- N. bench_diversifier (BUY, live) --------------------------------------------------
+    _trigger_bench_diversifier_scan(diversifier_candidates, risk_by_ticker, state, mention_counts,
+                                    _track_record_for, atr_vals, total_book, policy,
+                                    deployable_for_ideas, bench_diversifier)
 
-    # --- O/P. profit_rotation + cluster_rotation (PAIRED, live) -- one row per rotation idea,
-    # never two independently-scored legs. 19 rotation pairs were attempted all-time before this
-    # and 0 survived, because the old pairing scored each leg separately and one half died. Both
-    # legs here retire TOGETHER (see cmd_proposals's paired retirement rule).
-    #
-    # profit_rotation: ORGANISING RULE -- sell an EXTENDED name whose thesis is WEAK (book
-    # profit), buy a LAGGARD whose thesis is STRONG (yet to rally). This is "sell what ran, buy
-    # what hasn't", scoped by thesis so it never contradicts cluster_rotation below.
-    sell_candidates = [t for t in names_stretched if t in conviction_by_ticker
-                       and smith_risk.thesis_status(thesis.get(t)) == "watch"
-                       and not conviction_by_ticker[t]["over_cap"]]
-    buy_candidates = [t for t in conviction_by_ticker
-                      if conviction_by_ticker[t]["conviction_tier"] != "none"
-                      and smith_risk.thesis_status(thesis.get(t)) in ("intact", "strengthening")
-                      and (conviction_by_ticker[t]["rel_pp"] or 0) < 0
-                      and not conviction_by_ticker[t]["over_cap"]]
-    used_buys = set()
-    for sell_t in sorted(sell_candidates, key=lambda t: -conviction_by_ticker[t]["market_value_usd"]):
-        cands = [t for t in buy_candidates if t not in used_buys and t != sell_t]
-        if not cands:
-            continue
-        buy_t = max(cands, key=lambda t: conviction_by_ticker[t]["conviction_score"])
-        used_buys.add(buy_t)
-        pair_id = f"profit_rotation-{sell_t}-{buy_t}"
-        sell_mv = conviction_by_ticker[sell_t]["market_value_usd"]
-        sell_size = round(sell_mv * 0.30, 2)
-        buy_conv = conviction_by_ticker[buy_t]
-        atr_pct = buy_conv["atr_pct"]
-        pmax = (smith_conviction.policy_max_position_usd(atr_pct, buy_conv["price"], total_book, policy)
-                if atr_pct and buy_conv["price"] else None)
-        target, wanted = ((None, None) if not pmax else
-                          smith_conviction.conviction_size(buy_conv["conviction_tier_pct"], pmax["max_position_usd"]))
-        # buy leg is funded from the sell leg, never sized past the smaller of the two --
-        # sizing past the sell proceeds or the buy's own headroom creates a fresh breach.
-        buy_size, clamped_by = smith_conviction.clamp_size(min(wanted or 0, sell_size), buy_conv["headroom_usd"], None, None)
-        profit_rotation.append({
-            "pair_id": pair_id, "trigger_type": "profit_rotation", "vote": "live",
-            "sell_leg": {"ticker": sell_t, "direction": "SELL", "suggested_size_usd": sell_size,
-                        "market_value_usd": round(sell_mv, 2),
-                        "reasons": [f"stretched (in names_stretched) with a watch thesis -- real profit to book"]},
-            "buy_leg": {"ticker": buy_t, "direction": "BUY", "suggested_size_usd": buy_size, "clamped_by": clamped_by,
-                       "conviction_score": buy_conv["conviction_score"],
-                       "reasons": [f"laggard ({buy_conv['rel_pp']:+.1f}pp) with a {smith_risk.thesis_status(thesis.get(buy_t))} thesis -- yet to rally"]},
-            "retires_when": f"EITHER {sell_t} drops out of the stretched cohort OR {buy_t}'s thesis leaves intact/strengthening"})
-
-    # cluster_rotation: ORGANISING RULE -- within the SAME cluster, sell the laggard with a WEAK
-    # thesis, buy the performer with a STRONG thesis. This is the opposite price/thesis pairing
-    # from profit_rotation and is why the two do not contradict -- same price state (laggard),
-    # opposite thesis, opposite action.
-    by_cluster = {}
-    for t, c in conviction_by_ticker.items():
-        by_cluster.setdefault(c["cluster"], []).append(t)
-    for cluster, tickers_here in by_cluster.items():
-        if not cluster or len(tickers_here) < 2:
-            continue
-        laggard_weak = [t for t in tickers_here if (conviction_by_ticker[t]["rel_pp"] or 0) < 0
-                        and smith_risk.thesis_status(thesis.get(t)) == "watch"
-                        and not conviction_by_ticker[t]["over_cap"]]
-        performer_strong = [t for t in tickers_here if (conviction_by_ticker[t]["rel_pp"] or 0) > 0
-                            and smith_risk.thesis_status(thesis.get(t)) in ("intact", "strengthening")
-                            and not conviction_by_ticker[t]["over_cap"]]
-        if not laggard_weak or not performer_strong:
-            continue
-        sell_t = min(laggard_weak, key=lambda t: conviction_by_ticker[t]["rel_pp"] or 0)
-        buy_t = max(performer_strong, key=lambda t: conviction_by_ticker[t]["conviction_score"])
-        if sell_t == buy_t:
-            continue
-        sell_mv = conviction_by_ticker[sell_t]["market_value_usd"]
-        sell_size = round(sell_mv * 0.30, 2)
-        buy_conv = conviction_by_ticker[buy_t]
-        buy_size, clamped_by = smith_conviction.clamp_size(sell_size, buy_conv["headroom_usd"], None, None)
-        cluster_rotation.append({
-            "pair_id": f"cluster_rotation-{sell_t}-{buy_t}", "trigger_type": "cluster_rotation", "vote": "live",
-            "cluster": cluster,
-            "sell_leg": {"ticker": sell_t, "direction": "SELL", "suggested_size_usd": sell_size,
-                        "reasons": [f"laggard within {cluster} ({conviction_by_ticker[sell_t]['rel_pp']:+.1f}pp), watch thesis -- dead money in this cluster"]},
-            "buy_leg": {"ticker": buy_t, "direction": "BUY", "suggested_size_usd": buy_size, "clamped_by": clamped_by,
-                       "conviction_score": buy_conv["conviction_score"],
-                       "reasons": [f"performer within {cluster} ({buy_conv['rel_pp']:+.1f}pp), {smith_risk.thesis_status(thesis.get(buy_t))} thesis"]},
-            "retires_when": f"EITHER {sell_t}'s thesis strengthens OR {buy_t} is no longer the cluster's relative-strength leader"})
+    # --- O/P. profit_rotation + cluster_rotation (PAIRED, live) ---------------------------
+    _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, total_book, policy,
+                             profit_rotation)
+    _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation)
 
     oversold.sort(key=lambda x: x["rsi14"])
     overbought.sort(key=lambda x: -x["rsi14"])
