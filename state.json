@@ -4394,5 +4394,13 @@
     "data_quality": [
       "rate-sensitive rows are static-assumption, not independently macro-refreshed this run"
     ]
-  }
+  },
+  "run_outages": [
+    {
+      "from": "2026-08-27",
+      "to": "2026-08-28",
+      "reason": "Claude membership/account issue -- Claude Code could not run on those days, so the scheduler never fired. Confirmed by the user 2026-09-01. Corroborated by artefacts: no Agent Smith session of any kind on either date, no files written under the state dir, no commits, no run dirs and no ledger rows, while the Mac itself was up (no reboot since 2026-08-06). Not a desk defect.",
+      "declared_on": "2026-09-01"
+    }
+  ]
 }

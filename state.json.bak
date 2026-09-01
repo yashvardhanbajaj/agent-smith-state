@@ -4292,5 +4292,107 @@
     "data_quality": [
       "rate-sensitive rows are static-assumption, not independently macro-refreshed this run"
     ]
+  },
+  "stress_table_prev": {
+    "as_of": "2026-08-31",
+    "source": "backfilled 2026-08-31 from this run's own prose table in out_strategist.md -- the structured contract did not exist when the agent ran. Transcription only: every figure, ticker and caveat below is the agent's, not the orchestrator's.",
+    "anchored_to": {
+      "us10y_pct": 4.72,
+      "vix": 14.43,
+      "dxy": 99.68,
+      "fed_rate_pct": 3.63,
+      "fed_stance": "hawkish"
+    },
+    "scenarios": [
+      {
+        "scenario": "AI-capex pause (hyperscaler guidance cut)",
+        "impact_pct_low": -18.0,
+        "impact_pct_high": -12.0,
+        "most_exposed": [
+          "NVDA",
+          "AVGO",
+          "MRVL",
+          "COHR",
+          "AMAT",
+          "AMKR"
+        ],
+        "mechanism": "29% AI Semis/Fabs plus 17.8% Networking/Optics -- both direct capex-order-book exposure",
+        "basis": "live",
+        "note": ""
+      },
+      {
+        "scenario": "Rates +100bp (10-yr 4.72% -> ~5.7%)",
+        "impact_pct_low": -9.0,
+        "impact_pct_high": -6.0,
+        "most_exposed": [
+          "NVDA",
+          "MRVL",
+          "COHR",
+          "IREN",
+          "NBIS"
+        ],
+        "mechanism": "discount-rate compression on long-duration capex-story growth names, compounded by the cycle's own de-rating-on-cost dynamic",
+        "basis": "static_assumption",
+        "note": "not macro-refreshed this run beyond the supplied strip"
+      },
+      {
+        "scenario": "Tariff/export-control escalation (China semis)",
+        "impact_pct_low": -7.0,
+        "impact_pct_high": -4.0,
+        "most_exposed": [
+          "TSM",
+          "AMAT",
+          "KLAC",
+          "LRCX",
+          "AMKR",
+          "BABA"
+        ],
+        "mechanism": "advanced packaging and China-exposed revenue; TSM additionally flagged unauditable on primary sources",
+        "basis": "live",
+        "note": ""
+      },
+      {
+        "scenario": "USD/INR +/-3% (USD-reported book)",
+        "impact_pct_low": 0.0,
+        "impact_pct_high": 0.0,
+        "most_exposed": [],
+        "mechanism": "no effect on the USD book; INR-terms net worth moves ~+/-3% mechanically with the rupee, independent of any US position move",
+        "basis": "live",
+        "note": "relevant only to INR-terms reporting"
+      },
+      {
+        "scenario": "Credit/CDS repricing broadens past AI-financing names",
+        "impact_pct_low": -6.0,
+        "impact_pct_high": -3.0,
+        "most_exposed": [
+          "AVGO",
+          "AMZN",
+          "GOOG",
+          "MSFT",
+          "NVDA"
+        ],
+        "mechanism": "the five catalyst_threat names; NVDA CDS ~2x in two months and Oracle cut to BBB-",
+        "basis": "live",
+        "note": ""
+      },
+      {
+        "scenario": "Broad correction continuation (correction_state: correction)",
+        "impact_pct_low": -10.0,
+        "impact_pct_high": -5.0,
+        "most_exposed": [
+          "IREN",
+          "AMKR",
+          "NBIS",
+          "SMCI",
+          "COHR"
+        ],
+        "mechanism": "high-volatility names disproportionate; already the de-risk queue's most fragile",
+        "basis": "live",
+        "note": ""
+      }
+    ],
+    "data_quality": [
+      "rate-sensitive rows are static-assumption, not independently macro-refreshed this run"
+    ]
   }
 }

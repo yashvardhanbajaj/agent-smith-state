@@ -3107,6 +3107,11 @@ def main():
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--days", type=int, default=10)
     sp.add_argument("--today", default=None)
+    sp.add_argument("--declare-outage", default=None, metavar="FROM:TO",
+                    help="record a period the desk could not have run for an external reason "
+                         "(host unavailable, account blocked, machine off). Requires --reason. "
+                         "The days stay visible in the report; they stop counting as defects.")
+    sp.add_argument("--reason", default=None, help="why the desk could not run; required with --declare-outage")
 
     sp = sub.add_parser("freshness",
                         help="age every artefact in smith_core.FRESHNESS: fresh|stale|dark|unstamped|missing")

@@ -2167,6 +2167,31 @@ def evaluate_runs(base_dir, today=None, days=10):
     scheduler-reported "it ran" would hide.
     """
     today = today or date.today()
+    # Declared outages: days the desk COULD NOT have run for a reason outside it -- the host was
+    # unavailable, the account was blocked, the machine was off. Declared 2026-09-01 after `runs`
+    # flagged 2026-08-27/28 as MISSING and the cause turned out to be a Claude membership issue:
+    # Claude Code could not run, so the scheduler never fired. That is not a desk defect and
+    # should not sit in `validate` forever pretending to be one.
+    #
+    # An outage SUPPRESSES THE DEFECT, NEVER THE FACT. The day still appears in the report with
+    # its reason attached, because "we did not look at the book on those days" stays true and
+    # stays relevant to any week-over-week read; what changes is only that it stops being
+    # something to fix.
+    state = load_json(os.path.join(base_dir, "state.json"), default={})
+    outages = []
+    for o in (state.get("run_outages") or []):
+        try:
+            outages.append((date.fromisoformat(o["from"]), date.fromisoformat(o["to"]),
+                            o.get("reason") or "declared outage"))
+        except (KeyError, ValueError, TypeError):
+            continue
+
+    def outage_for(d):
+        for a, b, why in outages:
+            if a <= d <= b:
+                return why
+        return None
+
     rows = []
     try:
         with open(os.path.join(base_dir, "ledger.csv")) as fh:
@@ -2196,6 +2221,7 @@ def evaluate_runs(base_dir, today=None, days=10):
             expected.append("agent-smith-weekly-us")
         led, rd = by_day.get(d, []), dirs_by_day.get(d, [])
         modes = {r.get("mode", "?") for r in led}
+        why = outage_for(d)
         # PER-TASK, not per-day. A Monday expects BOTH the daily and the weekly, and checking
         # only "did anything run" marks 2026-08-31 as ok -- the daily delivered while the weekly
         # fired, hung and left nothing. That is precisely the failure this function exists to
@@ -2214,7 +2240,9 @@ def evaluate_runs(base_dir, today=None, days=10):
             verdict = "unscheduled"          # an interactive run -- normal, not a defect
         else:
             verdict = "ok"
-        out.append({"date": d.isoformat(), "weekday": d.strftime("%a"),
+        if why and verdict in ("MISSING", "WEEKLY_NO_DEEP_RUN", "FIRED_BUT_NO_LEDGER_ROW"):
+            verdict = "outage"
+        out.append({"date": d.isoformat(), "weekday": d.strftime("%a"), "outage_reason": why,
                     "expected": expected, "run_dirs": sorted(rd),
                     "ledger_rows": len(led),
                     "modes": sorted({r.get("mode", "?") for r in led}),
@@ -2233,6 +2261,10 @@ def validate_runs(base_dir):
             continue
         if checked >= 3:
             break
+        if row["verdict"] == "outage":
+            continue                     # declared unavailable: not a miss, and it must not
+                                         # consume the lookback budget either, or two outage
+                                         # days would push a real miss out of the window
         if row["expected"]:
             checked += 1
         if row["verdict"] == "MISSING":
@@ -2254,8 +2286,44 @@ def validate_runs(base_dir):
 
 
 def cmd_runs(args):
-    """Report expected-vs-actual runs. Every timestamp shown in UTC and IST together."""
+    """Report expected-vs-actual runs. Every timestamp shown in UTC and IST together.
+
+    `--declare-outage FROM:TO --reason "..."` records a period the desk could not have run for
+    an external reason. Written through this command rather than by hand-editing state.json,
+    for the same reason `add-proposal` and `append-ledger` exist: every hand-assembled write in
+    this codebase's history eventually produced a malformed record.
+    """
     today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    if getattr(args, "declare_outage", None):
+        raw = args.declare_outage
+        sep = ":" if ":" in raw else (".." if ".." in raw else None)
+        if not sep:
+            fail("--declare-outage takes FROM:TO, e.g. 2026-08-27:2026-08-28")
+        a, _, b = raw.partition(sep)
+        try:
+            d_from, d_to = date.fromisoformat(a.strip()), date.fromisoformat(b.strip().lstrip("."))
+        except ValueError:
+            fail(f"--declare-outage dates must be YYYY-MM-DD, got {raw!r}")
+        if d_to < d_from:
+            fail(f"--declare-outage end {d_to} precedes start {d_from}")
+        if not args.reason:
+            fail("--declare-outage requires --reason: an undocumented outage is indistinguishable "
+                 "from a bug someone silenced")
+        sp = os.path.join(args.base_dir, "state.json")
+        st = load_json(sp, default={})
+        lst = st.setdefault("run_outages", [])
+        entry = {"from": d_from.isoformat(), "to": d_to.isoformat(), "reason": args.reason,
+                 "declared_on": str(today)}
+        if any(o.get("from") == entry["from"] and o.get("to") == entry["to"] for o in lst):
+            emit({"declared": False, "note": "an outage with those exact dates is already on "
+                                             "record -- not duplicated", "run_outages": lst})
+            return
+        lst.append(entry)
+        safe_write(sp, st)
+        emit({"declared": True, "outage": entry, "run_outages": lst,
+              "note": "the days remain visible in `runs` with their reason; they simply stop "
+                      "counting as defects."})
+        return
     rows = evaluate_runs(args.base_dir, today, args.days)
     bad = [r for r in rows if r["verdict"] in ("MISSING", "FIRED_BUT_NO_LEDGER_ROW",
                                                "LEDGER_ROW_WITHOUT_RUN_DIR",
