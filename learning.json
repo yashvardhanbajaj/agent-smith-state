@@ -603,6 +603,14 @@
       "evidence": "smith-rebound.md step0/step6 dedup fix; G46 wrong in SKILL.md x2 + smith_core.py:472 + smith_lifecycle.py:123, all four fixed to G87 (new backfilled entry); grep across all agent files + SKILL.md found zero instructions to Read script source",
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "Extended the citation audit to the 3 reference/*.md files (dashboard.md, proposals-engine.md, deep-mode-dispatch.md). Key finding, consistent with the agent-files finding: these are NOT bloat to fix, they are ALREADY the correct destination. Both dashboard.md and proposals-engine.md were explicitly split out of SKILL.md on 2026-08-30/-31 for exactly the reason this whole sweep has been chasing -- their own opening lines say so verbatim ('SKILL.md keeps every operative rule; this file holds the WHY, on the same principle as DECISIONS.md'). They are read on-demand (before editing the dashboard builder, before touching a proposal-engine weight), not on every run, so they don't carry SKILL.md's read-every-run cost either. Compressing them further would undo the exact split that already solved this problem for this content. One real bug found and fixed: deep-mode-dispatch.md cited known_gaps G7 for 'silently dropping sub-agents mid-orchestration', but G7 doesn't exist in the registry and -- unlike G5/G10/G87 earlier -- the citing text carried no date, ticker, or incident specifics to responsibly backfill from, just a vague 'has happened before'. Removed the dead pointer rather than fabricate a gap entry from nothing, which would have been worse than the missing citation it replaced. Checked internal G-number repeats in all 3 files (G34 x3 in dashboard.md, G71 x2 in proposals-engine.md) -- both are legitimate distinct facets of the same incident within a short span, not duplication. Generalise: before applying a fix pattern to a new location, check whether that location already IS the fix -- these three files exist because someone already did the SKILL.md-style split for exactly this content; the sweep's job there was verification (are the citations still correct), not the compression itself.",
+      "evidence": "reference/deep-mode-dispatch.md G7 citation removed (no backfill possible, insufficient detail); dashboard.md and proposals-engine.md opening lines confirm they are the designed WHY-destination, not bloat targets",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

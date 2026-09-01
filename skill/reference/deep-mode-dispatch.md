@@ -68,8 +68,7 @@ regardless of this test.
 ## DEEP roster confirmation
 Before moving to Stage 2 on a DEEP run, confirm out loud in this exact checklist form: "Deep run
 dispatched: signals ✓ thesis ✓ watchlist ✓ book ✓ scout ✓ macro ✓ [rebound ✓ if hot] [quality ✓ if
-triggered]" — a cheap forcing function against silently dropping sub-agents mid-orchestration,
-which has happened before (see `known_gaps` G7).
+triggered]" — a cheap forcing function against silently dropping sub-agents mid-orchestration.
 
 ## Deep-only embeds
 - **smith-book** (deep only): `compute_book.json` inline (value/weights/concentration/beta/
