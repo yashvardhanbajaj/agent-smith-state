@@ -222,6 +222,66 @@
       },
       "run_dir": null,
       "note": null
+    },
+    {
+      "date": "2026-09-01",
+      "param_id": "usage:smith-rebound",
+      "value": {
+        "tokens": 102499,
+        "tool_calls": 7,
+        "duration_s": 150.173,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-01-2205",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-01",
+      "param_id": "usage:smith-watchlist",
+      "value": {
+        "tokens": 101430,
+        "tool_calls": 14,
+        "duration_s": 193.007,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-01-2205",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-01",
+      "param_id": "usage:smith-ledger",
+      "value": {
+        "tokens": 156583,
+        "tool_calls": 48,
+        "duration_s": 378.141,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-01-2205",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-01",
+      "param_id": "usage:smith-thesis",
+      "value": {
+        "tokens": 139163,
+        "tool_calls": 15,
+        "duration_s": 367.367,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-01-2205",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-01",
+      "param_id": "usage:smith-signals",
+      "value": {
+        "tokens": 204094,
+        "tool_calls": 17,
+        "duration_s": 428.216,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-01-2205",
+      "note": "mode=quick"
     }
   ],
   "parameters": {
@@ -418,6 +478,62 @@
       "text": "smith_math.py merge-tails does a raw overwrite on state.thesis entries, not a field-preserving merge. When smith-thesis returns an exit-flag stub for a name absent from its slice (just {exited,held,exited_as_of,note} with no status/thesis/evidence, exactly as its own note instructed: 'MERGE ONLY -- do not replace existing thesis/evidence text'), merge-tails wrote that stub verbatim over the ticker's full existing entry, wiping status/thesis/evidence_for/evidence_against for 7 names (AMZN, BX, FLTW, LITE, CEG, AMKR, BABA) on the 2026-09-01 quick sweep -- caught only because validate immediately flagged all 7 as THESIS STATUS UNREADABLE (exited stub has no 'status' key). Fixed by hand-restoring each ticker's pre-merge thesis fields from state.json.bak and layering the exit metadata on top, rather than replacing. Generalise: a sub-agent's own instruction to the orchestrator ('merge only, don't replace') is not self-enforcing if the actual merge tool does a plain dict overwrite for that key -- either the agent's exit-stub schema needs to carry the prior fields forward itself, or merge-tails' thesis merge needs to preserve status/thesis/evidence when the incoming entry lacks them, and validate should keep catching this class as a hard defect either way.",
       "evidence": "state.json.bak vs post-merge state.json diff, runs/2026-09-01-2205, validate_thesis_status_unreadable",
       "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "merge-tails' _merge_signals (and likely _merge_thesis/_merge_watchlist) never reads/writes state.news_watermark from an agent's returned tail, even though smith-signals/smith-thesis/smith-watchlist all include news_watermark in their standard tail shape and SKILL.md's PERSIST section documents it as a merged field. Found 2026-09-01: after merge-tails ran for signals/thesis/watchlist, state.news_watermark still read 2026-08-29 (three runs stale) despite smith-signals returning news_watermark:2026-09-01 in its tail. Orchestrator set it by hand this run as a scalar persist (same class of direct write as last_run_dir/us/holdings, not a hand-authored merge). Generalise: a field documented in PERSIST's schema as agent-merged is not necessarily wired into merge-tails' actual per-agent merge function -- check the merge function body, not just the schema comment, before assuming a returned field lands automatically.",
+      "evidence": "smith_memory.py _merge_signals (lines ~829-900) has no news_watermark handling; state.json news_watermark stuck at 2026-08-29 post-merge on the 2026-09-01 run",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "SKILL.md (444 lines, ~70-90K tokens) is read cold and in full at the start of EVERY run, including quick runs, even though ~90% of it is deep-mode-only reference material (macro dispatch, quality/tax/cycle triggers, dashboard build spec). This is the single largest fixed orchestrator cost and it recurs daily. The codebase already solved the identical problem once for smith_math.py -- split from a 4,085-line monolith into smith_core/risk/ledger/memory/lifecycle/math specifically because 'state.json is read every run and sliced into every prompt' -- but SKILL.md itself never got the same treatment, and reference/dashboard.md + reference/proposals-engine.md already prove the pattern works. Fixed 2026-09-01: SKILL.md restructured into a lean quick-mode core plus reference/deep-mode-dispatch.md (macro/quality/tax/cycle/earnings/catalyst dispatch rules) and reference/quick-vs-deep.md is not needed -- the split follows the existing reference/ convention. Generalise: any prompt or state file that is loaded in full on every run, regardless of mode, is a candidate for this split the moment most of its content only applies to one mode.",
+      "evidence": "measured 2026-09-01 quick sweep: SKILL.md read cost dwarfed all 6 subagents combined on a per-artifact basis; reference/dashboard.md and reference/proposals-engine.md are the existing precedent",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "Price fetches happen in overlapping waves instead of one consolidated batch. Measured on the 2026-09-01 quick sweep: market inputs (9 tickers) -> holdings (30 tickers) -> score-probe (18 tickers, ~12 overlapping with holdings) -> stops-probe (57 tickers, ~25 overlapping with holdings) -- 4 separate yfinance batch calls with heavy ticker overlap, when the union of every ticker any stage would eventually need (macro proxies + held names + score/stops-probe named tickers) was knowable before the first fetch. Fixed 2026-09-01: SKILL.md section 2.5b now instructs fetching the full known ticker union in ONE batched pass at the top of PREFETCH, caching it in holdings.json's live_quotes map, and having score/stops reuse that cache before falling back to a second targeted fetch only for tickers the cache doesn't cover. Generalise: before adding a second price-fetch call anywhere in the pipeline, check whether an earlier stage this run already pulled the same ticker -- the orchestrator's own live_quotes map (added 2026-08-07, G32) already exists for exactly this reuse and was underused.",
+      "evidence": "runs/2026-09-01-2205: 4 yfinance batches (9+30+18+57 tickers) with ~37 ticker-calls of overlap out of 114 total symbol-fetches",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "smith-rebound re-derives gate_classification from fresh data even when the orchestrator already hands it the authoritative gate inline in the dispatch prompt -- on the 2026-09-01 run it re-fetched VIX and all 4 Asia indices to 'independently check' a value it was explicitly told to treat as authoritative, which is most of why it ran 150s against its own <90s budget (it stayed within its 8-call cap, but the extra fetch pass ate the time budget). Its own agent file's rule D.2 ('may ratchet severity UP on fresher data but forbids downgrading without re-checking all v2 terms') was written to prevent silently trusting a stale gate after G42 -- but it does not require re-deriving the SAME-run gate the orchestrator just computed seconds earlier, only a materially older one. Fixed 2026-09-01: smith-rebound.md now distinguishes 'the orchestrator's this-run gate, stated in the dispatch prompt' (trust it, cite it) from 'a gate carried over from a prior run's stale state' (the actual G42 case rule D.2 exists for) -- only the second case triggers independent re-verification. Generalise: a standing-order rule written to fix one incident (trusting STALE data) can accidentally also block trusting FRESH data from the same run if the rule doesn't distinguish the two -- check which one a re-verification instruction is actually guarding against before applying it broadly.",
+      "evidence": "runs/2026-09-01-2205 out_rebound.json data_quality: 'gate kept AMBIGUOUS...independently checked full v2 terms on fresh data' + 150s duration vs an <90s target with only 7/8 tool calls used",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "smith-ledger's initial email search returns truncated snippets that cut off before the Shares:/Order Type: fields, forcing a second round-trip get_thread call per truncated result -- on the 2026-09-01 19-ticker reconciliation, 12 of 23 found confirmations needed a follow-up full-thread fetch, i.e. roughly half its 48 tool calls were this second pass. Fixed 2026-09-01: smith-ledger.md now instructs requesting a longer snippet / full body on the INITIAL search_threads call for INDmoney transaction-confirmation searches specifically (these are short, templated emails -- a longer snippet costs little and usually captures the whole confirmation in one call), rather than defaulting to a short snippet and conditionally following up. Generalise: for any email search whose target field is known to sit past the default snippet cutoff on a predictable email template, request more text upfront rather than paying for a conditional second call on most results.",
+      "evidence": "runs/2026-09-01-2205 smith-ledger reconciliation: 23 confirmations found, 12 needed a follow-up get_thread call, 48 total tool calls for a 19-ticker reconciliation",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "CORRECTION to the prior lesson (idx 7): 'request a longer snippet on the initial search' is not achievable -- search_threads' snippet field is a fixed Gmail-provided field with no length parameter; the tool schema has no such knob. The real fix is process, not a request parameter: smith-ledger.md's own step 3 already knew the snippet 'almost always' truncates before Shares:/Order Type: and calls the get_thread follow-up 'not optional' -- so treating it as a CONDITIONAL check-then-fetch (search, read snippet, decide it's insufficient, then fetch) wastes a full reasoning pass per row on a decision whose answer is already known. Fixed 2026-09-01: smith-ledger.md now skips the snippet-sufficiency check for BUY/SELL confirmation threads specifically and goes straight to a batch of get_thread calls for every thread search_threads returns, since experience says the snippet is insufficient essentially every time for this specific email template. This does not reduce the total get_thread call count (still ~1 per confirmation) but removes a wasted per-row snippet-inspection decision step, and lets the follow-up fetches be issued as one clearly-planned batch instead of a conditional loop. Generalise: when a fallback path fires on close to 100% of rows for a known reason, stop treating it as a fallback and make it the default path -- the branch that never gets taken is pure overhead.",
+      "evidence": "search_threads/get_thread tool schemas (ToolSearch, 2026-09-01): search_threads has no snippet-length or maxBodyChars parameter, only query/pageSize/pageToken/view",
+      "source_run": null,
+      "supersedes": 7
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "USAGE AUDIT (auto-logged, 2026-09-01-2205): smith-rebound ran 150s this run vs its stated budget of <90s. Investigate whether this run's dispatch prompt asked smith-rebound to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
+      "evidence": "usage-audit run_id=2026-09-01-2205, agent=smith-rebound, tokens=102499, tool_calls=7, duration_s=150.173",
+      "source_run": "2026-09-01-2205",
       "supersedes": null
     }
   ]

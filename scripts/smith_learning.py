@@ -321,6 +321,125 @@ def cmd_learn_add_lesson(args):
 
 
 # ---------------------------------------------------------------------------
+# Agent token/call/time usage -- added 2026-09-01, self-detecting efficiency audit.
+# ---------------------------------------------------------------------------
+# WHY THIS EXISTS: a 2026-09-01 quick sweep was manually reconstructed after the fact from six
+# task-notification `usage` blocks to answer "where did the tokens go" -- the answer (one agent
+# re-deriving data the orchestrator already gave it, another paying for a per-row decision whose
+# outcome was already known ~100% of the time) was real and fixable, but nothing would have
+# surfaced it without a human explicitly asking. This module closes that loop: every dispatched
+# agent's usage is logged as an observation (same DERIVE-ON-READ-FROM-AN-APPEND-ONLY-LOG
+# discipline as every other learning.json parameter -- `usage:<agent>` observations are the only
+# thing trusted, nothing here caches a "this agent normally costs X" number), and usage-audit
+# compares THIS run's numbers against that agent's own trailing history and flags an outlier the
+# same run it happens, not on the next person who happens to read a completion notification
+# closely. A flagged outlier auto-writes a `correction` lesson via add_lesson -- the same
+# substrate a human would have written by hand -- so a future run (or a future orchestrator
+# instance with zero memory of this one) inherits the finding via the standard `learn-lessons`
+# read at MEMORY step 1, not by someone re-noticing it.
+#
+# AGENT_BUDGETS is deliberately sparse: only agents whose OWN .md file states an explicit
+# tool-call/time target get a budget-breach check (currently smith-rebound: <=8 calls/<90s,
+# per its own dispatch description). Every other agent is judged only against ITS OWN trailing
+# median (n>=3 required before any flag fires) -- there is no invented universal budget, because
+# a fabricated threshold would be exactly the kind of confident-wrong number this codebase's own
+# standing discipline (COMPUTE-FIRST, EVIDENCE PRINCIPLE) exists to prevent.
+AGENT_BUDGETS = {
+    "smith-rebound": {"tool_calls": 8, "duration_s": 90},
+    "smith-catalyst": {"tool_calls": 6, "duration_s": 90},
+}
+
+USAGE_TOKEN_OUTLIER_MULT = 1.5   # this run's tokens > 1.5x trailing median -> flag
+USAGE_TRAILING_WINDOW = 10       # look back at most this many prior observations
+USAGE_MIN_N_FOR_MEDIAN_CHECK = 3  # need at least this many prior runs before trusting a median
+
+
+def cmd_usage_log(args):
+    """Append one agent's this-run usage as an observation. Call once per dispatched agent,
+    right after its completion notification arrives -- same moment `out_<agent>.json` gets
+    written, so usage tracking piggybacks on a step the orchestrator already performs."""
+    value = {"tokens": args.tokens, "tool_calls": args.tool_calls,
+             "duration_s": args.duration_s, "mode": args.mode}
+    obs = record_observation(args.base_dir, f"usage:{args.agent}", value,
+                              today=args.today, run_dir=args.run_id,
+                              note=f"mode={args.mode}")
+    emit({"logged": obs})
+
+
+def _usage_history(base_dir, agent, exclude_run_id=None):
+    store = load_store(base_dir)
+    obs = [o for o in store.get("observations", [])
+           if o.get("param_id") == f"usage:{agent}"
+           and (exclude_run_id is None or o.get("run_dir") != exclude_run_id)]
+    obs = sorted(obs, key=lambda o: o.get("date") or "", reverse=True)[:USAGE_TRAILING_WINDOW]
+    return obs
+
+
+def _median(values):
+    if not values:
+        return None
+    s = sorted(values)
+    n = len(s)
+    mid = n // 2
+    return s[mid] if n % 2 else (s[mid - 1] + s[mid]) / 2.0
+
+
+def cmd_usage_audit(args):
+    """Compare THIS run's usage for one agent against its own trailing history (median tokens,
+    excluding this run's own just-logged observation) and against any stated AGENT_BUDGETS
+    entry. Flags -- and auto-logs a correction lesson for -- either kind of outlier. Read-mostly:
+    the only write is the auto-lesson, and only when something is actually flagged."""
+    history = _usage_history(args.base_dir, args.agent, exclude_run_id=args.run_id)
+    prior_tokens = [h["value"]["tokens"] for h in history if h.get("value", {}).get("tokens")]
+    median_tokens = _median(prior_tokens)
+
+    flags = []
+    if median_tokens is not None and len(prior_tokens) >= USAGE_MIN_N_FOR_MEDIAN_CHECK:
+        ratio = args.tokens / median_tokens if median_tokens else None
+        if ratio and ratio > USAGE_TOKEN_OUTLIER_MULT:
+            flags.append({
+                "kind": "token_outlier",
+                "detail": (f"{args.agent} used {args.tokens:,} tokens this run vs a trailing "
+                           f"median of {median_tokens:,.0f} over its last {len(prior_tokens)} "
+                           f"runs -- {ratio:.1f}x, past the {USAGE_TOKEN_OUTLIER_MULT}x flag "
+                           f"threshold."),
+            })
+
+    budget = AGENT_BUDGETS.get(args.agent)
+    if budget:
+        if args.tool_calls is not None and args.tool_calls > budget["tool_calls"]:
+            flags.append({
+                "kind": "tool_call_budget_breach",
+                "detail": (f"{args.agent} used {args.tool_calls} tool calls this run vs its "
+                           f"stated budget of <={budget['tool_calls']}."),
+            })
+        if args.duration_s is not None and args.duration_s > budget["duration_s"]:
+            flags.append({
+                "kind": "duration_budget_breach",
+                "detail": (f"{args.agent} ran {args.duration_s:.0f}s this run vs its stated "
+                           f"budget of <{budget['duration_s']}s."),
+            })
+
+    lessons_added = []
+    if flags:
+        detail = " ".join(f["detail"] for f in flags)
+        text = (f"USAGE AUDIT (auto-logged, {args.run_id}): {detail} Investigate whether this "
+                 f"run's dispatch prompt asked {args.agent} to do something outside its normal "
+                 f"scope, or whether this is a recurring pattern worth a standing fix (check "
+                 f"`learn-lessons --kind correction` for prior findings on this agent before "
+                 f"assuming it's new).")
+        lesson = add_lesson(args.base_dir, "correction", text,
+                             evidence=f"usage-audit run_id={args.run_id}, agent={args.agent}, "
+                                      f"tokens={args.tokens}, tool_calls={args.tool_calls}, "
+                                      f"duration_s={args.duration_s}",
+                             source_run=args.run_id, today=args.today)
+        lessons_added.append(lesson)
+
+    emit({"agent": args.agent, "flags": flags, "prior_n": len(prior_tokens),
+          "median_tokens": median_tokens, "lessons_added": lessons_added})
+
+
+# ---------------------------------------------------------------------------
 # Revealed preference -- Phase 2. HONESTLY SCOPED: a steer, not a model.
 # ---------------------------------------------------------------------------
 # The near-miss that shapes every line below: a strong-looking size effect (acted-on median
