@@ -938,6 +938,52 @@ def cmd_proposals(args):
             retires_when = f"{pr.get('cluster')} re-enters its policy band"
         pr["retires_when"] = retires_when
 
+    # --- STACKING GUARD (added 2026-09-01) ---------------------------------------------------
+    # An ACCEPTED-but-unexecuted proposal did not block a new proposal on the same name and the
+    # same side. The dedup pass above keys on OPEN proposals, and acceptance moves a row to
+    # `accepted_by_user` -- so accepting a trade REMOVED it from the duplicate check while
+    # leaving the trade undone. The window in which double-counting is most likely was precisely
+    # the window that was unguarded.
+    #
+    # Found live on 2026-08-31: P-164 Sell MSFT $437.92 accepted and awaiting execution, while
+    # P-201 proposed a further Sell MSFT $305.96 -- $743.88 combined against a $1,019.88
+    # position, 73% of the holding, across two rows neither of which referenced the other.
+    #
+    # This FLAGS, it does not auto-retire. Two of the three live stacks that day (WDC, AMAT)
+    # were plausibly deliberate incremental adds funded by different rotations, and silently
+    # killing a legitimate second leg would trade one failure mode for another. What was missing
+    # was never the judgement -- it was that nothing put the combined number in front of anyone.
+    # Sell-side stacks are escalated because they are the bounded side: you cannot sell more than
+    # you hold, so a large combined percentage is a concrete, checkable error rather than merely
+    # an oversized bet.
+    pos_value = {tk: rp.get("market_value_usd") for tk, rp in risk_by_ticker.items()
+                 if rp.get("market_value_usd")}
+    stack_warnings = []
+    _live = [pr for pr in props if pr.get("status") in ("open", "accepted_by_user")]
+    for pr in _live:
+        pr.pop("stacks_on", None)           # recomputed every run, never stale
+    for i, a in enumerate(_live):
+        if a.get("status") != "accepted_by_user":
+            continue
+        for b in _live:
+            if b is a or b.get("status") != "open":
+                continue
+            if b.get("ticker") != a.get("ticker"):
+                continue
+            side = a.get("direction_bucket") or "HOLD"
+            if side != (b.get("direction_bucket") or "HOLD"):
+                continue
+            combined = (a.get("size_usd") or 0) + (b.get("size_usd") or 0)
+            mv = pos_value.get(a.get("ticker"))
+            pct = round(100.0 * combined / mv, 1) if mv else None
+            sev = "high" if (side in ("SELL", "TRIM") and pct is not None
+                             and pct >= STACK_WARN_PCT) else "note"
+            info = {"accepted_id": a.get("id"), "accepted_size_usd": a.get("size_usd"),
+                    "combined_usd": round(combined, 2), "position_usd": mv,
+                    "combined_pct_of_position": pct, "side": side, "severity": sev}
+            b["stacks_on"] = info
+            stack_warnings.append(dict(info, open_id=b.get("id"), ticker=a.get("ticker")))
+
     proposals["proposals"] = props
     safe_write(p_path, proposals)
 
@@ -951,7 +997,9 @@ def cmd_proposals(args):
           "open_count": len(open_now), "priority_counts": priority_counts, "written": True,
           "auto_voided_created_this_run": voided_today,
           "auto_voided_stale": voided_stale,
-          "reconciliation_warnings": recon_warnings})
+          "reconciliation_warnings": recon_warnings,
+          "stacking_warnings": sorted(stack_warnings,
+                                      key=lambda w: -(w.get("combined_pct_of_position") or 0))})
 
 def cmd_score(args):
     """Score past proposals on price outcome. The strategist's accountability loop.

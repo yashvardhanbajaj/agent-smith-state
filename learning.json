@@ -395,6 +395,14 @@
       "evidence": null,
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "A terminal-looking status can silently remove a row from a check that still needs it. cmd_proposals' dedup keys on OPEN proposals, and accepting a proposal moves it to accepted_by_user -- so ACCEPTANCE REMOVED A TRADE FROM THE DUPLICATE CHECK WHILE LEAVING THE TRADE UNDONE, making the window where double-counting is most likely the one window that was unguarded. Found 2026-08-31: P-164 Sell MSFT 437.92 accepted and awaiting execution alongside P-201 Sell MSFT 305.96 open -- 743.88 combined against a 1019.88 position, 73pct of the holding, across two rows neither referencing the other. Fix flags rather than auto-retires, because two of the three live stacks that day (WDC 50pct, AMAT 60pct, both BUY) were plausibly deliberate incremental adds funded by different rotations and silently killing a legitimate second leg trades one failure mode for another; sell-side stacks escalate at 50pct because you cannot sell more than you hold, making a large combined percentage a concrete checkable error. Generalise: when a status change is used as a filter, ask what OTHER checks that status now excludes the row from -- and whether the underlying obligation is actually finished.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

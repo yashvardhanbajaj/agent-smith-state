@@ -308,6 +308,13 @@ HEADWIND_BUCKET_MAX_AGE_DAYS = 10
 #               "escalate" -- no consumer suppresses, so staleness is invisible without this;
 #                             dark the moment it passes ttl
 #               "flag"     -- degrades gracefully; dark only at 2x ttl
+# Combined size of an ACCEPTED-but-unexecuted proposal plus a new OPEN one on the same name and
+# side, as a percentage of the position, above which a SELL/TRIM stack is escalated. Sells are
+# the bounded side -- you cannot sell more than you hold -- so a large combined percentage there
+# is a concrete error rather than merely an oversized bet. 50% chosen because the live case that
+# prompted it (MSFT, 2026-08-31) was 73% and the two benign cases were 50% and 60% BUY-side.
+STACK_WARN_PCT = 50.0
+
 FRESHNESS = {
     # --- technical caches: feed LIVE proposal triggers, suppressed by cmd_triggers ---
     "data_cache.rsi14":            {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "suppress"},

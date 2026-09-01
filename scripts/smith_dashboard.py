@@ -97,6 +97,23 @@ def held_badge(prop):
             f'accept or reject it.">HELD {esc(str(when))}{times}{tail}</span>')
 
 
+def stacks_badge(prop):
+    """Show when an OPEN proposal stacks on an ACCEPTED-but-unexecuted one for the same name and
+    side. Written by cmd_proposals' stacking guard (2026-09-01). Rendered here because the whole
+    failure was that the combined number existed nowhere a human would see it: P-164 Sell MSFT
+    $438 accepted and P-201 Sell MSFT $306 open were 73% of the position across two rows that
+    never referenced each other. A guard that only writes a field repeats the defect it fixes."""
+    st = prop.get("stacks_on")
+    if not isinstance(st, dict):
+        return ""
+    pct = st.get("combined_pct_of_position")
+    pct_s = f" = {pct:.0f}% of the position" if isinstance(pct, (int, float)) else ""
+    cls = "stack-badge hi" if st.get("severity") == "high" else "stack-badge"
+    return (f'<span class="stopline {cls}">stacks on {esc(str(st.get("accepted_id")))} '
+            f'(accepted ${st.get("accepted_size_usd", 0):,.0f}, not yet filled) &mdash; '
+            f'${st.get("combined_usd", 0):,.0f} combined{pct_s}</span>')
+
+
 def decision_buttons(surface, element_id, extra_attrs=""):
     """Renders the standard button-group + optional-reason-input markup for one interactive
     row. `extra_attrs` carries surface-specific data-* attributes the JS needs at click time
@@ -168,6 +185,8 @@ def trim_lead(text, max_len=180):
 
 CSS = """
 *{box-sizing:border-box}
+.stack-badge{color:var(--ink-2)}
+.stack-badge.hi{color:#b04e72;font-weight:600}
 .held-badge{display:inline-block;margin-left:.5rem;padding:.08rem .4rem;border-radius:3px;
   font-size:.72rem;font-weight:600;letter-spacing:.02em;
   background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
@@ -944,10 +963,11 @@ def build(base, out):
                       f'</span>') if conv is not None else ""
             decide_s = decision_buttons("proposal", pid) if pid else ""
             held_s = held_badge(p)
+            stack_s = stacks_badge(p)
             return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
                     f'{esc(p.get("action",""))}{clus_s}{held_s}</span>'
                     f'<span class="why">{esc(short)}{more}{live_s}{flag_s}{tranche_s}{retires_s}'
-                    f'{conv_s}{stop_s}{shares_s}{clamped_s}{meta}{decide_s}</span>'
+                    f'{conv_s}{stop_s}{shares_s}{clamped_s}{stack_s}{meta}{decide_s}</span>'
                     f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
 
         # -- rotation ideas: paired trim+buy proposals sharing a pair_id (added 2026-08-06,

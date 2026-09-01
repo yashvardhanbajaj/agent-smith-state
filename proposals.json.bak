@@ -7055,7 +7055,7 @@
       "rationale": "Stretched, watch thesis (UNVERIFIED) -- weakest-evidenced sell leg in this batch; funds QCOM buy leg.",
       "trigger_type": "profit_rotation",
       "date": "2026-08-31T00:00:00Z",
-      "status": "open",
+      "status": "dismissed_by_desk",
       "pair_id": "profit_rotation-MSFT-QCOM",
       "pair_role": "sell",
       "id": "P-201",
@@ -7075,7 +7075,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-08-31",
-      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-QCOM is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-QCOM is no longer live this run -- both legs retire together, never one alone",
+      "dismissed_by": "desk",
+      "dismiss_reason": "DESK-DISMISSED as a double-count risk, not on the merits of the idea. P-164 (Sell MSFT 437.92) is already ACCEPTED and awaiting execution; P-201 proposes a further 305.96 on the same name in the same direction. Combined that is 743.88 against a 1019.88 position -- 73pct of the holding -- across two rows neither of which referenced the other. The dedup pass did not catch it because it compares OPEN proposals and an accepted row carries status accepted_by_user, so acceptance removes a proposal from the duplicate check while leaving the trade undone. On its own merits P-201 is also the weakest leg in its batch: the strategist's own rationale calls it 'the weakest-evidenced sell leg', thesis UNVERIFIED. The MSFT sell the desk wants is P-164, already decided at a size the user chose. Not a user decision.",
+      "note": "dismissed by desk 2026-09-01T10:51: DESK-DISMISSED as a double-count risk, not on the merits of the idea. P-164 (Sell MSFT 437.92) is already ACCEPTED and awaiting execution; P-201 proposes a further 305.96 on the same name in the same direction. Combined that is 743.88 against a 1019.88 position -- 73pct of the holding -- across two rows neither of which referenced the other. The dedup pass did not catch it because it compares OPEN proposals and an accepted row carries status accepted_by_user, so acceptance removes a proposal from the duplicate check while leaving the trade undone. On its own merits P-201 is also the weakest leg in its batch: the strategist's own rationale calls it 'the weakest-evidenced sell leg', thesis UNVERIFIED. The MSFT sell the desk wants is P-164, already decided at a size the user chose. Not a user decision."
     },
     {
       "action": "Buy QCOM",
