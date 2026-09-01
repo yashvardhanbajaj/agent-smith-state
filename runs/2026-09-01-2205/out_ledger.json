@@ -1,0 +1,73 @@
+{
+  "agent": "smith-ledger",
+  "run_ts": "2026-09-01-2205",
+  "reconciled_range": {"since": "2026-08-31T15:54:00+05:30", "until": "2026-09-01T22:05:00+05:30"},
+  "trigger": "compute_book.json qty_changes non-empty (19 tickers) -- LEDGER trigger, SKILL.md section 3",
+  "email_query": "from:transactions.indmoney.com subject:(BUY OR SELL) after:2026/08/31",
+  "confirmations_found": 23,
+  "confirmations_excluded_cancelled": 1,
+  "rows_added": 22,
+  "rows_corrected": 0,
+  "rows_quarantined": 0,
+  "tickers_reconciled": 19,
+  "tickers_email_confirmed": 19,
+  "tickers_quarantined": 0,
+  "corrections": [],
+  "quarantined": [],
+  "corporate_action_review": [
+    {
+      "ticker": "CIEN",
+      "ratio_heuristic_flag": "likely_corporate_action=true (3.0085 -> 0.0085, ratio 0.0028)",
+      "finding": "ORDINARY TRIM, not a corporate action. Two separate ordinary sells, both email-confirmed: 1sh @ $376.00 (Market, 2026-08-31T15:19:50Z, thread 1a05867c73ea1f18) + 2sh @ $359.71 (stop, 2026-09-01T14:19:18Z, thread 1a05d56b533c7f84). Sum = -3sh, exactly matching the flagged delta. No split/conversion language in either confirmation. Recorded as TWO separate rows per the one-order-one-row rule (different order types: Market then stop).",
+      "verdict": "ordinary_trim"
+    },
+    {
+      "ticker": "QCOM",
+      "ratio_heuristic_flag": "likely_corporate_action=true (7.0008 -> 0.000762, ratio 0.0001)",
+      "finding": "ORDINARY TRIM, not a corporate action. One large stop-loss sell, email-confirmed: 7sh @ $164.72, Order Type stop, Amount $1153.04 (exact), 2026-09-01T13:31:39Z, thread 1a05d2b14379fcab. Matches the flagged delta exactly. No split/conversion language.",
+      "verdict": "ordinary_trim"
+    }
+  ],
+  "new_rows_summary": [
+    {"date": "2026-08-31", "ticker": "LITE", "action": "exit", "qty_change": -1, "price": 891.2, "order_type": "stop", "reason": "stop-loss"},
+    {"date": "2026-08-31", "ticker": "STM", "action": "add", "qty_change": 5, "price": 49.94, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-08-31", "ticker": "CIEN", "action": "trim", "qty_change": -1, "price": 376.0, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-08-31", "ticker": "CLS", "action": "add", "qty_change": 1, "price": 300.07, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-08-31", "ticker": "AMAT", "action": "add", "qty_change": 1, "price": 455.96, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-08-31", "ticker": "TER", "action": "add", "qty_change": 1, "price": 349.68, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-08-31", "ticker": "GEV", "action": "add", "qty_change": 1, "price": 891.28, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-08-31", "ticker": "BABA", "action": "exit", "qty_change": -2, "price": 114.56, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-08-31", "ticker": "AMKR", "action": "exit", "qty_change": -10, "price": 47.52, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-08-31", "ticker": "FLTW", "action": "exit", "qty_change": -10, "price": 103.37, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-08-31", "ticker": "ALAB", "action": "entry", "qty_change": 3, "price": 294.92, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-08-31", "ticker": "FSLR", "action": "entry", "qty_change": 3, "price": 202.15, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-09-01", "ticker": "MSFT", "action": "trim", "qty_change": -1, "price": 497.92, "order_type": "stop", "reason": "stop-loss"},
+    {"date": "2026-09-01", "ticker": "CEG", "action": "exit", "qty_change": -3, "price": 269.0, "order_type": "stop", "reason": "stop-loss"},
+    {"date": "2026-09-01", "ticker": "LRCX", "action": "trim", "qty_change": -1, "price": 294.21, "order_type": "stop", "reason": "stop-loss"},
+    {"date": "2026-09-01", "ticker": "AMZN", "action": "exit", "qty_change": -6, "price": 253.0, "order_type": "stop", "reason": "stop-loss"},
+    {"date": "2026-09-01", "ticker": "QCOM", "action": "trim", "qty_change": -7, "price": 164.72, "order_type": "stop", "reason": "stop-loss"},
+    {"date": "2026-09-01", "ticker": "BX", "action": "exit", "qty_change": -10, "price": 136.88, "order_type": "stop", "reason": "stop-loss"},
+    {"date": "2026-09-01", "ticker": "CIEN", "action": "trim", "qty_change": -2, "price": 359.71, "order_type": "stop", "reason": "stop-loss"},
+    {"date": "2026-09-01", "ticker": "ALAB", "action": "add", "qty_change": 2, "price": 279.14, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-09-01", "ticker": "KLAC", "action": "add", "qty_change": 1, "price": 171.11, "order_type": "Market", "reason": "UNCAPTURED"},
+    {"date": "2026-09-01", "ticker": "TER", "action": "add", "qty_change": 2, "price": 334.73, "order_type": "Market", "reason": "UNCAPTURED"}
+  ],
+  "excluded_cancelled": [
+    {"ticker": "AMKR", "thread_id": "1a058df30db4d6e3", "ts": "2026-08-31T17:30:16Z", "note": "Standing stop replaced 11s later by the manual/Market sale that IS recorded (thread 1a058df59bb6d07e). Excluded per Hard Rule 4."}
+  ],
+  "phantom_short": [],
+  "invariant_check": {
+    "tickers_ok": 30,
+    "tickers_checked": 30,
+    "mismatches": [],
+    "orphaned_positions": []
+  },
+  "ticker_notes": [
+    "ALAB resolved to Astera Labs Inc. via mcp__yfinance__search_stocks: symbol ALAB, exchange NMS, Technology/Semiconductors -- matches the email subject and holdings.json's own ticker field, which already carried 'ALAB' correctly this run. No ticker_map correction needed."
+  ],
+  "data_quality": [
+    "All 22 new confirmations reconcile Amount vs Price x Shares within a plausible ~0.29-0.30% fee band (buys) or exactly (most stop sells show Amount == Price x Shares with no visible fee deduction, consistent with existing stop-loss rows already in trades.json, e.g. 2026-08-21 QCOM). None flagged as forged or internally inconsistent.",
+    "CIEN and QCOM's ratio-based likely_corporate_action flags were BOTH false positives -- confirmed ordinary trims by email, per the known SKILL.md 2.9 heuristic failure mode. No split/conversion adjustment applied to either ticker.",
+    "G80 residue warning (pre-existing, unrelated to this run's 22 additions): 24 pre-2026-08-15 rows still carry the old Amount/Price derivation (AMD x6, GOOG x5, VRT x3, SMCI x2, PLTR x2, WDC x2, META x2, LLY x1, EWY x1), ~$29 total cost-basis error, ~$12 on live positions (0.027% of book). Left as-is per standing policy -- informational only, not touched this run."
+  ]
+}

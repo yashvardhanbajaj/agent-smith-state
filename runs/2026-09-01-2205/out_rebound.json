@@ -1,0 +1,44 @@
+{
+  "correction_state": "correction",
+  "inputs_usable": true,
+  "basis": {
+    "total_book_usd": 39985,
+    "stock_usd": 34558,
+    "wallet_usd": 5427,
+    "deployable_cash_for_ideas_usd": 3429.48,
+    "ai_capex_pct_total_book": 77.0,
+    "ai_capex_pct_stock": 89.1,
+    "ai_capex_cap_pct": 100
+  },
+  "gate": {
+    "classification": "ambiguous",
+    "vix_chg_pct": 4.78,
+    "es_pct": -0.57,
+    "nq_pct": -1.09,
+    "worst_asia_pct": -0.15,
+    "worst_asia_index": "N225",
+    "smh_pct": -2.10,
+    "orchestrator_gate": "ambiguous",
+    "downgrade_blocked": false,
+    "news_call_used": false
+  },
+  "sl_forensics": [],
+  "proposals": [],
+  "considered_excluded": [
+    {"ticker": "SNDK", "reason": "watch_thesis_flag"}
+  ],
+  "data_quality": [
+    "pre-screen (compute_triggers.json rebound block) surfaced exactly 1 candidate (SNDK, T2_ALUMNI) out of 42 considered; 41 excluded not_fallen_enough/no_data/too_quiet -- thin screen, no bullish case forced",
+    "SNDK carries an open_flags entry (opened 2026-08-05, WATCH status resting on beta/risk-cap grounds) -> tag WATCH_THESIS -> stay-out per rule C, full stop, regardless of fall depth",
+    "SNDK thesis_known=false (no state.thesis entry -- alumni, seeded from current holdings only) -- would have capped any proposal at stage_in even absent the flag",
+    "SNDK fall_atr_mult=0.19 (fell -13.55%/1m vs 15.6% ATR20) -- loud name being loud, not an obvious dislocation, per the pre-screen's own annotation",
+    "SNDK cluster=null in sector_map -- no peer set available for macro-vs-idiosyncratic classifier (rule B); not scored MACRO_DRIVEN or IDIO_WEAK",
+    "gate kept AMBIGUOUS (matches orchestrator); independently checked full v2 terms on fresh data -- Asia (KOSPI +0.23%, TWII +1.78%, N225 -0.15%) none <=-2%, SMH -1.94% fresh vs -2.10% dispatched (noise, both fail STABILIZING's >=-1% floor, neither hits ESCALATING's -2.5%) -- consistent AMBIGUOUS, no ratchet either direction",
+    "fresh yfinance ^VIX quote was internally inconsistent (price 15.65 vs prevClose 14.43 implies +8.5%, but API's own changePct field read +4.9%) -- discarded as unreliable, deferred to dispatch's authoritative VIX +4.78%/15.61 instead of using it to ratchet the gate",
+    "news call (rule D.3) skipped: SNDK is already capped at stage_in-or-lower by WATCH_THESIS + thesis_known=false regardless of gate outcome, so no news resolution could unlock a 'now' -- no now-eligible candidate this run",
+    "ALAB/FSLR (today's 2 new positions) carry no_data in the pre-screen and were not evaluable this run, per dispatch note",
+    "no support-level fetch performed: zero proposals generated (SNDK is stay-out), so no live entry needed sizing off a support level",
+    "large turnover today (7 full exits: AMKR, AMZN, LITE, FLTW, BX, CEG, BABA) is being reconciled by smith-ledger in parallel; not re-derived here per dispatch instruction, and BABA already appears in the pre-screen's 'too_quiet' exclusion bucket rather than as a fresh rebound candidate",
+    "policy.json confirmed:true"
+  ]
+}

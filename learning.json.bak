@@ -403,6 +403,14 @@
       "evidence": null,
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "A run is evidenced by its ARTEFACTS, never by session or scheduler metadata. Two opposite errors a day apart. (1) agent-smith-weekly-us fired 2026-08-31 09:08 IST, hung 22 seconds in, left no run dir, no ledger row and no report, and its session stayed flagged isRunning for 30 hours -- nothing on the desk noticed, and any check asking 'did something run today' saw the daily succeed and called the Monday healthy. (2) The reverse: on 2026-09-01 a session's lastActivityAt was read as proof the daily had run that morning; it had not. A scheduler's lastRunAt is no better, because it reports that a task FIRED, which is exactly what a task that fires and dies also does. Fix: smith_math.py runs reconciles expected scheduled runs against run-dir-plus-ledger-row evidence, PER TASK not per day (the weekly is tested on a deep-mode ledger row of its own), and validate fails on a scheduled run that left nothing. It immediately found two previously unnoticed missed weekdays, 08-27 and 08-28. Generalise: when asking whether an automated job ran, name the artefact it must leave and look for that -- status fields describe intent, artefacts describe outcome.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }
