@@ -102,52 +102,8 @@ def _proposal_parse_datetime(raw):
     d = _proposal_parse_date(raw)
     return datetime(d.year, d.month, d.day, tzinfo=timezone.utc) if d else None
 
-def cmd_proposals(args):
-    """Apply lifecycle rules to proposals.json: cross-run supersede-on-repeat, auto-expire
-    old, auto-void when position changes materially. Also assigns each proposal a stable
-    `id` (P-###, never reassigned) so a proposal can be referenced precisely -- by the
-    dashboard, by a chat "dismiss P-014" request, or by a future automation -- without
-    fragile string matching on the action text.
-    FIXED 2026-07-26 (1.6): Tier 1 defect -- proposals accumulated as stale duplicates.
-    FIXED 2026-07-29 (four compounding bugs found via a user-spotted duplicate CEG proposal):
-      (a) this function computed supersessions but NEVER WROTE proposals.json back -- every prior
-          "cleanup" run was a silent no-op, which is why the file had drifted this far;
-      (b) the dedup key did exact string match on `action`, so "BUY CEG" and "BUY CEG (new position)"
-          were treated as different proposals instead of the same trade -- normalize to a
-          (ticker, direction) key instead, where direction is the leading verb;
-      (c) six proposals were missing their `ticker` field entirely, silently disabling the
-          void-on-exit check -- backfill ticker from the action text when absent;
-      (d) the date parser only tried two exact formats and silently gave up on an ISO string with
-          seconds and a UTC offset, disabling auto-expiry for that whole batch -- try
-          datetime.fromisoformat first, with the old formats as fallback.
-    FIXED 2026-08-03 (G87, user-reported: "the open proposal keeps on increasing"): the dedup
-    key included `date`, so the SAME idea proposed on different calendar days (the actual,
-    common case -- e.g. "Exit ORCL" recommended 07-22, 07-27 AND 07-31, all three still open
-    simultaneously) was never recognized as a duplicate; only accidental same-day double-asks
-    were ever merged, and 32 of 51 proposals had piled up open as a result. Key is now
-    (ticker, direction) with no date component, so ANY currently-open proposal for the same
-    ticker+direction merges into one running entry regardless of how many days apart the
-    restatements were. The merge keeps the CHRONOLOGICALLY LATEST occurrence's numbers/date
-    (freshest pricing and rationale, not the longest-winded one) and rolls every earlier
-    occurrence into a `history` list with a `repeat_count`, so "recommended 4x since 07-22"
-    is one compact row instead of four, while the repeat count itself stays visible and the
-    7-day expiry clock resets off the latest restatement (a proposal the strategist keeps
-    reiterating should stay alive; one it stops mentioning should lapse).
-    """
-    p_path = os.path.join(args.base_dir, "proposals.json")
-    proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
-    drift = load_json(os.path.join(args.run_dir, "compute_drift.json"), default={})
-    holdings = load_json(os.path.join(args.run_dir, "holdings.json"), default={"holdings_inr": []})
-
-    props = proposals.get("proposals", [])
-    today_date = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
-    current_tickers = {h["ticker"] for h in holdings.get("holdings_inr", [])}
-    direction = _proposal_direction
-    infer_ticker = _proposal_infer_ticker
-    parse_date = _proposal_parse_date
-    parse_datetime = _proposal_parse_datetime
-
-    # -- stable IDs: assign once, never reassign or reuse --
+def _assign_stable_proposal_ids(props):
+    """Assign each proposal a stable id (P-###), once, never reassigned or reused."""
     max_id = 0
     for pr in props:
         pid = pr.get("id", "")
@@ -158,7 +114,10 @@ def cmd_proposals(args):
             max_id += 1
             pr["id"] = f"P-{max_id:03d}"
 
-    # backfill ticker before the main pass so every later check sees it
+
+def _backfill_proposal_ticker_and_bucket(props, infer_ticker, direction):
+    """Backfill a missing ticker from action text and set direction_bucket, before the main
+    pass so every later check sees both fields populated."""
     for pr in props:
         if not pr.get("ticker"):
             inferred = infer_ticker(pr)
@@ -167,6 +126,12 @@ def cmd_proposals(args):
                 pr["note"] = (pr.get("note", "") + " | ticker backfilled from action text (2026-07-29 fix)").strip(" |")
         pr.setdefault("direction_bucket", DIRECTION_BUCKET.get(direction(pr.get("action")), "HOLD"))
 
+
+def _dedupe_expire_void_proposals(props, today_date, current_tickers, direction, parse_date, parse_datetime):
+    """Cross-run dedup (same (ticker, direction) merges into one running survivor, folding
+    repeats into a `history` list), 7-calendar-day auto-expiry, and auto-void when the
+    presupposed position has since been exited. Mutates `props` in place (notes, history,
+    repeat_count) and returns the set of proposal indices to supersede."""
     seen = {}  # (ticker, direction) -> index of the current running survivor
     to_supersede = set()
 
@@ -250,14 +215,16 @@ def cmd_proposals(args):
             if "auto-voided" not in pr.get("note", ""):
                 pr["note"] = (pr.get("note", "") + " | auto-voided -- position exited").strip(" |")
 
-    # G60 remainder: an auto-void is normal for an OLD proposal whose position has since been
-    # exited, and an ALARM for one created this run -- that combination means the strategist
-    # just wrote an idea the void logic killed on arrival. It happened on 2026-08-12: a fresh
-    # "Re-enter VRT" proposal was destroyed the instant it was created, because RE-ENTER was
-    # missing from DIRECTION_KEYWORDS and defaulted to HOLD, which presupposes a holding that a
-    # re-entry proposal by definition does not have. It was caught only because the open_count
-    # (5) didn't match the 6 proposals the strategist actually wrote -- i.e. by eye. Counting is
-    # not a control, so the two cases are now separated and named.
+    return to_supersede
+
+
+def _classify_voided_proposals(props, to_supersede, today_date):
+    """Marks each superseded index `status: "superseded"` and splits the labels into
+    voided_today vs voided_stale (G60): an auto-void is normal for an OLD proposal whose
+    position has since been exited, and an ALARM for one created this run -- that combination
+    means the strategist just wrote an idea the void logic killed on arrival, almost always a
+    direction-classification bug (a verb missing from DIRECTION_KEYWORDS defaulting to HOLD,
+    which presupposes a holding a fresh proposal by definition doesn't have)."""
     voided_today, voided_stale, recon_warnings = [], [], []
     for i in to_supersede:
         if props[i].get("status") == "open":
@@ -274,6 +241,648 @@ def cmd_proposals(args):
                 "position the proposal exists to establish. Check DIRECTION_KEYWORDS covers this "
                 "verb before assuming the void was correct.")
         recon_warnings.append(warn)
+    return voided_today, voided_stale, recon_warnings
+
+
+def _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short, cash_excess,
+                             cash_pct, cash_band, stretch_by_ticker, derisk, rotation_by_ticker,
+                             hit_rates_7d, trigger_live_sets, trigger_rows, trigger_pairs,
+                             state_sector_map, cluster_breach, total_book_usd):
+    """Deterministic priority score for one open proposal (G47): over-cap position (+2),
+    directional cluster breach (+2), directional cash-band breach (+2), genuine stretch on a
+    TRIM (+2), a measured bullish signal on a BUY (+2), a live non-ATR trigger (+3 flat, or a
+    conviction-proportional bonus for CONVICTION_TRIGGERS), a restatement about to auto-retire
+    (+1), SELL over TRIM (+1), and a penalty for a BUY with no supporting evidence at all (-1).
+    HIGH is capped to MEDIUM unless a live trigger (a price-moving criterion, not portfolio
+    mechanics) backs it. Mutates `pr` in place: priority_score/priority/priority_reasons/
+    proposal_class/cluster, plus the "honest sizing" full_cure_usd/cure_basis/cure_pct/
+    tranche_note fields on a TRIM/SELL."""
+    score, reasons = 0, []
+    ticker, bucket, rc = pr.get("ticker"), pr.get("direction_bucket", "HOLD"), pr.get("repeat_count", 1)
+    rpos = risk_by_ticker.get(ticker) if ticker else None
+    cluster = (rpos.get("cluster") if rpos
+               else (pr.get("cluster") or state_sector_map.get(ticker)))
+    if rpos and rpos.get("over_cap"):
+        # DEMOTED +3 -> +2 on 2026-08-12 (user decision). At +3 this was the largest single
+        # weight in the scorer and, combined with the repeat bonus below, the only trigger
+        # that reliably reached HIGH -- so the open list was structurally almost all ATR
+        # trims. Risk discipline is unchanged (an over-cap name still always surfaces, and
+        # cmd_risk still computes the cap identically); what changes is that a genuine
+        # profit-take or a measured oversold entry can now outrank it.
+        score += 2
+        reasons.append(f"{ticker} at {rpos.get('cap_multiple', 0):.2f}x its ATR risk cap")
+    # DIRECTIONAL cluster-breach check (fixed 2026-08-07, found live: MRVL's 08-06 trim cured
+    # its own risk cap, but the AI Networking/Optics cluster had meanwhile fallen UNDER its
+    # floor from the same trim plus several stops in the same cluster -- the untested version
+    # of this check kept citing that under-floor breach as justification to trim MORE, which
+    # is backwards: trimming a name inside an underweight cluster deepens the underweight.
+    # See directional_breach() above -- shared with the retirement pass and retires_when.
+    db = directional_breach(cluster, bucket)
+    if db:
+        score += 2
+        reasons.append(f"{cluster} {'over' if db.get('breach_edge')=='over' else 'under'} band "
+                        f"({db.get('drift_pt', 0):+.1f}pt)")
+    if cash_short and bucket in ("TRIM", "SELL"):
+        score += 2
+        reasons.append(f"cash short at {cash_pct:.1f}% vs a [{cash_band[0]},{cash_band[1]}]% band "
+                       "-- this also rebuilds it")
+    if cash_excess and bucket == "BUY":
+        score += 2
+        reasons.append(f"cash in excess at {cash_pct:.1f}% vs a [{cash_band[0]},{cash_band[1]}]% band "
+                       "-- deploying is the live problem, not raising more")
+    if bucket in ("TRIM", "SELL") and ticker:
+        dr = stretch_by_ticker.get(ticker)
+        # names_stretched is the authoritative "ahead of sector AND up" list computed by
+        # cmd_derisk -- do not re-derive it from stretch_score>0 here, that would silently
+        # diverge from derisk's own "beat a falling benchmark ≠ stretched" distinction.
+        if dr and ticker in (derisk.get("names_stretched") or []):
+            score += 2
+            reasons.append(f"{ticker} genuinely stretched: +{dr.get('abs_return_1m_pct',0):.1f}% "
+                           f"1m, {dr.get('rel_strength_1m_pp',0):+.1f}pp vs SMH -- real profit "
+                           "to take, not just a smaller loss")
+    if bucket == "BUY" and ticker:
+        rtk = rotation_by_ticker.get(ticker, {})
+        best_hr = None
+        for bkt in rtk.get("bullish_buckets", []):
+            hr = hit_rates_7d.get(bkt)
+            if hr and hr["hit_rate_pct"] > 55 and (best_hr is None or hr["hit_rate_pct"] > best_hr[1]):
+                best_hr = (bkt, hr["hit_rate_pct"], hr["n"])
+        if best_hr:
+            score += 2
+            reasons.append(f"bullish signal '{best_hr[0]}' has a {best_hr[1]:.0f}% INTERIM 7d hit "
+                           f"rate (n={best_hr[2]}, not yet 30d-validated) in this book")
+    # -- non-ATR triggers (added 2026-08-12). Weighted +3 so either can reach MEDIUM alone and
+    # HIGH with any one supporting term -- deliberately ABOVE the now-demoted ATR weight of
+    # +2, because the whole point of the change is that "this ran, book some" and "this good
+    # name is oversold, add" should be able to outrank "this position is 1.2x a volatility cap".
+    # Both are gated on the ticker actually appearing in compute_triggers.json's LIVE list this
+    # run, so a trigger_type written onto a proposal whose condition has since cleared scores
+    # nothing rather than coasting on a label.
+    tt = pr.get("trigger_type")
+    has_live_trigger = False
+    if tt in LIVE_TRIGGERS and ticker in trigger_live_sets.get(tt, set()):
+        row = trigger_rows[tt].get(ticker) or {}
+        if not row and tt in ("profit_rotation", "cluster_rotation") and pr.get("pair_id") in trigger_pairs:
+            # Paired rows carry no top-level ticker, so trigger_rows (single-ticker only) is
+            # empty for them -- pull the matching leg out of trigger_pairs instead of losing
+            # the conviction number entirely.
+            pair_row = trigger_pairs[pr["pair_id"]]
+            for leg in (pair_row.get("sell_leg"), pair_row.get("buy_leg")):
+                if leg and leg.get("ticker") == ticker:
+                    row = leg
+                    break
+        if tt in CONVICTION_TRIGGERS:
+            # Conviction-driven triggers earn a priority bonus proportional to how strong the
+            # idea is, not a flat +3 -- a 21-point "low" conviction add shouldn't out-rank a
+            # 4-point cluster-cap breach the way a flat bonus would. round(score/10) keeps the
+            # scale comparable to the old flat bonus (a 70+ "high" conviction idea still nets +7,
+            # above the old +3; a 20-point "low" nets +2, below it) while remaining monotonic.
+            conv_score = row.get("conviction_score", 0) or 0
+            conv_bonus = max(1, round(conv_score / 10))
+            score += conv_bonus
+            reasons.append(f"{tt}: conviction {conv_score} "
+                            f"({row.get('conviction_tier', 'unscored')}) -- " +
+                            "; ".join(row.get("conviction_reasons") or row.get("reasons") or []))
+        else:
+            score += 3
+            reasons.append(f"{tt}: " + "; ".join(row.get("reasons") or []))
+        has_live_trigger = True
+        for b in row.get("blockers") or []:
+            reasons.append(f"caveat -- {b}")
+    elif tt in SHADOW_TRIGGERS:
+        reasons.append(f"{tt} is SHADOW-SCORED, not yet voting -- this trigger has no measured "
+                       "hit rate in this book, so it contributes 0 to priority by design")
+    elif tt in LIVE_TRIGGERS:
+        reasons.append(f"{tt} was the stated trigger but {ticker} is not in this run's "
+                       f"{tt} candidate list -- condition is no longer live")
+
+    # Repeat bonus (lowered 2026-08-24: restatement auto-retirement now fires at rc>=3, see
+    # the retirement pass below, so a proposal never reaches this scoring pass carrying rc>=3
+    # from a PRIOR run -- this branch only still sees rc==2 on the run where it's about to
+    # cross the retirement line, one run ahead of that pass).
+    if rc == 2:
+        score += 1
+        reasons.append(f"recommended {rc}x, still unactioned -- one more restatement auto-retires it")
+    if bucket == "SELL":
+        score += 1
+    # The old penalty fired on any BUY with score==0, which punished precisely the trade this
+    # book was missing: a well-founded add on a healthy name that happens to breach nothing.
+    # It now only applies to a buy with NO typed trigger at all -- genuinely discretionary.
+    if bucket == "BUY" and score <= 0 and tt not in (LIVE_TRIGGERS | SHADOW_TRIGGERS):
+        score -= 1
+        reasons.append("discretionary add -- no active breach or typed trigger behind it")
+    pr["priority_score"] = score
+    priority = "HIGH" if score >= 4 else "MEDIUM" if score >= 2 else "LOW"
+    # 2026-08-17, user-reported: proposals were reaching HIGH on pure portfolio-composition
+    # arithmetic (over_cap + cluster breach + cash band + repeat count can stack to 8) with
+    # NO criterion that says anything about the STOCK -- no live trigger of any kind
+    # (technical, catalyst, or thesis-driven). That combination is a volatility-budget/loose-
+    # composition finding, not a trade idea, and is capped at MEDIUM regardless of how high
+    # the mechanical score stacks. A live trigger (has_live_trigger, +3 above) is exempt from
+    # the cap by construction -- it is the one component that IS a price-moving criterion.
+    if priority == "HIGH" and not has_live_trigger:
+        priority = "MEDIUM"
+        reasons.append("capped at MEDIUM: no live trigger (technical, catalyst, or thesis) "
+                       "behind this proposal -- score reached HIGH on cap/cluster/cash/repeat "
+                       "mechanics alone, which describes the portfolio, not the stock")
+    pr["priority"] = priority
+    pr["priority_reasons"] = reasons
+    pr["proposal_class"] = proposal_class(tt)
+    if cluster:
+        pr["cluster"] = cluster
+
+    # -- honest sizing (added 2026-08-06, user-reported: "seems ATR risk correction is the
+    # only thing these proposals are suggesting" and sizes were small relative to the
+    # breach). full_cure_usd is what it would actually take to clear whichever trigger is
+    # live -- the position's own risk-cap excess (compute_risk's headroom_usd, exact) and/or
+    # the cluster's dollar overage (derived here: ceiling breaches are tested against
+    # total_book_usd per compute_drift's own denominator choice, floor breaches against
+    # equity_usd -- using the WRONG denominator would silently mis-state the cure amount).
+    # When a proposal cites both triggers, the binding one is whichever needs the larger
+    # trim -- curing the smaller one first would still leave the position non-compliant on
+    # the other. This DISPLAYS the gap, it does not auto-resize size_usd -- resizing a
+    # proposal is a judgment call for the strategist/user, not something this lifecycle
+    # pass should do silently.
+    if bucket in ("TRIM", "SELL"):
+        cures = []
+        if rpos and rpos.get("over_cap") and rpos.get("headroom_usd") is not None:
+            cures.append(("risk cap", abs(rpos["headroom_usd"])))
+        if cluster and cluster in cluster_breach:
+            cb = cluster_breach[cluster]
+            if cb.get("breach_edge") == "over" and total_book_usd:
+                over_pct = cb.get("actual_pct_of_total_book", 0) - (cb.get("band_pct") or [0, 100])[1]
+                if over_pct > 0:
+                    cures.append(("cluster ceiling", over_pct / 100 * total_book_usd))
+        if cures:
+            basis, cure_usd = max(cures, key=lambda c: c[1])
+            pr["full_cure_usd"] = round(cure_usd, 0)
+            pr["cure_basis"] = basis
+            sz = pr.get("size_usd") or 0
+            pr["cure_pct"] = round(sz / cure_usd * 100, 0) if cure_usd else None
+            if pr["cure_pct"] is not None and pr["cure_pct"] < 90:
+                n_tranches = max(1, -(-round(cure_usd) // sz)) if sz else None  # ceil div
+                pr["tranche_note"] = (f"cures {pr['cure_pct']:.0f}% of the {basis} excess "
+                                      f"(${cure_usd:,.0f}) -- roughly {n_tranches} tranches "
+                                      f"this size to fully clear it" if n_tranches else
+                                      f"cures {pr['cure_pct']:.0f}% of the {basis} excess (${cure_usd:,.0f})")
+
+
+def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directional_breach,
+                                      current_tickers, drift, trig_rsi, trig_abs,
+                                      trigger_live_sets, state_thesis, derisk, cluster_breach,
+                                      rotation_by_ticker, hit_rates_7d, parse_date,
+                                      hold_max_age_days):
+    """Retires one open proposal in place (status/retired_on/retired_reason/note) the moment
+    its OWN objective trigger is verifiably gone -- reusing the same typed structural signals
+    the priority scorer computes (over_cap, directional cluster/cash breach, live trigger
+    membership), never free-text rationale (that approach false-positived and was disabled
+    2026-07-29). A condition requiring judgement is left open for the strategist instead of
+    guessed at. Appends a {"id","action","reason"} dict to the caller-supplied `retired` list
+    when it fires; returns nothing."""
+    ticker = pr.get("ticker")
+    bucket = pr.get("direction_bucket", "HOLD")
+    rpos = risk_by_ticker.get(ticker) if ticker else None
+    cluster = pr.get("cluster")
+    cl = directional_breach(cluster, bucket)
+    over_cap = bool(rpos and rpos.get("over_cap"))
+    age = (today_date - (parse_date(pr.get("date", "")) or today_date)).days
+    why = None
+
+    action_l = (pr.get("action") or "").lower()
+    is_cash_proposal = ticker is None and ("cash" in action_l)
+
+    if is_cash_proposal:
+        # "Rebuild cash buffer" is satisfied the moment cash re-enters (or overshoots) its
+        # normal band -- which is exactly what a stop-loss cascade does for free.
+        cash_pct = drift.get("cash_pct")
+        band = drift.get("cash_band_normal_pct") or drift.get("cash_band_pct") or [None, None]
+        if cash_pct is not None and band[0] is not None and cash_pct >= band[0]:
+            why = (f"cash is {cash_pct:.2f}% vs a normal band of [{band[0]},{band[1]}]% -- "
+                   "the buffer this proposed to rebuild is already rebuilt")
+    elif bucket in ("TRIM", "SELL"):
+        # A trim exists to cure one of exactly three structural problems now (added a third,
+        # 2026-08-06, for rotation/pair-trade proposals): a position over its own ATR risk
+        # cap, a cluster outside its policy band, or -- when the proposal was explicitly
+        # created as a stretch-based profit-take (trigger_type=="stretch", see the pair-trade
+        # generation in §6/§7) -- the ticker no longer sitting in compute_derisk's
+        # names_stretched list. Checking stretch ONLY when trigger_type says so, never as a
+        # blanket rule, matters: most trims are cap/cluster driven and were never claiming
+        # the position was a "winner" to begin with, so testing stretch on those would be a
+        # non-sequitur retirement reason.
+        # An overbought_distribution trim (added 2026-08-12) is deliberately CAP-INDEPENDENT --
+        # it exists to book profit on a name that ran, not to cure a breach -- so it must be
+        # tested on its OWN condition and must never be retired merely for being within its
+        # ATR cap. Hysteresis: triggered above RSI_OVERBOUGHT, retires below the lower exit
+        # threshold, so a name oscillating around 70 doesn't churn open/retired every run.
+        if pr.get("trigger_type") == "overbought_distribution":
+            rsi_now = trig_rsi.get(ticker)
+            abs_now = trig_abs.get(ticker)
+            if rsi_now is None:
+                pass  # cannot test (cache stale/absent) -- keep open rather than guess
+            elif rsi_now < RSI_OVERBOUGHT_EXIT:
+                why = (f"{ticker} RSI14 has cooled to {rsi_now:.1f} (below the "
+                       f"{RSI_OVERBOUGHT_EXIT:g} exit) -- the overbought condition this "
+                       "profit-take was sized against has cleared")
+            elif abs_now is not None and abs_now <= 0:
+                why = (f"{ticker} is no longer up on the month ({abs_now:+.1f}%) -- there is no "
+                       "longer a gain to protect, so this is not a profit-take any more")
+        # catalyst_threat and thesis_break (added 2026-08-17, retirement corrected 2026-08-24):
+        # SCORED cap/cluster-independent, same discipline as overbought_distribution -- an
+        # in-cap name is a valid catalyst-driven trim, never blocked by being within its cap.
+        # But RETIREMENT follows the "stretch" pattern instead (AND of conditions, not a bare
+        # own-condition test): unlike overbought_distribution, which is a purely technical
+        # signal never claiming a cap problem too, the strategist routinely layers a
+        # catalyst_threat trim ON TOP OF a live cap/cluster breach as co-primary evidence (BE,
+        # 2026-08-24: "worst cap overage in the book (2.64x)... the structural catalyst and
+        # cap breach carry this trim"). Testing only the catalyst's own condition meant that
+        # when the catalyst cleared (state.factor_catalysts genuinely does replace, not
+        # append, each run -- see PERSIST), the proposal retired outright even though its
+        # OTHER, still-live reason (the worst cap overage in the entire book) would on its own
+        # have kept any ordinary cap-breach trim open. Retire only when NEITHER survives.
+        elif pr.get("trigger_type") == "catalyst_threat":
+            catalyst_ok = ticker in trigger_live_sets.get("catalyst_threat", set())
+            if not catalyst_ok and not over_cap and not cl:
+                why = (f"{ticker} no longer appears in a structural-threat factor catalyst, "
+                       f"and neither the ATR cap nor cluster band independently justifies "
+                       "this trim any more -- the structural reason has cleared")
+            # else: still live via the catalyst itself, OR an independent cap/cluster breach
+            # -- keep open either way, same AND-of-conditions discipline as stretch below.
+        elif pr.get("trigger_type") == "thesis_break":
+            th_now = smith_risk.thesis_status(state_thesis.get(ticker))
+            if th_now is None:
+                pass  # cannot test (no usable status) -- keep open rather than guess
+            elif th_now != "broken" and not over_cap and not cl:
+                why = (f"{ticker}'s thesis is now '{th_now}', no longer 'broken', and "
+                       "neither the ATR cap nor cluster band independently justifies this "
+                       "trim any more -- the structural reason has cleared")
+            # else: thesis still broken, OR an independent cap/cluster breach -- keep open.
+        elif pr.get("trigger_type") in ("trend_breakdown", "conviction_exit"):
+            # Conviction-driven TRIM/SELL triggers (added 2026-08-24): tested purely on their
+            # OWN condition re-appearing in this run's live list, same discipline as
+            # oversold_reversion/overbought_distribution -- no cap/cluster fallback, because
+            # unlike catalyst_threat these are not typically layered with cap-breach
+            # reasoning by construction (they fire from signal-polarity/convergence, not from
+            # a breach at all). trigger_live_sets already covers every LIVE_TRIGGERS member
+            # generically (see cmd_triggers), so this is one branch for both trigger types.
+            tt_now = pr.get("trigger_type")
+            if ticker not in trigger_live_sets.get(tt_now, set()):
+                why = (f"{ticker} no longer appears in this run's live {tt_now} list -- the "
+                       "condition this trim/exit was sized against has cleared")
+        elif pr.get("trigger_type") in ("profit_rotation", "cluster_rotation"):
+            # Paired rotation SELL legs (added 2026-08-24, bug found live on first real
+            # dispatch): must NOT fall through to the generic cap/cluster test below -- a
+            # profit_rotation/cluster_rotation sell leg's reason for existing is "stretched
+            # and yet-to-rally elsewhere" or "cluster laggard vs a performer", never a cap or
+            # cluster-band breach, so testing over_cap/cl here retires it the instant it turns
+            # out to (correctly) not be over cap -- which is every time, since MSFT/AMD were
+            # never over-cap trims to begin with. First live proposals from the rebuilt engine
+            # (MSFT->CLS, AMD->TER) were both auto-retired within the same run they were
+            # created, one call after cmd_proposals appended them, before this fix. The real
+            # retirement condition for both legs of a pair lives entirely in the
+            # PAIRED-ROTATION RETIREMENT pass below (keyed on trigger_pairs), so this leg does
+            # nothing here -- `pass`, not a test.
+            pass
+        elif pr.get("trigger_type") in SHADOW_TRIGGERS:
+            pass  # shadow triggers are logged, not lifecycle-managed as live proposals
+        else:
+            is_stretch_trigger = pr.get("trigger_type") == "stretch"
+            stretch_ok = (ticker in (derisk.get("names_stretched") or [])) if is_stretch_trigger else True
+            if not over_cap and not cl and (not is_stretch_trigger or not stretch_ok):
+                if is_stretch_trigger:
+                    why = (f"{ticker} is no longer in the stretched cohort (ahead of sector AND "
+                           "up) -- the profit-taking rationale for this trim has cleared")
+                else:
+                    # Be honest about WHY the cluster stopped counting: it may be genuinely
+                    # in-band, or it may have flipped to an under-floor breach that a trim
+                    # would only worsen -- "inside its policy band" is false in the second case
+                    # and would misreport a real, live problem as resolved.
+                    raw_cb = cluster_breach.get(cluster) if cluster else None
+                    if raw_cb and raw_cb.get("breach_edge") == "under":
+                        cluster_note = (f", though {cluster} is now UNDER its floor "
+                                        f"({raw_cb.get('drift_pt', 0):+.1f}pt) -- a separate live issue, "
+                                        "just not one a trim addresses")
+                    elif cluster:
+                        cluster_note = f" and {cluster} is inside its policy band"
+                    else:
+                        cluster_note = ""
+                    why = (f"neither trigger is live: {ticker} is within its ATR risk cap"
+                           + cluster_note + " -- the structural reason for this trim has cleared")
+    elif bucket == "BUY":
+        # An "initiate"/"new position" buy is self-evidently done once the name is held.
+        if ticker and ticker in current_tickers and any(
+                w in action_l for w in ("initiate", "new position", "open a position")):
+            why = f"{ticker} is now held -- this proposed initiating a position that already exists"
+        # A cluster-fill buy is done once the cluster is back inside its band.
+        elif cluster and not cl and any(w in action_l for w in ("top up", "fill", "stage", "deploy")):
+            why = f"{cluster} is back inside its policy band -- the underweight this filled has cleared"
+        # A signal-conviction buy (added 2026-08-06, pair-trade proposals) retires once the
+        # measured edge that justified it is gone -- either the signal no longer fires on
+        # this ticker, or its interim 7d hit rate has fallen out of the >55% bar the
+        # proposal was sized against. Checked ONLY for proposals explicitly created this way
+        # (trigger_type=="signal_conviction"), same discipline as the stretch check above.
+        # An oversold_reversion buy (added 2026-08-12) is a TIMING setup, not a structural one:
+        # it is consumed the moment the dip it was built on mean-reverts. Retiring on the
+        # hysteresis exit (RSI back above RSI_OVERSOLD_EXIT) rather than the entry threshold
+        # keeps a name hovering at 35-36 from flipping every run. A thesis that leaves
+        # intact/strengthening kills it outright -- the quality gate was the whole premise.
+        elif pr.get("trigger_type") == "oversold_reversion":
+            rsi_now = trig_rsi.get(ticker)
+            th_now = smith_risk.thesis_status(state_thesis.get(ticker))
+            if th_now is not None and th_now not in HEALTHY_THESIS:
+                why = (f"{ticker}'s thesis is now '{th_now}' -- an oversold entry is only a dip-buy "
+                       "while the thesis is intact; without that it is a falling knife")
+            elif rsi_now is None:
+                pass  # cannot test (cache stale/absent) -- keep open rather than guess
+            elif rsi_now > RSI_OVERSOLD_EXIT:
+                why = (f"{ticker} RSI14 has recovered to {rsi_now:.1f} (above the "
+                       f"{RSI_OVERSOLD_EXIT:g} exit) -- the oversold setup this buy was timed "
+                       "against has been consumed")
+        elif pr.get("trigger_type") == "signal_conviction" and pr.get("trigger_bucket"):
+            tb = pr["trigger_bucket"]
+            rtk = rotation_by_ticker.get(ticker, {}) if ticker else {}
+            hr = hit_rates_7d.get(tb)
+            if tb not in rtk.get("bullish_buckets", []):
+                why = f"{ticker} no longer carries the '{tb}' signal -- the edge this buy was sized against is gone"
+            elif not hr or hr.get("hit_rate_pct", 0) <= 55:
+                why = (f"'{tb}'s interim 7d hit rate has fallen to "
+                       f"{hr.get('hit_rate_pct') if hr else 'unmeasured'}% (was >55% when proposed) "
+                       "-- the measured edge behind this buy no longer clears the bar")
+        elif pr.get("trigger_type") in ("trend_entry", "conviction_average", "entry_setup", "reentry", "bench_diversifier"):
+            # Conviction-driven BUY triggers (added 2026-08-24): tested on their own
+            # condition re-appearing live, same as the TRIM-side branch above. A `reentry`
+            # additionally expires on a hard 20-trading-day clock even if conviction is
+            # still live -- a re-entry candidate that's gone unactioned for a month is a
+            # stale read of the exit event, not a standing idea.
+            tt_now = pr.get("trigger_type")
+            if ticker not in trigger_live_sets.get(tt_now, set()):
+                why = (f"{ticker} no longer appears in this run's live {tt_now} list -- the "
+                       "condition this buy was sized against has cleared")
+            elif tt_now == "reentry" and pr.get("exited_on"):
+                # Structured field, never parsed from rationale prose -- parsing free text is
+                # exactly what made the 2026-07-29 breach-cleared voider false-positive and
+                # get disabled (see this file's cmd_proposals docstring). `exited_on` must be
+                # set explicitly when a reentry proposal is created.
+                exited_on = _proposal_parse_date(pr["exited_on"])
+                if exited_on and (today_date - exited_on).days > 20:
+                    why = f"{ticker}'s exit was {(today_date - exited_on).days} days ago -- past the 20-day reentry window"
+    elif bucket == "HOLD":
+        # A STOP instruction is not hold-fire advice (found 2026-08-17). P-094 "Set hard stop
+        # on ORCL @ $139.14" was auto-retired after 2 days as time-expired tactical guidance,
+        # and P-100 "Raise MRVL stop to cost basis" was one day from the same fate. A stop
+        # level is a STANDING risk instruction: it stays valid until it is acted on, the
+        # position exits, or the level is superseded -- it does not go stale on a clock.
+        # Both landed in the HOLD bucket only because neither buys nor sells anything.
+        is_stop = bool(re.search(r"\bstop\b", str(pr.get("action") or ""), re.I)) or \
+                  (pr.get("trigger_type") == "profit_ratchet")
+        if ticker and ticker not in current_tickers:
+            why = (f"{ticker} is no longer held -- the "
+                   + ("stop this proposed has nothing left to protect"
+                      if is_stop else "position this advised holding on is gone"))
+        elif is_stop:
+            why = None      # standing instruction: never expires on age alone
+        elif age >= hold_max_age_days:
+            why = (f"tactical HOLD is {age} days old -- hold-fire advice is time-bound by nature "
+                   "and is not carried forward as standing guidance")
+
+    # Restatement auto-retirement, lowered 3->5 to >=3 (2026-08-24 rebuild). The record was
+    # 0-for-17 beyond even four restatements -- a proposal recommended 3+ times and never
+    # acted on is not "still building a case", it has been declined in practice. Only applies
+    # when no other retirement reason already fired above (those are more specific).
+    if not why and pr.get("repeat_count", 1) >= 3:
+        _rc = pr["repeat_count"]
+        why = (f"recommended {_rc}x and never actioned -- 0-for-17 historically beyond four "
+               "restatements, so 3+ now auto-retires rather than losing only its priority bonus; "
+               "re-propose fresh if the condition still holds")
+
+    if why:
+        pr["status"] = "auto_retired"
+        pr["retired_on"] = str(today_date)
+        pr["retired_reason"] = why
+        pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {why}").strip(" |")
+        return {"id": pr.get("id"), "action": pr.get("action"), "reason": why}
+    return None
+
+
+def _retire_orphaned_rotation_legs(props, trigger_pairs, today_date, retired):
+    """profit_rotation/cluster_rotation legs must retire TOGETHER, never independently -- the
+    direct fix for "19 rotation pairs attempted all-time, 0 survived" (single-sided retirement
+    used to orphan the other leg into an unpaired, half-explained proposal). Both legs share a
+    pair_id; if the pair is no longer in this run's live trigger_pairs, retire whichever leg(s)
+    are still open, together, one reason. Mutates `props` in place and appends to `retired`."""
+    if trigger_pairs is None:
+        return
+    by_pair_id = {}
+    for pr in props:
+        pid = pr.get("pair_id")
+        if pr.get("status") == "open" and pid and pid.startswith(("profit_rotation-", "cluster_rotation-")):
+            by_pair_id.setdefault(pid, []).append(pr)
+    for pid, legs in by_pair_id.items():
+        if pid in trigger_pairs:
+            continue  # still live this run -- both legs stay open
+        for pr in legs:
+            why = (f"the {pid.split('-')[0]} pairing this leg belongs to is no longer live "
+                   "this run -- both legs of a rotation retire together, never one alone")
+            pr["status"] = "auto_retired"
+            pr["retired_on"] = str(today_date)
+            pr["retired_reason"] = why
+            pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {why}").strip(" |")
+            retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": why})
+
+
+def _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directional_breach, today_date):
+    """Recomputes `still_valid_because` (why this proposal survives TODAY) and `retires_when`
+    (the inverse condition -- what would retire it tomorrow) plus a re-priced
+    `price_drift_pct` and an evidence-quality flag (G58: a proposal whose sole basis is
+    unverified qualitative claims), so the dashboard renders a current reason rather than a
+    frozen sentence written days ago. Mutates `pr` in place."""
+    live = list(pr.get("priority_reasons") or [])
+    flags = []
+    p0, pnow = pr.get("price_at_proposal"), price_now_by_ticker.get(pr.get("ticker"))
+    if p0 and pnow:
+        dp = (pnow - p0) / p0 * 100
+        pr["price_now"] = round(pnow, 2)
+        pr["price_drift_pct"] = round(dp, 2)
+        if abs(dp) >= 10:
+            flags.append(f"price has moved {dp:+.1f}% since proposed (${p0:.2f} -> ${pnow:.2f}) -- re-size before acting")
+    # EVIDENCE GATE (added 2026-08-10, G58). The strategist's standing rule is "cite at least
+    # two inputs" -- that counts inputs, it does not test them, so two unverified qualitative
+    # claims satisfy it. On 2026-08-10 a sized SNDK trim shipped citing a thesis WATCH that
+    # rested on a mischaracterized earnings headline (the quarter was a beat; only the forward
+    # guide was light). Three days earlier a strategist veto rested on a quality finding that
+    # MRVL's own 10-Q contradicted (G44). Same shape twice: an unverified word outranking
+    # verified arithmetic -- smith-strategist.md literally says thesis WATCH/BROKEN "outrank
+    # pure drift breaches as trim candidates".
+    #
+    # This reads the TYPED counts the strategist supplies, never the rationale prose. Parsing
+    # prose is what made the breach-cleared voider false-positive and get disabled in
+    # 2026-07-29; that lesson holds. A proposal with no evidence_quality block is simply not
+    # assessed (older rows stay untouched) rather than being flagged on an absent field.
+    eq = pr.get("evidence_quality")
+    if isinstance(eq, dict):
+        n_ver = eq.get("verified") or 0
+        n_unver = eq.get("unverified") or 0
+        n_comp = eq.get("computed") or 0
+        if (n_ver + n_comp) == 0 and n_unver > 0:
+            flags.append(
+                f"sole basis is {n_unver} unverified qualitative claim(s) -- no verified or "
+                f"computed input backs this; confirm the underlying claim before acting (G58)")
+    if not live:
+        live.append("no active structural trigger -- kept open on the strategist's judgement, not a breach")
+    pr["still_valid_because"] = live
+    pr["review_flags"] = flags
+    pr["revalidated_on"] = str(today_date)
+
+    # Forward-looking retirement condition (added 2026-08-06, same change as
+    # auto-retirement above). `still_valid_because` says why the proposal survived TODAY;
+    # `retires_when` says what would make it NOT survive tomorrow -- the inverse condition
+    # of the retirement checks earlier in this function, kept in sync by construction since
+    # both read the same rpos/cl/bucket signals rather than being independently authored.
+    # This is what makes the automation legible instead of mysterious: the reader can see
+    # the actual bar a proposal has to clear, not just that "the system decides".
+    ticker = pr.get("ticker")
+    bucket = pr.get("direction_bucket", "HOLD")  # NOT the leaked loop var from the scorer above
+    rpos = risk_by_ticker.get(ticker) if ticker else None
+    cl = directional_breach(pr.get("cluster"), bucket)
+    retires_when = None
+    _tt = pr.get("trigger_type")
+    if _tt == "overbought_distribution":
+        retires_when = (f"{ticker} RSI14 falls below {RSI_OVERBOUGHT_EXIT:g} or it is no longer "
+                        "up on the month (cap-independent -- staying inside the ATR cap does "
+                        "NOT retire this)")
+    elif _tt == "oversold_reversion":
+        retires_when = (f"{ticker} RSI14 recovers above {RSI_OVERSOLD_EXIT:g} (setup consumed) "
+                        "or its thesis leaves intact/strengthening")
+    elif _tt == "catalyst_threat":
+        retires_when = (f"{ticker} no longer appears in a structural-threat factor catalyst "
+                        "(cap/cluster-independent -- staying inside the ATR cap does NOT "
+                        "retire this)")
+    elif _tt == "thesis_break":
+        retires_when = (f"{ticker}'s thesis is no longer 'broken' (cap/cluster-independent -- "
+                        "staying inside the ATR cap does NOT retire this)")
+    elif _tt in ("trend_breakdown", "conviction_exit"):
+        retires_when = (f"{ticker} no longer appears in this run's live {_tt} list "
+                        "(cap/cluster-independent -- staying inside the ATR cap does NOT retire this)")
+    elif _tt in ("trend_entry", "conviction_average", "entry_setup", "bench_diversifier"):
+        retires_when = f"{ticker} no longer appears in this run's live {_tt} list"
+    elif _tt == "reentry":
+        retires_when = (f"{ticker} no longer appears in this run's live reentry list, or 20 "
+                        "trading days pass since its exit, whichever comes first")
+    elif _tt in ("profit_rotation", "cluster_rotation"):
+        retires_when = (f"the {_tt} pairing {pr.get('pair_id')} is no longer live this run -- "
+                        "both legs retire together, never one alone")
+    elif _tt in SHADOW_TRIGGERS:
+        retires_when = (f"n/a -- {_tt} is shadow-scored, tracked in trigger_journal.json rather "
+                        "than lifecycle-managed here")
+    elif bucket in ("TRIM", "SELL") and pr.get("trigger_type") == "stretch":
+        retires_when = f"{ticker} drops out of the stretched cohort (no longer ahead of sector AND up)"
+    elif bucket in ("TRIM", "SELL"):
+        conds = []
+        if rpos and rpos.get("over_cap"):
+            conds.append(f"{ticker} drops under its ATR risk cap")
+        if cl:
+            conds.append(f"{pr.get('cluster')} re-enters its policy band")
+        retires_when = " OR ".join(conds) + " (both must clear -- either alone keeps it open)" if len(conds) > 1 else (conds[0] if conds else None)
+    elif bucket == "BUY" and pr.get("trigger_type") == "signal_conviction":
+        retires_when = f"'{pr.get('trigger_bucket')}' signal drops off {ticker} or its 7d hit rate falls to/below 55%"
+    elif bucket == "BUY" and pr.get("cluster") and cl:
+        retires_when = f"{pr.get('cluster')} re-enters its policy band"
+    pr["retires_when"] = retires_when
+
+
+def _compute_stacking_warnings(props, risk_by_ticker):
+    """STACKING GUARD (2026-09-01): an ACCEPTED-but-unexecuted proposal did not block a new
+    proposal on the same ticker+side -- the dedup pass keys on OPEN proposals only, and
+    acceptance moves a row to `accepted_by_user`, so accepting a trade removed it from the
+    duplicate check while leaving the trade undone. Found live 2026-08-31: P-164 Sell MSFT
+    $437.92 accepted and awaiting execution, while P-201 proposed a further Sell MSFT $305.96
+    -- $743.88 combined against a $1,019.88 position, 73% of the holding, neither row
+    referencing the other. This FLAGS (writes `stacks_on` on the open leg), it does not
+    auto-retire -- some stacks are deliberate incremental adds. Sell-side stacks are escalated
+    to severity="high" above STACK_WARN_PCT because you cannot sell more than you hold, so a
+    large combined percentage is a concrete, checkable error rather than merely an oversized
+    bet. Mutates `props` in place and returns the flat list of stack_warnings dicts."""
+    pos_value = {tk: rp.get("market_value_usd") for tk, rp in risk_by_ticker.items()
+                 if rp.get("market_value_usd")}
+    stack_warnings = []
+    live = [pr for pr in props if pr.get("status") in ("open", "accepted_by_user")]
+    for pr in live:
+        pr.pop("stacks_on", None)           # recomputed every run, never stale
+    for i, a in enumerate(live):
+        if a.get("status") != "accepted_by_user":
+            continue
+        for b in live:
+            if b is a or b.get("status") != "open":
+                continue
+            if b.get("ticker") != a.get("ticker"):
+                continue
+            side = a.get("direction_bucket") or "HOLD"
+            if side != (b.get("direction_bucket") or "HOLD"):
+                continue
+            combined = (a.get("size_usd") or 0) + (b.get("size_usd") or 0)
+            mv = pos_value.get(a.get("ticker"))
+            pct = round(100.0 * combined / mv, 1) if mv else None
+            sev = "high" if (side in ("SELL", "TRIM") and pct is not None
+                             and pct >= STACK_WARN_PCT) else "note"
+            info = {"accepted_id": a.get("id"), "accepted_size_usd": a.get("size_usd"),
+                    "combined_usd": round(combined, 2), "position_usd": mv,
+                    "combined_pct_of_position": pct, "side": side, "severity": sev}
+            b["stacks_on"] = info
+            stack_warnings.append(dict(info, open_id=b.get("id"), ticker=a.get("ticker")))
+    return stack_warnings
+
+
+def cmd_proposals(args):
+    """Apply lifecycle rules to proposals.json: cross-run supersede-on-repeat, auto-expire
+    old, auto-void when position changes materially. Also assigns each proposal a stable
+    `id` (P-###, never reassigned) so a proposal can be referenced precisely -- by the
+    dashboard, by a chat "dismiss P-014" request, or by a future automation -- without
+    fragile string matching on the action text.
+    FIXED 2026-07-26 (1.6): Tier 1 defect -- proposals accumulated as stale duplicates.
+    FIXED 2026-07-29 (four compounding bugs found via a user-spotted duplicate CEG proposal):
+      (a) this function computed supersessions but NEVER WROTE proposals.json back -- every prior
+          "cleanup" run was a silent no-op, which is why the file had drifted this far;
+      (b) the dedup key did exact string match on `action`, so "BUY CEG" and "BUY CEG (new position)"
+          were treated as different proposals instead of the same trade -- normalize to a
+          (ticker, direction) key instead, where direction is the leading verb;
+      (c) six proposals were missing their `ticker` field entirely, silently disabling the
+          void-on-exit check -- backfill ticker from the action text when absent;
+      (d) the date parser only tried two exact formats and silently gave up on an ISO string with
+          seconds and a UTC offset, disabling auto-expiry for that whole batch -- try
+          datetime.fromisoformat first, with the old formats as fallback.
+    FIXED 2026-08-03 (G87, user-reported: "the open proposal keeps on increasing"): the dedup
+    key included `date`, so the SAME idea proposed on different calendar days (the actual,
+    common case -- e.g. "Exit ORCL" recommended 07-22, 07-27 AND 07-31, all three still open
+    simultaneously) was never recognized as a duplicate; only accidental same-day double-asks
+    were ever merged, and 32 of 51 proposals had piled up open as a result. Key is now
+    (ticker, direction) with no date component, so ANY currently-open proposal for the same
+    ticker+direction merges into one running entry regardless of how many days apart the
+    restatements were. The merge keeps the CHRONOLOGICALLY LATEST occurrence's numbers/date
+    (freshest pricing and rationale, not the longest-winded one) and rolls every earlier
+    occurrence into a `history` list with a `repeat_count`, so "recommended 4x since 07-22"
+    is one compact row instead of four, while the repeat count itself stays visible and the
+    7-day expiry clock resets off the latest restatement (a proposal the strategist keeps
+    reiterating should stay alive; one it stops mentioning should lapse).
+    """
+    p_path = os.path.join(args.base_dir, "proposals.json")
+    proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
+    drift = load_json(os.path.join(args.run_dir, "compute_drift.json"), default={})
+    holdings = load_json(os.path.join(args.run_dir, "holdings.json"), default={"holdings_inr": []})
+
+    props = proposals.get("proposals", [])
+    today_date = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    current_tickers = {h["ticker"] for h in holdings.get("holdings_inr", [])}
+    direction = _proposal_direction
+    infer_ticker = _proposal_infer_ticker
+    parse_date = _proposal_parse_date
+    parse_datetime = _proposal_parse_datetime
+
+    _assign_stable_proposal_ids(props)
+    _backfill_proposal_ticker_and_bucket(props, infer_ticker, direction)
+
+    to_supersede = _dedupe_expire_void_proposals(props, today_date, current_tickers, direction,
+                                                 parse_date, parse_datetime)
+
+    voided_today, voided_stale, recon_warnings = _classify_voided_proposals(props, to_supersede, today_date)
 
     # -- priority scoring (added 2026-08-03, G47: user asked "which proposal is what
     # priority" for the Open Proposals panel). Deterministic and score-able off data this
@@ -387,174 +996,10 @@ def cmd_proposals(args):
     for pr in props:
         if pr.get("status") != "open":
             continue
-        score, reasons = 0, []
-        ticker, bucket, rc = pr.get("ticker"), pr.get("direction_bucket", "HOLD"), pr.get("repeat_count", 1)
-        rpos = risk_by_ticker.get(ticker) if ticker else None
-        cluster = (rpos.get("cluster") if rpos
-                   else (pr.get("cluster") or state_sector_map.get(ticker)))
-        if rpos and rpos.get("over_cap"):
-            # DEMOTED +3 -> +2 on 2026-08-12 (user decision). At +3 this was the largest single
-            # weight in the scorer and, combined with the repeat bonus below, the only trigger
-            # that reliably reached HIGH -- so the open list was structurally almost all ATR
-            # trims. Risk discipline is unchanged (an over-cap name still always surfaces, and
-            # cmd_risk still computes the cap identically); what changes is that a genuine
-            # profit-take or a measured oversold entry can now outrank it.
-            score += 2
-            reasons.append(f"{ticker} at {rpos.get('cap_multiple', 0):.2f}x its ATR risk cap")
-        # DIRECTIONAL cluster-breach check (fixed 2026-08-07, found live: MRVL's 08-06 trim cured
-        # its own risk cap, but the AI Networking/Optics cluster had meanwhile fallen UNDER its
-        # floor from the same trim plus several stops in the same cluster -- the untested version
-        # of this check kept citing that under-floor breach as justification to trim MORE, which
-        # is backwards: trimming a name inside an underweight cluster deepens the underweight.
-        # See directional_breach() above -- shared with the retirement pass and retires_when.
-        db = directional_breach(cluster, bucket)
-        if db:
-            score += 2
-            reasons.append(f"{cluster} {'over' if db.get('breach_edge')=='over' else 'under'} band "
-                            f"({db.get('drift_pt', 0):+.1f}pt)")
-        if cash_short and bucket in ("TRIM", "SELL"):
-            score += 2
-            reasons.append(f"cash short at {_cash_pct:.1f}% vs a [{_cash_band[0]},{_cash_band[1]}]% band "
-                           "-- this also rebuilds it")
-        if cash_excess and bucket == "BUY":
-            score += 2
-            reasons.append(f"cash in excess at {_cash_pct:.1f}% vs a [{_cash_band[0]},{_cash_band[1]}]% band "
-                           "-- deploying is the live problem, not raising more")
-        if bucket in ("TRIM", "SELL") and ticker:
-            dr = stretch_by_ticker.get(ticker)
-            # names_stretched is the authoritative "ahead of sector AND up" list computed by
-            # cmd_derisk -- do not re-derive it from stretch_score>0 here, that would silently
-            # diverge from derisk's own "beat a falling benchmark ≠ stretched" distinction.
-            if dr and ticker in (derisk.get("names_stretched") or []):
-                score += 2
-                reasons.append(f"{ticker} genuinely stretched: +{dr.get('abs_return_1m_pct',0):.1f}% "
-                               f"1m, {dr.get('rel_strength_1m_pp',0):+.1f}pp vs SMH -- real profit "
-                               "to take, not just a smaller loss")
-        if bucket == "BUY" and ticker:
-            rtk = rotation_by_ticker.get(ticker, {})
-            best_hr = None
-            for bkt in rtk.get("bullish_buckets", []):
-                hr = hit_rates_7d.get(bkt)
-                if hr and hr["hit_rate_pct"] > 55 and (best_hr is None or hr["hit_rate_pct"] > best_hr[1]):
-                    best_hr = (bkt, hr["hit_rate_pct"], hr["n"])
-            if best_hr:
-                score += 2
-                reasons.append(f"bullish signal '{best_hr[0]}' has a {best_hr[1]:.0f}% INTERIM 7d hit "
-                               f"rate (n={best_hr[2]}, not yet 30d-validated) in this book")
-        # -- non-ATR triggers (added 2026-08-12). Weighted +3 so either can reach MEDIUM alone and
-        # HIGH with any one supporting term -- deliberately ABOVE the now-demoted ATR weight of
-        # +2, because the whole point of the change is that "this ran, book some" and "this good
-        # name is oversold, add" should be able to outrank "this position is 1.2x a volatility cap".
-        # Both are gated on the ticker actually appearing in compute_triggers.json's LIVE list this
-        # run, so a trigger_type written onto a proposal whose condition has since cleared scores
-        # nothing rather than coasting on a label.
-        tt = pr.get("trigger_type")
-        has_live_trigger = False
-        if tt in LIVE_TRIGGERS and ticker in trigger_live_sets.get(tt, set()):
-            row = trigger_rows[tt].get(ticker) or {}
-            if not row and tt in ("profit_rotation", "cluster_rotation") and pr.get("pair_id") in trigger_pairs:
-                # Paired rows carry no top-level ticker, so trigger_rows (single-ticker only) is
-                # empty for them -- pull the matching leg out of trigger_pairs instead of losing
-                # the conviction number entirely.
-                pair_row = trigger_pairs[pr["pair_id"]]
-                for leg in (pair_row.get("sell_leg"), pair_row.get("buy_leg")):
-                    if leg and leg.get("ticker") == ticker:
-                        row = leg
-                        break
-            if tt in CONVICTION_TRIGGERS:
-                # Conviction-driven triggers earn a priority bonus proportional to how strong the
-                # idea is, not a flat +3 -- a 21-point "low" conviction add shouldn't out-rank a
-                # 4-point cluster-cap breach the way a flat bonus would. round(score/10) keeps the
-                # scale comparable to the old flat bonus (a 70+ "high" conviction idea still nets +7,
-                # above the old +3; a 20-point "low" nets +2, below it) while remaining monotonic.
-                conv_score = row.get("conviction_score", 0) or 0
-                conv_bonus = max(1, round(conv_score / 10))
-                score += conv_bonus
-                reasons.append(f"{tt}: conviction {conv_score} "
-                                f"({row.get('conviction_tier', 'unscored')}) -- " +
-                                "; ".join(row.get("conviction_reasons") or row.get("reasons") or []))
-            else:
-                score += 3
-                reasons.append(f"{tt}: " + "; ".join(row.get("reasons") or []))
-            has_live_trigger = True
-            for b in row.get("blockers") or []:
-                reasons.append(f"caveat -- {b}")
-        elif tt in SHADOW_TRIGGERS:
-            reasons.append(f"{tt} is SHADOW-SCORED, not yet voting -- this trigger has no measured "
-                           "hit rate in this book, so it contributes 0 to priority by design")
-        elif tt in LIVE_TRIGGERS:
-            reasons.append(f"{tt} was the stated trigger but {ticker} is not in this run's "
-                           f"{tt} candidate list -- condition is no longer live")
-
-        # Repeat bonus (lowered 2026-08-24: restatement auto-retirement now fires at rc>=3, see
-        # the retirement pass below, so a proposal never reaches this scoring pass carrying rc>=3
-        # from a PRIOR run -- this branch only still sees rc==2 on the run where it's about to
-        # cross the retirement line, one run ahead of that pass).
-        if rc == 2:
-            score += 1
-            reasons.append(f"recommended {rc}x, still unactioned -- one more restatement auto-retires it")
-        if bucket == "SELL":
-            score += 1
-        # The old penalty fired on any BUY with score==0, which punished precisely the trade this
-        # book was missing: a well-founded add on a healthy name that happens to breach nothing.
-        # It now only applies to a buy with NO typed trigger at all -- genuinely discretionary.
-        if bucket == "BUY" and score <= 0 and tt not in (LIVE_TRIGGERS | SHADOW_TRIGGERS):
-            score -= 1
-            reasons.append("discretionary add -- no active breach or typed trigger behind it")
-        pr["priority_score"] = score
-        priority = "HIGH" if score >= 4 else "MEDIUM" if score >= 2 else "LOW"
-        # 2026-08-17, user-reported: proposals were reaching HIGH on pure portfolio-composition
-        # arithmetic (over_cap + cluster breach + cash band + repeat count can stack to 8) with
-        # NO criterion that says anything about the STOCK -- no live trigger of any kind
-        # (technical, catalyst, or thesis-driven). That combination is a volatility-budget/loose-
-        # composition finding, not a trade idea, and is capped at MEDIUM regardless of how high
-        # the mechanical score stacks. A live trigger (has_live_trigger, +3 above) is exempt from
-        # the cap by construction -- it is the one component that IS a price-moving criterion.
-        if priority == "HIGH" and not has_live_trigger:
-            priority = "MEDIUM"
-            reasons.append("capped at MEDIUM: no live trigger (technical, catalyst, or thesis) "
-                           "behind this proposal -- score reached HIGH on cap/cluster/cash/repeat "
-                           "mechanics alone, which describes the portfolio, not the stock")
-        pr["priority"] = priority
-        pr["priority_reasons"] = reasons
-        pr["proposal_class"] = proposal_class(tt)
-        if cluster:
-            pr["cluster"] = cluster
-
-        # -- honest sizing (added 2026-08-06, user-reported: "seems ATR risk correction is the
-        # only thing these proposals are suggesting" and sizes were small relative to the
-        # breach). full_cure_usd is what it would actually take to clear whichever trigger is
-        # live -- the position's own risk-cap excess (compute_risk's headroom_usd, exact) and/or
-        # the cluster's dollar overage (derived here: ceiling breaches are tested against
-        # total_book_usd per compute_drift's own denominator choice, floor breaches against
-        # equity_usd -- using the WRONG denominator would silently mis-state the cure amount).
-        # When a proposal cites both triggers, the binding one is whichever needs the larger
-        # trim -- curing the smaller one first would still leave the position non-compliant on
-        # the other. This DISPLAYS the gap, it does not auto-resize size_usd -- resizing a
-        # proposal is a judgment call for the strategist/user, not something this lifecycle
-        # pass should do silently.
-        if bucket in ("TRIM", "SELL"):
-            cures = []
-            if rpos and rpos.get("over_cap") and rpos.get("headroom_usd") is not None:
-                cures.append(("risk cap", abs(rpos["headroom_usd"])))
-            if cluster and cluster in cluster_breach:
-                cb = cluster_breach[cluster]
-                if cb.get("breach_edge") == "over" and total_book_usd:
-                    over_pct = cb.get("actual_pct_of_total_book", 0) - (cb.get("band_pct") or [0, 100])[1]
-                    if over_pct > 0:
-                        cures.append(("cluster ceiling", over_pct / 100 * total_book_usd))
-            if cures:
-                basis, cure_usd = max(cures, key=lambda c: c[1])
-                pr["full_cure_usd"] = round(cure_usd, 0)
-                pr["cure_basis"] = basis
-                sz = pr.get("size_usd") or 0
-                pr["cure_pct"] = round(sz / cure_usd * 100, 0) if cure_usd else None
-                if pr["cure_pct"] is not None and pr["cure_pct"] < 90:
-                    n_tranches = max(1, -(-round(cure_usd) // sz)) if sz else None  # ceil div
-                    pr["tranche_note"] = (f"cures {pr['cure_pct']:.0f}% of the {basis} excess "
-                                          f"(${cure_usd:,.0f}) -- roughly {n_tranches} tranches "
-                                          f"this size to fully clear it" if n_tranches else
-                                          f"cures {pr['cure_pct']:.0f}% of the {basis} excess (${cure_usd:,.0f})")
+        _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short, cash_excess,
+                                 _cash_pct, _cash_band, stretch_by_ticker, derisk, rotation_by_ticker,
+                                 hit_rates_7d, trigger_live_sets, trigger_rows, trigger_pairs,
+                                 state_sector_map, cluster_breach, total_book_usd)
 
     # -- CONDITION-BASED AUTO-RETIREMENT (added 2026-08-06, user-reported: "the dashboard is
     # not live and dynamic... under low priority proposals it is showing rebuild cash buffer"
@@ -585,227 +1030,13 @@ def cmd_proposals(args):
     for pr in props:
         if pr.get("status") != "open":
             continue
-        ticker = pr.get("ticker")
-        bucket = pr.get("direction_bucket", "HOLD")
-        rpos = risk_by_ticker.get(ticker) if ticker else None
-        cluster = pr.get("cluster")
-        cl = directional_breach(cluster, bucket)
-        over_cap = bool(rpos and rpos.get("over_cap"))
-        age = (today_date - (parse_date(pr.get("date", "")) or today_date)).days
-        why = None
-
-        action_l = (pr.get("action") or "").lower()
-        is_cash_proposal = ticker is None and ("cash" in action_l)
-
-        if is_cash_proposal:
-            # "Rebuild cash buffer" is satisfied the moment cash re-enters (or overshoots) its
-            # normal band -- which is exactly what a stop-loss cascade does for free.
-            cash_pct = drift.get("cash_pct")
-            band = drift.get("cash_band_normal_pct") or drift.get("cash_band_pct") or [None, None]
-            if cash_pct is not None and band[0] is not None and cash_pct >= band[0]:
-                why = (f"cash is {cash_pct:.2f}% vs a normal band of [{band[0]},{band[1]}]% -- "
-                       "the buffer this proposed to rebuild is already rebuilt")
-        elif bucket in ("TRIM", "SELL"):
-            # A trim exists to cure one of exactly three structural problems now (added a third,
-            # 2026-08-06, for rotation/pair-trade proposals): a position over its own ATR risk
-            # cap, a cluster outside its policy band, or -- when the proposal was explicitly
-            # created as a stretch-based profit-take (trigger_type=="stretch", see the pair-trade
-            # generation in §6/§7) -- the ticker no longer sitting in compute_derisk's
-            # names_stretched list. Checking stretch ONLY when trigger_type says so, never as a
-            # blanket rule, matters: most trims are cap/cluster driven and were never claiming
-            # the position was a "winner" to begin with, so testing stretch on those would be a
-            # non-sequitur retirement reason.
-            # An overbought_distribution trim (added 2026-08-12) is deliberately CAP-INDEPENDENT --
-            # it exists to book profit on a name that ran, not to cure a breach -- so it must be
-            # tested on its OWN condition and must never be retired merely for being within its
-            # ATR cap. Hysteresis: triggered above RSI_OVERBOUGHT, retires below the lower exit
-            # threshold, so a name oscillating around 70 doesn't churn open/retired every run.
-            if pr.get("trigger_type") == "overbought_distribution":
-                rsi_now = trig_rsi.get(ticker)
-                abs_now = trig_abs.get(ticker)
-                if rsi_now is None:
-                    pass  # cannot test (cache stale/absent) -- keep open rather than guess
-                elif rsi_now < RSI_OVERBOUGHT_EXIT:
-                    why = (f"{ticker} RSI14 has cooled to {rsi_now:.1f} (below the "
-                           f"{RSI_OVERBOUGHT_EXIT:g} exit) -- the overbought condition this "
-                           "profit-take was sized against has cleared")
-                elif abs_now is not None and abs_now <= 0:
-                    why = (f"{ticker} is no longer up on the month ({abs_now:+.1f}%) -- there is no "
-                           "longer a gain to protect, so this is not a profit-take any more")
-            # catalyst_threat and thesis_break (added 2026-08-17, retirement corrected 2026-08-24):
-            # SCORED cap/cluster-independent, same discipline as overbought_distribution -- an
-            # in-cap name is a valid catalyst-driven trim, never blocked by being within its cap.
-            # But RETIREMENT follows the "stretch" pattern instead (AND of conditions, not a bare
-            # own-condition test): unlike overbought_distribution, which is a purely technical
-            # signal never claiming a cap problem too, the strategist routinely layers a
-            # catalyst_threat trim ON TOP OF a live cap/cluster breach as co-primary evidence (BE,
-            # 2026-08-24: "worst cap overage in the book (2.64x)... the structural catalyst and
-            # cap breach carry this trim"). Testing only the catalyst's own condition meant that
-            # when the catalyst cleared (state.factor_catalysts genuinely does replace, not
-            # append, each run -- see PERSIST), the proposal retired outright even though its
-            # OTHER, still-live reason (the worst cap overage in the entire book) would on its own
-            # have kept any ordinary cap-breach trim open. Retire only when NEITHER survives.
-            elif pr.get("trigger_type") == "catalyst_threat":
-                catalyst_ok = ticker in trigger_live_sets.get("catalyst_threat", set())
-                if not catalyst_ok and not over_cap and not cl:
-                    why = (f"{ticker} no longer appears in a structural-threat factor catalyst, "
-                           f"and neither the ATR cap nor cluster band independently justifies "
-                           "this trim any more -- the structural reason has cleared")
-                # else: still live via the catalyst itself, OR an independent cap/cluster breach
-                # -- keep open either way, same AND-of-conditions discipline as stretch below.
-            elif pr.get("trigger_type") == "thesis_break":
-                th_now = smith_risk.thesis_status(state_thesis.get(ticker))
-                if th_now is None:
-                    pass  # cannot test (no usable status) -- keep open rather than guess
-                elif th_now != "broken" and not over_cap and not cl:
-                    why = (f"{ticker}'s thesis is now '{th_now}', no longer 'broken', and "
-                           "neither the ATR cap nor cluster band independently justifies this "
-                           "trim any more -- the structural reason has cleared")
-                # else: thesis still broken, OR an independent cap/cluster breach -- keep open.
-            elif pr.get("trigger_type") in ("trend_breakdown", "conviction_exit"):
-                # Conviction-driven TRIM/SELL triggers (added 2026-08-24): tested purely on their
-                # OWN condition re-appearing in this run's live list, same discipline as
-                # oversold_reversion/overbought_distribution -- no cap/cluster fallback, because
-                # unlike catalyst_threat these are not typically layered with cap-breach
-                # reasoning by construction (they fire from signal-polarity/convergence, not from
-                # a breach at all). trigger_live_sets already covers every LIVE_TRIGGERS member
-                # generically (see cmd_triggers), so this is one branch for both trigger types.
-                tt_now = pr.get("trigger_type")
-                if ticker not in trigger_live_sets.get(tt_now, set()):
-                    why = (f"{ticker} no longer appears in this run's live {tt_now} list -- the "
-                           "condition this trim/exit was sized against has cleared")
-            elif pr.get("trigger_type") in ("profit_rotation", "cluster_rotation"):
-                # Paired rotation SELL legs (added 2026-08-24, bug found live on first real
-                # dispatch): must NOT fall through to the generic cap/cluster test below -- a
-                # profit_rotation/cluster_rotation sell leg's reason for existing is "stretched
-                # and yet-to-rally elsewhere" or "cluster laggard vs a performer", never a cap or
-                # cluster-band breach, so testing over_cap/cl here retires it the instant it turns
-                # out to (correctly) not be over cap -- which is every time, since MSFT/AMD were
-                # never over-cap trims to begin with. First live proposals from the rebuilt engine
-                # (MSFT->CLS, AMD->TER) were both auto-retired within the same run they were
-                # created, one call after cmd_proposals appended them, before this fix. The real
-                # retirement condition for both legs of a pair lives entirely in the
-                # PAIRED-ROTATION RETIREMENT pass below (keyed on trigger_pairs), so this leg does
-                # nothing here -- `pass`, not a test.
-                pass
-            elif pr.get("trigger_type") in SHADOW_TRIGGERS:
-                pass  # shadow triggers are logged, not lifecycle-managed as live proposals
-            else:
-                is_stretch_trigger = pr.get("trigger_type") == "stretch"
-                stretch_ok = (ticker in (derisk.get("names_stretched") or [])) if is_stretch_trigger else True
-                if not over_cap and not cl and (not is_stretch_trigger or not stretch_ok):
-                    if is_stretch_trigger:
-                        why = (f"{ticker} is no longer in the stretched cohort (ahead of sector AND "
-                               "up) -- the profit-taking rationale for this trim has cleared")
-                    else:
-                        # Be honest about WHY the cluster stopped counting: it may be genuinely
-                        # in-band, or it may have flipped to an under-floor breach that a trim
-                        # would only worsen -- "inside its policy band" is false in the second case
-                        # and would misreport a real, live problem as resolved.
-                        raw_cb = cluster_breach.get(cluster) if cluster else None
-                        if raw_cb and raw_cb.get("breach_edge") == "under":
-                            cluster_note = (f", though {cluster} is now UNDER its floor "
-                                            f"({raw_cb.get('drift_pt', 0):+.1f}pt) -- a separate live issue, "
-                                            "just not one a trim addresses")
-                        elif cluster:
-                            cluster_note = f" and {cluster} is inside its policy band"
-                        else:
-                            cluster_note = ""
-                        why = (f"neither trigger is live: {ticker} is within its ATR risk cap"
-                               + cluster_note + " -- the structural reason for this trim has cleared")
-        elif bucket == "BUY":
-            # An "initiate"/"new position" buy is self-evidently done once the name is held.
-            if ticker and ticker in current_tickers and any(
-                    w in action_l for w in ("initiate", "new position", "open a position")):
-                why = f"{ticker} is now held -- this proposed initiating a position that already exists"
-            # A cluster-fill buy is done once the cluster is back inside its band.
-            elif cluster and not cl and any(w in action_l for w in ("top up", "fill", "stage", "deploy")):
-                why = f"{cluster} is back inside its policy band -- the underweight this filled has cleared"
-            # A signal-conviction buy (added 2026-08-06, pair-trade proposals) retires once the
-            # measured edge that justified it is gone -- either the signal no longer fires on
-            # this ticker, or its interim 7d hit rate has fallen out of the >55% bar the
-            # proposal was sized against. Checked ONLY for proposals explicitly created this way
-            # (trigger_type=="signal_conviction"), same discipline as the stretch check above.
-            # An oversold_reversion buy (added 2026-08-12) is a TIMING setup, not a structural one:
-            # it is consumed the moment the dip it was built on mean-reverts. Retiring on the
-            # hysteresis exit (RSI back above RSI_OVERSOLD_EXIT) rather than the entry threshold
-            # keeps a name hovering at 35-36 from flipping every run. A thesis that leaves
-            # intact/strengthening kills it outright -- the quality gate was the whole premise.
-            elif pr.get("trigger_type") == "oversold_reversion":
-                rsi_now = trig_rsi.get(ticker)
-                th_now = smith_risk.thesis_status(state_thesis.get(ticker))
-                if th_now is not None and th_now not in HEALTHY_THESIS:
-                    why = (f"{ticker}'s thesis is now '{th_now}' -- an oversold entry is only a dip-buy "
-                           "while the thesis is intact; without that it is a falling knife")
-                elif rsi_now is None:
-                    pass  # cannot test (cache stale/absent) -- keep open rather than guess
-                elif rsi_now > RSI_OVERSOLD_EXIT:
-                    why = (f"{ticker} RSI14 has recovered to {rsi_now:.1f} (above the "
-                           f"{RSI_OVERSOLD_EXIT:g} exit) -- the oversold setup this buy was timed "
-                           "against has been consumed")
-            elif pr.get("trigger_type") == "signal_conviction" and pr.get("trigger_bucket"):
-                tb = pr["trigger_bucket"]
-                rtk = rotation_by_ticker.get(ticker, {}) if ticker else {}
-                hr = hit_rates_7d.get(tb)
-                if tb not in rtk.get("bullish_buckets", []):
-                    why = f"{ticker} no longer carries the '{tb}' signal -- the edge this buy was sized against is gone"
-                elif not hr or hr.get("hit_rate_pct", 0) <= 55:
-                    why = (f"'{tb}'s interim 7d hit rate has fallen to "
-                           f"{hr.get('hit_rate_pct') if hr else 'unmeasured'}% (was >55% when proposed) "
-                           "-- the measured edge behind this buy no longer clears the bar")
-            elif pr.get("trigger_type") in ("trend_entry", "conviction_average", "entry_setup", "reentry", "bench_diversifier"):
-                # Conviction-driven BUY triggers (added 2026-08-24): tested on their own
-                # condition re-appearing live, same as the TRIM-side branch above. A `reentry`
-                # additionally expires on a hard 20-trading-day clock even if conviction is
-                # still live -- a re-entry candidate that's gone unactioned for a month is a
-                # stale read of the exit event, not a standing idea.
-                tt_now = pr.get("trigger_type")
-                if ticker not in trigger_live_sets.get(tt_now, set()):
-                    why = (f"{ticker} no longer appears in this run's live {tt_now} list -- the "
-                           "condition this buy was sized against has cleared")
-                elif tt_now == "reentry" and pr.get("exited_on"):
-                    # Structured field, never parsed from rationale prose -- parsing free text is
-                    # exactly what made the 2026-07-29 breach-cleared voider false-positive and
-                    # get disabled (see this file's cmd_proposals docstring). `exited_on` must be
-                    # set explicitly when a reentry proposal is created.
-                    exited_on = _proposal_parse_date(pr["exited_on"])
-                    if exited_on and (today_date - exited_on).days > 20:
-                        why = f"{ticker}'s exit was {(today_date - exited_on).days} days ago -- past the 20-day reentry window"
-        elif bucket == "HOLD":
-            # A STOP instruction is not hold-fire advice (found 2026-08-17). P-094 "Set hard stop
-            # on ORCL @ $139.14" was auto-retired after 2 days as time-expired tactical guidance,
-            # and P-100 "Raise MRVL stop to cost basis" was one day from the same fate. A stop
-            # level is a STANDING risk instruction: it stays valid until it is acted on, the
-            # position exits, or the level is superseded -- it does not go stale on a clock.
-            # Both landed in the HOLD bucket only because neither buys nor sells anything.
-            is_stop = bool(re.search(r"\bstop\b", str(pr.get("action") or ""), re.I)) or \
-                      (pr.get("trigger_type") == "profit_ratchet")
-            if ticker and ticker not in current_tickers:
-                why = (f"{ticker} is no longer held -- the "
-                       + ("stop this proposed has nothing left to protect"
-                          if is_stop else "position this advised holding on is gone"))
-            elif is_stop:
-                why = None      # standing instruction: never expires on age alone
-            elif age >= HOLD_MAX_AGE_DAYS:
-                why = (f"tactical HOLD is {age} days old -- hold-fire advice is time-bound by nature "
-                       "and is not carried forward as standing guidance")
-
-        # Restatement auto-retirement, lowered 3->5 to >=3 (2026-08-24 rebuild). The record was
-        # 0-for-17 beyond even four restatements -- a proposal recommended 3+ times and never
-        # acted on is not "still building a case", it has been declined in practice. Only applies
-        # when no other retirement reason already fired above (those are more specific).
-        if not why and pr.get("repeat_count", 1) >= 3:
-            _rc = pr["repeat_count"]
-            why = (f"recommended {_rc}x and never actioned -- 0-for-17 historically beyond four "
-                   "restatements, so 3+ now auto-retires rather than losing only its priority bonus; "
-                   "re-propose fresh if the condition still holds")
-
-        if why:
-            pr["status"] = "auto_retired"
-            pr["retired_on"] = str(today_date)
-            pr["retired_reason"] = why
-            pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {why}").strip(" |")
-            retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": why})
+        result = _check_condition_based_retirement(pr, today_date, risk_by_ticker, directional_breach,
+                                                    current_tickers, drift, trig_rsi, trig_abs,
+                                                    trigger_live_sets, state_thesis, derisk, cluster_breach,
+                                                    rotation_by_ticker, hit_rates_7d, parse_date,
+                                                    HOLD_MAX_AGE_DAYS)
+        if result:
+            retired.append(result)
 
     # -- PAIRED-ROTATION RETIREMENT (added 2026-08-24) -- profit_rotation/cluster_rotation legs
     # must retire TOGETHER, never independently. This is the direct fix for "19 rotation pairs
@@ -814,23 +1045,7 @@ def cmd_proposals(args):
     # orphaned the other leg into an unpaired, half-explained proposal, which is indistinguishable
     # from noise and never got acted on. Both legs share a pair_id; if the pair is no longer in
     # this run's live trigger_pairs, retire whichever leg(s) are still open, together, one reason.
-    if trigger_pairs is not None:
-        by_pair_id = {}
-        for pr in props:
-            pid = pr.get("pair_id")
-            if pr.get("status") == "open" and pid and pid.startswith(("profit_rotation-", "cluster_rotation-")):
-                by_pair_id.setdefault(pid, []).append(pr)
-        for pid, legs in by_pair_id.items():
-            if pid in trigger_pairs:
-                continue  # still live this run -- both legs stay open
-            for pr in legs:
-                why = (f"the {pid.split('-')[0]} pairing this leg belongs to is no longer live "
-                       "this run -- both legs of a rotation retire together, never one alone")
-                pr["status"] = "auto_retired"
-                pr["retired_on"] = str(today_date)
-                pr["retired_reason"] = why
-                pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {why}").strip(" |")
-                retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": why})
+    _retire_orphaned_rotation_legs(props, trigger_pairs, today_date, retired)
 
     # -- LIVE RE-JUSTIFICATION (same change). Every proposal still open after the pass above
     # carries a freshly recomputed `still_valid_because` and a re-priced `price_drift_pct`, so
@@ -845,98 +1060,7 @@ def cmd_proposals(args):
     for pr in props:
         if pr.get("status") != "open":
             continue
-        live = list(pr.get("priority_reasons") or [])
-        flags = []
-        p0, pnow = pr.get("price_at_proposal"), price_now_by_ticker.get(pr.get("ticker"))
-        if p0 and pnow:
-            dp = (pnow - p0) / p0 * 100
-            pr["price_now"] = round(pnow, 2)
-            pr["price_drift_pct"] = round(dp, 2)
-            if abs(dp) >= 10:
-                flags.append(f"price has moved {dp:+.1f}% since proposed (${p0:.2f} -> ${pnow:.2f}) -- re-size before acting")
-        # EVIDENCE GATE (added 2026-08-10, G58). The strategist's standing rule is "cite at least
-        # two inputs" -- that counts inputs, it does not test them, so two unverified qualitative
-        # claims satisfy it. On 2026-08-10 a sized SNDK trim shipped citing a thesis WATCH that
-        # rested on a mischaracterized earnings headline (the quarter was a beat; only the forward
-        # guide was light). Three days earlier a strategist veto rested on a quality finding that
-        # MRVL's own 10-Q contradicted (G44). Same shape twice: an unverified word outranking
-        # verified arithmetic -- smith-strategist.md literally says thesis WATCH/BROKEN "outrank
-        # pure drift breaches as trim candidates".
-        #
-        # This reads the TYPED counts the strategist supplies, never the rationale prose. Parsing
-        # prose is what made the breach-cleared voider false-positive and get disabled in
-        # 2026-07-29; that lesson holds. A proposal with no evidence_quality block is simply not
-        # assessed (older rows stay untouched) rather than being flagged on an absent field.
-        eq = pr.get("evidence_quality")
-        if isinstance(eq, dict):
-            n_ver = eq.get("verified") or 0
-            n_unver = eq.get("unverified") or 0
-            n_comp = eq.get("computed") or 0
-            if (n_ver + n_comp) == 0 and n_unver > 0:
-                flags.append(
-                    f"sole basis is {n_unver} unverified qualitative claim(s) -- no verified or "
-                    f"computed input backs this; confirm the underlying claim before acting (G58)")
-        if not live:
-            live.append("no active structural trigger -- kept open on the strategist's judgement, not a breach")
-        pr["still_valid_because"] = live
-        pr["review_flags"] = flags
-        pr["revalidated_on"] = str(today_date)
-
-        # Forward-looking retirement condition (added 2026-08-06, same change as
-        # auto-retirement above). `still_valid_because` says why the proposal survived TODAY;
-        # `retires_when` says what would make it NOT survive tomorrow -- the inverse condition
-        # of the retirement checks earlier in this function, kept in sync by construction since
-        # both read the same rpos/cl/bucket signals rather than being independently authored.
-        # This is what makes the automation legible instead of mysterious: the reader can see
-        # the actual bar a proposal has to clear, not just that "the system decides".
-        ticker = pr.get("ticker")
-        bucket = pr.get("direction_bucket", "HOLD")  # NOT the leaked loop var from the scorer above
-        rpos = risk_by_ticker.get(ticker) if ticker else None
-        cl = directional_breach(pr.get("cluster"), bucket)
-        retires_when = None
-        _tt = pr.get("trigger_type")
-        if _tt == "overbought_distribution":
-            retires_when = (f"{ticker} RSI14 falls below {RSI_OVERBOUGHT_EXIT:g} or it is no longer "
-                            "up on the month (cap-independent -- staying inside the ATR cap does "
-                            "NOT retire this)")
-        elif _tt == "oversold_reversion":
-            retires_when = (f"{ticker} RSI14 recovers above {RSI_OVERSOLD_EXIT:g} (setup consumed) "
-                            "or its thesis leaves intact/strengthening")
-        elif _tt == "catalyst_threat":
-            retires_when = (f"{ticker} no longer appears in a structural-threat factor catalyst "
-                            "(cap/cluster-independent -- staying inside the ATR cap does NOT "
-                            "retire this)")
-        elif _tt == "thesis_break":
-            retires_when = (f"{ticker}'s thesis is no longer 'broken' (cap/cluster-independent -- "
-                            "staying inside the ATR cap does NOT retire this)")
-        elif _tt in ("trend_breakdown", "conviction_exit"):
-            retires_when = (f"{ticker} no longer appears in this run's live {_tt} list "
-                            "(cap/cluster-independent -- staying inside the ATR cap does NOT retire this)")
-        elif _tt in ("trend_entry", "conviction_average", "entry_setup", "bench_diversifier"):
-            retires_when = f"{ticker} no longer appears in this run's live {_tt} list"
-        elif _tt == "reentry":
-            retires_when = (f"{ticker} no longer appears in this run's live reentry list, or 20 "
-                            "trading days pass since its exit, whichever comes first")
-        elif _tt in ("profit_rotation", "cluster_rotation"):
-            retires_when = (f"the {_tt} pairing {pr.get('pair_id')} is no longer live this run -- "
-                            "both legs retire together, never one alone")
-        elif _tt in SHADOW_TRIGGERS:
-            retires_when = (f"n/a -- {_tt} is shadow-scored, tracked in trigger_journal.json rather "
-                            "than lifecycle-managed here")
-        elif bucket in ("TRIM", "SELL") and pr.get("trigger_type") == "stretch":
-            retires_when = f"{ticker} drops out of the stretched cohort (no longer ahead of sector AND up)"
-        elif bucket in ("TRIM", "SELL"):
-            conds = []
-            if rpos and rpos.get("over_cap"):
-                conds.append(f"{ticker} drops under its ATR risk cap")
-            if cl:
-                conds.append(f"{pr.get('cluster')} re-enters its policy band")
-            retires_when = " OR ".join(conds) + " (both must clear -- either alone keeps it open)" if len(conds) > 1 else (conds[0] if conds else None)
-        elif bucket == "BUY" and pr.get("trigger_type") == "signal_conviction":
-            retires_when = f"'{pr.get('trigger_bucket')}' signal drops off {ticker} or its 7d hit rate falls to/below 55%"
-        elif bucket == "BUY" and pr.get("cluster") and cl:
-            retires_when = f"{pr.get('cluster')} re-enters its policy band"
-        pr["retires_when"] = retires_when
+        _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directional_breach, today_date)
 
     # --- STACKING GUARD (added 2026-09-01) ---------------------------------------------------
     # An ACCEPTED-but-unexecuted proposal did not block a new proposal on the same name and the
@@ -956,33 +1080,7 @@ def cmd_proposals(args):
     # Sell-side stacks are escalated because they are the bounded side: you cannot sell more than
     # you hold, so a large combined percentage is a concrete, checkable error rather than merely
     # an oversized bet.
-    pos_value = {tk: rp.get("market_value_usd") for tk, rp in risk_by_ticker.items()
-                 if rp.get("market_value_usd")}
-    stack_warnings = []
-    _live = [pr for pr in props if pr.get("status") in ("open", "accepted_by_user")]
-    for pr in _live:
-        pr.pop("stacks_on", None)           # recomputed every run, never stale
-    for i, a in enumerate(_live):
-        if a.get("status") != "accepted_by_user":
-            continue
-        for b in _live:
-            if b is a or b.get("status") != "open":
-                continue
-            if b.get("ticker") != a.get("ticker"):
-                continue
-            side = a.get("direction_bucket") or "HOLD"
-            if side != (b.get("direction_bucket") or "HOLD"):
-                continue
-            combined = (a.get("size_usd") or 0) + (b.get("size_usd") or 0)
-            mv = pos_value.get(a.get("ticker"))
-            pct = round(100.0 * combined / mv, 1) if mv else None
-            sev = "high" if (side in ("SELL", "TRIM") and pct is not None
-                             and pct >= STACK_WARN_PCT) else "note"
-            info = {"accepted_id": a.get("id"), "accepted_size_usd": a.get("size_usd"),
-                    "combined_usd": round(combined, 2), "position_usd": mv,
-                    "combined_pct_of_position": pct, "side": side, "severity": sev}
-            b["stacks_on"] = info
-            stack_warnings.append(dict(info, open_id=b.get("id"), ticker=a.get("ticker")))
+    stack_warnings = _compute_stacking_warnings(props, risk_by_ticker)
 
     proposals["proposals"] = props
     safe_write(p_path, proposals)
