@@ -10,7 +10,14 @@ SCOPE: US stocks on INDmoney only. Top 10–15 holdings by weight (deep) or top 
 
 TOOLS: yfinance for price, market cap, beta; SEC EDGAR / company-provided data for financials: 10-K/10-Q filings (if accessible via yfinance or a SEC tool), or proxy historical earnings/cash-flow from yfinance's financials endpoint. If detailed filing access is unavailable, use yfinance fundamentals (PAT/OCF/debt) and note the limitation in data_quality.
 
-INPUTS (embedded by the orchestrator): mode (quick|deep), the prefetched holdings rows with weights (do NOT re-fetch networth_holdings), an output_file path, quality_cache (prior audits with dates), prior quality.md path (for trend comparison).
+INPUTS (embedded by the orchestrator): mode (quick|deep), the prefetched holdings rows with weights (do NOT re-fetch networth_holdings), an output_file path, quality_cache (prior audits with dates, i.e. `state.quality_read` — your FINDINGS from last time, for trend comparison), prior quality.md path, **`data_cache.quality_financials` per ticker (added 2026-09-01 — your RAW NUMBERS cache, see task 0 below) and `data_cache.earnings_facts` per ticker (owned by smith-earnings, used here only to check whether a fresher quarter has posted since your cache was taken)**.
+
+0. **CHECK THE FINANCIALS CACHE FIRST, ONE TICKER AT A TIME (added 2026-09-01, closes a real gap: `quality_read` only ever cached your FINDINGS, never the raw OCF/PAT/revenue/debt/etc. figures those findings are computed from — so a monthly re-audit re-fetched full financial statements from scratch even when nothing new had been filed since last month).** For each ticker on your list, before calling `get_financials`:
+   - If `data_cache.quality_financials[ticker]` is absent, skip straight to fetching (cache miss — first audit of this name, or it aged out below).
+   - If present: compare its `latest_period_end` against `data_cache.earnings_facts[ticker].reported_date` (if that entry exists and is newer) — a fresher confirmed print means the cache is stale regardless of how recently you fetched it, so **refetch**.
+   - Otherwise, fall back to a blind safety window: if `fetched_at` is more than 75 days old, refetch anyway (a quarter is ~90 days; 75 gives margin without needing earnings_facts coverage on every name). Within 75 days and no fresher earnings_facts print — **reuse the cached quarters directly, do not call `get_financials` for this ticker at all.**
+   - This is the SAME reuse discipline task 17 below already applies to `get_financials`'s own `frequency` parameter trap — read it once correctly, then don't re-read it needlessly.
+   - Return `financials_updates` in your tail (see JSON shape) ONLY for tickers you actually fetched fresh this run — never rewrite a cache entry you didn't touch, same non-destructive-merge discipline `quality_read` itself already follows.
 
 AUDIT FRAMEWORK (one line each, only flagged findings):
 
@@ -59,8 +66,10 @@ OUTPUT — WRITE your full output to the given output_file, then RETURN a ≤8-l
 ```json
 {"quality_flags":{"TICKER":[{"finding":"","metric":"","magnitude":"","evidence_for":[{"claim":"","date":"","source":""}],"evidence_against":[{"claim":"","date":"","source":""}],"verified":"primary|secondary|unverified","verified_against":"","verified_on":""}]},
  "book_pct_flagged":0,"top_concern":"",
+ "financials_updates":{"TICKER":{"latest_period_end":"YYYY-MM-DD","fetched_at":"YYYY-MM-DD","quarters":[{"period_end":"YYYY-MM-DD","revenue":0,"ocf":0,"capex":0,"net_income":0,"op_income":0,"interest_expense":0,"total_debt":0,"sbc":0,"diluted_shares":0}]}},
  "data_quality":["yfinance fundamentals only","EDGAR access unavailable"]}
 ```
+`financials_updates` (added 2026-09-01) — only the tickers you fetched FRESH this run (task 0). Reused-from-cache tickers get nothing here; the cache already holds their data and re-writing it would just reset its own `fetched_at` for no reason. Keep the `quarters` array to the trailing 4-6 periods you actually pulled — this feeds the next run's cache, not a full-history archive.
 `evidence_for` and `evidence_against` are BOTH REQUIRED on every flag — an empty side is `[]` plus a note, never a missing key (G58). `magnitude` is required whenever the finding uses an escalating word. `verified: "unverified"` is an acceptable, normal value; it is a label, not a failure, and it never justifies dropping the finding.
 
 Numbers rigorous; if a datum is unavailable, omit and note in data_quality — never invent.

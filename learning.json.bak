@@ -563,6 +563,14 @@
       "evidence": "smith-rebound.md step 0 vs step 6 (fixed 2026-09-01); smith_core.py FRESHNESS['data_cache.betas'] vs smith-book.md/smith-signals.md content, DECISIONS.md line 269",
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "Extended the memory/cache audit to smith_edgar.py, the SEC EDGAR primary-source verification tool used by smith-quality/smith-earnings/smith-thesis -- and found it had ZERO cross-process caching, the biggest gap of the whole audit. _TICKER_CACHE/_FACTS_CACHE were plain in-process dicts that vanish the instant a subprocess exits, and every single smith_edgar.py invocation is its own subprocess (spawned via Bash by whichever agent needs it). Concretely: (1) EVERY call re-downloaded the FULL SEC ticker-to-CIK master list (10,391 companies) just to resolve one ticker, even though a CIK is assigned once and essentially never changes. (2) As-filed SEC data for a completed fiscal period is IMMUTABLE -- there is no more cache-worthy fact in this codebase -- yet a company checked in one run and re-checked days later (a stubborn quality finding, or two agents needing the same concept) re-fetched from EDGAR every time. Fixed: added a disk-backed edgar_cache.json (ticker_cik section, 180-day TTL; concepts section keyed cik:tag, 3-day TTL) and a --base-dir flag threaded through main(). Verified: second identical verify call for the same ticker+concept went from a live SEC round-trip to 0.07s with zero network calls. Caught and fixed a real bug during testing -- caching a tag that returned no data (via=None) crashed on cache-hit trying to string-concatenate None with ' (cached)'; a None-safe guard fixed it. Updated all 4 call sites (SKILL.md, smith-quality.md, smith-earnings.md, smith-thesis.md) to always pass --base-dir explicitly, since the flag defaults to cwd and silently drops the cache if an agent isn't running from the base dir. NOT done this pass, flagged for later: smith-quality's own get_financials pull (yfinance-native, not EDGAR) has no quarter-aware cache either, so a monthly quality re-run before the next quarter posts re-fetches the same quarter's raw statement data -- lower priority than EDGAR since it's monthly cadence, one agent, not three. Generalise: when auditing a codebase's caching, check the LEAST-recently-touched tools too, not just the ones already under active iteration -- this tool had been stable since 2026-08-31 and untouched since, which is exactly why its total absence of persistence had gone unnoticed.",
+      "evidence": "scripts/smith_edgar.py: added edgar_cache.json (ticker_cik + concepts sections), --base-dir flag, tested with a live AMZN verify call (fresh: full network fetch; cached: 0.07s, 0 network calls); fixed a None-concatenation crash found during testing",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

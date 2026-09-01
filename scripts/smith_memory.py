@@ -1068,9 +1068,23 @@ def _merge_quality(out, state, today):
                  "top_concern": out.get("top_concern") or prior.get("top_concern"),
                  "as_of": today})
     state["quality_read"] = read
+
+    # RAW-NUMBERS cache, separate from the findings above (added 2026-09-01). `quality_read`
+    # only ever held VERDICTS ("OCF/PAT ratio looks weak"), never the OCF/PAT figures those
+    # verdicts came from -- so a monthly re-audit re-fetched full financial statements from
+    # scratch even in a month where nothing new had been filed. `financials_updates` covers
+    # only the tickers this pass actually fetched fresh (task 0 in smith-quality.md); every
+    # other ticker's cached entry is left untouched, same non-destructive-merge shape as
+    # quality_flags above -- this cache and that one are audited per-ticker independently, so
+    # they can legitimately be at different ages for the same name (a raw figure a fresh audit
+    # skipped re-deriving is not the same event as a fresh finding about it).
+    fin_updates = out.get("financials_updates") or {}
+    cache = state.setdefault("data_cache", {}).setdefault("quality_financials", {})
+    cache.update(fin_updates)
+
     return {"quality_flags": len(merged), "flags_this_pass": len(flags),
             "cleared_this_pass": len(cleared), "tickers_audited_total": len(audited),
-            "force_thesis_review": len(ftr)}
+            "force_thesis_review": len(ftr), "financials_cache_updated": len(fin_updates)}
 
 
 def _merge_strategist(out, state, today):
@@ -1412,7 +1426,8 @@ AGENT_SLICES = {
                    "cache": ["etf_constituents", "earnings_facts"], "refs": [],
                    "holdings": "trim", "shared": ["hbm_tracker"]},
     "watchlist":  {"state": ["news_watermark", "watchlist_scan_cursor"],
-                   "cache": ["earnings_calendar"], "refs": ["attribution"], "holdings": "trim"},
+                   "cache": ["earnings_calendar", "analyst_targets"], "refs": ["attribution"],
+                   "holdings": "trim"},
     "book":       {"state": [], "cache": ["betas"], "refs": ["book", "lots"], "holdings": None},
     "scout":      {"state": ["diversifier_candidates"], "cache": [],
                    "refs": ["sentiment", "market_inputs"], "holdings": "trim"},
@@ -1427,7 +1442,8 @@ AGENT_SLICES = {
                    "refs": ["book"], "holdings": "trim"},
     "tax":        {"state": ["thesis"], "cache": [], "refs": ["book", "lots"],
                    "holdings": "trim"},
-    "quality":    {"state": ["open_flags"], "cache": [], "refs": ["book"], "holdings": "trim"},
+    "quality":    {"state": ["open_flags"], "cache": ["quality_financials", "earnings_facts"],
+                   "refs": ["book"], "holdings": "trim"},
     "rebound":    {"state": ["sector_map"], "cache": [], "refs": ["book", "risk"],
                    "holdings": "full"},
     "ledger":     {"state": [], "cache": ["ticker_map"], "refs": ["book", "lots"],
