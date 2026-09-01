@@ -1,7 +1,7 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**77 total gaps** -- 16 open, 61 archived (closed).
+**79 total gaps** -- 16 open, 63 archived (closed).
 
 ---
 
@@ -20,6 +20,24 @@ LTCG per-lot purchase dates. SUBSTANTIALLY CLOSED 2026-07-31: full backfill from
 INDmoney networth_snapshot/networth_holdings AGGREGATE totals lag the real-time price (per-name fix landed via get_us_stocks_details.ext_hr_live_price + PRE-MARKET PRICE OVERLAY in SKILL.md step 2.5, cross-validated vs FMP aftermarket quotes). Aggregate endpoint staleness remains open.
 
 **Resolution:** CLOSED 2026-07-28: smith_math.py cmd_book now reconciles the row-level sum against the snapshot and any aggregate figure, emits a reconciliation block, and sets persist_safe=false above a 3% tolerance. The orchestrator must not write state or append a ledger row when persist_safe is false, so a lagging aggregate can no longer silently corrupt weights.
+
+---
+
+## G5 -- closed
+**Opened:** 2026-07-18  **Owner:** smith-book  
+
+yfinance returns no `beta` field for certain instrument types -- ETFs (DRAM, EWY, CQQQ) and thin-history spinoffs (SNDK) -- so smith-book's BETA CACHE REFRESH task silently let the 1.0 default stand for these names, corrupting risk-weighted concentration and portfolio beta for any book holding them.
+
+**Resolution:** WebFetch stockanalysis.com/stocks/{ticker}/statistics/ (ETFs: stockanalysis.com/etf/{ticker}/) as the fallback source when yfinance returns no beta, tagged source:"stockanalysis" so the orchestrator caches it with the same TTL. Verified 2026-07-18: EWY returned 1.46 vs the 1.0 default. Standing rule in smith-book.md task 3.
+
+---
+
+## G10 -- closed
+**Opened:** 2026-07-17  **Owner:** orchestrator / smith-signals / smith-rebound  
+
+yfinance's get_stock_history silently auto-aggregates to weekly bars and truncates rows when a multi-symbol batch is requested for daily-bar-derived metrics (ATR20, beta regression, RSI14), regardless of the max_rows parameter -- a batch call that looks like it succeeded quietly returns unusable weekly data instead of the ~21 daily rows a 20/50/200-day window needs.
+
+**Resolution:** Never batch multi-symbol daily-bar history. Force true daily bars with period='1mo' at MOST 3 symbols per call (smith-signals' ATR20/RSI14/rel_strength_1m refresh, SKILL.md 2.7); smith-rebound's support-level fallback uses single-symbol calls only, with Barchart WebFetch as the primary source specifically to avoid this batching trap. Proven 2026-07-17.
 
 ---
 
@@ -685,16 +703,7 @@ Trade rationale for the RECENT, still-recallable set only -- the achievable rema
 
 ---
 
-## G79 -- OPEN
-**Opened:** 2026-08-17  **Owner:** orchestrator  
-
-NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are therefore UNAVAILABLE, not merely skipped, on every scheduled run here. Consequence: exact fill price / timestamp / order type cannot be recovered for any trade, so new trades.json rows are written price_source='reconstructed' (quantities remain broker truth). This structurally blocks stop-vs-deliberate cohort classification for all future fills and quarantines them out of smith_math.py stops scoring. First hit 2026-08-17 on 5 trades (BX exit, NBIS trim, IONQ entry, BE add, AMZN add). This is the CAUSE; G78 tracks the resulting rationale backlog.
-
-**Resolution:** Closed for INTERACTIVE Claude Code sessions (Gmail connector present; proved 2026-08-19 -- 18 confirmations pulled, 10 of 11 qty_changes resolved to a literal `Order Type: stop`, 5 prior reconstructed rows corrected). REMAINS OPEN for the headless/cron deployment, which still has no email tooling.
-
----
-
-## G79 -- OPEN
+## G79 -- closed
 **Opened:** 2026-08-15  **Owner:** smith-ledger / user (brokerage statement)  **Closed:** 2026-08-15  
 
 ORPHANED POSITIONS -- the ledger shows shares still open that the broker does not report at all. Surfaced by the lots-engine cutover, which added a reconciliation check in the opposite direction to G68: the existing check only walked tickers the BROKER reports, so a ticker the LEDGER thinks is open while the broker shows nothing was structurally invisible. Five found, and one is material: PLTR 5.003973sh across FIVE lots (2026-02-25 to 2026-05-13, basis $126-161), META 1.004836sh (2026-08-06 @ $589.84), EWY 0.041075, SMCI 0.014346, WDC 0.0059. This is a bigger miss than G68's over-counts: G68 is a partial shortfall on a held name, whereas these are positions the record believes are entirely open and are not. PLTR at ~5sh and ~$700 of basis is the one that matters. META is notable because it was exited deliberately in the 2026-08-13 session (the narrative records a full close at $581.83) -- so the sell happened, and the record has ~1sh of it missing.
@@ -705,14 +714,7 @@ ORPHANED POSITIONS -- the ledger shows shares still open that the broker does no
 
 ---
 
-## G80 -- OPEN
-**Opened:** 2026-08-19  **Owner:** orchestrator (smith_lifecycle proposals engine)  
-
-(no description)
-
----
-
-## G80 -- OPEN
+## G80 -- closed
 **Opened:** 2026-08-15  **Owner:** smith-ledger  **Closed:** 2026-08-15  
 
 SYSTEMATIC LEDGER RECONSTRUCTION ERROR, root cause of nearly all the fractional dust in G68 and G79. Rows reconstructed with qty_source='derived_amount_over_price' computed shares as Amount / Price. That is wrong: INDmoney's Amount field INCLUDES SEC/FINRA fees, so Amount is not shares x price. PROVEN against the 2026-06-22 META confirmation -- Amount $563.58 / Price $561.92 = 1.002954, while the email's own Shares field reads exactly 1. The method inflates BUYS and understates SELLS (PLTR's 2026-05-19 sell of 2 was recorded as 1.999926). 30 of the 54 derived rows were within 1% of a clean share count and have been corrected, removing +0.157531 phantom shares and eliminating the VRT/AMD/MRVL mismatches and the EWY/SMCI/WDC orphans outright.
@@ -726,21 +728,21 @@ SYSTEMATIC LEDGER RECONSTRUCTION ERROR, root cause of nearly all the fractional 
 ## G81 -- OPEN
 **Opened:** 2026-08-19  **Owner:** smith-catalyst / orchestrator verification  
 
-(no description)
+PROXIMATE CAUSE OF THE 2026-08-18 SEMIS ROUT IS UNRESOLVED, AND THE FIRST ANSWER WAS WRONG. smith-catalyst returned, as its lead catalyst, that the 30-year UST hit a 19-year high of 5.33% on Tuesday and repriced high-multiple AI hardware. Checked against primary data before it reached sizing: ^TYX CLOSED Tuesday at 5.285%, DOWN 2.4bp from Monday's 5.309%, and ^TNX at 4.706%, DOWN 1.8bp. Long yields FELL on the session semis dropped 4.09%. The 19-year-high LEVEL is real and is standing multiple-compression pressure on long-duration names; a Tuesday rates SHOCK is not supported by the tape and cannot be the proximate cause. Best-evidenced named trigger remains the WSJ $3T off-balance-sheet AI-commitments report dated 08-17, one day prior, which smith-catalyst itself named as the driver of the GEV/BE/VRT behind-the-meter selloff. This is the G58/G75 failure class in a new place: a plausible causal narrative that the primary series contradicts, sourced to a single secondary aggregator. STANDING RULE ADDED: a catalyst that asserts a MARKET-DATA move (a yield, an index, a spread) as its mechanism must cite the series and the two prints, not a news paraphrase -- market data is the one class of claim the desk can always check itself in one call.
 
 ---
 
 ## G82 -- OPEN
 **Opened:** 2026-08-24  **Owner:** orchestrator / user decision  
 
-(no description)
+BX (Blackstone) was re-entered 2026-08-24 (10sh, 3.67% weight) after a full exit on 2026-08-17. smith-thesis classified it into a brand-new satellite cluster 'Financials/Alt-Asset Diversifier' because it does not fit any existing policy.json cluster and is not a clean AI-capex diversifier -- it shares the XPV off-balance-sheet AI-financing tail risk (Blackstone/Apollo funding Anthropic compute) that drove BofA's 08-11 bond downgrade on AVGO. This cluster has NO policy band, so it is invisible to drift math by design until the user sets one. The AI-capex concentration ratio drop from ~89% to 83.7% this run is this reclassification, not real de-risking -- do not read it as improvement without noting the cause.
 
 ---
 
 ## G83 -- OPEN
 **Opened:** 2026-08-24  **Owner:** smith-ledger (next interactive run)  
 
-(no description)
+BX's re-entry lot is dated 2026-08-21 in trades.json/lots.json, but state/G82 and this run's dispatch both stated the re-entry happened 2026-08-24 -- a 3-day discrepancy independently caught by smith-book, smith-tax, and the strategist this run. Immaterial for tax (all lots are short-term regardless), but the record disagrees with itself and should be reconciled against the actual INDmoney confirmation email at the next interactive run.
 
 ---
 
@@ -750,5 +752,21 @@ SYSTEMATIC LEDGER RECONSTRUCTION ERROR, root cause of nearly all the fractional 
 2026-08-29 deep review: strategist and orchestrator both asserted a nonexistent '8% drawdown warn line' (policy.json's real drawdown_warn_pct is 15) across the ledger narrative and the chat briefing. Root cause: a number lived only in free-text narrative with nothing checking it against policy.json, so it could be typed once and copied forward. Fixed same-day: smith_memory.py's validate command now has validate_policy_narrative_drift(), which flags the MOST RECENT ledger row if it quotes a drawdown warn/risk-off percentage that disagrees with policy.json.
 
 **Resolution:** Corrected the 2026-08-29 ledger row's narrative text in place (a factual error, not a historical value); added validate_policy_narrative_drift() as a standing guard against recurrence.
+
+---
+
+## G85 -- OPEN
+**Opened:** 2026-08-19  **Owner:** orchestrator (smith_lifecycle proposals engine)  
+
+SHADOW-SCORED TRIGGER PROPOSALS ARE STRUCTURALLY EXEMPT FROM CONDITION-BASED AUTO-RETIREMENT. Any proposal whose trigger_type is a shadow trigger (profit_ratchet, scale_out_ladder) is written with retires_when = 'n/a -- shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here', so the §7 retirement pass never tests it and it can never clear itself no matter what happens to the position. The 2026-08-18 stop cascade made three stale at once and all three survived the dedup/retire pass: P-104 (raise MU stop to cost basis) after MU was cut 2.5sh->0.5sh by that very stop; P-114 (TRIM MRVL $550.65, sized on a 1.468x ATR cap) after the stop cut MRVL 7sh->4sh and the cap breach cleared to 0.809x, leaving a $551 trim against an $864 position; P-117 (STOP_RAISE TER) against what is now a $1.10 / 0.00273sh dust residue. The exemption was written so shadow triggers would not be lifecycle-managed on an unmeasured hit rate -- but retirement is not scoring. A proposal whose SUBJECT no longer exists in the form it was written against should retire regardless of whether its trigger has a track record. FIX: give shadow-triggered proposals the same objective retirement tests every other proposal gets (position materially reduced since proposal date, ticker no longer held, size_usd now >50% of remaining position value, position value under the dust threshold), keeping only the SCORING exemption.
+
+---
+
+## G86 -- OPEN
+**Opened:** 2026-08-17  **Owner:** orchestrator  
+
+NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are therefore UNAVAILABLE, not merely skipped, on every scheduled run here. Consequence: exact fill price / timestamp / order type cannot be recovered for any trade, so new trades.json rows are written price_source='reconstructed' (quantities remain broker truth). This structurally blocks stop-vs-deliberate cohort classification for all future fills and quarantines them out of smith_math.py stops scoring. First hit 2026-08-17 on 5 trades (BX exit, NBIS trim, IONQ entry, BE add, AMZN add). This is the CAUSE; G78 tracks the resulting rationale backlog.
+
+**Resolution:** Closed for INTERACTIVE Claude Code sessions (Gmail connector present; proved 2026-08-19 -- 18 confirmations pulled, 10 of 11 qty_changes resolved to a literal `Order Type: stop`, 5 prior reconstructed rows corrected). REMAINS OPEN for the headless/cron deployment, which still has no email tooling.
 
 ---

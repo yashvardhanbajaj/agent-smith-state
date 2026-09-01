@@ -40,6 +40,39 @@ def main():
     archive = json.load(open(archive_path)) if os.path.exists(archive_path) else {}
     archived = archive.get("payload", archive.get("known_gaps", []))
 
+    # DUPLICATE-ID GUARD (added 2026-09-01). Found live: G79 and G80 each had two entirely
+    # unrelated incidents sharing one ID (a ledger-reconciliation gap + an unrelated proposals-
+    # engine gap under G80; a ledger gap + an unrelated "no email tooling" gap under G79) --
+    # nothing had ever checked that IDs are actually unique, so both silently coexisted and
+    # DECISIONS.md rendered whichever one this script's sort happened to place first, with the
+    # other's story invisible under a citation that looked valid. A citation audit is what
+    # found it, not this generator -- so this generator now finds it itself, every time.
+    all_gaps = open_gaps + archived
+    seen = {}
+    for g in all_gaps:
+        gid = g.get("id")
+        if gid in seen:
+            raise SystemExit(
+                f"DUPLICATE GAP ID: {gid!r} is used by two entries -- "
+                f"opened {seen[gid].get('opened')!r} ({(seen[gid].get('description') or seen[gid].get('gap') or '')[:60]!r}) "
+                f"AND opened {g.get('opened')!r} ({(g.get('description') or g.get('gap') or '')[:60]!r}). "
+                f"Renumber one of them (state.json known_gaps or known-gaps-archive.json) before regenerating."
+            )
+        seen[gid] = g
+
+    # FIELD-NAME GUARD (added 2026-09-01, same audit). Four entries (G80-G83) used 'gap'
+    # instead of 'description' -- a schema drift this script silently accepted by falling back
+    # to "(no description)" per entry, four times, rather than refusing. Per this codebase's own
+    # ONE FIELD, ONE READER discipline (SKILL.md HARD RULES), the fix is normalizing the DATA,
+    # not adding a second read path here -- so this checks rather than tolerates the drift.
+    legacy_field = [g.get("id") for g in all_gaps if "description" not in g and "gap" in g]
+    if legacy_field:
+        raise SystemExit(
+            f"SCHEMA DRIFT: {legacy_field} use the legacy 'gap' field instead of 'description'. "
+            f"Rename the field in state.json/known-gaps-archive.json before regenerating -- "
+            f"do not add a second read path here."
+        )
+
     all_gaps = sorted(open_gaps + archived, key=gid_sort_key)
     open_ids = {g.get("id") for g in open_gaps}
 
