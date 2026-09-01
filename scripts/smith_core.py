@@ -44,7 +44,7 @@ import math
 import os
 import re
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timezone, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -313,6 +313,50 @@ HEADWIND_BUCKET_MAX_AGE_DAYS = 10
 # the bounded side -- you cannot sell more than you hold -- so a large combined percentage there
 # is a concrete error rather than merely an oversized bet. 50% chosen because the live case that
 # prompted it (MSFT, 2026-08-31) was 73% and the two benign cases were 50% and 60% BUY-side.
+# --- TIMESTAMP DISCIPLINE (added 2026-09-01) --------------------------------------------------
+# Two separate timestamp failures on 2026-08-31/09-01 motivated this:
+#   (a) An unattended run wrote "2026-08-31-1554" -- a RUN-DIR LABEL -- into ledger.csv's `ts`
+#       column, which takes --ts verbatim. It survived only because every reader slices [:10],
+#       so it parsed as a date by luck while carrying no time and no timezone.
+#   (b) A scheduled task's lastRunAt is UTC and this desk thinks in IST. Reading 03:38Z as an
+#       IST clock time put a run 5.5 hours from where it happened and sent a filesystem search
+#       to the wrong window, which produced a confidently wrong "the run wrote nothing" read.
+# So: one parser, one renderer, and both always show BOTH zones.
+IST = timezone(timedelta(hours=5, minutes=30))
+LEDGER_TS_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$")
+
+
+def parse_ts(value):
+    """Parse a ledger/artefact timestamp. Returns an aware datetime, or None if unparseable.
+
+    Deliberately strict about what it ACCEPTS as a real timestamp but lenient about what it can
+    read, so a validator can tell "malformed but recoverable" from "not a timestamp at all"."""
+    t = str(value or "").strip()
+    try:
+        dt = datetime.fromisoformat(t)
+        return dt if dt.tzinfo else dt.replace(tzinfo=IST)
+    except ValueError:
+        pass
+    m = re.match(r"^(\d{4}-\d{2}-\d{2})-(\d{2})(\d{2})$", t)   # run-dir label, e.g. 2026-08-31-1554
+    if m:
+        return datetime.fromisoformat(f"{m.group(1)}T{m.group(2)}:{m.group(3)}:00").replace(tzinfo=IST)
+    try:
+        return datetime.fromisoformat(t[:10]).replace(tzinfo=IST)
+    except ValueError:
+        return None
+
+
+def fmt_ts(value):
+    """Render a timestamp as '<UTC>Z (<HH:MM> IST)'. Never show one zone alone: every time this
+    desk has been confidently wrong about when something happened, it was reading one zone's
+    clock as the other's."""
+    dt = parse_ts(value)
+    if dt is None:
+        return f"{value!r} (unparseable)"
+    return (dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            + dt.astimezone(IST).strftime(" (%H:%M IST %Y-%m-%d)"))
+
+
 STACK_WARN_PCT = 50.0
 
 FRESHNESS = {

@@ -7,6 +7,7 @@ per-run compute stages, the pipeline runner and the CLI, and imports these.
 
 import hashlib
 import json
+import csv
 import os
 from datetime import date, datetime, timedelta
 
@@ -745,6 +746,26 @@ def cmd_append_ledger(args):
     import csv
     ledger_path = os.path.join(args.base_dir, "ledger.csv")
     is_new = not os.path.exists(ledger_path)
+    # TS GUARD (added 2026-09-01). --ts was taken verbatim, and on 2026-08-31 an unattended run
+    # passed its RUN-DIR LABEL ("2026-08-31-1554") into the timestamp column. It went unnoticed
+    # because every reader slices [:10], so it parsed as a date by luck while carrying no time
+    # and no timezone -- 38 ISO rows and one that merely looked like one. A ledger is the P&L
+    # spine; a column that is 97% one format and silently 3% another is a trap for the next
+    # reader who does arithmetic on it. Recoverable shapes are NORMALISED (with the correction
+    # reported, never silent); anything unparseable is refused outright.
+    ts_in = args.ts
+    if not LEDGER_TS_RE.match(str(ts_in).strip()):
+        parsed = parse_ts(ts_in)
+        if parsed is None:
+            fail(f"--ts {ts_in!r} is not a timestamp. ledger.csv's ts column is ISO-8601 with a "
+                 f"UTC offset, e.g. 2026-09-01T14:36:00+05:30. A run-dir label like "
+                 f"'2026-09-01-1436' is not a timestamp -- it has no timezone.")
+        args.ts = parsed.isoformat(timespec="seconds")
+        ts_normalised = {"given": ts_in, "written": args.ts, "reason":
+                         "not ISO-8601 with offset; normalised rather than written verbatim"}
+    else:
+        ts_normalised = None
+
     row = [args.ts, args.mode, args.value_usd, args.usdinr, args.wallet_usd, args.spx,
            args.ndx, args.smh or "", args.smh_asof or "", args.est_net_flows_usd or "",
            args.external_flow_usd or "", args.value_trust, notes]
@@ -753,7 +774,7 @@ def cmd_append_ledger(args):
         if is_new:
             w.writerow(LEDGER_HEADER)
         w.writerow(row)
-    emit({"appended": True, "ts": args.ts, "notes_chars": len(notes),
+    emit({"ts_normalised": ts_normalised, "appended": True, "ts": args.ts, "notes_chars": len(notes),
           "briefing_file": briefing_path})
 
 
@@ -1322,11 +1343,12 @@ def cmd_validate(args):
     narrative_defects = validate_policy_narrative_drift(args.base_dir)
     earnings_pending_defects = validate_pending_earnings_staleness(args.base_dir)
     freshness_defects = validate_freshness(args.base_dir)
+    run_defects = validate_runs(args.base_dir) + validate_ledger_ts(args.base_dir)
     ledger_defects = validate_ledger_schema(args.base_dir)
     aggrisk_defects = validate_aggregate_risk(args.base_dir, state)
     all_defects = (policy_defects + cache_defects + thesis_defects + learning_defects
                    + proposals_defects + narrative_defects
-                   + earnings_pending_defects + freshness_defects + ledger_defects
+                   + earnings_pending_defects + freshness_defects + ledger_defects + run_defects
                    + aggrisk_defects)
 
     emit({
@@ -2028,6 +2050,30 @@ def validate_aggregate_risk(base_dir, state):
             f"reducing risk elsewhere, not added on top."]
 
 
+def validate_ledger_ts(base_dir):
+    """`ts` must be ISO-8601 with a UTC offset.
+
+    Added 2026-09-01: an unattended run wrote its RUN-DIR LABEL ("2026-08-31-1554") into this
+    column -- no time, no timezone. It went unnoticed because every reader slices [:10], so it
+    parsed as a date by luck: 38 real timestamps and one that merely looked like one. A ledger
+    is the P&L spine, and a column that is silently 3% a different format is a trap for the next
+    reader who does arithmetic on it. `append-ledger` now normalises on write; this catches
+    anything written by another path.
+    """
+    out = []
+    try:
+        with open(os.path.join(base_dir, "ledger.csv")) as fh:
+            for n, r in enumerate(csv.DictReader(fh), start=2):
+                t = str(r.get("ts") or "").strip()
+                if not LEDGER_TS_RE.match(t):
+                    out.append(f"ledger.csv row {n} has ts={t!r}, not ISO-8601 with a UTC offset "
+                               f"(e.g. 2026-09-01T14:36:00+05:30). A run-dir label is not a "
+                               f"timestamp -- it carries no timezone.")
+    except OSError:
+        pass
+    return out
+
+
 def validate_ledger_schema(base_dir):
     """Every ledger.csv row must have exactly as many fields as the header.
 
@@ -2099,6 +2145,128 @@ def validate_freshness(base_dir):
                 f"meant to produce it (ttl {row['ttl_days']}d). Either the agent has not run "
                 f"or its output is being discarded at PERSIST -- the G50 shape.")
     return defects
+
+
+def evaluate_runs(base_dir, today=None, days=10):
+    """Reconcile EXPECTED scheduled runs against the artefacts a run actually leaves behind.
+
+    Added 2026-09-01 after two failures a week apart that a single check would have caught:
+      * agent-smith-weekly-us fired 2026-08-31 09:08 IST, hung 22 seconds in, and left NO run
+        directory, NO ledger row and NO report -- while its session stayed flagged `running` for
+        30 hours. Nothing on this desk noticed. The weekly report's own run-counter said "0 runs"
+        but could not say WHY, because it only counts ledger rows and cannot distinguish "the
+        task never fired" from "the task fired and died".
+      * The opposite error, made by a reader rather than the code: a session's `lastActivityAt`
+        was taken as proof a run had happened. Session metadata is not a run record. THE ONLY
+        EVIDENCE THAT A RUN HAPPENED IS THE ARTEFACTS IT LEFT -- a run directory and a ledger
+        row. This function is the sanctioned way to ask.
+
+    Deliberately reads only the desk's own files. It does not (and cannot) see the scheduler's
+    lastRunAt, which is the point: an expectation derived from the schedule and compared against
+    artefacts catches a task that fired and produced nothing, which is exactly the case that a
+    scheduler-reported "it ran" would hide.
+    """
+    today = today or date.today()
+    rows = []
+    try:
+        with open(os.path.join(base_dir, "ledger.csv")) as fh:
+            rows = list(csv.DictReader(fh))
+    except OSError:
+        pass
+    by_day = {}
+    for r in rows:
+        dt = parse_ts(r.get("ts"))
+        if dt:
+            by_day.setdefault(dt.astimezone(IST).date(), []).append(r)
+    runs_dir = os.path.join(base_dir, "runs")
+    dirs_by_day = {}
+    if os.path.isdir(runs_dir):
+        for name in os.listdir(runs_dir):
+            dt = parse_ts(name)
+            if dt:
+                dirs_by_day.setdefault(dt.astimezone(IST).date(), []).append(name)
+
+    out = []
+    for i in range(days):
+        d = today - timedelta(days=i)
+        expected = []
+        if d.weekday() < 5:
+            expected.append("agent-smith-daily-us")
+        if d.weekday() == 0:
+            expected.append("agent-smith-weekly-us")
+        led, rd = by_day.get(d, []), dirs_by_day.get(d, [])
+        modes = {r.get("mode", "?") for r in led}
+        # PER-TASK, not per-day. A Monday expects BOTH the daily and the weekly, and checking
+        # only "did anything run" marks 2026-08-31 as ok -- the daily delivered while the weekly
+        # fired, hung and left nothing. That is precisely the failure this function exists to
+        # catch, so the weekly is tested on its own evidence: a deep-mode ledger row that day.
+        weekly_missing = ("agent-smith-weekly-us" in expected and "deep" not in modes
+                          and d != today)
+        if expected and not led and not rd:
+            verdict = "MISSING" if d != today else "pending"
+        elif expected and rd and not led:
+            verdict = "FIRED_BUT_NO_LEDGER_ROW"
+        elif led and not rd:
+            verdict = "LEDGER_ROW_WITHOUT_RUN_DIR"
+        elif weekly_missing:
+            verdict = "WEEKLY_NO_DEEP_RUN"
+        elif not expected and (led or rd):
+            verdict = "unscheduled"          # an interactive run -- normal, not a defect
+        else:
+            verdict = "ok"
+        out.append({"date": d.isoformat(), "weekday": d.strftime("%a"),
+                    "expected": expected, "run_dirs": sorted(rd),
+                    "ledger_rows": len(led),
+                    "modes": sorted({r.get("mode", "?") for r in led}),
+                    "verdict": verdict})
+    return out
+
+
+def validate_runs(base_dir):
+    """Fail on a scheduled run that fired and left nothing, or left half of what it should.
+
+    Only looks back 3 completed weekdays: older gaps are history the weekly report already
+    carries, and a validator that fails forever on a month-old miss stops being read."""
+    defects, checked = [], 0
+    for row in evaluate_runs(base_dir):
+        if row["date"] == str(date.today()):
+            continue
+        if checked >= 3:
+            break
+        if row["expected"]:
+            checked += 1
+        if row["verdict"] == "MISSING":
+            defects.append(f"NO RUN ARTEFACTS for {row['date']} ({row['weekday']}) despite "
+                           f"{', '.join(row['expected'])} being scheduled: no run directory and "
+                           f"no ledger row. A task that fires and dies leaves exactly this "
+                           f"signature -- check the session, do not assume it ran.")
+        elif row["verdict"] == "WEEKLY_NO_DEEP_RUN":
+            defects.append(f"WEEKLY DID NOT DELIVER on {row['date']} ({row['weekday']}): "
+                           f"agent-smith-weekly-us was scheduled and no deep-mode ledger row "
+                           f"exists for that day. The daily running that day does NOT satisfy "
+                           f"it -- on 2026-08-31 the daily completed while the weekly hung 22 "
+                           f"seconds in and left nothing.")
+        elif row["verdict"] == "FIRED_BUT_NO_LEDGER_ROW":
+            defects.append(f"{row['date']} has run director{'ies' if len(row['run_dirs'])>1 else 'y'} "
+                           f"{row['run_dirs']} but NO ledger row -- the run started and did not "
+                           f"finish its PERSIST step.")
+    return defects
+
+
+def cmd_runs(args):
+    """Report expected-vs-actual runs. Every timestamp shown in UTC and IST together."""
+    today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    rows = evaluate_runs(args.base_dir, today, args.days)
+    bad = [r for r in rows if r["verdict"] in ("MISSING", "FIRED_BUT_NO_LEDGER_ROW",
+                                               "LEDGER_ROW_WITHOUT_RUN_DIR",
+                                               "WEEKLY_NO_DEEP_RUN")]
+    emit({"as_of": fmt_ts(datetime.now(IST).isoformat(timespec="seconds")),
+          "days": args.days, "rows": rows, "problems": bad,
+          "headline": ("Runs: all scheduled runs left artefacts."
+                       if not bad else
+                       "Runs: " + "; ".join(f"{b['date']} {b['verdict']}" for b in bad)),
+          "note": "A run is evidenced by a run directory plus a ledger row. Session metadata "
+                  "(lastActivityAt, isRunning) is NOT a run record and must never be read as one."})
 
 
 def cmd_freshness(args):
