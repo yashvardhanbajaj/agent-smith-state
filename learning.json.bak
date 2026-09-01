@@ -411,6 +411,14 @@
       "evidence": null,
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "smith_math.py merge-tails does a raw overwrite on state.thesis entries, not a field-preserving merge. When smith-thesis returns an exit-flag stub for a name absent from its slice (just {exited,held,exited_as_of,note} with no status/thesis/evidence, exactly as its own note instructed: 'MERGE ONLY -- do not replace existing thesis/evidence text'), merge-tails wrote that stub verbatim over the ticker's full existing entry, wiping status/thesis/evidence_for/evidence_against for 7 names (AMZN, BX, FLTW, LITE, CEG, AMKR, BABA) on the 2026-09-01 quick sweep -- caught only because validate immediately flagged all 7 as THESIS STATUS UNREADABLE (exited stub has no 'status' key). Fixed by hand-restoring each ticker's pre-merge thesis fields from state.json.bak and layering the exit metadata on top, rather than replacing. Generalise: a sub-agent's own instruction to the orchestrator ('merge only, don't replace') is not self-enforcing if the actual merge tool does a plain dict overwrite for that key -- either the agent's exit-stub schema needs to carry the prior fields forward itself, or merge-tails' thesis merge needs to preserve status/thesis/evidence when the incoming entry lacks them, and validate should keep catching this class as a hard defect either way.",
+      "evidence": "state.json.bak vs post-merge state.json diff, runs/2026-09-01-2205, validate_thesis_status_unreadable",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

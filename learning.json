@@ -419,6 +419,14 @@
       "evidence": "state.json.bak vs post-merge state.json diff, runs/2026-09-01-2205, validate_thesis_status_unreadable",
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "merge-tails' _merge_signals (and likely _merge_thesis/_merge_watchlist) never reads/writes state.news_watermark from an agent's returned tail, even though smith-signals/smith-thesis/smith-watchlist all include news_watermark in their standard tail shape and SKILL.md's PERSIST section documents it as a merged field. Found 2026-09-01: after merge-tails ran for signals/thesis/watchlist, state.news_watermark still read 2026-08-29 (three runs stale) despite smith-signals returning news_watermark:2026-09-01 in its tail. Orchestrator set it by hand this run as a scalar persist (same class of direct write as last_run_dir/us/holdings, not a hand-authored merge). Generalise: a field documented in PERSIST's schema as agent-merged is not necessarily wired into merge-tails' actual per-agent merge function -- check the merge function body, not just the schema comment, before assuming a returned field lands automatically.",
+      "evidence": "smith_memory.py _merge_signals (lines ~829-900) has no news_watermark handling; state.json news_watermark stuck at 2026-08-29 post-merge on the 2026-09-01 run",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }
