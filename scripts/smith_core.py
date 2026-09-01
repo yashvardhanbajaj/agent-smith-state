@@ -469,7 +469,7 @@ GAPS_CAP, FLAGS_CAP = 8, 5
 # dashboard's color coding. Deliberately coarse: "Stage AMD", "Deploy GOOGL", "Top up GOOGL",
 # "Initiate META" and "ADD MRVL" are all different staging language for the same underlying
 # idea (put more money into this name), and "Light trim X" is the same idea as "Trim X" --
-# treating them as different directions was why near-identical proposals (see G46) weren't
+# treating them as different directions was why near-identical proposals (see G87) weren't
 # recognized as duplicates of each other. Longest phrase first so multi-word keywords are
 # matched before a shorter keyword nested inside a longer action string would win instead.
 DIRECTION_KEYWORDS = [

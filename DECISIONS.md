@@ -1,7 +1,7 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**79 total gaps** -- 16 open, 63 archived (closed).
+**80 total gaps** -- 16 open, 64 archived (closed).
 
 ---
 
@@ -768,5 +768,14 @@ SHADOW-SCORED TRIGGER PROPOSALS ARE STRUCTURALLY EXEMPT FROM CONDITION-BASED AUT
 NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are therefore UNAVAILABLE, not merely skipped, on every scheduled run here. Consequence: exact fill price / timestamp / order type cannot be recovered for any trade, so new trades.json rows are written price_source='reconstructed' (quantities remain broker truth). This structurally blocks stop-vs-deliberate cohort classification for all future fills and quarantines them out of smith_math.py stops scoring. First hit 2026-08-17 on 5 trades (BX exit, NBIS trim, IONQ entry, BE add, AMZN add). This is the CAUSE; G78 tracks the resulting rationale backlog.
 
 **Resolution:** Closed for INTERACTIVE Claude Code sessions (Gmail connector present; proved 2026-08-19 -- 18 confirmations pulled, 10 of 11 qty_changes resolved to a literal `Order Type: stop`, 5 prior reconstructed rows corrected). REMAINS OPEN for the headless/cron deployment, which still has no email tooling.
+
+---
+
+## G87 -- closed
+**Opened:** 2026-08-03  **Owner:** orchestrator (smith_lifecycle proposals engine)  
+
+Proposal dedup keyed on (ticker, direction, date), so the SAME idea restated on a different calendar day (the common case -- e.g. 'Exit ORCL' recommended 07-22, 07-27 AND 07-31) was never recognized as a duplicate; only accidental same-day double-asks were ever merged. User-reported as "the open proposal keeps on increasing" -- 32 of 51 open proposals had piled up as restatements of the same underlying idea.
+
+**Resolution:** Dedup key changed to (ticker, direction) with no date component, so any currently-open proposal for the same ticker+direction merges into one running row regardless of how many days apart the restatements were. The merge keeps the chronologically latest occurrence's numbers/date and rolls earlier occurrences into a `history` list with a `repeat_count` ("recommended 4x since 07-22" as one row, not four); the 7-day expiry clock resets off the latest restatement. Fixed same day: 32 open -> 19 on first run against the live file.
 
 ---

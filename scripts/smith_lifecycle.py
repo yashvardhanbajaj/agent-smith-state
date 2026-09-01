@@ -120,7 +120,7 @@ def cmd_proposals(args):
       (d) the date parser only tried two exact formats and silently gave up on an ISO string with
           seconds and a UTC offset, disabling auto-expiry for that whole batch -- try
           datetime.fromisoformat first, with the old formats as fallback.
-    FIXED 2026-08-03 (G46, user-reported: "the open proposal keeps on increasing"): the dedup
+    FIXED 2026-08-03 (G87, user-reported: "the open proposal keeps on increasing"): the dedup
     key included `date`, so the SAME idea proposed on different calendar days (the actual,
     common case -- e.g. "Exit ORCL" recommended 07-22, 07-27 AND 07-31, all three still open
     simultaneously) was never recognized as a duplicate; only accidental same-day double-asks
