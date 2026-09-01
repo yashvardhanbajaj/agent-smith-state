@@ -290,6 +290,87 @@ class TestCheckConditionBasedRetirement:
             hold_max_age_days=2)
         assert result is None
 
+    # -- G85: shadow-triggered proposals were STRUCTURALLY exempt from any retirement test
+    # (scoring-exempt was conflated with retirement-exempt), so a stop-raise or scale-out
+    # trim sized against a pre-cascade position survived indefinitely even after that
+    # position was cut to a dust remainder. Fixed 2026-09-02.
+
+    def test_profit_ratchet_stop_retires_once_cut_to_dust(self, no_breach):
+        # P-104's real shape: "Raise MU stop to cost basis" survives as a standing
+        # instruction (is_stop=True) even after MU is technically still held -- but a stop
+        # cascade cut it to a $180 residue, well under the $400 dust threshold.
+        pr = make_proposal(ticker="MU", action="Raise MU stop to cost basis",
+                           direction_bucket="HOLD", trigger_type="profit_ratchet")
+        result = sl._check_condition_based_retirement(
+            pr, today_date=date(2026, 8, 20), risk_by_ticker={"MU": {"market_value_usd": 180.0}},
+            directional_breach=no_breach, current_tickers={"MU"}, drift={}, trig_rsi={},
+            trig_abs={}, trigger_live_sets={}, state_thesis={}, derisk={}, cluster_breach={},
+            rotation_by_ticker={}, hit_rates_7d={}, parse_date=sl._proposal_parse_date,
+            hold_max_age_days=2)
+        assert result is not None
+        assert "dust threshold" in pr["retired_reason"]
+
+    def test_profit_ratchet_stop_stays_open_on_a_substantial_position(self, no_breach):
+        pr = make_proposal(ticker="MU", action="Raise MU stop to cost basis",
+                           direction_bucket="HOLD", trigger_type="profit_ratchet")
+        result = sl._check_condition_based_retirement(
+            pr, today_date=date(2026, 8, 20), risk_by_ticker={"MU": {"market_value_usd": 2000.0}},
+            directional_breach=no_breach, current_tickers={"MU"}, drift={}, trig_rsi={},
+            trig_abs={}, trigger_live_sets={}, state_thesis={}, derisk={}, cluster_breach={},
+            rotation_by_ticker={}, hit_rates_7d={}, parse_date=sl._proposal_parse_date,
+            hold_max_age_days=2)
+        assert result is None
+
+    def test_scale_out_ladder_retires_when_ticker_no_longer_held(self, no_breach):
+        pr = make_proposal(ticker="MRVL", action="Trim MRVL (scale-out)", direction_bucket="TRIM",
+                           trigger_type="scale_out_ladder", size_usd=300.0)
+        result = sl._check_condition_based_retirement(
+            pr, today_date=date(2026, 8, 20), risk_by_ticker={}, directional_breach=no_breach,
+            current_tickers=set(), drift={}, trig_rsi={}, trig_abs={},
+            trigger_live_sets={}, state_thesis={}, derisk={}, cluster_breach={},
+            rotation_by_ticker={}, hit_rates_7d={}, parse_date=sl._proposal_parse_date,
+            hold_max_age_days=2)
+        assert result is not None
+        assert "nothing left to act on" in pr["retired_reason"]
+
+    def test_scale_out_ladder_retires_when_position_cut_to_dust(self, no_breach):
+        pr = make_proposal(ticker="MRVL", action="Trim MRVL (scale-out)", direction_bucket="TRIM",
+                           trigger_type="scale_out_ladder", size_usd=300.0)
+        result = sl._check_condition_based_retirement(
+            pr, today_date=date(2026, 8, 20), risk_by_ticker={"MRVL": {"market_value_usd": 200.0}},
+            directional_breach=no_breach, current_tickers={"MRVL"}, drift={}, trig_rsi={},
+            trig_abs={}, trigger_live_sets={}, state_thesis={}, derisk={}, cluster_breach={},
+            rotation_by_ticker={}, hit_rates_7d={}, parse_date=sl._proposal_parse_date,
+            hold_max_age_days=2)
+        assert result is not None
+        assert "dust threshold" in pr["retired_reason"]
+
+    def test_scale_out_ladder_retires_when_oversized_vs_remaining_position(self, no_breach):
+        # P-114's real shape: a trim sized against the PRE-cascade position now exceeds
+        # half of what a stop cascade left behind -- resize or re-propose, don't leave it
+        # standing against a position it was never sized for.
+        pr = make_proposal(ticker="MRVL", action="Trim MRVL (scale-out)", direction_bucket="TRIM",
+                           trigger_type="scale_out_ladder", size_usd=550.65)
+        result = sl._check_condition_based_retirement(
+            pr, today_date=date(2026, 8, 20), risk_by_ticker={"MRVL": {"market_value_usd": 864.0}},
+            directional_breach=no_breach, current_tickers={"MRVL"}, drift={}, trig_rsi={},
+            trig_abs={}, trigger_live_sets={}, state_thesis={}, derisk={}, cluster_breach={},
+            rotation_by_ticker={}, hit_rates_7d={}, parse_date=sl._proposal_parse_date,
+            hold_max_age_days=2)
+        assert result is not None
+        assert "exceeds half" in pr["retired_reason"]
+
+    def test_scale_out_ladder_stays_open_when_position_and_size_still_make_sense(self, no_breach):
+        pr = make_proposal(ticker="MRVL", action="Trim MRVL (scale-out)", direction_bucket="TRIM",
+                           trigger_type="scale_out_ladder", size_usd=300.0)
+        result = sl._check_condition_based_retirement(
+            pr, today_date=date(2026, 8, 20), risk_by_ticker={"MRVL": {"market_value_usd": 2000.0}},
+            directional_breach=no_breach, current_tickers={"MRVL"}, drift={}, trig_rsi={},
+            trig_abs={}, trigger_live_sets={}, state_thesis={}, derisk={}, cluster_breach={},
+            rotation_by_ticker={}, hit_rates_7d={}, parse_date=sl._proposal_parse_date,
+            hold_max_age_days=2)
+        assert result is None
+
     def test_ordinary_hold_expires_after_max_age(self, no_breach):
         pr = make_proposal(ticker="AAA", action="Hold fire on AAA until Q print", direction_bucket="HOLD",
                            date="2026-01-01T09:00")

@@ -543,7 +543,28 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             # nothing here -- `pass`, not a test.
             pass
         elif pr.get("trigger_type") in SHADOW_TRIGGERS:
-            pass  # shadow triggers are logged, not lifecycle-managed as live proposals
+            # G85 FIX (2026-09-02): shadow triggers are SCORING-exempt (no measured hit rate
+            # yet), never RETIREMENT-exempt -- the two are different questions, and the old
+            # bare `pass` conflated them. The 2026-08-18 stop cascade cut MRVL 7sh->4sh and
+            # cleared its cap breach to 0.809x, but its scale_out_ladder trim (P-114, sized
+            # against the pre-cascade position) had no test of its own and survived anyway.
+            # Three objective, schema-free checks -- no new field needed, unlike the fourth
+            # criterion in G85's original fix note ("materially reduced since proposal date"),
+            # which needs a stored pre-proposal baseline this schema doesn't carry yet and is
+            # deliberately left for a future pass rather than guessed at here.
+            if ticker and ticker not in current_tickers:
+                why = (f"{ticker} is no longer held -- the shadow-scored "
+                       f"{pr.get('trigger_type')} this proposed has nothing left to act on")
+            elif rpos is not None and rpos.get("market_value_usd") is not None:
+                remaining = rpos["market_value_usd"]
+                if remaining < DUST_USD_DEFAULT:
+                    why = (f"{ticker}'s remaining position (${remaining:,.0f}) is under the "
+                           f"${DUST_USD_DEFAULT:g} dust threshold -- too small for this "
+                           f"shadow-scored {pr.get('trigger_type')} to still apply")
+                elif pr.get("size_usd") and pr["size_usd"] > 0.5 * remaining:
+                    why = (f"the proposed ${pr['size_usd']:,.0f} trim now exceeds half of "
+                           f"{ticker}'s remaining ${remaining:,.0f} position -- resize or "
+                           "re-propose against the current position")
         else:
             is_stretch_trigger = pr.get("trigger_type") == "stretch"
             stretch_ok = (ticker in (derisk.get("names_stretched") or [])) if is_stretch_trigger else True
@@ -639,7 +660,17 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
                    + ("stop this proposed has nothing left to protect"
                       if is_stop else "position this advised holding on is gone"))
         elif is_stop:
-            why = None      # standing instruction: never expires on age alone
+            # G85 FIX (2026-09-02): a standing stop instruction still never expires on AGE
+            # alone, but it must retire once its SUBJECT has materially shrunk. The
+            # ticker-no-longer-held branch above only catches a FULL exit; it missed
+            # P-104 ("Raise MU stop to cost basis"), which survived a stop cascade that cut
+            # MU 2.5sh->0.5sh -- still technically held, at a fraction of its former size.
+            why = None
+            if rpos is not None and rpos.get("market_value_usd") is not None \
+                    and rpos["market_value_usd"] < DUST_USD_DEFAULT:
+                why = (f"{ticker}'s remaining position (${rpos['market_value_usd']:,.0f}) is "
+                       f"under the ${DUST_USD_DEFAULT:g} dust threshold -- this stop "
+                       "instruction has nothing material left to protect")
         elif age >= hold_max_age_days:
             why = (f"tactical HOLD is {age} days old -- hold-fire advice is time-bound by nature "
                    "and is not carried forward as standing guidance")

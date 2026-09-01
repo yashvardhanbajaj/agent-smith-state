@@ -26,13 +26,17 @@ Usage:  smith_dashboard.py --base-dir DIR [--out dashboard.html]
 """
 import argparse
 import json
-from smith_core import ticker_rows
 import os
 import subprocess
 import sys
 from datetime import datetime, timedelta
 
+# Must precede the smith_* imports below: this file is only guaranteed importable when
+# invoked as `python3 scripts/smith_dashboard.py` (argv[0]'s directory lands on sys.path
+# automatically); importing it as a module from elsewhere -- e.g. a test suite -- needs
+# scripts/ on sys.path explicitly first, or `from smith_core import ...` raises ModuleNotFoundError.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from smith_core import ticker_rows
 import smith_risk
 import smith_learning
 
