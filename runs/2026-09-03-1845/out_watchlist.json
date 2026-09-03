@@ -1,0 +1,25 @@
+{"watchlist_setups":[
+ {"ticker":"APLD","type":"oversold_bounce","upside_pct":66.4,"pos":0.31},
+ {"ticker":"CORZ","type":"oversold_bounce","upside_pct":54.7,"pos":0.21},
+ {"ticker":"OLED","type":"oversold_bounce","upside_pct":27.6,"pos":0.09},
+ {"ticker":"META","type":"oversold_bounce","upside_pct":21.5,"pos":0.27},
+ {"ticker":"MU","type":"target_gap","upside_pct":36.8,"pos":0.74},
+ {"ticker":"MCHP","type":"target_gap","upside_pct":33.0,"pos":0.42},
+ {"ticker":"NVDA","type":"target_gap","upside_pct":30.6,"pos":0.83},
+ {"ticker":"AVGO","type":"target_gap","upside_pct":30.2,"pos":0.39},
+ {"ticker":"AMD","type":"target_gap","upside_pct":25.5,"pos":0.71},
+ {"ticker":"TSM","type":"target_gap","upside_pct":25.1,"pos":0.75},
+ {"ticker":"GEV","type":"target_gap","upside_pct":25.4,"pos":0.59},
+ {"ticker":"TER","type":"target_gap","upside_pct":23.5,"pos":0.61},
+ {"ticker":"AMZN","type":"target_gap","upside_pct":22.2,"pos":0.65},
+ {"ticker":"ASML","type":"target_gap","upside_pct":21.6,"pos":0.75},
+ {"ticker":"INTC","type":"target_gap","upside_pct":21.6,"pos":0.56},
+ {"ticker":"GOOG","type":"target_gap","upside_pct":21.0,"pos":0.64},
+ {"ticker":"SHOP","type":"target_gap","upside_pct":17.1,"pos":0.54}
+],
+ "earnings_calendar_updates":{
+  "CIEN":{"date":"2026-09-03","confirmed":true,"source":"smith-watchlist 2026-08-26 (cache, still current)"},
+  "AVGO":{"date":"2026-09-02","confirmed":true,"source":"indmoney-news 2026-08-27 (cache, already reported)"}
+ },
+ "watchlist_scan_cursor":100,
+ "data_quality":["FMP news tool access-denied this run (plan tier) -- could not pull confirming headlines for CORZ/APLD/OLED/META oversold-bounce setups; upside/RSI alone drove the flag, qualitative news color deferred.","Analyst targets for the 13 cached tickers (AMZN/ASML/GEV/GOOG/MU/INTC/TSM/TER/AVGO/QCOM/AMD/SMCI/MSFT) were re-validated via the live-price pull needed for pos anyway -- all matched cache within rounding, no incremental fetch cost.","PENG returned no analyst target_price field this pull (had 43.4% upside 2 runs ago) -- recurring data gap, excluded again rather than reused stale.","yfinance get_earnings_calendar returned empty for 2026-09-03..09-10 (same class of gap as G18); fell back to get_earnings quarterly history for STM/BE/ALAB/GLW/WDC/LITE/KLAC/CLS/SKHY/IREN -- all last reported Aug 2026, next print inferred ~Nov 2026 by cadence, outside this run's 7-day quick window, so no cache write (no confirmed date, not guessing).","QCOM live price 169.96 not the near-zero holding price (0.0007619 qty) -- watchlist entry is a separate tracked instrument from the dust position in holdings, not a duplicate signal."]}

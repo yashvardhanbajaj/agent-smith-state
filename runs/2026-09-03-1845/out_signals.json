@@ -1,0 +1,92 @@
+SMITH-SIGNALS — quick sweep, 2026-09-03-1845 (pre-open, gate=STABILIZING)
+31/31 held tickers scanned. News window: 2026-09-02 to 2026-09-03 (strictly after watermark 2026-09-01).
+
+=== EARNINGS PRINTED THIS WINDOW (resolves prior proximity flags) ===
+AVGO — Q3 reported 2026-09-02 after-hours. Revenue $29.6B beat; Q4 guide $34.8B light vs Street — reaction negative (-3.33% ext-hrs 09-02), continued mixed 09-03 (Macquarie upgrade cites Anthropic upside). This is GUIDANCE softness, not a demand miss — revenue itself beat. Weight 1.98%. Target $525.97 (n=29), +30.2% upside. [1 distinct earnings event, deduped across 2 dated write-ups]
+CIEN — Q3 reported 2026-09-03. Adj EPS $2.11 beat; FY26 revenue outlook raised to $6.42B. Reaction: -1.71% intraday, +2.37% ext-hrs (recovering). Weight 0.01% (dust). Target $557.29 (n=13), +36.5% upside. Grade F on prior TARGET GAP flags (n=1, 0% hit) — small sample, low confidence.
+
+=== NEW THIS RUN ===
+NVDA — STRONG UPTREND (pos 0.833, new vs 09-01). RSI14 70.4 (overbought — compute_triggers already carries a live TRIM vote, 25% trim, $226 suggested) + catalyst_threat (NVDA 5Y CDS ~2x in 2mo, SocGen "CDS not EPS" 08-27, sourced). Weight 3.13%. Target $323.42 (n=29), +30.6% upside, grade A (n=1, 100%, low-confidence).
+WDC — INSIDER ACTIVITY (new). 2026-09-02: director sold 5,600 sh; CEO transferred 112,500 sh to a trust (not an open-market sale, but disclosed same item). Weight 2.47%. Target $664.92 (n=20), +32.5% upside.
+INTC — POLICY IMPACT (new). "Intel's 14A Process Gains Traction Amid Trade Concerns" (09-02) — trade/tariff-adjacent, neutral tone, no fresh detail beyond the headline. Weight 3.73%. Target $114.88 (n=31), +21.6% upside.
+MSFT — PEER LEADER, +3.14σ (new). MSFT +24.7% 1m vs XLK +3.1% (rel +15.7pp; ATR20 1.95%, denom floored at 5.0) — genuine leadership, not sector beta. Also carries a live catalyst_threat TRIM vote (20%, stretched) — book real gains here. Weight 1.39%.
+LRCX — PEER LEADER, +1.15σ (new, mild). Rel +12.6pp vs SMH; ATR20 4.77%. Weight 2.37%. Target $371.19 (n=23), +22.3% upside.
+AVGO — PEER LAGGARD, -1.62σ (new). Rel -13.3pp vs SMH despite the Q3 beat; ATR20 3.57%. Also a live oversold_reversion BUY candidate (RSI14 22.9) and laggard_rotation shadow candidate — both blocked, no deployable cash.
+QCOM — PEER LAGGARD, -1.17σ (new). Rel -7.8pp vs SMH. Position is dust (0.0008 sh, ~$0.13) — signal noted for completeness, not actionable.
+
+=== UNCHANGED REPEATS (bucket + reason unchanged: pos moved <0.05, no qualifying new news, no analyst action) ===
+GOOG: PEER LAGGARD (-2.61σ, rel -13.1pp vs XLK) + TARGET GAP — no news at all this window.
+CLS: PEER LAGGARD (-1.33σ, rel -17.0pp vs SMH) + TARGET GAP — down -5.07% today (-0.91×ATR, largest mover in book) but no new news since 08-19; move reads as continuation, not a new catalyst.
+FSLR: STRONG DOWNTREND (pos 0.142) + OVERSOLD BOUNCE + TARGET GAP + PEER LAGGARD — also now a live trend_breakdown TRIM vote in compute_triggers ($183 suggested, conviction "none"). No ATR20 cached (new position) — move-based checks n/a, bucket is pos-based so unaffected.
+IREN: OVERSOLD BOUNCE + TARGET GAP — +7.55% today (0.94×ATR, not quite a MOMENTUM+VOLUME trigger), continuing the post-earnings/AI-cloud bounce; no fresh catalyst beyond the still-open "chase not entry" call from 08-12.
+
+TARGET GAP (unchanged, ≥15% upside, no new analyst action this window) — ASML +21.6%(n7) · TSM +25.1%(n7) · MU +36.8%(n32,gradeF) · MRVL +26.2%(n27,gradeA) · STM +32.4%(n9,gradeF) · GEV +25.4%(n21) · TER +23.5%(n12,gradeF) · VRT +24.1%(n16,gradeF) · COHR +35.4%(n17,gradeF) · AMAT +31.5%(n28,gradeF) · GLW +24.7%(n10,gradeF) · KLAC +26.5%(n21) · ALAB +29.7%(n16) · AMD +25.5%(n34) · NBIS +35.8%(n10, consensus target only) · SKHY +50.3%(n10 — see data_quality, 52wk-low bad data)
+
+=== STILL PENDING ===
+IREN "chase not entry" (opened 08-12) — remains open; today's pop is sector/earnings-linked, not a new confirmed catalyst.
+TER Baird downgrade (21-Aug, Neutral, valuation) — unresolved; stock +1.84% today regardless.
+STM/TXN "Analog/Industrial Semis" cluster — still orchestrator-provisional, unconfirmed by smith-thesis, unbanded.
+BX diversifier-cluster gap (empty since 08-17 exit) — still open, not a signals-desk item.
+
+```json
+{"signal_history":{"changed":{
+  "NVDA":["TARGET GAP","STRONG UPTREND"],
+  "WDC":["TARGET GAP","INSIDER ACTIVITY"],
+  "MSFT":["PEER LEADER"],
+  "LRCX":["TARGET GAP","PEER LEADER"],
+  "AVGO":["TARGET GAP","PEER LAGGARD"],
+  "QCOM":["PEER LAGGARD"],
+  "INTC":["TARGET GAP","POLICY IMPACT"]
+},"unchanged_count":24},
+ "news_watermark":"2026-09-03",
+ "resolved_flags":["AVGO earnings proximity resolved -- reported 2026-09-02 after-hours","CIEN earnings proximity resolved -- reported 2026-09-03"],
+ "new_flags":["AVGO Q3: rev beat $29.6B, Q4 guide $34.8B light, reaction negative -- guidance softness not demand miss","CIEN Q3: EPS $2.11 beat, FY26 outlook raised to $6.42B, reaction mixed-to-positive"],
+ "journal_new":[],
+ "peer_map_updates":{},
+ "analyst_targets_updates":{
+   "ASML":{"mean_target_usd":2145.87,"n_analysts":7,"as_of":"2026-09-03"},
+   "BE":{"mean_target_usd":275.08,"n_analysts":17,"as_of":"2026-09-03"},
+   "GEV":{"mean_target_usd":1236.43,"n_analysts":21,"as_of":"2026-09-03"},
+   "MRVL":{"mean_target_usd":279.62,"n_analysts":27,"as_of":"2026-09-03"},
+   "MU":{"mean_target_usd":1513.41,"n_analysts":32,"as_of":"2026-09-03"},
+   "STM":{"mean_target_usd":74.96,"n_analysts":9,"as_of":"2026-09-03"},
+   "TER":{"mean_target_usd":446.47,"n_analysts":12,"as_of":"2026-09-03"},
+   "VRT":{"mean_target_usd":338.15,"n_analysts":16,"as_of":"2026-09-03"},
+   "ALAB":{"mean_target_usd":389.95,"n_analysts":16,"as_of":"2026-09-03"},
+   "AMAT":{"mean_target_usd":640.31,"n_analysts":28,"as_of":"2026-09-03"},
+   "GLW":{"mean_target_usd":191.40,"n_analysts":10,"as_of":"2026-09-03"},
+   "GOOG":{"mean_target_usd":422.34,"n_analysts":12,"as_of":"2026-09-03"},
+   "INTC":{"mean_target_usd":114.88,"n_analysts":31,"as_of":"2026-09-03"},
+   "NBIS":{"mean_target_usd":277.22,"n_analysts":10,"as_of":"2026-09-03"},
+   "NVDA":{"mean_target_usd":323.42,"n_analysts":29,"as_of":"2026-09-03"},
+   "TSM":{"mean_target_usd":554.45,"n_analysts":7,"as_of":"2026-09-03"},
+   "AMD":{"mean_target_usd":613.84,"n_analysts":34,"as_of":"2026-09-03"},
+   "CLS":{"mean_target_usd":477.22,"n_analysts":12,"as_of":"2026-09-03"},
+   "COHR":{"mean_target_usd":416.09,"n_analysts":17,"as_of":"2026-09-03"},
+   "KLAC":{"mean_target_usd":234.35,"n_analysts":21,"as_of":"2026-09-03"},
+   "LITE":{"mean_target_usd":1148.30,"n_analysts":16,"as_of":"2026-09-03"},
+   "LRCX":{"mean_target_usd":371.19,"n_analysts":23,"as_of":"2026-09-03"},
+   "SKHY":{"mean_target_usd":248.0,"n_analysts":10,"as_of":"2026-09-03"},
+   "WDC":{"mean_target_usd":664.92,"n_analysts":20,"as_of":"2026-09-03"},
+   "AVGO":{"mean_target_usd":525.97,"n_analysts":29,"as_of":"2026-09-03"},
+   "CIEN":{"mean_target_usd":557.29,"n_analysts":13,"as_of":"2026-09-03"},
+   "FSLR":{"mean_target_usd":275.30,"n_analysts":26,"as_of":"2026-09-03"},
+   "IREN":{"mean_target_usd":78.19,"n_analysts":11,"as_of":"2026-09-03"},
+   "MSFT":{"mean_target_usd":569.45,"n_analysts":34,"as_of":"2026-09-03"},
+   "SMCI":{"mean_target_usd":42.38,"n_analysts":15,"as_of":"2026-09-03"},
+   "QCOM":{"mean_target_usd":193.10,"n_analysts":24,"as_of":"2026-09-03"}
+ },
+ "ret_5d_updates":{},
+ "vol_normalization":{},
+ "atr20_updates":{},
+ "rsi14_updates":{},
+ "rel_strength_1m_updates":{},
+ "data_quality":[
+   "SKHY 52wk_low returned as $0 (implausible for a live ADR) -- pos ratio discarded as unreliable, not treated as a real breakout.",
+   "ALAB and FSLR have no ATR20 cache entry (both new positions) -- move-based buckets for these two would fall back to legacy +/-4%/+/-8pp thresholds per guardrail; not triggered this run since their live buckets are pos-based, not move-based.",
+   "Peer-relative strength computed only for the 12 tickers already carrying a same-window rel_strength_1m_pp in compute_triggers.json (AVGO, GOOG, COHR, AMAT, NVDA, MSFT, KLAC, LRCX, WDC, GLW, CLS, QCOM). The other 19 holdings have no matching-window relative-strength figure this run -- quick mode does not force the get_stock_history refresh absent a mandatory-refresh instruction, so this is a gap rather than a figure computed from a mismatched-window SMH/XLK/XLU pull (fetched fresh this run but NOT used for that reason: its 1mo window ends 09-02, while the cached rel_strength_1m_pp values are as-of 08-31, and cross-checking the two produced inconsistent signs for AVGO/CLS/LRCX/COHR).",
+   "get_us_stocks_details news items carry title/date/sentiment but no publisher or URL -- buckets above are dated but not source-linked; flagged per the G58 auditability standard since this tool cannot supply one.",
+   "AVGO and CIEN both reported earnings this window; this agent's output schema has no earnings_facts field to write the verified print into -- see new_flags for the verified beat/miss characterization, smith-earnings/smith-watchlist should persist it.",
+   "COHR rel_strength_1m_pp (+19.39pp vs SMH) sits at only +0.89sigma given its 9.48% ATR20 -- inside its own noise band, correctly NOT fired as PEER LEADER despite the large raw number."
+ ]}
+```

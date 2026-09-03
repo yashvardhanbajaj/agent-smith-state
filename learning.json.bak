@@ -294,6 +294,54 @@
       },
       "run_dir": "2026-09-01-2205",
       "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-03",
+      "param_id": "usage:smith-ledger",
+      "value": {
+        "tokens": 109568,
+        "tool_calls": 23,
+        "duration_s": 211.0,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-03-1845",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-03",
+      "param_id": "usage:smith-watchlist",
+      "value": {
+        "tokens": 144472,
+        "tool_calls": 18,
+        "duration_s": 281.0,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-03-1845",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-03",
+      "param_id": "usage:smith-thesis",
+      "value": {
+        "tokens": 148391,
+        "tool_calls": 10,
+        "duration_s": 306.0,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-03-1845",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-03",
+      "param_id": "usage:smith-signals",
+      "value": {
+        "tokens": 202171,
+        "tool_calls": 20,
+        "duration_s": 524.0,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-03-1845",
+      "note": "mode=quick"
     }
   ],
   "parameters": {
@@ -601,6 +649,14 @@
       "kind": "correction",
       "text": "Extended the justification-bloat sweep to all 14 agent files and every Python script, per direct request to cover 'every part' of Agent Smith. Two important scoping findings, both changing the remedy from what worked for SKILL.md: (1) AGENT FILES are read in full, fresh, by a sub-agent with no memory of prior runs and often a tight tool-call/time budget (smith-rebound: 8 calls/90s) -- none of the 14 agent files ever instruct their sub-agent to consult DECISIONS.md, so moving their 'this used to be misread this way' framing to a pointer would leave a dead-end reference AND strip the sub-agent's only defense against repeating a specific past misreading. Checked and confirmed real duplication is narrow: most repeated G-number citations within one agent file (G58 x5 in smith-thesis, G42 x3 in smith-rebound) are legitimate distinct citations or an intentional detail-then-recap structure (TASKS section explains, GUARDRAILS section gives a fast lookup), not bloat. Found and fixed one genuine unintentional duplicate (smith-rebound.md's step 0/step 6 both explaining the same retired cache, an artifact of my own prior edit). (2) SCRIPTS are never read as source during normal operation -- orchestrator/agents invoke them via Bash and consume JSON stdout only; grepped every agent file and SKILL.md for any instruction to Read (not run) a .py file and found none. So script comment density (smith_core.py: 48%) costs ZERO tokens in the actual daily/deep sweep, unlike SKILL.md which is loaded in full every run by design. Their only audience is a human/coding-agent doing maintenance, for whom WHY-context embedded near the code is standard, useful practice, not bloat -- did not strip these. WHAT DID pay off: extending the citation-audit methodology (not the compression methodology) found real registry bugs independent of file type. G46 turned out to be wrong in FOUR places, not just SKILL.md's two -- also baked into smith_core.py and smith_lifecycle.py's own code comments, all four citing an unrelated ATR/beta gap for a proposal-dedup feature that had no real gap ID at all. Backfilled a proper entry (G87, 'the open proposal keeps on increasing', 32->19 fix) and corrected all four citations, including the two in Python source. Generalise: a wrong citation propagates by copy-paste across file TYPES, not just within one file -- a code comment and a prompt file citing the same wrong number for the same feature is the same bug appearing twice, and fixing only the prompt-facing copy would have left the maintainer-facing one wrong.",
       "evidence": "smith-rebound.md step0/step6 dedup fix; G46 wrong in SKILL.md x2 + smith_core.py:472 + smith_lifecycle.py:123, all four fixed to G87 (new backfilled entry); grep across all agent files + SKILL.md found zero instructions to Read script source",
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-01",
+      "kind": "correction",
+      "text": "Extended the citation audit to the 3 reference/*.md files (dashboard.md, proposals-engine.md, deep-mode-dispatch.md). Key finding, consistent with the agent-files finding: these are NOT bloat to fix, they are ALREADY the correct destination. Both dashboard.md and proposals-engine.md were explicitly split out of SKILL.md on 2026-08-30/-31 for exactly the reason this whole sweep has been chasing -- their own opening lines say so verbatim ('SKILL.md keeps every operative rule; this file holds the WHY, on the same principle as DECISIONS.md'). They are read on-demand (before editing the dashboard builder, before touching a proposal-engine weight), not on every run, so they don't carry SKILL.md's read-every-run cost either. Compressing them further would undo the exact split that already solved this problem for this content. One real bug found and fixed: deep-mode-dispatch.md cited known_gaps G7 for 'silently dropping sub-agents mid-orchestration', but G7 doesn't exist in the registry and -- unlike G5/G10/G87 earlier -- the citing text carried no date, ticker, or incident specifics to responsibly backfill from, just a vague 'has happened before'. Removed the dead pointer rather than fabricate a gap entry from nothing, which would have been worse than the missing citation it replaced. Checked internal G-number repeats in all 3 files (G34 x3 in dashboard.md, G71 x2 in proposals-engine.md) -- both are legitimate distinct facets of the same incident within a short span, not duplication. Generalise: before applying a fix pattern to a new location, check whether that location already IS the fix -- these three files exist because someone already did the SKILL.md-style split for exactly this content; the sweep's job there was verification (are the citations still correct), not the compression itself.",
+      "evidence": "reference/deep-mode-dispatch.md G7 citation removed (no backfill possible, insufficient detail); dashboard.md and proposals-engine.md opening lines confirm they are the designed WHY-destination, not bloat targets",
       "source_run": null,
       "supersedes": null
     }

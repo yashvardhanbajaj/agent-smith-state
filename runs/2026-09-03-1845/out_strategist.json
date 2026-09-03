@@ -1,0 +1,259 @@
+{
+  "policy_draft": null,
+  "risk_off_status": "normal",
+  "stress_table": null,
+  "proposals": [
+    {
+      "direction": "TRIM",
+      "ticker": "AVGO",
+      "size_usd": 142.6,
+      "price_at_proposal": 356.5,
+      "rationale": "Contested WATCH downgrade (Q3 beat +86% YoY vs Q4 guide read below whisper + standing BofA XPV bond overhang now carried alone post-BX-exit) co-occurring with a live cap-independent catalyst_threat (NVDA CDS ~2x in 2 months, Oracle downgraded to BBB-). Two independent same-direction signals; sized at the computed trim_fraction (20%), not inflated, given the desk's weak TRIM track record.",
+      "trigger_type": "catalyst_threat",
+      "trigger_bucket": null,
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": null,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 1,
+        "unverified": 1
+      }
+    },
+    {
+      "direction": "TRIM",
+      "ticker": "NVDA",
+      "size_usd": 226.21,
+      "price_at_proposal": 226.21,
+      "rationale": "catalyst_threat fires on NVDA's own CDS widening; independently corroborated by overbought_distribution (RSI 70.4, +8.1% MTD, already open as P-181 at $271.94). Do not stack both -- pick one sizing if accepting. Sized conservatively given the desk's 16.7% TRIM hit rate.",
+      "trigger_type": "catalyst_threat",
+      "trigger_bucket": null,
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": null,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 1
+      }
+    },
+    {
+      "direction": "TRIM",
+      "ticker": "FSLR",
+      "size_usd": 182.69,
+      "price_at_proposal": 202.99,
+      "rationale": "Live trend_breakdown: thesis watch (2 for/2 against), signal polarity net -1 (STRONG DOWNTREND, PEER LAGGARD, OVERSOLD BOUNCE), reported mixed_revenue_light_eps_strong. Cap-independent by design.",
+      "trigger_type": "trend_breakdown",
+      "trigger_bucket": null,
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": null,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 1
+      }
+    },
+    {
+      "direction": "SELL",
+      "ticker": "AMD",
+      "size_usd": 273.07,
+      "price_at_proposal": 455.12,
+      "rationale": "cluster_rotation sell leg: laggard within AI Semis/Fabs (-2.7pp vs cluster), watch thesis -- dead money in this cluster per the price-says-WHEN/thesis-says-WHICH-WAY rule. Alternative buy-leg pairing to the already-open P-205/206 (AMD/LRCX) -- pick one pair, not both.",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": null,
+      "pair_id": "cluster_rotation-AMD-TSM",
+      "pair_role": "sell",
+      "size_wanted_usd": null,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "TSM",
+      "size_usd": 273.07,
+      "price_at_proposal": 414.27,
+      "rationale": "cluster_rotation buy leg: performer within AI Semis/Fabs (+0.4pp), strengthening thesis. Computed pairing differs from open P-205/206's LRCX leg despite LRCX's higher standalone 1m relative strength (+12.6pp) -- consumed as computed, not overridden.",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": null,
+      "pair_id": "cluster_rotation-AMD-TSM",
+      "pair_role": "buy",
+      "size_wanted_usd": null,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "KLAC",
+      "size_usd": 779.38,
+      "price_at_proposal": 170.18,
+      "rationale": "conviction_average: highest conviction score this run (50.3, medium tier). Thesis strengthening (secondary, 2 for/1 against), +37.7% vs analyst target, reported beat, -5.7pp vs benchmark (laggard entry). Also the buy leg of profit_rotation-MSFT-KLAC -- if the user separately executes the already-open MSFT sell (P-164/P-207), fund this from those proceeds rather than drawing twice from cash.",
+      "trigger_type": "conviction_average",
+      "trigger_bucket": null,
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": 779.38,
+      "clamped_by": null,
+      "stop_price_usd": 154.6596,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 1,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "HOLD",
+      "ticker": "GOOG",
+      "size_usd": 0,
+      "price_at_proposal": 334.8,
+      "rationale": "catalyst_threat wants a $267.84 TRIM off the NVDA-CDS story, but that story is single-sourced and explicitly admits no absolute bp level for NVDA; it runs directly against GOOG's own verified secondary strengthening thesis (no evidence_against on file) and a live oversold_reversion BUY signal (RSI 28.9). Unverified claim does not outrank verified+computed contradictory evidence -- held, not trimmed. The oversold BUY side is also unfunded this run (no deployable cash above the wallet band ceiling).",
+      "trigger_type": "catalyst_threat",
+      "trigger_bucket": null,
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": null,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 2,
+        "unverified": 1
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "LRCX",
+      "size_usd": 504.34,
+      "price_at_proposal": 284.87,
+      "rationale": "conviction_average, low tier (33.6). Thesis strengthening (unverified, 0/0), +30.3% vs target, +12.6pp vs benchmark. Secondary-basket priority behind KLAC.",
+      "trigger_type": "conviction_average",
+      "trigger_bucket": null,
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": 504.34,
+      "clamped_by": null,
+      "stop_price_usd": 257.6934,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 1
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "AMAT",
+      "size_usd": 468.44,
+      "price_at_proposal": 434.79,
+      "rationale": "conviction_average, low tier (32.3). Thesis strengthening (secondary, 0/0), +47.3% vs target, RSI14 33 oversold, -3.1pp vs benchmark. Also the buy leg of the (still-live) profit_rotation-CIEN-AMAT pair, which is NOT proposed here since CIEN's sell-leg rationale was invalidated by today's upgrade -- fund this as a standalone conviction buy instead.",
+      "trigger_type": "conviction_average",
+      "trigger_bucket": null,
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": 468.44,
+      "clamped_by": null,
+      "stop_price_usd": 391.6588,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 1,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "WDC",
+      "size_usd": 313.83,
+      "price_at_proposal": 446.06,
+      "rationale": "conviction_average, low tier (30.0). Thesis strengthening (primary, 1 for/1 against), -13.7pp vs benchmark (laggard entry). Also appears as a shadow laggard_rotation candidate, same direction -- reinforcing, not conflicting.",
+      "trigger_type": "conviction_average",
+      "trigger_bucket": null,
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": 313.83,
+      "clamped_by": null,
+      "stop_price_usd": 384.0577,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 1,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "GLW",
+      "size_usd": 379.28,
+      "price_at_proposal": 143.81,
+      "rationale": "conviction_average, low tier (29.5). Thesis strengthening (secondary, 1 for/1 against), +9.5pp vs benchmark.",
+      "trigger_type": "conviction_average",
+      "trigger_bucket": null,
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": 379.28,
+      "clamped_by": null,
+      "stop_price_usd": 127.5019,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 1,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "COHR",
+      "size_usd": 15.19,
+      "price_at_proposal": 269.98,
+      "rationale": "conviction_average, low tier (27.9). Wanted $216.19, clamped to $15.19 by ATR headroom -- name the constraint rather than silently substitute. Thesis strengthening (secondary, 2 for/2 against, contested).",
+      "trigger_type": "conviction_average",
+      "trigger_bucket": null,
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": 216.19,
+      "clamped_by": "ATR headroom",
+      "stop_price_usd": 218.7918,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 1,
+        "unverified": 0
+      }
+    }
+  ],
+  "scorecard_read": "overall_accuracy_30d 21.4% (n=28): TRIM/SELL 16.7% (n=12, avg -8.45%), BUY 30.8% (n=13, avg -3.16%), HOLD 0% (n=3, avg -17.32%). All three buckets below coin-flip and all three carry negative average benefit -- a real, not noise-level, weakness, though n=28 (115 not-yet-scored, 1 quarantined anchor) is still a thin base. TRIM is the sharpest signal (roughly 5 of 6 historical trims would have been better left alone) -- proposals #1-3 above are sized at the deterministic layer's computed values with no discretionary top-up for exactly this reason. HOLD's -17.32% avg argues against defaulting to inaction as automatically safe -- the GOOG HOLD above is issued on a specific evidence contradiction, not as a default.",
+  "deemphasize_buckets": [
+    "MOMENTUM+VOLUME (20.0%, n=15)",
+    "TARGET GAP (36.8%, n=19)"
+  ],
+  "data_quality": [
+    "stress_table not run -- deep-only, this is a QUICK sweep",
+    "entry_setup candidates CORZ/APLD are live triggers but have no fetched live price this run; unsized and deferred rather than fabricated",
+    "AVGO/laggard_rotation and AVGO/oversold_reversion rows in compute_triggers.json still carry thesis_status='strengthening' computed before today's WATCH downgrade -- treated as stale and not actioned",
+    "profit_rotation-CIEN-AMAT pair in compute_triggers.json is stale for the same reason (CIEN sell rationale invalidated by today's upgrade) -- not proposed",
+    "MSFT catalyst_threat ($100.08) folded into rationale only, not issued as a new proposal, to avoid a third concurrent MSFT sell recommendation (P-164 accepted, P-207 open)"
+  ]
+}
