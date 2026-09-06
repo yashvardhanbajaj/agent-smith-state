@@ -1148,23 +1148,39 @@ def cmd_rotation(args):
     signal_history = state.get("signal_history", {})
     thesis = state.get("thesis", {})
     risk_by_ticker = {r["ticker"]: r for r in risk.get("positions", [])}
+    # RSI cache, for the "not yet overbought" exemption below -- same threshold/cache the LIVE
+    # overbought_distribution trigger uses (RSI_OVERBOUGHT, cmd_triggers), so a name reads
+    # identically whether the desk is looking at it via triggers or via rotation.
+    rsi_cache = (state.get("data_cache", {}).get("rsi14", {}) or {}).get("values", {})
 
     tickers = {}
+    dq = []
     for ticker, r in risk_by_ticker.items():
         # ONE canonical reader for both entry shapes -- see smith_risk.thesis_status (2026-08-16).
         thesis_status = smith_risk.thesis_status(thesis.get(ticker))
         polarity = smith_risk.classify_signal_polarity(signal_history.get(ticker, []))
         over_cap = bool(r.get("over_cap"))
-        bucket = smith_risk.rotation_bucket(over_cap, thesis_status, polarity["net"])
+        rsi = rsi_cache.get(ticker)
+        overbought = rsi is not None and rsi > RSI_OVERBOUGHT
+        bucket = smith_risk.rotation_bucket(over_cap, thesis_status, polarity["net"], overbought)
+        # A name that WOULD be exempted (strong + over_cap) but has no RSI to check the
+        # overbought leg with falls back to the pre-2026-09-07 behavior (trim_risk_cap wins,
+        # via rotation_bucket's own overbought=False default) -- surfaced here so that's a
+        # visible data gap, not a silent one.
+        ts_l = (thesis_status or "").strip().lower()
+        if over_cap and ts_l == "strengthening" and polarity["net"] > 0 and rsi is None:
+            dq.append(f"{ticker}: strengthening + net-bullish + over cap, but no RSI14 cached -- "
+                      f"cannot check the overbought exemption, defaulted to trim_risk_cap")
         tickers[ticker] = {
             "cluster": r.get("cluster"), "thesis_status": thesis_status,
             "net_signal": polarity["net"], "bullish_buckets": polarity["bullish"],
             "bearish_buckets": polarity["bearish"],
             "headroom_usd": r.get("headroom_usd"), "over_cap": over_cap,
             "cap_multiple": r.get("cap_multiple"), "bucket": bucket,
+            "rsi14": rsi, "overbought": overbought,
         }
 
-    emit({"tickers": tickers, "polarity_table": polarity_table_json, "data_quality": []})
+    emit({"tickers": tickers, "polarity_table": polarity_table_json, "data_quality": dq})
 
 
 # ---------------------------------------------------------------------------

@@ -176,16 +176,30 @@ def stop_and_cap(atr_pct, price_usd, qty, total_book_usd, policy):
     }
 
 
-def rotation_bucket(over_cap, thesis_status, net_signal):
+def rotation_bucket(over_cap, thesis_status, net_signal, overbought=False):
     """Deterministic classification, exact precedence:
-    1. over_cap always wins -> "trim_risk_cap", regardless of thesis/signal.
-    2. strengthening thesis + net-bullish signal -> "accumulate".
+    1. over_cap wins -> "trim_risk_cap" -- UNLESS the name is strong (strengthening thesis +
+       net-bullish signal) AND not yet overbought (RSI14 <= RSI_OVERBOUGHT). A strong,
+       not-yet-overbought name over its ATR cap is not rotated out on cap mechanics alone;
+       it still gets flagged the moment it's ALSO overbought, or the moment either leg of
+       "strong" stops being true.
+       (Changed 2026-09-07, user request: "ATR risk candidates with strengthening and uptrend
+       should not be rotated at least until it is in overbought zone" -- over_cap describes the
+       BOOK's exposure, not the STOCK's quality; a name earning its weight shouldn't be rotated
+       out on cap mechanics the same way a name that's merely breached the cap while going
+       nowhere should. `overbought` defaults False so a caller with no RSI data (or the ticker
+       missing from the RSI cache) gets the OLD, safer behavior -- over_cap still wins, same as
+       before this change -- rather than silently exempting a name this function can't actually
+       evaluate.)
+    2. strengthening thesis + net-bullish signal -> "accumulate" (also covers the exemption
+       case above, once it clears the over_cap check).
     3. watch thesis + net-bearish signal -> "rotate_out".
     4. everything else -> None ("mixed", not chipped)."""
-    if over_cap:
-        return "trim_risk_cap"
     ts = (thesis_status or "").strip().lower()
-    if ts == "strengthening" and net_signal > 0:
+    strong = ts == "strengthening" and net_signal > 0
+    if over_cap and not (strong and not overbought):
+        return "trim_risk_cap"
+    if strong:
         return "accumulate"
     if ts == "watch" and net_signal < 0:
         return "rotate_out"
