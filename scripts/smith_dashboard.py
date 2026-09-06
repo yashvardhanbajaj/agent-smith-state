@@ -1919,7 +1919,12 @@ def _render_derisk_queue(derisk, state):
             f'<td>{_thesis_cell(r.get("thesis_status"))}</td>'
             f'<td class="num">{(f"{r["abs_return_1m_pct"]:+.1f}%" if r.get("abs_return_1m_pct") is not None else "&mdash;")}</td>'
             f'<td class="num">{(f"{r["rel_strength_1m_pp"]:+.1f}" if r.get("rel_strength_1m_pp") is not None else "&mdash;")}</td>'
-            f'<td class="num">{(f"{r["cap_multiple"]:.2f}x" if r.get("cap_multiple") else "&mdash;")}</td>'
+            f'<td class="num">{(f"{r["cap_multiple"]:.2f}x" if r.get("cap_multiple") else "&mdash;")}'
+            + (' <span class="tick g" title="strengthening + net-bullish + not yet overbought '
+               '(RSI14 &le;70) -- cap multiplier not applied to fragility, exempted from Trim -- '
+               'risk cap the same way, per rotation_bucket\'s rule">exempt</span>'
+               if r.get("cap_exempt") else "") +
+            f'</td>'
             f'<td class="num">${r["market_value_usd"]:,.0f}</td>'
             f'<td class="sub">{_derisk_cell(r)}</td></tr>'
             for r in shown)

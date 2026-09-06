@@ -1507,10 +1507,12 @@ def cmd_derisk(args):
     abs_vals = rel_cache.get("values_abs_pct", {}) or {}
     sector_map = state.get("sector_map", {})
     thesis = state.get("thesis", {})
+    signal_history = state.get("signal_history", {})
+    rsi_cache = (state.get("data_cache", {}).get("rsi14", {}) or {}).get("values", {})
 
     agg_risk = risk.get("aggregate_open_risk_usd") or 0.0
     positions = risk.get("positions", [])
-    dq, missing_rel = [], []
+    dq, missing_rel, no_rsi_for_strong = [], [], []
 
     raw = []
     for p in positions:
@@ -1520,11 +1522,33 @@ def cmd_derisk(args):
         cap_x = p.get("cap_multiple")
 
         # --- fragility -------------------------------------------------
+        # STRONG-NAME CAP EXEMPTION (2026-09-07, user request: "check the de-risk queue for the
+        # same fix" as rotation_bucket's over_cap exemption). cap_x amplifies fragility -- a
+        # position 1.5x over its ATR cap scores 1.5x the raw risk-share, which is the queue's
+        # dominant term. That's right for a name that's over cap AND weak; it overstates the
+        # case for a name that's over cap because it's WINNING (strengthening thesis, net-
+        # bullish signal) and not yet overbought -- exactly the situation rotation_bucket now
+        # exempts from Trim -- risk cap for the same reason. Both panels should read the same
+        # name the same way. The cap multiplier is floored at 1.0 (no amplification, but the
+        # underlying risk-share fragility still counts in full -- real exposure is never
+        # hidden) for a strong, not-yet-overbought name; a name with no RSI cached keeps the
+        # OLD behavior (full cap_x applies) and is reported in data_quality, same fallback
+        # rotation_bucket uses.
+        t_status_pre = smith_risk.thesis_status(thesis.get(t))
+        polarity_pre = smith_risk.classify_signal_polarity(signal_history.get(t, []))
+        strong = (t_status_pre or "").strip().lower() == "strengthening" and polarity_pre["net"] > 0
+        rsi_pre = rsi_cache.get(t)
+        overbought_pre = rsi_pre is not None and rsi_pre > RSI_OVERBOUGHT
+        if strong and cap_x and cap_x > 1.0 and rsi_pre is None:
+            no_rsi_for_strong.append(t)
+        cap_x_for_frag = (1.0 if (strong and not overbought_pre and rsi_pre is not None)
+                          else cap_x)
+
         if open_risk is None or not agg_risk:
             frag_raw, frag_note = None, "no open-risk figure (ATR missing upstream)"
         else:
             risk_share = open_risk / agg_risk * 100.0
-            frag_raw = risk_share * max(cap_x or 1.0, 1.0)
+            frag_raw = risk_share * max(cap_x_for_frag or 1.0, 1.0)
             frag_note = None
 
         # --- stretch (relative to SMH AND absolutely up) ----------------
@@ -1570,17 +1594,18 @@ def cmd_derisk(args):
             fr_reasons.append(f"position below ${dust_usd:g} dust threshold")
         friction = clamp(friction)
 
-        t_status = smith_risk.thesis_status(thesis.get(t))
+        cap_exempt = cap_x_for_frag != cap_x and bool(cap_x) and cap_x > 1.0
 
         raw.append({"ticker": t, "market_value_usd": round(mv, 2),
-                    "cluster": sector_map.get(t), "thesis_status": t_status,
+                    "cluster": sector_map.get(t), "thesis_status": t_status_pre,
                     "cap_multiple": cap_x, "atr20_pct": p.get("atr20_pct"),
                     "stop_price_usd": p.get("stop_price_usd"),
                     "risk_share_pct": round(open_risk / agg_risk * 100.0, 2) if (open_risk and agg_risk) else None,
                     "rel_strength_1m_pp": rel_pp, "abs_return_1m_pct": abs_pct,
                     "_frag_raw": frag_raw, "_stretch_raw": stretch_raw,
                     "friction_score": round(friction, 1),
-                    "friction_reasons": fr_reasons, "_frag_note": frag_note})
+                    "friction_reasons": fr_reasons, "_frag_note": frag_note,
+                    "cap_exempt": cap_exempt, "rsi14": rsi_pre, "overbought": overbought_pre})
 
     # normalise fragility / stretch to 0-100 across the book
     fmax = max([r["_frag_raw"] for r in raw if r["_frag_raw"] is not None] or [0]) or 1.0
@@ -1644,6 +1669,10 @@ def cmd_derisk(args):
                   f"{'...' if len(missing_rel) > 8 else ''} -- stretch scored as null, never estimated")
     if not rel_vals:
         dq.append("rel_strength_1m cache absent entirely -- queue is fragility-only this run")
+    if no_rsi_for_strong:
+        dq.append(f"{', '.join(no_rsi_for_strong)}: strengthening + net-bullish + over ATR cap, but "
+                  f"no RSI14 cached -- cannot check the overbought exemption, cap multiplier applied "
+                  f"in full (same fallback rotation_bucket uses)")
 
     emit({
         "as_of": today.isoformat(),
