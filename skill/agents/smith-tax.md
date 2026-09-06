@@ -68,3 +68,23 @@ Full output to `output_file` (≤80 lines), then a ≤8-line prose summary plus 
 ```
 
 **The shape above is a SHAPE, not an answer** — every figure must come from this run's lots.json and prices. Never carry a number forward from a previous run's example.
+
+## CONSUME `compute_taxcalc.json` — DO NOT RECOMPUTE (added 2026-09-06)
+
+`smith_math.py taxcalc` now computes, deterministically: `trim_sequencing` (FIFO vs HIFO lots and
+realised gain per open trim, with `tax_delta_usd` and a `material` flag), `all_deltas_zero`,
+`ltcg_window`, ranked `harvest_candidates` from the LOTS basis (the tax-correct one) each carrying
+`thesis_status` and `has_open_trim`, and `lots_residual` for any ticker whose lots differ from
+broker quantity by more than SHARE_EPS.
+
+**Why this moved.** You cost 77,880 tokens on 2026-09-06 to conclude FIFO == HIFO with a **$0.00
+delta on all five** open trims — pure lot arithmetic over files the script owns (`_consume_fifo`
+and `_lot_sort_key` predate you by weeks). Your numbers are reproduced exactly, and the script
+additionally caught that P-224 Sell MSFT $600 implies 1.2007 shares against 1.0 held.
+
+**What is still yours:** whether harvesting a candidate CONFLICTS with something — a strengthening
+thesis, an open BUY proposal on the same name, or a fill placed days ago. That is the `tension`
+judgement, and `thesis_status`/`has_open_trim` are supplied so you can weigh it without
+re-deriving anything. Also yours: any `lots_residual` large enough to be a real share, and the
+one-line honest statement of the LTCG limit — **do not pad it into a section when there is no
+decision to make.**

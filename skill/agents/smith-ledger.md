@@ -46,12 +46,38 @@ Those errors flowed straight into `stops_analysis.json` and overstated the measu
 
 ## METHOD
 
-1. **Pull.** `search_threads` with `from:transactions.indmoney.com subject:(BUY OR SELL) after:<date> before:<date>`, pageSize 50, paginating on `nextPageToken` until absent. Narrow the window rather than raising pageSize when a range is dense — Gmail's `resultCountEstimate` is unreliable and overlapping windows are safer than a missed page. De-duplicate on message id.
-2. **Go straight to full bodies — don't inspect snippets first (fixed 2026-09-01, closes a token-waste finding).** `search_threads` has no snippet-length parameter; the returned snippet is a fixed short Gmail field that truncates before `Shares:`/`Order Type:` on close to every one of these confirmations — that is not occasional, it is the normal case for this specific email template. Treating it as "check the snippet, then decide whether to fetch the body" burns a full read-and-judge pass per row for a decision whose answer is already known. Instead: as soon as the dedup'd thread-id list from step 1 is in hand, issue `get_thread` (PLAIN_TEXT format) for every BUY/SELL confirmation thread as one planned batch — the snippet is never your extraction source for these, only a way to confirm you found the right thread.
-3. **Extract** per confirmation from the full body: UTC timestamp, ticker (via ticker_map), side, `Amount`, `Price`, `Shares`, `Order Type`. Record which field each number came from.
-4. **Repair.** For rows the orchestrator flagged, or any row where your extraction disagrees with the existing `trades.json` entry: correct it, and record BOTH the old and new value in the row's `notes` plus your report. A silent correction is as bad as the original error — the user must be able to see what changed and why.
-5. **Rebuild lots FIFO.** Correctness of FIFO depends on having the *complete* chronological list. When repairing historical rows, **re-run FIFO from scratch** over the full history rather than patching in place.
-6. **Verify the invariant.** For every held ticker, `sum(lots[ticker].qty)` MUST equal the live holdings quantity. Report every mismatch with its size. A ticker whose lots predate available email history keeps an explicit synthetic lot `{"qty": N, "date": null, "price_usd": null, "note": "predates available email history"}` — never a fabricated date or price.
+**YOU ARE NOW AN EXCEPTION HANDLER, NOT THE PIPELINE (changed 2026-09-06).** The orchestrator
+runs `smith_math.py ledger-parse` / `ledger-apply` / `lots` itself and only dispatches you when
+that pipeline reports `dispatch_agent: true`, or when `lots` reports a reconciliation mismatch
+or a `phantom_short`. On a normal run you are not dispatched at all.
+
+Why: you cost 107,874 tokens and 24 tool calls on 2026-09-06 to record seven fills, and almost
+none of it was judgment. Your own file also carried a rule that measurement disproved — it said
+the search snippet "truncates before Shares:/Order Type: on close to every one of these", so
+fetch every body. Of those same seven, SIX carried `Shares:` in the snippet and both stop-sells
+carried `Order Type: stop`. The snippet is fixed-length; survival depends on the company name's
+length. One body fetch was needed, not seven.
+
+**What you are dispatched FOR — and these are real judgment, which is why they are still yours:**
+
+1. **`unresolved_ticker`** — a display name the resolver would not resolve. Usually ambiguous:
+   a bare "Alphabet Inc." prefix-matches both share classes, so the parser fails closed rather
+   than guessing GOOG vs GOOGL. Resolve it PROPERLY (a real lookup, never inference from the
+   name) and hand back an alias to cache in `data_cache.ticker_map_email_aliases`.
+2. **`failed_validation`** — `Amount != Shares × Price` within the expected fee (0.30% buy /
+   0.00% sell). Three independently extracted numbers disagreeing means the template changed or
+   something is genuinely odd. Read the full body and say what actually happened.
+3. **A `lots` mismatch or `phantom_short`** — a sell consuming more than exists. Never clamp it;
+   diagnose it. Usually a missing historical fill or an unrecorded corporate action.
+4. **Corporate actions** — splits, conversions, spinoffs, fractional credits. The parser handles
+   ordinary BUY/SELL confirmations only and does not attempt these.
+5. **A disagreement with an existing `trades.json` row** — correct it and record BOTH old and
+   new values in the row's `notes` and in your report. A silent correction is as bad as the
+   original error.
+
+When you do run, work from the embedded parse output and the specific failing rows the
+orchestrator hands you. Do NOT re-pull the whole mailbox, and do NOT re-parse rows the script
+already reconciled — those are settled by arithmetic, not by opinion.
 
 ## OUTPUT
 

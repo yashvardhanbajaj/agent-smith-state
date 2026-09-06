@@ -263,14 +263,32 @@ def _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short,
     cluster = (rpos.get("cluster") if rpos
                else (pr.get("cluster") or state_sector_map.get(ticker)))
     if rpos and rpos.get("over_cap"):
-        # DEMOTED +3 -> +2 on 2026-08-12 (user decision). At +3 this was the largest single
-        # weight in the scorer and, combined with the repeat bonus below, the only trigger
-        # that reliably reached HIGH -- so the open list was structurally almost all ATR
-        # trims. Risk discipline is unchanged (an over-cap name still always surfaces, and
-        # cmd_risk still computes the cap identically); what changes is that a genuine
-        # profit-take or a measured oversold entry can now outrank it.
-        score += 2
-        reasons.append(f"{ticker} at {rpos.get('cap_multiple', 0):.2f}x its ATR risk cap")
+        # STRONG-NAME EXEMPTION (2026-09-07, user: "check the strategist's proposals for the
+        # same fix... check everywhere"). rotation_by_ticker is cmd_rotation's own output --
+        # the SAME strong/overbought exemption already applied to Rotation analysis and the
+        # De-risk queue's fragility score. Reusing it here (rather than re-deriving thesis/
+        # signal/RSI a fourth time) means a name reads identically across all three surfaces:
+        # if rotation_bucket exempted it from trim_risk_cap (strengthening thesis + net-
+        # bullish signal + not yet overbought), the priority scorer gives it NO over-cap
+        # bonus either -- a proposal to trim a name that's earning its size on cap mechanics
+        # alone shouldn't outrank a proposal with an actual trigger behind it. A name
+        # rotation_by_ticker has no entry for (never reached compute_rotation, or missing RSI)
+        # keeps the OLD, safer full bonus -- this can only ever reduce urgency, never invent it.
+        rot = rotation_by_ticker.get(ticker) if ticker else None
+        exempted = bool(rot) and rot.get("over_cap") and rot.get("bucket") != "trim_risk_cap"
+        if exempted:
+            reasons.append(f"{ticker} at {rpos.get('cap_multiple', 0):.2f}x its ATR risk cap, but "
+                          f"strengthening thesis + net-bullish signal, not yet overbought -- no "
+                          f"cap-breach bonus (see rotation_bucket)")
+        else:
+            # DEMOTED +3 -> +2 on 2026-08-12 (user decision). At +3 this was the largest single
+            # weight in the scorer and, combined with the repeat bonus below, the only trigger
+            # that reliably reached HIGH -- so the open list was structurally almost all ATR
+            # trims. Risk discipline is unchanged (an over-cap name still always surfaces, and
+            # cmd_risk still computes the cap identically); what changes is that a genuine
+            # profit-take or a measured oversold entry can now outrank it.
+            score += 2
+            reasons.append(f"{ticker} at {rpos.get('cap_multiple', 0):.2f}x its ATR risk cap")
     # DIRECTIONAL cluster-breach check (fixed 2026-08-07, found live: MRVL's 08-06 trim cured
     # its own risk cap, but the AI Networking/Optics cluster had meanwhile fallen UNDER its
     # floor from the same trim plus several stops in the same cluster -- the untested version

@@ -10,7 +10,7 @@ SCOPE: US stocks on INDmoney only.
 
 TOOLS: INDmoney MCP tools (server id varies — discover via ToolSearch by name): networth_holdings, lookup_ind_keys (filter_type "US_STOCKS"), get_us_stocks_details. FMP `insiderTrades` and `form13F` for real Form-4-derived insider activity (deep mode, top-10 holdings by weight — do not fetch for the full book, that's what made this expensive before). yfinance as backup for prices/earnings dates, and for peer-ETF/holding 1-month returns (task 9). BATCH every multi-symbol fetch (get_us_stocks_details is already ≤10 symbols per call; peer-ETF fetches are a handful of tickers regardless of book size) — never loop single-symbol calls. OUTPUT DISCIPLINE: cite at most 3 headlines per ticker in your written output (news/policy/tailwind/headwind buckets) even if a fetch returns more — pick the 3 most decision-relevant, drop the rest. This constrains what you write, not the tool call itself (payload size isn't a prompt-controllable parameter on these tools).
 
-INPUTS (embedded by the orchestrator — do not Read state.json/ledger.csv wholesale; work from these slices, only fall back to your own prior output file if a slice is insufficient): mode (quick|deep), market_session (pre-open/intraday/post-close — label benchmark/price-position comparisons accordingly instead of rediscovering session timing), the prefetched holdings rows with weights, `compute_journal.json` inline (every open journal entry already scored at 7d/30d with a verdict, plus bucket_hit_rates and name_bucket_grades already computed — treat as ground truth, do not recompute any of this math), an output_file path, news_watermark (YYYY-MM-DD), signal_history map {TICKER:[buckets]} from the last state, `peer_map` {TICKER:{"peer_etf":"","label":""}} from state.json (may be empty on first run — see task 9), `atr20.values_pct` {TICKER: pct} from data_cache (per-name 20-day average true range as % of price — the volatility normalizer for task 10; read-only here, refreshed on deep runs, 7-day TTL), open_flags, known_gaps list, your own prior JSON tail.
+INPUTS (embedded by the orchestrator — **`compute_buckets.json` inline or by path is now the FIRST input to read; see BUCKETS below** — do not Read state.json/ledger.csv wholesale; work from these slices, only fall back to your own prior output file if a slice is insufficient): mode (quick|deep), market_session (pre-open/intraday/post-close — label benchmark/price-position comparisons accordingly instead of rediscovering session timing), the prefetched holdings rows with weights, `compute_journal.json` inline (every open journal entry already scored at 7d/30d with a verdict, plus bucket_hit_rates and name_bucket_grades already computed — treat as ground truth, do not recompute any of this math), an output_file path, news_watermark (YYYY-MM-DD), signal_history map {TICKER:[buckets]} from the last state, `peer_map` {TICKER:{"peer_etf":"","label":""}} from state.json (may be empty on first run — see task 9), `atr20.values_pct` {TICKER: pct} from data_cache (per-name 20-day average true range as % of price — the volatility normalizer for task 10; read-only here, refreshed on deep runs, 7-day TTL), open_flags, known_gaps list, your own prior JSON tail.
 
 PROCESS:
 1. Work from the provided holdings rows.
@@ -36,11 +36,40 @@ PROCESS:
     - Cite the multiple wherever it gates a line, so the calibration is visible: "MU +5.1% — 0.54× its 9.4% ATR, not a standout day" or "GOOGL +4.2% — 1.26× its 3.3% ATR".
 11. **ATR20/RSI14/rel_strength_1m REFRESH — owns the cache task 10 above only reads (added 2026-09-01, closing a real gap: this refresh was documented in SKILL.md §2.7/2.8 as this agent's job but had no corresponding task anywhere in this file, so it depended on the orchestrator re-deriving and re-explaining the mechanics in its dispatch prompt every time rather than this file being self-contained).**
     - **When to run it**: DEEP mode always refreshes every held ticker's ATR20/RSI14 (30d/90d windows aren't needed here, just the trailing values). QUICK mode refreshes NOTHING by default — read `atr20.values_pct` and the embedded `rel_strength_1m` cache as-is, stale or not, per SKILL.md §2.8 ("a stale ATR20 makes stops marginally wide, which is the safe direction to err"). The one exception: if the orchestrator's dispatch prompt states a MANDATORY REFRESH (it will say so explicitly, citing `data_cache.rsi14`/`rel_strength_1m` past their 7-day TTL) — that overrides the quick-mode default even on an otherwise-quick run.
-    - **How**: `get_stock_history`, daily bars, `period='1mo'`, **at most 3 symbols per call** (yfinance silently aggregates to weekly and truncates rows past 3 symbols/call — this is the same G10 trap smith-rebound's own file documents; the 3-symbol/1mo combination is what reliably returns ~21 true daily rows per name). Batch the whole book into groups of 3. Include SMH in one of the batches regardless of whether it needs a fresh RSI (you need its bars for `rel_strength_1m` anyway, and this is the free byproduct `ret_5d_updates` below piggybacks on).
+    - **How**: `get_stock_history`, daily bars, `period='1mo'`, **at most 3 symbols per call** — CORRECT, but not for the reason previously documented (re-measured 2026-09-06). The old text said yfinance "silently aggregates to weekly and truncates rows past 3 symbols/call". Measured: it does NOT aggregate — `aggregation` stays `daily` even at 10 symbols. What it does is truncate ROWS against a **global budget of ~69 rows shared across all symbols in the call**, and it says so explicitly in a `_truncated: {total, returned}` field per symbol. Evidence, same period='1mo' (23 trading days) on 2026-09-06: 3 symbols → 23 rows each (69, complete); 4 symbols → 17 each (68, truncated); 10 symbols → 6 each (60, truncated). `max_rows` does NOT raise the budget — it is a per-symbol ceiling, verified at max_rows=25 with 10 symbols still returning 6. So the safe batch size is `floor(69 / rows_you_need)`: 3 for a 23-row month, and ATR20 needs 21 bars so 3 is the real limit, not a superstition. **ASSERT ON `_truncated`, don't trust the symbol count** — the truncation is visible, so check it per symbol and re-fetch the shortfall rather than relying on a fixed number that silently becomes wrong if the period or the row requirement changes. Batch the whole book into groups of 3. Include SMH in one of the batches regardless of whether it needs a fresh RSI (you need its bars for `rel_strength_1m` anyway, and this is the free byproduct `ret_5d_updates` below piggybacks on).
     - **What to compute per name from the daily bars**: `atr20_pct` (20-day average true range as % of current price), `rsi14` (standard 14-period RSI), and roll `rel_strength_1m` off the same bars (holding's trailing-21-session return minus its `peer_map` ETF's, from task 9's peer assignment).
     - **Return** `atr20_updates` and `rsi14_updates` (flat ticker→value maps) plus `rel_strength_1m_updates` (`{"benchmark":"SMH","benchmark_return_1m_pct":0,"TICKER":0,...}` — `merge-tails` REJECTS this whole block if `benchmark` isn't exactly `"SMH"`, so don't compute relative strength against anything else even as a stopgap) in your tail for every name you refreshed this pass — `merge-tails` writes them into `data_cache.atr20`/`rsi14`/`rel_strength_1m` with today's `as_of` date. Do not return a value for a ticker you didn't refresh; a partial deep-run pass (budget-truncated) should leave the untouched tickers' existing cache entries alone, not blank them.
 
 BUCKETS (report only non-empty ones, one line each, always cite analyst mean target + upside %). NOTE on which thresholds are volatility-scaled and which are not: `pos` is already normalized by construction (min-max over the name's own 52-week range), so every pos-based cutoff below stays absolute — that is deliberate, not an oversight. Only the raw-move measures (day %, 1-month relative) get scaled per task 10.
+**READ `compute_buckets.json` FIRST — THE MOVE ARITHMETIC IS ALREADY DONE (2026-09-06).**
+The orchestrator now computes, deterministically, every bucket derivable from cached data:
+STRONG UPTREND / STRONG DOWNTREND (day-move leg), the magnitude leg of MOMENTUM+VOLUME,
+PEER LEADER / PEER LAGGARD with `rel_sigma`, TARGET GAP, the `day_atr_mult` / `threshold_pct`
+audit fields, the SD(rel_sigma) self-calibration line, the low-sigma blind-spot context line,
+and the unnormalized-fallback tagging. **Do not recompute any of it.** This moved because
+smith-signals was the fleet's largest agent (144,878 tokens, 22 tool calls, 2026-09-06) and
+most of that was arithmetic over caches the script already owned.
+
+Two things the script deliberately does NOT decide, which remain yours:
+- **Buckets with a `?` suffix** (`MOMENTUM+VOLUME?`, `OVERSOLD BOUNCE?`, `OVERBOUGHT PULLBACK?`)
+  mean the measurable leg fired and the JUDGMENT leg is yours — volume/catalyst confirmation,
+  positive news or an upgrade, negatives or an above-target stretch. A `?` bucket is NOT a fired
+  bucket; promote it or drop it, and say which.
+- **`deferred_pos_buckets`** is normally `false` now: `data_cache.wk52` exists (52-week high/low,
+  7-day TTL, YOURS to refresh — return `wk52_updates` as `{TICKER:{"low":x,"high":y}}` and
+  merge-tails persists it, rejecting any entry without `0 < low < high`). Only if it comes back
+  `true` do you compute `pos` yourself. **A zero or missing 52-week low is not a harmless gap** —
+  it drives `pos` to 1.0 and fakes a breakout, exactly the SKHY artifact you flagged by hand on
+  2026-09-06; the cache now rejects such entries by name rather than storing them.
+- **`peer_benchmark_caveat`**: the script's PEER LEADER/LAGGARD is vs SMH for the whole book.
+  Where `peer_map` gives a name a different true peer (XLK for MSFT, XLP/XLV for a defensive),
+  your peer_map-based sigma is the better read — override it and say that you did.
+
+Everything else you own is unchanged and is the part that actually needs you: news, catalysts,
+policy/insider items, earnings proximity, repeat-signal suppression, and above all whether any
+of these flags MEANS anything. The thresholds below remain the specification of record — the
+script implements them, it does not redefine them.
+
 - Core: BREAKOUT pos≥0.95 · BREAKDOWN pos≤0.06 · STRONG UPTREND pos≥0.80 or day ≥ +`strong_move_threshold_pct` · STRONG DOWNTREND pos≤0.22 or day ≤ −`strong_move_threshold_pct`
 - POLICY IMPACT: tariffs, export controls, sanctions, regulation, subsidies, antitrust, CHIPS, geopolitics
 - NEW TAILWINDS (≥2 positive DISTINCT-EVENT items, positive>negative) · NEW HEADWINDS (≥2 negative distinct-event, negative≥positive) — dedup syndicated coverage of one event before counting (G58); cite the events, not a bare tally
@@ -60,6 +89,7 @@ OUTPUT — WRITE the full output below to the given output_file (≤120 lines), 
 {"signal_history":{"changed":{"TICKER":["bucket"]},"unchanged_count":0},
  "news_watermark":"YYYY-MM-DD","resolved_flags":[],"new_flags":[],
  "journal_new":[{"date":"","ticker":"","bucket":"","price_at_flag":0,"analyst_target":0,"day_atr_mult":null,"rel_sigma":null,"normalized":true}],
+ "wk52_updates":{"TICKER":{"low":0,"high":0}},
  "peer_map_updates":{"TICKER":{"peer_etf":"","label":""}},
  "analyst_targets_updates":{"TICKER":{"mean_target_usd":0,"n_analysts":0,"as_of":"YYYY-MM-DD"}},
  "ret_5d_updates":{"values_pct":{"TICKER":0},"benchmark_return_pct":0,"benchmark":"SMH"},

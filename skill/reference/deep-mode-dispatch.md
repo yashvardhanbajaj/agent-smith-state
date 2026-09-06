@@ -57,13 +57,67 @@ only event that hits ~89% of the portfolio at once — and its whole discipline 
 capex is strong" from "AI capex is strong AND fully priced". Persist its position and date so the
 next run can check the falsifier.
 
+## HBM-TRACKER REFRESH trigger
+(added 2026-09-06). Dispatch a **narrow refresh of the `hbm-tracker` skill** on a DEEP run
+whenever `freshness` reports `hbm_tracker` past its 21-day TTL (`stale` or `dark`). Run it
+BEFORE Stage 1 dispatch, because `slices` snapshots `consumer_view.json` into
+`runs/<ts>/shared/` and three Stage-1 agents — `smith-thesis`, `smith-catalyst`,
+`smith-cycle` — read that frozen copy. Refreshing after the snapshot updates nothing this run.
+
+**Why this trigger exists.** The HBM tracker is a separate, deliberately on-demand skill with
+no cadence, but Smith reads it every deep run. Until 2026-09-06 Smith depended on it fully and
+owned none of its freshness: the briefing headline read "all artefacts within TTL" while the
+snapshot was **32 days old**, and the staleness surfaced only because `smith-thesis` happened
+to check by hand. It bit on the worst possible day — Friday 2026-09-04 was a MEMORY event
+(Susquehanna DRAM +50%/NAND +60% contract forecast) and the one in-house series that could have
+corroborated or contradicted it had no datapoint near the date, so the proximate cause went
+unresolved and `smith-cycle` had to lean entirely on freshly-searched figures instead of its own
+tracked history. A consumer that reads a file every run, while the file only updates when the
+user happens to ask, goes dark precisely when the topic gets interesting.
+
+**NARROW means narrow.** This is a refresh of the price observations, not a full tracker session:
+ask for updated HBM3/HBM3E/HBM4 datapoints, the DDR5/NAND contract proxies and the China tracks,
+appended to `history.json` with `consumer_view.json` regenerated. Do NOT ask it to rebuild its
+dashboard, re-derive its forecast log, or re-run its Portfolio Impact panel — those are the
+user-facing half of an on-demand research skill and none of the three consumers read them.
+
+**Do not merge the tracker into Smith.** The separation is deliberate and was re-affirmed
+2026-09-06: the tracker is connector-free (WebSearch/WebFetch only) while Smith halts without
+INDmoney, so merging makes a research log hostage to a broker connector it never needed; and its
+value is a methodology guard Smith's compute-first spine does not share — `contract_quote` vs
+`stack_derived` basis, the C1/C2 corrections, "never compute a percentage between two points of
+different basis". That guard once caught a phantom −51% decline that had already reached a Smith
+thesis downgrade. One data contract, two skills, freshness owned by the side that reads it.
+
+**If the refresh fails or is skipped**, say so in the briefing header alongside the `freshness`
+headline and let the three consumers degrade on their own stated rule (the tracker's
+`read_this_first` tells them to lose confidence past ~30 days). Never let a stale snapshot pass
+as current, and never substitute a live re-read of the tracker's files for a refresh — the
+snapshot exists so the three agents cannot disagree with each other mid-run.
+
 ## QUALITY-CHECK trigger
-on a DEEP run, also dispatch `smith-quality` if this is the first deep review of the current
-calendar month. Test: does ledger.csv have zero rows with `mode:deep` for the current month? This
-is true both when ledger.csv has rows but none this month, AND when ledger.csv does not exist yet
-at all (the bootstrap case — a missing ledger.csv counts as zero deep rows this month, not as
-"can't check, skip"). An explicit "quality check" request always dispatches `smith-quality`
-regardless of this test.
+on a DEEP run, dispatch `smith-quality` on the **SECOND** deep review of the current calendar
+month — not the first. Test: does ledger.csv have **exactly one** row with `mode:deep` for the
+current month? (Bootstrap case: if ledger.csv does not exist or the month has zero deep rows,
+that is the first deep run — do NOT dispatch quality; `smith-cycle` takes that slot.) An explicit
+"quality check" request always dispatches `smith-quality` regardless of this test.
+
+**Why the second and not the first (changed 2026-09-06).** `smith-cycle` and `smith-quality` are
+both monthly and both previously keyed off "first deep review of the month", so they always
+landed on the *same* run. Measured on 2026-09-06: cycle 91,047 tokens + quality 89,789 = 180,836,
+**16% of a 1,118,131-token deep run**, in one hit, on the run that also carries the month's
+heaviest orchestration. Agent cost is nearly flat (75K–145K across all twelve), so the number of
+agents dispatched IS the cost, and two monthlies stacking is a self-inflicted spike.
+
+Nothing is lost by spreading them: both are monthly-cadence artefacts with 35-day TTLs
+(`cycle_position`, `quality_read`), so either ordering satisfies freshness. Cycle goes first
+deliberately — it is the higher-leverage read (a cycle turn hits ~93% of the book at once,
+quality is a per-name audit) and it is the one the strategist consumes for sizing.
+
+If a month somehow has only ONE deep run, quality is skipped that month and `freshness` will say
+so: `quality_read` is declared `escalate` at 35 days, so a genuinely missed month becomes a
+`validate` defect rather than a silence. That is the intended safety net and the reason this
+stagger is safe to make.
 
 ## DEEP roster confirmation
 Before moving to Stage 2 on a DEEP run, confirm out loud in this exact checklist form: "Deep run
