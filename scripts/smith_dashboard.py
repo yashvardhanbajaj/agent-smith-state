@@ -1350,61 +1350,78 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
 
 def _render_stop_loss_efficacy(stops_data):
     out = []
-    # -- stop-loss efficacy (added 2026-08-06, dashboard feature review) --
-    # trades.json had 24 stop-loss fills with exact prices and was referenced by this generator
-    # zero times. The computation (smith_math.py cmd_stops, writes stops_analysis.json) measures
-    # whether each stop helped or hurt vs simply holding through, split into "cascade" (3+ stops
-    # firing within a 5-minute window -- typically a market-open liquidity gap) vs "deliberate"
-    # (isolated, mid-session) cohorts. First real finding from this: cascade-fired stops in this
-    # book have recovered on average, deliberate ones have on average correctly avoided further
-    # downside -- exactly the kind of pattern that stays invisible without a standing panel.
+    # -- stop-loss efficacy (added 2026-08-06, dashboard feature review; compacted 2026-09-06,
+    # user request -- "simplify... make it compact and showing a few impact/analysis" -- after
+    # the by-ticker roll-up alone still ran 57 rows). trades.json had 24 stop-loss fills with
+    # exact prices and was referenced by this generator zero times before this panel existed;
+    # the computation (smith_math.py cmd_stops, writes stops_analysis.json) now measures both
+    # whether each stop helped vs holding through AND, per name, whether the re-entry after a
+    # stop landed above or below the stop price. This function's job is to say what matters in
+    # one glance -- everything underneath (57 names, every individual trade) is real and kept,
+    # just moved behind one drill-down instead of printed in full by default.
     overall = stops_data.get("overall")
     if overall:
+        reentry_summary = stops_data.get("reentry_summary") or {}
         by_cohort = stops_data.get("by_cohort") or {}
-        rows_s = stops_data.get("stops") or []
-
-        def cohort_line(name, label):
-            c = by_cohort.get(name)
-            if not c:
-                return ""
-            sign = "pos" if c["net_dollar_impact"] <= 0 else "neg"  # negative $ impact = stop SAVED money
-            return (f'<div class="cohort-row"><b>{esc(label)}</b>'
-                    f'<span>{c["count"]} stops, avg {c["avg_move_pct"]:+.1f}% since fill</span>'
-                    f'<span class="{sign}">${c["net_dollar_impact"]:+,.0f} net</span>'
-                    f'<span class="m">{c["saved"]} saved &middot; {c["hurt"]} hurt'
-                    + (f' &middot; {c["flat"]} flat' if c.get("flat") else "") + '</span></div>')
+        by_ticker = stops_data.get("by_ticker") or []
 
         net_cls = "pos" if overall["net_dollar_impact"] <= 0 else "neg"
-        summary_cells = (
-            f'<div class="stops-sum">'
-            f'<div class="c"><span class="k">Scored</span><span class="v">{overall["count"]}</span></div>'
-            f'<div class="c"><span class="k">Win rate</span><span class="v">'
-            f'{overall["win_rate_pct"]:.0f}%</span></div>' if overall.get("win_rate_pct") is not None else
-            f'<div class="stops-sum"><div class="c"><span class="k">Scored</span><span class="v">{overall["count"]}</span></div>')
-        summary_cells += (f'<div class="c"><span class="k">Net impact</span>'
-                          f'<span class="v {net_cls}">${overall["net_dollar_impact"]:+,.0f}</span></div>'
-                          f'<div class="c"><span class="k">Avg move</span>'
-                          f'<span class="v">{overall["avg_move_pct"]:+.1f}%</span></div></div>')
+        lower_pct = reentry_summary.get("reentered_lower_pct")
+        lower_cls = "pos" if (lower_pct or 0) >= 50 else "neg"
 
-        cohort_rows = (cohort_line("cascade", "Cascade") + cohort_line("deliberate", "Deliberate")
-                      + cohort_line("unknown", "Untimed"))
+        # ONE compact stat strip -- the whole "did stops help, did re-entries hold the edge"
+        # story in six numbers, instead of two separate stat blocks before this change.
+        cells = [
+            ("Scored", str(overall["count"]), ""),
+            ("Win rate", f'{overall["win_rate_pct"]:.0f}%' if overall.get("win_rate_pct") is not None else "&mdash;", ""),
+            ("Net impact", f'${overall["net_dollar_impact"]:+,.0f}', net_cls),
+        ]
+        if reentry_summary:
+            cells.append(("Re-entered", f'{reentry_summary["count"]} of '
+                          f'{reentry_summary["count"]+reentry_summary["still_out_count"]}', ""))
+            cells.append(("Bought back lower", f'{lower_pct:.0f}%' if lower_pct is not None else "&mdash;", lower_cls))
+        summary_cells = '<div class="stops-sum">' + "".join(
+            f'<div class="c"><span class="k">{esc(k)}</span><span class="v {cls}">{v}</span></div>'
+            for k, v, cls in cells) + '</div>'
 
-        recent_rows = "".join(
-            f'<tr><td class="name">{esc(r["ticker"])}</td><td class="blank">{esc(r["date"])}</td>'
-            f'<td>${r["fill_price"]:,.2f}</td><td>${r["price_now"]:,.2f}</td>'
-            f'<td class="{"pos" if r["move_pct"]>=0 else "neg"}">{r["move_pct"]:+.1f}%</td>'
-            f'<td class="verd-{r["verdict"]}">{r["verdict"].upper()}</td>'
-            f'<td><span class="cohort-tag {r["cohort"]}">{esc(r["cohort"])}</span></td></tr>'
-            for r in rows_s[:12])
+        # ONE compact cohort line instead of three multi-field rows.
+        cohort_bits = []
+        for key, label in (("cascade", "Cascade"), ("deliberate", "Deliberate"), ("unknown", "Untimed")):
+            c = by_cohort.get(key)
+            if c:
+                cohort_bits.append(f'{label} <b>${c["net_dollar_impact"]:+,.0f}</b> ({c["count"]})')
+        cohort_line = (f'<p class="note">{" &middot; ".join(cohort_bits)}</p>' if cohort_bits else "")
+
+        # TOP MOVERS ONLY -- the actual "few impact/analysis" ask. Biggest net winners and
+        # biggest net costs by ticker, 3 each, as compact chips rather than a 57-row table.
+        winners = sorted([r for r in by_ticker if r["combined_net_dollar_impact"] > 0],
+                          key=lambda r: -r["combined_net_dollar_impact"])[:3]
+        losers = sorted([r for r in by_ticker if r["combined_net_dollar_impact"] < 0],
+                         key=lambda r: r["combined_net_dollar_impact"])[:3]
+
+        def chip(r, cls):
+            reentry_note = (f' &middot; {r["reentry_count"]} reentry' if r["reentry_count"] else
+                            (f' &middot; {r["still_out_count"]} still out' if r["still_out_count"] else ""))
+            return (f'<span class="rchip {cls}" title="{r["stop_count"]} stop(s){reentry_note}">'
+                    f'{esc(r["ticker"])} <i>${r["combined_net_dollar_impact"]:+,.0f}</i></span>')
+
+        movers_html = ""
+        if winners or losers:
+            movers_html = '<div class="rgrid">'
+            if winners:
+                movers_html += ('<div class="rcol"><div class="grp-h"><span class="dot-g"></span>'
+                                 'Biggest net winners</div><div class="chips">'
+                                 + "".join(chip(r, "g") for r in winners) + '</div></div>')
+            if losers:
+                movers_html += ('<div class="rcol"><div class="grp-h"><span class="dot-b"></span>'
+                                 'Biggest net costs</div><div class="chips">'
+                                 + "".join(chip(r, "b") for r in losers) + '</div></div>')
+            movers_html += '</div>'
 
         dq_s = ("".join(f'<p class="note">{esc(x)}</p>' for x in (stops_data.get("data_quality") or [])))
 
-        # -- BY-TICKER ROLL-UP (added 2026-09-06, user request): a name stopped out and
-        # re-entered several times reads as several scattered rows at the trade level, which
-        # is the wrong grain for judging the strategy on that name specifically -- and makes
-        # the table longer than the signal in it. This is now the PRIMARY table; the trade-level
-        # detail (every individual stop, every individual re-entry) moves into a drill-down.
-        by_ticker = stops_data.get("by_ticker") or []
+        # -- FULL BREAKDOWN, collapsed by default (every one of the 57 names, every trade) --
+        by_ticker_sorted = sorted(by_ticker, key=lambda r: -abs(r["combined_net_dollar_impact"]))
         by_ticker_html = "".join(
             f'<tr><td class="name">{esc(r["ticker"])}</td><td class="num">{r["stop_count"]}</td>'
             f'<td class="{"neg" if r["stop_dollar_impact"]<=0 else "pos"}">${r["stop_dollar_impact"]:+,.0f}</td>'
@@ -1413,90 +1430,42 @@ def _render_stop_loss_efficacy(stops_data):
             f'<td class="num">{r["still_out_count"]}</td>'
             f'<td class="{"neg" if r["combined_net_dollar_impact"]<=0 else "pos"}">'
             f'<b>${r["combined_net_dollar_impact"]:+,.0f}</b></td></tr>'
-            for r in by_ticker)
-        by_ticker_block = (
+            for r in by_ticker_sorted)
+        rows_s = stops_data.get("stops") or []
+        recent_rows = "".join(
+            f'<tr><td class="name">{esc(r["ticker"])}</td><td class="blank">{esc(r["date"])}</td>'
+            f'<td>${r["fill_price"]:,.2f}</td><td>${r["price_now"]:,.2f}</td>'
+            f'<td class="{"pos" if r["move_pct"]>=0 else "neg"}">{r["move_pct"]:+.1f}%</td>'
+            f'<td class="verd-{r["verdict"]}">{r["verdict"].upper()}</td>'
+            f'<td><span class="cohort-tag {r["cohort"]}">{esc(r["cohort"])}</span></td></tr>'
+            for r in rows_s[:30])
+
+        full_breakdown = (
+            '<details><summary>Full breakdown &mdash; all '
+            f'{len(by_ticker)} names, every stop &amp; re-entry</summary><div class="body">'
             '<div class="scroll"><table><thead><tr><th>Name</th><th># stops</th>'
             '<th>Stop $ impact</th><th># re-entries</th><th>Re-entry $ impact</th>'
             '<th>Still out</th><th>Combined net</th></tr></thead>'
             f'<tbody>{by_ticker_html}</tbody></table></div>'
             '<p class="note" style="margin-top:8px">One row per name, every stop AND its matched '
-            're-entry rolled into one figure &mdash; this is the number that answers &ldquo;has '
-            'trimming X on stops and buying it back on stabilization cost or earned money, '
-            'all-in&rdquo;, not how any single trade on it did. <b>Stop $ impact</b> (sign flipped '
-            'vs the stop price, negative = stop saved money) plus <b>Re-entry $ impact</b> '
-            '(positive = bought back cheaper than sold) = <b>Combined net</b>. Trade-level detail '
-            'below.</p>' if by_ticker else "")
-
-        # -- re-entry round trip (added 2026-09-06, user request): this desk's actual strategy
-        # is trim/exit on a support breach and re-enter once price stabilizes, so the number that
-        # measures it is where the re-entry landed vs the stop -- not where the stock sits today.
-        reentry_summary = stops_data.get("reentry_summary")
-        reentry_rows_all = stops_data.get("reentries") or []
-        reentry_block = ""
-        if reentry_summary:
-            rs = reentry_summary
-            lower_cls = "pos" if rs["reentered_lower_pct"] >= 50 else "neg"
-            reentered_rows_html = "".join(
-                f'<tr><td class="name">{esc(r["ticker"])}</td>'
-                f'<td class="blank">{esc(r["stop_date"])}</td><td>${r["stop_price"]:,.2f}</td>'
-                f'<td class="blank">{esc(r["reentry_date"])}</td><td>${r["reentry_price"]:,.2f}</td>'
-                f'<td class="{"neg" if r.get("reentry_move_pct",0)>0 else "pos"}">'
-                f'{r.get("reentry_move_pct",0):+.1f}%</td>'
-                f'<td class="verd-{"hurt" if r.get("reentry_verdict")=="reentered_higher" else ("saved" if r.get("reentry_verdict")=="reentered_lower" else "flat")}">'
-                f'{esc((r.get("reentry_verdict") or "").replace("reentered_","").upper())}</td></tr>'
-                for r in reentry_rows_all if r.get("status") == "reentered" and "reentry_move_pct" in r)
-            still_out_rows = [r for r in reentry_rows_all if r["status"] == "still_out" and r.get("gap_vs_stop_pct") is not None]
-            still_out_rows.sort(key=lambda r: -r["gap_vs_stop_pct"])
-            still_out_html = "".join(
-                f'<tr><td class="name">{esc(r["ticker"])}</td><td class="blank">{esc(r["stop_date"])}</td>'
-                f'<td>${r["stop_price"]:,.2f}</td>'
-                f'<td class="{"neg" if r["gap_vs_stop_pct"]>0 else "pos"}">{r["gap_vs_stop_pct"]:+.1f}%</td></tr>'
-                for r in still_out_rows[:8])
-            reentry_block = (
-                '<hr class="rule"><h2 style="font-size:.82rem;margin-top:4px">Re-entry round trip'
-                '<span class="sub">where the re-entry landed vs the stop, not where the stock sits now</span></h2>'
-                f'<div class="stops-sum">'
-                f'<div class="c"><span class="k">Re-entered</span><span class="v">{rs["count"]} of '
-                f'{rs["count"]+rs["still_out_count"]}</span></div>'
-                f'<div class="c"><span class="k">Bought back lower</span>'
-                f'<span class="v {lower_cls}">{rs["reentered_lower_pct"]:.0f}%</span></div>'
-                f'<div class="c"><span class="k">Avg re-entry vs stop</span>'
-                f'<span class="v {"neg" if rs["avg_reentry_move_vs_stop_pct"]>0 else "pos"}">'
-                f'{rs["avg_reentry_move_vs_stop_pct"]:+.1f}%</span></div>'
-                f'<div class="c"><span class="k">Still out</span><span class="v">{rs["still_out_count"]}</span></div>'
-                '</div>'
-                '<details><summary>Trade-level detail (every stop &amp; re-entry individually)</summary>'
-                '<div class="body">'
-                '<div class="scroll"><table><thead><tr><th>Name</th><th>Stop date</th><th>Stop $</th>'
-                '<th>Re-entry date</th><th>Re-entry $</th><th>vs stop</th><th>Verdict</th></tr></thead>'
-                f'<tbody>{reentered_rows_html}</tbody></table></div>'
-                + (('<p class="note" style="margin-top:8px"><b>Still out, biggest gaps</b> &mdash; stopped '
-                    'out and never re-entered; price shown vs the stop, positive means it ran away without '
-                    'a re-entry.</p><div class="scroll"><table><thead><tr><th>Name</th><th>Stop date</th>'
-                    '<th>Stop $</th><th>vs stop now</th></tr></thead>'
-                    f'<tbody>{still_out_html}</tbody></table></div>') if still_out_html else "")
-                + '<p class="note" style="margin-top:8px"><b>LOWER</b> = bought back below the stop price '
-                '(the strategy worked: sold high, re-entered cheaper). <b>HIGHER</b> = re-entered above the '
-                'stop (some of the stop\'s edge was given back chasing the stabilization). A stop with no '
-                'row in this table hasn\'t been re-entered yet.</p></div></details>')
-
-        out.append(
-            '<section class="panel"><div class="phead"><h2>Stop-loss efficacy'
-            '<span class="sub">did the stop help or hurt, vs simply holding through</span></h2>'
-            f'<span class="pill">as of {esc(stops_data.get("as_of",""))}</span></div>'
-            f'<div class="pbody">{summary_cells}<div>{cohort_rows}</div>'
-            f'{by_ticker_block}'
-            '<details><summary>Trade-level detail (every scored stop individually)</summary>'
-            '<div class="body">'
+            're-entry rolled into one figure. <b>Stop $ impact</b> (negative = the stop saved money) '
+            'plus <b>Re-entry $ impact</b> (positive = bought back cheaper than sold) = '
+            '<b>Combined net</b>.</p>'
+            '<hr class="rule"><p class="note" style="margin-top:8px"><b>Individual trades</b> '
+            '(most recent 30 of every scored stop) &mdash; Cascade = 3+ stops fired within a '
+            '5-minute window; Deliberate = an isolated, mid-session stop; HURT means the price '
+            'is now above the fill.</p>'
             '<div class="scroll"><table><thead><tr><th>Name</th><th>Date</th><th>Fill</th>'
             '<th>Now</th><th>Move</th><th>Verdict</th><th>Cohort</th></tr></thead>'
             f'<tbody>{recent_rows}</tbody></table></div>'
-            '<p class="note"><b>Cascade</b> = 3+ stops fired within a 5-minute window (typically '
-            'a market-open liquidity gap). <b>Deliberate</b> = an isolated, mid-session stop. '
-            '<b>Verdict</b>: HURT means the price is now above the fill (holding through would '
-            'have been worth more); SAVED means it fell further after the stop fired.</p>'
-            f'</div></details>'
-            f'{dq_s}{reentry_block}</div></section>')
+            '</div></details>')
+
+        out.append(
+            '<section class="panel"><div class="phead"><h2>Stop-loss efficacy'
+            '<span class="sub">did the stop help, and did the re-entry hold the edge</span></h2>'
+            f'<span class="pill">as of {esc(stops_data.get("as_of",""))}</span></div>'
+            f'<div class="pbody">{summary_cells}{cohort_line}{movers_html}{dq_s}{full_breakdown}'
+            '</div></section>')
 
     return out
 
