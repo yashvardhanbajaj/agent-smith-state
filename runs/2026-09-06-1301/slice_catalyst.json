@@ -59,11 +59,48 @@
   "holdings_path": "runs/2026-09-06-1301/holdings.json",
   "read_these_files": {
     "factor_themes": "/Users/yb/Claude/AgentSmith/runs/2026-09-06-1301/shared/factor_themes.69aec446.json",
-    "factor_catalysts": "/Users/yb/Claude/AgentSmith/runs/2026-09-06-1301/shared/factor_catalysts.2e86f162.json",
     "drift": "/Users/yb/Claude/AgentSmith/runs/2026-09-06-1301/compute_drift.json",
     "hbm_tracker": "/Users/yb/Claude/AgentSmith/runs/2026-09-06-1301/shared/hbm_tracker.json",
     "holdings": "/Users/yb/Claude/AgentSmith/runs/2026-09-06-1301/shared/holdings_trim.495d1bfa.json"
   },
+  "factor_catalysts": [
+    {
+      "headline": "Susquehanna: DRAM contract prices to rise >50% QoQ, NAND ~60% QoQ this quarter; Samsung warns of tightening memory supply; Dell earnings call flags NAND scarcity",
+      "date": "2026-09-04",
+      "horizon": "structural",
+      "direction": "tailwind",
+      "affects": [
+        "MU",
+        "SKHY",
+        "SNDK",
+        "WDC",
+        "DRAM"
+      ],
+      "exposure_pct_equity": 8.4,
+      "exposure_pct_book": 8.15,
+      "magnitude": "DRAM +50%+/NAND +60% QoQ contract guide vs prior quarter's +13-30% QoQ guide -- sourced, quantified supply-shock, not sentiment",
+      "source": "https://247wallst.com/investing/2026/09/04/sandisk-soars-8-is-the-nand-pricing-cycle-still-accelerating/",
+      "invalidates_proposal": null
+    },
+    {
+      "headline": "Nvidia agrees to pay $12.9bn for Hugging Face, driving AI-silicon complex-wide read-through rally (NVDA, MRVL +6.3%, KLAC +4.4%, AVGO, COHR at record high) though none of these names reported anything that day",
+      "date": "2026-09-04",
+      "horizon": "mechanical",
+      "direction": "tailwind",
+      "affects": [
+        "NVDA",
+        "MRVL",
+        "KLAC",
+        "AVGO",
+        "COHR"
+      ],
+      "exposure_pct_equity": 15.1,
+      "exposure_pct_book": 14.66,
+      "magnitude": "$12.9bn deal size; sector-wide sympathy move with no own-name fundamental change -- multiple re-rating, not earnings revision",
+      "source": "https://www.tikr.com/blog/marvell-jumped-13-today-heres-what-could-decide-whether-the-rally-lasts-through-2026",
+      "invalidates_proposal": null
+    }
+  ],
   "news_watermark": "2026-09-01",
-  "inputs_digest": "dc69997fca22"
+  "inputs_digest": "452c7ef8694d"
 }

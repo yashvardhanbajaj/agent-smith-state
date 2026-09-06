@@ -1365,6 +1365,7 @@ def cmd_pipeline(args):
         ("journal",     ["holdings.json"],                          lambda d: True),
         ("attribution", ["holdings.json"],                          lambda d: True),
         ("rotation",    ["compute_risk.json"],                      lambda d: d.get("tickers")),
+        ("buckets",     ["holdings.json"],                          lambda d: d.get("tickers") is not None),
         ("sentiment",   ["market_inputs.json"],                     lambda d: d.get("score") is not None),
         ("derisk",      ["compute_risk.json", "compute_sentiment.json"], lambda d: d.get("queue")),
         ("triggers",    ["compute_risk.json", "compute_book.json"], lambda d: True),
@@ -1385,7 +1386,7 @@ def cmd_pipeline(args):
             cmd += ["--market-inputs", os.path.join(run_dir, "market_inputs.json")]
         else:
             cmd += ["--run-dir", run_dir]
-        if name in ("journal", "derisk", "triggers") and args.today:
+        if name in ("journal", "derisk", "triggers", "buckets") and args.today:
             cmd += ["--today", args.today]
         if name == "book" and args.lots:
             cmd += ["--lots", args.lots]
@@ -2399,6 +2400,182 @@ def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation):
             "retires_when": f"EITHER {sell_t}'s thesis strengthens OR {buy_t} is no longer the cluster's relative-strength leader"})
 
 
+
+# ---------------------------------------------------------------------------
+# BUCKETS (added 2026-09-06) -- the deterministic half of smith-signals
+# ---------------------------------------------------------------------------
+# WHY THIS EXISTS. smith-signals was the largest agent in the fleet: 144,878 tokens and 22 tool
+# calls on the 2026-09-06 deep run, and it runs on EVERY sweep including quick. Most of what it
+# returned was not judgment -- STRONG UPTREND is a day-move divided by ATR20, PEER LEADER is a
+# cached relative-strength number over a cached dispersion, TARGET GAP is price against a cached
+# analyst target. All three inputs already sit in state.data_cache, which the script owns. An
+# LLM re-deriving them each run is precisely what COMPUTE-FIRST exists to stop.
+#
+# THIS SUPERSEDES A DOCUMENTED CARVE-OUT, deliberately. SKILL.md's COMPUTE-FIRST section listed
+# smith-signals' `pos` and `relative_strength_1m` as "judgment-layer calculations the script
+# deliberately doesn't own". That carve-out was written before agent cost was measured. It is now
+# measured -- cost is nearly flat at 75K-145K per agent regardless of what the agent does, so
+# arithmetic left in an agent is arithmetic bought at LLM prices, every run, forever.
+#
+# WHAT IS NOT MOVED, and why. The pos-based buckets (BREAKOUT, BREAKDOWN, OVERSOLD BOUNCE,
+# OVERBOUGHT PULLBACK, and the pos legs of STRONG UPTREND/DOWNTREND) need a 52-week high/low
+# range that NOTHING currently caches -- smith-signals fetches it per run and it dies with the
+# run. They are reported as `deferred_pos_buckets` with the reason, not silently dropped, and
+# they light up automatically the moment `data_cache.wk52` exists (see WK52_NOTE). Pretending to
+# compute them from data the script does not have is exactly the guardrail this file enforces
+# everywhere else.
+#
+# News, catalysts, the "with catalyst" leg of MOMENTUM+VOLUME, and every judgment about whether
+# a flag MEANS anything stay with the agent. This computes the arithmetic and hands it over.
+
+WK52_NOTE = ("data_cache.wk52 does not exist. Add it as {TICKER: {'high': x, 'low': y, "
+             "'as_of': d}} with a 7-day TTL and the pos-based buckets compute here "
+             "automatically -- no further code change is needed.")
+
+
+def _strong_move_threshold(atr20_pct):
+    """clamp(1.5 x ATR20, 2.0, 12.0) -- the floor stops a very quiet name flagging on noise,
+    the ceiling stops a very loud one being effectively unflaggable. Thresholds identical to
+    smith-signals.md task 10; this is a move of the same arithmetic, not a redefinition."""
+    return clamp(1.5 * atr20_pct, 2.0, 12.0)
+
+
+def _rel_sigma(rel_pp, atr20_pct):
+    """1-month peer-relative move in units of the name's own expected dispersion.
+    Denominator max(2.3 x ATR20, 5.0); the 2.3 is derived in smith-signals.md task 10 and is
+    reproduced there rather than re-derived here."""
+    return rel_pp / max(2.3 * atr20_pct, 5.0)
+
+
+def cmd_buckets(args):
+    rd = args.run_dir
+    holdings = load_json(os.path.join(rd, "holdings.json"), default={})
+    state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    dc = state.get("data_cache", {}) or {}
+    atr = (dc.get("atr20") or {}).get("values_pct", {}) or {}
+    rel = (dc.get("rel_strength_1m") or {}).get("values_pp", {}) or {}
+    targets = dc.get("analyst_targets", {}) or {}
+    wk52 = dc.get("wk52") or {}
+
+    rows, unnormalized, sigmas = {}, [], []
+    for h in holdings.get("holdings_inr", []):
+        t = h.get("ticker")
+        price = h.get("live_price_usd")
+        day = h.get("day_chg_pct")
+        a = atr.get(t)
+        buckets, why = [], {}
+
+        # --- volatility-normalized move buckets -------------------------------------
+        if isinstance(a, (int, float)) and a > 0:
+            thr = _strong_move_threshold(a)
+            norm = True
+        else:
+            # GUARDRAIL (smith-signals.md task 10): never estimate a missing ATR and never skip
+            # the name -- fall back to the legacy absolute threshold and TAG it.
+            thr, norm = 4.0, False
+            unnormalized.append(t)
+        if isinstance(day, (int, float)):
+            mult = round(day / a, 2) if norm else None
+            why["day_atr_mult"] = mult
+            why["threshold_pct"] = round(thr, 2)
+            if day >= thr:
+                buckets.append("STRONG UPTREND")
+            elif day <= -thr:
+                buckets.append("STRONG DOWNTREND")
+            if abs(day) >= thr:
+                # the volume/catalyst leg is the AGENT's call; this is the magnitude leg only
+                buckets.append("MOMENTUM+VOLUME?")
+
+        # --- peer-relative ----------------------------------------------------------
+        r = rel.get(t)
+        if isinstance(r, (int, float)) and isinstance(a, (int, float)) and a > 0:
+            sig = round(_rel_sigma(r, a), 2)
+            why["rel_sigma"] = sig
+            why["rel_strength_1m_pp"] = r
+            sigmas.append(sig)
+            if sig >= 1.0:
+                buckets.append("PEER LEADER")
+            elif sig <= -1.0:
+                buckets.append("PEER LAGGARD")
+            elif r <= -25:
+                # KNOWN BLIND SPOT: genuinely deteriorating AND highly volatile -> wide
+                # denominator swallows real underperformance. Context line, never a flag.
+                why["blind_spot_note"] = (
+                    f"{t} {r:+.1f}pp vs benchmark but only {sig:+.2f} sigma on a {a:.1f}% ATR "
+                    f"-- inside its own noise, not flagged; thesis/derisk own this one")
+
+        # --- target gap -------------------------------------------------------------
+        tg = (targets.get(t) or {}).get("mean_target_usd")
+        if isinstance(tg, (int, float)) and isinstance(price, (int, float)) and price > 0:
+            up = round((tg - price) / price * 100, 1)
+            why["upside_pct"] = up
+            why["analyst_target"] = tg
+            if abs(up) >= 15:
+                buckets.append("TARGET GAP")
+
+        # --- pos-based, only if a 52-week range is actually available ----------------
+        w = wk52.get(t) or {}
+        hi, lo = w.get("high"), w.get("low")
+        if all(isinstance(x, (int, float)) for x in (hi, lo, price)) and hi > lo:
+            pos = round((price - lo) / (hi - lo), 3)
+            why["pos"] = pos
+            if pos >= 0.95:
+                buckets.append("BREAKOUT")
+            if pos <= 0.06:
+                buckets.append("BREAKDOWN")
+            if pos >= 0.80 and "STRONG UPTREND" not in buckets:
+                buckets.append("STRONG UPTREND")
+            if pos <= 0.22 and "STRONG DOWNTREND" not in buckets:
+                buckets.append("STRONG DOWNTREND")
+            if pos <= 0.30:
+                buckets.append("OVERSOLD BOUNCE?")
+            if pos >= 0.85:
+                buckets.append("OVERBOUGHT PULLBACK?")
+
+        if buckets or why:
+            rows[t] = {"buckets": sorted(set(buckets)), "normalized": norm, **why}
+
+    sd = None
+    if len(sigmas) > 1:
+        m = sum(sigmas) / len(sigmas)
+        sd = round((sum((x - m) ** 2 for x in sigmas) / (len(sigmas) - 1)) ** 0.5, 3)
+
+    dq = []
+    if unnormalized:
+        dq.append(f"atr20 missing/zero for {len(unnormalized)} ticker(s): "
+                  f"{','.join(sorted(unnormalized))} -- fell back to the legacy absolute "
+                  f"4% threshold and tagged them normalized:false, per the task-10 guardrail.")
+    if not wk52:
+        dq.append("pos-based buckets NOT computed: " + WK52_NOTE)
+    if sd is not None and not (0.8 <= sd <= 1.3):
+        dq.append(f"SELF-CALIBRATION: SD(rel_sigma)={sd} is outside the 0.8-1.3 band a correctly "
+                  f"scaled measure should show. {'Denominator too wide, bucket under-firing' if sd < 0.8 else 'Denominator too narrow, bucket over-firing'}. "
+                  f"REPORT this, never silently retune the constant -- that is the user's call.")
+
+    out = {"as_of": args.today, "tickers": rows,
+           "suffixed_buckets_need_agent_confirmation": [
+               "MOMENTUM+VOLUME? -- magnitude leg only; the agent confirms volume/catalyst",
+               "OVERSOLD BOUNCE? -- pos leg only; the agent confirms positive news/upgrade",
+               "OVERBOUGHT PULLBACK? -- pos leg only; the agent confirms negatives/above-target"],
+           "deferred_pos_buckets": (not wk52),
+           "rel_sigma_sd": sd, "unnormalized_tickers": sorted(unnormalized),
+           "peer_benchmark_caveat": (
+               "PEER LEADER/LAGGARD here is computed against data_cache.rel_strength_1m, whose "
+               "benchmark is SMH for the whole book. smith-signals refines this per name using "
+               "peer_map's own ETF (XLK for MSFT, etc), so its verdict may differ on names whose "
+               "true peer is not the semis index -- and its version is the better one where the "
+               "mapping differs. Treat these as the default read, not the final one: the agent "
+               "may override with a peer_map-based sigma and should say when it does."),
+           "data_quality": dq,
+           "note": ("Deterministic bucket arithmetic, moved out of smith-signals 2026-09-06. "
+                    "A '?' suffix means the script computed the measurable leg and the agent "
+                    "owns the remaining judgment leg -- it is NOT a fired bucket. News, "
+                    "catalysts, and whether any flag MEANS anything remain the agent's.")}
+    # emit only -- cmd_pipeline captures stdout and writes compute_buckets.json itself,
+    # same contract as every other stage. Writing the file here too would produce two
+    # writers for one artefact, which is how they drift.
+    emit(out)
+
 def cmd_triggers(args):
     """Deterministic candidate generation for the seven non-ATR proposal triggers.
 
@@ -3185,13 +3362,14 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    for name in ("book", "journal", "attribution", "drift", "risk", "rotation", "derisk", "triggers"):
+    for name in ("book", "journal", "attribution", "drift", "risk", "rotation", "derisk",
+                 "triggers", "buckets"):
         sp = sub.add_parser(name)
         sp.add_argument("--base-dir", default=DEFAULT_BASE)
         sp.add_argument("--run-dir", required=True, help="this run's directory containing holdings.json")
         if name == "book":
             sp.add_argument("--lots", default=None)
-        if name in ("journal", "derisk", "triggers"):
+        if name in ("journal", "derisk", "triggers", "buckets"):
             sp.add_argument("--today", default=None)
         if name == "journal":
             sp.add_argument("--prices-json", default=None,
@@ -3413,7 +3591,8 @@ def main():
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
-         "triggers": cmd_triggers, "score": cmd_score, "pipeline": cmd_pipeline, "lots": cmd_lots,
+         "triggers": cmd_triggers, "buckets": cmd_buckets, "score": cmd_score,
+         "pipeline": cmd_pipeline, "lots": cmd_lots,
          "history": cmd_history, "universe": cmd_universe, "maxpain": cmd_maxpain, "compact": cmd_compact, "gaps": cmd_gaps, "slices": cmd_slices,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "freshness": cmd_freshness, "report": cmd_report, "runs": cmd_runs,

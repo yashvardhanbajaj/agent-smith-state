@@ -1421,7 +1421,9 @@ def cmd_validate(args):
 AGENT_SLICES = {
     "signals":    {"state": ["news_watermark", "signal_history", "signal_history_as_of",
                              "open_flags", "peer_map"],
-                   "cache": ["atr20"], "refs": ["journal"], "holdings": "trim"},
+                   # `buckets` added 2026-09-06: compute_buckets.json is now this agent's FIRST
+                   # input, carrying the move arithmetic it used to derive itself.
+                   "cache": ["atr20"], "refs": ["journal", "buckets"], "holdings": "trim"},
     "thesis":     {"state": ["thesis", "sector_map", "news_watermark", "open_flags"],
                    "cache": ["etf_constituents", "earnings_facts"], "refs": [],
                    "holdings": "trim", "shared": ["hbm_tracker"]},
@@ -1459,6 +1461,7 @@ REF_FILES = {
     "journal": "compute_journal.json", "attribution": "compute_attribution.json",
     "rotation": "compute_rotation.json", "sentiment": "compute_sentiment.json",
     "derisk": "compute_derisk.json", "triggers": "compute_triggers.json",
+    "buckets": "compute_buckets.json",
     "market_inputs": "market_inputs.json",
 }
 BASE_REF_FILES = {"lots": "lots.json"}
@@ -1502,7 +1505,7 @@ AGENT_DOMAIN = {
     "signals": "news", "thesis": "news", "catalyst": "news", "cycle": "news",
     "quality": "fundamentals", "earnings": "calendar", "watchlist": "calendar",
     "macro": "macro", "scout": "session",
-    "book": "holdings", "ledger": "holdings", "tax": "holdings", "rebound": "session",
+    "book": "holdings", "ledger": "holdings", "tax": "lots_trims", "rebound": "session",
     "strategist": "always",
 }
 DOMAIN_HELP = {
@@ -1512,8 +1515,28 @@ DOMAIN_HELP = {
     "session": "a trading session actually occurred since the last run",
     "holdings": "qty_changes non-empty, or lots.json changed",
     "fundamentals": "a new filing or reported quarter",
+    "lots_trims": "lots.json changed, or the set of open TRIM/SELL proposals changed",
     "always": "its inputs are the Stage-1 tails, which are never visible here",
 }
+
+
+def _open_trims_sig(base_dir):
+    """Stable signature of WHICH TRIM/SELL proposals are open, for smith-tax's domain check.
+    Deliberately ids-only and sorted, NOT sizes: a re-sized trim sequences the same lots, so
+    including size would fire the domain on a change that cannot alter the answer. Returns ""
+    when proposals.json is unreadable, which compares unequal to any real signature and
+    therefore dispatches -- unreadable state must never look like 'nothing changed'."""
+    try:
+        props = load_json(os.path.join(base_dir, "proposals.json"), default={}) or {}
+        rows = props.get("proposals", props if isinstance(props, list) else [])
+        ids = sorted(r.get("id") for r in rows
+                     if isinstance(r, dict) and r.get("status") == "open"
+                     and (r.get("direction_bucket") in ("TRIM", "SELL")
+                          or any(w in str(r.get("action", "")).lower() for w in ("trim", "sell")))
+                     and r.get("id"))
+        return ",".join(ids)
+    except Exception:
+        return ""
 
 
 def _domain_moved(domain, ctx):
@@ -1531,6 +1554,18 @@ def _domain_moved(domain, ctx):
             return True, "a trading session occurred since the previous run"
         return False, (f"market_session={ctx['market_session']} and prices are unchanged since "
                        f"the previous run -- no session to read")
+    if domain == "lots_trims":
+        # smith-tax was gated on "at least one open TRIM/SELL exists", which is nearly always
+        # true, so it ran every deep review. Measured 2026-09-06: 77,880 tokens to conclude
+        # FIFO == HIFO with a $0.00 tax delta on all five open trims -- a conclusion that cannot
+        # change while neither the lots nor the trim set moves. Its real inputs are the lots and
+        # WHICH trims are open, not whether any are.
+        if ctx["lots_changed"]:
+            return True, "lots.json changed since the previous run"
+        if ctx["open_trims_changed"]:
+            return True, "the set of open TRIM/SELL proposals changed since the previous run"
+        return False, ("lots.json unchanged and the same TRIM/SELL proposals are open -- lot "
+                       "sequencing cannot have changed")
     if domain == "calendar":
         if ctx["calendar_changed"]:
             return True, "earnings_calendar changed since the previous run"
@@ -1723,6 +1758,8 @@ def cmd_slices(args):
     lots_now = load_json(os.path.join(base, "lots.json"), default={})
     prior_lots_digest = (prior_slices.get("book", {}) or {}).get("_lots_digest")
     lots_digest = hashlib.md5(json.dumps(lots_now, sort_keys=True).encode()).hexdigest()[:12]
+    prior_open_trims_sig = (prior_slices.get("tax", {}) or {}).get("_open_trims_sig")
+    open_trims_sig = _open_trims_sig(base)
     ctx = {
         "qty_changes": book_now.get("qty_changes") or [],
         "lots_changed": bool(prior_lots_digest) and prior_lots_digest != lots_digest,
@@ -1736,6 +1773,8 @@ def cmd_slices(args):
         "session_occurred": any(
             (a.get("market_value_inr") != b.get("market_value_inr"))
             for a, b in zip(rows, (prior_holdings.get("holdings_inr") or []))),
+        # None (no prior slice) reads as CHANGED -- a first run for this agent must dispatch.
+        "open_trims_changed": prior_open_trims_sig is None or open_trims_sig != prior_open_trims_sig,
         "calendar_changed": (json.dumps(dc.get("earnings_calendar"), sort_keys=True) !=
                              json.dumps((prior_slices.get("watchlist", {}) or {})
                                         .get("data_cache.earnings_calendar"), sort_keys=True))
@@ -1753,6 +1792,15 @@ def cmd_slices(args):
         sl["output_file"] = os.path.join(rd, f"smith-{agent}-output.md")
         sl["holdings_path"] = os.path.join(rd, "holdings.json")
         sl["read_these_files"] = {}
+        # Persist the markers the NEXT run's domain check reads back. `_lots_digest` was read at
+        # the top of this function but never actually written into any slice, so `lots_changed`
+        # had been permanently False since it was added -- the lots half of the `holdings`
+        # domain check never once fired. Underscore-prefixed so they read as bookkeeping, and
+        # excluded from the materiality comparison below like every other non-payload key.
+        if agent == "book":
+            sl["_lots_digest"] = lots_digest
+        if agent == "tax":
+            sl["_open_trims_sig"] = open_trims_sig
 
         for k in spec["state"]:
             v = state.get(k)
@@ -1858,23 +1906,32 @@ def cmd_slices(args):
                     if agent not in EXTERNAL_READERS and agent not in NEVER_SKIP:
                         immaterial.append(f"smith-{agent}")
 
+        # THE SKIP SIGNAL IS `domain_moved`, NOT THE BYTE DIGEST (rewired 2026-09-06).
+        #
+        # The digest skip never fired once. Measured across every run that wrote slices
+        # (08-30, 08-31, 09-01, 09-06): no skip-eligible agent's digest EVER repeated -- four
+        # distinct values for `rebound`, all different. It cannot fire, by construction: the
+        # digest hashes the CONTENT of every referenced file, and those references include
+        # compute_*.json, which embeds live prices. Any run where a price moved -- i.e. every
+        # run -- produces a fresh digest. A saving mechanism that is structurally unreachable
+        # is worse than none, because its presence in the output implies the question was asked
+        # and answered "no".
+        #
+        # `domain_moved` asks the right question: did the thing this agent READS actually move.
+        # It was already computed above and already documented in dispatch_note as "the
+        # strongest skip signal" -- it simply was not wired to anything. Now it is.
+        # `moved is None` means the script cannot tell (news, fundamentals) and always
+        # dispatches; only an explicit False skips.
+        if moved is False and agent not in EXTERNAL_READERS and agent not in NEVER_SKIP:
+            rec["skip"] = True
+            rec["skip_reason"] = (f"input domain '{dom}' did not move: {evidence}. "
+                                  f"Reuse its prior output.")
+            skippable.append(f"smith-{agent}")
+
         prior = prior_digests.get(agent)
         if prior and prior == sl["inputs_digest"]:
+            # Retained as an observation only -- never a skip vote. See above for why.
             rec["inputs_unchanged_since"] = prior_run
-            if agent in EXTERNAL_READERS or agent in NEVER_SKIP:
-                rec["skip"] = False
-                rec["skip_reason"] = (
-                    "inputs unchanged BUT this agent reads the outside world -- news and prices "
-                    "moved even though state did not. Dispatch it."
-                    if agent in EXTERNAL_READERS else
-                    "inputs unchanged BUT its real inputs (the Stage-1 tails) are not in its "
-                    "slice, so this digest cannot speak for them. Dispatch it.")
-            else:
-                rec["skip"] = True
-                rec["skip_reason"] = ("every input is byte-identical to " + str(prior_run) +
-                                      " and this agent reasons only over files -- it can have "
-                                      "nothing new to say. Reuse its prior output.")
-                skippable.append(f"smith-{agent}")
         written.append(rec)
 
     emit({"run_dir": rd, "written": written, "problems": problems,
@@ -1889,11 +1946,16 @@ def cmd_slices(args):
                             "yield is not, so selection is the lever, not trimming. A null "
                             "domain_moved means the script cannot tell -- dispatch."),
           "materiality_pct": MATERIALITY_PCT,
-          "skip_note": ("Agents listed here have byte-identical inputs to the previous run AND "
-                        "reason only over files, so they cannot produce a new finding -- reuse "
-                        "their prior output instead of dispatching. Agents that read the outside "
-                        "world are NEVER listed here even when their slice is unchanged, because "
-                        "their real input is news and prices, not the file."),
+          "skip_note": ("Agents listed here had their INPUT DOMAIN observably not move -- no "
+                        "qty_changes and unchanged lots for a holdings agent, no trading session "
+                        "for a session agent, unchanged lots and the same open trims for tax. "
+                        "Reuse their prior output instead of dispatching. Agents that read the "
+                        "outside world (news, fundamentals) are NEVER listed, because the script "
+                        "cannot see whether their domain moved; nor is the strategist, whose real "
+                        "inputs are the Stage-1 tails and are not in its slice. Rewired from the "
+                        "byte-digest test on 2026-09-06: that test never fired once in four "
+                        "measured runs and could not, since the digest hashes compute_*.json "
+                        "content, which embeds live prices."),
           "shared_snapshots": shared_notes,
           "total_bytes": sum(w["bytes"] for w in written),
           "note": ("Small agent-specific state inline; anything already on disk handed over as a "

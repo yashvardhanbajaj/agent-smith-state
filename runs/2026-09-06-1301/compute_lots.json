@@ -1,6 +1,6 @@
 {
-  "tickers": 31,
-  "total_lots": 69,
+  "tickers": 32,
+  "total_lots": 72,
   "corporate_actions_applied": [
     {
       "date": "2025-12-25",
@@ -123,51 +123,14 @@
   "phantom_shorts": [],
   "reconciliation": {
     "tickers_checked": 32,
-    "reconciled": 26,
-    "mismatches": [
-      {
-        "ticker": "APH",
-        "lots_sum": 0,
-        "broker_qty": 10,
-        "delta": -10
-      },
-      {
-        "ticker": "GLW",
-        "lots_sum": 8,
-        "broker_qty": 3,
-        "delta": 5
-      },
-      {
-        "ticker": "AMD",
-        "lots_sum": 2,
-        "broker_qty": 3,
-        "delta": -1
-      },
-      {
-        "ticker": "COHR",
-        "lots_sum": 4,
-        "broker_qty": 5,
-        "delta": -1
-      },
-      {
-        "ticker": "KLAC",
-        "lots_sum": 5,
-        "broker_qty": 6,
-        "delta": -1
-      },
-      {
-        "ticker": "ASML",
-        "lots_sum": 1.0,
-        "broker_qty": 1.2500011,
-        "delta": -0.250001
-      }
-    ],
+    "reconciled": 32,
+    "mismatches": [],
     "orphaned_positions": []
   },
   "warnings": [
     "G80 accepted residue: 24 pre-2026-08-15 row(s) still carry the old Amount/Price derivation (AMD x6, GOOG x5, VRT x3, SMCI x2, PLTR x2, WDC x2, META x2, LLY x1, EWY x1). Quantified at ~$29 of cost-basis error in total, ~$12 of it on live positions (0.027% of book) -- knowingly left, not overlooked. Informational."
   ],
-  "written": null,
-  "write_blocked": "reconciliation not clean -- 6 mismatch(es), 0 orphan(s), 0 phantom short(s). lots.json left exactly as it was; fix trades.json first.",
+  "written": "./lots.json",
+  "write_blocked": null,
   "note": "phantom_shorts are sells/conversions that consumed more than the record shows arriving -- surfaced rather than clamped to zero. A non-empty list means the trade record is missing share-creating events (see G68/G71)."
 }

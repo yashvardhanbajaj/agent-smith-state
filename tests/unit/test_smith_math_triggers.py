@@ -554,3 +554,38 @@ class TestClusterRotation:
         conviction_by_ticker = {"ONLY": _conv_row(1000.0, "Compute", rel_pp=-5.0)}
         smith_math._trigger_cluster_rotation(conviction_by_ticker, {"ONLY": "watch"}, cluster_rotation)
         assert cluster_rotation == []
+
+
+# ---------------------------------------------------------------------------
+# cmd_buckets helpers (added 2026-09-06) -- the deterministic half of smith-signals
+# ---------------------------------------------------------------------------
+
+class TestBucketArithmetic:
+    """Moved out of smith-signals, which cost 144,878 tokens on 2026-09-06 largely to re-derive
+    these. Thresholds are smith-signals.md task 10's, unchanged -- this pins that the move was a
+    relocation, not a redefinition."""
+
+    def test_strong_move_threshold_scales_with_atr(self):
+        assert smith_math._strong_move_threshold(4.0) == 6.0          # 1.5 x ATR
+
+    def test_threshold_floor_stops_a_quiet_name_flagging_on_noise(self):
+        assert smith_math._strong_move_threshold(0.5) == 2.0
+
+    def test_threshold_ceiling_keeps_a_loud_name_flaggable(self):
+        assert smith_math._strong_move_threshold(15.6) == 12.0
+
+    def test_rel_sigma_uses_the_2_3x_atr_denominator(self):
+        assert round(smith_math._rel_sigma(6.34, 4.36), 3) == round(6.34 / (2.3 * 4.36), 3)
+
+    def test_rel_sigma_denominator_has_a_5pp_floor(self):
+        """A very low-ATR name must not get an artificially tiny denominator that turns an
+        ordinary move into a multi-sigma event."""
+        assert smith_math._rel_sigma(5.0, 0.1) == 1.0                 # max(0.23, 5.0) -> 5.0
+
+    def test_high_atr_name_needs_a_far_bigger_gap_to_lead(self):
+        """The whole point of normalizing: SNDK at 15.6% ATR moving -25.9pp is inside its own
+        noise (-0.72 sigma), while a 2.89% ATR name moving the same -25.9pp is a real signal."""
+        loud = smith_math._rel_sigma(-25.9, 15.6)
+        quiet = smith_math._rel_sigma(-25.9, 2.89)
+        assert -1.0 < loud < 0            # not flagged
+        assert quiet <= -1.0              # flagged
