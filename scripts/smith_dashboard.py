@@ -418,6 +418,15 @@ details.pgrp>.body{padding:0 0 4px}
   line-height:1.4;margin-top:5px;font-style:italic}
 .pr .tranche{display:block;font-family:var(--mono);font-size:11px;color:var(--action);
   line-height:1.4;margin-top:5px}
+/* compact inline drawer for a proposal's secondary detail (added 2026-09-06) -- the generic
+   details>summary rule above is sized for a section-level toggle (serif, 13.5px, 14px padding),
+   far too heavy for a one-word toggle sitting inside a single proposal row. */
+.pr-more{margin-top:5px}
+.pr-more>summary{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.04em;
+  color:var(--accent);padding:0;text-transform:uppercase}
+.pr-more>summary::before{content:"+ ";color:var(--accent)}
+.pr-more[open]>summary::before{content:"\2212 "}
+.pr-more>.body{padding:6px 0 0;font-size:12px}
 
 /* ============ rotation ideas (paired trim+buy proposals) ============ */
 .rotgrp{border-top:1px solid var(--line-soft);padding-top:2px;margin-bottom:2px}
@@ -844,9 +853,16 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
         rows = []
 
         def prop_row(p):
-            short, rest = trim_lead(p.get("rationale", ""))
-            more = (f'<details><summary>full rationale</summary><div class="body">{esc(rest)}</div></details>'
-                    if len(rest) > 40 else "")
+            # COMPACTED 2026-09-06 (user: "very text heavy and report like... compact and
+            # efficient"). Every field below is unchanged and still rendered -- rationale, live
+            # re-justification, tranche sizing, retirement condition, conviction/stop/shares/
+            # clamped, repeat count/id -- none of it was cut, because each one closes a real
+            # incident (see the original comments, preserved in git history at 05fb5e7 and
+            # earlier). What changed is where it lives: one dense visible line (badge, action,
+            # cluster, held/stack badges -- SAFETY signals, never collapsed -- short rationale,
+            # amount) plus ONE details drawer holding everything else, instead of 6-8 stacked
+            # <span> lines printed open by default on every single row.
+            short, rest = trim_lead(p.get("rationale", ""), max_len=90)
             bucket = p.get("direction_bucket", "HOLD")
             pid = p.get("id", "")
             rc = p.get("repeat_count", 1)
@@ -854,46 +870,20 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
                    + (f' since {esc(str(p["history"][0].get("date",""))[:10])}' if p.get("history") else "")) \
                   if rc > 1 else ""
             pid_s = f'<span class="pid">{esc(pid)}</span>' if pid else ""
-            # rep/id live with the rationale (middle column), not the left label column --
-            # stacking them under the badge made that column taller than the row needed.
             meta = f'<span class="meta">{rep}{pid_s}</span>' if (rep or pid_s) else ""
             clus_s = f'<span class="clus">{esc(p["cluster"])}</span>' if p.get("cluster") else ""
-            # LIVE re-justification (added 2026-08-06). `rationale` is the sentence written the
-            # day the proposal was made and never changes; `still_valid_because` is recomputed
-            # every run by smith_math.py's proposals pass from today's risk caps, cluster bands
-            # and cash position. Showing both, clearly separated, is the difference between a
-            # panel that reads as an archive and one that reads as live: the reader can see at a
-            # glance that a 6-day-old trim is still on the list because the cap is STILL breached
-            # today, not merely because nobody cleaned up. `review_flags` carries the judgement
-            # calls the engine deliberately refuses to auto-action (chiefly: price has moved far
-            # enough since proposal that the dollar size needs redoing before acting).
             live = p.get("still_valid_because") or []
-            live_s = ("".join(f'<span class="lv">{esc(x)}</span>' for x in live)
-                      and f'<span class="lives">{"".join(f"<span class=\"lv\">{esc(x)}</span>" for x in live)}</span>')
+            live_s = (f'<span class="lives">{"".join(f"<span class=\"lv\">{esc(x)}</span>" for x in live)}</span>'
+                      if live else "")
             flags = p.get("review_flags") or []
             flag_s = "".join(f'<span class="rvf">&#9888;&#65039; {esc(x)}</span>' for x in flags)
-            # forward-looking retirement condition (added 2026-08-06, same change) -- the
-            # inverse of still_valid_because: what specifically has to happen for this row to
-            # auto-retire on a future run. Makes the automation legible, not just present.
             retires = p.get("retires_when")
             retires_s = f'<span class="rtw">retires when: {esc(retires)}</span>' if retires else ""
-            # honest sizing (added 2026-08-06, user-reported: sizes looked small vs the breach
-            # they claimed to cure). tranche_note only appears when smith_math.py's proposals
-            # pass computed a cure_pct under 90% -- a proposal that already cures the bulk of
-            # its trigger says nothing extra, this is specifically the "27% of a $1,457 excess"
-            # case made visible instead of a bare $400 sitting next to no context.
             tranche = p.get("tranche_note")
             tranche_s = f'<span class="tranche">{esc(tranche)}</span>' if tranche else ""
-            # Conviction-driven ideas (added 2026-08-24) carry a stop level, a share count, and
-            # clamped_by -- "wanted $1,364, capped to $538 by ATR headroom" -- so a proposal never
-            # states a dollar figure without saying what it would take to fill it or what capped
-            # it short. Legacy/housekeeping proposals don't carry these fields; render nothing
-            # rather than a misleading "$0 shares".
             stop_px = p.get("stop_price_usd")
             price_px = p.get("price_usd")
-            shares = None
-            if price_px:
-                shares = int(p.get("size_usd", 0) / price_px) if price_px else None
+            shares = int(p.get("size_usd", 0) / price_px) if price_px else None
             stop_s = f'<span class="stopline">stop ${stop_px:,.2f}</span>' if stop_px else ""
             shares_s = f'<span class="stopline">~{shares} sh</span>' if shares else ""
             clamped = p.get("clamped_by")
@@ -905,10 +895,16 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
             decide_s = decision_buttons("proposal", pid) if pid else ""
             held_s = held_badge(p)
             stack_s = stacks_badge(p)
+            # Full rationale sentence goes in the drawer too (short is a hard truncation of the
+            # SAME sentence, not a summary of it -- `rest` from trim_lead was the leftover half).
+            rest_s = f'<p class="note" style="margin:0 0 6px">{esc(rest)}</p>' if len(rest) > 4 else ""
+            details = (rest_s + live_s + tranche_s + conv_s + stop_s + shares_s + clamped_s
+                       + retires_s + meta)
+            drawer = (f'<details class="pr-more"><summary>details</summary>'
+                      f'<div class="body">{details}</div></details>') if details else ""
             return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
-                    f'{esc(p.get("action",""))}{clus_s}{held_s}</span>'
-                    f'<span class="why">{esc(short)}{more}{live_s}{flag_s}{tranche_s}{retires_s}'
-                    f'{conv_s}{stop_s}{shares_s}{clamped_s}{stack_s}{meta}{decide_s}</span>'
+                    f'{esc(p.get("action",""))}{clus_s}{held_s}{stack_s}</span>'
+                    f'<span class="why">{esc(short)}{flag_s}{drawer}{decide_s}</span>'
                     f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
 
         # -- rotation ideas: paired trim+buy proposals sharing a pair_id (added 2026-08-06,
@@ -1041,9 +1037,18 @@ def _render_factor_catalysts(state):
             extra = (f' data-headline="{esc_attr(c.get("headline",""))}" '
                     f'data-date="{esc_attr(c.get("date",""))}"')
             decide_s = decision_buttons("catalyst", f"c{i}", extra)
+            # COMPACTED 2026-09-06 (user: report-like, too text-heavy) -- a long headline (these
+            # run 150-250 chars) used to print in full; now truncated to one clause with the rest
+            # plus the magnitude line behind a details toggle. affects/exposure stays visible --
+            # that's the scannable "what does this touch" line, not prose.
+            head_short, head_rest = trim_lead(c.get("headline", ""), max_len=110)
+            mag = c.get("magnitude", "")
+            more_bits = ((f'<p class="note" style="margin:0 0 4px">{esc(head_rest)}</p>' if len(head_rest) > 4 else "")
+                         + (f'<div class="mm">{esc(mag)}</div>' if mag else ""))
+            more_s = (f'<details class="pr-more"><summary>details</summary>'
+                      f'<div class="body">{more_bits}</div></details>') if more_bits else ""
             rows.append(f'<div class="ci"><span class="cb {dirn}">{dirn}</span><div>'
-                        f'<div class="hh">{esc(c.get("headline",""))}</div>'
-                        f'<div class="mm">{esc(c.get("magnitude",""))}</div>'
+                        f'<div class="hh">{esc(head_short)}</div>{more_s}'
                         f'<div class="aa">{affects}{exp_s}</div>{decide_s}</div></div>')
         out.append('<section class="panel"><div class="phead"><h2>Factor catalysts</h2></div>'
                  f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
