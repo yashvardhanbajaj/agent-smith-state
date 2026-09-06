@@ -1172,6 +1172,24 @@ def _render_trade_triggers(triggers):
                 continue
             vote = (rows_t[0].get("vote") or "live").upper()
             vote_cls = "" if vote == "LIVE" else "warn"
+
+            # REDESIGNED 2026-09-06 (user-reported: Move/Size showing "--" for most rows read
+            # as broken, and Why's mid-word ellipsis + trailing "+2⚠" read as garbled). Two
+            # separate causes, two separate fixes:
+            # (1) SHADOW blocks (laggard_rotation etc) NEVER carry a suggested_size by design --
+            #     shadow triggers don't get sized until they earn a real hit rate (see this
+            #     file's own standing rule, cited in the "how to read this" note below). A
+            #     column that is empty for EVERY row in a block isn't missing data, it's a
+            #     column that doesn't apply to this block -- so it's dropped entirely instead
+            #     of printing a dash on every row, and the block header says why in one line.
+            # (2) Move is genuinely absent for SOME rows (this run's data_quality: the ATR/RSI
+            #     refresh was skipped for budget reasons, see smith-signals' own note) -- that
+            #     column stays, "--" there is honest, not a bug.
+            size_applies = key != "laggard_rotation" and any(
+                (c.get("suggested_size_usd") or c.get("current_stop_usd")) for c in rows_t)
+            move_applies = any(c.get("gain_pct") is not None or c.get("abs_return_1m_pct") is not None
+                              for c in rows_t)
+
             trs = []
             for c in rows_t:
                 if key == "profit_ratchet":
@@ -1183,32 +1201,40 @@ def _render_trade_triggers(triggers):
                 gain = c.get("gain_pct")
                 secondary = (f"{gain:+.1f}% vs basis" if gain is not None
                              else (f"{c['abs_return_1m_pct']:+.1f}% 1m" if c.get("abs_return_1m_pct") is not None else "&mdash;"))
-                # COMPACTED 2026-09-06 (user-reported: this column overflowed the table width,
-                # text getting clipped rather than wrapping) -- esc() each item BEFORE joining
-                # with an entity separator, same double-escape fix as elsewhere in this file.
-                # Only the first reason shows; the full list (and any blockers) move to the
-                # cell's own tooltip instead of unbounded inline text.
+                # Why, as a proper chip: word-boundary-safe (never cuts mid-word), the reason
+                # count and any blocker fold into ONE readable tooltip rather than a bare "+2"
+                # and a floating warning glyph with no label.
                 reasons = c.get("reasons") or []
-                why_full = " &middot; ".join(esc(r) for r in reasons)
-                why_short = esc(reasons[0][:40] + "…" if reasons and len(reasons[0]) > 40 else (reasons[0] if reasons else ""))
-                if len(reasons) > 1:
-                    why_short += f' <i>+{len(reasons)-1}</i>'
                 blockers = c.get("blockers") or []
-                blk = (f'<span class="rvf" title="{esc_attr(" | ".join(blockers))}">&#9888;&#65039;</span>'
-                      if blockers else "")
+                primary = reasons[0] if reasons else ""
+                primary_short = primary if len(primary) <= 42 else primary[:42].rsplit(" ", 1)[0] + "…"
+                tip_bits = []
+                if len(reasons) > 1:
+                    tip_bits.append(" · ".join(reasons))
+                if blockers:
+                    tip_bits.append("Blocked: " + " | ".join(blockers))
+                tip = esc_attr(" — ".join(tip_bits)) if tip_bits else ""
+                extra_n = f' <i>+{len(reasons)-1}</i>' if len(reasons) > 1 else ""
+                blk_icon = ' &#9888;&#65039;' if blockers else ""
+                why_cell = (f'<span class="rchip{" w" if blockers else ""}" title="{tip}">'
+                           f'{esc(primary_short)}{extra_n}{blk_icon}</span>' if primary else "&mdash;")
+                size_td = f'<td class="num">{amt}</td>' if size_applies else ""
+                move_td = f'<td class="num">{secondary}</td>' if move_applies else ""
                 trs.append(f'<tr><td><b>{esc(c["ticker"])}</b></td>'
                            f'<td class="sub">{esc(c.get("cluster") or "-")}</td>'
                            f'<td class="num">{(f"{rsi:.1f}" if rsi is not None else "&mdash;")}</td>'
-                           f'<td class="num">{secondary}</td>'
-                           f'<td class="num">{amt}</td>'
-                           f'<td class="sub" title="{esc_attr(why_full)}" style="white-space:nowrap;'
-                           f'overflow:hidden;text-overflow:ellipsis;max-width:220px">{why_short}{blk}</td></tr>')
+                           f'{move_td}{size_td}'
+                           f'<td class="sub">{why_cell}</td></tr>')
+            size_th = "<th>Size</th>" if size_applies else ""
+            move_th = "<th>Move</th>" if move_applies else ""
+            not_sized_note = ('<span class="sub" style="margin-left:8px">shadow-scored, not '
+                              'sized -- no vote until it earns a hit rate</span>') if not size_applies and vote == "SHADOW" else ""
             blocks.append(
                 f'<div class="phead" style="border:0;padding:10px 0 4px"><h2 style="font-size:.82rem">'
                 f'{label}<span class="sub">{how}</span></h2>'
-                f'<span class="pill {vote_cls}">{esc(vote)}</span></div>'
-                '<div class="tw"><table class="tbl"><thead><tr><th>Name</th><th>Cluster</th>'
-                '<th>RSI14</th><th>Move</th><th>Size</th><th>Why</th></tr></thead>'
+                f'<span class="pill {vote_cls}">{esc(vote)}</span>{not_sized_note}</div>'
+                f'<div class="tw"><table class="tbl"><thead><tr><th>Name</th><th>Cluster</th>'
+                f'<th>RSI14</th>{move_th}{size_th}<th>Why</th></tr></thead>'
                 f'<tbody>{"".join(trs)}</tbody></table></div>')
         if blocks:
             stale = (not triggers.get("rsi_usable")) or (not triggers.get("rel_usable"))
