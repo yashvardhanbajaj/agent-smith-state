@@ -1041,9 +1041,10 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
         # not a competition for the top slot. Grouped by priority tier same as before.
         hrows = []
         for b in breaches:
-            hrows.append(f'<div class="pr"><span class="act2">Breach</span>'
-                         f'<span class="why">{esc(b)} &mdash; bring it inside the band or record why '
-                         f'the breach is accepted.</span><span class="amt">&mdash;</span></div>')
+            hrows.append(f'<div class="pr"><span class="act2"><span class="dirb TRIM">BREACH</span></span>'
+                         f'<span class="why"><span class="rchip w" title="{esc_attr(b)} -- bring it '
+                         f'inside the band or record why the breach is accepted.">{esc(b)}</span></span>'
+                         f'<span class="amt">&mdash;</span></div>')
         by_priority = {"HIGH": [], "MEDIUM": [], "LOW": []}
         for p in housekeeping_props:
             by_priority.setdefault(p.get("priority", "LOW"), by_priority["LOW"]).append(p)
@@ -1072,15 +1073,7 @@ def _render_factor_catalysts(state):
         rows = []
         for i, c in enumerate(catalysts[:6]):
             dirn = {"threat": "THREAT", "tailwind": "TAILWIND"}.get(c.get("direction", ""), "AMBIGUOUS")
-            # FIXED 2026-08-08 (user-reported: "&middot" rendering as literal text): affects was
-            # joined with the RAW "&middot;" entity, then the whole joined string was passed
-            # through esc(), which escapes the "&" a second time into "&amp;middot;" -- browsers
-            # render that as the literal text "&middot;", not a dot. Escape each ticker
-            # individually first, THEN join with the raw (already-safe) entity separator, same
-            # fix applied to `maps` below.
-            affects = " &middot; ".join(esc(x) for x in c.get("affects", []))
             exp = c.get("exposure_pct_equity")
-            exp_s = f' &mdash; {exp:.1f}% equity' if isinstance(exp, (int, float)) else ""
             # "catalyst" has no natural stable id (headline+date is the real key) -- synthesize
             # one for the button's data-element-id and carry the real key along as extra data-*
             # attributes, which sync-decisions reads directly rather than looking anything up.
@@ -1091,15 +1084,29 @@ def _render_factor_catalysts(state):
             # run 150-250 chars) used to print in full; now truncated to one clause with the rest
             # plus the magnitude line behind a details toggle. affects/exposure stays visible --
             # that's the scannable "what does this touch" line, not prose.
-            head_short, head_rest = trim_lead(c.get("headline", ""), max_len=140)
+            # REDESIGNED 2026-09-06 (same pass as Ideas/Housekeeping: sentence-shaped fields ->
+            # visual chips + a label:value fact grid, not a shrunk paragraph). The full headline
+            # is real signal and stays fully readable -- it just moved to the tooltip and the
+            # drawer instead of printing 150-250 chars inline every time. affected tickers are
+            # now individual chips (scannable at a glance) instead of a middot-joined string.
+            headline = c.get("headline", "")
+            head_tag = headline[:60] + "…" if len(headline) > 60 else headline
             mag = c.get("magnitude", "")
-            more_bits = ((f'<p class="note" style="margin:0 0 4px">{esc(head_rest)}</p>' if len(head_rest) > 4 else "")
-                         + (f'<div class="mm">{esc(mag)}</div>' if mag else ""))
-            more_s = (f'<details class="pr-more"><summary>details</summary>'
-                      f'<div class="body">{more_bits}</div></details>') if more_bits else ""
+            affect_chips = "".join(f'<span class="tick {"g" if dirn=="TAILWIND" else ("b" if dirn=="THREAT" else "")}">{esc(x)}</span>'
+                                   for x in c.get("affects", []))
+            facts = [("Headline", esc(headline))]
+            if mag:
+                facts.append(("Magnitude", esc(mag)))
+            if isinstance(exp, (int, float)):
+                facts.append(("Exposure", f'{exp:.1f}% of equity'))
+            facts.append(("Date", esc(c.get("date", "-"))))
+            fact_grid = "".join(f'<div class="srow"><span class="slab">{esc(k)}</span><span>{v}</span></div>'
+                                for k, v in facts)
+            drawer = f'<details class="pr-more"><summary>details</summary><div class="body">{fact_grid}</div></details>'
+            exp_chip = (f'<span class="tick">{exp:.1f}% equity</span>' if isinstance(exp, (int, float)) else "")
             rows.append(f'<div class="ci"><span class="cb {dirn}">{dirn}</span><div>'
-                        f'<div class="hh">{esc(head_short)}</div>{more_s}'
-                        f'<div class="aa">{affects}{exp_s}</div>{decide_s}</div></div>')
+                        f'<div class="hh" title="{esc_attr(headline)}">{esc(head_tag)}</div>'
+                        f'<div class="sch" style="margin:4px 0">{affect_chips}{exp_chip}</div>{drawer}{decide_s}</div></div>')
         out.append('<section class="panel"><div class="phead"><h2>Factor catalysts</h2></div>'
                  f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
 
