@@ -1,0 +1,631 @@
+{
+ "schema_version": 1,
+ "_readme": "known_gaps entries fully resolved/closed, archived 2026-07-26 to keep state.json to gaps a live run still needs to cite. Full original text preserved for audit.",
+ "known_gaps": [
+  {
+   "id": "G3",
+   "description": "INDmoney networth_snapshot/networth_holdings AGGREGATE totals lag the real-time price (per-name fix landed via get_us_stocks_details.ext_hr_live_price + PRE-MARKET PRICE OVERLAY in SKILL.md step 2.5, cross-validated vs FMP aftermarket quotes). Aggregate endpoint staleness remains open.",
+   "opened": "2026-07-13",
+   "owner": "orchestrator (STALENESS GATE)",
+   "status": "closed",
+   "closed": "2026-07-28",
+   "resolution": "CLOSED 2026-07-28: smith_math.py cmd_book now reconciles the row-level sum against the snapshot and any aggregate figure, emits a reconciliation block, and sets persist_safe=false above a 3% tolerance. The orchestrator must not write state or append a ledger row when persist_safe is false, so a lagging aggregate can no longer silently corrupt weights."
+  },
+  {
+   "id": "G5",
+   "description": "yfinance returns no `beta` field for certain instrument types -- ETFs (DRAM, EWY, CQQQ) and thin-history spinoffs (SNDK) -- so smith-book's BETA CACHE REFRESH task silently let the 1.0 default stand for these names, corrupting risk-weighted concentration and portfolio beta for any book holding them.",
+   "opened": "2026-07-18",
+   "owner": "smith-book",
+   "status": "closed",
+   "resolution": "WebFetch stockanalysis.com/stocks/{ticker}/statistics/ (ETFs: stockanalysis.com/etf/{ticker}/) as the fallback source when yfinance returns no beta, tagged source:\"stockanalysis\" so the orchestrator caches it with the same TTL. Verified 2026-07-18: EWY returned 1.46 vs the 1.0 default. Standing rule in smith-book.md task 3."
+  },
+  {
+   "id": "G10",
+   "description": "yfinance's get_stock_history silently auto-aggregates to weekly bars and truncates rows when a multi-symbol batch is requested for daily-bar-derived metrics (ATR20, beta regression, RSI14), regardless of the max_rows parameter -- a batch call that looks like it succeeded quietly returns unusable weekly data instead of the ~21 daily rows a 20/50/200-day window needs.",
+   "opened": "2026-07-17",
+   "owner": "orchestrator / smith-signals / smith-rebound",
+   "status": "closed",
+   "resolution": "Never batch multi-symbol daily-bar history. Force true daily bars with period='1mo' at MOST 3 symbols per call (smith-signals' ATR20/RSI14/rel_strength_1m refresh, SKILL.md 2.7); smith-rebound's support-level fallback uses single-symbol calls only, with Barchart WebFetch as the primary source specifically to avoid this batching trap. Proven 2026-07-17."
+  },
+  {
+   "id": "G11",
+   "description": "'Compute/Hyperscaler' cluster line added to draft policy.json without user confirmation",
+   "opened": "2026-07-18",
+   "owner": "user (confirm or reject)",
+   "status": "closed",
+   "closed": "2026-07-28",
+   "resolution": "CLOSED 2026-07-28: user explicitly confirmed the full cluster-target set including Compute/Hyperscaler (raised 10%->20%) when choosing option 3 on 2026-07-27."
+  },
+  {
+   "id": "G13",
+   "description": "TSM Taiwan-listing session-timing error in a proposal rationale (double-counted a move already priced into the US close)",
+   "opened": "2026-07-18",
+   "owner": "orchestrator",
+   "status": "closed",
+   "resolution": "resolved 2026-07-18"
+  },
+  {
+   "id": "G14",
+   "description": "Same-day stale INDmoney per-position price caused a false single-position-cap breach report for SNDK (12.352% vs true 10.482%)",
+   "opened": "2026-07-18",
+   "owner": "orchestrator",
+   "status": "closed",
+   "resolution": "resolved 2026-07-18, methodology folded into G3"
+  },
+  {
+   "id": "G15",
+   "description": "data_cache.betas empty for SNDK/DRAM/IREN/ARM (25.7% of book) -- defaults to 1.0, flagged in data_quality. 2026-07-26: reverted a guessed-value insertion that violated the never-estimate guardrail. Needs real 3mo-returns beta vs SOX (see benchmark_betas), not an estimate.",
+   "opened": "2026-07-20",
+   "owner": "orchestrator (smith-book, real computation only)",
+   "status": "closed",
+   "closed": "2026-07-28",
+   "resolution": "CLOSED 2026-07-28: real betas vs SMH computed for all 23 names from 20 daily returns; SNDK/DRAM/ARM no longer default to 1.0. See data_cache.beta_method for the window caveat."
+  },
+  {
+   "id": "G16",
+   "description": "data_cache.ticker_map was empty despite all 29 names having been resolved in prior runs (persistence gap, not a resolution failure)",
+   "opened": "2026-07-20",
+   "owner": "orchestrator",
+   "status": "closed",
+   "resolution": "resolved 2026-07-20"
+  },
+  {
+   "id": "G17",
+   "description": "spx_125dma/ndx_rsi14/vix_52w_range computed from weekly-aggregated (not daily) yfinance history for the sentiment composite -- a smoothing approximation, not a failure",
+   "opened": "2026-07-20",
+   "owner": "orchestrator",
+   "status": "closed",
+   "closed": "2026-07-28",
+   "resolution": "CLOSED 2026-07-28: RSI14 moved to true daily closes (53.12 -> 35.81); 52wk-range component proven exact rather than approximate; residual 125dma smoothing documented in data_cache.sentiment_method as accepted."
+  },
+  {
+   "id": "G19",
+   "description": "FMP etfAndMutualFunds tool blocked on current plan tier (requires Ultimate/Enterprise) -- EWY/DRAM ETF-constituent cache cannot be refreshed",
+   "opened": "2026-07-22",
+   "owner": "orchestrator/smith-thesis",
+   "status": "closed",
+   "closed": "2026-08-07",
+   "resolution": "Reclassified from wont_fix to closed -- the FMP plan block is real and unchanged, but the underlying NEED (refresh the EWY/DRAM constituent cache) has a working substitute that has now been used twice: WebFetch against stockanalysis.com. Cached both. This produced a genuinely material finding the plan block had been hiding: DRAM is counted as one line in cluster/drift math, so its constituents are invisible. Looking through them on the 2026-08-07 book, true exposure vs apparent is SK hynix 3.25% vs 2.52%, Micron 6.23% vs 5.15%, Sandisk 3.94% vs 3.71%, and Samsung 0.78% vs ZERO -- the book holds Samsung with no direct Samsung position. Also ~$352 (1.03% of equity) of what is counted as equity is actually a T-bill inside DRAM. Stored as data_cache.look_through_2026_08_07. EWY itself is no longer held (stopped out 08-06) but is cached anyway: its 43.6% Samsung+SK-hynix concentration is precisely why the SKHY direct position was described as concentrating the EWY basket.",
+   "closed_by": "auto-audit 2026-08-07"
+  },
+  {
+   "id": "G20",
+   "description": "yfinance earnings-calendar pulls have been unreliable for confirmed dates; smith-earnings agent (Tier 3.2 skeleton) recommends switching to FMP as primary source.",
+   "opened": "2026-07-22",
+   "owner": "smith-watchlist",
+   "status": "closed",
+   "closed": "2026-07-28",
+   "resolution": "CLOSED 2026-07-28: reliable method established and documented in data_cache.earnings_method; 18 names seeded into earnings_calendar."
+  },
+  {
+   "id": "G21",
+   "description": "smith-rebound stalled twice this run (initial dispatch and retry, no progress for 600s both times) on a genuinely AMBIGUOUS-but-calm gate (VIX 17.44, marginal NQ=F breach) -- no rebound-candidate output this run, strategist proceeded without it",
+   "opened": "2026-07-22",
+   "owner": "orchestrator",
+   "status": "closed",
+   "resolution": "resolved 2026-07-23 -- smith-rebound succeeded on retry this run, produced 5 stage-in candidates"
+  },
+  {
+   "id": "G22",
+   "description": "INDmoney networth_holdings price feed on 2026-07-23 was internally consistent (weights summed to 100%) but implied +10-20% intraday gains on ~10 names while SPX/NDX were flat/-0.3% same session -- actively wrong, not merely stale. Cross-checked all 29 names against yfinance, confirmed fabricated, discarded wholesale for the run. More severe than prior G3 entries (those were stale/lagging; this was internally-consistent but false).",
+   "opened": "2026-07-23",
+   "owner": "orchestrator (STALENESS/SANITY GATE)",
+   "status": "open",
+   "resolution": "RECURRED 2026-07-23 20:15 refresher (19/28 names, worse than the 19:07 incident) -- workaround (yfinance) applied again; root cause still unknown, now a same-day repeat pattern",
+   "note": "SURFACED 2026-08-16 by the new `gaps` lookup: this had been INVISIBLE because its status field held a narrative ('RECURRED 2026-07-23...') rather than a status, so every reader testing status != 'closed' still mis-sorted it and nobody re-read it for 3.5 weeks. CURRENT STANDING: root cause STILL UNKNOWN and never diagnosed. It is MITIGATED, not fixed -- the SANITY GATE (weights/FX/value plausibility), the STALENESS GATE and the live-quote arbitration built afterwards (G32) would now catch a fabricated feed and refuse to persist it, which is a CONTROL, not a cure. Last observed 2026-07-23. Keep open until either the root cause is understood or a long clean run justifies closing it on evidence."
+  },
+  {
+   "id": "G23",
+   "description": "META (2sh) present in 19:07 full sweep holdings but absent from the 20:15 refresher's networth_holdings(US_STOCK) pull, confirmed twice -- carried forward at last-known qty per GUARD rule rather than silently dropped. Not corroborated by any ledger/flow evidence of a real exit.",
+   "opened": "2026-07-23",
+   "owner": "orchestrator (GUARD check)",
+   "status": "closed",
+   "resolution": "RESOLVED 2026-07-24 -- confirmed as a REAL flow via wallet-cash reconciliation (wallet $36.14->$5,656.86 matches sold-share proceeds), not a feed glitch. Extends to 4 more names same pattern this run (LITE/GOOG/BABA/STM all similarly absent from networth_holdings, all corroborated as real exits)."
+  },
+  {
+   "id": "G24",
+   "description": "High-confidence reconstruction (not live-verified): 07-24 cash jump traced to 5 full exits + 8 halvings coinciding with a broad AI-capex selloff; exact trigger (stop-loss/panic/planned de-risk) unconfirmed -- see G26.",
+   "opened": "2026-07-24",
+   "owner": "user (verify at next INDmoney login/statement)",
+   "status": "closed",
+   "closed": "2026-07-28",
+   "resolution": "SUPERSEDED by G26. The 07-24 event is now recorded in trades.json and explicitly labelled reconstructed rather than live-verified, which is exactly what this gap asked for. Folded in."
+  },
+  {
+   "id": "G25",
+   "description": "smith_math.py book's qty_changes/est_net_flows_usd only detects tickers present in BOTH prior and current holdings -- a full position exit (ticker vanishes from current entirely) is invisible to that logic. This run's attribution residual_market_move_usd (-$4,176.39) is therefore inflated by ~$3,700-3,800 of untracked full-exit value removal, not pure market price movement. Orchestrator manually reconciled this run via wallet-cash math; script itself was not patched.",
+   "opened": "2026-07-24",
+   "owner": "orchestrator (script enhancement candidate: diff prior state.json holdings tickers vs current positions tickers to detect exits explicitly)",
+   "status": "closed",
+   "resolution": "resolved 2026-07-26 -- qty_changes now catches full exits/new entries (see smith_math.py cmd_book), not just tickers common to both snapshots"
+  },
+  {
+   "id": "G26",
+   "description": "07-24 flow event (5 exits + 8 halvings, wallet $5.7k->$18.1k) had no captured trade rationale. FIXED GOING FORWARD 2026-07-26: trades.json + flow interrogation now attaches trade_reason to every qty_change (smith_math.py cmd_book). This historical instance stays UNCAPTURED.",
+   "opened": "2026-07-27 (ad-hoc discovery)",
+   "owner": "orchestrator -- needs a proper sweep to backfill the ledger gap",
+   "status": "closed",
+   "closed": "2026-08-13",
+   "resolution": "CLOSED 2026-08-13. The GLW -10 and IREN -25 stop fills of 2026-07-24 had no captured price and were excluded from all P&L. The targeted 07-24..07-27 pull recovered both from their confirmations. trades.json now has ZERO price-less rows across all 677.",
+   "closed_by": "smith-ledger run 3 + full backfill"
+  },
+  {
+   "id": "G27",
+   "description": "Fresh yfinance quotes pulled ad-hoc during this cash-position query show Friday 2026-07-24's close was a severe, broad selloff across all 21 remaining US holdings (weighted avg -5.06%, worst SNDK -10.79%). This is Friday's already-completed session, not a live-right-now move (markets closed for the weekend) -- but no scheduled run captured it, so no signals/thesis/macro context exists yet to judge Monday's reopen. Recommend a fresh sweep before market open Monday.",
+   "opened": "2026-07-27 (ad-hoc discovery)",
+   "owner": "orchestrator -- recommend a fresh smith-signals/smith-book dispatch or smith-rebound triage before any cash redeployment decision",
+   "status": "closed",
+   "resolution": "resolved 2026-07-25 -- context fully folded into state.json us.value_note; no standing gap, was a one-time market observation not a system defect"
+  },
+  {
+   "id": "G28",
+   "description": "policy.json cluster targets summed to 105% alongside a 3-15% cash band (impossible: book would total 108-120%), AND the drift table silently mixed denominators -- clusters/AI-capex were equity-based while cash was total-book-based, so the columns were never comparable. Every drift table 2026-07-12 to 2026-07-25 was measured against an unsatisfiable spec. FIXED 2026-07-25: targets rescaled proportionally (x100/105) to sum to 100 with band widths preserved; denominators now declared explicitly (clusters+AI-capex = invested_equity, cash = total_book); validator added (scripts/smith_math.py validate) and wired into cmd_drift, which now emits policy_defects/policy_valid and BOTH ai_capex bases. STILL OPEN (user decisions, not defects): (1) whether the AI-capex cap should measure against total_book instead of invested_equity -- on total_book the 90% cap reads 54.2% today and the 14-run-old breach vanishes; defaulted to invested_equity deliberately so the warning is not silently lost. (2) whether the cap value itself (90%) is one the user intends to honour, given it has been breached every run since inception and sits 30pt above the draft's own 60% sane-diversification flag.",
+   "opened": "2026-07-25",
+   "owner": "user (policy fix) + orchestrator (denominator convention)",
+   "status": "closed",
+   "resolution": "resolved 2026-07-25 -- both open user-decisions closed: AI-capex concentration affirmed intentional (cap raised 90->100%, invested_equity basis); arithmetic/denominator fixes already landed 07-25"
+  },
+  {
+   "id": "G29",
+   "description": "dashboard.html stale since 2026-07-27 15:27 -- shows superseded Friday-range stops instead of ATR20 framework, and predates the two-regime cash band and CEG/NVDA proposals.",
+   "opened": "2026-07-28",
+   "owner": "orchestrator",
+   "status": "closed",
+   "closed": "2026-07-28",
+   "resolution": "CLOSED 2026-07-28: dashboard rebuilt on ATR20 stops, measured SMH betas, two-regime cash band and the NVDA/CEG proposals; republished to the persistent artifact URL."
+  },
+  {
+   "id": "G30",
+   "description": "KOSPI/memory event of 2026-07-28 was researched and attributed (CXMT IPO + China DUV + NVDA circular-financing) but the desk had no news-monitoring that surfaced it -- it was found only because the user asked. smith-signals runs on price, not on named catalysts.",
+   "opened": "2026-07-28",
+   "owner": "orchestrator/smith-signals",
+   "status": "closed",
+   "closed": "2026-07-28",
+   "resolution": "CLOSED 2026-07-28: new smith-catalyst sub-agent watches the book's FACTOR rather than its tickers (WebSearch-only, <=6 queries, <90s target), dispatched on gate=ESCALATING / SMH >=3% / Asia >=3% / cluster >=4% / deep runs. Gate rule revised to v2 with Asia and SMH terms -- v1 called 2026-07-28 STABILIZING on a day KOSPI fell 10.84%. factor_themes seeded in state.json. Catalysts now lead the briefing whenever classified structural."
+  },
+  {
+   "id": "G31",
+   "description": "A regex-based dashboard section replace over-matched and silently deleted the entire Factor Catalysts panel, and the deletion was committed without a section-by-section check -- only aggregate tag-balance and placeholder counts were verified before committing. General lesson: string-replace edits on this file must use exact, unambiguous anchors (a unique start marker + that same elements own next closing tag), never a greedy/non-greedy regex spanning multiple sections. Caught by user asking a follow-up question, not by any check on this end. Fixed by restoring from git and redoing the edit with precise anchors; SKILL.md dashboard regression guard (added same day for a different incident) should be read as covering this class of failure too.",
+   "opened": "2026-07-29",
+   "owner": "orchestrator",
+   "status": "closed",
+   "resolution": "CLOSED 2026-07-29: added sync-from-live.sh to skill/ and ran a full re-sync -- SKILL.md, all 13 sub-agents (including catalyst/cycle/earnings/tax, previously missing from the mirror), and both scheduled-task definitions are now byte-identical to live. README updated to document the drift and the fix. This closes the packaging half of G31; the dashboard-edit-safety half was already fixed same day.",
+   "closed": "2026-07-29"
+  },
+  {
+   "id": "G32",
+   "description": "INDmoney's networth_holdings (row-level) fed stale/wrong per-position prices on 2026-07-29 pre-open -- up to 39% too high on individual names (e.g. SNDK implied $1854 vs live $1096), causing an 18.15% row-sum-vs-aggregate divergence (compute_book.json persist_safe=false on first pass). This is the OPPOSITE direction from G3 (aggregate lagging rows) -- here the row-level feed lagged the aggregate, which itself matched live yfinance repricing to within 0.21%. Resolved this run by rebuilding holdings.json from live yfinance quotes cross-validated against INDmoney's own aggregate total. Orchestrator should treat a persist_safe=false failure as ambiguous-direction and cross-check against live quotes before assuming which source is stale, not default to trusting row-level over aggregate. RECURRED 2026-07-29 intraday (~1pm ET, same day as the original): row-sum vs aggregate divergence 21.9% before correction, up to 79.5% too high on individual names (worst: SNDK). Same workaround applied (live-yfinance repricing cross-checked against INDmoney's aggregate). Two occurrences in one trading day on a day with unusually large intraday moves (VRT -16.6%) suggests the feed may specifically lag during fast-moving sessions, not just at pre-open -- worth testing on a calm day to isolate volatility as the trigger before extending the script's auto-detection. RECURRED AGAIN 2026-07-30 (3rd occurrence): per-position feed frozen/byte-identical to a snapshot >10hrs stale despite SMH +6.91% intraday; aggregate again proved live and trustworthy (0.22% divergence vs from-scratch yfinance reconstruction). Pattern is now well-established across 3 separate sessions -- aggregate-trustworthy/rows-stale, not the original G3 direction. Still open pending a script-level auto-detection fix.",
+   "opened": "2026-07-29",
+   "owner": "orchestrator (STALENESS GATE)",
+   "status": "closed",
+   "closed": "2026-08-07",
+   "closed_by": "auto-audit 2026-08-07",
+   "resolution": "Implemented the script-side direction detection the gap asked for. cmd_book now accepts an optional holdings.json['live_quotes'] map (prices the orchestrator already fetched in step 2.5/2.5b -- no extra call) and arbitrates WHICH feed is stale when rows and aggregate disagree, emitting reconciliation.live_arbitration with a verdict (rows_stale / aggregate_stale / both_agree_with_live / inconclusive / insufficient_coverage) and a trust field naming the source to rebuild from. This removes a judgement call with real direction risk: G3 was aggregate-lags-rows, the three 07-29/30 recurrences were the opposite, and defaulting to either source is wrong half the time. Requires >=90% row coverage or it declines to infer a direction, and a confident verdict deliberately does NOT re-enable the persist -- it says what to rebuild from, then you re-run. VERIFIED against four synthetic cases reproducing both historical directions plus the low-coverage and healthy cases; all four classified correctly. SKILL.md step 2.3 updated to require emitting live_quotes."
+  },
+  {
+   "id": "G33",
+   "description": "scripts/smith_dashboard.py (the mandated generator, 'GENERATED, NOT HAND-WRITTEN') has no rendering logic at all for Factor Catalysts, Rotation Analysis, Sentiment Gauge, Intraday & International Session, The Week Ahead, or Allocation Treemap -- grep for these terms in the script returns zero hits. The currently-published dashboard.html (git HEAD) has all of these, added by direct hand-edits to the HTML in past sessions (see G31's own restore commit, which patched dashboard.html directly, not the script) -- a violation of the generator-only rule that was never reconciled. Running the script fresh on 2026-07-29 produced a 50,477-byte file vs the published 82,346 bytes (7 h2 sections / 10 details / 4 svg vs 18 h2 / 4 details / 5 svg) -- a real, large regression, caught by the REGRESSION GUARD before publishing and NOT published this run (dashboard.html reverted to git HEAD, artifact left untouched). Needs a real decision: either port the missing panels' logic into smith_dashboard.py properly (real work, not a quick patch), or get explicit user sign-off to permanently retire them (the skill's own 'Prose rule' / 'Don't reintroduce narrative panels' language argues retirement was the intent, but that was never explicitly confirmed against these specific panels, and their prior restoration under G31 argues the opposite). Until resolved, do not run smith_dashboard.py's output straight to publish without this same diff-and-stop check every run.",
+   "opened": "2026-07-29",
+   "owner": "user (design decision: extend script vs retire panels) + orchestrator (implement once decided)",
+   "status": "closed",
+   "closed": "2026-07-29",
+   "resolution": "Extended scripts/smith_dashboard.py to fully satisfy its own documented REQUIRED SECTIONS checklist: added a status strip, moved 'the read'/macro narrative into the always-open Decisions tier, added a Factor Catalysts card (now sourced from a persisted state.json.factor_catalysts field the orchestrator should keep fresh each run smith-catalyst dispatches), and added Clusters (equity%/book% side by side), Risk-cap breaches, and a full Positions table to the Book State tier. Deliberately did NOT restore Rotation Analysis, Sentiment Gauge, Intraday & International Session, The Week Ahead, or Allocation Treemap -- these are the narrative-heavy panels the skill's own 'don't reintroduce narrative panels' rule argues against, and they were never part of the documented REQUIRED SECTIONS list; they existed only via prior hand-edits to dashboard.html that were never ported into the generator. Verified: 13 h2 sections, 4 required SVGs, tag-balanced, all REQUIRED SECTIONS present. Final size 59,478 bytes -- smaller than the old hand-patched 82,346 bytes by design, not by accident. User can ask for the excluded panels back explicitly if wanted."
+  },
+  {
+   "id": "G34",
+   "description": "The dashboard actually published at the live artifact URL (last updated 2026-07-28 14:45 ET deep run) is FAR richer than anything scripts/smith_dashboard.py + smith_charts.py can currently produce: a sentiment gauge, rotation-analysis chips (accumulate/rotate-out/trim-risk-cap buckets), an allocation treemap with computed rect layout, a week-ahead earnings calendar grid, and JS-driven data tables (clusters/holdings populated from an inline JSON blob at load time) -- none of which exist anywhere in the current script. This is a DIFFERENT and larger gap than G33 (which only compared against the git-tracked dashboard.html, not the actually-live artifact). The tooling that built this richer version was never committed to scripts/ -- it was likely hand-authored directly to the Artifact tool in a past session, or an even earlier generator version that was since lost/simplified. Archived as archive/dashboard_rich_template_2026-07-28.html for reference. On 2026-07-29 the choice was made to publish the leaner, properly-generated (G33-fixed) dashboard with accurate fresh data rather than hand-retype ~750 lines of computed SVG/JSON with new numbers (high risk of a silent numeric error, the same failure class as G31). Needs a real decision: invest in porting the rich design's remaining pieces (sentiment gauge, rotation chips, treemap, week-ahead calendar) into smith_dashboard.py/smith_charts.py properly, using the archived template as the visual spec, or accept the leaner version going forward.",
+   "opened": "2026-07-29",
+   "owner": "user (design decision) + orchestrator (implement)",
+   "status": "closed",
+   "closed": "2026-07-29",
+   "resolution": "Ported the richer 2026-07-28 design into the generator properly, per user confirmation it should be the default going forward. New scripts/smith_risk.py holds the shared ATR-stop/cap formula (stop_and_cap) and a signal-polarity table (SIGNAL_POLARITY) for rotation analysis, imported by both smith_math.py and smith_charts.py. smith_math.py gained two subcommands: `risk` (compute_risk.json -- per-name stop/cap/headroom, degrades to null+flag when ATR/beta is missing from cache, never estimates) and `rotation` (compute_rotation.json -- accumulate/rotate_out/trim_risk_cap classification, over_cap always overrides thesis/signal). smith_charts.py gained chart_treemap (from-scratch squarified layout, no prior art existed) plus 8 new --cl-* cluster-color CSS tokens with light/dark variants (not yet run through the dataviz skill's six-check validation -- flagged as a follow-up, not silently shipped as final). smith_dashboard.py was rewritten: new CSS/component system (atomic swap), status strip, rotation analysis, sentiment gauge, intraday/international session, week-ahead calendar, real risk-cap-breach and full positions tables (was a 3-column stub), and 'Historical charts' as its own collapsed panel. Two corrections made vs. the archived template rather than copying it verbatim: (1) SIGNAL_POLARITY excludes MOMENTUM+VOLUME and TARGET GAP from the bullish/bearish net-signal score -- both are direction-ambiguous by their own definition in smith-signals.md, which the archived template's ad hoc grouping got wrong (it inherited this from smith_math.py's separate BUCKET_DIRECTION table, used for a different purpose -- journal verdict grading -- left untouched here since it has historical grades computed against it); (2) treemap cluster colors are CSS custom properties, not the archived template's hardcoded hex, so they now adapt to dark mode. Verified: regenerated dashboard.html grew from the outgoing G33-era version on every regression-guard metric (61,016->80,878 bytes, 13->18 h2, 4->5 svg), tag-balanced, no hardcoded hex in the treemap fills, NBIS/IREN correctly render '--' for missing beta rather than a fabricated value. Outgoing version archived at archive/dashboard-pre-G34-2026-07-29.html; the design reference stays at archive/dashboard_rich_template_2026-07-28.html. SKILL.md's REQUIRED SECTIONS list updated to match (live canonical + repo mirror synced) so this doesn't repeat the G33 stale-spec mismatch."
+  },
+  {
+   "id": "G35",
+   "description": "TRADE RATIONALE CAPTURE's 4 standard buckets (stop-loss/thesis-change/raise-cash/rebalance) don't cover 'dollar-cost-averaging' -- on its first use 2026-07-29, all 5 of the user's same-session add trades (ARM/TER/NBIS/VRT/AMD) were answered via the free-text 'Other' option with that exact reason, 5-for-5. Strong signal it belongs as a 5th standard option, not a recurring manual override. User has not yet been asked whether to add it or which existing bucket (if any) to replace to keep the count at 4.",
+   "opened": "2026-07-29",
+   "owner": "orchestrator (TRADE RATIONALE CAPTURE)",
+   "status": "closed",
+   "closed": "2026-07-29",
+   "resolution": "CORRECTED 2026-07-29 (the first close was based on a misread of the user's intent -- they wanted DCA as a real 5th button alongside all 4 originals, not folded into 'Other'). Implemented as a two-step ask instead: step 1 is a single yes/no ('Was this dollar-cost-averaging?'), and only on 'no' does step 2 show the original 4 unchanged. This is the only way to give 5 standing named reasons + a true catch-all when the underlying tool hard-caps at 4 custom options per question. trades.json's reason enum and SKILL.md step 2.9 both updated to match."
+  },
+  {
+   "id": "G36",
+   "description": "cmd_drift's cash-regime persistence logic re-tested the post_stop_event ENTRY trigger (cash > 20%) every run instead of testing whether cash had genuinely re-entered the NORMAL band's own ceiling (<=15%) to decide when to revert -- so a same-day partial redeployment that took cash from 20.5% to 19.1% flipped the regime back to 'normal' instantly and manufactured a spurious ceiling breach, the same false-alarm failure mode G28 was built to prevent, recurring one level down. Found and fixed same session (2026-07-30): regime now persists through the full window unless cash <= the normal band's ceiling.",
+   "opened": "2026-07-29",
+   "owner": "orchestrator (cmd_drift)",
+   "status": "closed",
+   "closed": "2026-07-30",
+   "resolution": "Fixed in scripts/smith_math.py cmd_drift -- persistence now tests re-entry against the normal band's own ceiling, not the wider band's entry trigger."
+  },
+  {
+   "id": "G37",
+   "description": "cmd_drift crashed (TypeError, unpacking None) when a holding's cluster had no policy target (band_pct: None) -- the 'Unclassified' cluster case was represented in cluster_table but the later breach-testing loop assumed every cluster had a real band. Never hit before because every previously-held ticker already had a sector_map entry; BE (new position, first-ever hold) was the first to reach this path. Fixed same session: unclassified clusters now skip the breach test instead of crashing the whole subcommand.",
+   "opened": "2026-07-29",
+   "owner": "orchestrator (cmd_drift)",
+   "status": "closed",
+   "closed": "2026-07-30",
+   "resolution": "Fixed in scripts/smith_math.py cmd_drift -- band_pct is None guarded before unpacking."
+  },
+  {
+   "id": "G38",
+   "description": "BE (Bloom Energy), GLW (Corning, re-entered after full exit 07-24), and MKSI (MKS Instruments, brand new) are all newly (re-)entered positions from the 2026-07-29 evening session (3sh, entered 2026-07-29 23:32 IST) with no sector_map cluster, no thesis, no ATR20/beta cache entry -- currently renders as 'Unclassified' everywhere (treemap, clusters table, rotation analysis) and its risk cap/stop can't be computed (missing_atr). All three need smith-thesis to assign a cluster + write a thesis line on the next full sweep, and smith-book/the ATR refresh path to seed atr20/betas for it. Also worth noting: this position was discovered via INDmoney confirmation emails, not the qty-diff detector, because the trade postdated the run's holdings snapshot -- the qty-diff method only catches trades that happened *before* the snapshot it's diffing against, never ones that happen *during* the analysis window itself. Worth considering whether TRADE RATIONALE CAPTURE (step 2.9) should also check INDmoney transaction emails (from:transactions.indmoney.com since last_run_dir's timestamp) as a second detection path, not just holdings qty-diff.",
+   "opened": "2026-07-29",
+   "owner": "orchestrator",
+   "status": "closed",
+   "closed": "2026-07-30",
+   "resolution": "CLOSED 2026-07-30: smith-thesis assigned BE->AI Power/Cooling/DC Infra, GLW->AI Networking/Optics, MKSI->AI Semis/Fabs this run; sector_map updated, drift recomputed against the new mapping this same run."
+  },
+  {
+   "id": "G39",
+   "description": "The email pull surfaced 3 more custom trade rationales beyond dollar-cost-averaging (G35): 're-entry-after-price-correction' (BE, GLW), 're-entry' (QCOM same-day buyback -- kept distinct from the price-correction framing since it's a same-day stop/rebuy, not a return after days-to-weeks), and 'new-entry' (MKSI). All three went through 'Other' rather than the 5 standard buckets. Worth a single decision pass on whether any belong as standing buckets, same as the G35 DCA promotion -- not decided unilaterally here.",
+   "opened": "2026-07-29",
+   "owner": "orchestrator (TRADE RATIONALE CAPTURE)",
+   "status": "closed",
+   "closed": "2026-08-03",
+   "resolution": "USER DECISION 2026-08-03: promoted 're-entry-after-stop' and 'dca-into-diversification' to standing buy-side reasons (now 7 total). SKILL.md step 2.9 updated: buy-side step 1 changed from a yes/no to a 4-option question (DCA / DCA-into-diversification / Re-entry-after-stop / Something else) to keep every question within AskUserQuestion's 4-custom-option cap. trades.json header note and reason enum updated to match."
+  },
+  {
+   "id": "G40",
+   "description": "smith_dashboard.py's status_strip and smith_charts.py's chart_drawdown both read state['us']['peak_total_book_usd'] to compute drawdown, but PERSIST never actually wrote that key -- only 'peak_value_usd' (equity peak) was ever persisted, per the documented state.json schema. This silently rendered Drawdown as 0.00% on the dashboard and produced an empty drawdown-ladder chart (4 svg instead of 5) on every run since the G34 rich-dashboard port, undetected because the REGRESSION GUARD only checks byte-size/section-count, not per-field correctness.",
+   "opened": "2026-07-31",
+   "owner": "orchestrator (smith_dashboard.py / smith_charts.py)",
+   "status": "closed",
+   "closed": "2026-07-31",
+   "resolution": "Fixed both scripts' fallback chain (dashboard.py now also checks compute_drift.json/compute_book.json; PERSIST now writes peak_total_book_usd + drawdown_pct + total_book_usd into state['us'] every run, which chart_drawdown reads directly). Verified: dashboard now shows Drawdown -8.35% and 5/5 charts render."
+  },
+  {
+   "id": "G41",
+   "description": "smith_math.py's cmd_book est_net_flows_usd only sums qty-change flows for tickers present in BOTH prior and current holdings (the 'existing positions' loop) -- brand-new entries (prior_qty=0) are appended to qty_changes but never added to est_net_flows_usd. On 2026-08-03, this undercounted real cash outflow by ~$1,678 (META+AMZN+BABA+QBTS combined cost), silently folding that spend into compute_attribution.json's residual_market_move_usd instead of flow_usd. Attribution's flow/residual split is misleading whenever new positions are entered, not just when existing ones change size.",
+   "opened": "2026-08-03",
+   "owner": "orchestrator (smith_math.py cmd_book/cmd_attribution)",
+   "status": "closed",
+   "closed": "2026-08-07",
+   "closed_by": "auto-audit 2026-08-07",
+   "resolution": "Fixed in scripts/smith_math.py, BOTH cmd_book and cmd_attribution (the gap named cmd_book only; cmd_attribution had the identical defect and is the one that actually feeds the briefing's flow-vs-market split). New entries now contribute their purchase cost to flow; full exits now contribute proceeds priced off the prior run's last-known price, labelled exit_price_basis and never estimated -- if no prior price exists the ticker is listed in flow_components.exits_unpriced with a data_quality line rather than silently dropped. A flow_components breakdown (adds_trims / new_entries / exits) is now emitted so the split is auditable. VERIFIED by replaying 2026-08-03: est_net_flows_usd 810.37 -> 2093.66 against a hand-computed expectation of 2093.67 (1c rounding). MATERIAL CONSEQUENCE: that run's reported residual 'market move' of +$261.77 was actually -$1,021.52 -- a $1,283 swing and a sign flip, i.e. cash deployment had been narrated as performance. Hardening added the same day after the fix's own prior-run read was found to break on self-reference (last_run_dir == current run dir) and on a truncated prior file; both now degrade to 'no prior prices' instead of crashing the subcommand."
+  },
+  {
+   "id": "G42",
+   "description": "smith-rebound's own internal gate-classification logic (its 'rule D') read STABILIZING on 2026-08-03 using only VIX/ES/NQ, while the orchestrator's official Gate v2 (SKILL.md section 1.5) read ESCALATING driven specifically by the Asia-index term (KOSPI -5.17%). smith-rebound's JSON tail carries no asia/smh fields at all, suggesting its dispatch-time gate re-check may not implement the v2 Asia/SMH terms added 2026-07-28 (the same blind spot G30 was built to close). Needs an audit of smith-rebound.md's own gate logic against SKILL.md 1.5, or an explicit decision that smith-rebound should just consume the orchestrator's gate_classification verbatim instead of re-deriving its own.",
+   "opened": "2026-08-03",
+   "owner": "orchestrator / smith-rebound",
+   "status": "closed",
+   "closed": "2026-08-07",
+   "closed_by": "auto-audit 2026-08-07",
+   "resolution": "Audited smith-rebound.md against SKILL.md 1.5 and confirmed the suspicion exactly: its rule D was still Gate v1 (VIX/ES/NQ only), never updated when the orchestrator moved to v2 on 2026-07-28. Rewrote rule D as full v2 (Asia + SMH terms), and resolved the deeper design question the gap raised -- rather than duplicating the rule (which is how it drifted in the first place), the orchestrator's gate_classification is now the AUTHORITATIVE baseline and smith-rebound may only RATCHET severity upward on fresher data. Downgrading requires having actually evaluated every v2 term including Asia/SMH; if any term is missing it keeps the orchestrator's call and sets gate.downgrade_blocked. Added ^KS11 ^TWII ^N225 SMH to both of its batched quote calls so the terms are obtainable, extended its JSON tail with worst_asia_pct/smh_pct/orchestrator_gate/downgrade_blocked, and updated SKILL.md's dispatch line to state the gate as authoritative and name the triggering term."
+  },
+  {
+   "id": "G43",
+   "description": "6 trades this run (TSM+2, IREN exit, META/AMZN/BABA/QBTS entries) are UNCAPTURED -- scheduled/non-interactive run, no user available to ask rationale. All dated 2026-07-31 (reconstructed window: last successful full sweep 07-31 13:02 predates them, first evidence is the abandoned 2026-08-01 11:47 run's holdings.json). Needs TRADE RATIONALE CAPTURE at next interactive run.",
+   "opened": "2026-08-03",
+   "owner": "orchestrator (TRADE RATIONALE CAPTURE, next interactive run)",
+   "status": "closed",
+   "closed": "2026-08-07",
+   "closed_by": "auto-audit 2026-08-07",
+   "resolution": "Superseded by G45 and closed as a duplicate -- it was never closed when the underlying work was actually done. All 6 trades were resolved on 2026-08-03 from INDmoney confirmation emails with exact fills (IREN exit confirmed order-type 'stop', i.e. a real stop-loss rather than the 'deliberate rotation' that had been inferred from price action), and the user confirmed the 5-buy evening burst as dollar-cost-averaging into diversification. trades.json and lots.json carry the exact fills."
+  },
+  {
+   "id": "G44",
+   "description": "smith-quality's 2026-08-03 first-ever audit claimed MRVL interest coverage collapsed ~8.1x->~1.4x on interest expense 'quintupling to $256M' with a new ~$2.0B debt draw. Web verification against MRVL's own Q1 FY2027 10-Q (period ended 2026-05-02) shows ACTUAL interest expense of $52.8M for the quarter (vs $48.7M prior year, +8.4% YoY) -- nowhere near a quintupling, and consistent with healthy coverage, not a collapse. A real new debt issuance did occur ($1B 2036 notes, per the same 10-Q), but the coverage-collapse framing that drove the strategist's veto-on-averaging-in and light-trim proposal appears to be a data error (likely misread TTM/annualized or a wrong line item from an automated financials feed) rather than a genuine credit event. Needs re-verification against the actual 10-Q at the next smith-quality audit before this drives further sizing decisions.",
+   "opened": "2026-08-03",
+   "owner": "orchestrator (smith-quality, next audit)",
+   "status": "closed",
+   "closed": "2026-08-07",
+   "closed_by": "auto-audit 2026-08-07",
+   "resolution": "Root-caused, and the earlier characterisation of it as a plain 'data error' was itself wrong -- worth stating precisely because the correction is instructive. smith-quality's arithmetic was CORRECT and exactly reproducible: yfinance quarterly operating income / interest expense gives 413.9/50.8 = 8.15x then 350.1/256.1 = 1.37x, matching its reported 8.1x -> 1.4x. The $256.1M is also real money, not phantom: pretax income fell to $83.3M from $381.6M while operating income barely moved, so ~$267M of below-the-line expense genuinely landed. What it actually was: MRVL closed the Celestial AI and XConn acquisitions that quarter (+$2.8B goodwill, +$1.0B intangibles) alongside a $1.0B 5.300% 2036 notes issue. At 5.3% on $1B, incremental run-rate interest is ~$13M/quarter -- nowhere near $200M. MRVL's own 10-Q reports interest expense of $52.8M for the quarter (+8.4% YoY), giving ~6.6x coverage, healthy. So the failure was INTERPRETATION, not calculation: a one-time acquisition-financing charge bucketed by yfinance under 'Interest Expense' was read as a permanent change in cost of debt. The strategist's MRVL veto and trim rested on that misreading. Prevention added to smith-quality.md: a >2x single-quarter coverage move is a data question before a credit finding, cross-check against the 10-Q line item and check whether goodwill/intangibles/debt jumped in the same quarter. Also documented a live tool trap found while investigating -- get_financials silently ignores period='quarterly' and returns ANNUAL columns unless you pass frequency='quarterly', with nothing in the response indicating which basis you got."
+  },
+  {
+   "id": "G45",
+   "description": "2026-08-03 email pull (transactions.indmoney.com, after:2026/07/31) resolved all 6 of this run's UNCAPTURED trades with exact fills: IREN full exit (10sh @ $35.99, order type 'stop' -- objectively a stop-loss, not a guessed rotation) and TWO additional MU stop-loss/rebuy whipsaws same day (SELL 1@$832 stop -> BUY 1@$850.79 market 19min later; SELL 1@$824.87 stop -> BUY 1@$849.49 market 2h16m later) that were completely invisible to the qty-diff detector since MU's net quantity didn't change -- cost $43.41 in round-trip slippage for zero net position change, a concrete instance of the tight-stop whipsaw risk already in preferences.stop_loss_style. Evening burst of 5 deliberate Market-order buys (TSM +2sh @ $405.20, META 1sh @ $552.84, QBTS 25sh @ $18.14, AMZN 2sh @ $271.77, BABA 1sh @ $121.78, all 19:08-19:46 UTC) is distinct in character from the morning's reactive stops -- exact fills now known and lots.json updated, but the WHY (DCA/thesis-change/raise-cash/rebalance/other) is still pending user input, not inferable from email data alone.",
+   "opened": "2026-08-03",
+   "owner": "user (rationale for the 5 deliberate buys) ",
+   "status": "closed",
+   "closed": "2026-08-03",
+   "resolution": "User confirmed 2026-08-03: the 5-buy evening burst (TSM+2/META/AMZN/QBTS/BABA) was dollar-cost-averaging into diversification -- a deliberate push to reduce single-factor AI-capex concentration, not reactive to any specific signal. trades.json updated with reason='dollar-cost-averaging' on all 5 entries. Exact fills and MU whipsaw legs were already resolved via email same day."
+  },
+  {
+   "id": "G46",
+   "description": "MP and NOW (both entered 2026-08-05) have no ATR20 or beta cache entry, so smith_math.py's risk/derisk subcommands emit null open-risk for them and the de-risk queue degrades to fragility-only on those two names. Betas defaulted to 1.0. Quick runs read caches as-is by design (section 2.8) -- resolve on the next DEEP run when ATR/beta refresh for all names.",
+   "opened": "2026-08-06",
+   "owner": "smith-signals (ATR/beta refresh, deep runs)",
+   "status": "closed",
+   "closed": "2026-08-07",
+   "closed_by": "auto-audit 2026-08-07",
+   "resolution": "Computed real ATR20 and beta vs SMH from true daily bars (period=1mo, <=3 symbols/call) for MP (ATR 6.10%, beta 1.233) and NOW (ATR 5.65%, beta -0.608). Extended beyond the gap's scope to MSFT (3.12%, 0.459) and SKHY (12.49%, 2.442), which had silently become fresh instances of the same gap. compute_risk now reports missing_atr=[] and missing_beta=[] for the first time across all 28 names. TWO FINDINGS THIS SURFACED: (1) SKHY is OVER its risk cap at 1.02x, previously invisible because its open risk computed as null; (2) aggregate open risk was being under-reported at 10.085% and is actually 10.745% once the uncounted names are included. NOW's negative beta is flagged as window-specific, not a durable hedge."
+  },
+  {
+   "id": "G47",
+   "description": "MP's peer_etf was seeded as XLP (consumer staples) by smith-signals as a proxy fit -- a rare-earth miner against a consumer-staples ETF is a weak correlation pairing, and MP's PEER LAGGARD flag this run used the legacy absolute +/-8pp threshold [unnormalized] rather than an ATR-normalized one. Find a real peer (REMX rare-earth ETF, or XME metals & mining) before treating any MP peer-relative signal as decision-grade.",
+   "opened": "2026-08-06",
+   "owner": "smith-signals",
+   "status": "closed",
+   "closed": "2026-08-07",
+   "closed_by": "auto-audit 2026-08-07",
+   "resolution": "Replaced MP's XLP (consumer-staples) proxy by MEASURING both candidates on 22 daily returns rather than assuming: REMX corr +0.764/beta 1.278, XME corr +0.795/beta 1.552. XME edges REMX on raw correlation but by 0.03 at n=22, which is noise, so the tiebreak was conceptual -- REMX isolates rare-earth-specific moves, which is what peer-relative strength is actually asking, whereas XME would conflate 'rare earths are hot' with 'MP is strong'. Recorded both measurements plus the self-inclusion caveat (MP is itself a sizeable REMX constituent, dampening measured outperformance) so a future run can switch on evidence."
+  },
+  {
+   "id": "G48",
+   "description": "DRAM's thesis is internally unresolved: smith-thesis flagged it an UPGRADE CANDIDATE on strong conventional-DRAM contract pricing (+57.3% Q1'26, +49.7% Q2'26 QoQ, guided +13-30% Q3'26) but could not reconcile it because DRAM's ORIGINAL WATCH rationale was not available in this run's input slice. Strategist consequently sized P-060 (Trim DRAM) light rather than at full conviction. Carry DRAM's full prior thesis text into the next thesis dispatch so the verdict can actually be settled.",
+   "opened": "2026-08-06",
+   "owner": "smith-thesis / orchestrator embed",
+   "status": "closed",
+   "closed": "2026-08-07",
+   "closed_by": "auto-audit 2026-08-07",
+   "resolution": "Root cause was the embed, and it is now a rule: SKILL.md's smith-thesis dispatch line requires each holding's FULL prior thesis text verbatim, never a truncated status label, because a status word without its reasoning cannot be revised against new evidence -- only repeated. Confirmed DRAM's original WATCH rationale does exist in state.thesis ('holds the exact names CXMT now competes with -- Samsung, SK Hynix, Micron'), so the agent was genuinely starved of available data rather than the data being absent. Where the map is too large to embed whole, the rule requires full text for any name the agent may act on (WATCH/BROKEN, in a signal bucket, or under an open proposal) and status-only for the quiet remainder, stating which is which. The verdict itself remains smith-thesis's call at the next dispatch -- it is now unblocked, which is what this gap asked for."
+  },
+  {
+   "id": "G49",
+   "description": "smith-watchlist could not confirm earnings dates for MP, AMAT, NBIS, BABA, MKSI -- FMP's earnings-calendar range endpoint returned only 10 market-wide rows for 08-05..08-14 and omitted all of them, so those five dates rest on the yfinance +91-day heuristic alone and are explicitly NOT decision-grade. Separately SNDK's cached quarterly history implies a next-report date of 2026-07-30 that has already elapsed with no newer quarter reflected, i.e. yfinance earnings history is lagging for SNDK -- a live problem given SNDK is 7.12% of the book and carries the book's only EARNINGS PROXIMITY flag.",
+   "opened": "2026-08-06",
+   "owner": "smith-watchlist",
+   "status": "closed",
+   "closed": "2026-08-07",
+   "closed_by": "auto-audit 2026-08-07",
+   "resolution": "Web-verified all five unconfirmed dates plus the stale SNDK entry. Result: the +91d heuristic scored 4/5 -- MP (08-06), AMAT (08-13), NBIS (08-12) and MKSI (08-05) were right, but BABA was WRONG BY 16 DAYS (heuristic 08-12 vs actual 08-28), which would have produced a false EARNINGS PROXIMITY flag gating proposals against an event two weeks away. Also established that SNDK (08-05), MP (08-06) and MKSI (08-05) have ALREADY REPORTED -- SNDK's is the guide-below-consensus print that triggered the 08-06 stop cascade -- so any proximity flag citing those dates is stale. Their next dates are recorded as explicit cadence ESTIMATES (confirmed:false) with the verified last-reported date alongside. data_cache.earnings_method now records the measured ~80% heuristic accuracy and the instruction to verify any date about to gate a decision."
+  },
+  {
+   "id": "G50",
+   "description": "smith-catalyst's returned catalysts were never being persisted into state.factor_catalysts by the orchestrator, so the dashboard's Factor Catalysts panel silently rendered 2026-07-29 events for a week (through the 07-31, 08-03 and 08-04 runs) while fresh catalysts were produced and discarded each run. Found and backfilled 2026-08-06. The PERSIST section of the skill lists no factor_catalysts key -- add it explicitly so this cannot regress.",
+   "opened": "2026-08-06",
+   "owner": "orchestrator (PERSIST step)",
+   "status": "closed",
+   "closed": "2026-08-07",
+   "closed_by": "auto-audit 2026-08-07",
+   "resolution": "Added an explicit factor_catalysts bullet to SKILL.md's PERSIST section. The root cause was subtle and worth recording: the state.json schema line had ALWAYS described the factor_catalysts key, so it looked handled, but no PERSIST bullet ever instructed writing it -- a documented shape is not a write instruction. The new bullet also requires merging smith-catalyst's theme_updates into factor_themes, and explicitly says to leave the existing array untouched when smith-catalyst did not run, since a stale-but-labelled catalyst is recoverable and an erased one is not. Separately extended the known_gaps bullet to require closed/resolution/closed_by provenance on closure."
+  },
+  {
+   "id": "G52",
+   "description": "Proposal staleness: before 2026-08-06 the only automatic cleanup was a 7-day CALENDAR expiry, which says nothing about whether a proposal's reason still holds; the condition-based breach-cleared voider had been disabled since 2026-07-29 after it false-positived on free-text rationale parsing. Result: on 2026-08-06 six of eleven open proposals were objectively dead (cash-rebuild while cash sat at 25.3% vs a [5,15] band; a HOLD gated on AMD earnings that had already reported; an 'initiate META' for a position already held; trims for risk caps and cluster breaches that had since cleared) yet all still rendered as live advice, because every one of them was 6 days old -- one day short of lapsing. RESOLVED same day: cmd_proposals now re-tests each open proposal against today's typed structural signals (over_cap, cluster breach, cash band) and sets status auto_retired with a reason, never parsing prose; judgement calls (>=10% price drift) are flagged for review rather than auto-actioned. Also fixed a directional bug in the priority scorer that awarded every TRIM +2 for 'cash outside its normal band -- this also rebuilds it' when cash was in EXCESS, not short.",
+   "opened": "2026-08-06",
+   "owner": "resolved",
+   "status": "closed",
+   "closed": "2026-08-06",
+   "resolution": "Implemented in scripts/smith_math.py cmd_proposals (auto-retirement + still_valid_because + directional cash) and scripts/smith_dashboard.py (renders live re-justification distinct from frozen rationale). Verified on a copy before applying: 6 retired, 5 survivors all correct, DRAM correctly surviving on its risk-cap trigger after its cluster trigger cleared."
+  },
+  {
+   "id": "G53",
+   "description": "Dashboard feature review 2026-08-06: 8 new panels/fields shipped -- stop-loss efficacy engine (cascade-vs-deliberate cohort analysis via smith_math.py cmd_stops), P&L%/day-change status-strip cells, execution log, data-quality surfacing, factor themes, diversifier bench, LTCG watch, and forward-looking proposal retires_when text. Also fixed a real bug (thesis map claimed '36 held' while book held 28 -- filtered to currently-held tickers) and a leaked-loop-variable bug in cmd_proposals (retires_when silently used a stale `bucket` from a prior loop's last iteration). trades.json's qty_diff/qty_change field-name split was normalized to qty_change; fill_time_utc backfilled via regex on 45 of 61 trades (enables the cascade/deliberate cohort split). stops_analysis.json is now a standing file, refreshed each run alongside compute_book.json, not run-dir scoped so run-pruning can't lose it.",
+   "opened": "2026-08-06",
+   "owner": "resolved",
+   "status": "closed",
+   "closed": "2026-08-06",
+   "resolution": "Implemented across smith_math.py (cmd_stops, day_chg_pct_weighted in cmd_book, retires_when in cmd_proposals), smith_dashboard.py (7 new panels/sections, thesis-map fix, status-strip cells), smith_charts.py (stop-loss markers on the book-value chart). Verified on a copy before applying (caught the leaked bucket variable this way)."
+  },
+  {
+   "id": "G54",
+   "description": "Rotation-proposal feature (2026-08-06, user-requested): built full_cure_usd/cure_pct/tranche_note honest sizing, stretch- and signal-conviction-based priority scoring, journal.json's new interim 7d bucket_hit_rates_7d, and the first rotation-pair proposal (P-062/P-063, PAIR-001: trim CEG $380 -> add QCOM $380). One judgment call surfaced and deliberately NOT auto-resolved: AVGO is simultaneously in compute_derisk.json's names_stretched (stretch_score 85.6, +2.67% 1m, +20.5pp vs SMH -- a genuine winner) AND in compute_rotation.json's accumulate bucket (thesis strengthening, PEER LEADER + NEW TAILWINDS signals) -- trimming a name whose own thesis argues for adding more would be internally contradictory, so no sell-leg proposal was generated for it. This is a real tension between 'take some profit' and 'the thesis says add more,' not a bug -- flagged for the user's own read, not resolved by the desk.",
+   "opened": "2026-08-06",
+   "owner": "user (AVGO trim-vs-hold call)",
+   "status": "closed",
+   "closed": "2026-08-06",
+   "resolution": "User confirmed 2026-08-06: not trimming AVGO despite its stretch score was the right call, given the strengthening thesis and accumulate-bucket signals. No further tracking needed -- this was surfaced for a read, not left open pending a decision."
+  },
+  {
+   "id": "G55",
+   "description": "MSFT entered as a brand-new position 2026-08-06 (2sh @ $495.97) with no dedicated smith-thesis research and no captured buy rationale (trades.json reason=UNCAPTURED). Classified into Compute/Hyperscaler by inference (Azure/OpenAI capex logic matching GOOGL/AMZN/META) so drift/AI-capex math doesn't silently exclude it, but the classification itself is unresearched. Also part of a broader backlog: 11 of 15 trades captured 2026-08-07 (from the 08-06 14:16-19:56 UTC session) have reason=UNCAPTURED -- META, MKSI(exit), MRVL(2nd sell), CLS, AMD(x2), BABA, NBIS(re-entry), AMZN, MSFT, SKHY -- captured with exact fills/times but no rationale, to avoid derailing a simple 'fresh dashboard' request with 11 sequential questions.",
+   "opened": "2026-08-07",
+   "owner": "user (trade rationale) / next smith-thesis dispatch (MSFT research)",
+   "status": "closed",
+   "partial_progress_2026_08_07": "MSFT's Compute/Hyperscaler classification, flagged in the gap as 'unresearched', is validated: MSFT is the archetypal member of that cluster on the same Azure/AI-capex logic as GOOGL/AMZN/META, its measured beta vs SMH is 0.459 with ATR20 3.12% (computed this audit, consistent with a mega-cap hyperscaler rather than a semi), and it is the named catalyst behind this book's own factor_themes entry 3 (the MSFT Azure beat that drove the 07-30 SMH rally). The classification is sound and drift/AI-capex math is not being distorted. What remains needs the user: rationale for the 11 UNCAPTURED trades from the 08-06 session (META, MKSI exit, MRVL 2nd sell, CLS, AMD x2, BABA, NBIS re-entry, AMZN, MSFT, SKHY).",
+   "progress_2026_08_13": "MSFT HALF IS RESOLVED: MSFT now carries a researched thesis entry with evidence arrays (status watch, Azure/OpenAI-linked hyperscaler capex, both 08-06 and 08-10 buys reflected). The rationale backlog is NOT resolved and is being actively reshaped by the first smith-ledger run, which is backfilling pre-07-27 history and resolving order types -- the UNCAPTURED set changed size mid-check (08-03 rows resolved, 07-28 rows appearing). Rationale capture deliberately DEFERRED until that agent finishes, to avoid two writers on trades.json.",
+   "closed": "2026-08-15",
+   "closed_by": "orchestrator review 2026-08-15 -- re-scoped, see G78",
+   "resolution": "Split and closed. (1) The MSFT half is DONE: MSFT now carries a researched G58-schema thesis ('First researched thesis...', Azure/OpenAI hyperscaler capex, 2 evidence_for entries) rather than the inferred classification this gap was opened about. (2) The rationale half was measured today and the gap's own framing is obsolete: it says '11 trades still need the user'; there are now 635 UNCAPTURED trades, because the full historical ledger reconstruction (677 rows, 2025-04-30 onward) imported every past trade with reason=UNCAPTURED. Of those, 435 predate 2026-07 and were rebuilt from email confirmations -- an email confirms WHAT happened, never WHY, so intent for those is not recoverable from any source the desk has. Asking the user for 635 rationales is not a task, it is an apology. UNCAPTURED is the correct TERMINAL state for a historically-reconstructed trade, not a defect awaiting cleanup. Re-scoped to the genuinely askable set as G78."
+  },
+  {
+   "id": "G56",
+   "description": "Directional cluster-breach bug found live 2026-08-07: P-051 (Trim MRVL) had its own risk-cap cured by the 08-06 7-share trim, but stayed open/scored because the priority scorer and auto-retirement pass read ANY cluster_breach entry for MRVL's cluster (AI Networking/Optics) regardless of direction -- and that cluster had meanwhile fallen UNDER its floor (-5.8pt) from the same trim plus several stops. A TRIM citing an under-floor breach as justification is backwards: trimming MORE of an underweight cluster deepens the underweight, it doesn't cure anything. Root cause: cluster_breach lookups in the scorer, retirement pass, and retires_when text all read the raw breach entry with no check that its edge (over/under) matches the direction of trade that would actually cure it.",
+   "opened": "2026-08-07",
+   "owner": "resolved",
+   "status": "closed",
+   "closed": "2026-08-07",
+   "resolution": "Added directional_breach(cluster, bucket) helper in cmd_proposals -- over-ceiling only counts for TRIM/SELL, under-floor only counts for BUY -- and routed all three call sites (scorer, retirement, retires_when) through it. Also improved the retirement message to distinguish 'cluster genuinely in-band' from 'cluster breached the other direction' rather than falsely reporting the latter as resolved. Verified: P-051 correctly auto-retired with an accurate reason ('MRVL is within its ATR risk cap, though AI Networking/Optics is now UNDER its floor -- a separate live issue, just not one a trim addresses'). AI Networking/Optics' underweight itself remains a live, unaddressed drift -- visible in the dashboard's Clusters panel, no proposal yet generated for it."
+  },
+  {
+   "id": "G57",
+   "opened": "2026-08-07",
+   "owner": "smith-macro",
+   "status": "closed",
+   "description": "Provenance conflict found during the 2026-08-07 gap audit: smith-macro's 2026-08-03 output reported 'SPY PCR 1.88 (OI) / 1.98 (volume)' and 'QQQ 1.23 / 1.33', i.e. an OPEN-INTEREST-based put/call ratio. But yfinance's options endpoint returns open interest of exactly 0 on every strike sampled (re-verified 2026-08-07 across three SPY expiries, ~14 strikes each) -- which is the whole basis of G18. An OI-based ratio cannot be computed from an all-zero OI field. So either smith-macro used a second source it did not cite, or it computed the ratio from volume and labelled one of the two figures 'OI' incorrectly. Either way a number that gates regime read-outs is carrying a provenance label that does not survive checking. Not a large error in itself -- the volume-based PCR is probably the real signal and is directionally fine -- but the label must match the source. Next smith-macro dispatch should state the actual field it read for each figure, and drop the OI variant entirely if OI is unavailable rather than reporting a derived-but-mislabelled number.",
+   "closed": "2026-08-10",
+   "closed_by": "user-flagged correction 2026-08-10",
+   "original_claim_was_wrong": true,
+   "resolution": "Reconciled same day: -29.8% is the correct 30-calendar-day return (confirmed by an independent from-scratch calc against yfinance daily closes, exact match). The -43.7% de-risk-queue figure was measuring from a mid-June local price peak (~06-15 to 06-22 range), not a rolling 1-month window -- a peak-to-current framing mislabeled as '1-month'. De-risk queue's stretch/fragility scoring should be re-checked for the same mislabeling on other names next run."
+  },
+  {
+   "id": "G59",
+   "description": "Primary-source verification tooling, probed 2026-08-10 so future runs don't re-discover it. WORKS: FMP `secFilings` endpoint search-by-symbol (returned SNDK's 2026-08-05 8-K plus the press-release link; never called before this date) and WebFetch stockanalysis.com/stocks/{ticker}/ (already allow-listed, proven in G49/G19; on SNDK it returned 'better-than-expected fiscal fourth-quarter results... the stock declined because its outlook was disappointing, not the actual earnings numbers', which settles a reported-vs-guide question on its own). BLOCKED, do not retry: FMP `statements` and FMP `earningsTranscript` are both ACCESS DENIED on this plan tier; direct WebFetch of sec.gov returns HTTP 403 (SEC requires an identifying User-Agent). Net: filing existence/date via FMP metadata, characterization via stockanalysis.com, exact actual-vs-consensus via WebSearch.",
+   "opened": "2026-08-10",
+   "owner": "orchestrator",
+   "status": "closed",
+   "closed": "2026-08-10",
+   "resolution": "Opened and closed the same day -- this is a capability record, not an outstanding defect. The working recipe is written into smith-thesis.md task 3 and smith-quality.md's generalised SANITY RULE.",
+   "closed_by": "G58 implementation 2026-08-10"
+  },
+  {
+   "id": "G64",
+   "opened": "2026-08-13",
+   "owner": "trades.json / stops_analysis.json",
+   "description": "Several 2026-07-27 stop-loss FILL PRICES in trades.json (and therefore in stops_analysis.json, which reads them) are WRONG -- they were reconstructed from qty-diffs before the email backfill and never corrected. Email-confirmed truth: NVDA was TWO sells, 7sh @ $201.01 and 5sh @ $197.51 (12sh, weighted $199.55), recorded as one fill of 12sh @ $196.51, off $3.04/sh. GEV $973.57 recorded as $996.57, off $23.00. LRCX $295.74 recorded as $291.61, off $4.13. EWY $161.99 recorded as $161.20. Net effect: stops_analysis overstated foregone upside by ~$402 ($2,001 vs a corrected $1,599). Fix by re-running the 2.9b email backfill over 2026-07-27..07-29 and correcting those rows, then re-running the stops subcommand.",
+   "impact": "material -- it biased the headline stop-loss verdict",
+   "closed": "2026-08-13",
+   "closed_by": "smith-ledger first run 2026-08-13",
+   "resolution": "Verified 2026-08-16: already corrected in a prior backfill, the gap was simply never closed. Every row the entry names now matches its email-confirmed truth exactly -- NVDA is TWO rows (7sh @ $201.01 and 5sh @ $197.51, not one 12sh @ $196.51), GEV $973.57, LRCX $295.74, EWY $161.99, all price_source=email_confirmed. The downstream file is correct too: stops_analysis.json carries the split NVDA pair at the right prices, so the ~$402 overstatement of foregone upside is gone.",
+   "status": "closed",
+   "resolved_on": "2026-08-16"
+  },
+  {
+   "id": "G65",
+   "opened": "2026-08-13",
+   "owner": "smith-tax / trades.json",
+   "description": "Order Type unknown for the ARM and DRAM sells of 2026-08-03 (trades.json reason UNCAPTURED; the email snippets truncated before the Order Type field). The ASML sale the same minute IS email-confirmed 'Order Type: stop'. Both were classified NON-stop for the 2026-08-13 net impact analysis; if either was in fact a stop, the stop-attributable figures shift slightly. Resolve with one get_thread call per message.",
+   "closed": "2026-08-13",
+   "closed_by": "smith-ledger first run 2026-08-13",
+   "resolution": "Resolved by direct email verification, and it caught a second, quieter problem. BOTH sells are confirmed stops: ARM (Gmail 19fc7d429203bcab, 4sh @ $220.01, Amount $880.04) and DRAM/Roundhill Memory ETF (Gmail 19fc7d17a298d377, 20sh @ $48.98, Amount $979.60) each state 'Order Type: stop' outright, matching ASML the same minute. So the 2026-08-13 net-impact analysis, which classified both as NON-stop, understated the stop-attributable figures and should be re-read with all three as stops. The quieter problem: the ledger had ALREADY been carrying order_type='stop' for these rows with NO source field -- a correct value that nothing in the record justified, i.e. indistinguishable from a guess that happened to be right. All three rows now carry `order_type_source: email_confirmed` plus an `order_type_evidence` string naming the Gmail thread. Reconciliation re-run after the edit: still 35/35, 0 phantom shorts.",
+   "status": "closed",
+   "resolved_on": "2026-08-16"
+  },
+  {
+   "id": "G66",
+   "opened": "2026-08-13",
+   "owner": "smith-ledger",
+   "description": "Residual ledger work after the first smith-ledger run. (a) 21 sales still consume unknown-basis lots, so realised P&L on them is not computable -- JOB 3 priority 3 (full history back to 2025-04-30) was not attempted. (b) 13 rows remain price_source=reconstructed and are quarantined from P&L until confirmed. (c) RESOLVED 2026-08-13 -- FALSE POSITIVE, no action taken and none should be. See orcl_corporate_action_check below. (d) dust plugs remain for AMAT 0.0091785, QCOM 0.000761904, ASML 0.000001151 -- together under one share, harmless but not zero.",
+   "orcl_corporate_action_check": {
+    "verdict": "no corporate action -- ledger is correct as-is",
+    "checked": "2026-08-13",
+    "evidence": [
+     "yfinance get_splits returned ZERO split events for any ticker, 2026-01-01..2026-08-13",
+     "ORCL weekly closes are continuous with no gap: 05-25 $225.78, 06-01 $213.68, 06-08 $184.13, 06-15 $184.29, 06-22 $148.53, 06-29 $140.27, 07-06 $140.64, 07-13 $126.41, 07-20 $114.99 -- a real ~54% decline over six weeks, not a one-day ratio jump",
+     "lots reconcile independently to the broker: 4sh @ $126.58 + 2sh @ $140.58 = $787.48 for 6sh ($131.25/sh) vs INDmoney's own invested figure of $787.57 ($131.26/sh) -- a 9-cent difference attributable to fees"
+    ],
+    "why_it_matters": "Had this been 'fixed' by applying a 2:1 adjustment, it would have HALVED a correct cost basis and corrupted both P&L and LTCG for the position. A suspected corporate action must be confirmed against split data and a continuous price series before any adjustment -- the price ratio alone is not evidence."
+   },
+   "run2_outcome_2026_08_13": {
+    "b_quarantined_rows": "CLOSED. All 13 reconstructed rows (2026-07-29/07-31) verified against their confirmations and promoted to email_confirmed, with order_type and fill_time_utc captured. Zero rows remain quarantined. One genuine correction: MU's 07-29 buy was 1.003005sh (derived from Amount/Price on the assumption the Shares field was truncated); the full body reads 'Shares: 1', so it is 1sh -- the derive-only-when-you-must rule catching its own fallback.",
+    "a_cost_basis": "RESOLVED FOR COST, NOT FOR DATE. The agent declined to hand-transcribe ~300 confirmations spanning 2025-04-30..2026-07-23, judging the transcription risk worse than the gap -- correct call. A better route existed and was taken instead: INDmoney's own invested_amount is an independent closing constraint per holding, so plug cost = invested - sum(dated priced lots). All 13 plug lots now carry a derived price (price_source='derived_from_broker_invested'). Validated wherever an email price exists for the same shares: ORCL implied $126.60 vs $126.58 derived independently by run 1; ASML $1569.17 vs a $1569.01 fill; AVGO $375.58 vs $375.50; SNDK $1210.38 vs $1212.38. 30/31 tickers' lot cost now agrees with the broker within 0.2%.",
+    "still_open": "PURCHASE DATES for those 13 plug lots (41.93 shares) remain genuinely unknown, so LTCG/holding-period is still blocked -- ltcg_flags returns 0 and will keep doing so. Separately, 15 SALES consumed shares that have already left the book; their basis is not recoverable from a current-holdings constraint and still needs the historical pull. Realised P&L on those 15 stays incomplete.",
+    "baba_discrepancy": "BABA is the one ticker outside 0.2%: FIFO leaves 2sh @ $130.71 = $261.42 against a broker invested of $254.97 ($127.49/sh), a $6.45 / 2.5% gap. Not forced to match -- it most likely reflects INDmoney using AVERAGE cost where this ledger uses FIFO. Flagged, not papered over.",
+    "run1_vs_run2": "Run 2 rebuilt lots.json by proper chronological FIFO instead of run 1's single-shot 'holdings minus net' subtraction, which had understated some plugs (ASML's read 0.0000012sh when it should be ~1.0sh) and overstated others. Run 2's method is sounder; run 1's ORCL price was nonetheless correct, and the residual check recovered it to 2 cents. Both facts held together."
+   },
+   "closed": "2026-08-13",
+   "resolution": "Both parts resolved by the lots-engine cutover plus the G71 adjustment rows. (a) 0 lots now consume unknown-basis shares -- all 71 live lots carry a known date and price. (b) The 13 price_source=reconstructed rows are gone: trades.json is now 803 email_confirmed, 4 n/a (corporate actions) and 7 unknown (the G71 opening-balance adjustments, whose basis is deliberately null rather than invented). The remaining historical-completeness work is tracked under G69, not here.",
+   "closed_by": "smith-ledger run 3 + full backfill",
+   "status": "closed",
+   "resolved_on": "2026-08-16"
+  },
+  {
+   "id": "G67",
+   "opened": "2026-08-13",
+   "owner": "orchestrator / ticker_map",
+   "description": "'Pure Storage, Inc.' (5 confirmations in 2026-02..04, a fully-exited position) cannot be resolved to a ticker with the tools available. yfinance symbol search returns only European listings (6PU.DU/.MU/.SG/.HM) with no US primary, and both get_stock_price and get_stock_summary return 'Quote not found' for the obvious candidate PSTG -- which may mean the US line was delisted or acquired. I am confident the symbol is PSTG but confidence is not verification, and TICKER INTEGRITY exists precisely because an inferred symbol silently points at the wrong instrument (the 2026-07-13 MEM/DRAM incident). Those 5 rows therefore stay quarantined in window_4.json with full qty/price detail intact, recoverable by a map entry alone once the symbol is confirmed from an authoritative source -- an INDmoney holdings record, a broker statement, or the user simply telling us. Impact is limited: it is an exited name, so it affects historical realised P&L completeness, not any current position or the 31/31 quantity invariant.",
+   "closed": "2026-08-13",
+   "closed_by": "user 2026-08-13, then verified",
+   "resolution": "Re-probed 2026-08-16 and the FINDING IS CORRECTED. The blocker is not ticker identity -- Pure Storage's US primary listing is PSTG (NYSE), corroborated by the four German lines yfinance does return (6PU.DU/.MU/.SG/.HM, same issuer, Technology/Computer Hardware). The blocker is PRICING it: yfinance get_stock_price returns an empty record for PSTG, its search still surfaces no US primary, and FMP `quote` is ACCESS DENIED on this plan tier (same wall as G59). So this is a tool-coverage gap, not an unknown company. It is also inert: PSTG is a fully-exited position with ZERO rows in the current ledger, so no live valuation, weight or reconciliation depends on it. If those 5 Feb-Apr 2026 confirmations are ever rebuilt, the work belongs to G69.",
+   "status": "closed",
+   "resolved_on": "2026-08-16"
+  },
+  {
+   "id": "G68",
+   "opened": "2026-08-13",
+   "owner": "smith-ledger",
+   "description": "Four tickers over-count against the broker after a from-scratch FIFO over the complete 677-row ledger: QCOM +3.0sh, MSFT +1.5sh, AMD +0.0206sh, MRVL +0.0089sh. FIFO holds MORE than the broker reports, so SELL confirmations are missing from 2025-04-30..2026-07-23. The exhaustive 2026-07-24..07-27 pull confirmed they are not in that window. MSFT's -1.5 and AMD's fractional residue both sit near fractional-share activity (MSFT shows +0.5396/+0.4003/-0.9399 fills), so a fractional-share program or a DRIP/corporate-action credit is a plausible cause that email confirmations may not cover at all. 27 of 31 tickers reconcile exactly. Not papered over: the affected lots keep an explicit residual rather than being force-matched.",
+   "verified_2026_08_15": "Re-measured: all four deltas match the recorded values EXACTLY (QCOM +3.0, MSFT +1.5, AMD +0.0206, MRVL +0.0089) -- stable, not drifting. Diagnosed one level further: for QCOM, MSFT and MRVL, lots.json equals trades.json's own net to 4dp, so the internal record is self-consistent and the shortfall is genuinely between the email-derived ledger and the broker, NOT a lots/trades desync. Duplicate-row detection found no exact duplicates in any of the four. AMD's larger lots-vs-naive-net divergence (~0.99sh) is FIFO clamping at zero, not a second defect -- but clamping only happens when the record shows more sells than shares available, which is the same phantom-short signature as G71. Material impact is confined to QCOM (+3.0sh) and MSFT (+1.5sh); AMD/MRVL are dust. Holding-period math on these four stays untrustworthy, as smith-book already flags.",
+   "tooling_2026_08_15": "2026-08-15: the MECHANISM to express and fix this now exists -- `smith_math.py lots` plus a corporate_action row type in trades.json (conversion/split/fractional_credit/spinoff/adjustment), with conversions carrying cost basis and acquisition date so the LTCG clock is not reset. What is still missing is DATA, not capability: the actual events live in brokerage statements, not email. To close this, supply the relevant statement lines and record them as corporate_action rows, then re-run `lots --write`. The engine now also reports phantom shorts WITH DATES rather than clamping: the same run surfaced NVDA -3.0 (2026-02-03), TSM -1.0 (2026-02-26) and -1.0 (2026-03-03), and AMD -0.992482 (2026-05-12). It also found a FIFTH over-count the gap never listed: VRT +0.026483, same fractional signature as AMD and MRVL. Note NVDA's -3.0 and GOOG's -0.99 share a date (2026-02-03), which is suggestive but not evidence -- not asserted as a cause.",
+   "cutover_2026_08_15": "lots.json was CUT OVER to the deterministic engine on 2026-08-15. All four recorded deltas reproduce exactly and a fifth was added (VRT +0.026483). The pre-cutover file is preserved at lots.json.pre-engine-cutover-2026-08-15. lots.json is now a DERIVED artifact -- do not hand-edit it; correct trades.json and re-run the engine.",
+   "status": "closed",
+   "closed": "2026-08-15",
+   "closed_by": "orchestrator 2026-08-15",
+   "resolution": "RECONCILED 2026-08-15, cause still unknown -- read both halves. The AMD/MRVL/VRT deltas were never missing sells at all: they were fee inflation from the amount/price reconstruction (see G80) and vanished when that was fixed at root. QCOM +3.0 and MSFT +1.5 survived the fix as clean, non-dust numbers and are genuine missing disposals -- a complete pull of every INDmoney confirmation for both shows no such sell, so the shares left through a channel that does not email. Both are now closed to broker truth with sourced corporate_action `adjustment` rows rather than force-matched lots, so the ledger reconciles 35/35 while the delta and its unknown cause stay permanently visible in trades.json."
+  },
+  {
+   "id": "G70",
+   "opened": "2026-08-13",
+   "owner": "orchestrator",
+   "description": "Trade-time vs present-day ticker divergence. 'Pure Storage, Inc.' trades in Feb-Apr 2026 were executed around its February 2026 rename to Everpure and its move to ticker P, so the symbol in force AT TRADE TIME may have been PSTG while the same security is P today. ticker_map is a flat name->symbol dict with no effective-date dimension, so it cannot express this. Low impact right now (exited position, 5 rows, and a rename changes neither share count nor basis) but the pattern will recur -- SNDK's own separation from WDC is a live example in this book. If a renamed name is ever held again, the map needs an effective-date form.",
+   "status": "closed",
+   "closed": "2026-08-15",
+   "closed_by": "orchestrator review 2026-08-15",
+   "resolution": "Verified resolved in practice. ticker_map carries BOTH display names -- 'Pure Storage, Inc.' AND 'Everpure, Inc.' -- and both map to the SAME current symbol P. All 5 trade rows are recorded under P, and neither PSTG nor P is held. The working convention is therefore already correct and is worth stating explicitly: map every historical display name to the security's CURRENT symbol. That works because a rename changes neither share count nor cost basis, so a ledger keyed on the security needs no effective-date dimension to stay accurate. RESIDUAL RISK, named rather than pretended away: this convention breaks only if a symbol is REUSED by a different security over time (ticker recycling), where one symbol would legitimately need two mappings separated by date. That has not occurred in this book. Re-open with a concrete example if it ever does -- do not pre-build the effective-date machinery for a case that may never arrive."
+  },
+  {
+   "id": "G71",
+   "opened": "2026-08-13",
+   "owner": "orchestrator / smith-ledger",
+   "description": "SHARE-CLASS CONVERSIONS ARE INVISIBLE TO THE LEDGER. GOOG's FIFO runs NEGATIVE (-2.9919sh): it sold ~3 more shares than it ever bought, across a complete 13-row history whose first buy is the account's own first trade (2025-04-30). The cause is a GOOG->GOOGL share-class conversion -- already evidenced by the earlier finding that a row logged 'GOOG 8.441sh @ $325.79' was really GOOGL 8sh @ $327.45. A conversion moves shares between symbols WITHOUT generating a BUY/SELL confirmation, so an email-sourced ledger cannot see it and FIFO reports a phantom short. Note the sign: a conversion OUT produces a short (GOOG), a conversion IN would produce an over-count -- which is a candidate explanation for the G68 over-counts on QCOM/MSFT/AMD/MRVL, though unproven and not assumed. Any fix needs a conversion/corporate-action row type that FIFO understands, not another email pull -- the data is simply not in email.",
+   "verified_2026_08_15": "Re-measured: GOOG nets -2.9919sh across 13 rows; GOOGL nets EXACTLY 0.0000 across 19. Neither class is currently held and neither has lots. Dormant, so nothing is being mis-valued today. The exact-zero GOOGL net alongside a ~3sh GOOG short is a strong signature but does not by itself identify the direction of the conversion, and a previously-noted mislabeled row ('GOOG 8.441sh @ $325.79' that was really GOOGL 8sh @ $327.45) means at least some of the imbalance may be a ticker error rather than a conversion. NOT diagnosed to a single cause -- deliberately left undiagnosed rather than guessed.",
+   "tooling_2026_08_15": "2026-08-15: the MECHANISM to express and fix this now exists -- `smith_math.py lots` plus a corporate_action row type in trades.json (conversion/split/fractional_credit/spinoff/adjustment), with conversions carrying cost basis and acquisition date so the LTCG clock is not reset. What is still missing is DATA, not capability: the actual events live in brokerage statements, not email. To close this, supply the relevant statement lines and record them as corporate_action rows, then re-run `lots --write`. The engine now also reports phantom shorts WITH DATES rather than clamping: GOOG's -2.9919 resolves into 0.991943 on 2026-02-03 and 2.0 on 2026-02-11 -- two separate events, not one, which the old single aggregate figure could not show.",
+   "status": "closed",
+   "resolved_on": "2026-08-16",
+   "resolution": "DIAGNOSIS IN THE ORIGINAL ENTRY WAS WRONG and is corrected here. The stated cause -- an invisible GOOG->GOOGL share-class conversion -- is disproven: GOOG's balance goes flat 2025-09-18, the phantom sells are 2026-02-03 and 2026-02-11, and GOOGL's ledger history does not begin until 2026-05-13, AFTER them. The specific row the entry cites (GOOG 8.441sh @ $325.79) does not exist; GOOGL holds 8.000000 @ $327.45, already corrected earlier. Nor is it shares transferred in at account opening: every affected ticker has a buy before its first sell. The real cause is MISSING BUY-SIDE RECORDS mid-history -- e.g. NVDA's 2026-02-03 row sells 10sh against 7sh ever recorded, with clean fill timestamps ruling out same-day ordering. A complete confirmation pull contains no such buys, so the shares arrived through a channel that does not email. Resolved by recording 7 sourced opening-balance `adjustment` rows (NVDA 3, GOOG 3.009384, TSM 2, AMD 0.998336, SMCI 0.005202) with NULL basis -- quantity from the shortfall FIFO measured, price genuinely unknown and NOT invented. Also fixed the detector itself: its 1e-9 threshold reported float noise as a 'shortfall_qty: 0.0' phantom short; now SHARE_EPS = 1e-6, below any quantity a broker records. Phantom shorts 7 -> 0, reconciliation holds at 35/35, cost basis on those tickers is now defined rather than silently missing."
+  },
+  {
+   "id": "G72",
+   "opened": "2026-08-13",
+   "owner": "orchestrator",
+   "description": "ORCHESTRATOR TOLD THE USER SOMETHING FALSE ABOUT A HOLDING. On 2026-08-12, asked to compare Lumentum (LITE) against Corning and Amphenol, I stated LITE was 'never actually held -- only a stray TARGET GAP signal tag, no thesis, no position history.' The recovered ledger shows LITE was traded 22 TIMES between 2026-05-15 and 2026-07-23, cycling in and out repeatedly and closing flat on 07-23 for a realised LOSS of $54.18 -- six days before the user asked about it. Root cause: I checked state.thesis and state.signal_history, which are seeded from CURRENT holdings, and treated their silence as proof of absence. It is the same structural blind spot as the ticker_map defect -- current-holdings-derived state cannot answer questions about exited positions. STANDING RULE: before asserting a name was never held, query trades.json, which is the only record of the full history. Absence from thesis/signal_history proves nothing.",
+   "status": "closed",
+   "resolved_on": "2026-08-16",
+   "resolution": "Fixed in both halves. CODE: new `smith_math.py history --ticker X[,Y]` answers was-this-ever-held from trades.json -- the only file that records positions which no longer exist -- returning trade count, first/last dates, buys/sells, peak quantity and live status. Verified on the exact failure: LITE now returns 'WAS held and is now EXITED -- 22 trades between 2026-05-15 and 2026-07-23', cross-checked against lots.json alongside NVDA/COHR (live) and an unknown ticker (never held). RULE: SKILL.md EVIDENCE PRINCIPLE #4 -- state.thesis and state.signal_history are seeded from CURRENT holdings, so an exited name is silent in both BY CONSTRUCTION and the original check could only ever have returned 'never held' whatever the truth was. Generalised: before citing an absence as fact, confirm the source checked is one where a present item would have appeared."
+  },
+  {
+   "id": "G73",
+   "opened": "2026-08-15",
+   "owner": "orchestrator",
+   "status": "closed",
+   "closed": "2026-08-15",
+   "description": "cmd_book attached trade rationales to qty_changes via a bare ticker->reason map built by LAST-WRITE-WINS over the entire trade history, with no date and no direction check. Any ticker whose newest fill was not yet in trades.json inherited its most recent PRIOR, unrelated trade's reason. On 2026-08-15 that stamped four positions OPENING from zero (IREN, VRT, BE, GLW) with 'stop-loss' -- categorically impossible, not merely stale -- and labelled a genuine AMAT stop-loss sale 'deploy-excess-cash'. Found by smith-ledger, which correctly declined to fix it as outside its write surface.",
+   "resolution": "Fixed in scripts/smith_math.py: reason matching now requires (a) DIRECTION agreement -- a qty increase only accepts a buy-side row, a decrease only a sell-side row -- and (b) RECENCY, only rows dated at/after the previous run's ts. No match now emits 'UNMATCHED' rather than borrowing another event's reason. First cut of the fix still defaulted every row to sell because cmd_book's rows carry prior_qty/current_qty rather than qty_diff; corrected to derive direction from whichever shape is present. Verified: all six buys now read UNCAPTURED with correct dates, AMAT reads stop-loss, and an explicit regression assert confirms no opening is tagged stop-loss."
+  },
+  {
+   "id": "G74",
+   "opened": "2026-08-15",
+   "owner": "orchestrator",
+   "status": "closed",
+   "closed": "2026-08-15",
+   "description": "The orchestrator omitted sector_map from smith-thesis's embed for the second time (also 2026-08-10). Without the current map the agent classifies from scratch using its own natural taxonomy (GPU/Accelerator, Foundry, Memory, Optical/Interconnect) instead of policy.json's cluster_targets strings (AI Semis/Fabs, AI Memory/Storage, AI Networking/Optics). Because compute_drift does an EXACT string match against policy.json, merging a renamed map would silently drop every renamed cluster out of drift tracking. Caught at merge both times and the rename rejected, so no drift damage occurred -- but the agent wasted a task's effort on a map that was discarded, and a less careful merge would have broken drift outright.",
+   "resolution": "SKILL.md section 3 now requires the current sector_map to be embedded alongside the thesis map on every smith-thesis dispatch, with the exact-string-match reason stated. The agent's own file already tells it to reuse policy cluster names; it could not comply with a map it was never given."
+  },
+  {
+   "id": "G75",
+   "opened": "2026-08-15",
+   "owner": "smith-catalyst",
+   "status": "closed",
+   "description": "smith-catalyst reported Coherent's 2026-08-13 fall as an earnings MISS. Primary reporting shows the opposite: a BEAT on revenue and EPS with a stronger-than-expected FY27 outlook -- the stock fell DESPITE the beat ('Coherent Stock Drops Despite Earnings Beat and Strong Outlook'). This is the SAME failure class as G58 (SanDisk, smith-thesis, 2026-08-10): inferring a fundamental verdict from a price move. It recurred in a DIFFERENT agent, one week after the G58 rules were written -- and smith-catalyst's file was never given the G58 verdict-vocabulary block, only smith-thesis, smith-quality and smith-signals were. The book had added 1sh of COHR the day after the print, so the false framing reached a live position. It was caught this run by the strategist's new evidence gate before it drove a sizing decision, which is the gate working as designed; the underlying rule gap is what remains open.",
+   "next_step": "Port the G58 verdict-vocabulary block (beat/miss reserved for reported actuals vs consensus; a price reaction is not a fundamental verdict; reported quarter and forward guide are separate signals) into smith-catalyst.md, and audit smith-scout/smith-macro/smith-watchlist for the same omission.",
+   "closed": "2026-08-15",
+   "closed_by": "orchestrator 2026-08-15",
+   "resolution": "Ported as process step 5 of smith-catalyst.md ('A PRICE MOVE IS NOT A FUNDAMENTAL VERDICT'), placed between classification and magnitude-scaling because that is where the inference actually happens, plus a HARD RULES one-liner. The rule is written against the specific failure: the source headline said 'Drop After Earnings' and the agent wrote 'miss'. Four clauses -- beat/miss means reported actuals vs consensus only; a stock can fall on a beat and rise on a miss so price direction carries no information about the quarter; reported quarter and forward guide are separate signals; escalating words need a magnitude and a source. Cheapest correction named explicitly (one WebFetch of stockanalysis.com, already an allowed domain) with the fallback stated: an honest 'fell 12% after reporting, beat/miss not established' beats an unverified verdict.\nAUDIT of the rest of the fleet (the second half of this gap's next_step): smith-scout, smith-macro, smith-rebound, smith-cycle and smith-book never characterise earnings -- no exposure, no rule added, deliberately not padded. Two did need it and got tailored versions: smith-earnings, which OWNS the words beat/miss as its literal product and had an example verdict blending a surprise figure with a price move, now carries the airtight definition before it is built out; and smith-watchlist, whose 'earnings highlights' output line could drift from reporting a DATE into characterising a RESULT, now bounded to dates only.\n\nVERIFICATION CAVEAT (2026-08-15): a regression replay was run against the exact 08-13 entry. It succeeded on outcome -- the agent judged its own entry non-compliant, fetched the real figures (non-GAAP EPS $1.74 vs $1.65 consensus, revenue $2.045B vs $2.025B, guidance RAISED), named the inference mechanically ('Drop after earnings' -> 'earnings miss'), correctly preserved the decoupling observation as separately sound, and surfaced a real new finding: the -12% magnitude this desk had been carrying is the least-corroborated of four conflicting figures (-4.57% to -12.4%, window unclear). All of that was persisted. BUT the agent's own step citations were off by one against the edited file -- it cited step 5 for MAP and step 6 for SCALE, which is the PRE-edit numbering. It read a cached definition. **Sub-agent definitions are loaded at session start, not re-read from disk per dispatch, so a rule edited mid-session cannot be regression-tested in that same session.** The correction therefore came from the pre-existing 'scale the claim to the evidence' rule plus an explicit prompt instruction, NOT from the new step 5. The new rule is written and synced but its behavioural effect is UNVERIFIED until a fresh session loads it. Do not treat this gap's test as proof the rule fires; re-run the same replay at the start of a later session to actually confirm it.",
+   "verification": "outcome_confirmed_rule_unverified"
+  },
+  {
+   "id": "G76",
+   "opened": "2026-08-15",
+   "owner": "orchestrator",
+   "status": "closed",
+   "closed": "2026-08-15",
+   "description": "The strategist had no accountability loop. SKILL.md section 7 had instructed the desk to score past proposals at 30d/90d with outcome_pct and an aggregate scorecard since the file was written, and NO CODE EVER DID IT -- `outcome_pct` appeared nowhere in smith_math.py. As of this build: 96 proposals produced, 9 actually executed/fulfilled/filled, ZERO scored. The scorecard field was loaded and written back null every run, its `note` grown into a five-entry log of 'still zero proposals in the 30d/90d scoring window' dating to 2026-07-18 -- an excuse that expired ~2026-08-12. Meanwhile journal.json had been scoring SIGNALS since July and now carries real 30-day hit rates (TARGET GAP 57.1% n=14). The desk graded its indicators and not its decisions.",
+   "resolution": "Built `smith_math.py score`. Direction-aware (a TRIM works if price FELL, a BUY if it ROSE, a HOLD if the move stayed inside the +/-2% band), reusing the journal's VERDICT_THRESHOLD_PCT so 'worked' means the same magnitude in both. Orchestrator supplies prices (--prices-json, run against /dev/null first and it names what it needs -- these include EXITED tickers, so it is its own fetch). dismissed_by_user excluded and the exclusion count reported. First real run: 6 graded, overall accuracy 16.7%, buy 33.3% (n=3), hold 0% (n=2). Also added an ANCHOR PLAUSIBILITY GUARD after the first pass produced a 'TRIM TSM missed 39.4%' row off a corrupt $305.87 anchor (TSM traded $386-448 that week, closed $398.37) which on n=7 was setting the entire trim-accuracy figure; rows beyond +/-35% are now quarantined, reported in full, and excluded from the aggregate -- the same rule the charts apply to value_trust!=ok ledger rows."
+  },
+  {
+   "id": "G77",
+   "opened": "2026-08-15",
+   "owner": "orchestrator",
+   "status": "closed",
+   "description": "P-005's price_at_proposal ($305.87, 2026-07-14) was flagged as a corrupt anchor because TSM traded $386-$448 that week. ROOT CAUSE WAS THE OPPOSITE OF THE DIAGNOSIS: the anchor was always correct and the TICKER was wrong. The action reads 'Re-enter VRT (funded by TSM trim)', and the 2026-07-29 ticker backfill did `.replace('(',' ').replace(')',' ')` -- stripping the BRACKETS but keeping their contents -- then took the LAST all-caps token, which is the funding leg named inside the parenthetical, not the subject. $305.87 is VRT's price on 2026-07-14 (VRT traded $287.53-$317.18 that week). The proposal's own note had recorded that the TSM leg never even happened ('TSM qty unchanged at 6sh').",
+   "next_step": "Have smith-ledger cross-check P-005's anchor against the 2026-07-14 fill history and either correct it to the real figure or mark the proposal permanently unscoreable. Until then it stays quarantined and out of the scorecard, which is the safe state. Also worth a sweep: if one anchor is corrupt, check whether other July-cohort price_at_proposal values were written by the same path.",
+   "closed": "2026-08-15",
+   "closed_by": "orchestrator 2026-08-15",
+   "resolution": "Three parts. (1) HEURISTIC: _proposal_infer_ticker now discards parenthetical CONTENT via regex before taking the last symbol, since a parenthetical in this desk's action grammar is always qualifying context ('(funded by X trim)', '(rotation funding leg)'), never the subject. Ten-case regression, all pass. Also needed `import re`, which was absent -- the first cut would have thrown at runtime. (2) DATA: P-005 corrected TSM->VRT and TRIM->BUY (the subject action is a re-entry); the $305.87 anchor was left untouched because it was never wrong. It now scores as a VRT buy, -3.93%, missed -- a defensible small loss instead of a phantom -39.4%. (3) SWEEP, which found a SECOND and worse case: P-010 was stored as ticker 'AI', parsed out of the CLUSTER NAME in 'Trim STM (AI Semis/Fabs + Memory/Storage cluster overage)'. 'AI' is a real ticker (C3.ai), so it pointed at the wrong company silently rather than failing visibly -- the same class as the 2026-07-13 MEM/DRAM incident. Corrected to STM. All 96 proposals now agree with the corrected inference. WORTH NOTING: the anchor guard added hours earlier did its job in a way I did not anticipate -- it was written to stop a bad NUMBER from setting the scorecard, and what it actually surfaced was a 32-day-old ticker error plus a second one nobody had looked for. Quarantining rather than discarding is what made that possible."
+  },
+  {
+   "id": "G79",
+   "opened": "2026-08-15",
+   "owner": "smith-ledger / user (brokerage statement)",
+   "status": "closed",
+   "description": "ORPHANED POSITIONS -- the ledger shows shares still open that the broker does not report at all. Surfaced by the lots-engine cutover, which added a reconciliation check in the opposite direction to G68: the existing check only walked tickers the BROKER reports, so a ticker the LEDGER thinks is open while the broker shows nothing was structurally invisible. Five found, and one is material: PLTR 5.003973sh across FIVE lots (2026-02-25 to 2026-05-13, basis $126-161), META 1.004836sh (2026-08-06 @ $589.84), EWY 0.041075, SMCI 0.014346, WDC 0.0059. This is a bigger miss than G68's over-counts: G68 is a partial shortfall on a held name, whereas these are positions the record believes are entirely open and are not. PLTR at ~5sh and ~$700 of basis is the one that matters. META is notable because it was exited deliberately in the 2026-08-13 session (the narrative records a full close at $581.83) -- so the sell happened, and the record has ~1sh of it missing.",
+   "next_step": "Pull brokerage statement lines for PLTR (Feb-May 2026) and META (Aug 2026) and record the missing sells, or a corporate_action `adjustment` row if the cause is genuinely unrecoverable, then re-run `smith_math.py lots --write`. Until then these five sit in lots.json as visible, reported orphans rather than being silently deleted -- deleting them would hide a real record gap.",
+   "closed": "2026-08-15",
+   "closed_by": "orchestrator 2026-08-15",
+   "resolution": "RECONCILED 2026-08-15, same split as G68. EWY/SMCI/WDC were fee-inflation dust and disappeared with the G80 root-cause fix. PLTR 5.000975sh and META 0.995985sh were real. PLTR's full email history is complete -- 20 transactions, every one matching the ledger, and NO disposal anywhere -- so the position left the account without a sell confirmation. META's residue traces to an Oct-2025 fractional pair never sold; its August fills net to exactly zero, so the recent deliberate close-out is fully accounted and is NOT the cause. Both closed with sourced adjustment rows."
+  },
+  {
+   "id": "G80",
+   "opened": "2026-08-15",
+   "owner": "smith-ledger",
+   "status": "closed",
+   "description": "SYSTEMATIC LEDGER RECONSTRUCTION ERROR, root cause of nearly all the fractional dust in G68 and G79. Rows reconstructed with qty_source='derived_amount_over_price' computed shares as Amount / Price. That is wrong: INDmoney's Amount field INCLUDES SEC/FINRA fees, so Amount is not shares x price. PROVEN against the 2026-06-22 META confirmation -- Amount $563.58 / Price $561.92 = 1.002954, while the email's own Shares field reads exactly 1. The method inflates BUYS and understates SELLS (PLTR's 2026-05-19 sell of 2 was recorded as 1.999926). 30 of the 54 derived rows were within 1% of a clean share count and have been corrected, removing +0.157531 phantom shares and eliminating the VRT/AMD/MRVL mismatches and the EWY/SMCI/WDC orphans outright.",
+   "next_step": "The remaining 24 derived rows are genuine dollar-based fractional orders (e.g. 'invest $50' -> 0.349923sh), so they cannot be snapped to a clean number -- but they are inflated by the same fee mechanism and their true share counts are unknown. Re-pull those 24 confirmations and read the Shares field directly. Also: the reconstruction routine that produced these rows must stop using amount/price entirely and read the Shares field, or the error returns on the next backfill.",
+   "closed": "2026-08-15",
+   "closed_by": "orchestrator 2026-08-15",
+   "resolution": "Three parts. (1) RULE: smith-ledger.md task 2 now FORBIDS deriving a quantity from Amount/Price outright. The email's `Shares:` field is the only acceptable source, and when the search snippet truncates before it -- which it almost always does -- the agent must spend one `get_thread` call rather than divide. The old text permitted the division as a fallback; that was arithmetically invalid, not merely approximate. Worth recording that the SAME FILE already contradicted itself: its TRUST BOUNDARY section told the agent to flag a confirmation when 'amount != price x shares by more than a plausible fee', so it knew fees broke the identity and told itself to divide anyway. The wrong half was the half being executed. The rule also explicitly forbids substituting a modelled fee ratio -- that is the same error one level up, deriving a number you could have read. (2) DETECTOR: `smith_math.py lots` now inspects every row each run and reports two distinct things -- a G80 RELAPSE alarm for any row dated on/after 2026-08-15 using the forbidden method (tested by injection), and a separate informational line for the accepted historical residue. A prose rule is exactly what lapsed here, so the compute layer now carries the check where it cannot quietly stop being true. (3) DATA: 30 of the 54 affected rows were corrected during the G79 work (+0.157531 phantom shares removed). The remaining 24 are genuine dollar-based fractional orders that cannot be snapped to a clean number. They were MEASURED rather than assumed immaterial: ~$29.08 of cost-basis error in total, ~$11.86 of it on live positions (AMD, VRT) = 0.027% of book equity. Re-pulling 24 confirmations to recover twelve dollars is not proportionate, so they are knowingly left, listed by ticker, and reported every run. Verified against two confirmations: 2026-06-22 META (share-based: Amount/Price 1.002954 vs Shares field 1) and 2025-04-30 GOOG (dollar-based: 0.626330953 vs 0.62453024, $0.29 of a $100 order being fees) -- so both order types are affected, not just one."
+  },
+  {
+   "id": "G87",
+   "description": "Proposal dedup keyed on (ticker, direction, date), so the SAME idea restated on a different calendar day (the common case -- e.g. 'Exit ORCL' recommended 07-22, 07-27 AND 07-31) was never recognized as a duplicate; only accidental same-day double-asks were ever merged. User-reported as \"the open proposal keeps on increasing\" -- 32 of 51 open proposals had piled up as restatements of the same underlying idea.",
+   "opened": "2026-08-03",
+   "owner": "orchestrator (smith_lifecycle proposals engine)",
+   "status": "closed",
+   "resolution": "Dedup key changed to (ticker, direction) with no date component, so any currently-open proposal for the same ticker+direction merges into one running row regardless of how many days apart the restatements were. The merge keeps the chronologically latest occurrence's numbers/date and rolls earlier occurrences into a `history` list with a `repeat_count` (\"recommended 4x since 07-22\" as one row, not four); the 7-day expiry clock resets off the latest restatement. Fixed same day: 32 open -> 19 on first run against the live file."
+  }
+ ]
+}

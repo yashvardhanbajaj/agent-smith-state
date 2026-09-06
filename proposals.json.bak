@@ -6857,15 +6857,6 @@
       ],
       "repeat_count": 2,
       "note": "recommended 2x since 2026-08-31T00:00:00Z, still open | auto-retired 2026-09-01: the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
-      "stacks_on": {
-        "accepted_id": "P-149",
-        "accepted_size_usd": 150,
-        "combined_usd": 460.32,
-        "position_usd": 918.0,
-        "combined_pct_of_position": 50.1,
-        "side": "BUY",
-        "severity": "note"
-      },
       "retired_on": "2026-09-01",
       "retired_reason": "the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
@@ -6998,16 +6989,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-08-31T00:00:00Z, still open | auto-superseded 2026-08-03 -- folded into P-220 as a repeat of the same open proposal",
-      "stacks_on": {
-        "accepted_id": "P-187",
-        "accepted_size_usd": 341.56,
-        "combined_usd": 561.56,
-        "position_usd": 1383.2,
-        "combined_pct_of_position": 40.6,
-        "side": "BUY",
-        "severity": "note"
-      }
+      "note": "recommended 2x since 2026-08-31T00:00:00Z, still open | auto-superseded 2026-08-03 -- folded into P-220 as a repeat of the same open proposal"
     },
     {
       "action": "Trim NVDA",
@@ -7401,15 +7383,6 @@
       "review_flags": [],
       "revalidated_on": "2026-09-03",
       "retires_when": "the profit_rotation pairing profit_rotation-MSFT-KLAC is no longer live this run -- both legs retire together, never one alone",
-      "stacks_on": {
-        "accepted_id": "P-164",
-        "accepted_size_usd": 437.92,
-        "combined_usd": 590.58,
-        "position_usd": 500.42,
-        "combined_pct_of_position": 118.0,
-        "side": "SELL",
-        "severity": "high"
-      },
       "note": "auto-superseded 2026-08-03 -- folded into P-224 as a repeat of the same open proposal"
     },
     {
@@ -7492,15 +7465,6 @@
       "review_flags": [],
       "revalidated_on": "2026-09-01",
       "retires_when": "WDC no longer appears in this run's live conviction_average list",
-      "stacks_on": {
-        "accepted_id": "P-149",
-        "accepted_size_usd": 150,
-        "combined_usd": 451.89,
-        "position_usd": 903.9,
-        "combined_pct_of_position": 50.0,
-        "side": "BUY",
-        "severity": "note"
-      },
       "note": "auto-superseded 2026-08-03 -- folded into P-221 as a repeat of the same open proposal"
     },
     {
@@ -7905,15 +7869,6 @@
       "review_flags": [],
       "revalidated_on": "2026-09-03",
       "retires_when": "WDC no longer appears in this run's live conviction_average list",
-      "stacks_on": {
-        "accepted_id": "P-149",
-        "accepted_size_usd": 150,
-        "combined_usd": 463.83,
-        "position_usd": 892.12,
-        "combined_pct_of_position": 52.0,
-        "side": "BUY",
-        "severity": "note"
-      },
       "retired_on": "2026-09-06",
       "retired_reason": "WDC no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared"
     },
@@ -8380,6 +8335,87 @@
       "retired_on": "2026-09-06",
       "retired_reason": "UNH no longer appears in this run's live bench_diversifier list -- the condition this buy was sized against has cleared",
       "note": "auto-retired 2026-09-06: UNH no longer appears in this run's live bench_diversifier list -- the condition this buy was sized against has cleared"
+    },
+    {
+      "action": "Trim NVDA",
+      "ticker": "NVDA",
+      "direction_bucket": "TRIM",
+      "size_usd": 287.95,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "overbought_distribution",
+      "date": "2026-09-06T00:00:00Z",
+      "status": "open"
+    },
+    {
+      "action": "Buy GOOG",
+      "ticker": "GOOG",
+      "direction_bucket": "BUY",
+      "size_usd": 287.95,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "oversold_reversion",
+      "date": "2026-09-06T00:00:00Z",
+      "status": "open"
+    },
+    {
+      "action": "Buy KLAC",
+      "ticker": "KLAC",
+      "direction_bucket": "BUY",
+      "size_usd": 589.33,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "trend_entry",
+      "date": "2026-09-06T00:00:00Z",
+      "status": "open"
+    },
+    {
+      "action": "Sell AMD",
+      "ticker": "AMD",
+      "direction_bucket": "SELL",
+      "size_usd": 429.81,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "cluster_rotation",
+      "date": "2026-09-06T00:00:00Z",
+      "status": "open",
+      "pair_id": "cluster_rotation-AMD-NVDA",
+      "pair_role": "sell_leg"
+    },
+    {
+      "action": "Buy NVDA",
+      "ticker": "NVDA",
+      "direction_bucket": "BUY",
+      "size_usd": 429.81,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "cluster_rotation",
+      "date": "2026-09-06T00:00:00Z",
+      "status": "open",
+      "pair_id": "cluster_rotation-AMD-NVDA",
+      "pair_role": "buy_leg"
+    },
+    {
+      "action": "Buy APH",
+      "ticker": "APH",
+      "direction_bucket": "BUY",
+      "size_usd": 589.33,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "trend_entry",
+      "date": "2026-09-06T00:00:00Z",
+      "status": "open"
+    },
+    {
+      "action": "Buy LRCX",
+      "ticker": "LRCX",
+      "direction_bucket": "BUY",
+      "size_usd": 589.33,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "conviction_average",
+      "date": "2026-09-06T00:00:00Z",
+      "status": "open"
     }
   ],
   "retracted": [
