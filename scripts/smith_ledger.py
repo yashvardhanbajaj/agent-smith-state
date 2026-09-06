@@ -869,3 +869,265 @@ def cmd_ledger_apply(args):
                         "reconcile against broker quantities" if added else
                         "nothing to append"),
           "uncaptured_reasons": [a["ticker"] for a in added if a.get("reason") == "UNCAPTURED"]})
+
+
+def cmd_bookcalc(args):
+    """Dividends, ex-dates, LTCG narrative and risk-weighted concentration -- the arithmetic
+    half of smith-book.
+
+    smith-book cost 90,368 tokens on 2026-09-06 and its whole JSON tail was div_yield_pct,
+    ex_dates, ltcg_narrative, refreshed_betas and ONE risk_narrative paragraph. Four of five are
+    fetch-then-arithmetic over data the script already has or the orchestrator can batch in one
+    call; only the paragraph was judgment. Beta refresh stays with the agent (it needs daily
+    bars, and the ~69-row budget makes that a real fetch plan, not a lookup).
+
+    --summary-file is a yfinance get_stock_summary payload {TICKER:{dividendRate, dividendYield,
+    exDividendDate, ...}} -- the SAME call that populates data_cache.wk52, so on a run that
+    refreshes wk52 this costs nothing extra. That reuse is the point: two agents were fetching
+    overlapping summary data for different fields.
+    """
+    rd, base = args.run_dir, args.base_dir
+    holdings = load_json(os.path.join(rd, "holdings.json"), default={}) or {}
+    book = load_json(os.path.join(rd, "compute_book.json"), default={}) or {}
+    risk = load_json(os.path.join(rd, "compute_risk.json"), default={}) or {}
+    lots = load_json(os.path.join(base, "lots.json"), default={}) or {}
+    summ = load_json(args.summary_file, default={}) if args.summary_file else {}
+    state = load_json(os.path.join(base, "state.json"), default={}) or {}
+    betas = ((state.get("data_cache") or {}).get("betas") or {})
+    today = date.fromisoformat(args.today) if args.today else date.today()
+
+    rows = holdings.get("holdings_inr") or []
+    total_usd = sum((r.get("market_value_usd") or 0) for r in rows) or 1.0
+
+    # --- dividends + ex-dates -------------------------------------------------------------
+    ex, income, dq = [], 0.0, []
+    for r in rows:
+        t, qty = r.get("ticker"), r.get("qty") or 0
+        info = summ.get(t) or {}
+        rate = info.get("dividendRate")
+        exd = str(info.get("exDividendDate") or "")[:10]
+        if rate:
+            income += rate * qty
+        if exd:
+            try:
+                d = date.fromisoformat(exd)
+            except ValueError:
+                continue
+            days = (d - today).days
+            if 0 <= days <= args.ex_window_days:
+                # dividendRate is ANNUAL; a single ex-date pays roughly a quarter of it. Stated
+                # as an estimate because the actual declared amount is not in this payload.
+                ex.append({"ticker": t, "ex_dividend_date": exd, "days_out": days,
+                           "annual_rate_usd": rate, "qty": qty,
+                           "est_payment_usd": round(rate * qty / 4, 2),
+                           "basis": "annual dividendRate / 4 -- ESTIMATE, not a declared amount"})
+    ex.sort(key=lambda e: e["days_out"])
+    if summ and len(summ) < len(rows):
+        dq.append(f"dividend screen covered {len(summ)} of {len(rows)} holdings -- the rest were "
+                  f"not in the summary payload and are UNSCREENED, not dividend-free.")
+    if not summ:
+        dq.append("no --summary-file supplied: dividends and ex-dates not computed this run.")
+
+    # --- LTCG ------------------------------------------------------------------------------
+    all_lots = [(t, l) for t, ls in lots.items()
+                if isinstance(ls, list) for l in ls if isinstance(l, dict)]
+    dated = [(t, l) for t, l in all_lots if l.get("date")]
+    earliest = min((l["date"] for _, l in dated), default=None)
+    ltcg = {"earliest_open_lot": earliest, "lots_total": len(all_lots),
+            "lots_dated": len(dated), "live_decisions": False, "first_crossing": None}
+    if earliest:
+        y, m, d = (int(x) for x in earliest.split("-"))
+        ltcg["first_crossing"] = f"{y + 2}-{m:02d}-{d:02d}"
+        ltcg["live_decisions"] = bool(book.get("ltcg_flags"))
+        ltcg["note"] = (
+            f"All {len(all_lots)} open lots are short-term; the 24-month Indian boundary first "
+            f"bites {ltcg['first_crossing']}. There is no LTCG decision to make and no urgency "
+            f"to claim." if not ltcg["live_decisions"] else
+            "compute_book.ltcg_flags is non-empty -- real LTCG-proximity decisions exist.")
+
+    # --- risk-weighted concentration -------------------------------------------------------
+    # compute_book emits `concentration: null`; this is the read it was missing. The point is
+    # that DOLLAR weight and RISK weight are different rankings, and only the second one says
+    # what a drawdown does to you.
+    pos = risk.get("positions") or []
+    rby = {p.get("ticker"): p for p in pos if isinstance(p, dict)}
+    contrib, unbeta = [], []
+    for r in rows:
+        t = r.get("ticker")
+        mv = r.get("market_value_usd") or 0
+        # data_cache.betas entries are {"value","as_of","benchmark"}; tolerate a bare number
+        # for legacy rows. Read the value via one place, never an isinstance branch per call
+        # site (ONE FIELD, ONE READER).
+        e = betas.get(t)
+        b = e.get("value", e.get("beta")) if isinstance(e, dict) else e
+        # A beta measured against anything but SMH is not comparable to the rest of the book --
+        # the SPX beta was shown to be actively misleading. Exclude rather than mix benchmarks.
+        if isinstance(e, dict) and e.get("benchmark") and e["benchmark"].upper() != "SMH":
+            unbeta.append(t)
+            continue
+        if not isinstance(b, (int, float)):
+            unbeta.append(t)
+            continue
+        contrib.append({"ticker": t, "weight_pct": round(mv / total_usd * 100, 3),
+                        "beta": b, "_rw": mv * b})
+    rw_total = sum(c["_rw"] for c in contrib) or 1.0
+    for c in contrib:
+        c["risk_weight_pct"] = round(c.pop("_rw") / rw_total * 100, 3)
+        c["risk_minus_dollar_pp"] = round(c["risk_weight_pct"] - c["weight_pct"], 3)
+    contrib.sort(key=lambda c: -c["risk_weight_pct"])
+    if unbeta:
+        dq.append(f"no beta for {len(unbeta)} name(s) ({','.join(sorted(unbeta)[:8])}) -- EXCLUDED "
+                  f"from the risk-weighted ranking rather than defaulted to 1.0, which would have "
+                  f"quietly understated them.")
+
+    over = [c for c in contrib if c["risk_minus_dollar_pp"] > 1.0][:5]
+    under = [c for c in contrib if c["risk_minus_dollar_pp"] < -1.0][:5]
+
+    emit({"as_of": args.today, "ex_dates": ex, "ex_window_days": args.ex_window_days,
+          "annual_dividend_income_usd": round(income, 2),
+          "div_yield_pct": round(income / total_usd * 100, 3) if total_usd else None,
+          "ltcg": ltcg,
+          "risk_weighted_concentration": contrib[:12],
+          "risk_hogs": [{k: c[k] for k in ("ticker", "weight_pct", "risk_weight_pct",
+                                           "risk_minus_dollar_pp", "beta")} for c in over],
+          "size_not_risk": [{k: c[k] for k in ("ticker", "weight_pct", "risk_weight_pct",
+                                               "risk_minus_dollar_pp", "beta")} for c in under],
+          "betas_missing": sorted(unbeta),
+          "data_quality": dq,
+          "note": ("risk_hogs carry MORE portfolio risk than dollars (beta x weight); "
+                   "size_not_risk are the reverse -- big positions that are quiet. A book can be "
+                   "concentrated in dollars and diversified in risk, or the reverse, and only "
+                   "this ranking distinguishes them.")})
+
+
+def cmd_taxcalc(args):
+    """FIFO-vs-HIFO lot sequencing for open trims, plus loss-harvest candidates.
+
+    smith-tax cost 77,880 tokens on 2026-09-06 to conclude FIFO == HIFO with a $0.00 delta on
+    all five open trims -- a result that is pure lot arithmetic over lots.json and proposals.json,
+    both of which this script already owns (`_consume_fifo`, `_lot_sort_key` predate this by
+    weeks). The only judgment in its output was the `tension` field on each harvest candidate,
+    which is a thesis question and stays with the agent.
+
+    It reports the LTCG window honestly rather than padding: if the earliest lot is under two
+    years old there is no deferral decision to make, and that is one line, not a section.
+    """
+    base, rd = args.base_dir, args.run_dir
+    lots = load_json(os.path.join(base, "lots.json"), default={}) or {}
+    props = load_json(os.path.join(base, "proposals.json"), default={}) or {}
+    holdings = load_json(os.path.join(rd, "holdings.json"), default={}) or {}
+    state = load_json(os.path.join(base, "state.json"), default={}) or {}
+    thesis = state.get("thesis", {}) or {}
+    px = {r.get("ticker"): r.get("live_price_usd") for r in (holdings.get("holdings_inr") or [])}
+    qty_now = {r.get("ticker"): r.get("qty") for r in (holdings.get("holdings_inr") or [])}
+
+    rows = props.get("proposals", props if isinstance(props, list) else [])
+    open_trims = [p for p in rows if isinstance(p, dict) and p.get("status") == "open"
+                  and (p.get("direction_bucket") in ("TRIM", "SELL")
+                       or any(w in str(p.get("action", "")).lower() for w in ("trim", "sell")))]
+
+    seq, dq = [], []
+    for p in open_trims:
+        t = p.get("ticker")
+        size = p.get("size_usd") or 0
+        price = px.get(t)
+        tl = [l for l in (lots.get(t) or []) if isinstance(l, dict)]
+        if not price or not tl or not size:
+            dq.append(f"{p.get('id')} ({t}): no price, no lots or no size -- not sequenced.")
+            continue
+        shares = size / price
+
+        def consume(order):
+            need, picked, gain = shares, [], 0.0
+            for l in order:
+                if need <= SHARE_EPS:
+                    break
+                take = min(need, l.get("qty") or 0)
+                if take <= 0:
+                    continue
+                basis = l.get("price_usd")
+                if basis is None:
+                    picked.append({"date": l.get("date"), "qty": round(take, 6),
+                                   "price_usd": None, "note": "undated/unpriced synthetic lot -- "
+                                                              "gain NOT computable, excluded"})
+                    need -= take
+                    continue
+                gain += take * (price - basis)
+                picked.append({"date": l.get("date"), "qty": round(take, 6), "price_usd": basis})
+                need -= take
+            return picked, round(gain, 2), round(need, 6)
+
+        fifo_lots, fifo_gain, short_f = consume(sorted(tl, key=_lot_sort_key))
+        hifo_lots, hifo_gain, _ = consume(sorted(tl, key=lambda l: -(l.get("price_usd") or 0)))
+        delta = round(hifo_gain - fifo_gain, 2)
+        seq.append({"proposal_id": p.get("id"), "ticker": t, "size_usd": size,
+                    "shares_implied": round(shares, 6), "price_usd": price,
+                    "fifo": {"lots": fifo_lots, "realised_gain_usd": fifo_gain},
+                    "hifo": {"lots": hifo_lots, "realised_gain_usd": hifo_gain},
+                    "tax_delta_usd": delta, "material": abs(delta) >= args.material_usd,
+                    "shortfall_shares": short_f or None,
+                    "note": ("FIFO and HIFO select the same lots -- no sequencing decision to "
+                             "make, do not complicate execution for it." if delta == 0 else
+                             f"HIFO realises {delta:+.2f} vs FIFO.")})
+        if short_f:
+            dq.append(f"{p.get('id')} ({t}): trim implies {shares:.4f} shares but lots hold "
+                      f"{shares - short_f:.4f} -- lots.json may be behind trades.json.")
+
+    # --- harvest candidates: unrealised losses, from LOTS basis (the tax-correct one) --------
+    harvest = []
+    for t, ls in lots.items():
+        if not isinstance(ls, list) or t not in px or not px[t]:
+            continue
+        q = sum((l.get("qty") or 0) for l in ls if isinstance(l, dict))
+        cost = sum((l.get("qty") or 0) * (l.get("price_usd") or 0)
+                   for l in ls if isinstance(l, dict) and l.get("price_usd") is not None)
+        if q <= 0 or cost <= 0:
+            continue
+        unreal = round(q * px[t] - cost, 2)
+        if unreal < 0:
+            st = smith_risk.thesis_status(thesis.get(t)) if hasattr(smith_risk, "thesis_status") else None
+            harvest.append({"ticker": t, "unrealised_loss_usd": unreal,
+                            "pct": round(unreal / cost * 100, 2),
+                            "thesis_status": st,
+                            "has_open_trim": any(x.get("ticker") == t for x in open_trims),
+                            "qty": round(q, 6)})
+    harvest.sort(key=lambda h: h["unrealised_loss_usd"])
+
+    all_lots = [l for ls in lots.values() if isinstance(ls, list) for l in ls if isinstance(l, dict)]
+    dated = [l["date"] for l in all_lots if l.get("date")]
+    earliest = min(dated) if dated else None
+    ltcg = {"earliest_open_lot": earliest, "live_decisions": False}
+    if earliest:
+        y, m, d = (int(x) for x in earliest.split("-"))
+        ltcg["first_crossing"] = f"{y + 2}-{m:02d}-{d:02d}"
+        ltcg["note"] = (f"All {len(all_lots)} open lots are short-term; the 24-month Indian "
+                        f"boundary first bites {ltcg['first_crossing']}. No trim this run can be "
+                        f"deferred into long-term treatment. One line, not a section.")
+
+    emit({"as_of": args.today, "ltcg_window": ltcg, "trim_sequencing": seq,
+          "open_trims": len(open_trims),
+          "all_deltas_zero": bool(seq) and all(x["tax_delta_usd"] == 0 for x in seq),
+          "harvest_candidates": harvest[:12],
+          # SHARE_EPS, not equality: these quantities are sums of decimal fractions, so a ~1e-6
+          # residual is float noise, not a missing transaction. Exact comparison flagged
+          # ASML/MU/TER/AMAT as non-reconciling on 2026-09-06 against a ledger rebuild that was
+          # in fact clean -- the same false-defect this constant was introduced to stop.
+          # Report the RESIDUAL, not a bare boolean. SHARE_EPS (1e-6) is deliberately tight
+          # because the phantom-short logic depends on it, and loosening a safety constant to
+          # make a report look clean is the wrong trade. But broker dust can sit just over it --
+          # ASML on 2026-09-06 was 1.1e-6 (holdings 1.2500011 vs lots 1.25), which is noise, not
+          # a missing fill. So a reader gets the magnitude and can judge; only a residual big
+          # enough to be a real share is a defect.
+          "lots_residual": {t: round(sum((l.get('qty') or 0) for l in ls if isinstance(l, dict))
+                                     - (qty_now.get(t) or 0), 9)
+                            for t, ls in lots.items() if isinstance(ls, list) and t in qty_now
+                            if abs(sum((l.get('qty') or 0) for l in ls if isinstance(l, dict))
+                                   - (qty_now.get(t) or 0)) > SHARE_EPS},
+          "data_quality": dq,
+          "wash_sale_note": ("India has no US-style 30-day wash-sale rule on equities. Rebuying "
+                             "soon after a harvest is legal but resets basis lower, surrendering "
+                             "future downside cushion -- an economic trade-off, not a legal bar."),
+          "note": ("Sequencing and harvest SIZING are arithmetic and are settled here. Whether a "
+                   "harvest CONFLICTS with a thesis or an open buy proposal is judgment and "
+                   "belongs to smith-tax -- `thesis_status` and `has_open_trim` are supplied so "
+                   "it can weigh that without re-deriving anything.")})

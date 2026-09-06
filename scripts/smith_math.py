@@ -53,7 +53,7 @@ import smith_conviction
 from smith_core import *  # noqa: F401,F403
 from smith_core import load_json, emit, fail, clamp
 from smith_ledger import (cmd_lots, cmd_history, cmd_universe, cmd_ledger_parse,
-                          cmd_ledger_apply)
+                          cmd_ledger_apply, cmd_bookcalc, cmd_taxcalc)
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails, cmd_freshness, cmd_report, cmd_runs
 from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_add_proposal,
                              cmd_score_shadow_journal, dismiss_proposal_core)
@@ -1283,6 +1283,12 @@ def cmd_maxpain(args):
                  if c.get("strike") is not None]
         puts = [(p.get("strike"), p.get("openInterest") or 0) for p in (legs.get("puts") or [])
                 if p.get("strike") is not None]
+        # Volume PCR too (added 2026-09-06): smith-macro reports pcr_vol alongside pcr_oi, and
+        # was computing BOTH by hand from the raw chain while this command already did the
+        # harder one. They answer different questions -- OI is standing positioning, volume is
+        # today's flow -- so both are emitted, never blended.
+        call_vol = sum((c.get("volume") or 0) for c in (legs.get("calls") or []))
+        put_vol = sum((p.get("volume") or 0) for p in (legs.get("puts") or []))
         if not calls or not puts:
             dq.append(f"{expiry}: missing a full call or put leg -- skipped, never half-computed")
             continue
@@ -1305,7 +1311,9 @@ def cmd_maxpain(args):
         out[expiry] = {
             "max_pain": best, "pain_at_max_pain": round(pain[best], 0),
             "pcr_oi": round(put_oi / call_oi, 3) if call_oi else None,
+            "pcr_vol": round(put_vol / call_vol, 3) if call_vol else None,
             "call_oi": call_oi, "put_oi": put_oi,
+            "call_vol": call_vol, "put_vol": put_vol,
             "strikes_used": len(strikes), "strike_range": [strikes[0], strikes[-1]],
             "spot_vs_max_pain_pct": (round((spot - best) / best * 100, 2)
                                      if spot and best else None),
@@ -1313,7 +1321,8 @@ def cmd_maxpain(args):
         }
     emit({"symbol": args.symbol, "underlying_price": spot, "expiries": out,
           "data_quality": dq,
-          "note": ("pcr_oi is put/call OPEN INTEREST (positioning), not volume. Max-pain is a "
+          "note": ("pcr_oi is put/call OPEN INTEREST (standing positioning); pcr_vol is today's "
+                   "FLOW. Different questions -- report both, never blend them. Max-pain is a "
                    "gravity heuristic, not a forecast -- it moves as OI shifts and is least "
                    "meaningful far from expiry.")})
 
@@ -3571,6 +3580,26 @@ def main():
                          "bodies win over snippets on conflict")
     sp.add_argument("--today", default=None)
 
+    sp = sub.add_parser("bookcalc",
+                        help="dividends/ex-dates, LTCG window and risk-weighted concentration "
+                             "-- the arithmetic half of smith-book")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--summary-file", default=None,
+                    help="yfinance get_stock_summary payload; the SAME call that populates "
+                         "data_cache.wk52, so it is free on a run that refreshes wk52")
+    sp.add_argument("--ex-window-days", type=int, default=30)
+    sp.add_argument("--today", default=None)
+
+    sp = sub.add_parser("taxcalc",
+                        help="FIFO-vs-HIFO lot sequencing for open trims + loss-harvest "
+                             "candidates -- the arithmetic half of smith-tax")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--material-usd", type=float, default=5.0,
+                    help="tax delta below which FIFO-vs-HIFO is not worth complicating execution")
+    sp.add_argument("--today", default=None)
+
     sp = sub.add_parser("ledger-apply",
                         help="append parsed confirmations to trades.json (idempotent on "
                              "message_id); dry run unless --write")
@@ -3638,6 +3667,7 @@ def main():
          "learn-stop-calibration": cmd_learn_stop_calibration,
          "usage-log": cmd_usage_log, "usage-audit": cmd_usage_audit,
          "usage-report": cmd_usage_report, "ledger-parse": cmd_ledger_parse, "ledger-apply": cmd_ledger_apply,
+         "bookcalc": cmd_bookcalc, "taxcalc": cmd_taxcalc,
          "sync-decisions": cmd_sync_decisions}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")
