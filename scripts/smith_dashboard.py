@@ -303,6 +303,18 @@ p{margin:0}
 .phead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
   padding:13px 17px;border-bottom:1px solid var(--line-soft)}
 .phead h2{font-size:14.5px}
+/* collapsible panel (added 2026-09-06, user request) -- a <summary class="phead"> reuses the
+   ordinary panel header's flex layout exactly (class selectors apply regardless of tag), so a
+   panel becomes collapsible by wrapping it in <details class="panel ..."><summary class="phead">
+   instead of <section class="panel"><div class="phead">. Only two things need overriding: the
+   generic details>summary rule elsewhere in this file (serif, 14px padding, "▸ " marker sized
+   for a section-level toggle) and the default marker itself, replaced with a small chevron that
+   matches the .clus-row expand affordance already used for cluster rows. */
+details.panel>summary{cursor:pointer;list-style:none;padding:13px 17px;font-family:var(--sans);
+  font-weight:640;font-size:14.5px}
+details.panel>summary::-webkit-details-marker{display:none}
+details.panel>summary::before{content:"▸  ";color:var(--ink-3);font-family:var(--sans);font-weight:400}
+details.panel[open]>summary::before{content:"▾  "}
 /* FIXED 2026-08-08 (user-reported: "Factor themesthe standing watch list..." ran together with
    no space) -- .sub was used as a class on <span> throughout (h2 subtitles) AND on <td> (muted
    table-cell text) but never had a CSS rule at all, so h2 subtitles inherited zero spacing and
@@ -838,14 +850,18 @@ def _render_accepted_awaiting_execution(props):
                 f'{pair_s}</span>'
                 f'<span class="amt {b}">${p.get("size_usd", 0):,.0f}</span></div>')
         net_word = "raises cash by" if net >= 0 else "needs cash of"
+        # COLLAPSIBLE (2026-09-06, user request) -- <details class="panel"> instead of
+        # <section class="panel"><div class="phead">, see the CSS note above. Open by default:
+        # this is a decisions-made-but-not-yet-filled queue, the kind of thing that should be
+        # visible on load, not something the user has to remember to expand.
         out.append(
-            '<section class="panel act"><div class="phead"><h2>Accepted &mdash; awaiting execution</h2>'
-            f'<span class="pill a">{len(accepted)} decided, not yet filled</span></div>'
+            '<details class="panel act" open><summary class="phead"><h2>Accepted &mdash; awaiting execution</h2>'
+            f'<span class="pill a">{len(accepted)} decided, not yet filled</span></summary>'
             f'<div class="pbody"><div>{"".join(rows)}</div>'
             f'<p class="note"><b>${sells:,.0f}</b> of sells/trims against <b>${buys:,.0f}</b> of buys '
             f'&mdash; net {net_word} <b>${abs(net):,.0f}</b>. '
             'Accepting is a stated intention, not a trade: Agent Smith never places orders. '
-            'A row leaves this panel only when the actual fill reaches the ledger.</p></div></section>')
+            'A row leaves this panel only when the actual fill reaches the ledger.</p></div></details>')
 
     return out
 
@@ -2149,8 +2165,11 @@ def _render_open_gaps(state):
             # but not offering the button at all is the honest version of that same rule: it
             # tells the reader up front this one needs a chat conversation, not a tap.
             decide_s = "" if g.get("user_decision") else decision_buttons("gap", g.get("id", ""))
+            desc = g.get("description", "")
+            desc_short = desc[:90] + "…" if len(desc) > 90 else desc
             rows.append(f'<div class="srow"><span class="slab"><b>{esc(g.get("id",""))}</b></span>'
-                       f'<span style="font-size:12.5px;color:var(--ink-2)">{esc(g.get("description",""))[:280]}{decide_s}</span></div>')
+                       f'<span style="font-size:12.5px;color:var(--ink-2)" title="{esc_attr(desc)}">'
+                       f'{esc(desc_short)}{decide_s}</span></div>')
         out.append(f'<details><summary>Open data gaps<span class="c">{len(gaps)} open</span></summary>'
                  f'<div class="body">{"".join(rows)}</div></details>')
 
@@ -2170,10 +2189,12 @@ def _render_retired_recent(props):
         rows = []
         for p in retired_recent:
             decide_s = decision_buttons("auto_retired_proposal", p.get("id", ""))
+            reason = p.get("retired_reason") or ""
+            reason_short = reason[:90] + "…" if len(reason) > 90 else reason
             rows.append(f'<div class="srow"><span class="slab"><b>{esc(p.get("id",""))}</b> '
                        f'{esc(p.get("action",""))}</span>'
-                       f'<span style="font-size:12.5px;color:var(--ink-2)">'
-                       f'{esc((p.get("retired_reason") or "")[:200])}{decide_s}</span></div>')
+                       f'<span style="font-size:12.5px;color:var(--ink-2)" title="{esc_attr(reason)}">'
+                       f'{esc(reason_short)}{decide_s}</span></div>')
         out.append(f'<details><summary>Recently auto-retired<span class="c">{len(retired_recent)} shown</span></summary>'
                  f'<div class="body">{"".join(rows)}</div></details>')
 
