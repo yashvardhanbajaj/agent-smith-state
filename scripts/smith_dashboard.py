@@ -411,13 +411,27 @@ details.clus-row>.body{padding:0 0 14px}
 .peer-tag.lag{background:var(--bad-soft);color:var(--bad)}
 
 /* ============ decision/proposal rows ============ */
-.pr{display:grid;grid-template-columns:76px 1fr auto;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft);align-items:baseline}
+/* REBUILT 2026-09-06 (user: "too much blank space... take a fresh look, propose a new design").
+   Root cause of the whitespace: the 3-column GRID (76px|1fr|auto) sized every row to its
+   TALLEST column, and the 76px label column forced a long cluster name ("Compute/Hyperscaler")
+   to wrap onto 2-3 lines on its own -- ballooning the whole row's height even when the middle
+   column had one line of real content, leaving a visible gap under it. Fixed by moving to a
+   single FLEX-WRAP row: ticker and cluster share one line (cluster inline, small, muted, no
+   longer in its own narrow column), every badge/chip/stat sits in that same flowing row, and
+   the amount pins to the far right with margin-left:auto. The row is exactly as tall as it
+   needs to be -- one line for a plain idea, two only when a stack warning or flag is present --
+   instead of a fixed multi-line grid cell no matter the content.*/
+.pr{display:flex;flex-wrap:wrap;align-items:center;gap:5px 10px;padding:8px 0;
+  border-bottom:1px solid var(--line-soft)}
 .pr:last-child{border-bottom:none}
-.pr .act2{font-family:var(--mono);font-size:12px;font-weight:700;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
-.pr .why{font-size:12.5px;color:var(--ink-2);line-height:1.45}
-.pr .amt{font-family:var(--mono);font-weight:700;color:var(--action)}
-.pr .meta{display:block;font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--ink-3);margin-top:5px}
-.pr .meta .pid{margin-left:8px}
+.pr-name{font-family:var(--mono);font-size:12.5px;font-weight:700;white-space:nowrap;
+  display:flex;align-items:baseline;gap:7px}
+.pr-clus{font-family:var(--sans);font-size:10.5px;font-weight:500;color:var(--ink-3);
+  font-style:normal;white-space:nowrap}
+.pr .amt{font-family:var(--mono);font-weight:700;color:var(--action);margin-left:auto;
+  white-space:nowrap}
+.pr .decide{margin:0}
+.pr-flagwrap{flex-basis:100%;display:flex;flex-wrap:wrap;gap:5px 10px}
 /* direction badge -- same visual language as the factor-catalyst .cb badges below */
 .dirb{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px}
 .dirb.BUY{background:var(--good-soft);color:var(--good)}
@@ -840,14 +854,12 @@ def _render_accepted_awaiting_execution(props):
             pid = p.get("id", "")
             when = p.get("accepted_on") or ""
             pair = p.get("pair_id")
-            pair_s = (f'<span class="stopline">paired with the '
-                      f'{"buy" if b in ("SELL", "TRIM") else "sell"} leg &mdash; self-funding</span>'
-                      if pair else "")
+            pair_s = (f'<i class="pr-clus">paired &mdash; self-funding</i>' if pair else "")
+            meta_s = (f'<i class="pr-clus">{esc(pid)}'
+                     f'{" · accepted " + esc(when) if when else ""}</i>')
             rows.append(
-                f'<div class="pr"><span class="act2"><span class="dirb {b}">{b}</span>'
-                f'{esc(_clean_action(p, b))}</span>'
-                f'<span class="why">{esc(pid)}{" &middot; accepted " + esc(when) if when else ""}'
-                f'{pair_s}</span>'
+                f'<div class="pr"><span class="pr-name"><span class="dirb {b}">{b}</span>'
+                f'{esc(_clean_action(p, b))}{pair_s}{meta_s}</span>'
                 f'<span class="amt {b}">${p.get("size_usd", 0):,.0f}</span></div>')
         net_word = "raises cash by" if net >= 0 else "needs cash of"
         # COLLAPSIBLE (2026-09-06, user request) -- <details class="panel"> instead of
@@ -904,7 +916,7 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
             bucket = p.get("direction_bucket", "HOLD")
             pid = p.get("id", "")
             action = esc(p.get("action", ""))
-            clus_s = f'<span class="clus">{esc(p["cluster"])}</span>' if p.get("cluster") else ""
+            clus_s = f'<i class="pr-clus">{esc(p["cluster"])}</i>' if p.get("cluster") else ""
             held_s = held_badge(p)
             stack_s = stacks_badge(p)
 
@@ -968,10 +980,17 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
                       f'<div class="body">{fact_grid}</div></details>') if facts else ""
 
             decide_s = decision_buttons("proposal", pid) if pid else ""
-            return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
-                    f'{action}{clus_s}{held_s}{stack_s}</span>'
-                    f'<span class="why">{conv_meter}{tag_s}{flag_s}{drawer}{decide_s}</span>'
-                    f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
+            # ONE flowing row: badge+ticker+cluster, conviction meter, tag, held/stack badges,
+            # amount pinned right. flags/drawer/decide wrap onto their own line (pr-flagwrap
+            # forces a break via flex-basis:100%) only when present, instead of every row
+            # reserving vertical space for fields most rows don't have.
+            second_line = f'{flag_s}{stack_s}{drawer}{decide_s}'
+            second_s = f'<div class="pr-flagwrap">{second_line}</div>' if (flag_s or stack_s or drawer or decide_s) else ""
+            return (f'<div class="pr">'
+                    f'<span class="pr-name"><span class="dirb {bucket}">{bucket}</span>{action}{clus_s}</span>'
+                    f'{conv_meter}{tag_s}{held_s}'
+                    f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span>'
+                    f'{second_s}</div>')
 
         # -- rotation ideas: paired trim+buy proposals sharing a pair_id (added 2026-08-06,
         # user-reported: proposals were "only ATR risk correction," never capital rotation from
@@ -1057,9 +1076,9 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
         # not a competition for the top slot. Grouped by priority tier same as before.
         hrows = []
         for b in breaches:
-            hrows.append(f'<div class="pr"><span class="act2"><span class="dirb TRIM">BREACH</span></span>'
-                         f'<span class="why"><span class="rchip w" title="{esc_attr(b)} -- bring it '
-                         f'inside the band or record why the breach is accepted.">{esc(b)}</span></span>'
+            hrows.append(f'<div class="pr"><span class="pr-name"><span class="dirb TRIM">BREACH</span></span>'
+                         f'<span class="rchip w" title="{esc_attr(b)} -- bring it '
+                         f'inside the band or record why the breach is accepted.">{esc(b)}</span>'
                          f'<span class="amt">&mdash;</span></div>')
         by_priority = {"HIGH": [], "MEDIUM": [], "LOW": []}
         for p in housekeeping_props:
