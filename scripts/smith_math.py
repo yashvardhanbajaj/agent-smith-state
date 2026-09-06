@@ -52,7 +52,8 @@ import smith_risk
 import smith_conviction
 from smith_core import *  # noqa: F401,F403
 from smith_core import load_json, emit, fail, clamp
-from smith_ledger import cmd_lots, cmd_history, cmd_universe
+from smith_ledger import (cmd_lots, cmd_history, cmd_universe, cmd_ledger_parse,
+                          cmd_ledger_apply)
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails, cmd_freshness, cmd_report, cmd_runs
 from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_add_proposal,
                              cmd_score_shadow_journal, dismiss_proposal_core)
@@ -3559,6 +3560,25 @@ def main():
     sp.add_argument("--duration-s", required=True, type=float)
     sp.add_argument("--today", default=None)
 
+    sp = sub.add_parser("ledger-parse",
+                        help="deterministically parse INDmoney BUY/SELL confirmations from "
+                             "search_threads output; fetch bodies ONLY for what it lists")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--threads-file", required=True,
+                    help="raw search_threads JSON (a dict, or a list of pages)")
+    sp.add_argument("--bodies-file", default=None,
+                    help="optional get_thread results for rows a prior run put in needs_body; "
+                         "bodies win over snippets on conflict")
+    sp.add_argument("--today", default=None)
+
+    sp = sub.add_parser("ledger-apply",
+                        help="append parsed confirmations to trades.json (idempotent on "
+                             "message_id); dry run unless --write")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--parsed-file", required=True,
+                    help="ledger-parse output, or a bare list of its `parsed` rows")
+    sp.add_argument("--write", action="store_true")
+
     sp = sub.add_parser("usage-report",
                         help="log AND audit EVERY dispatched agent's usage in one call -- the "
                              "batched replacement for a per-agent usage-log/usage-audit loop")
@@ -3617,7 +3637,7 @@ def main():
          "learn-priority-params": cmd_learn_priority_params,
          "learn-stop-calibration": cmd_learn_stop_calibration,
          "usage-log": cmd_usage_log, "usage-audit": cmd_usage_audit,
-         "usage-report": cmd_usage_report,
+         "usage-report": cmd_usage_report, "ledger-parse": cmd_ledger_parse, "ledger-apply": cmd_ledger_apply,
          "sync-decisions": cmd_sync_decisions}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")

@@ -3172,6 +3172,15 @@
    },
    "as_of": "2026-09-06",
    "_note": "52-week high/low per holding, source yfinance get_stock_summary (fiftyTwoWeekLow/High), batched. Added 2026-09-06 to unblock the pos-based buckets in smith_math.py buckets, which were reported as deferred_pos_buckets because nothing cached a 52-week range -- smith-signals fetched it per run and it died with the run."
+  },
+  "ticker_map_email_aliases": {
+   "Corning Inc.": "GLW",
+   "KLA Corporation": "KLAC",
+   "ASML Holding NV": "ASML",
+   "Advanced Micro Devices Inc.": "AMD",
+   "Coherent Corp.": "COHR",
+   "Amphenol Corporation": "APH",
+   "_note": "Email DISPLAY names as they appear in INDmoney confirmations, which are shorter than ticker_map's broker long-names ('Corning Inc.' vs 'Corning Incorporated'). Confirmed mappings, so ledger-parse resolves by stored fact rather than by prefix match. Promote every alias_suggestion here once verified -- an ambiguous name (e.g. a bare 'Alphabet Inc.' against both share classes) must NEVER be added."
   }
  },
  "fomc_cache": {
