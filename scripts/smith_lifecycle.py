@@ -262,6 +262,10 @@ def _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short,
     rpos = risk_by_ticker.get(ticker) if ticker else None
     cluster = (rpos.get("cluster") if rpos
                else (pr.get("cluster") or state_sector_map.get(ticker)))
+    # Defined unconditionally (not just inside the over_cap branch below) so the honest-sizing
+    # cure block and any other later use in this function can read it safely regardless of
+    # whether this position is over cap at all -- see the branch below for what it means.
+    exempted = False
     if rpos and rpos.get("over_cap"):
         # STRONG-NAME EXEMPTION (2026-09-07, user: "check the strategist's proposals for the
         # same fix... check everywhere"). rotation_by_ticker is cmd_rotation's own output --
@@ -423,7 +427,14 @@ def _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short,
     # pass should do silently.
     if bucket in ("TRIM", "SELL"):
         cures = []
-        if rpos and rpos.get("over_cap") and rpos.get("headroom_usd") is not None:
+        # EXEMPTION APPLIES HERE TOO (2026-09-07) -- an exempted name (strengthening thesis +
+        # net-bullish signal, not yet overbought) gets no cap-breach priority bonus above, and
+        # for the identical reason it should not be handed a "trim $X to cure the cap" sizing
+        # basis either: that number asserts the cap breach IS the reason to act, which is
+        # exactly what the scorer just decided isn't true for this name. Falls through to the
+        # cluster-ceiling cure below if that's separately live; if neither applies, cures stays
+        # empty and no tranche_note is written -- same as any other proposal with no cure basis.
+        if rpos and rpos.get("over_cap") and rpos.get("headroom_usd") is not None and not exempted:
             cures.append(("risk cap", abs(rpos["headroom_usd"])))
         if cluster and cluster in cluster_breach:
             cb = cluster_breach[cluster]
@@ -462,7 +473,15 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
     rpos = risk_by_ticker.get(ticker) if ticker else None
     cluster = pr.get("cluster")
     cl = directional_breach(cluster, bucket)
-    over_cap = bool(rpos and rpos.get("over_cap"))
+    # EXEMPTION (2026-09-07): a strengthening-thesis + net-bullish-signal name that isn't yet
+    # overbought was already exempted from the cap-breach PRIORITY bonus in
+    # _score_proposal_priority (same rotation_by_ticker lookup, same condition) -- treating its
+    # raw over_cap flag as a reason to keep a generic cap/cluster trim OPEN here would silently
+    # undo that: the proposal would carry no urgency in the score but never retire either,
+    # sitting forever on a reason the scorer has already said doesn't apply to this name.
+    rot = rotation_by_ticker.get(ticker) if ticker else None
+    exempted = bool(rot) and rot.get("over_cap") and rot.get("bucket") != "trim_risk_cap"
+    over_cap = bool(rpos and rpos.get("over_cap")) and not exempted
     age = (today_date - (parse_date(pr.get("date", "")) or today_date)).days
     why = None
 
@@ -738,7 +757,8 @@ def _retire_orphaned_rotation_legs(props, trigger_pairs, today_date, retired):
             retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": why})
 
 
-def _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directional_breach, today_date):
+def _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directional_breach, today_date,
+                               rotation_by_ticker=None):
     """Recomputes `still_valid_because` (why this proposal survives TODAY) and `retires_when`
     (the inverse condition -- what would retire it tomorrow) plus a re-priced
     `price_drift_pct` and an evidence-quality flag (G58: a proposal whose sole basis is
@@ -826,7 +846,13 @@ def _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directi
         retires_when = f"{ticker} drops out of the stretched cohort (no longer ahead of sector AND up)"
     elif bucket in ("TRIM", "SELL"):
         conds = []
-        if rpos and rpos.get("over_cap"):
+        # EXEMPTION (2026-09-07): same rotation_by_ticker check as the scorer and the
+        # retirement pass -- an exempted name (strengthening thesis + net-bullish signal, not
+        # yet overbought) never had cap urgency counted for it, so telling the reader "retires
+        # when the cap clears" here would misstate why this proposal is even open.
+        rot = (rotation_by_ticker or {}).get(ticker) if ticker else None
+        exempted = bool(rot) and rot.get("over_cap") and rot.get("bucket") != "trim_risk_cap"
+        if rpos and rpos.get("over_cap") and not exempted:
             conds.append(f"{ticker} drops under its ATR risk cap")
         if cl:
             conds.append(f"{pr.get('cluster')} re-enters its policy band")
@@ -1150,7 +1176,8 @@ def cmd_proposals(args):
     for pr in props:
         if pr.get("status") != "open":
             continue
-        _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directional_breach, today_date)
+        _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directional_breach, today_date,
+                                   rotation_by_ticker)
 
     # --- STACKING GUARD (added 2026-09-01) ---------------------------------------------------
     # An ACCEPTED-but-unexecuted proposal did not block a new proposal on the same name and the

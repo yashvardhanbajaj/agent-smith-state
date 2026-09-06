@@ -6927,7 +6927,7 @@
       "rationale": "Over ATR cap (computed, cap_multiple 1.118, headroom -$206.54), derisk queue rank #2 (fragility 72.2 computed). Thesis strengthening (secondary) but evidence_against flags CEO insider selling ahead of the 08-27 print -- partial trim into strength, not a thesis reversal; fund AMAT add.",
       "trigger_type": null,
       "date": "2026-08-31T00:00:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "pair_id": "cap_rotation-MRVL-AMAT",
       "pair_role": "sell_leg",
       "id": "P-192",
@@ -6948,7 +6948,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-06",
-      "retires_when": "MRVL drops under its ATR risk cap"
+      "retires_when": "MRVL drops under its ATR risk cap",
+      "retired_on": "2026-09-06",
+      "retired_reason": "neither trigger is live: MRVL is within its ATR risk cap and AI Networking/Optics is inside its policy band -- the structural reason for this trim has cleared",
+      "note": "auto-retired 2026-09-06: neither trigger is live: MRVL is within its ATR risk cap and AI Networking/Optics is inside its policy band -- the structural reason for this trim has cleared"
     },
     {
       "action": "Buy AMAT",
