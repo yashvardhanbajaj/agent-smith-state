@@ -2983,3 +2983,153 @@ def cmd_report(args):
     with open(path, "w") as fh:
         fh.write(body + "\n")
     emit({"kind": args.kind, "path": rel, "chars": len(body), "as_of": today.isoformat()})
+
+
+# ---------------------------------------------------------------------------
+# CROSSCHECK (added 2026-09-06) -- adjudicate conflicts BETWEEN sub-agents
+# ---------------------------------------------------------------------------
+# THE PROBLEM. Stage 1 dispatches every analyst in parallel, so no agent can see any other's
+# findings. That is fine for agents that observe independent things and fatal for agents whose
+# job is to INTERPRET what the others found. Four failures from the 2026-09-06 deep run, all in
+# the same run, none detected by anything:
+#
+#   1. EVIDENCE GAP. smith-thesis wrote APH `strengthening` with
+#      evidence_against: "none found this run". smith-quality, the same run, found APH interest
+#      expense +157% QoQ with debt +21% and goodwill +66%. The G58 rule says both sides must
+#      survive compression -- it is defeated by parallelism, because the counter-evidence existed
+#      in a sibling's output that thesis could not read.
+#   2. HANDOFF TO NOWHERE. smith-thesis ended a tension with "proximate cause unresolved, handed
+#      to smith-catalyst". Catalyst had already run, in parallel. The handoff went nowhere, and
+#      thesis's verdict was formed without the answer catalyst had actually found.
+#   3. UNADJUDICATED CONTRADICTION. smith-catalyst reported a STRUCTURAL memory tailwind
+#      (DRAM +50%/NAND +60% QoQ "this quarter"); smith-cycle reported TrendForce 4Q26 at
+#      +3-8% QoQ. Directly opposed, neither saw the other, and the briefing carried both. The
+#      catalyst figure later failed tier-1 corroboration entirely.
+#   4. READ-WRITE RACE. smith-ledger rebuilt lots.json while smith-tax was reading it -- tax's
+#      own output records a 13:04 read showing 6 mismatches and a 13:09 read showing clean --
+#      and smith-book reported "APH has no lots.json entry" for the same reason.
+#
+# This command finds 1-3 mechanically from the merged tails. 4 is fixed by ordering (see the
+# WAVES section of SKILL.md), not by detection.
+
+_HANDOFF_RE = r"(?:handed|hand(?:ing)?\s+(?:it\s+)?(?:off\s+)?|defer(?:red)?|passed)\s+to\s+(smith-[a-z]+)"
+
+
+def _cc_load(rd, agent):
+    """A missing agent output is NORMAL -- not every agent runs in every wave or every mode --
+    so this returns {} rather than raising. load_json(default=...) still raises on a missing
+    path, which is right for a required input and wrong for an optional one."""
+    path = os.path.join(rd, f"out_{agent}.json")
+    if not os.path.exists(path):
+        return {}
+    try:
+        return load_json(path, default={}) or {}
+    except Exception:
+        return {}
+
+
+def cmd_crosscheck(args):
+    """Detect conflicts between this run's sub-agent outputs. Read-only; emits findings only.
+
+    Run AFTER the observer wave has merged and BEFORE the interpreter wave dispatches, so the
+    interpreters receive the conflicts as input rather than the orchestrator discovering them at
+    briefing time -- which is what happened on 2026-09-06 and is far too late to change a verdict.
+    """
+    import re
+    rd = args.run_dir
+    thesis = _cc_load(rd, "thesis") or {}
+    quality = _cc_load(rd, "quality") or {}
+    catalyst = _cc_load(rd, "catalyst") or {}
+    signals = _cc_load(rd, "signals") or {}
+    cycle = _cc_load(rd, "cycle") or {}
+    triggers = load_json(os.path.join(rd, "compute_triggers.json"), default={}) or {}
+
+    changed = ((thesis.get("thesis") or {}).get("changed") or {})
+    qflags = quality.get("quality_flags") or {}
+    findings = []
+
+    # --- 1. evidence gap: a sibling produced counter-evidence the thesis says does not exist ---
+    for tk, entry in changed.items():
+        if not isinstance(entry, dict):
+            continue
+        against = entry.get("evidence_against")
+        empty = (not against) or all(
+            isinstance(a, dict) and re.search(r"\bnone\b|not found|no counter", str(a.get("claim", "")), re.I)
+            for a in against)
+        if empty and tk in qflags:
+            mags = [f.get("magnitude") for f in (qflags[tk] if isinstance(qflags[tk], list) else [])
+                    if isinstance(f, dict) and f.get("magnitude")]
+            findings.append({
+                "kind": "evidence_gap", "ticker": tk, "severity": "high",
+                "detail": (f"smith-thesis wrote {tk} `{entry.get('status')}` with an EMPTY "
+                           f"evidence_against, while smith-quality flagged it in the same run: "
+                           f"{'; '.join(str(m) for m in mags[:2])}. G58 says both sides must "
+                           f"survive -- they cannot when the other side is in a sibling's output "
+                           f"the agent could not read."),
+                "action": "re-dispatch smith-thesis for this ticker with the quality flag embedded"})
+
+    # --- 2. thesis vs a live catalyst_threat / trigger ------------------------------------
+    threats = {c.get("ticker") for c in (triggers.get("catalyst_threat") or []) if isinstance(c, dict)}
+    for tk, entry in changed.items():
+        if isinstance(entry, dict) and entry.get("status") in ("strengthening", "intact") and tk in threats:
+            findings.append({
+                "kind": "thesis_vs_catalyst_threat", "ticker": tk, "severity": "medium",
+                "detail": (f"thesis says `{entry.get('status')}` while a live catalyst_threat "
+                           f"fires on {tk}. Not necessarily wrong -- a name can strengthen under "
+                           f"a probabilistic threat -- but it must be argued, not left implicit."),
+                "action": "strategist weighs both; thesis should name the tension"})
+
+    # --- 3. handoffs to an agent that already ran ----------------------------------------
+    for name, blob in (("thesis", thesis), ("catalyst", catalyst), ("cycle", cycle),
+                       ("quality", quality), ("signals", signals)):
+        for m in re.finditer(_HANDOFF_RE, json.dumps(blob), re.I):
+            target = m.group(1).lower()
+            findings.append({
+                "kind": "handoff_to_nowhere", "from": f"smith-{name}", "to": target,
+                "severity": "high",
+                "detail": (f"smith-{name} handed a question to {target}, which runs in the SAME "
+                           f"parallel wave -- so it never received it and smith-{name}'s verdict "
+                           f"was formed without the answer."),
+                "action": f"either order {target} before smith-{name}, or re-dispatch smith-{name} "
+                          f"with {target}'s output embedded"})
+
+    # --- 4. catalyst direction vs cycle position -----------------------------------------
+    pos = cycle.get("cycle_position")
+    if pos in ("late", "rolling"):
+        for c in (catalyst.get("catalysts") or []):
+            if isinstance(c, dict) and c.get("direction") == "tailwind" and c.get("horizon") == "structural":
+                findings.append({
+                    "kind": "catalyst_vs_cycle", "severity": "high",
+                    "detail": (f"smith-catalyst calls \"{str(c.get('headline'))[:90]}\" a "
+                               f"STRUCTURAL tailwind while smith-cycle holds the cycle at "
+                               f"`{pos}`. A structural tailwind and a late cycle are not "
+                               f"automatically contradictory -- price up, second derivative down "
+                               f"is coherent -- but ONE of them must say which it weighted, with "
+                               f"its source. Neither saw the other."),
+                    "affects": c.get("affects"), "source": c.get("source"),
+                    "action": "state explicitly in the briefing which reading was weighted and why"})
+
+    # --- 5. thesis strengthening on a peer laggard ---------------------------------------
+    hist = (signals.get("signal_history") or {}).get("changed") or {}
+    for tk, entry in changed.items():
+        buckets = hist.get(tk) or []
+        if isinstance(entry, dict) and entry.get("status") == "strengthening" and "PEER LAGGARD" in buckets:
+            findings.append({
+                "kind": "thesis_vs_price", "ticker": tk, "severity": "low",
+                "detail": (f"thesis `strengthening` on {tk} while signals has it a PEER LAGGARD. "
+                           f"Often correct -- that is what a value entry looks like -- but it is "
+                           f"the pattern that also describes a thesis lagging the tape."),
+                "action": "note in the briefing rather than resolve"})
+
+    by_sev = {"high": 0, "medium": 0, "low": 0}
+    for f in findings:
+        by_sev[f.get("severity", "low")] += 1
+    emit({"as_of": args.today, "findings": findings, "count": len(findings), "by_severity": by_sev,
+          "agents_seen": [n for n, b in (("thesis", thesis), ("quality", quality),
+                                         ("catalyst", catalyst), ("signals", signals),
+                                         ("cycle", cycle)) if b],
+          "blocking": [f for f in findings if f.get("severity") == "high"],
+          "note": ("Run between the observer wave and the interpreter wave. A `high` finding "
+                   "means an interpreter formed a verdict without evidence a sibling already "
+                   "had -- re-dispatch it with that evidence rather than reconciling the two in "
+                   "the briefing, which is too late to change the verdict.")})

@@ -54,7 +54,7 @@ from smith_core import *  # noqa: F401,F403
 from smith_core import load_json, emit, fail, clamp
 from smith_ledger import (cmd_lots, cmd_history, cmd_universe, cmd_ledger_parse,
                           cmd_ledger_apply, cmd_bookcalc, cmd_taxcalc)
-from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails, cmd_freshness, cmd_report, cmd_runs
+from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails, cmd_freshness, cmd_report, cmd_runs, cmd_crosscheck
 from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_add_proposal,
                              cmd_score_shadow_journal, dismiss_proposal_core)
 from smith_learning import (load_store as learn_load_store, write_store as learn_write_store,
@@ -3580,6 +3580,13 @@ def main():
                          "bodies win over snippets on conflict")
     sp.add_argument("--today", default=None)
 
+    sp = sub.add_parser("crosscheck",
+                        help="detect conflicts BETWEEN this run's sub-agent outputs; run after "
+                             "the observer wave merges and before the interpreter wave dispatches")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--today", default=None)
+
     sp = sub.add_parser("bookcalc",
                         help="dividends/ex-dates, LTCG window and risk-weighted concentration "
                              "-- the arithmetic half of smith-book")
@@ -3667,7 +3674,7 @@ def main():
          "learn-stop-calibration": cmd_learn_stop_calibration,
          "usage-log": cmd_usage_log, "usage-audit": cmd_usage_audit,
          "usage-report": cmd_usage_report, "ledger-parse": cmd_ledger_parse, "ledger-apply": cmd_ledger_apply,
-         "bookcalc": cmd_bookcalc, "taxcalc": cmd_taxcalc,
+         "crosscheck": cmd_crosscheck, "bookcalc": cmd_bookcalc, "taxcalc": cmd_taxcalc,
          "sync-decisions": cmd_sync_decisions}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")
