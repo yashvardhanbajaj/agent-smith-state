@@ -1348,7 +1348,43 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
     return out
 
 
-def _render_stop_loss_efficacy(stops_data, sector_map=None):
+def _cluster_impact_bar_svg(cluster_rows):
+    """Compact horizontal bar chart: net $ impact per cluster, pos/neg diverging from a zero
+    line, sorted by |impact| descending -- added 2026-09-06 (user: 'use some data analytics and
+    visualisation', the by-cluster table alone still read as a wall of numbers). Self-contained
+    inline SVG rather than a smith_charts.py addition: this is a one-off per-cluster diverging
+    bar, not a chart type reused elsewhere, and it needs no network/live data of its own."""
+    if not cluster_rows:
+        return ""
+    rows = sorted(cluster_rows, key=lambda r: -abs(r[1]))[:10]
+    maxabs = max(abs(v) for _, v in rows) or 1.0
+    row_h, gap, label_w, bar_w = 22, 6, 190, 260
+    w = label_w + bar_w + 70
+    h = len(rows) * (row_h + gap)
+    mid = label_w + bar_w / 2
+    bars = []
+    for i, (name, val) in enumerate(rows):
+        y = i * (row_h + gap)
+        frac = abs(val) / maxabs
+        seg = (bar_w / 2) * frac
+        color = "var(--bad)" if val < 0 else "var(--good)"
+        x = mid - seg if val < 0 else mid
+        label = name if len(name) <= 26 else name[:24] + "…"
+        bars.append(
+            f'<text x="{label_w-8}" y="{y+row_h*0.68}" text-anchor="end" class="lbl" '
+            f'font-size="11" fill="var(--ink-2)">{esc(label)}</text>'
+            f'<rect x="{x:.1f}" y="{y+3}" width="{seg:.1f}" height="{row_h-6}" rx="3" fill="{color}"/>'
+            f'<text x="{(mid+seg+6) if val>=0 else (mid-seg-6)}" y="{y+row_h*0.68}" '
+            f'text-anchor="{"start" if val>=0 else "end"}" font-size="11" fill="var(--ink-2)" '
+            f'font-family="var(--mono)">${val:+,.0f}</text>')
+    svg = (f'<svg viewBox="0 0 {w} {h}" width="100%" height="{h}" '
+           f'style="max-width:520px;display:block;margin:4px 0">'
+           f'<line x1="{mid}" y1="0" x2="{mid}" y2="{h}" stroke="var(--line)" stroke-width="1"/>'
+           + "".join(bars) + '</svg>')
+    return svg
+
+
+def _render_stop_loss_efficacy(stops_data, sector_map=None, cluster_order=None):
     out = []
     # -- stop-loss efficacy (added 2026-08-06, dashboard feature review; compacted 2026-09-06,
     # user request -- "simplify... make it compact and showing a few impact/analysis" -- after
@@ -1364,6 +1400,22 @@ def _render_stop_loss_efficacy(stops_data, sector_map=None):
         reentry_summary = stops_data.get("reentry_summary") or {}
         by_cohort = stops_data.get("by_cohort") or {}
         by_ticker = stops_data.get("by_ticker") or []
+        sector_map = sector_map or {}
+
+        # cluster grouping computed up front so both the chart (visible) and the full
+        # breakdown table (collapsed) share one stable ordering -- see the note further down.
+        by_cluster = {}
+        for r in by_ticker:
+            by_cluster.setdefault(sector_map.get(r["ticker"], "Exited / not currently held"), []).append(r)
+        order = cluster_order or []
+        rank = {c: i for i, c in enumerate(order)}
+        cluster_names = [c for c in by_cluster if c != "Exited / not currently held"]
+        cluster_names.sort(key=lambda c: (rank.get(c, len(order)), c))
+        if "Exited / not currently held" in by_cluster:
+            cluster_names.append("Exited / not currently held")
+        cluster_totals = [(cname, sum(r["combined_net_dollar_impact"] for r in by_cluster[cname]))
+                           for cname in cluster_names]
+        cluster_chart_svg = _cluster_impact_bar_svg(cluster_totals)
 
         net_cls = "pos" if overall["net_dollar_impact"] <= 0 else "neg"
         lower_pct = reentry_summary.get("reentered_lower_pct")
@@ -1418,6 +1470,11 @@ def _render_stop_loss_efficacy(stops_data, sector_map=None):
                                  + "".join(chip(r, "b") for r in losers) + '</div></div>')
             movers_html += '</div>'
 
+        cluster_chart_block = (
+            f'<hr class="rule"><h2 style="font-size:.82rem;margin-top:4px">Net impact by cluster'
+            f'<span class="sub">stop $ + re-entry $, combined, per cluster</span></h2>'
+            f'{cluster_chart_svg}' if cluster_chart_svg else "")
+
         dq_s = ("".join(f'<p class="note">{esc(x)}</p>' for x in (stops_data.get("data_quality") or [])))
 
         # -- FULL BREAKDOWN, collapsed by default (every one of the 57 names, every trade) --
@@ -1425,7 +1482,6 @@ def _render_stop_loss_efficacy(stops_data, sector_map=None):
         # user request) rather than a flat sort -- a name no longer held (DRAM, BX, META...)
         # has no current cluster, so it falls into its own "Exited / not currently held" group
         # rather than being silently mis-clustered.
-        sector_map = sector_map or {}
 
         def _ticker_row(r):
             return (f'<tr><td class="name">{esc(r["ticker"])}</td><td class="num">{r["stop_count"]}</td>'
@@ -1436,20 +1492,15 @@ def _render_stop_loss_efficacy(stops_data, sector_map=None):
                     f'<td class="{"neg" if r["combined_net_dollar_impact"]<=0 else "pos"}">'
                     f'<b>${r["combined_net_dollar_impact"]:+,.0f}</b></td></tr>')
 
-        by_cluster = {}
-        for r in by_ticker:
-            by_cluster.setdefault(sector_map.get(r["ticker"], "Exited / not currently held"), []).append(r)
-        # order: held clusters by |net impact| descending, "Exited" group always last regardless
-        # of its own total -- it's a different question (past positions) from the live book.
-        cluster_names = [c for c in by_cluster if c != "Exited / not currently held"]
-        cluster_names.sort(key=lambda c: -sum(abs(r["combined_net_dollar_impact"]) for r in by_cluster[c]))
-        if "Exited / not currently held" in by_cluster:
-            cluster_names.append("Exited / not currently held")
-
+        # STABLE ordering by the book's own policy.json cluster_targets sequence (2026-09-06,
+        # user request -- a magnitude sort reshuffled the whole table on every rebuild, which is
+        # the opposite of what "sort by cluster" means: this is the same fixed cluster order
+        # every other panel on this dashboard uses, so a name is always found in the same place
+        # run over run). Any cluster not in that list falls back to alphabetical; "Exited / not
+        # currently held" always sits last -- a different question from the live book's clusters.
         by_ticker_html = ""
-        for cname in cluster_names:
-            rows_c = sorted(by_cluster[cname], key=lambda r: -abs(r["combined_net_dollar_impact"]))
-            cluster_net = sum(r["combined_net_dollar_impact"] for r in rows_c)
+        for cname, cluster_net in cluster_totals:
+            rows_c = sorted(by_cluster[cname], key=lambda r: r["ticker"])
             net_cls = "neg" if cluster_net <= 0 else "pos"
             by_ticker_html += (
                 f'<tr><td class="txt" colspan="6" style="font-weight:640;color:var(--ink-2);'
@@ -1489,7 +1540,7 @@ def _render_stop_loss_efficacy(stops_data, sector_map=None):
             '<section class="panel"><div class="phead"><h2>Stop-loss efficacy'
             '<span class="sub">did the stop help, and did the re-entry hold the edge</span></h2>'
             f'<span class="pill">as of {esc(stops_data.get("as_of",""))}</span></div>'
-            f'<div class="pbody">{summary_cells}{cohort_line}{movers_html}{dq_s}{full_breakdown}'
+            f'<div class="pbody">{summary_cells}{cohort_line}{movers_html}{cluster_chart_block}{dq_s}{full_breakdown}'
             '</div></section>')
 
     return out
@@ -2295,7 +2346,7 @@ def build(base, out):
 
     H.extend(_render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map))
 
-    H.extend(_render_stop_loss_efficacy(stops_data, sector_map))
+    H.extend(_render_stop_loss_efficacy(stops_data, sector_map, list(policy.get("cluster_targets", {}).keys())))
 
     H.extend(_render_the_read_and_macro(narr, market_inputs, state, book_compute))
 
