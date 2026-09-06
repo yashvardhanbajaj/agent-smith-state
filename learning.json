@@ -855,6 +855,14 @@
       "evidence": null,
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-09-06",
+      "kind": "correction",
+      "text": "AN ACCURATE RULE WAS COPIED INTO AN AGENT FILE IN A CORRUPTED, STRONGER FORM, AND THE STRONG VERSION IS WHAT GOVERNED BEHAVIOUR. SKILL.md 2.7 said yfinance 'caps rows per symbol when many symbols are requested' -- correct. smith-signals.md rendered the same rule as 'yfinance silently aggregates to weekly and truncates rows past 3 symbols/call'. Measured 2026-09-06: it does NOT aggregate (aggregation stays daily at 10 symbols); it enforces a GLOBAL row budget of ~69 rows shared across all symbols and reports the shortfall EXPLICITLY per symbol in _truncated{total,returned}. Evidence at period=1mo/23 trading days: 3 symbols->23 rows each (69, complete), 4->17 each (68), 10->6 each (60); max_rows does not raise the budget (max_rows=25 with 10 symbols still returned 6). The 3-symbol conclusion happens to be RIGHT for a 1-month daily pull, so nothing ever broke -- which is precisely why the wrong mechanism survived. TWO GENERALISATIONS. (1) When a rule is copied from a source-of-truth doc into a per-agent file, the copy tends to get MORE absolute, not less; the word 'silently' in particular converts a detectable condition into an undetectable one and kills the check that would have caught it. Prefer citing the source rule to restating it. (2) A rule whose CONCLUSION is correct can carry a false MECHANISM indefinitely, because outcomes never contradict it. Test mechanisms on their own, not only when something visibly breaks. FIX APPLIED: both files now carry the measured numbers and instruct asserting on _truncated rather than trusting a symbol count, so a changed period or row requirement fails loudly.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }
