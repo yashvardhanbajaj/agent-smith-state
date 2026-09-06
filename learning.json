@@ -884,6 +884,14 @@
       "evidence": null,
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-09-06",
+      "kind": "correction",
+      "text": "ORCHESTRATOR SELF-ERROR, not a script bug: when building a --prices-json map for score/stops by hand, DRAM (a real ticker, Roundhill Memory ETF) was assigned MU's price ($1016.59) as a lazy placeholder because both are memory-themed and DRAM's real price wasn't immediately fetched. This fabricated a +1690% phantom move on 3 stop-loss rows and inflated stops_analysis.json's overall net_dollar_impact from a real $3,422.52 to a fake $75,190.02 -- 96% of the reported figure was fictitious, caught only because the user found the number implausible on sight. NEVER substitute one ticker's price for another's as a stand-in, even within the same theme/sector -- fetch the real quote (DRAM priced fine via yfinance, $59.69) or leave it null and flag it, per the HARD GUARDRAIL against estimating a number COMPUTE-FIRST covers.",
+      "evidence": null,
+      "source_run": "manual-fix-2026-09-06",
+      "supersedes": null
     }
   ]
 }
