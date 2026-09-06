@@ -1613,22 +1613,22 @@ def _render_derisk_queue(derisk, state):
                        f'({esc(ov.get("date",""))})</span>')
             return decision_buttons("derisk", r["ticker"])
 
-        sent_band = derisk.get("sentiment_band", "-")
-        sent_mult = derisk.get("urgency_multiplier", "-")
-        sent_cell = f'<span class="pill">{esc(sent_band)} &times;{sent_mult}</span>'
+        def _thesis_cell(status):
+            cls = {"strengthening": "g", "intact": "g", "watch": "w", "broken": "b"}.get(status, "")
+            lbl = (status or "unknown").upper()
+            return f'<span class="pill {cls}">{esc(lbl)}</span>'
 
         body = "".join(
             f'<tr><td class="num">{r["rank"]}</td><td><b>{esc(r["ticker"])}</b></td>'
             f'<td class="num"><b>{r["derisk_score"]:.0f}</b></td>'
             f'<td>{bar(r.get("fragility_score"), "f")}</td>'
             f'<td>{bar(r.get("stretch_score"), "s")}</td>'
-            f'<td>{sent_cell}</td>'
-            f'<td>{bar(r.get("friction_score"), "x")}</td>'
+            f'<td>{_thesis_cell(r.get("thesis_status"))}</td>'
             f'<td class="num">{(f"{r["abs_return_1m_pct"]:+.1f}%" if r.get("abs_return_1m_pct") is not None else "&mdash;")}</td>'
             f'<td class="num">{(f"{r["rel_strength_1m_pp"]:+.1f}" if r.get("rel_strength_1m_pp") is not None else "&mdash;")}</td>'
             f'<td class="num">{(f"{r["cap_multiple"]:.2f}x" if r.get("cap_multiple") else "&mdash;")}</td>'
             f'<td class="num">${r["market_value_usd"]:,.0f}</td>'
-            f'<td class="sub">{esc("; ".join(r.get("friction_reasons") or []) or "-")}{_derisk_cell(r)}</td></tr>'
+            f'<td class="sub">{_derisk_cell(r)}</td></tr>'
             for r in shown)
 
         out.append(
@@ -1637,8 +1637,8 @@ def _render_derisk_queue(derisk, state):
             f'<span class="pill {st_cls}">{esc(st_lbl)}</span></div><div class="pbody">'
             f'<p class="note">{esc(derisk.get("headline",""))}</p>'
             '<div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Name</th><th>Score</th>'
-            '<th>Fragility</th><th>Stretch</th><th>Sentiment</th><th>Friction</th><th>1m abs</th><th>vs SMH</th>'
-            '<th>cap</th><th>Value</th><th>Friction reason</th></tr></thead>'
+            '<th>Fragility</th><th>Stretch</th><th>Thesis</th><th>1m abs</th><th>vs SMH</th>'
+            '<th>cap</th><th>Value</th><th></th></tr></thead>'
             f'<tbody>{body}</tbody></table></div>'
             '<details><summary>How this is scored</summary><div class="body">'
             '<b>Fragility</b> &mdash; share of the book&rsquo;s total open risk (already embeds ATR &times; '
@@ -1649,16 +1649,14 @@ def _render_derisk_queue(derisk, state):
             'merely fell less; there is no gain to give back, so it is not a trim candidate. '
             'Relative rather than absolute deliberately: in a ~100% single-factor book an absolute '
             'RSI/52-week screen flags all-or-nothing.<br>'
-            '<b>Friction</b> &mdash; cost of acting: proximity to the 24-month LTCG boundary (from '
-            'lots.json), unknown lot dates, and a dust-position discount. Shown per name for '
-            'context only &mdash; removed from the score itself (2026-09-06, user request), so it no '
-            'longer discounts a name&rsquo;s rank; a genuinely fragile name stays ranked on fragility '
-            'and stretch alone.<br>'
-            '<b>Sentiment</b> is an urgency dial applied to every row (same value book-wide, shown '
-            'per row so it does not require reading the note above the table) '
-            f'&mdash; band <b>{esc(derisk.get("sentiment_band","-"))}</b> &rarr; &times;'
-            f'{derisk.get("urgency_multiplier","-")}. It is a multiplier on the whole queue, never a '
-            'trigger, and cannot manufacture stretch that does not exist per name.<br><br>'
+            '<b>Thesis</b> &mdash; the current per-name thesis status from smith-thesis. This is what '
+            'turns a fragility/stretch reading into a decision: a fragile, stretched name on a '
+            'STRENGTHENING or INTACT thesis is a candidate to trim into strength and stay long; the '
+            'same fragility on a WATCH or BROKEN thesis is a candidate to cut, not just trim.<br>'
+            'Sentiment (book-wide urgency dial, band &rarr; multiplier) still scales the whole '
+            'queue behind the scenes but is no longer shown as its own column &mdash; it cannot '
+            'manufacture stretch that does not exist per name, so it belongs in the score, not the '
+            'table.<br><br>'
             '<b>This queue is shadow-scored and does not drive proposals.</b> Each deep run logs its '
             'top names to derisk_journal.json and scores them at 30/90d. It earns a vote in sizing '
             'decisions only once it has a real hit rate.'
