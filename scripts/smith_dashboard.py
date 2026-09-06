@@ -97,8 +97,10 @@ def held_badge(prop):
     tail = f" -- {esc(str(why))}" if why else ""
     n = len(held) if isinstance(held, list) else 1
     times = f" (held {n}x)" if n > 1 else ""
-    return (f'<span class="held-badge" title="You put this on hold; it stays open until you '
-            f'accept or reject it.">HELD {esc(str(when))}{times}{tail}</span>')
+    # COMPACT (2026-09-06): the full sentence used to render inline every time -- now the badge
+    # is a short chip, everything else lives in the hover tooltip.
+    return (f'<span class="held-badge" title="You put this on hold {esc(str(when))}{times}{tail}; '
+            f'it stays open until you accept or reject it.">HELD</span>')
 
 
 def stacks_badge(prop):
@@ -127,8 +129,13 @@ def stacks_badge(prop):
     merged = st.get("sides_merged") or []
     verb = (f' &middot; {esc(" + ".join(merged))} counted together'
             if len(merged) > 1 else "")
-    return (f'<span class="stopline {cls}">{lead} &mdash; '
-            f'${st.get("combined_usd", 0):,.0f} combined{pct_s}{verb}</span>')
+    tip = (f'{lead} &mdash; ${st.get("combined_usd", 0):,.0f} combined{pct_s}{verb}')
+    # COMPACT (2026-09-06): a full warning sentence used to render inline on every stacked row
+    # (the layout bug this replaced: it was crammed into a 76px column and wrapped one word per
+    # line). Now a short chip with the pct in it -- the number that actually matters at a
+    # glance -- and the full member/severity detail in the tooltip.
+    pct_disp = f'{pct:.0f}%' if isinstance(pct, (int, float)) else "STACK"
+    return f'<span class="{cls}" title="{esc_attr(tip)}">&#9888; {pct_disp} stacked</span>'
 
 
 def decision_buttons(surface, element_id, extra_attrs=""):
@@ -589,6 +596,8 @@ details .body{padding:2px 0 17px;font-size:12.5px;color:var(--ink-2);line-height
 .mbar i.f{background:var(--bad)}
 .mbar i.s{background:var(--warn)}
 .mbar i.x{background:var(--ink-3)}
+.mbar i.c{background:var(--accent)}
+.pr .mbar{margin-right:6px}
 .pill.warn{color:var(--warn);border-color:var(--warn)}
 .pill.bad{color:var(--bad);border-color:var(--bad)}
 .pill.good{color:var(--good);border-color:var(--good)}
@@ -865,58 +874,87 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
         rows = []
 
         def prop_row(p):
-            # COMPACTED 2026-09-06 (user: "very text heavy and report like... compact and
-            # efficient"). Every field below is unchanged and still rendered -- rationale, live
-            # re-justification, tranche sizing, retirement condition, conviction/stop/shares/
-            # clamped, repeat count/id -- none of it was cut, because each one closes a real
-            # incident (see the original comments, preserved in git history at 05fb5e7 and
-            # earlier). What changed is where it lives: one dense visible line (badge, action,
-            # cluster, held/stack badges -- SAFETY signals, never collapsed -- short rationale,
-            # amount) plus ONE details drawer holding everything else, instead of 6-8 stacked
-            # <span> lines printed open by default on every single row.
-            short, rest = trim_lead(p.get("rationale", ""), max_len=130)
+            # REDESIGNED 2026-09-06 (user: "too much text... use data analytics tools... make
+            # this sleek"). Two prior compaction passes still printed full sentences by default
+            # (rationale, stacking warning) -- shrinking the TEXT wasn't the fix; the format was
+            # still prose. This pass replaces sentences with the visual encodings the rest of
+            # this dashboard already uses elsewhere (a conviction METER, not a "conviction 64
+            # (medium)" sentence; a trigger TAG, not a paragraph explaining it; a stack ICON with
+            # its number in it, tooltip for the rest) and moves every remaining sentence-shaped
+            # field (rationale, live re-justification, retirement condition, tranche/stop/
+            # shares/clamped sizing detail) into a compact label:value fact grid in the drawer --
+            # not paragraph spans stacked on top of each other. No field was dropped; every one
+            # still exists, most just changed from a sentence to a number+tooltip.
             bucket = p.get("direction_bucket", "HOLD")
             pid = p.get("id", "")
-            rc = p.get("repeat_count", 1)
-            rep = (f'recommended {rc}&times;'
-                   + (f' since {esc(str(p["history"][0].get("date",""))[:10])}' if p.get("history") else "")) \
-                  if rc > 1 else ""
-            pid_s = f'<span class="pid">{esc(pid)}</span>' if pid else ""
-            meta = f'<span class="meta">{rep}{pid_s}</span>' if (rep or pid_s) else ""
+            action = esc(p.get("action", ""))
             clus_s = f'<span class="clus">{esc(p["cluster"])}</span>' if p.get("cluster") else ""
-            live = p.get("still_valid_because") or []
-            live_s = (f'<span class="lives">{"".join(f"<span class=\"lv\">{esc(x)}</span>" for x in live)}</span>'
-                      if live else "")
+            held_s = held_badge(p)
+            stack_s = stacks_badge(p)
+
+            # conviction METER (reuses the .mbar bar already used by the de-risk queue) instead
+            # of a "conviction 64 (medium)" sentence -- the number IS the visual now.
+            conv = p.get("conviction_score")
+            conv_meter = ""
+            if conv is not None:
+                w = max(0.0, min(100.0, conv))
+                conv_meter = (f'<span class="mbar" title="conviction {conv:.0f} '
+                              f'({esc(p.get("conviction_tier",""))})">'
+                              f'<i class="c" style="width:{w:.0f}%"></i></span>')
+
+            # SHORT TAG for what triggered this, not the sentence explaining it -- the sentence
+            # (trigger_type name + the human-readable trailing clause of the rationale, if any)
+            # moves into the tag's own tooltip and into the drawer's fact grid.
+            trigger = p.get("trigger_type", "")
+            rationale = p.get("rationale", "") or ""
+            tag_label = trigger.replace("_", " ") if trigger else (rationale[:24] + "…" if len(rationale) > 24 else rationale)
+            tag_s = (f'<span class="rchip w" title="{esc_attr(rationale)}">{esc(tag_label)}</span>'
+                     if tag_label else "")
+
             flags = p.get("review_flags") or []
             flag_s = "".join(f'<span class="rvf">&#9888;&#65039; {esc(x)}</span>' for x in flags)
+
+            # -- everything else: a compact label:value fact grid, not stacked sentences --
+            facts = []
+            if rationale:
+                facts.append(("Why", esc(rationale)))
+            live = p.get("still_valid_because") or []
+            if live:
+                facts.append(("Still valid", "; ".join(esc(x) for x in live)))
             retires = p.get("retires_when")
-            retires_s = f'<span class="rtw">retires when: {esc(retires)}</span>' if retires else ""
+            if retires:
+                facts.append(("Retires when", esc(retires)))
             tranche = p.get("tranche_note")
-            tranche_s = f'<span class="tranche">{esc(tranche)}</span>' if tranche else ""
+            if tranche:
+                facts.append(("Sizing", esc(tranche)))
             stop_px = p.get("stop_price_usd")
             price_px = p.get("price_usd")
             shares = int(p.get("size_usd", 0) / price_px) if price_px else None
-            stop_s = f'<span class="stopline">stop ${stop_px:,.2f}</span>' if stop_px else ""
-            shares_s = f'<span class="stopline">~{shares} sh</span>' if shares else ""
+            sizing_bits = []
+            if stop_px:
+                sizing_bits.append(f'stop ${stop_px:,.2f}')
+            if shares:
+                sizing_bits.append(f'~{shares} sh')
             clamped = p.get("clamped_by")
-            clamped_s = (f'<span class="stopline">wanted ${p.get("size_wanted_usd", 0):,.0f}, '
-                        f'capped by {esc(clamped)}</span>') if clamped else ""
-            conv = p.get("conviction_score")
-            conv_s = (f'<span class="stopline">conviction {conv:.0f} ({esc(p.get("conviction_tier",""))})'
-                      f'</span>') if conv is not None else ""
-            decide_s = decision_buttons("proposal", pid) if pid else ""
-            held_s = held_badge(p)
-            stack_s = stacks_badge(p)
-            # Full rationale sentence goes in the drawer too (short is a hard truncation of the
-            # SAME sentence, not a summary of it -- `rest` from trim_lead was the leftover half).
-            rest_s = f'<p class="note" style="margin:0 0 6px">{esc(rest)}</p>' if len(rest) > 4 else ""
-            details = (rest_s + live_s + tranche_s + conv_s + stop_s + shares_s + clamped_s
-                       + retires_s + meta)
+            if clamped:
+                sizing_bits.append(f'wanted ${p.get("size_wanted_usd", 0):,.0f}, capped by {esc(clamped)}')
+            if sizing_bits:
+                facts.append(("Order", " &middot; ".join(sizing_bits)))
+            rc = p.get("repeat_count", 1)
+            if rc > 1:
+                since = esc(str(p["history"][0].get("date", ""))[:10]) if p.get("history") else ""
+                facts.append(("Repeated", f'{rc}&times;' + (f' since {since}' if since else "")))
+            if pid:
+                facts.append(("ID", esc(pid)))
+            fact_grid = "".join(f'<div class="srow"><span class="slab">{esc(k)}</span>'
+                                f'<span>{v}</span></div>' for k, v in facts)
             drawer = (f'<details class="pr-more"><summary>details</summary>'
-                      f'<div class="body">{details}</div></details>') if details else ""
+                      f'<div class="body">{fact_grid}</div></details>') if facts else ""
+
+            decide_s = decision_buttons("proposal", pid) if pid else ""
             return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
-                    f'{esc(p.get("action",""))}{clus_s}{held_s}</span>'
-                    f'<span class="why">{stack_s}{esc(short)}{flag_s}{drawer}{decide_s}</span>'
+                    f'{action}{clus_s}{held_s}{stack_s}</span>'
+                    f'<span class="why">{conv_meter}{tag_s}{flag_s}{drawer}{decide_s}</span>'
                     f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
 
         # -- rotation ideas: paired trim+buy proposals sharing a pair_id (added 2026-08-06,
