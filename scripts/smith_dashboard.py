@@ -915,8 +915,8 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
             drawer = (f'<details class="pr-more"><summary>details</summary>'
                       f'<div class="body">{details}</div></details>') if details else ""
             return (f'<div class="pr"><span class="act2"><span class="dirb {bucket}">{bucket}</span>'
-                    f'{esc(p.get("action",""))}{clus_s}{held_s}{stack_s}</span>'
-                    f'<span class="why">{esc(short)}{flag_s}{drawer}{decide_s}</span>'
+                    f'{esc(p.get("action",""))}{clus_s}{held_s}</span>'
+                    f'<span class="why">{stack_s}{esc(short)}{flag_s}{drawer}{decide_s}</span>'
                     f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>')
 
         # -- rotation ideas: paired trim+buy proposals sharing a pair_id (added 2026-08-06,
