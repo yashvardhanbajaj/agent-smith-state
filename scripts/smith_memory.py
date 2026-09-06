@@ -1007,7 +1007,11 @@ def _merge_scout(out, state, today):
     dc = out.get("diversifier_candidates")
     if dc is not None:
         state["diversifier_candidates"] = dc
-    return {"diversifier_candidates_replaced": dc is not None}
+    narrative = out.get("sentiment_narrative")
+    if narrative:
+        state["scout_narrative"] = {"text": narrative, "as_of": today}
+    return {"diversifier_candidates_replaced": dc is not None,
+            "scout_narrative_updated": bool(narrative)}
 
 
 def _merge_watchlist(out, state, today):
@@ -1025,10 +1029,35 @@ def _merge_watchlist(out, state, today):
 
 
 def _merge_macro(out, state, today):
+    """Merge smith-macro's tail into state["macro_read"].
+
+    Before 2026-09-07 this only kept `fomc_cache_update` -- the rest of the documented tail
+    (PCR/max-pain, the FOMC/CPI/NFP calendar, the regime read and cluster_impact) was computed,
+    used once in that turn's own briefing text, and then discarded (the G50 shape). Worse:
+    smith_core.FRESHNESS already carried a "macro_read" entry (7-day TTL, owner smith-macro)
+    from the day the freshness table was built, expecting exactly this key -- so `validate`/
+    `freshness` were silently checking the age of a state key nothing ever wrote, the same
+    always-dark-never-flagged gap `tax_read` avoids by existing. Two real consumers were unfed
+    across runs as a result: SKILL.md's quick-mode macro headline (needs a cached regime, not a
+    fresh smith-macro dispatch every run) and smith-strategist's stress table, documented
+    (smith-strategist.md line 72) as "anchored to smith-macro's live regime read" with no
+    code-guaranteed delivery path -- see the new "macro_tail" ref in
+    AGENT_SLICES["strategist"], which reads out_macro.json directly for the same-run case; this
+    state write is what makes a *stale-but-present* regime read available on a quick run where
+    smith-macro doesn't dispatch at all, and what finally gives FRESHNESS's "macro_read" entry
+    something real to check.
+    """
     upd = out.get("fomc_cache_update")
     if upd is not None:
         state["fomc_cache"] = upd
-    return {"fomc_cache_updated": upd is not None}
+    regime_fields = ("fed_funds_pct", "fomc_stance", "spy_pcr", "spy_pcr_oi", "spy_pcr_vol",
+                      "spy_max_pain", "qqq_pcr", "qqq_pcr_oi", "qqq_pcr_vol", "qqq_max_pain",
+                      "calendar", "regime", "regime_note", "cluster_impact")
+    regime = {k: out[k] for k in regime_fields if k in out}
+    if regime:
+        regime["as_of"] = today
+        state["macro_read"] = regime
+    return {"fomc_cache_updated": upd is not None, "macro_read_updated": bool(regime)}
 
 
 def _merge_cycle(out, state, today):
@@ -1385,6 +1414,33 @@ def validate_pending_earnings_staleness(base_dir):
     return defects
 
 
+def validate_ticker_map_coverage(base_dir):
+    """SKILL.md documents data_cache.ticker_map as 365-day TTL, but the map is manually
+    maintained (added-on-new-holding, never re-stamped) -- there is no write-side timestamp to
+    check a TTL against, so a time-based freshness entry would just report a fake age. The real
+    risk the TTL was trying to guard against is a ticker with live trade history that ticker_map
+    still can't resolve, which would silently break cmd_ledger_parse's name->ticker matching
+    (smith_ledger.py:648) the next time an INDmoney confirmation email needs it. lots.json is
+    keyed by ticker for every position ever opened, so it is the actionable coverage check:
+    every ticker with lots must have SOME entry in ticker_map or ticker_map_email_aliases.
+    """
+    state = load_json(os.path.join(base_dir, "state.json"), default={}) or {}
+    dc = state.get("data_cache", {}) or {}
+    tmap = dc.get("ticker_map", {}) or {}
+    aliases = dc.get("ticker_map_email_aliases", {}) or {}
+    known = set(tmap.values()) | set(aliases.values())
+    lots = load_json(os.path.join(base_dir, "lots.json"), default={}) or {}
+    uncovered = sorted(t for t, ls in lots.items()
+                       if isinstance(ls, list) and ls and t not in known)
+    if not uncovered:
+        return []
+    return [f"TICKER_MAP COVERAGE: {len(uncovered)} ticker(s) with open/historical lots have no "
+            f"entry in data_cache.ticker_map or ticker_map_email_aliases "
+            f"({', '.join(uncovered[:8])}{' ...' if len(uncovered) > 8 else ''}) -- an INDmoney "
+            f"trade-confirmation email for these will fail name resolution in cmd_ledger_parse "
+            f"and require a smith-ledger dispatch to sort out by hand."]
+
+
 def cmd_validate(args):
     policy = load_json(os.path.join(args.base_dir, "policy.json"), default=None)
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
@@ -1405,10 +1461,11 @@ def cmd_validate(args):
     run_defects = validate_runs(args.base_dir) + validate_ledger_ts(args.base_dir)
     ledger_defects = validate_ledger_schema(args.base_dir)
     aggrisk_defects = validate_aggregate_risk(args.base_dir, state)
+    ticker_map_defects = validate_ticker_map_coverage(args.base_dir)
     all_defects = (policy_defects + cache_defects + thesis_defects + learning_defects
                    + proposals_defects + narrative_defects
                    + earnings_pending_defects + freshness_defects + ledger_defects + run_defects
-                   + aggrisk_defects)
+                   + aggrisk_defects + ticker_map_defects)
 
     emit({
         "policy_present": policy is not None,
@@ -1503,7 +1560,7 @@ AGENT_SLICES = {
                    # crosscheck notices after the fact.
                    "refs": ["drift", "catalyst_tail"], "holdings": "trim", "shared": ["hbm_tracker"]},
     "earnings":   {"state": [], "cache": ["earnings_calendar", "earnings_facts"],
-                   "refs": ["book"], "holdings": "trim"},
+                   "refs": [], "holdings": "trim"},
     "tax":        {"state": ["thesis"], "cache": [],
                    # "taxcalc" added 2026-09-07 -- same fix as "book" above: compute_taxcalc.json
                    # was unreachable through REF_FILES, even though smith-tax.md's own CONSUME
@@ -1511,7 +1568,12 @@ AGENT_SLICES = {
                    # was still being told (in a since-corrected HARD RULES line) to derive itself.
                    "refs": ["book", "lots", "taxcalc"],
                    "holdings": "trim"},
-    "quality":    {"state": ["open_flags"], "cache": ["quality_financials", "earnings_facts"],
+    # "quality_read" added 2026-09-07 -- smith-quality.md line 13 promises the agent its own
+    # prior audit ("state.quality_read -- your FINDINGS from last time, for trend comparison")
+    # but this slice never actually carried it, so every audit ran blind on trend comparison
+    # against itself. Same promised-but-undelivered class already fixed for thesis/cycle/book/tax.
+    "quality":    {"state": ["open_flags", "quality_read"],
+                   "cache": ["quality_financials", "earnings_facts"],
                    "refs": ["book"], "holdings": "trim"},
     "rebound":    {"state": ["sector_map"], "cache": [], "refs": ["book", "risk"],
                    "holdings": "full"},
@@ -1523,7 +1585,7 @@ AGENT_SLICES = {
                    # strategist as a real ref instead of depending on the orchestrator to paste
                    # them into the dispatch prompt by hand.
                    "refs": ["drift", "sentiment", "risk", "book", "derisk", "triggers",
-                            "rotation", "crosscheck"],
+                            "rotation", "crosscheck", "macro_tail"],
                    "holdings": "trim"},
 }
 
@@ -1548,6 +1610,11 @@ REF_FILES = {
     # below now actually reference these paths.
     "catalyst_tail": "out_catalyst.json", "quality_tail": "out_quality.json",
     "signals_tail": "out_signals.json",
+    # macro_tail (added 2026-09-07): smith-strategist.md line 72 documents its stress table as
+    # "anchored to smith-macro's live regime read" but AGENT_SLICES["strategist"] had no ref for
+    # it -- the orchestrator had to hand-paste smith-macro's tail into the strategist dispatch
+    # prompt, the same hand-assembly gap already fixed for thesis/cycle/crosscheck.
+    "macro_tail": "out_macro.json",
     # crosscheck.json (added 2026-09-07, see cmd_crosscheck's docstring for the invocation-
     # order fix that makes this file exist before WAVE 3 dispatches).
     "crosscheck": "crosscheck.json",

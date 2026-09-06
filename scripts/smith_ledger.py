@@ -983,7 +983,7 @@ def cmd_bookcalc(args):
     over = [c for c in contrib if c["risk_minus_dollar_pp"] > 1.0][:5]
     under = [c for c in contrib if c["risk_minus_dollar_pp"] < -1.0][:5]
 
-    emit({"as_of": args.today, "ex_dates": ex, "ex_window_days": args.ex_window_days,
+    result = {"as_of": args.today, "ex_dates": ex, "ex_window_days": args.ex_window_days,
           "annual_dividend_income_usd": round(income, 2),
           "div_yield_pct": round(income / total_usd * 100, 3) if total_usd else None,
           "ltcg": ltcg,
@@ -997,7 +997,14 @@ def cmd_bookcalc(args):
           "note": ("risk_hogs carry MORE portfolio risk than dollars (beta x weight); "
                    "size_not_risk are the reverse -- big positions that are quiet. A book can be "
                    "concentrated in dollars and diversified in risk, or the reverse, and only "
-                   "this ranking distinguishes them.")})
+                   "this ranking distinguishes them.")}
+    # Written to disk (added 2026-09-07) -- REF_FILES["bookcalc"] and AGENT_SLICES["book"]'s
+    # "refs" have pointed at compute_bookcalc.json since the previous fix, but this function
+    # only ever emit()'d to stdout, so the referenced file never existed and smith-book's slice
+    # silently fell back to "MISSING" every run. The fix that was supposed to close the gap
+    # was itself unwired.
+    safe_write(os.path.join(rd, "compute_bookcalc.json"), result)
+    emit(result)
 
 
 def cmd_taxcalc(args):
@@ -1104,7 +1111,7 @@ def cmd_taxcalc(args):
                         f"boundary first bites {ltcg['first_crossing']}. No trim this run can be "
                         f"deferred into long-term treatment. One line, not a section.")
 
-    emit({"as_of": args.today, "ltcg_window": ltcg, "trim_sequencing": seq,
+    result = {"as_of": args.today, "ltcg_window": ltcg, "trim_sequencing": seq,
           "open_trims": len(open_trims),
           "all_deltas_zero": bool(seq) and all(x["tax_delta_usd"] == 0 for x in seq),
           "harvest_candidates": harvest[:12],
@@ -1130,4 +1137,10 @@ def cmd_taxcalc(args):
           "note": ("Sequencing and harvest SIZING are arithmetic and are settled here. Whether a "
                    "harvest CONFLICTS with a thesis or an open buy proposal is judgment and "
                    "belongs to smith-tax -- `thesis_status` and `has_open_trim` are supplied so "
-                   "it can weigh that without re-deriving anything.")})
+                   "it can weigh that without re-deriving anything.")}
+    # Written to disk (added 2026-09-07) -- same fix as cmd_bookcalc above: REF_FILES/
+    # AGENT_SLICES have pointed at compute_taxcalc.json since the previous fix, but this
+    # function never wrote the file, only emit()'d it, so smith-tax's slice always reported
+    # it MISSING.
+    safe_write(os.path.join(rd, "compute_taxcalc.json"), result)
+    emit(result)
