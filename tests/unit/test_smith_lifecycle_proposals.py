@@ -520,3 +520,108 @@ class TestComputeStackingWarnings:
         props = [make_proposal(id="P-001", ticker="AAA", status="open", direction_bucket="SELL")]
         warnings = sl._compute_stacking_warnings(props, {"AAA": {"market_value_usd": 1000.0}})
         assert warnings == []
+
+    # -- G88 rebuild (2026-09-06): the three live stacks the v1 guard did not fire on.
+    # Each is reconstructed from the real proposals.json rows, not invented, because the
+    # lesson from this incident is that reading the guard's code is not evidence it fires.
+
+    def test_trim_and_sell_on_one_ticker_are_the_same_side(self):
+        """AVGO, live 2026-09-06: P-212 Trim $142.60 + P-226 Sell $500.00 against a $715.79
+        position = 89.8%. v1 bucketed TRIM and SELL separately and reported nothing."""
+        props = [
+            make_proposal(id="P-212", ticker="AVGO", status="open",
+                          direction_bucket="TRIM", size_usd=142.60),
+            make_proposal(id="P-226", ticker="AVGO", status="open",
+                          direction_bucket="SELL", size_usd=500.00),
+        ]
+        warnings = sl._compute_stacking_warnings(props, {"AVGO": {"market_value_usd": 715.79}})
+        assert len(warnings) == 1
+        w = warnings[0]
+        assert w["severity"] == "high"
+        assert w["side"] == "REDUCE"
+        assert w["sides_merged"] == ["SELL", "TRIM"]
+        assert w["combined_usd"] == 642.60
+        assert w["combined_pct_of_position"] == 89.8
+        assert set(w["member_ids"]) == {"P-212", "P-226"}
+
+    def test_two_open_rows_stack_without_any_accepted_row(self):
+        """FSLR, live 2026-09-06: P-214 Trim $182.69 + P-228 Sell $300.00 of a $613.35
+        position = 78.7%. v1 only ever compared accepted x open, so open+open was invisible."""
+        props = [
+            make_proposal(id="P-214", ticker="FSLR", status="open",
+                          direction_bucket="TRIM", size_usd=182.69),
+            make_proposal(id="P-228", ticker="FSLR", status="open",
+                          direction_bucket="SELL", size_usd=300.00),
+        ]
+        warnings = sl._compute_stacking_warnings(props, {"FSLR": {"market_value_usd": 613.35}})
+        assert len(warnings) == 1
+        assert warnings[0]["severity"] == "high"
+        assert warnings[0]["combined_pct_of_position"] == 78.7
+        assert warnings[0]["accepted_ids"] == []
+        assert warnings[0]["accepted_id"] is None      # back-compat field, honestly empty
+
+    def test_accepted_plus_open_still_fires_after_the_rebuild(self):
+        """MSFT, live 2026-09-06 -- the guard's own founding case, recurring: P-164 Sell
+        $437.92 accepted-and-unexecuted since August + P-224 Sell $600.00 open, against a
+        $499.70 position = 207.7%. A rebuild that broke this would trade one gap for another."""
+        props = [
+            make_proposal(id="P-164", ticker="MSFT", status="accepted_by_user",
+                          direction_bucket="SELL", size_usd=437.92),
+            make_proposal(id="P-224", ticker="MSFT", status="open",
+                          direction_bucket="SELL", size_usd=600.00),
+        ]
+        warnings = sl._compute_stacking_warnings(props, {"MSFT": {"market_value_usd": 499.70}})
+        assert len(warnings) == 1
+        assert warnings[0]["severity"] == "high"
+        assert warnings[0]["combined_pct_of_position"] == 207.7
+        assert warnings[0]["accepted_id"] == "P-164"
+        assert props[1]["stacks_on"]["accepted_id"] == "P-164"
+
+    def test_three_rows_report_once_with_the_full_combined_total(self):
+        """Pairwise comparison would emit three warnings each understating the exposure;
+        grouping emits one warning summing all three."""
+        props = [
+            make_proposal(id="P-1", ticker="AAA", status="open", direction_bucket="TRIM",
+                          size_usd=100.0),
+            make_proposal(id="P-2", ticker="AAA", status="open", direction_bucket="SELL",
+                          size_usd=100.0),
+            make_proposal(id="P-3", ticker="AAA", status="accepted_by_user",
+                          direction_bucket="SELL", size_usd=100.0),
+        ]
+        warnings = sl._compute_stacking_warnings(props, {"AAA": {"market_value_usd": 1000.0}})
+        assert len(warnings) == 1
+        assert warnings[0]["combined_usd"] == 300.0
+        assert warnings[0]["combined_pct_of_position"] == 30.0
+        assert warnings[0]["severity"] == "note"        # 30% is under STACK_WARN_PCT
+
+    def test_buy_side_stack_is_noted_not_escalated(self):
+        """You cannot sell more than you hold, so REDUCE stacks are a checkable error. An ADD
+        stack is merely a large bet and may be a deliberate second leg -- note, never high."""
+        props = [
+            make_proposal(id="P-1", ticker="AAA", status="open", direction_bucket="BUY",
+                          size_usd=600.0),
+            make_proposal(id="P-2", ticker="AAA", status="open", direction_bucket="BUY",
+                          size_usd=600.0),
+        ]
+        warnings = sl._compute_stacking_warnings(props, {"AAA": {"market_value_usd": 1000.0}})
+        assert len(warnings) == 1
+        assert warnings[0]["side"] == "ADD"
+        assert warnings[0]["severity"] == "note"
+
+    def test_opposite_sides_never_stack(self):
+        props = [
+            make_proposal(id="P-1", ticker="AAA", status="open", direction_bucket="SELL",
+                          size_usd=100.0),
+            make_proposal(id="P-2", ticker="AAA", status="open", direction_bucket="BUY",
+                          size_usd=100.0),
+        ]
+        assert sl._compute_stacking_warnings(props, {"AAA": {"market_value_usd": 1000.0}}) == []
+
+    def test_hold_rows_stack_on_nothing(self):
+        props = [
+            make_proposal(id="P-1", ticker="AAA", status="open", direction_bucket="HOLD",
+                          size_usd=0.0),
+            make_proposal(id="P-2", ticker="AAA", status="open", direction_bucket="HOLD",
+                          size_usd=0.0),
+        ]
+        assert sl._compute_stacking_warnings(props, {"AAA": {"market_value_usd": 1000.0}}) == []

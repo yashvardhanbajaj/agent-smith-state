@@ -5897,7 +5897,29 @@
       "revalidated_on": "2026-08-25",
       "retires_when": "the profit_rotation pairing profit_rotation-MSFT-CLS is no longer live this run -- both legs retire together, never one alone",
       "accepted_on": "2026-08-25",
-      "accepted_reason": null
+      "accepted_reason": null,
+      "stacks_on": {
+        "accepted_id": "P-164",
+        "accepted_size_usd": 437.92,
+        "member_ids": [
+          "P-164",
+          "P-224"
+        ],
+        "open_ids": [
+          "P-224"
+        ],
+        "accepted_ids": [
+          "P-164"
+        ],
+        "sides_merged": [
+          "SELL"
+        ],
+        "combined_usd": 1037.92,
+        "position_usd": 499.7,
+        "combined_pct_of_position": 207.7,
+        "side": "REDUCE",
+        "severity": "high"
+      }
     },
     {
       "date": "2026-08-25",
@@ -6730,7 +6752,29 @@
       "revalidated_on": "2026-08-31",
       "retires_when": "AMAT no longer appears in this run's live conviction_average list",
       "accepted_on": "2026-08-31",
-      "accepted_reason": null
+      "accepted_reason": null,
+      "stacks_on": {
+        "accepted_id": "P-187",
+        "accepted_size_usd": 341.56,
+        "member_ids": [
+          "P-187",
+          "P-231"
+        ],
+        "open_ids": [
+          "P-231"
+        ],
+        "accepted_ids": [
+          "P-187"
+        ],
+        "sides_merged": [
+          "BUY"
+        ],
+        "combined_usd": 741.56,
+        "position_usd": 1367.85,
+        "combined_pct_of_position": 54.2,
+        "side": "ADD",
+        "severity": "note"
+      }
     },
     {
       "action": "Sell FLTW",
@@ -6899,22 +6943,22 @@
       "priority_score": 4,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "MRVL at 1.04x its ATR risk cap",
+        "MRVL at 1.11x its ATR risk cap",
         "MRVL genuinely stretched: +6.1% 1m, +34.1pp vs SMH -- real profit to take, not just a smaller loss",
         "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
       ],
       "proposal_class": "idea",
       "cluster": "AI Networking/Optics",
-      "full_cure_usd": 71.0,
+      "full_cure_usd": 202.0,
       "cure_basis": "risk cap",
-      "cure_pct": 309.0,
+      "cure_pct": 109.0,
       "still_valid_because": [
-        "MRVL at 1.04x its ATR risk cap",
+        "MRVL at 1.11x its ATR risk cap",
         "MRVL genuinely stretched: +6.1% 1m, +34.1pp vs SMH -- real profit to take, not just a smaller loss",
         "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-09-03",
+      "revalidated_on": "2026-09-06",
       "retires_when": "MRVL drops under its ATR risk cap"
     },
     {
@@ -7338,7 +7382,7 @@
       "rationale": "profit_rotation sell leg: stretched (in names_stretched, +24.7% on month, +15.7pp rel. strength) with a watch thesis -- real profit to book. Independently reinforced by a live catalyst_threat hit this run (NVDA/Oracle CDS-widening contagion read; single-source, self-flagged as lacking an absolute bp level for MSFT specifically).",
       "trigger_type": "profit_rotation",
       "date": "2026-09-01T00:00:00Z",
-      "status": "open",
+      "status": "superseded",
       "pair_id": "profit_rotation-MSFT-KLAC",
       "pair_role": "sell",
       "id": "P-207",
@@ -7365,7 +7409,8 @@
         "combined_pct_of_position": 118.0,
         "side": "SELL",
         "severity": "high"
-      }
+      },
+      "note": "auto-superseded 2026-08-03 -- folded into P-224 as a repeat of the same open proposal"
     },
     {
       "action": "Buy KLAC",
@@ -7506,8 +7551,30 @@
         "catalyst_threat: Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: 'CDS, not EPS' (2026-08-27) -- NVDA CDS ~2x in 2 months; Oracle downgraded to lowest IG rung, CDS 215bp -- directional credit repricing, no absolute NVDA bp level sourced"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-09-03",
-      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "revalidated_on": "2026-09-06",
+      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "stacks_on": {
+        "accepted_id": null,
+        "accepted_size_usd": null,
+        "member_ids": [
+          "P-212",
+          "P-226"
+        ],
+        "open_ids": [
+          "P-212",
+          "P-226"
+        ],
+        "accepted_ids": [],
+        "sides_merged": [
+          "SELL",
+          "TRIM"
+        ],
+        "combined_usd": 642.6,
+        "position_usd": 715.79,
+        "combined_pct_of_position": 89.8,
+        "side": "REDUCE",
+        "severity": "high"
+      }
     },
     {
       "action": "Trim NVDA",
@@ -7561,16 +7628,38 @@
       "priority_score": 1,
       "priority": "LOW",
       "priority_reasons": [
-        "trend_breakdown: conviction 0.6 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +35.6% vs analyst target; reported: mixed_revenue_light_eps_strong; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
+        "trend_breakdown: conviction 0.3 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +34.7% vs analyst target; reported: mixed_revenue_light_eps_strong; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
       ],
       "proposal_class": "idea",
       "cluster": "AI Power/Cooling/DC Infra",
       "still_valid_because": [
-        "trend_breakdown: conviction 0.6 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +35.6% vs analyst target; reported: mixed_revenue_light_eps_strong; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
+        "trend_breakdown: conviction 0.3 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +34.7% vs analyst target; reported: mixed_revenue_light_eps_strong; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
       ],
       "review_flags": [],
-      "revalidated_on": "2026-09-03",
-      "retires_when": "FSLR no longer appears in this run's live trend_breakdown list (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "revalidated_on": "2026-09-06",
+      "retires_when": "FSLR no longer appears in this run's live trend_breakdown list (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "stacks_on": {
+        "accepted_id": null,
+        "accepted_size_usd": null,
+        "member_ids": [
+          "P-214",
+          "P-228"
+        ],
+        "open_ids": [
+          "P-214",
+          "P-228"
+        ],
+        "accepted_ids": [],
+        "sides_merged": [
+          "SELL",
+          "TRIM"
+        ],
+        "combined_usd": 482.69,
+        "position_usd": 613.35,
+        "combined_pct_of_position": 78.7,
+        "side": "REDUCE",
+        "severity": "high"
+      }
     },
     {
       "action": "Sell AMD",
@@ -7581,7 +7670,7 @@
       "rationale": "cluster_rotation sell leg: laggard within AI Semis/Fabs (-2.7pp vs cluster), watch thesis -- dead money in this cluster per the price-says-WHEN/thesis-says-WHICH-WAY rule. Alternative buy-leg pairing to the already-open P-205/206 (AMD/LRCX) -- pick one pair, not both.",
       "trigger_type": "cluster_rotation",
       "date": "2026-09-03T00:00:00Z",
-      "status": "open",
+      "status": "superseded",
       "pair_id": "cluster_rotation-AMD-TSM",
       "pair_role": "sell",
       "id": "P-215",
@@ -7594,7 +7683,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-01T00:00:00Z, still open",
+      "note": "recommended 2x since 2026-09-01T00:00:00Z, still open | auto-superseded 2026-08-03 -- folded into P-229 as a repeat of the same open proposal",
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
@@ -7620,14 +7709,14 @@
       "rationale": "cluster_rotation buy leg: performer within AI Semis/Fabs (+0.4pp), strengthening thesis. Computed pairing differs from open P-205/206's LRCX leg despite LRCX's higher standalone 1m relative strength (+12.6pp) -- consumed as computed, not overridden.",
       "trigger_type": "cluster_rotation",
       "date": "2026-09-03T00:00:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "pair_id": "cluster_rotation-AMD-TSM",
       "pair_role": "buy",
       "id": "P-216",
-      "priority_score": 4,
-      "priority": "HIGH",
+      "priority_score": 0,
+      "priority": "LOW",
       "priority_reasons": [
-        "cluster_rotation: conviction 37.1 (unscored) -- performer within AI Semis/Fabs (+0.4pp), strengthening thesis"
+        "cluster_rotation was the stated trigger but TSM is not in this run's cluster_rotation candidate list -- condition is no longer live"
       ],
       "proposal_class": "idea",
       "cluster": "AI Semis/Fabs",
@@ -7636,7 +7725,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-03",
-      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TSM is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TSM is no longer live this run -- both legs retire together, never one alone",
+      "retired_on": "2026-09-06",
+      "retired_reason": "the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-09-06: the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "action": "Buy KLAC",
@@ -7647,7 +7739,7 @@
       "rationale": "conviction_average: highest conviction score this run (50.3, medium tier). Thesis strengthening (secondary, 2 for/1 against), +37.7% vs analyst target, reported beat, -5.7pp vs benchmark (laggard entry). Also the buy leg of profit_rotation-MSFT-KLAC -- if the user separately executes the already-open MSFT sell (P-164/P-207), fund this from those proceeds rather than drawing twice from cash.",
       "trigger_type": "conviction_average",
       "date": "2026-09-03T00:00:00Z",
-      "status": "open",
+      "status": "superseded",
       "id": "P-217",
       "history": [
         {
@@ -7658,7 +7750,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-01T00:00:00Z, still open",
+      "note": "recommended 2x since 2026-09-01T00:00:00Z, still open | auto-superseded 2026-08-03 -- folded into P-225 as a repeat of the same open proposal",
       "priority_score": 6,
       "priority": "HIGH",
       "priority_reasons": [
@@ -7684,7 +7776,7 @@
       "rationale": "catalyst_threat wants a $267.84 TRIM off the NVDA-CDS story, but that story is single-sourced and explicitly admits no absolute bp level for NVDA; it runs directly against GOOG's own verified secondary strengthening thesis (no evidence_against on file) and a live oversold_reversion BUY signal (RSI 28.9). Unverified claim does not outrank verified+computed contradictory evidence -- held, not trimmed. The oversold BUY side is also unfunded this run (no deployable cash above the wallet band ceiling).",
       "trigger_type": "catalyst_threat",
       "date": "2026-09-03T00:00:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "id": "P-218",
       "priority_score": 3,
       "priority": "MEDIUM",
@@ -7698,7 +7790,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-03",
-      "retires_when": "GOOG no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "GOOG no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "retired_on": "2026-09-06",
+      "retired_reason": "tactical HOLD is 3 days old -- hold-fire advice is time-bound by nature and is not carried forward as standing guidance",
+      "note": "auto-retired 2026-09-06: tactical HOLD is 3 days old -- hold-fire advice is time-bound by nature and is not carried forward as standing guidance"
     },
     {
       "action": "Buy LRCX",
@@ -7709,7 +7804,7 @@
       "rationale": "conviction_average, low tier (33.6). Thesis strengthening (unverified, 0/0), +30.3% vs target, +12.6pp vs benchmark. Secondary-basket priority behind KLAC.",
       "trigger_type": "conviction_average",
       "date": "2026-09-03T00:00:00Z",
-      "status": "open",
+      "status": "superseded",
       "id": "P-219",
       "history": [
         {
@@ -7720,7 +7815,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-01T00:00:00Z, still open",
+      "note": "recommended 2x since 2026-09-01T00:00:00Z, still open | auto-superseded 2026-08-03 -- folded into P-230 as a repeat of the same open proposal",
       "priority_score": 4,
       "priority": "HIGH",
       "priority_reasons": [
@@ -7783,7 +7878,7 @@
       "rationale": "conviction_average, low tier (30.0). Thesis strengthening (primary, 1 for/1 against), -13.7pp vs benchmark (laggard entry). Also appears as a shadow laggard_rotation candidate, same direction -- reinforcing, not conflicting.",
       "trigger_type": "conviction_average",
       "date": "2026-09-03T00:00:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "id": "P-221",
       "history": [
         {
@@ -7794,11 +7889,11 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-01T00:00:00Z, still open",
-      "priority_score": 4,
-      "priority": "HIGH",
+      "note": "recommended 2x since 2026-09-01T00:00:00Z, still open | auto-retired 2026-09-06: WDC no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared",
+      "priority_score": 1,
+      "priority": "LOW",
       "priority_reasons": [
-        "conviction_average: conviction 30.0 (low) -- thesis strengthening (primary, 1 for / 1 against); -13.7pp vs benchmark",
+        "conviction_average was the stated trigger but WDC is not in this run's conviction_average candidate list -- condition is no longer live",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "proposal_class": "idea",
@@ -7818,7 +7913,9 @@
         "combined_pct_of_position": 52.0,
         "side": "BUY",
         "severity": "note"
-      }
+      },
+      "retired_on": "2026-09-06",
+      "retired_reason": "WDC no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared"
     },
     {
       "action": "Buy GLW",
@@ -7829,7 +7926,7 @@
       "rationale": "conviction_average, low tier (29.5). Thesis strengthening (secondary, 1 for/1 against), +9.5pp vs benchmark.",
       "trigger_type": "conviction_average",
       "date": "2026-09-03T00:00:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "id": "P-222",
       "history": [
         {
@@ -7840,11 +7937,11 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-01T00:00:00Z, still open",
-      "priority_score": 4,
-      "priority": "HIGH",
+      "note": "recommended 2x since 2026-09-01T00:00:00Z, still open | auto-retired 2026-09-06: GLW no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared",
+      "priority_score": 1,
+      "priority": "LOW",
       "priority_reasons": [
-        "conviction_average: conviction 29.5 (low) -- thesis strengthening (secondary, 1 for / 1 against); +9.5pp vs benchmark",
+        "conviction_average was the stated trigger but GLW is not in this run's conviction_average candidate list -- condition is no longer live",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "proposal_class": "idea",
@@ -7855,7 +7952,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-03",
-      "retires_when": "GLW no longer appears in this run's live conviction_average list"
+      "retires_when": "GLW no longer appears in this run's live conviction_average list",
+      "retired_on": "2026-09-06",
+      "retired_reason": "GLW no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared"
     },
     {
       "action": "Buy COHR",
@@ -7866,12 +7965,13 @@
       "rationale": "conviction_average, low tier (27.9). Wanted $216.19, clamped to $15.19 by ATR headroom -- name the constraint rather than silently substitute. Thesis strengthening (secondary, 2 for/2 against, contested).",
       "trigger_type": "conviction_average",
       "date": "2026-09-03T00:00:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "id": "P-223",
-      "priority_score": 3,
+      "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "conviction_average: conviction 27.9 (low) -- thesis strengthening (secondary, 2 for / 2 against); threat/immediate: COHR/LITE/CIEN sold off in sympathy with MRVL's guide despite neither COHR nor L; RSI14 33 oversold; +19.4pp vs benchmark; named by 1 independent source(s) this run"
+        "COHR at 1.26x its ATR risk cap",
+        "conviction_average was the stated trigger but COHR is not in this run's conviction_average candidate list -- condition is no longer live"
       ],
       "proposal_class": "idea",
       "cluster": "AI Networking/Optics",
@@ -7880,7 +7980,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-03",
-      "retires_when": "COHR no longer appears in this run's live conviction_average list"
+      "retires_when": "COHR no longer appears in this run's live conviction_average list",
+      "retired_on": "2026-09-06",
+      "retired_reason": "COHR no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared",
+      "note": "auto-retired 2026-09-06: COHR no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared"
     },
     {
       "action": "Sell MSFT",
@@ -7893,7 +7996,57 @@
       "date": "2026-09-06T00:00:00Z",
       "status": "open",
       "pair_id": "PR-MSFT-KLAC",
-      "pair_role": "sell"
+      "pair_role": "sell",
+      "id": "P-224",
+      "history": [
+        {
+          "date": "2026-09-01T00:00:00Z",
+          "size_usd": 152.66,
+          "price_at_proposal": 508.8662,
+          "rationale": "profit_rotation sell leg: stretched (in names_stretched, +24.7% on month, +15.7pp rel. strength) with a watch thesis -- real profit to book. Independently reinforced by a live catalyst_threat hit this run (NVDA/Oracle CDS-widening contagion read; single-source, self-flagged as lacking an absolute bp level for MSFT specifically)."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-09-01T00:00:00Z, still open",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "MSFT genuinely stretched: +24.7% 1m, +15.7pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- ",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "cluster": "Compute/Hyperscaler",
+      "still_valid_because": [
+        "MSFT genuinely stretched: +24.7% 1m, +15.7pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- ",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "the profit_rotation pairing PR-MSFT-KLAC is no longer live this run -- both legs retire together, never one alone",
+      "stacks_on": {
+        "accepted_id": "P-164",
+        "accepted_size_usd": 437.92,
+        "member_ids": [
+          "P-164",
+          "P-224"
+        ],
+        "open_ids": [
+          "P-224"
+        ],
+        "accepted_ids": [
+          "P-164"
+        ],
+        "sides_merged": [
+          "SELL"
+        ],
+        "combined_usd": 1037.92,
+        "position_usd": 499.7,
+        "combined_pct_of_position": 207.7,
+        "side": "REDUCE",
+        "severity": "high"
+      }
     },
     {
       "action": "Buy KLAC",
@@ -7904,9 +8057,35 @@
       "rationale": "profit_rotation buy leg. Standout signal Friday: +7.32% = 1.61x its own ATR20, new MOMENTUM+VOLUME journal flag. Semicap thesis strengthening. Counter-evidence carried: cycle desk flags semicap re-rating on decelerating capex growth as the late-cycle signature.",
       "trigger_type": "profit_rotation",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "pair_id": "PR-MSFT-KLAC",
-      "pair_role": "buy"
+      "pair_role": "buy",
+      "id": "P-225",
+      "history": [
+        {
+          "date": "2026-09-01T00:00:00Z",
+          "size_usd": 152.66,
+          "price_at_proposal": 176.0854,
+          "rationale": "profit_rotation buy leg: laggard (-5.7pp rel. strength) with thesis strengthening (secondary, 2 for/1 against -- verified), reported earnings beat."
+        },
+        {
+          "date": "2026-09-03T00:00:00Z",
+          "size_usd": 779.38,
+          "price_at_proposal": 170.18,
+          "rationale": "conviction_average: highest conviction score this run (50.3, medium tier). Thesis strengthening (secondary, 2 for/1 against), +37.7% vs analyst target, reported beat, -5.7pp vs benchmark (laggard entry). Also the buy leg of profit_rotation-MSFT-KLAC -- if the user separately executes the already-open MSFT sell (P-164/P-207), fund this from those proceeds rather than drawing twice from cash."
+        }
+      ],
+      "repeat_count": 3,
+      "note": "recommended 3x since 2026-09-01T00:00:00Z, still open | auto-retired 2026-09-06: recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
+      "priority_score": 1,
+      "priority": "LOW",
+      "priority_reasons": [
+        "profit_rotation: conviction 0 (unscored) -- "
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "retired_on": "2026-09-06",
+      "retired_reason": "recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "action": "Sell AVGO",
@@ -7919,7 +8098,43 @@
       "date": "2026-09-06T00:00:00Z",
       "status": "open",
       "pair_id": "CR-AVGO-LITE",
-      "pair_role": "sell"
+      "pair_role": "sell",
+      "id": "P-226",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "conviction_exit: conviction -14.5 (unscored) -- 3 independent negative signals converged (thesis/catalyst/trend/technical); thesis watch (secondary, 2 for / 4 against); threat/structural: Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, ; signal polarity net -1 (PEER LAGGARD); reported: beat; RSI14 23 oversold; -13.3pp vs benchmark; named by 2 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Networking/Optics",
+      "still_valid_because": [
+        "conviction_exit: conviction -14.5 (unscored) -- 3 independent negative signals converged (thesis/catalyst/trend/technical); thesis watch (secondary, 2 for / 4 against); threat/structural: Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, ; signal polarity net -1 (PEER LAGGARD); reported: beat; RSI14 23 oversold; -13.3pp vs benchmark; named by 2 independent source(s) this run"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "AVGO no longer appears in this run's live conviction_exit list (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "stacks_on": {
+        "accepted_id": null,
+        "accepted_size_usd": null,
+        "member_ids": [
+          "P-212",
+          "P-226"
+        ],
+        "open_ids": [
+          "P-212",
+          "P-226"
+        ],
+        "accepted_ids": [],
+        "sides_merged": [
+          "SELL",
+          "TRIM"
+        ],
+        "combined_usd": 642.6,
+        "position_usd": 715.79,
+        "combined_pct_of_position": 89.8,
+        "side": "REDUCE",
+        "severity": "high"
+      }
     },
     {
       "action": "Buy LITE",
@@ -7932,7 +8147,21 @@
       "date": "2026-09-06T00:00:00Z",
       "status": "open",
       "pair_id": "CR-AVGO-LITE",
-      "pair_role": "buy"
+      "pair_role": "buy",
+      "id": "P-227",
+      "priority_score": 1,
+      "priority": "LOW",
+      "priority_reasons": [
+        "cluster_rotation: conviction 0 (unscored) -- "
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Networking/Optics",
+      "still_valid_because": [
+        "cluster_rotation: conviction 0 (unscored) -- "
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "the cluster_rotation pairing CR-AVGO-LITE is no longer live this run -- both legs retire together, never one alone"
     },
     {
       "action": "Sell FSLR",
@@ -7943,7 +8172,43 @@
       "rationale": "trend_breakdown live, now on refreshed data (RSI 35.3, rel strength -13.19pp, -13.66% absolute 1m - all three backfilled this run; FSLR was previously invisible to the trigger layer). Peer laggard -1.41 sigma. Standalone by design, no pair leg for this trigger type.",
       "trigger_type": "trend_breakdown",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-228",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "trend_breakdown: conviction 0.3 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +34.7% vs analyst target; reported: mixed_revenue_light_eps_strong; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "still_valid_because": [
+        "trend_breakdown: conviction 0.3 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +34.7% vs analyst target; reported: mixed_revenue_light_eps_strong; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "FSLR no longer appears in this run's live trend_breakdown list (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "stacks_on": {
+        "accepted_id": null,
+        "accepted_size_usd": null,
+        "member_ids": [
+          "P-214",
+          "P-228"
+        ],
+        "open_ids": [
+          "P-214",
+          "P-228"
+        ],
+        "accepted_ids": [],
+        "sides_merged": [
+          "SELL",
+          "TRIM"
+        ],
+        "combined_usd": 482.69,
+        "position_usd": 613.35,
+        "combined_pct_of_position": 78.7,
+        "side": "REDUCE",
+        "severity": "high"
+      }
     },
     {
       "action": "Sell AMD",
@@ -7954,9 +8219,35 @@
       "rationale": "cluster_rotation sell leg: laggard within AI Semis/Fabs (-2.7pp) with a watch thesis, against LRCX as the performer. Note tension: 1 share was bought 2026-09-04 as DCA, so this partially reverses a three-day-old fill.",
       "trigger_type": "cluster_rotation",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "pair_id": "CR-AMD-LRCX",
-      "pair_role": "sell"
+      "pair_role": "sell",
+      "id": "P-229",
+      "history": [
+        {
+          "date": "2026-09-01T00:00:00Z",
+          "size_usd": 283.31,
+          "price_at_proposal": 456.21,
+          "rationale": "cluster_rotation sell leg: laggard within AI Semis/Fabs (-2.7pp rel. strength vs SMH), thesis watch -- dead money in a cluster where LRCX is the performer."
+        },
+        {
+          "date": "2026-09-03T00:00:00Z",
+          "size_usd": 273.07,
+          "price_at_proposal": 455.12,
+          "rationale": "cluster_rotation sell leg: laggard within AI Semis/Fabs (-2.7pp vs cluster), watch thesis -- dead money in this cluster per the price-says-WHEN/thesis-says-WHICH-WAY rule. Alternative buy-leg pairing to the already-open P-205/206 (AMD/LRCX) -- pick one pair, not both."
+        }
+      ],
+      "repeat_count": 3,
+      "note": "recommended 3x since 2026-09-01T00:00:00Z, still open | auto-retired 2026-09-06: recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cluster_rotation: conviction 0 (unscored) -- "
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "retired_on": "2026-09-06",
+      "retired_reason": "recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "action": "Buy LRCX",
@@ -7967,9 +8258,35 @@
       "rationale": "cluster_rotation buy leg, independently reinforced by a live conviction_average trigger. Peer leader, NEW TAILWINDS, rel strength +12.6pp, thesis strengthening.",
       "trigger_type": "cluster_rotation",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "pair_id": "CR-AMD-LRCX",
-      "pair_role": "buy"
+      "pair_role": "buy",
+      "id": "P-230",
+      "history": [
+        {
+          "date": "2026-09-01T00:00:00Z",
+          "size_usd": 283.31,
+          "price_at_proposal": 302.4268,
+          "rationale": "cluster_rotation buy leg: cluster performer (+12.6pp rel. strength vs SMH), thesis strengthening (tagged UNVERIFIED, 0 for/0 against -- a supporting input only, computed relative-strength/RSI math carries this trade), +22.7% vs analyst target. Blended entry $305.47 clears the $273.58 stop."
+        },
+        {
+          "date": "2026-09-03T00:00:00Z",
+          "size_usd": 504.34,
+          "price_at_proposal": 284.87,
+          "rationale": "conviction_average, low tier (33.6). Thesis strengthening (unverified, 0/0), +30.3% vs target, +12.6pp vs benchmark. Secondary-basket priority behind KLAC."
+        }
+      ],
+      "repeat_count": 3,
+      "note": "recommended 3x since 2026-09-01T00:00:00Z, still open | auto-retired 2026-09-06: recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
+      "priority_score": 1,
+      "priority": "LOW",
+      "priority_reasons": [
+        "cluster_rotation: conviction 0 (unscored) -- "
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "retired_on": "2026-09-06",
+      "retired_reason": "recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "action": "Buy AMAT",
@@ -7980,7 +8297,43 @@
       "rationale": "oversold_reversion (RSI 33.3) plus conviction_average both live, thesis strengthening. Sized down deliberately: the cycle desk flags semicap as paying MORE per unit of decelerating capex growth. Also the largest unrealised loss in the book (-$65.24), so this is an add to a loser on conviction, not a harvest candidate.",
       "trigger_type": "conviction_average",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-231",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "conviction_average: conviction 32.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); signal polarity net -1 (PEER LAGGARD); +40.8% vs analyst target; RSI14 33 oversold; -3.1pp vs benchmark"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "conviction_average: conviction 32.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); signal polarity net -1 (PEER LAGGARD); +40.8% vs analyst target; RSI14 33 oversold; -3.1pp vs benchmark"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "AMAT no longer appears in this run's live conviction_average list",
+      "stacks_on": {
+        "accepted_id": "P-187",
+        "accepted_size_usd": 341.56,
+        "member_ids": [
+          "P-187",
+          "P-231"
+        ],
+        "open_ids": [
+          "P-231"
+        ],
+        "accepted_ids": [
+          "P-187"
+        ],
+        "sides_merged": [
+          "BUY"
+        ],
+        "combined_usd": 741.56,
+        "position_usd": 1367.85,
+        "combined_pct_of_position": 54.2,
+        "side": "ADD",
+        "severity": "note"
+      }
     },
     {
       "action": "Buy CIEN",
@@ -7991,7 +8344,21 @@
       "rationale": "conviction_average live, thesis strengthening, rel strength +7.39pp. Currently a $2.74 dust position - this is effectively re-establishing a real position rather than averaging into one.",
       "trigger_type": "conviction_average",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-232",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "conviction_average: conviction 31.2 (low) -- thesis strengthening (secondary, 3 for / 2 against); threat/immediate: COHR/LITE/CIEN sold off in sympathy with MRVL's guide despite neither COHR nor L; reported: beat; +7.4pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Networking/Optics",
+      "still_valid_because": [
+        "conviction_average: conviction 31.2 (low) -- thesis strengthening (secondary, 3 for / 2 against); threat/immediate: COHR/LITE/CIEN sold off in sympathy with MRVL's guide despite neither COHR nor L; reported: beat; +7.4pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "CIEN no longer appears in this run's live conviction_average list"
     },
     {
       "action": "Buy UNH",
@@ -8002,7 +8369,17 @@
       "rationale": "FIRST CONCRETE STEP off 93.3% AI-capex concentration, funded from trim proceeds rather than fresh cash. Scout-confirmed clean diversifier: beta 0.62, +18.8% to target, no quality flags. The bench has been priced for weeks and never bought; the cycle is late with medium confidence.",
       "trigger_type": "bench_diversifier",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open"
+      "status": "auto_retired",
+      "id": "P-233",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [
+        "bench_diversifier was the stated trigger but UNH is not in this run's bench_diversifier candidate list -- condition is no longer live"
+      ],
+      "proposal_class": "idea",
+      "retired_on": "2026-09-06",
+      "retired_reason": "UNH no longer appears in this run's live bench_diversifier list -- the condition this buy was sized against has cleared",
+      "note": "auto-retired 2026-09-06: UNH no longer appears in this run's live bench_diversifier list -- the condition this buy was sized against has cleared"
     }
   ],
   "retracted": [

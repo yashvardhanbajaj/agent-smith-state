@@ -3207,7 +3207,9 @@
    "opened": "2026-09-06",
    "owner": "orchestrator",
    "description": "cmd_proposals' sell-side stack guard does not fire across (a) the accepted_by_user + open status pair or (b) the Trim/Sell verb synonym set. Live on 2026-09-06: MSFT 207.7% of position across P-164(accepted)+P-224(open), AVGO 89.8% across P-212+P-226, FSLR 78.7% across P-214+P-228, all with zero review_flags. Also CIEN holds an accepted sell (P-186, $341.56) against a $2.74 residual position while the same run proposed a $200 buy.",
-   "status": "open"
+   "status": "closed",
+   "closed": "2026-09-06",
+   "resolution": "Rebuilt _compute_stacking_warnings as a per-(ticker, SIDE_GROUP) aggregation instead of accepted-x-open pairing. Two independent v1 defects fixed: (1) it only compared an accepted row against an open one, so open+open stacks were never examined; (2) TRIM and SELL were distinct direction buckets, so the same act under two verbs was treated as unrelated sides. Added SIDE_GROUP to smith_core (TRIM/SELL->REDUCE, BUY->ADD, HOLD->None). Guard now writes stacks_on to every member and reports one warning per group with the full combined total. smith_dashboard.stacks_badge rewritten to render all-open stacks and Trim+Sell merges correctly. 7 regression tests added reconstructing the three live incidents; golden master regenerated (same warnings/totals/severities, additive fields plus SELL->REDUCE, BUY->ADD rename). Verified against the live book: all 3 stacks now fire HIGH, plus a 4th (AMAT buy-side) at note."
   }
  ],
  "sentiment": {
@@ -3301,10 +3303,10 @@
  "watchlist_scan_cursor": 115,
  "data_quality": [
   "Weekend run (Sun 2026-09-06). All prices are Fri 2026-09-04 regular-session closes from yfinance get_stock_price. No live session.",
+  "BE: INDmoney snapshot $266.17 vs yfinance regular-session close $252.87 (+5.26%). CONFIRMED BY USER as a real post-market move, NOT a data fault -- INDmoney carried the extended-hours print and was the fresher source. This run's override used the yfinance close, so BE and the book total are understated by 8sh x $13.30 = $106.40 (0.27% of book). Not re-run: below every sanity/persist threshold, and the next run picks up the true price naturally.",
   "INDmoney one_day_change fields were stale -- reported +$2.91 on the whole book against a session in which SMH rose 2.61%. day_chg_pct is taken from yfinance changePct instead.",
-  "BE: INDmoney snapshot price $266.17 vs live close $252.87 (+5.26% divergence, only name over the 3% gate). Live quote used. Likely an extended-hours print carried into the snapshot.",
   "gate_classification STABILIZING is computed off Friday's close on a closed market -- context, not a live pre-market gate. Asia terms not fetched (not a pre-open run).",
-  "G88 opened: sell-side proposal stack guard silent on 3 stacks (MSFT 207.7%, AVGO 89.8%, FSLR 78.7%).",
+  "G88 opened AND CLOSED this run: stack guard rebuilt, all 3 stacks (MSFT 207.7%, AVGO 89.8%, FSLR 78.7%) now fire HIGH.",
   "Two scheduled daily runs missing: 2026-09-04 and 2026-09-02 (no run dir, no ledger row).",
   "HBM tracker snapshot 32 days stale -- exceeds its own ~30-day rule; memory-thesis corroboration degraded.",
   "BE/NBIS EDGAR verification truncated in the quality pass -- findings marked secondary, not primary.",

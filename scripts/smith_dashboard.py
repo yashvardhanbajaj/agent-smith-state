@@ -102,20 +102,33 @@ def held_badge(prop):
 
 
 def stacks_badge(prop):
-    """Show when an OPEN proposal stacks on an ACCEPTED-but-unexecuted one for the same name and
-    side. Written by cmd_proposals' stacking guard (2026-09-01). Rendered here because the whole
-    failure was that the combined number existed nowhere a human would see it: P-164 Sell MSFT
-    $438 accepted and P-201 Sell MSFT $306 open were 73% of the position across two rows that
-    never referenced each other. A guard that only writes a field repeats the defect it fixes."""
+    """Show when a proposal stacks with others on the same name and economic side. Written by
+    cmd_proposals' stacking guard. Rendered here because the whole failure was that the combined
+    number existed nowhere a human would see it: P-164 Sell MSFT $438 accepted and P-201 Sell
+    MSFT $306 open were 73% of the position across two rows that never referenced each other.
+    A guard that only writes a field repeats the defect it fixes.
+
+    Rebuilt 2026-09-06 alongside the guard (G88): a stack is no longer always "open stacks on
+    accepted" -- it can be all-open (AVGO P-212+P-226), and it can merge a Trim with a Sell.
+    Both must read correctly here, or the badge quietly misdescribes the row it is warning about."""
     st = prop.get("stacks_on")
     if not isinstance(st, dict):
         return ""
     pct = st.get("combined_pct_of_position")
     pct_s = f" = {pct:.0f}% of the position" if isinstance(pct, (int, float)) else ""
     cls = "stack-badge hi" if st.get("severity") == "high" else "stack-badge"
-    return (f'<span class="stopline {cls}">stacks on {esc(str(st.get("accepted_id")))} '
-            f'(accepted ${st.get("accepted_size_usd", 0):,.0f}, not yet filled) &mdash; '
-            f'${st.get("combined_usd", 0):,.0f} combined{pct_s}</span>')
+    others = [i for i in (st.get("member_ids") or []) if i and i != prop.get("id")]
+    if not others and st.get("accepted_id"):        # legacy rows written before the rebuild
+        others = [st["accepted_id"]]
+    accepted = set(st.get("accepted_ids") or ([st["accepted_id"]] if st.get("accepted_id") else []))
+    parts = [f'{esc(str(i))} (accepted, not yet filled)' if i in accepted else esc(str(i))
+             for i in others]
+    lead = "stacks with " + ", ".join(parts) if parts else "stacks"
+    merged = st.get("sides_merged") or []
+    verb = (f' &middot; {esc(" + ".join(merged))} counted together'
+            if len(merged) > 1 else "")
+    return (f'<span class="stopline {cls}">{lead} &mdash; '
+            f'${st.get("combined_usd", 0):,.0f} combined{pct_s}{verb}</span>')
 
 
 def decision_buttons(surface, element_id, extra_attrs=""):
@@ -938,8 +951,30 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
         ranked_items = ([("pair", legs, max(idea_rank(p) for p in legs)) for legs in complete_pairs.values()]
                         + [("single", p, idea_rank(p)) for p in singles])
         ranked_items = [it for it in ranked_items if it[2] >= MIN_IDEA_SCORE]
-        ranked_items.sort(key=lambda it: -it[2])
-        ranked_items = ranked_items[:5]
+
+        # A HIGH-severity stack is never cut by the cap (added 2026-09-06, G88). The cap ranks by
+        # CONVICTION, which is the right axis for choosing what to act on and the wrong one for a
+        # safety warning: on the run this was found, FSLR's two open legs (P-214 Trim + P-228
+        # Sell, 78.7% of the position combined) both scored below the fold, so a HIGH stack
+        # warning that the engine had correctly raised appeared nowhere on the page. That is the
+        # v1 defect wearing new clothes -- the guard's own docstring says a guard that only writes
+        # a field repeats the defect it fixes, and a badge rendered only on rows that made a
+        # conviction cut is a field nobody reads. Force these in; they are bounded (a stack needs
+        # two live rows on one name) and they are exactly what the reader must not miss.
+        def _has_high_stack(it):
+            legs = it[1] if it[0] == "pair" else [it[1]]
+            return any((l.get("stacks_on") or {}).get("severity") == "high" for l in legs)
+
+        # Forced rows sit ON TOP OF the cap, they do not consume it. First attempt had them
+        # competing for the same five slots, and on this very run all five went to stack
+        # warnings -- every actual idea vanished from the Ideas panel. A safety warning and a
+        # ranked idea are different things and must not be traded off against each other; the
+        # cap exists to stop weak ideas padding the list, not to ration warnings.
+        forced = [it for it in ranked_items if _has_high_stack(it)]
+        rest = [it for it in ranked_items if not _has_high_stack(it)]
+        forced.sort(key=lambda it: -it[2])
+        rest.sort(key=lambda it: -it[2])
+        ranked_items = forced + rest[:5]
 
         idea_rows = [pair_card(it[1]) if it[0] == "pair" else prop_row(it[1]) for it in ranked_items]
         if idea_rows:

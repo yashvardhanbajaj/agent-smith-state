@@ -483,6 +483,14 @@ DIRECTION_KEYWORDS = [
 
 DIRECTION_BUCKET = {"BUY": "BUY", "TRIM": "TRIM", "SELL": "SELL", "HOLD": "HOLD"}
 
+# SIDE_GROUP collapses the direction buckets to the ECONOMIC side, for checks that care about
+# what a proposal DOES rather than which verb was used to say it. Added 2026-09-06 (G88): the
+# stacking guard compared raw buckets, so "Trim AVGO" and "Sell AVGO" -- the same act -- were
+# treated as unrelated sides and a stack worth 89.8% of the position went unflagged. TRIM and
+# SELL differ only in degree; anything asking "am I reducing this position twice" must group
+# them. HOLD maps to None: it moves no money and stacks on nothing.
+SIDE_GROUP = {"BUY": "ADD", "TRIM": "REDUCE", "SELL": "REDUCE", "HOLD": None}
+
 # ---------------------------------------------------------------------------
 # derisk -- the De-risk Queue (added 2026-07-31)
 #

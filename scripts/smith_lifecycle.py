@@ -821,44 +821,85 @@ def _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directi
 
 
 def _compute_stacking_warnings(props, risk_by_ticker):
-    """STACKING GUARD (2026-09-01): an ACCEPTED-but-unexecuted proposal did not block a new
-    proposal on the same ticker+side -- the dedup pass keys on OPEN proposals only, and
-    acceptance moves a row to `accepted_by_user`, so accepting a trade removed it from the
-    duplicate check while leaving the trade undone. Found live 2026-08-31: P-164 Sell MSFT
-    $437.92 accepted and awaiting execution, while P-201 proposed a further Sell MSFT $305.96
-    -- $743.88 combined against a $1,019.88 position, 73% of the holding, neither row
-    referencing the other. This FLAGS (writes `stacks_on` on the open leg), it does not
-    auto-retire -- some stacks are deliberate incremental adds. Sell-side stacks are escalated
-    to severity="high" above STACK_WARN_PCT because you cannot sell more than you hold, so a
-    large combined percentage is a concrete, checkable error rather than merely an oversized
-    bet. Mutates `props` in place and returns the flat list of stack_warnings dicts."""
+    """STACKING GUARD (2026-09-01, rebuilt 2026-09-06 after it failed on its own founding case).
+
+    An ACCEPTED-but-unexecuted proposal did not block a new proposal on the same ticker+side --
+    the dedup pass keys on OPEN proposals only, and acceptance moves a row to `accepted_by_user`,
+    so accepting a trade removed it from the duplicate check while leaving the trade undone.
+    Found live 2026-08-31: P-164 Sell MSFT $437.92 accepted and awaiting execution, while P-201
+    proposed a further Sell MSFT $305.96 -- $743.88 combined against a $1,019.88 position, 73% of
+    the holding, neither row referencing the other.
+
+    THE 2026-09-06 REBUILD (G88). The v1 guard did not fire on a live recurrence of exactly that
+    case, for two independent reasons, and each is a general lesson:
+
+      1. IT COMPARED ONLY accepted x open. Two OPEN rows on one ticker were never examined at
+         all. Live that day: AVGO P-212 $142.60 + P-226 $500.00 = 89.8% of the position, and
+         FSLR P-214 $182.69 + P-228 $300.00 = 78.7% -- both silent. The guard was written
+         against the status pair that caused the original incident rather than against the
+         invariant it exists to protect, which is simply "do not sell more than you hold".
+      2. IT COMPARED RAW DIRECTION BUCKETS, and TRIM and SELL are distinct buckets. So "Trim
+         AVGO" and "Sell AVGO" -- the same act, differing only in the verb the strategist reached
+         for -- were treated as unrelated sides. A guard keyed on verb strings does not cover the
+         synonym set.
+
+    Both are fixed by grouping instead of pairing: every live row (open OR accepted) is bucketed
+    by (ticker, SIDE_GROUP), and any group of two or more is reported once with the combined
+    total of ALL its members. Three stacked rows now yield one warning summing three sizes, not
+    three pairwise warnings that each understate the exposure.
+
+    This FLAGS (writes `stacks_on` on every member), it never auto-retires -- some stacks are
+    deliberate incremental adds, and silently killing a legitimate second leg trades one failure
+    mode for another. REDUCE-side stacks escalate to severity="high" above STACK_WARN_PCT because
+    they are the bounded side: you cannot sell more than you hold, so a large combined percentage
+    is a concrete, checkable error rather than merely an oversized bet.
+
+    Mutates `props` in place and returns the flat list of stack_warnings dicts."""
     pos_value = {tk: rp.get("market_value_usd") for tk, rp in risk_by_ticker.items()
                  if rp.get("market_value_usd")}
     stack_warnings = []
+    # Clear from EVERY row, not just the live ones. Clearing only live rows (the v1 behaviour,
+    # kept through the first pass of the 2026-09-06 rebuild) leaves a permanent stale badge on
+    # any row that WAS live when a stack was flagged and has since gone superseded/auto_retired
+    # -- found live the same day on P-189, P-193, P-207, P-210 and P-221, two of which were
+    # still rendering their stale badge on the dashboard. "Recomputed every run" has to mean
+    # every row the field can appear on, not every row the recompute happens to visit.
+    for pr in props:
+        pr.pop("stacks_on", None)
     live = [pr for pr in props if pr.get("status") in ("open", "accepted_by_user")]
+
+    groups = {}
     for pr in live:
-        pr.pop("stacks_on", None)           # recomputed every run, never stale
-    for i, a in enumerate(live):
-        if a.get("status") != "accepted_by_user":
+        side = SIDE_GROUP.get(pr.get("direction_bucket") or "HOLD")
+        if side is None:                    # HOLD stacks on nothing; it moves no money
             continue
-        for b in live:
-            if b is a or b.get("status") != "open":
-                continue
-            if b.get("ticker") != a.get("ticker"):
-                continue
-            side = a.get("direction_bucket") or "HOLD"
-            if side != (b.get("direction_bucket") or "HOLD"):
-                continue
-            combined = (a.get("size_usd") or 0) + (b.get("size_usd") or 0)
-            mv = pos_value.get(a.get("ticker"))
-            pct = round(100.0 * combined / mv, 1) if mv else None
-            sev = "high" if (side in ("SELL", "TRIM") and pct is not None
-                             and pct >= STACK_WARN_PCT) else "note"
-            info = {"accepted_id": a.get("id"), "accepted_size_usd": a.get("size_usd"),
-                    "combined_usd": round(combined, 2), "position_usd": mv,
-                    "combined_pct_of_position": pct, "side": side, "severity": sev}
-            b["stacks_on"] = info
-            stack_warnings.append(dict(info, open_id=b.get("id"), ticker=a.get("ticker")))
+        groups.setdefault((pr.get("ticker"), side), []).append(pr)
+
+    for (ticker, side), members in sorted(groups.items(), key=lambda kv: (str(kv[0][0]), kv[0][1])):
+        if len(members) < 2:
+            continue
+        combined = sum((m.get("size_usd") or 0) for m in members)
+        mv = pos_value.get(ticker)
+        pct = round(100.0 * combined / mv, 1) if mv else None
+        sev = ("high" if (side == "REDUCE" and pct is not None and pct >= STACK_WARN_PCT)
+               else "note")
+        accepted = [m for m in members if m.get("status") == "accepted_by_user"]
+        info = {
+            # back-compat: the first accepted member, or None when the stack is all-open.
+            # Kept because smith_dashboard.stacks_badge and the golden fixtures read these.
+            "accepted_id": accepted[0].get("id") if accepted else None,
+            "accepted_size_usd": accepted[0].get("size_usd") if accepted else None,
+            "member_ids": [m.get("id") for m in members],
+            "open_ids": [m.get("id") for m in members if m.get("status") == "open"],
+            "accepted_ids": [m.get("id") for m in accepted],
+            # the raw buckets that got grouped -- makes a Trim+Sell merge visible rather than
+            # silently collapsed, which is the defect this rebuild exists to fix
+            "sides_merged": sorted({(m.get("direction_bucket") or "HOLD") for m in members}),
+            "combined_usd": round(combined, 2), "position_usd": mv,
+            "combined_pct_of_position": pct, "side": side, "severity": sev}
+        for m in members:
+            m["stacks_on"] = info
+        stack_warnings.append(dict(info, open_id=(info["open_ids"] or [None])[0], ticker=ticker))
     return stack_warnings
 
 

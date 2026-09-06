@@ -775,6 +775,14 @@
       "evidence": "usage-audit run_id=2026-09-06-1301, agent=smith-catalyst, tokens=83923, tool_calls=7, duration_s=47.0",
       "source_run": "2026-09-06-1301",
       "supersedes": null
+    },
+    {
+      "date": "2026-09-06",
+      "kind": "correction",
+      "text": "SELL-SIDE STACK GUARD DID NOT FIRE ON A RECURRENCE OF THE EXACT CASE IT WAS BUILT FOR. The 2026-09-01 lesson recorded P-164 Sell MSFT 437.92 (accepted_by_user, never executed) stacking with an open MSFT sell, and the fix was supposed to FLAG sell-side stacks at 50pct of position value. On the 2026-09-06 deep run the same P-164 is STILL accepted-and-unexecuted and now stacks with new P-224 Sell MSFT 600.00 -- combined 1037.92 against a 499.70 position, 207.7pct -- and cmd_proposals emitted ZERO review_flags. Two more stacks went equally unflagged: AVGO P-212 142.60 + P-226 500.00 = 89.8pct of position, and FSLR P-214 182.69 + P-228 300.00 = 78.7pct. Probable cause: the dedup/flag pass buckets 'Trim X' and 'Sell X' as DIFFERENT directions, so a Trim and a Sell on one ticker are never compared to each other -- the opposite of the documented intent that direction buckets collapse raw verbs. Separately, CIEN carries an accepted sell P-186 for 341.56 against a position now worth 2.74 while this same run proposed BUYING CIEN 200 on conviction_average -- an accepted-but-stale sell and a fresh buy on one ticker, neither aware of the other. GENERALISE: a guard written against one status pair (open+open) does not cover the status pair that actually recurs (accepted_by_user+open), and a guard keyed on verb strings does not cover the synonym set. Verify a guard fires by reconstructing the original incident against the live engine, not by reading the code that was written to catch it.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }
