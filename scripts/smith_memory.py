@@ -1226,10 +1226,22 @@ def cmd_merge_tails(args):
     is the same principle applied to the INBOUND merge direction.
 
     Reads runs/<run-dir>/out_<agent>.json for every agent named in --agents (or every agent in
-    MERGE_RULES whose out_*.json file exists, if --agents is omitted). Agents not yet covered
-    by MERGE_RULES (currently: ledger, strategist -- their state
-    writes are either handled by dedicated commands like `lots`/`proposals`, or don't merge
-    into state.json at all) are skipped and reported, not silently ignored.
+    MERGE_RULES whose out_*.json file exists, if --agents is omitted). The one agent not
+    covered by MERGE_RULES is `ledger` (2026-09-07: `rebound`/`strategist` used to be in this
+    same boat, both since fixed -- see `_merge_rebound`/`_merge_strategist` below; this
+    docstring had drifted behind those fixes) -- its state writes are handled by its own
+    dedicated commands (`ledger-apply`, `lots --write`), by design, not because merge-tails
+    forgot it. Any agent named in --agents but genuinely missing a rule is skipped and
+    reported, not silently ignored.
+
+    CALL THIS ONCE PER WAVE, not once for the whole run (SKILL.md's own merge-tails
+    instruction was corrected 2026-09-07 for the same reason): `smith-earnings` (WAVE 1) and
+    `smith-thesis` (WAVE 2) can both write `state.data_cache.earnings_facts` for the same
+    ticker, and the merge is a per-ticker overwrite with no conflict detection -- whichever
+    call applies LAST wins. Batching both waves into one call processes agents in this dict's
+    fixed insertion order regardless of actual dispatch order, which let Wave-1 earnings'
+    OLDER fact silently overwrite Wave-2 thesis' NEWER, sibling-informed one. Calling this
+    once per wave, in wave order, makes the later wave's write land later by construction.
 
     Writes state.json with WRITE SAFETY (.bak then tmp-then-mv). Does NOT run `validate` or
     `compact` -- run those as separate, explicit steps after, same as every other PERSIST
@@ -1275,6 +1287,17 @@ def cmd_merge_tails(args):
         results[agent] = MERGE_RULES[agent](out, state, today, **extra)
         for key in MERGE_STAMPS.get(agent, []):
             state[f"{key}_as_of"] = today
+
+    # ADVANCE news_watermark (added 2026-09-07, closing a real dead-code gap). signals/thesis/
+    # watchlist/catalyst are all handed `news_watermark` every run and told to dedupe against
+    # it -- but nothing ever wrote it back, so every run re-embedded the same permanently-stale
+    # value and the dedup was structurally inert. Advance it whenever at least one news-reading
+    # agent actually merged this call, to the date that agent's news scan covered -- never to a
+    # date no agent actually looked at, which would silently widen the dedup window past what
+    # was really checked.
+    NEWS_WATERMARK_AGENTS = ("signals", "thesis", "watchlist", "catalyst")
+    if any(a in results for a in NEWS_WATERMARK_AGENTS):
+        state["news_watermark"] = today
 
     safe_write(state_path, state)
     emit({"merged": list(results), "results": results,
@@ -1447,12 +1470,24 @@ AGENT_SLICES = {
                    # input, carrying the move arithmetic it used to derive itself.
                    "cache": ["atr20"], "refs": ["journal", "buckets"], "holdings": "trim"},
     "thesis":     {"state": ["thesis", "sector_map", "news_watermark", "open_flags"],
-                   "cache": ["etf_constituents", "earnings_facts"], "refs": [],
+                   "cache": ["etf_constituents", "earnings_facts"],
+                   # Added 2026-09-07 -- this is the code-side half of the WAVES rewrite's
+                   # promise ("thesis <- catalyst's events, quality's flags, signals'
+                   # buckets"), which until now only existed in SKILL.md prose. Requires this
+                   # slice to be (re)generated AFTER Wave 1 has landed -- see the WAVES section
+                   # for the two-slices-calls-per-run instruction this fix requires.
+                   "refs": ["catalyst_tail", "quality_tail", "signals_tail"],
                    "holdings": "trim", "shared": ["hbm_tracker"]},
     "watchlist":  {"state": ["news_watermark", "watchlist_scan_cursor"],
                    "cache": ["earnings_calendar", "analyst_targets"], "refs": ["attribution"],
                    "holdings": "trim"},
-    "book":       {"state": [], "cache": ["betas"], "refs": ["book", "lots"], "holdings": None},
+    "book":       {"state": [], "cache": ["betas"],
+                   # "bookcalc" added 2026-09-07 -- REF_FILES had no entry for
+                   # compute_bookcalc.json before this, so this WAVE-0 script output (which
+                   # smith-book.md's own CONSUME addendum says the agent now reads instead of
+                   # computing dividends/ex-dates/LTCG itself) was unreachable through the
+                   # normal ref mechanism.
+                   "refs": ["book", "lots", "bookcalc"], "holdings": None},
     "scout":      {"state": ["diversifier_candidates"], "cache": [],
                    "refs": ["sentiment", "market_inputs"], "holdings": "trim"},
     "macro":      {"state": ["fomc_cache"], "cache": [],
@@ -1461,10 +1496,20 @@ AGENT_SLICES = {
                    "cache": [], "refs": ["drift"], "holdings": "trim",
                    "shared": ["hbm_tracker"]},
     "cycle":      {"state": ["factor_themes", "sector_map"], "cache": ["earnings_facts"],
-                   "refs": ["drift"], "holdings": "trim", "shared": ["hbm_tracker"]},
+                   # "catalyst_tail" added 2026-09-07 -- same WAVES-promise fix as thesis above
+                   # ("cycle <- catalyst's events"), so the memory-pricing contradiction this
+                   # rewrite exists to catch (catalyst's structural DRAM read vs cycle's own
+                   # TrendForce guide) is an input cycle can actually see, not just something
+                   # crosscheck notices after the fact.
+                   "refs": ["drift", "catalyst_tail"], "holdings": "trim", "shared": ["hbm_tracker"]},
     "earnings":   {"state": [], "cache": ["earnings_calendar", "earnings_facts"],
                    "refs": ["book"], "holdings": "trim"},
-    "tax":        {"state": ["thesis"], "cache": [], "refs": ["book", "lots"],
+    "tax":        {"state": ["thesis"], "cache": [],
+                   # "taxcalc" added 2026-09-07 -- same fix as "book" above: compute_taxcalc.json
+                   # was unreachable through REF_FILES, even though smith-tax.md's own CONSUME
+                   # addendum says taxcalc now computes the FIFO-vs-HIFO comparison this agent
+                   # was still being told (in a since-corrected HARD RULES line) to derive itself.
+                   "refs": ["book", "lots", "taxcalc"],
                    "holdings": "trim"},
     "quality":    {"state": ["open_flags"], "cache": ["quality_financials", "earnings_facts"],
                    "refs": ["book"], "holdings": "trim"},
@@ -1473,8 +1518,12 @@ AGENT_SLICES = {
     "ledger":     {"state": [], "cache": ["ticker_map"], "refs": ["book", "lots"],
                    "holdings": "full"},
     "strategist": {"state": ["thesis", "sector_map", "preferences", "open_flags"], "cache": [],
+                   # "crosscheck" added 2026-09-07 -- crosscheck now runs after WAVE 2 (see
+                   # cmd_crosscheck's docstring), specifically so its findings reach the
+                   # strategist as a real ref instead of depending on the orchestrator to paste
+                   # them into the dispatch prompt by hand.
                    "refs": ["drift", "sentiment", "risk", "book", "derisk", "triggers",
-                            "rotation"],
+                            "rotation", "crosscheck"],
                    "holdings": "trim"},
 }
 
@@ -1485,6 +1534,23 @@ REF_FILES = {
     "derisk": "compute_derisk.json", "triggers": "compute_triggers.json",
     "buckets": "compute_buckets.json",
     "market_inputs": "market_inputs.json",
+    # Added 2026-09-07, closing a gap between what SKILL.md's WAVES section promised (book
+    # gets compute_bookcalc.json, tax gets compute_taxcalc.json) and what AGENT_SLICES actually
+    # had a ref for -- neither WAVE-0 script output was reachable through this table before,
+    # so slice_book.json/slice_tax.json could not carry them even though both files already
+    # sit in the same run directory.
+    "bookcalc": "compute_bookcalc.json", "taxcalc": "compute_taxcalc.json",
+    # Cross-agent tail refs (added 2026-09-07). These are WAVE 1 agents' own out_<agent>.json
+    # files, not compute script output -- but they live in the same run dir and the same
+    # ref-by-path mechanism applies. This is what makes SKILL.md's WAVES promise ("thesis <-
+    # catalyst's events, quality's flags, signals' buckets"; "cycle <- catalyst's events")
+    # code-guaranteed instead of orchestrator hand-assembly: AGENT_SLICES["thesis"]/["cycle"]
+    # below now actually reference these paths.
+    "catalyst_tail": "out_catalyst.json", "quality_tail": "out_quality.json",
+    "signals_tail": "out_signals.json",
+    # crosscheck.json (added 2026-09-07, see cmd_crosscheck's docstring for the invocation-
+    # order fix that makes this file exist before WAVE 3 dispatches).
+    "crosscheck": "crosscheck.json",
 }
 BASE_REF_FILES = {"lots": "lots.json"}
 
@@ -3031,9 +3097,31 @@ def _cc_load(rd, agent):
 def cmd_crosscheck(args):
     """Detect conflicts between this run's sub-agent outputs. Read-only; emits findings only.
 
-    Run AFTER the observer wave has merged and BEFORE the interpreter wave dispatches, so the
-    interpreters receive the conflicts as input rather than the orchestrator discovering them at
-    briefing time -- which is what happened on 2026-09-06 and is far too late to change a verdict.
+    CORRECTED INVOCATION POINT (2026-09-07). Originally documented to run "after the observer
+    wave, before the interpreter wave" -- but two of its own five rules (evidence_gap,
+    thesis_vs_catalyst_threat) read `thesis`'s ACTUAL WRITTEN VERDICT, and two more
+    (catalyst_vs_cycle, thesis_vs_price) read `cycle`/`thesis` too. thesis and cycle are WAVE 2
+    (interpreter) agents -- at the documented invocation point their out_*.json files do not
+    exist yet, so `_cc_load` silently returns {} for both and 4 of 5 rules are structurally
+    inert (only handoff_to_nowhere, a text-regex over Wave-1 outputs, can ever fire there).
+    This was found live: a real deep run's crosscheck call returned `agents_seen: [catalyst,
+    signals]` and 0 findings, exactly this bug, silently -- not the "0 findings, everything's
+    fine" it read as.
+
+    Run this AFTER WAVE 2 has merged and BEFORE WAVE 3 (the strategist) dispatches. This can no
+    longer PREVENT an interpreter from writing a bad verdict (that job belongs to the
+    AGENT_SLICES embed -- thesis/cycle receiving Wave-1 tails inline in their own dispatch
+    prompt, so they have the evidence before they write anything). What crosscheck catches now
+    is the backstop case: an interpreter had the evidence and still produced a conflicting
+    verdict, or an unresolved tension between two interpreters. Its findings feed WAVE 3 --
+    the strategist should know about an unadjudicated tension before sizing a proposal on top
+    of it, which is a genuinely useful recipient this rule never had before.
+
+    Writes crosscheck.json to run_dir (added 2026-09-07) so cmd_slices can reference it as a
+    plain ref file into the strategist's slice, the same mechanism every other compute output
+    already uses -- previously this only ever printed to stdout, so "embed high findings into
+    the next dispatch" depended on the orchestrator remembering to paste JSON into a prompt by
+    hand, the exact G50 shape this codebase elsewhere closes with a mechanical file+ref path.
     """
     import re
     rd = args.run_dir
@@ -3124,12 +3212,24 @@ def cmd_crosscheck(args):
     by_sev = {"high": 0, "medium": 0, "low": 0}
     for f in findings:
         by_sev[f.get("severity", "low")] += 1
+    blocking = [f for f in findings if f.get("severity") == "high"]
+
+    # Write to run_dir FIRST (added 2026-09-07) so cmd_slices can reference this file as a
+    # plain ref -- the same mechanism as any other compute output -- into the strategist's
+    # slice, instead of "embed high findings" depending on the orchestrator remembering to
+    # paste JSON into a prompt by hand.
+    safe_write(os.path.join(rd, "crosscheck.json"),
+              {"as_of": args.today, "findings": findings, "count": len(findings),
+               "by_severity": by_sev, "blocking": blocking})
+
     emit({"as_of": args.today, "findings": findings, "count": len(findings), "by_severity": by_sev,
           "agents_seen": [n for n, b in (("thesis", thesis), ("quality", quality),
                                          ("catalyst", catalyst), ("signals", signals),
                                          ("cycle", cycle)) if b],
-          "blocking": [f for f in findings if f.get("severity") == "high"],
-          "note": ("Run between the observer wave and the interpreter wave. A `high` finding "
-                   "means an interpreter formed a verdict without evidence a sibling already "
-                   "had -- re-dispatch it with that evidence rather than reconciling the two in "
-                   "the briefing, which is too late to change the verdict.")})
+          "blocking": blocking,
+          "note": ("Run between WAVE 2 (interpreters) and WAVE 3 (strategist) -- see this "
+                   "function's docstring for why the old pre-Wave-2 timing left 4 of 5 rules "
+                   "structurally inert. A `high` finding here means an interpreter formed a "
+                   "verdict that still conflicts with a sibling's finding despite the "
+                   "AGENT_SLICES embed; embed it into the strategist's Wave-3 dispatch so a "
+                   "sized proposal is never built on top of an unadjudicated tension.")})
