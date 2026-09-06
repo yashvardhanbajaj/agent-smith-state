@@ -188,14 +188,26 @@ def fig(d, title, sub=""):
 
 def trim_lead(text, max_len=180):
     """First sentence (or a word-boundary-safe cut), plus the remainder for a
-    <details> expansion. Returns (short, rest_or_empty)."""
+    <details> expansion. Returns (short, rest_or_empty).
+
+    FIXED 2026-09-06 (user-reported: Ideas panel text "not rendering properly"). When the
+    text's first natural sentence (up to the first ". ") ran longer than max_len, the old
+    version hard-cut it at a word boundary and then unconditionally appended "." -- which reads
+    as a complete, grammatical sentence even though the cut usually landed mid-clause or inside
+    a parenthetical ("...rel strength -13.19pp, -13.66%." / "...sympathy rally (NVDA, MRVL.").
+    That is not a rendering bug in the HTML/CSS sense (the markup was well-formed); it is this
+    function silently asserting a sentence boundary that was never there. A hard cut now gets
+    an ellipsis, never a period, so truncation always looks like truncation."""
     text = (text or "").strip()
     if not text:
         return "", ""
-    head = text.split(". ")[0]
-    if len(head) > max_len:
-        head = head[:max_len].rsplit(" ", 1)[0]
-    short = head.rstrip(" ,;:-") + "."
+    natural = text.split(". ")[0]
+    if len(natural) <= max_len:
+        short = natural.rstrip(" ,;:-") + "."
+        rest = text[len(natural):].strip(" .")
+        return short, rest
+    head = natural[:max_len].rsplit(" ", 1)[0]
+    short = head.rstrip(" ,;:-.") + "…"
     rest = text[len(head):].strip(" .")
     return short, rest
 
@@ -862,7 +874,7 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
             # cluster, held/stack badges -- SAFETY signals, never collapsed -- short rationale,
             # amount) plus ONE details drawer holding everything else, instead of 6-8 stacked
             # <span> lines printed open by default on every single row.
-            short, rest = trim_lead(p.get("rationale", ""), max_len=90)
+            short, rest = trim_lead(p.get("rationale", ""), max_len=130)
             bucket = p.get("direction_bucket", "HOLD")
             pid = p.get("id", "")
             rc = p.get("repeat_count", 1)
@@ -1041,7 +1053,7 @@ def _render_factor_catalysts(state):
             # run 150-250 chars) used to print in full; now truncated to one clause with the rest
             # plus the magnitude line behind a details toggle. affects/exposure stays visible --
             # that's the scannable "what does this touch" line, not prose.
-            head_short, head_rest = trim_lead(c.get("headline", ""), max_len=110)
+            head_short, head_rest = trim_lead(c.get("headline", ""), max_len=140)
             mag = c.get("magnitude", "")
             more_bits = ((f'<p class="note" style="margin:0 0 4px">{esc(head_rest)}</p>' if len(head_rest) > 4 else "")
                          + (f'<div class="mm">{esc(mag)}</div>' if mag else ""))
@@ -1852,14 +1864,14 @@ def _render_risk_cap_and_ltcg(risk, book_compute, base):
     return out
 
 
-def _render_positions_table(state, risk_by_ticker, sector_map, risk, book_compute):
+def _render_positions_table(state, risk_by_ticker, sector_map, risk, book_compute, cluster_order=None):
     out = []
-    holdings = sorted(state.get("holdings", []), key=lambda h: -(h.get("weight_pct") or 0))
+    holdings = state.get("holdings", [])
     if holdings:
         tot_value = sum((risk_by_ticker.get(h["ticker"], {}).get("market_value_usd") or 0) for h in holdings)
         tot_weight = sum(h.get("weight_pct", 0) for h in holdings)
-        rows = []
-        for h in holdings:
+
+        def _row(h):
             tk, qty = h["ticker"], h.get("qty", 0)
             r = risk_by_ticker.get(tk, {})
             mv = r.get("market_value_usd")
@@ -1881,12 +1893,38 @@ def _render_positions_table(state, risk_by_ticker, sector_map, risk, book_comput
             c_cap = f'${capv:,.0f}' if capv is not None else "&mdash;"
             c_head = f'{"&minus;" if (head is not None and head<0) else ""}${abs(head):,.0f}' if head is not None else "&mdash;"
             c_weight = f'{h.get("weight_pct",0):.2f}%'
-            rows.append(
-                f'<tr><td class="name">{esc(tk)}</td><td class="txt">{esc(sector_map.get(tk,"-"))}</td>'
+            return (
+                f'<tr><td class="name">{esc(tk)}</td>'
                 f'<td>{qty:g}</td><td>{c_price}</td><td>{c_value}</td><td class="blank">{c_weight}</td>'
                 f'<td class="blank">{c_atr}</td><td class="{beta_cls}">{c_beta}</td>'
                 f'<td>{c_stop}</td><td>{c_stoppx}</td><td class="blank">{c_cap}</td>'
                 f'<td class="{head_cls}" style="font-weight:640">{c_head}</td></tr>')
+
+        # GROUPED BY CLUSTER (added 2026-09-06, user request), same stable policy.json
+        # cluster_targets order used by the Stop-loss efficacy breakdown and every cluster-aware
+        # panel on this dashboard -- a name is always found under the same cluster header in the
+        # same position run over run. Within a cluster, holdings sort by weight descending (the
+        # one place magnitude-sort is still right: within a cluster, biggest position first).
+        by_cluster = {}
+        for h in holdings:
+            by_cluster.setdefault(sector_map.get(h["ticker"], "Unclassified"), []).append(h)
+        order = cluster_order or []
+        rank = {c: i for i, c in enumerate(order)}
+        cluster_names = [c for c in by_cluster if c != "Unclassified"]
+        cluster_names.sort(key=lambda c: (rank.get(c, len(order)), c))
+        if "Unclassified" in by_cluster:
+            cluster_names.append("Unclassified")
+
+        body = ""
+        for cname in cluster_names:
+            hs = sorted(by_cluster[cname], key=lambda h: -(h.get("weight_pct") or 0))
+            c_weight = sum(h.get("weight_pct") or 0 for h in hs)
+            c_value = sum((risk_by_ticker.get(h["ticker"], {}).get("market_value_usd") or 0) for h in hs)
+            body += (f'<tr><td class="txt" colspan="4" style="font-weight:640;color:var(--ink-2);'
+                     f'padding-top:14px">{esc(cname)} <span class="sub">({len(hs)})</span></td>'
+                     f'<td class="blank"><b>{c_weight:.1f}%</b></td>'
+                     f'<td colspan="6" class="blank" style="text-align:left">${c_value:,.0f}</td></tr>'
+                     + "".join(_row(h) for h in hs))
 
         agg_risk_pct = risk.get("aggregate_open_risk_pct")
         beta_book = book_compute.get("beta") or book_compute.get("primary_benchmark", {}).get("primary_beta")
@@ -1894,15 +1932,15 @@ def _render_positions_table(state, risk_by_ticker, sector_map, risk, book_comput
         c_risk_foot = (f'<td colspan="3" class="blank" style="text-align:right">aggregate open risk</td>'
                       f'<td class="neg">{agg_risk_pct:.1f}%</td>' if agg_risk_pct is not None
                       else '<td colspan="4"></td>')
-        foot = (f'<tfoot><tr><td class="name">Book</td><td class="txt"></td><td></td><td></td>'
+        foot = (f'<tfoot><tr><td class="name">Book</td><td></td><td></td>'
                f'<td>${tot_value:,.0f}</td><td class="blank">{tot_weight:.1f}%</td><td class="blank"></td>'
                f'{c_beta_book}{c_risk_foot}</tr></tfoot>')
 
         out.append(f'<section class="panel"><div class="phead"><h2>Positions<span class="sub">'
-                 f'{len(holdings)}</span></h2></div><div class="pbody"><div class="scroll"><table>'
-                 '<thead><tr><th>Name</th><th>Cluster</th><th>Qty</th><th>Price</th><th>Value</th><th>Wt</th>'
+                 f'{len(holdings)}, grouped by cluster</span></h2></div><div class="pbody"><div class="scroll"><table>'
+                 '<thead><tr><th>Name</th><th>Qty</th><th>Price</th><th>Value</th><th>Wt</th>'
                  '<th>ATR20</th><th>&beta;</th><th>Stop</th><th>Stop px</th><th>Cap</th><th>Headroom</th></tr></thead>'
-                 f'<tbody>{"".join(rows)}</tbody>{foot}</table></div></div></section>')
+                 f'<tbody>{body}</tbody>{foot}</table></div></div></section>')
 
     return out
 
@@ -2375,7 +2413,8 @@ def build(base, out):
 
     H.extend(_render_risk_cap_and_ltcg(risk, book_compute, base))
 
-    H.extend(_render_positions_table(state, risk_by_ticker, sector_map, risk, book_compute))
+    H.extend(_render_positions_table(state, risk_by_ticker, sector_map, risk, book_compute,
+                                       list(policy.get("cluster_targets", {}).keys())))
 
     # ================= TIER: DIAGNOSTICS =================
     H.append('<div class="tier"><h2>Diagnostics</h2><div class="ln"></div></div>')
