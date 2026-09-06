@@ -581,7 +581,8 @@ td.verd-flat{color:var(--ink-3)}
 /* ============ week ahead calendar ============ */
 .cal{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);
   border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.day{background:var(--surface);padding:11px 12px;display:flex;flex-direction:column;gap:7px;min-height:96px}
+.day{background:var(--surface);padding:11px 12px;display:flex;flex-direction:column;gap:7px;min-height:64px}
+.day.empty{min-height:0;padding:9px 12px;opacity:.55}
 .day.hot{background:var(--warn-soft)}
 .day .d{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
 .day.hot .d{color:var(--warn)}
@@ -1182,16 +1183,26 @@ def _render_trade_triggers(triggers):
                 gain = c.get("gain_pct")
                 secondary = (f"{gain:+.1f}% vs basis" if gain is not None
                              else (f"{c['abs_return_1m_pct']:+.1f}% 1m" if c.get("abs_return_1m_pct") is not None else "&mdash;"))
-                # esc() each item BEFORE joining with an entity separator -- joining first and then
-                # escaping turns "&middot;" into the literal visible text "&middot;" (see SKILL §6).
-                why = " &middot; ".join(esc(r) for r in (c.get("reasons") or []))
-                blk = "".join(f'<div class="note">! {esc(b)}</div>' for b in (c.get("blockers") or []))
+                # COMPACTED 2026-09-06 (user-reported: this column overflowed the table width,
+                # text getting clipped rather than wrapping) -- esc() each item BEFORE joining
+                # with an entity separator, same double-escape fix as elsewhere in this file.
+                # Only the first reason shows; the full list (and any blockers) move to the
+                # cell's own tooltip instead of unbounded inline text.
+                reasons = c.get("reasons") or []
+                why_full = " &middot; ".join(esc(r) for r in reasons)
+                why_short = esc(reasons[0][:40] + "…" if reasons and len(reasons[0]) > 40 else (reasons[0] if reasons else ""))
+                if len(reasons) > 1:
+                    why_short += f' <i>+{len(reasons)-1}</i>'
+                blockers = c.get("blockers") or []
+                blk = (f'<span class="rvf" title="{esc_attr(" | ".join(blockers))}">&#9888;&#65039;</span>'
+                      if blockers else "")
                 trs.append(f'<tr><td><b>{esc(c["ticker"])}</b></td>'
                            f'<td class="sub">{esc(c.get("cluster") or "-")}</td>'
                            f'<td class="num">{(f"{rsi:.1f}" if rsi is not None else "&mdash;")}</td>'
                            f'<td class="num">{secondary}</td>'
                            f'<td class="num">{amt}</td>'
-                           f'<td class="sub">{why}{blk}</td></tr>')
+                           f'<td class="sub" title="{esc_attr(why_full)}" style="white-space:nowrap;'
+                           f'overflow:hidden;text-overflow:ellipsis;max-width:220px">{why_short}{blk}</td></tr>')
             blocks.append(
                 f'<div class="phead" style="border:0;padding:10px 0 4px"><h2 style="font-size:.82rem">'
                 f'{label}<span class="sub">{how}</span></h2>'
@@ -1245,20 +1256,28 @@ def _render_factor_themes(state):
     # was populated and updated every run by smith-catalyst and rendered nowhere.
     themes = (state.get("factor_themes") or {}).get("themes", [])
     if themes:
+        # REDESIGNED 2026-09-06 (user: too much text, full freedom to redesign) -- same shape
+        # as the pre-fix Factor catalysts: 3 lines of prose x 8 themes printed open by default.
+        # This is a STANDING watch list (persistent structure), not this run's news -- it earns
+        # a collapsed-by-default details wrapper, plus the same tag/chip/fact-grid treatment.
         rows = []
         for th in themes[:8]:
-            # same double-escape fix as `affects` above
-            maps = " &middot; ".join(esc(x) for x in th.get("maps_to", [])[:10])
+            name = th.get("name", "")
+            watch = th.get("watch", "")
             live_keys = sorted([k for k in th if k.startswith("live_")], reverse=True)
             latest_live = th.get(live_keys[0]) if live_keys else None
-            live_s = (f'<div class="mm">{esc(latest_live)}</div>' if latest_live else "")
+            maps_chips = "".join(f'<span class="tick">{esc(x)}</span>' for x in th.get("maps_to", [])[:10])
+            facts = [("Watching for", esc(watch))]
+            if latest_live:
+                facts.append((esc(live_keys[0].replace("live_", "").replace("_", " ").title() or "Latest"), esc(latest_live)))
+            fact_grid = "".join(f'<div class="srow"><span class="slab">{k}</span><span>{v}</span></div>'
+                                for k, v in facts)
+            drawer = f'<details class="pr-more"><summary>details</summary><div class="body">{fact_grid}</div></details>'
             rows.append(f'<div class="ci"><span class="cb AMBIGUOUS">WATCH</span><div>'
-                        f'<div class="hh">{esc(th.get("name",""))}</div>'
-                        f'<div class="mm" style="font-style:italic">{esc(th.get("watch",""))}</div>'
-                        f'{live_s}<div class="aa">{maps}</div></div></div>')
-        out.append('<section class="panel"><div class="phead"><h2>Factor themes'
-                 '<span class="sub">the standing watch list catalysts get checked against</span></h2></div>'
-                 f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
+                        f'<div class="hh">{esc(name)}</div>'
+                        f'<div class="sch" style="margin:4px 0">{maps_chips}</div>{drawer}</div></div>')
+        out.append(f'<details><summary>Factor themes<span class="c">the standing watch list, '
+                 f'{len(themes)} tracked</span></summary><div class="body">{"".join(rows)}</div></details>')
 
     return out
 
@@ -1744,8 +1763,12 @@ def _render_sentiment_session_grid(state, market_inputs):
                         f'<span class="db {"pos" if smh_chg>=0 else "neg"}">{smh_chg:+.2f}%</span></span></div>')
         sub = (f'<div class="value-sub">Gate: <b>{esc(gate)}</b> &mdash; {esc(gate_reason)}</div>'
                if gate else "")
-        right = ('<section class="panel"><div class="phead"><h2>Intraday &amp; international session</h2></div>'
-                 f'<div class="pbody"><div class="kv">{"".join(rows)}</div>{sub}</div></section>')
+        # FIXED 2026-09-06 (user-reported: an entirely empty white box on a weekend run, when
+        # ES/NQ/Asia/SMH/gate are all None) -- this section rendered unconditionally on any
+        # truthy market_inputs dict, never checking whether it actually had anything to show.
+        if rows or sub:
+            right = ('<section class="panel"><div class="phead"><h2>Intraday &amp; international session</h2></div>'
+                     f'<div class="pbody"><div class="kv">{"".join(rows)}</div>{sub}</div></section>')
 
     if left or right:
         out.append(f'<div class="grid2">{left}{right}</div>')
@@ -1768,6 +1791,7 @@ def _render_week_ahead(state, ts):
     fomc_date = fomc.get("next_check_date")
 
     days = []
+    any_events = False
     for i in range(6):
         d = today + timedelta(days=i)
         ds = d.isoformat()
@@ -1780,11 +1804,25 @@ def _render_week_ahead(state, ts):
         if ds == fomc_date:
             events.insert(0, '<span class="ev">FOMC decision</span>')
             hot = True
+        any_events = any_events or hot
         label = "Today" if i == 0 else d.strftime("%a %-d")
-        days.append(f'<div class="day{" hot" if hot else ""}"><span class="d">{esc(label)}</span>'
+        # COMPACT (2026-09-06, user-reported: 6 near-empty ~96px boxes for a quiet week wasted
+        # a full screen of space). An event-free day now renders as a short single-line stub
+        # (min-height dropped via the "empty" class) instead of the full-height cell -- a day
+        # WITH events still gets the taller box, since that's where the content actually needs
+        # the room.
+        day_cls = " hot" if hot else (" empty" if not events else "")
+        days.append(f'<div class="day{day_cls}"><span class="d">{esc(label)}</span>'
                     + "".join(events) + '</div>')
-    out.append('<section class="panel"><div class="phead"><h2>The week ahead</h2></div>'
-             f'<div class="pbody"><div class="cal">{"".join(days)}</div></div></section>')
+    if any_events:
+        out.append('<section class="panel"><div class="phead"><h2>The week ahead</h2></div>'
+                 f'<div class="pbody"><div class="cal">{"".join(days)}</div></div></section>')
+    else:
+        # Whole week is quiet -- one line beats six empty boxes.
+        out.append('<section class="panel"><div class="phead"><h2>The week ahead</h2>'
+                 '<span class="pill good">quiet</span></div>'
+                 '<div class="pbody"><p class="note">No earnings prints or FOMC date in the '
+                 'next 6 sessions.</p></div></section>')
 
     return out
 
@@ -2533,7 +2571,13 @@ def build(base, out):
     H.append('<p class="note"><b>Everything here is a proposal for your review.</b> No trade has been or '
              'will be placed by this desk, and none of it is licensed investment advice.</p>')
     if confirm_flags:
-        bits = "; ".join(f'<b>{esc(f.get("ticker",""))}</b> &mdash; {esc(f.get("flag",""))[:200]}' for f in confirm_flags[:3])
+        # COMPACT (2026-09-06) -- up to 3 flags at 200 chars each could run 600+ chars in one
+        # unbroken footer paragraph. Each flag now truncates to one clause, full text on hover.
+        def _flag_chip(f):
+            txt = f.get("flag", "")
+            short = txt[:70] + "…" if len(txt) > 70 else txt
+            return f'<b>{esc(f.get("ticker",""))}</b> <span title="{esc_attr(txt)}">{esc(short)}</span>'
+        bits = "; ".join(_flag_chip(f) for f in confirm_flags[:3])
         H.append(f'<p class="note">Needs confirmation: {bits}</p>')
     H.append(f'<p class="note">Mandate: {esc(str(mandate.get("objective","-")).replace("_"," "))} &middot; '
              f'horizon {esc(hz)}y &middot; benchmark {esc(mandate.get("benchmark","-"))} &middot; '
