@@ -1584,13 +1584,19 @@ def cmd_derisk(args):
         if frag is None:
             score = None
         else:
-            score = frag * (1.0 + (stretch or 0.0) / 100.0) * (1.0 - r["friction_score"] / 200.0) * urgency
+            # Friction (LTCG proximity / unknown lot dates / dust threshold) is deliberately
+            # excluded from the score itself (removed 2026-09-06, user request) -- it still
+            # computes and displays per-row as a cost-of-acting annotation, but no longer
+            # discounts a name's ranked fragility. A name that's genuinely fragile stays ranked
+            # on fragility alone; friction is read alongside the rank, not baked into it.
+            score = frag * (1.0 + (stretch or 0.0) / 100.0) * urgency
             score = round(score, 1)
         r.pop("_frag_raw"); r.pop("_stretch_raw")
         note = r.pop("_frag_note")
         if note:
             dq.append(f"{r['ticker']}: {note}")
-        rows.append({**r, "fragility_score": frag, "stretch_score": stretch, "derisk_score": score})
+        rows.append({**r, "fragility_score": frag, "stretch_score": stretch, "derisk_score": score,
+                     "sentiment_band": band, "urgency_multiplier": urgency})
 
     rows.sort(key=lambda x: -(x["derisk_score"] or -1))
     for i, r in enumerate(rows, 1):

@@ -1613,11 +1613,16 @@ def _render_derisk_queue(derisk, state):
                        f'({esc(ov.get("date",""))})</span>')
             return decision_buttons("derisk", r["ticker"])
 
+        sent_band = derisk.get("sentiment_band", "-")
+        sent_mult = derisk.get("urgency_multiplier", "-")
+        sent_cell = f'<span class="pill">{esc(sent_band)} &times;{sent_mult}</span>'
+
         body = "".join(
             f'<tr><td class="num">{r["rank"]}</td><td><b>{esc(r["ticker"])}</b></td>'
             f'<td class="num"><b>{r["derisk_score"]:.0f}</b></td>'
             f'<td>{bar(r.get("fragility_score"), "f")}</td>'
             f'<td>{bar(r.get("stretch_score"), "s")}</td>'
+            f'<td>{sent_cell}</td>'
             f'<td>{bar(r.get("friction_score"), "x")}</td>'
             f'<td class="num">{(f"{r["abs_return_1m_pct"]:+.1f}%" if r.get("abs_return_1m_pct") is not None else "&mdash;")}</td>'
             f'<td class="num">{(f"{r["rel_strength_1m_pp"]:+.1f}" if r.get("rel_strength_1m_pp") is not None else "&mdash;")}</td>'
@@ -1632,7 +1637,7 @@ def _render_derisk_queue(derisk, state):
             f'<span class="pill {st_cls}">{esc(st_lbl)}</span></div><div class="pbody">'
             f'<p class="note">{esc(derisk.get("headline",""))}</p>'
             '<div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Name</th><th>Score</th>'
-            '<th>Fragility</th><th>Stretch</th><th>Friction</th><th>1m abs</th><th>vs SMH</th>'
+            '<th>Fragility</th><th>Stretch</th><th>Sentiment</th><th>Friction</th><th>1m abs</th><th>vs SMH</th>'
             '<th>cap</th><th>Value</th><th>Friction reason</th></tr></thead>'
             f'<tbody>{body}</tbody></table></div>'
             '<details><summary>How this is scored</summary><div class="body">'
@@ -1645,12 +1650,15 @@ def _render_derisk_queue(derisk, state):
             'Relative rather than absolute deliberately: in a ~100% single-factor book an absolute '
             'RSI/52-week screen flags all-or-nothing.<br>'
             '<b>Friction</b> &mdash; cost of acting: proximity to the 24-month LTCG boundary (from '
-            'lots.json), unknown lot dates, and a dust-position discount. Higher friction pushes a '
-            'name down the queue.<br>'
-            '<b>Sentiment</b> is an urgency dial on the whole queue '
-            f'(band <b>{esc(derisk.get("sentiment_band","-"))}</b> &rarr; &times;'
-            f'{derisk.get("urgency_multiplier","-")}), never a trigger. It cannot manufacture stretch '
-            'that does not exist per name.<br><br>'
+            'lots.json), unknown lot dates, and a dust-position discount. Shown per name for '
+            'context only &mdash; removed from the score itself (2026-09-06, user request), so it no '
+            'longer discounts a name&rsquo;s rank; a genuinely fragile name stays ranked on fragility '
+            'and stretch alone.<br>'
+            '<b>Sentiment</b> is an urgency dial applied to every row (same value book-wide, shown '
+            'per row so it does not require reading the note above the table) '
+            f'&mdash; band <b>{esc(derisk.get("sentiment_band","-"))}</b> &rarr; &times;'
+            f'{derisk.get("urgency_multiplier","-")}. It is a multiplier on the whole queue, never a '
+            'trigger, and cannot manufacture stretch that does not exist per name.<br><br>'
             '<b>This queue is shadow-scored and does not drive proposals.</b> Each deep run logs its '
             'top names to derisk_journal.json and scores them at 30/90d. It earns a vote in sizing '
             'decisions only once it has a real hit rate.'
