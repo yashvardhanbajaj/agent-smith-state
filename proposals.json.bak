@@ -7502,12 +7502,12 @@
       "rationale": "Contested WATCH downgrade (Q3 beat +86% YoY vs Q4 guide read below whisper + standing BofA XPV bond overhang now carried alone post-BX-exit) co-occurring with a live cap-independent catalyst_threat (NVDA CDS ~2x in 2 months, Oracle downgraded to BBB-). Two independent same-direction signals; sized at the computed trim_fraction (20%), not inflated, given the desk's weak TRIM track record.",
       "trigger_type": "catalyst_threat",
       "date": "2026-09-03T00:00:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "id": "P-212",
-      "priority_score": 3,
-      "priority": "MEDIUM",
+      "priority_score": 0,
+      "priority": "LOW",
       "priority_reasons": [
-        "catalyst_threat: Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: 'CDS, not EPS' (2026-08-27) -- NVDA CDS ~2x in 2 months; Oracle downgraded to lowest IG rung, CDS 215bp -- directional credit repricing, no absolute NVDA bp level sourced"
+        "catalyst_threat was the stated trigger but AVGO is not in this run's catalyst_threat candidate list -- condition is no longer live"
       ],
       "proposal_class": "idea",
       "cluster": "AI Networking/Optics",
@@ -7517,28 +7517,9 @@
       "review_flags": [],
       "revalidated_on": "2026-09-06",
       "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
-      "stacks_on": {
-        "accepted_id": null,
-        "accepted_size_usd": null,
-        "member_ids": [
-          "P-212",
-          "P-226"
-        ],
-        "open_ids": [
-          "P-212",
-          "P-226"
-        ],
-        "accepted_ids": [],
-        "sides_merged": [
-          "SELL",
-          "TRIM"
-        ],
-        "combined_usd": 642.6,
-        "position_usd": 715.79,
-        "combined_pct_of_position": 89.8,
-        "side": "REDUCE",
-        "severity": "high"
-      }
+      "retired_on": "2026-09-06",
+      "retired_reason": "AVGO no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared",
+      "note": "auto-retired 2026-09-06: AVGO no longer appears in a structural-threat factor catalyst, and neither the ATR cap nor cluster band independently justifies this trim any more -- the structural reason has cleared"
     },
     {
       "action": "Trim NVDA",
@@ -7592,12 +7573,12 @@
       "priority_score": 1,
       "priority": "LOW",
       "priority_reasons": [
-        "trend_breakdown: conviction 0.3 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +34.7% vs analyst target; reported: mixed_revenue_light_eps_strong; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
+        "trend_breakdown: conviction 0.2 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +34.7% vs analyst target; reported: mixed_revenue_light_eps_strong; -13.2pp vs benchmark; named by 1 independent source(s) this run; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
       ],
       "proposal_class": "idea",
       "cluster": "AI Power/Cooling/DC Infra",
       "still_valid_because": [
-        "trend_breakdown: conviction 0.3 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +34.7% vs analyst target; reported: mixed_revenue_light_eps_strong; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
+        "trend_breakdown: conviction 0.2 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +34.7% vs analyst target; reported: mixed_revenue_light_eps_strong; -13.2pp vs benchmark; named by 1 independent source(s) this run; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-06",
@@ -8051,14 +8032,14 @@
       "rationale": "Three independent live triggers converge: conviction_exit, catalyst_threat and cluster_rotation sell leg. Peer laggard -1.62 sigma, rel strength -13.31pp, thesis watch. EDGAR verification blocked by normal Q3 filing lag - verified tier stays secondary.",
       "trigger_type": "conviction_exit",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open",
+      "status": "auto_retired",
       "pair_id": "CR-AVGO-LITE",
       "pair_role": "sell",
       "id": "P-226",
-      "priority_score": 2,
-      "priority": "MEDIUM",
+      "priority_score": 1,
+      "priority": "LOW",
       "priority_reasons": [
-        "conviction_exit: conviction -14.5 (unscored) -- 3 independent negative signals converged (thesis/catalyst/trend/technical); thesis watch (secondary, 2 for / 4 against); threat/structural: Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, ; signal polarity net -1 (PEER LAGGARD); reported: beat; RSI14 23 oversold; -13.3pp vs benchmark; named by 2 independent source(s) this run"
+        "conviction_exit was the stated trigger but AVGO is not in this run's conviction_exit candidate list -- condition is no longer live"
       ],
       "proposal_class": "idea",
       "cluster": "AI Networking/Optics",
@@ -8068,28 +8049,9 @@
       "review_flags": [],
       "revalidated_on": "2026-09-06",
       "retires_when": "AVGO no longer appears in this run's live conviction_exit list (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
-      "stacks_on": {
-        "accepted_id": null,
-        "accepted_size_usd": null,
-        "member_ids": [
-          "P-212",
-          "P-226"
-        ],
-        "open_ids": [
-          "P-212",
-          "P-226"
-        ],
-        "accepted_ids": [],
-        "sides_merged": [
-          "SELL",
-          "TRIM"
-        ],
-        "combined_usd": 642.6,
-        "position_usd": 715.79,
-        "combined_pct_of_position": 89.8,
-        "side": "REDUCE",
-        "severity": "high"
-      }
+      "retired_on": "2026-09-06",
+      "retired_reason": "AVGO no longer appears in this run's live conviction_exit list -- the condition this trim/exit was sized against has cleared",
+      "note": "auto-retired 2026-09-06: AVGO no longer appears in this run's live conviction_exit list -- the condition this trim/exit was sized against has cleared"
     },
     {
       "action": "Buy LITE",
@@ -8132,12 +8094,12 @@
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "trend_breakdown: conviction 0.3 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +34.7% vs analyst target; reported: mixed_revenue_light_eps_strong; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
+        "trend_breakdown: conviction 0.2 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +34.7% vs analyst target; reported: mixed_revenue_light_eps_strong; -13.2pp vs benchmark; named by 1 independent source(s) this run; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
       ],
       "proposal_class": "idea",
       "cluster": "AI Power/Cooling/DC Infra",
       "still_valid_because": [
-        "trend_breakdown: conviction 0.3 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +34.7% vs analyst target; reported: mixed_revenue_light_eps_strong; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
+        "trend_breakdown: conviction 0.2 (none) -- thesis watch (secondary, 2 for / 2 against); signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD); +34.7% vs analyst target; reported: mixed_revenue_light_eps_strong; -13.2pp vs benchmark; named by 1 independent source(s) this run; track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-06",
@@ -8257,12 +8219,12 @@
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "conviction_average: conviction 32.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); signal polarity net -1 (PEER LAGGARD); +40.8% vs analyst target; RSI14 33 oversold; -3.1pp vs benchmark"
+        "conviction_average: conviction 34.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); signal polarity net -1 (PEER LAGGARD); +40.8% vs analyst target; RSI14 33 oversold; -3.1pp vs benchmark; named by 1 independent source(s) this run"
       ],
       "proposal_class": "idea",
       "cluster": "AI Semis/Fabs",
       "still_valid_because": [
-        "conviction_average: conviction 32.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); signal polarity net -1 (PEER LAGGARD); +40.8% vs analyst target; RSI14 33 oversold; -3.1pp vs benchmark"
+        "conviction_average: conviction 34.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); signal polarity net -1 (PEER LAGGARD); +40.8% vs analyst target; RSI14 33 oversold; -3.1pp vs benchmark; named by 1 independent source(s) this run"
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-06",
@@ -8301,15 +8263,15 @@
       "date": "2026-09-06T00:00:00Z",
       "status": "open",
       "id": "P-232",
-      "priority_score": 3,
-      "priority": "MEDIUM",
+      "priority_score": 4,
+      "priority": "HIGH",
       "priority_reasons": [
-        "conviction_average: conviction 31.2 (low) -- thesis strengthening (secondary, 3 for / 2 against); threat/immediate: COHR/LITE/CIEN sold off in sympathy with MRVL's guide despite neither COHR nor L; reported: beat; +7.4pp vs benchmark; named by 1 independent source(s) this run"
+        "conviction_average: conviction 41.2 (low) -- thesis strengthening (secondary, 3 for / 2 against); reported: beat; +7.4pp vs benchmark; named by 1 independent source(s) this run"
       ],
       "proposal_class": "idea",
       "cluster": "AI Networking/Optics",
       "still_valid_because": [
-        "conviction_average: conviction 31.2 (low) -- thesis strengthening (secondary, 3 for / 2 against); threat/immediate: COHR/LITE/CIEN sold off in sympathy with MRVL's guide despite neither COHR nor L; reported: beat; +7.4pp vs benchmark; named by 1 independent source(s) this run"
+        "conviction_average: conviction 41.2 (low) -- thesis strengthening (secondary, 3 for / 2 against); reported: beat; +7.4pp vs benchmark; named by 1 independent source(s) this run"
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-06",
@@ -8345,7 +8307,23 @@
       "rationale": "",
       "trigger_type": "overbought_distribution",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-234",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "NVDA genuinely stretched: +8.1% 1m, +6.3pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 70.4 > 70 (overbought); up +8.1% on the month -- real gain to protect"
+      ],
+      "proposal_class": "housekeeping",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "NVDA genuinely stretched: +8.1% 1m, +6.3pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 70.4 > 70 (overbought); up +8.1% on the month -- real gain to protect"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "NVDA RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)"
     },
     {
       "action": "Buy GOOG",
@@ -8356,7 +8334,23 @@
       "rationale": "",
       "trigger_type": "oversold_reversion",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-235",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "oversold_reversion: RSI14 28.9 < 35 (oversold); thesis strengthening -- technical dip, not a fundamental break; within ATR risk cap with $4,719 headroom",
+        "caveat -- no deployable cash above the band ceiling -- setup valid, funding is not"
+      ],
+      "proposal_class": "housekeeping",
+      "cluster": "Compute/Hyperscaler",
+      "still_valid_because": [
+        "oversold_reversion: RSI14 28.9 < 35 (oversold); thesis strengthening -- technical dip, not a fundamental break; within ATR risk cap with $4,719 headroom",
+        "caveat -- no deployable cash above the band ceiling -- setup valid, funding is not"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "GOOG RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening"
     },
     {
       "action": "Buy KLAC",
@@ -8367,7 +8361,21 @@
       "rationale": "",
       "trigger_type": "trend_entry",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-236",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "trend_entry: conviction 64.2 (medium) -- thesis strengthening (secondary, 2 for / 1 against); tailwind/mechanical: Nvidia agrees to pay $12.9bn for Hugging Face, driving AI-silicon complex-wide r; signal polarity net +1 (STRONG UPTREND); +26.0% vs analyst target; reported: beat; -5.7pp vs benchmark; named by 2 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "trend_entry: conviction 64.2 (medium) -- thesis strengthening (secondary, 2 for / 1 against); tailwind/mechanical: Nvidia agrees to pay $12.9bn for Hugging Face, driving AI-silicon complex-wide r; signal polarity net +1 (STRONG UPTREND); +26.0% vs analyst target; reported: beat; -5.7pp vs benchmark; named by 2 independent source(s) this run"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "KLAC no longer appears in this run's live trend_entry list"
     },
     {
       "action": "Sell AMD",
@@ -8380,7 +8388,21 @@
       "date": "2026-09-06T00:00:00Z",
       "status": "open",
       "pair_id": "cluster_rotation-AMD-NVDA",
-      "pair_role": "sell_leg"
+      "pair_role": "sell_leg",
+      "id": "P-237",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-NVDA is no longer live this run -- both legs retire together, never one alone"
     },
     {
       "action": "Buy NVDA",
@@ -8393,7 +8415,21 @@
       "date": "2026-09-06T00:00:00Z",
       "status": "open",
       "pair_id": "cluster_rotation-AMD-NVDA",
-      "pair_role": "buy_leg"
+      "pair_role": "buy_leg",
+      "id": "P-238",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cluster_rotation: conviction 52.2 (unscored) -- performer within AI Semis/Fabs (+6.3pp), strengthening thesis"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cluster_rotation: conviction 52.2 (unscored) -- performer within AI Semis/Fabs (+6.3pp), strengthening thesis"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-NVDA is no longer live this run -- both legs retire together, never one alone"
     },
     {
       "action": "Buy APH",
@@ -8404,7 +8440,21 @@
       "rationale": "",
       "trigger_type": "trend_entry",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-239",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "trend_entry: conviction 36.5 (low) -- thesis strengthening (unverified, 1 for / 1 against); signal polarity net +1 (STRONG UPTREND); -3.4pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Networking/Optics",
+      "still_valid_because": [
+        "trend_entry: conviction 36.5 (low) -- thesis strengthening (unverified, 1 for / 1 against); signal polarity net +1 (STRONG UPTREND); -3.4pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "APH no longer appears in this run's live trend_entry list"
     },
     {
       "action": "Buy LRCX",
@@ -8415,7 +8465,21 @@
       "rationale": "",
       "trigger_type": "conviction_average",
       "date": "2026-09-06T00:00:00Z",
-      "status": "open"
+      "status": "open",
+      "id": "P-240",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "conviction_average: conviction 46.2 (medium) -- thesis strengthening (unverified, 0 for / 0 against); signal polarity net +2 (NEW TAILWINDS, PEER LEADER); +20.7% vs analyst target; +12.6pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "conviction_average: conviction 46.2 (medium) -- thesis strengthening (unverified, 0 for / 0 against); signal polarity net +2 (NEW TAILWINDS, PEER LEADER); +20.7% vs analyst target; +12.6pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "LRCX no longer appears in this run's live conviction_average list"
     }
   ],
   "retracted": [

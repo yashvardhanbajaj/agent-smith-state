@@ -562,14 +562,14 @@ details>summary .c{font-family:var(--mono);font-size:11px;color:var(--ink-3);fon
 details .body{padding:2px 0 17px;font-size:12.5px;color:var(--ink-2);line-height:1.6}
 
 /* ============ de-risk queue meters ============ */
-.mbar{display:inline-block;width:52px;height:6px;border-radius:3px;background:var(--grid);
+.mbar{display:inline-block;width:52px;height:6px;border-radius:3px;background:var(--line);
   vertical-align:middle;overflow:hidden}
 .mbar i{display:block;height:100%;border-radius:3px}
-.mbar i.f{background:var(--critical)}
-.mbar i.s{background:var(--warning)}
+.mbar i.f{background:var(--bad)}
+.mbar i.s{background:var(--warn)}
 .mbar i.x{background:var(--ink-3)}
-.pill.warn{color:var(--warning);border-color:var(--warning)}
-.pill.bad{color:var(--critical);border-color:var(--critical)}
+.pill.warn{color:var(--warn);border-color:var(--warn)}
+.pill.bad{color:var(--bad);border-color:var(--bad)}
 .pill.good{color:var(--good);border-color:var(--good)}
 
 /* ============ misc ============ */
@@ -588,7 +588,7 @@ footer{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direc
 .decide button.b-confirm,.decide button.b-resolve,.decide button.b-watch{
   border-color:var(--good);color:var(--good)}
 .decide button.b-reject,.decide button.b-disagree,.decide button.b-override{
-  border-color:var(--critical);color:var(--critical)}
+  border-color:var(--bad);color:var(--bad)}
 .decide input.reason{font:inherit;font-size:11.5px;padding:3px 7px;border-radius:6px;
   border:1px solid var(--line);background:var(--surface);color:var(--ink-2);flex:1;min-width:140px}
 .decide select.new-status{font:inherit;font-size:11.5px;padding:3px 5px;border-radius:6px;
