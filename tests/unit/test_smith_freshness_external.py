@@ -111,3 +111,39 @@ class TestExternalProducerFreshness:
         assert r["as_of"] == "2026-08-05", "must age the PRICE, not the run"
         assert r["age_days"] == 32
         assert r["state"] == "dark"
+
+
+class TestWk52Cache:
+    """52-week high/low, added 2026-09-06. Nothing cached this before -- smith-signals fetched it
+    per run and it died with the run, so the pos-based buckets could not be computed
+    deterministically and came back as `deferred_pos_buckets`."""
+
+    def test_wk52_is_declared_and_suppresses_when_stale(self):
+        import smith_core as sc
+        row = sc.FRESHNESS.get("data_cache.wk52")
+        assert row is not None
+        assert row["ttl_days"] == 7
+        # `suppress`, like the other trigger-feeding caches: a stale 52-week range silently
+        # mis-places every pos-based bucket, and a wrong bucket is worse than an absent one.
+        assert row["on_stale"] == "suppress"
+
+    def test_merge_rejects_a_zero_low_rather_than_storing_it(self):
+        """The SKHY case, live on 2026-09-06: a 52-week low of 0 drives pos to 1.0 and fakes a
+        breakout. smith-signals had to flag it by hand as an artifact. The cache must refuse it."""
+        state = {"data_cache": {}, "signal_history": {}}
+        out = {"wk52_updates": {
+            "GOOD": {"low": 124.8, "high": 194.8},
+            "ZERO_LOW": {"low": 0, "high": 194.8},
+            "INVERTED": {"low": 300, "high": 200},
+            "NONE_LOW": {"low": None, "high": 200},
+        }}
+        r = sm._merge_signals(out, state, "2026-09-06")
+        assert r["wk52_updated"] == 1
+        assert r["wk52_rejected"] == ["INVERTED", "NONE_LOW", "ZERO_LOW"]
+        assert "GOOD" in state["data_cache"]["wk52"]
+        assert "ZERO_LOW" not in state["data_cache"]["wk52"]
+
+    def test_merge_stamps_as_of_so_freshness_can_age_it(self):
+        state = {"data_cache": {}, "signal_history": {}}
+        sm._merge_signals({"wk52_updates": {"AAA": {"low": 1, "high": 2}}}, state, "2026-09-06")
+        assert state["data_cache"]["wk52"]["as_of"] == "2026-09-06"

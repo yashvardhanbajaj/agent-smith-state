@@ -384,59 +384,124 @@ def _median(values):
     return s[mid] if n % 2 else (s[mid - 1] + s[mid]) / 2.0
 
 
-def cmd_usage_audit(args):
-    """Compare THIS run's usage for one agent against its own trailing history (median tokens,
-    excluding this run's own just-logged observation) and against any stated AGENT_BUDGETS
-    entry. Flags -- and auto-logs a correction lesson for -- either kind of outlier. Read-mostly:
-    the only write is the auto-lesson, and only when something is actually flagged."""
-    history = _usage_history(args.base_dir, args.agent, exclude_run_id=args.run_id)
+def cmd_usage_report(args):
+    """Log AND audit every dispatched agent's usage in ONE call.
+
+    Replaces the per-agent shell loop the orchestrator used to run. That loop broke on
+    2026-09-06: it split "agent:tokens:calls:secs" records with `set -- $a`, which does not
+    word-split in zsh (unlike bash), so every argument arrived empty. usage-audit failed loudly
+    because its output was read; usage-log's was piped to /dev/null and it failed SILENTLY for
+    four of twelve agents. The gap surfaced only when a cost question forced a read of
+    learning.json and the table came back a third short -- i.e. the instrumentation built to
+    answer "what did this run cost" was itself missing a third of the run.
+
+    Two structural fixes, both embodied here rather than left to discipline:
+      * ONE invocation, one read-modify-write of learning.json, instead of N independent chances
+        to fail. Twelve separate opens of the same file was always the wrong shape.
+      * It RAISES on a malformed row instead of skipping it. Telemetry that fails silently is
+        worse than no telemetry, because it yields a confident partial number.
+
+    --usage-file is a JSON list of {agent, tokens, tool_calls, duration_s}; `mode` and `run_id`
+    come from the command line since they are the same for every agent in a run.
+    """
+    rows = load_json(args.usage_file, default=None)
+    if not isinstance(rows, list) or not rows:
+        fail(f"--usage-file must be a non-empty JSON list of agent usage records: {args.usage_file}")
+    required = ("agent", "tokens")
+    for i, r in enumerate(rows):
+        if not isinstance(r, dict) or any(r.get(k) is None for k in required):
+            fail(f"usage row {i} is malformed (needs at least {required}): {r!r} -- "
+                 f"refusing to log a partial run, which is how the 2026-09-06 gap happened")
+
+    logged, audits, flagged = [], [], []
+    for r in rows:
+        agent = r["agent"]
+        value = {"tokens": int(r["tokens"]), "tool_calls": r.get("tool_calls"),
+                 "duration_s": r.get("duration_s"), "mode": args.mode}
+        record_observation(args.base_dir, f"usage:{agent}", value, today=args.today,
+                           run_dir=args.run_id, note=f"mode={args.mode}")
+        logged.append(agent)
+        a = _audit_one(args.base_dir, agent, args.run_id, int(r["tokens"]),
+                       r.get("tool_calls"), r.get("duration_s"), args.today)
+        audits.append(a)
+        if a["flags"]:
+            flagged.append(a)
+
+    total = sum(int(r["tokens"]) for r in rows)
+    calls = sum(int(r.get("tool_calls") or 0) for r in rows)
+    ranked = sorted(rows, key=lambda r: -int(r["tokens"]))
+    emit({"logged": logged, "agents": len(rows), "total_tokens": total, "total_tool_calls": calls,
+          "mean_tokens": round(total / len(rows)),
+          "largest": {"agent": ranked[0]["agent"], "tokens": int(ranked[0]["tokens"])},
+          "smallest": {"agent": ranked[-1]["agent"], "tokens": int(ranked[-1]["tokens"])},
+          "flagged": flagged,
+          "note": ("Cost is driven by HOW MANY agents dispatch, not what each does -- the "
+                   "measured spread is roughly 2x against a ~75K floor. If total_tokens is high, "
+                   "look at the agent COUNT first.")})
+
+
+def _audit_one(base_dir, agent, run_id, tokens, tool_calls, duration_s, today):
+    """The audit itself, shared by cmd_usage_audit (one agent) and cmd_usage_report (a whole
+    run). Extracted 2026-09-06 so the batched path cannot drift from the single-agent path --
+    two copies of a threshold rule is how one of them goes stale."""
+    history = _usage_history(base_dir, agent, exclude_run_id=run_id)
     prior_tokens = [h["value"]["tokens"] for h in history if h.get("value", {}).get("tokens")]
     median_tokens = _median(prior_tokens)
 
     flags = []
     if median_tokens is not None and len(prior_tokens) >= USAGE_MIN_N_FOR_MEDIAN_CHECK:
-        ratio = args.tokens / median_tokens if median_tokens else None
+        ratio = tokens / median_tokens if median_tokens else None
         if ratio and ratio > USAGE_TOKEN_OUTLIER_MULT:
             flags.append({
                 "kind": "token_outlier",
-                "detail": (f"{args.agent} used {args.tokens:,} tokens this run vs a trailing "
+                "detail": (f"{agent} used {tokens:,} tokens this run vs a trailing "
                            f"median of {median_tokens:,.0f} over its last {len(prior_tokens)} "
                            f"runs -- {ratio:.1f}x, past the {USAGE_TOKEN_OUTLIER_MULT}x flag "
                            f"threshold."),
             })
 
-    budget = AGENT_BUDGETS.get(args.agent)
+    budget = AGENT_BUDGETS.get(agent)
     if budget:
-        if args.tool_calls is not None and args.tool_calls > budget["tool_calls"]:
+        if tool_calls is not None and tool_calls > budget["tool_calls"]:
             flags.append({
                 "kind": "tool_call_budget_breach",
-                "detail": (f"{args.agent} used {args.tool_calls} tool calls this run vs its "
+                "detail": (f"{agent} used {tool_calls} tool calls this run vs its "
                            f"stated budget of <={budget['tool_calls']}."),
             })
-        if args.duration_s is not None and args.duration_s > budget["duration_s"]:
+        if duration_s is not None and duration_s > budget["duration_s"]:
             flags.append({
                 "kind": "duration_budget_breach",
-                "detail": (f"{args.agent} ran {args.duration_s:.0f}s this run vs its stated "
+                "detail": (f"{agent} ran {duration_s:.0f}s this run vs its stated "
                            f"budget of <{budget['duration_s']}s."),
             })
 
     lessons_added = []
     if flags:
         detail = " ".join(f["detail"] for f in flags)
-        text = (f"USAGE AUDIT (auto-logged, {args.run_id}): {detail} Investigate whether this "
-                 f"run's dispatch prompt asked {args.agent} to do something outside its normal "
-                 f"scope, or whether this is a recurring pattern worth a standing fix (check "
-                 f"`learn-lessons --kind correction` for prior findings on this agent before "
-                 f"assuming it's new).")
-        lesson = add_lesson(args.base_dir, "correction", text,
-                             evidence=f"usage-audit run_id={args.run_id}, agent={args.agent}, "
-                                      f"tokens={args.tokens}, tool_calls={args.tool_calls}, "
-                                      f"duration_s={args.duration_s}",
-                             source_run=args.run_id, today=args.today)
+        text = (f"USAGE AUDIT (auto-logged, {run_id}): {detail} Investigate whether this "
+                f"run's dispatch prompt asked {agent} to do something outside its normal "
+                f"scope, or whether this is a recurring pattern worth a standing fix (check "
+                f"`learn-lessons --kind correction` for prior findings on this agent before "
+                f"assuming it's new).")
+        lesson = add_lesson(base_dir, "correction", text,
+                            evidence=f"usage-audit run_id={run_id}, agent={agent}, "
+                                     f"tokens={tokens}, tool_calls={tool_calls}, "
+                                     f"duration_s={duration_s}",
+                            source_run=run_id, today=today)
         lessons_added.append(lesson)
 
-    emit({"agent": args.agent, "flags": flags, "prior_n": len(prior_tokens),
-          "median_tokens": median_tokens, "lessons_added": lessons_added})
+    return {"agent": agent, "flags": flags, "prior_n": len(prior_tokens),
+            "median_tokens": median_tokens, "lessons_added": lessons_added}
+
+
+def cmd_usage_audit(args):
+    """Compare THIS run's usage for one agent against its own trailing history (median tokens,
+    excluding this run's own just-logged observation) and against any stated AGENT_BUDGETS
+    entry. Flags -- and auto-logs a correction lesson for -- either kind of outlier. Read-mostly:
+    the only write is the auto-lesson, and only when something is actually flagged.
+    For a whole run, prefer `usage-report`, which logs and audits every agent in one call."""
+    emit(_audit_one(args.base_dir, args.agent, args.run_id, args.tokens,
+                    args.tool_calls, args.duration_s, args.today))
 
 
 # ---------------------------------------------------------------------------

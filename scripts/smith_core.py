@@ -372,6 +372,12 @@ FRESHNESS = {
     "data_cache.ret_5d":           {"stamp": "field:as_of", "ttl_days": 3,  "owner": "smith-signals",   "on_stale": "suppress"},
     "data_cache.betas":            {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-book",      "on_stale": "flag"},
     "data_cache.analyst_targets":  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "flag"},
+    # 52-week high/low, added 2026-09-06 to unblock the pos-based buckets in cmd_buckets.
+    # Nothing cached this before: smith-signals fetched it per run and it died with the run, so
+    # BREAKOUT/BREAKDOWN/OVERSOLD BOUNCE/OVERBOUGHT PULLBACK could not be computed deterministically.
+    # `suppress`, matching the other trigger-feeding caches: a stale 52-week range silently
+    # mis-places every pos-based bucket, and a wrong bucket is worse than an absent one.
+    "data_cache.wk52":             {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "suppress"},
     # Lives in proposals.json, not state.json -- reachable via freshness_root()'s `proposals.`
     # prefix. Added 2026-08-31: this is the artefact that measures whether the desk's own
     # proposals WORK, and it was the only decision-bearing one with no freshness coverage. It

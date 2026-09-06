@@ -920,10 +920,32 @@ def _merge_signals(out, state, today, scanned_tickers=None, base_dir="."):
             c["benchmark_return_1m_pct"] = rel_raw["benchmark_return_1m_pct"]
         c["as_of"] = today
 
+    # wk52 -- 52-week high/low, added 2026-09-06. Feeds the pos-based buckets in cmd_buckets,
+    # which were `deferred_pos_buckets` until this cache existed because nothing persisted a
+    # 52-week range: smith-signals fetched it every run and it died with the run. Each entry
+    # must carry BOTH a numeric low and high and low < high -- a zero/absent low is not a
+    # harmless gap, it drives pos to 1.0 and fakes a breakout (SKHY did exactly that on
+    # 2026-09-06 and smith-signals had to flag it by hand as an artifact).
+    wk_raw = out.get("wk52_updates") or {}
+    wk_upd, wk_rejected = {}, []
+    for k, v in wk_raw.items():
+        if not isinstance(v, dict):
+            continue
+        lo, hi = v.get("low"), v.get("high")
+        if all(isinstance(x, (int, float)) for x in (lo, hi)) and 0 < lo < hi:
+            wk_upd[k] = {"low": lo, "high": hi, "as_of": today}
+        else:
+            wk_rejected.append(k)
+    if wk_upd:
+        c = state["data_cache"].setdefault("wk52", {})
+        c.update(wk_upd)
+        c["as_of"] = today
+
     peer_upd = out.get("peer_map_updates", {}) or {}
     if peer_upd:
         state.setdefault("peer_map", {}).update(peer_upd)
     return {"signal_history_changed": list(changed), "stamped": len(stamp_tickers),
+            "wk52_updated": len(wk_upd), "wk52_rejected": sorted(wk_rejected),
             "analyst_targets_updated": len(targets), "peer_map_updated": len(peer_upd),
             "ret_5d_updated": len((r5.get("values_pct") or {}) if r5 else {}),
             "rsi14_updated": len(rsi_upd), "atr20_updated": len(atr_upd),

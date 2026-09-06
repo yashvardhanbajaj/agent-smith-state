@@ -3008,6 +3008,170 @@
      }
     ]
    }
+  },
+  "wk52": {
+   "GEV": {
+    "low": 530.16,
+    "high": 1195.94,
+    "as_of": "2026-09-06"
+   },
+   "ASML": {
+    "low": 786.75,
+    "high": 1999.96,
+    "as_of": "2026-09-06"
+   },
+   "BE": {
+    "low": 52.0,
+    "high": 351.28,
+    "as_of": "2026-09-06"
+   },
+   "MRVL": {
+    "low": 63.07,
+    "high": 329.88,
+    "as_of": "2026-09-06"
+   },
+   "VRT": {
+    "low": 120.83,
+    "high": 379.935,
+    "as_of": "2026-09-06"
+   },
+   "STM": {
+    "low": 21.11,
+    "high": 81.42,
+    "as_of": "2026-09-06"
+   },
+   "TER": {
+    "low": 109.56,
+    "high": 487.91,
+    "as_of": "2026-09-06"
+   },
+   "NBIS": {
+    "low": 63.8,
+    "high": 299.86,
+    "as_of": "2026-09-06"
+   },
+   "MU": {
+    "low": 128.4,
+    "high": 1255.0,
+    "as_of": "2026-09-06"
+   },
+   "ALAB": {
+    "low": 97.89,
+    "high": 499.476,
+    "as_of": "2026-09-06"
+   },
+   "INTC": {
+    "low": 24.05,
+    "high": 142.35,
+    "as_of": "2026-09-06"
+   },
+   "AMD": {
+    "low": 149.22,
+    "high": 584.73,
+    "as_of": "2026-09-06"
+   },
+   "COHR": {
+    "low": 95.5,
+    "high": 440.0,
+    "as_of": "2026-09-06"
+   },
+   "AMAT": {
+    "low": 161.75,
+    "high": 739.67,
+    "as_of": "2026-09-06"
+   },
+   "GOOG": {
+    "low": 233.38,
+    "high": 404.47,
+    "as_of": "2026-09-06"
+   },
+   "TSM": {
+    "low": 241.62,
+    "high": 479.0,
+    "as_of": "2026-09-06"
+   },
+   "NVDA": {
+    "low": 164.27,
+    "high": 236.54,
+    "as_of": "2026-09-06"
+   },
+   "KLAC": {
+    "low": 90.674,
+    "high": 307.37,
+    "as_of": "2026-09-06"
+   },
+   "CLS": {
+    "low": 227.0,
+    "high": 474.03,
+    "as_of": "2026-09-06"
+   },
+   "WDC": {
+    "low": 91.65,
+    "high": 799.87,
+    "as_of": "2026-09-06"
+   },
+   "LRCX": {
+    "low": 104.46,
+    "high": 438.5,
+    "as_of": "2026-09-06"
+   },
+   "IREN": {
+    "low": 25.38,
+    "high": 76.87,
+    "as_of": "2026-09-06"
+   },
+   "LITE": {
+    "low": 144.52,
+    "high": 1085.68,
+    "as_of": "2026-09-06"
+   },
+   "SKHY": {
+    "low": 124.8,
+    "high": 194.8,
+    "as_of": "2026-09-06"
+   },
+   "APH": {
+    "low": 55.195,
+    "high": 89.26,
+    "as_of": "2026-09-06"
+   },
+   "AVGO": {
+    "low": 289.96,
+    "high": 495.0,
+    "as_of": "2026-09-06"
+   },
+   "FSLR": {
+    "low": 182.99,
+    "high": 320.95,
+    "as_of": "2026-09-06"
+   },
+   "MSFT": {
+    "low": 349.2,
+    "high": 553.72,
+    "as_of": "2026-09-06"
+   },
+   "GLW": {
+    "low": 71.44,
+    "high": 271.78,
+    "as_of": "2026-09-06"
+   },
+   "SMCI": {
+    "low": 19.48,
+    "high": 58.78,
+    "as_of": "2026-09-06"
+   },
+   "CIEN": {
+    "low": 117.02,
+    "high": 637.51,
+    "as_of": "2026-09-06"
+   },
+   "QCOM": {
+    "low": 121.99,
+    "high": 259.92,
+    "as_of": "2026-09-06"
+   },
+   "as_of": "2026-09-06",
+   "_note": "52-week high/low per holding, source yfinance get_stock_summary (fiftyTwoWeekLow/High), batched. Added 2026-09-06 to unblock the pos-based buckets in smith_math.py buckets, which were reported as deferred_pos_buckets because nothing cached a 52-week range -- smith-signals fetched it per run and it died with the run."
   }
  },
  "fomc_cache": {
@@ -3309,8 +3473,9 @@
   "G88 opened AND CLOSED this run: stack guard rebuilt, all 3 stacks (MSFT 207.7%, AVGO 89.8%, FSLR 78.7%) now fire HIGH.",
   "Two scheduled daily runs missing: 2026-09-04 and 2026-09-02 (no run dir, no ledger row).",
   "BE/NBIS EDGAR verification truncated in the quality pass -- findings marked secondary, not primary.",
-  "smith-catalyst used 7 tool calls vs its <=6 budget (auto-logged).",
-  "HBM tracker snapshot 32 days stale (last_run 2026-08-05). Root cause: the tracker is an on-demand skill with no cadence and was NOT declared in Smith's FRESHNESS table, so Smith read it every deep run and owned none of its freshness -- this run's headline said 'all artefacts within TTL' while its most-cited external input was 32d old. FIXED same run: declared as hbm_tracker (21d TTL, escalate) and mounted via freshness_root; headline now reads 'Freshness: DARK hbm_tracker 32d' and validate fails on it. A narrow-refresh dispatch trigger was added for deep runs. The snapshot itself is still 32d old -- refresh not yet run."
+  "HBM tracker snapshot 32 days stale (last_run 2026-08-05). Root cause: the tracker is an on-demand skill with no cadence and was NOT declared in Smith's FRESHNESS table, so Smith read it every deep run and owned none of its freshness -- this run's headline said 'all artefacts within TTL' while its most-cited external input was 32d old. FIXED same run: declared as hbm_tracker (21d TTL, escalate) and mounted via freshness_root; headline now reads 'Freshness: DARK hbm_tracker 32d' and validate fails on it. A narrow-refresh dispatch trigger was added for deep runs. The snapshot itself is still 32d old -- refresh not yet run.",
+  "wk52 cache created (32 tickers, yfinance get_stock_summary) -- pos-based buckets no longer deferred; SKHY's pos=1.0 52wk-low artifact resolved (now 0.746).",
+  "usage logging moved from a per-agent shell loop to one batched `usage-report` call that raises on a malformed row -- the loop had silently lost 4 of 12 agents to a zsh word-splitting bug this run."
  ],
  "market_closed_run": false,
  "peer_map": {

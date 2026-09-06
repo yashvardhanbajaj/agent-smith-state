@@ -498,6 +498,30 @@
       },
       "run_dir": "2026-09-06-1301",
       "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-signals",
+      "value": {
+        "tokens": 144878,
+        "tool_calls": 22,
+        "duration_s": 286,
+        "mode": "deep"
+      },
+      "run_dir": "TESTRUN-DRYRUN",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-ledger",
+      "value": {
+        "tokens": 107874,
+        "tool_calls": 24,
+        "duration_s": 125,
+        "mode": "deep"
+      },
+      "run_dir": "TESTRUN-DRYRUN",
+      "note": "mode=deep"
     }
   ],
   "parameters": {
@@ -836,6 +860,14 @@
       "date": "2026-09-06",
       "kind": "correction",
       "text": "A SNAPSHOT-VS-LIVE DIVERGENCE IS NOT AUTOMATICALLY A STALE FEED, AND THE STALENESS GATE'S 'LIVE QUOTE WINS' RULE HAS THE WRONG DEFAULT AFTER THE CLOSE. On 2026-09-06 BE's INDmoney snapshot price was 266.17 against a yfinance regular-session close of 252.87, a 5.26pct divergence and the only name over the 3pct gate. The run flagged it as suspect data and overrode it with the yfinance close per the STALENESS GATE. The user corrected this: BE actually rose in the POST-MARKET session, so INDmoney was carrying a genuine extended-hours print and was the FRESHER of the two sources -- the override substituted a staler price for a newer one and understated the position by 8sh x 13.30 = 106.40. THE STRUCTURAL POINT: SKILL.md 2.5 already knows INDmoney exposes ext_hr_live_price and instructs using it PRE-market, but the STALENESS GATE's arbitration rule assumes divergence means INDmoney lags, which is only reliably true intraday. After the cash close -- including every weekend run, where 'live quote' means Friday's 16:00 ET print and nothing else -- INDmoney can legitimately lead yfinance's regular-session close by the whole extended-hours move. RULE: before overriding a snapshot price on the 3pct gate, check the DIRECTION and TIMING against the extended-hours session. If the divergence is consistent with a post-market move on that name, the snapshot is the live quote and it wins; only override when the snapshot is genuinely behind. Cheapest confirmation is get_us_stocks_details' ext_hr_live_price plus ext_hr_prev_close on that single name, which is one call, not a book-wide refetch. GENERALISE: an arbitration rule that names a winner by SOURCE rather than by TIMESTAMP will be wrong whenever the sources swap which one is ahead.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-06",
+      "kind": "correction",
+      "text": "USAGE LOGGING SILENTLY LOST 4 OF 12 AGENTS TO A SHELL QUOTING BUG, AND THE PER-AGENT LOOP IS THE WRONG SHAPE ANYWAY. On 2026-09-06 the orchestrator logged usage with a zsh loop using 'set -- $a' to split 'agent:tokens:calls:secs' records. zsh does NOT word-split unquoted parameters (unlike bash), so every argument arrived empty; usage-audit surfaced the failure loudly because its output was read, but usage-log's output was redirected to /dev/null and it failed SILENTLY for smith-thesis, smith-catalyst, smith-book and smith-macro. The gap was only caught later when a cost question forced a read of learning.json and the table came back with 8 agents instead of 12 -- i.e. the instrumentation built to answer 'how much did this cost' was itself missing a third of the run. TWO FIXES. (1) Never redirect a state-writing command's output to /dev/null in a loop; if it is worth running it is worth checking it returned. (2) Structural: usage logging should not be a per-agent shell loop at all -- 12 separate invocations of a script that each open, mutate and rewrite learning.json is both slow and 12 chances to fail independently. Fold it into merge-tails, which already walks every out_<agent>.json once, or give usage-log a --batch-file taking all agents' numbers in one call. GENERALISE: telemetry that fails silently is worse than no telemetry, because it produces a confident partial number. Prefer one batched write that fails loudly over N unchecked writes.",
       "evidence": null,
       "source_run": null,
       "supersedes": null
