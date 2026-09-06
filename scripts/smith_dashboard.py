@@ -1348,7 +1348,7 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
     return out
 
 
-def _render_stop_loss_efficacy(stops_data):
+def _render_stop_loss_efficacy(stops_data, sector_map=None):
     out = []
     # -- stop-loss efficacy (added 2026-08-06, dashboard feature review; compacted 2026-09-06,
     # user request -- "simplify... make it compact and showing a few impact/analysis" -- after
@@ -1421,16 +1421,41 @@ def _render_stop_loss_efficacy(stops_data):
         dq_s = ("".join(f'<p class="note">{esc(x)}</p>' for x in (stops_data.get("data_quality") or [])))
 
         # -- FULL BREAKDOWN, collapsed by default (every one of the 57 names, every trade) --
-        by_ticker_sorted = sorted(by_ticker, key=lambda r: -abs(r["combined_net_dollar_impact"]))
-        by_ticker_html = "".join(
-            f'<tr><td class="name">{esc(r["ticker"])}</td><td class="num">{r["stop_count"]}</td>'
-            f'<td class="{"neg" if r["stop_dollar_impact"]<=0 else "pos"}">${r["stop_dollar_impact"]:+,.0f}</td>'
-            f'<td class="num">{r["reentry_count"]}</td>'
-            f'<td class="{"pos" if r["reentry_dollar_impact"]>=0 else "neg"}">${r["reentry_dollar_impact"]:+,.0f}</td>'
-            f'<td class="num">{r["still_out_count"]}</td>'
-            f'<td class="{"neg" if r["combined_net_dollar_impact"]<=0 else "pos"}">'
-            f'<b>${r["combined_net_dollar_impact"]:+,.0f}</b></td></tr>'
-            for r in by_ticker_sorted)
+        # Grouped by the book's existing cluster taxonomy (state.sector_map, added 2026-09-06,
+        # user request) rather than a flat sort -- a name no longer held (DRAM, BX, META...)
+        # has no current cluster, so it falls into its own "Exited / not currently held" group
+        # rather than being silently mis-clustered.
+        sector_map = sector_map or {}
+
+        def _ticker_row(r):
+            return (f'<tr><td class="name">{esc(r["ticker"])}</td><td class="num">{r["stop_count"]}</td>'
+                    f'<td class="{"neg" if r["stop_dollar_impact"]<=0 else "pos"}">${r["stop_dollar_impact"]:+,.0f}</td>'
+                    f'<td class="num">{r["reentry_count"]}</td>'
+                    f'<td class="{"pos" if r["reentry_dollar_impact"]>=0 else "neg"}">${r["reentry_dollar_impact"]:+,.0f}</td>'
+                    f'<td class="num">{r["still_out_count"]}</td>'
+                    f'<td class="{"neg" if r["combined_net_dollar_impact"]<=0 else "pos"}">'
+                    f'<b>${r["combined_net_dollar_impact"]:+,.0f}</b></td></tr>')
+
+        by_cluster = {}
+        for r in by_ticker:
+            by_cluster.setdefault(sector_map.get(r["ticker"], "Exited / not currently held"), []).append(r)
+        # order: held clusters by |net impact| descending, "Exited" group always last regardless
+        # of its own total -- it's a different question (past positions) from the live book.
+        cluster_names = [c for c in by_cluster if c != "Exited / not currently held"]
+        cluster_names.sort(key=lambda c: -sum(abs(r["combined_net_dollar_impact"]) for r in by_cluster[c]))
+        if "Exited / not currently held" in by_cluster:
+            cluster_names.append("Exited / not currently held")
+
+        by_ticker_html = ""
+        for cname in cluster_names:
+            rows_c = sorted(by_cluster[cname], key=lambda r: -abs(r["combined_net_dollar_impact"]))
+            cluster_net = sum(r["combined_net_dollar_impact"] for r in rows_c)
+            net_cls = "neg" if cluster_net <= 0 else "pos"
+            by_ticker_html += (
+                f'<tr><td class="txt" colspan="6" style="font-weight:640;color:var(--ink-2);'
+                f'padding-top:14px">{esc(cname)} <span class="sub">({len(rows_c)})</span></td>'
+                f'<td class="{net_cls}"><b>${cluster_net:+,.0f}</b></td></tr>'
+                + "".join(_ticker_row(r) for r in rows_c))
         rows_s = stops_data.get("stops") or []
         recent_rows = "".join(
             f'<tr><td class="name">{esc(r["ticker"])}</td><td class="blank">{esc(r["date"])}</td>'
@@ -2270,7 +2295,7 @@ def build(base, out):
 
     H.extend(_render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map))
 
-    H.extend(_render_stop_loss_efficacy(stops_data))
+    H.extend(_render_stop_loss_efficacy(stops_data, sector_map))
 
     H.extend(_render_the_read_and_macro(narr, market_inputs, state, book_compute))
 
