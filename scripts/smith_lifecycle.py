@@ -1678,9 +1678,11 @@ def cmd_stops(args):
             days_to_reentry = (reentry_dt - stop_dt).days
         except ValueError:
             days_to_reentry = None
+        reentry_qty = abs(reentry_trade.get("qty_change") or 0)
         row.update({"status": "reentered", "reentry_date": reentry_trade.get("date"),
                      "reentry_price": reentry_price, "days_to_reentry": days_to_reentry,
-                     "reentry_price_source": reentry_trade.get("price_source")})
+                     "reentry_price_source": reentry_trade.get("price_source"),
+                     "reentry_qty": reentry_qty})
         if reentry_price and stop_price:
             # negative = re-entered BELOW the stop price -- the strategy worked as designed,
             # sold high(er) and bought back cheaper. Positive = re-entered ABOVE the stop --
@@ -1691,6 +1693,10 @@ def cmd_stops(args):
             row["reentry_verdict"] = ("reentered_lower" if reentry_move_pct < -1.0
                                        else ("reentered_higher" if reentry_move_pct > 1.0
                                              else "reentered_flat"))
+            # $ cost/benefit of the round trip specifically -- (stop - reentry) * qty bought
+            # back. Positive = bought back cheaper than sold (the strategy earned real dollars,
+            # not just "avoided a worse price"); negative = gave back edge chasing the re-entry.
+            row["reentry_dollar_impact"] = round((stop_price - reentry_price) * reentry_qty, 2)
         now = prices.get(ticker)
         if now is not None and reentry_price:
             row["since_reentry_pct"] = round((now - reentry_price) / reentry_price * 100, 2)
@@ -1710,6 +1716,45 @@ def cmd_stops(args):
             "avg_reentry_move_vs_stop_pct": avg_reentry_move,
             "still_out_count": sum(1 for r in reentries if r["status"] == "still_out"),
         }
+
+    # -- BY-TICKER ROLL-UP (added 2026-09-06, user request) ------------------------------
+    # A name that's been stopped out and re-entered several times (DRAM: 3 stops; several
+    # book names carry 2+) reads as several separate rows above -- the trade-level table this
+    # command already produced. That's the wrong grain for judging the STRATEGY on a given
+    # name: the question is "what has trimming X on stops and buying it back on stabilization
+    # cost or earned me, all-in", not "how did trade #3 on X do". This rolls every stop AND its
+    # matched re-entry (if any) up to one row per ticker: total stop-side dollar impact +
+    # total re-entry-side dollar impact = one combined net figure per name, plus how many
+    # stops on that name are still out (no re-entry yet).
+    by_ticker_stops = {}
+    for r in scored:
+        agg = by_ticker_stops.setdefault(r["ticker"], {"stop_count": 0, "stop_dollar_impact": 0.0})
+        agg["stop_count"] += 1
+        agg["stop_dollar_impact"] += r["dollar_impact"]
+    by_ticker_reentry = {}
+    for r in reentries:
+        agg = by_ticker_reentry.setdefault(
+            r["ticker"], {"reentry_count": 0, "reentry_dollar_impact": 0.0, "still_out_count": 0})
+        if r["status"] == "reentered" and "reentry_dollar_impact" in r:
+            agg["reentry_count"] += 1
+            agg["reentry_dollar_impact"] += r["reentry_dollar_impact"]
+        elif r["status"] == "still_out":
+            agg["still_out_count"] += 1
+
+    by_ticker = []
+    for ticker in sorted(set(by_ticker_stops) | set(by_ticker_reentry)):
+        s = by_ticker_stops.get(ticker, {"stop_count": 0, "stop_dollar_impact": 0.0})
+        re_ = by_ticker_reentry.get(ticker, {"reentry_count": 0, "reentry_dollar_impact": 0.0, "still_out_count": 0})
+        combined = round(s["stop_dollar_impact"] + re_["reentry_dollar_impact"], 2)
+        by_ticker.append({
+            "ticker": ticker, "stop_count": s["stop_count"],
+            "stop_dollar_impact": round(s["stop_dollar_impact"], 2),
+            "reentry_count": re_["reentry_count"],
+            "reentry_dollar_impact": round(re_["reentry_dollar_impact"], 2),
+            "still_out_count": re_["still_out_count"],
+            "combined_net_dollar_impact": combined,
+        })
+    by_ticker.sort(key=lambda r: -abs(r["combined_net_dollar_impact"]))
 
     dq = []
     if no_fill_price:
@@ -1739,7 +1784,7 @@ def cmd_stops(args):
     out = {
         "as_of": today.isoformat(), "overall": overall, "by_cohort": by_cohort,
         "stops": scored, "data_quality": dq,
-        "reentries": reentries, "reentry_summary": reentry_summary,
+        "reentries": reentries, "reentry_summary": reentry_summary, "by_ticker": by_ticker,
     }
     out_path = args.out or os.path.join(args.base_dir, "stops_analysis.json")
 

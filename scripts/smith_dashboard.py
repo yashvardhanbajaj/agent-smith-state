@@ -1399,6 +1399,34 @@ def _render_stop_loss_efficacy(stops_data):
 
         dq_s = ("".join(f'<p class="note">{esc(x)}</p>' for x in (stops_data.get("data_quality") or [])))
 
+        # -- BY-TICKER ROLL-UP (added 2026-09-06, user request): a name stopped out and
+        # re-entered several times reads as several scattered rows at the trade level, which
+        # is the wrong grain for judging the strategy on that name specifically -- and makes
+        # the table longer than the signal in it. This is now the PRIMARY table; the trade-level
+        # detail (every individual stop, every individual re-entry) moves into a drill-down.
+        by_ticker = stops_data.get("by_ticker") or []
+        by_ticker_html = "".join(
+            f'<tr><td class="name">{esc(r["ticker"])}</td><td class="num">{r["stop_count"]}</td>'
+            f'<td class="{"neg" if r["stop_dollar_impact"]<=0 else "pos"}">${r["stop_dollar_impact"]:+,.0f}</td>'
+            f'<td class="num">{r["reentry_count"]}</td>'
+            f'<td class="{"pos" if r["reentry_dollar_impact"]>=0 else "neg"}">${r["reentry_dollar_impact"]:+,.0f}</td>'
+            f'<td class="num">{r["still_out_count"]}</td>'
+            f'<td class="{"neg" if r["combined_net_dollar_impact"]<=0 else "pos"}">'
+            f'<b>${r["combined_net_dollar_impact"]:+,.0f}</b></td></tr>'
+            for r in by_ticker)
+        by_ticker_block = (
+            '<div class="scroll"><table><thead><tr><th>Name</th><th># stops</th>'
+            '<th>Stop $ impact</th><th># re-entries</th><th>Re-entry $ impact</th>'
+            '<th>Still out</th><th>Combined net</th></tr></thead>'
+            f'<tbody>{by_ticker_html}</tbody></table></div>'
+            '<p class="note" style="margin-top:8px">One row per name, every stop AND its matched '
+            're-entry rolled into one figure &mdash; this is the number that answers &ldquo;has '
+            'trimming X on stops and buying it back on stabilization cost or earned money, '
+            'all-in&rdquo;, not how any single trade on it did. <b>Stop $ impact</b> (sign flipped '
+            'vs the stop price, negative = stop saved money) plus <b>Re-entry $ impact</b> '
+            '(positive = bought back cheaper than sold) = <b>Combined net</b>. Trade-level detail '
+            'below.</p>' if by_ticker else "")
+
         # -- re-entry round trip (added 2026-09-06, user request): this desk's actual strategy
         # is trim/exit on a support breach and re-enter once price stabilizes, so the number that
         # measures it is where the re-entry landed vs the stop -- not where the stock sits today.
@@ -1437,6 +1465,8 @@ def _render_stop_loss_efficacy(stops_data):
                 f'{rs["avg_reentry_move_vs_stop_pct"]:+.1f}%</span></div>'
                 f'<div class="c"><span class="k">Still out</span><span class="v">{rs["still_out_count"]}</span></div>'
                 '</div>'
+                '<details><summary>Trade-level detail (every stop &amp; re-entry individually)</summary>'
+                '<div class="body">'
                 '<div class="scroll"><table><thead><tr><th>Name</th><th>Stop date</th><th>Stop $</th>'
                 '<th>Re-entry date</th><th>Re-entry $</th><th>vs stop</th><th>Verdict</th></tr></thead>'
                 f'<tbody>{reentered_rows_html}</tbody></table></div>'
@@ -1448,13 +1478,16 @@ def _render_stop_loss_efficacy(stops_data):
                 + '<p class="note" style="margin-top:8px"><b>LOWER</b> = bought back below the stop price '
                 '(the strategy worked: sold high, re-entered cheaper). <b>HIGHER</b> = re-entered above the '
                 'stop (some of the stop\'s edge was given back chasing the stabilization). A stop with no '
-                'row in this table hasn\'t been re-entered yet.</p>')
+                'row in this table hasn\'t been re-entered yet.</p></div></details>')
 
         out.append(
             '<section class="panel"><div class="phead"><h2>Stop-loss efficacy'
             '<span class="sub">did the stop help or hurt, vs simply holding through</span></h2>'
             f'<span class="pill">as of {esc(stops_data.get("as_of",""))}</span></div>'
             f'<div class="pbody">{summary_cells}<div>{cohort_rows}</div>'
+            f'{by_ticker_block}'
+            '<details><summary>Trade-level detail (every scored stop individually)</summary>'
+            '<div class="body">'
             '<div class="scroll"><table><thead><tr><th>Name</th><th>Date</th><th>Fill</th>'
             '<th>Now</th><th>Move</th><th>Verdict</th><th>Cohort</th></tr></thead>'
             f'<tbody>{recent_rows}</tbody></table></div>'
@@ -1462,6 +1495,7 @@ def _render_stop_loss_efficacy(stops_data):
             'a market-open liquidity gap). <b>Deliberate</b> = an isolated, mid-session stop. '
             '<b>Verdict</b>: HURT means the price is now above the fill (holding through would '
             'have been worth more); SAVED means it fell further after the stop fired.</p>'
+            f'</div></details>'
             f'{dq_s}{reentry_block}</div></section>')
 
     return out
