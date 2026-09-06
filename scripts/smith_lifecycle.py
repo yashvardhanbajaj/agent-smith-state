@@ -1624,6 +1624,93 @@ def cmd_stops(args):
                  for c in ("cascade", "deliberate", "unknown")}
     by_cohort = {k: v for k, v in by_cohort.items() if v}
 
+    # -- RE-ENTRY ROUND-TRIP TRACKING (added 2026-09-06, user request) --------------------
+    # cmd_stops above answers "did the stop help or hurt" by comparing the STOP FILL to the
+    # CURRENT price -- that is the wrong comparison for this user's actual strategy, which is
+    # trim/exit on a support breach and RE-ENTER once price stabilizes. The stop firing and the
+    # stock going on to fall further is a WIN for that strategy even if this user never buys
+    # back in at the bottom; the number that actually measures the strategy is where the
+    # re-entry landed relative to the stop, not where the stock sits today relative to the stop.
+    # For every scored stop, find the next BUY on the same ticker (chronologically, trades.json
+    # order) and treat it as the re-entry. Each buy trade object is claimed by at most one stop
+    # (first stop, first claim) so one re-entry can't be double-counted against two exits.
+    all_trades_sorted = sorted(
+        trades.get("trades", []),
+        key=lambda t: (t.get("date") or "", t.get("fill_time_utc") or ""))
+    by_ticker_seq = {}
+    for t in all_trades_sorted:
+        by_ticker_seq.setdefault(t.get("ticker"), []).append(t)
+
+    claimed_buy_ids = set()
+    reentries = []
+    for t in candidates:
+        ticker = t.get("ticker")
+        seq = by_ticker_seq.get(ticker, [])
+        try:
+            idx = seq.index(t)
+        except ValueError:
+            idx = None
+        reentry_trade = None
+        if idx is not None:
+            for cand in seq[idx + 1:]:
+                if (cand.get("action") == "buy" and (cand.get("qty_change") or 0) > 0
+                        and id(cand) not in claimed_buy_ids):
+                    reentry_trade = cand
+                    claimed_buy_ids.add(id(cand))
+                    break
+
+        stop_price = t.get("price_at_trade")
+        row = {"ticker": ticker, "stop_date": t.get("date"), "stop_price": stop_price}
+        if reentry_trade is None:
+            row["status"] = "still_out"
+            now = prices.get(ticker)
+            if now is not None and stop_price:
+                # positive = price ran away above the stop without a re-entry (missed the move);
+                # negative = price is still below the stop (nothing missed yet, still watching).
+                row["gap_vs_stop_pct"] = round((now - stop_price) / stop_price * 100, 2)
+            reentries.append(row)
+            continue
+
+        reentry_price = reentry_trade.get("price_at_trade")
+        try:
+            stop_dt = datetime.strptime(t.get("date", ""), "%Y-%m-%d").date()
+            reentry_dt = datetime.strptime(reentry_trade.get("date", ""), "%Y-%m-%d").date()
+            days_to_reentry = (reentry_dt - stop_dt).days
+        except ValueError:
+            days_to_reentry = None
+        row.update({"status": "reentered", "reentry_date": reentry_trade.get("date"),
+                     "reentry_price": reentry_price, "days_to_reentry": days_to_reentry,
+                     "reentry_price_source": reentry_trade.get("price_source")})
+        if reentry_price and stop_price:
+            # negative = re-entered BELOW the stop price -- the strategy worked as designed,
+            # sold high(er) and bought back cheaper. Positive = re-entered ABOVE the stop --
+            # the stabilization was mistaken for a low and some of the stop's edge was given
+            # back chasing the re-entry.
+            reentry_move_pct = round((reentry_price - stop_price) / stop_price * 100, 2)
+            row["reentry_move_pct"] = reentry_move_pct
+            row["reentry_verdict"] = ("reentered_lower" if reentry_move_pct < -1.0
+                                       else ("reentered_higher" if reentry_move_pct > 1.0
+                                             else "reentered_flat"))
+        now = prices.get(ticker)
+        if now is not None and reentry_price:
+            row["since_reentry_pct"] = round((now - reentry_price) / reentry_price * 100, 2)
+        reentries.append(row)
+
+    reentered_rows = [r for r in reentries if r["status"] == "reentered" and "reentry_move_pct" in r]
+    reentry_summary = None
+    if reentered_rows:
+        n = len(reentered_rows)
+        lower = sum(1 for r in reentered_rows if r["reentry_verdict"] == "reentered_lower")
+        higher = sum(1 for r in reentered_rows if r["reentry_verdict"] == "reentered_higher")
+        flat = n - lower - higher
+        avg_reentry_move = round(sum(r["reentry_move_pct"] for r in reentered_rows) / n, 2)
+        reentry_summary = {
+            "count": n, "reentered_lower": lower, "reentered_higher": higher, "reentered_flat": flat,
+            "reentered_lower_pct": round(lower / n * 100, 1),
+            "avg_reentry_move_vs_stop_pct": avg_reentry_move,
+            "still_out_count": sum(1 for r in reentries if r["status"] == "still_out"),
+        }
+
     dq = []
     if no_fill_price:
         dq.append(f"{len(no_fill_price)} stop-loss trades have no captured fill price "
@@ -1652,6 +1739,7 @@ def cmd_stops(args):
     out = {
         "as_of": today.isoformat(), "overall": overall, "by_cohort": by_cohort,
         "stops": scored, "data_quality": dq,
+        "reentries": reentries, "reentry_summary": reentry_summary,
     }
     out_path = args.out or os.path.join(args.base_dir, "stops_analysis.json")
 
@@ -1678,7 +1766,8 @@ def cmd_stops(args):
         return
 
     safe_write(out_path, out)
-    emit({"written": out_path, "scored_count": len(scored), "overall": overall, "by_cohort": by_cohort})
+    emit({"written": out_path, "scored_count": len(scored), "overall": overall, "by_cohort": by_cohort,
+          "reentry_summary": reentry_summary})
 
 def dismiss_proposal_core(props, proposal_id, reason, actor="user"):
     """The actual dismiss mutation, extracted (2026-08-25, interactive dashboard feature) so

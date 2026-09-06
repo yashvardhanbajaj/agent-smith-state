@@ -1399,6 +1399,57 @@ def _render_stop_loss_efficacy(stops_data):
 
         dq_s = ("".join(f'<p class="note">{esc(x)}</p>' for x in (stops_data.get("data_quality") or [])))
 
+        # -- re-entry round trip (added 2026-09-06, user request): this desk's actual strategy
+        # is trim/exit on a support breach and re-enter once price stabilizes, so the number that
+        # measures it is where the re-entry landed vs the stop -- not where the stock sits today.
+        reentry_summary = stops_data.get("reentry_summary")
+        reentry_rows_all = stops_data.get("reentries") or []
+        reentry_block = ""
+        if reentry_summary:
+            rs = reentry_summary
+            lower_cls = "pos" if rs["reentered_lower_pct"] >= 50 else "neg"
+            reentered_rows_html = "".join(
+                f'<tr><td class="name">{esc(r["ticker"])}</td>'
+                f'<td class="blank">{esc(r["stop_date"])}</td><td>${r["stop_price"]:,.2f}</td>'
+                f'<td class="blank">{esc(r["reentry_date"])}</td><td>${r["reentry_price"]:,.2f}</td>'
+                f'<td class="{"neg" if r.get("reentry_move_pct",0)>0 else "pos"}">'
+                f'{r.get("reentry_move_pct",0):+.1f}%</td>'
+                f'<td class="verd-{"hurt" if r.get("reentry_verdict")=="reentered_higher" else ("saved" if r.get("reentry_verdict")=="reentered_lower" else "flat")}">'
+                f'{esc((r.get("reentry_verdict") or "").replace("reentered_","").upper())}</td></tr>'
+                for r in reentry_rows_all if r.get("status") == "reentered" and "reentry_move_pct" in r)
+            still_out_rows = [r for r in reentry_rows_all if r["status"] == "still_out" and r.get("gap_vs_stop_pct") is not None]
+            still_out_rows.sort(key=lambda r: -r["gap_vs_stop_pct"])
+            still_out_html = "".join(
+                f'<tr><td class="name">{esc(r["ticker"])}</td><td class="blank">{esc(r["stop_date"])}</td>'
+                f'<td>${r["stop_price"]:,.2f}</td>'
+                f'<td class="{"neg" if r["gap_vs_stop_pct"]>0 else "pos"}">{r["gap_vs_stop_pct"]:+.1f}%</td></tr>'
+                for r in still_out_rows[:8])
+            reentry_block = (
+                '<hr class="rule"><h2 style="font-size:.82rem;margin-top:4px">Re-entry round trip'
+                '<span class="sub">where the re-entry landed vs the stop, not where the stock sits now</span></h2>'
+                f'<div class="stops-sum">'
+                f'<div class="c"><span class="k">Re-entered</span><span class="v">{rs["count"]} of '
+                f'{rs["count"]+rs["still_out_count"]}</span></div>'
+                f'<div class="c"><span class="k">Bought back lower</span>'
+                f'<span class="v {lower_cls}">{rs["reentered_lower_pct"]:.0f}%</span></div>'
+                f'<div class="c"><span class="k">Avg re-entry vs stop</span>'
+                f'<span class="v {"neg" if rs["avg_reentry_move_vs_stop_pct"]>0 else "pos"}">'
+                f'{rs["avg_reentry_move_vs_stop_pct"]:+.1f}%</span></div>'
+                f'<div class="c"><span class="k">Still out</span><span class="v">{rs["still_out_count"]}</span></div>'
+                '</div>'
+                '<div class="scroll"><table><thead><tr><th>Name</th><th>Stop date</th><th>Stop $</th>'
+                '<th>Re-entry date</th><th>Re-entry $</th><th>vs stop</th><th>Verdict</th></tr></thead>'
+                f'<tbody>{reentered_rows_html}</tbody></table></div>'
+                + (('<p class="note" style="margin-top:8px"><b>Still out, biggest gaps</b> &mdash; stopped '
+                    'out and never re-entered; price shown vs the stop, positive means it ran away without '
+                    'a re-entry.</p><div class="scroll"><table><thead><tr><th>Name</th><th>Stop date</th>'
+                    '<th>Stop $</th><th>vs stop now</th></tr></thead>'
+                    f'<tbody>{still_out_html}</tbody></table></div>') if still_out_html else "")
+                + '<p class="note" style="margin-top:8px"><b>LOWER</b> = bought back below the stop price '
+                '(the strategy worked: sold high, re-entered cheaper). <b>HIGHER</b> = re-entered above the '
+                'stop (some of the stop\'s edge was given back chasing the stabilization). A stop with no '
+                'row in this table hasn\'t been re-entered yet.</p>')
+
         out.append(
             '<section class="panel"><div class="phead"><h2>Stop-loss efficacy'
             '<span class="sub">did the stop help or hurt, vs simply holding through</span></h2>'
@@ -1411,7 +1462,7 @@ def _render_stop_loss_efficacy(stops_data):
             'a market-open liquidity gap). <b>Deliberate</b> = an isolated, mid-session stop. '
             '<b>Verdict</b>: HURT means the price is now above the fill (holding through would '
             'have been worth more); SAVED means it fell further after the stop fired.</p>'
-            f'{dq_s}</div></section>')
+            f'{dq_s}{reentry_block}</div></section>')
 
     return out
 
