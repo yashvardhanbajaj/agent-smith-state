@@ -1,0 +1,779 @@
+{
+  "as_of": "2026-09-06",
+  "rsi_as_of": "2026-08-31",
+  "rsi_age_days": 6,
+  "rsi_usable": true,
+  "rsi_coverage_pct": 90.6,
+  "rsi_missing": [
+    "ALAB",
+    "APH",
+    "FSLR"
+  ],
+  "rel_as_of": "2026-08-31",
+  "rel_age_days": 6,
+  "rel_usable": true,
+  "rel_coverage_pct": 90.6,
+  "rel_missing": [
+    "ALAB",
+    "APH",
+    "FSLR"
+  ],
+  "deployable_cash_usd": 0.0,
+  "max_single_deploy_usd": 0.0,
+  "thresholds": {
+    "rsi_oversold": 35.0,
+    "rsi_overbought": 70.0,
+    "laggard_pctile": 25.0,
+    "ratchet_min_gain_pct": 15.0,
+    "ladder_tiers_pct": [
+      25.0,
+      50.0
+    ]
+  },
+  "deployable_cash_for_ideas_usd": 589.33,
+  "live_counts": {
+    "oversold_reversion": 2,
+    "overbought_distribution": 1,
+    "catalyst_threat": 4,
+    "thesis_break": 0,
+    "trend_entry": 1,
+    "trend_breakdown": 1,
+    "conviction_average": 3,
+    "conviction_exit": 1,
+    "entry_setup": 2,
+    "reentry": 0,
+    "bench_diversifier": 0,
+    "profit_rotation": 1,
+    "cluster_rotation": 2
+  },
+  "shadow_counts": {
+    "laggard_rotation": 4,
+    "profit_ratchet": 0,
+    "scale_out_ladder": 0
+  },
+  "oversold_reversion": [
+    {
+      "ticker": "GOOG",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "strengthening",
+      "rsi14": 28.9,
+      "rel_strength_1m_pp": -13.06,
+      "abs_return_1m_pct": null,
+      "price_usd": 335.31,
+      "market_value_usd": 1341.24,
+      "trigger_type": "oversold_reversion",
+      "direction": "BUY",
+      "vote": "live",
+      "headroom_usd": 4718.57,
+      "suggested_size_usd": 0.0,
+      "retires_when": "GOOG RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening",
+      "reasons": [
+        "RSI14 28.9 < 35 (oversold)",
+        "thesis strengthening -- technical dip, not a fundamental break",
+        "within ATR risk cap with $4,719 headroom"
+      ],
+      "blockers": [
+        "no deployable cash above the band ceiling -- setup valid, funding is not"
+      ]
+    },
+    {
+      "ticker": "AMAT",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 33.3,
+      "rel_strength_1m_pp": -3.12,
+      "abs_return_1m_pct": -3.37,
+      "price_usd": 454.71,
+      "market_value_usd": 1367.85,
+      "trigger_type": "oversold_reversion",
+      "direction": "BUY",
+      "vote": "live",
+      "headroom_usd": 770.19,
+      "suggested_size_usd": 0.0,
+      "retires_when": "AMAT RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening",
+      "reasons": [
+        "RSI14 33.3 < 35 (oversold)",
+        "thesis strengthening -- technical dip, not a fundamental break",
+        "within ATR risk cap with $770 headroom"
+      ],
+      "blockers": [
+        "no deployable cash above the band ceiling -- setup valid, funding is not"
+      ]
+    }
+  ],
+  "overbought_distribution": [
+    {
+      "ticker": "NVDA",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 70.4,
+      "rel_strength_1m_pp": 6.34,
+      "abs_return_1m_pct": 8.13,
+      "price_usd": 230.36,
+      "market_value_usd": 1151.8,
+      "trigger_type": "overbought_distribution",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 287.95,
+      "trim_fraction": 0.25,
+      "over_cap_independent": true,
+      "cluster_tension": false,
+      "cluster_drift_pt": 3.84,
+      "rotation_targets": [],
+      "retires_when": "NVDA RSI14 falls below 60 or it is no longer up on the month",
+      "reasons": [
+        "RSI14 70.4 > 70 (overbought)",
+        "up +8.1% on the month -- real gain to protect"
+      ],
+      "blockers": []
+    }
+  ],
+  "catalyst_threat": [
+    {
+      "ticker": "GOOG",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "strengthening",
+      "rsi14": 28.9,
+      "rel_strength_1m_pp": -13.06,
+      "abs_return_1m_pct": null,
+      "price_usd": 335.31,
+      "market_value_usd": 1341.24,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 268.25,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "investing.com/news/stock-market-news/nvidias-rising-cds-the-talk-of-wall-street-amid-circular-financing-fears-4816626"
+      ],
+      "retires_when": "GOOG no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: 'CDS, not EPS' (2026-08-27) -- NVDA CDS ~2x in 2 months; Oracle downgraded to lowest IG rung, CDS 215bp -- directional credit repricing, no absolute NVDA bp level sourced"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "NVDA",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 70.4,
+      "rel_strength_1m_pp": 6.34,
+      "abs_return_1m_pct": 8.13,
+      "price_usd": 230.36,
+      "market_value_usd": 1151.8,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 230.36,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "investing.com/news/stock-market-news/nvidias-rising-cds-the-talk-of-wall-street-amid-circular-financing-fears-4816626"
+      ],
+      "retires_when": "NVDA no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: 'CDS, not EPS' (2026-08-27) -- NVDA CDS ~2x in 2 months; Oracle downgraded to lowest IG rung, CDS 215bp -- directional credit repricing, no absolute NVDA bp level sourced"
+      ],
+      "blockers": [
+        "NVDA is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula"
+      ]
+    },
+    {
+      "ticker": "AVGO",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "watch",
+      "rsi14": 22.9,
+      "rel_strength_1m_pp": -13.31,
+      "abs_return_1m_pct": 9.03,
+      "price_usd": 357.895,
+      "market_value_usd": 715.79,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 143.16,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "investing.com/news/stock-market-news/nvidias-rising-cds-the-talk-of-wall-street-amid-circular-financing-fears-4816626"
+      ],
+      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: 'CDS, not EPS' (2026-08-27) -- NVDA CDS ~2x in 2 months; Oracle downgraded to lowest IG rung, CDS 215bp -- directional credit repricing, no absolute NVDA bp level sourced"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "MSFT",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "watch",
+      "rsi14": 53.5,
+      "rel_strength_1m_pp": 15.68,
+      "abs_return_1m_pct": 24.73,
+      "price_usd": 499.7,
+      "market_value_usd": 499.7,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 99.94,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "investing.com/news/stock-market-news/nvidias-rising-cds-the-talk-of-wall-street-amid-circular-financing-fears-4816626"
+      ],
+      "retires_when": "MSFT no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: 'CDS, not EPS' (2026-08-27) -- NVDA CDS ~2x in 2 months; Oracle downgraded to lowest IG rung, CDS 215bp -- directional credit repricing, no absolute NVDA bp level sourced"
+      ],
+      "blockers": []
+    }
+  ],
+  "thesis_break": [],
+  "trend_entry": [
+    {
+      "ticker": "NVDA",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 70.4,
+      "rel_strength_1m_pp": 6.34,
+      "abs_return_1m_pct": 8.13,
+      "price_usd": 230.36,
+      "market_value_usd": 1151.8,
+      "trigger_type": "trend_entry",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 32.2,
+      "conviction_tier": "low",
+      "size_wanted_usd": 543.09,
+      "suggested_size_usd": 543.09,
+      "clamped_by": null,
+      "stop_price_usd": 210.2726,
+      "retires_when": "NVDA no longer carries BREAKOUT/STRONG UPTREND or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (secondary, 1 for / 0 against)",
+        "threat/structural: Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, ",
+        "signal polarity net +1 (STRONG UPTREND)",
+        "reported: beat",
+        "RSI14 70 overbought; +6.3pp vs benchmark",
+        "named by 2 independent source(s) this run"
+      ],
+      "blockers": []
+    }
+  ],
+  "trend_breakdown": [
+    {
+      "ticker": "FSLR",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "watch",
+      "rsi14": null,
+      "rel_strength_1m_pp": null,
+      "abs_return_1m_pct": null,
+      "price_usd": 204.45,
+      "market_value_usd": 613.35,
+      "trigger_type": "trend_breakdown",
+      "direction": "TRIM",
+      "vote": "live",
+      "conviction_score": 0.3,
+      "conviction_tier": "none",
+      "suggested_size_usd": 184.0,
+      "over_cap_independent": true,
+      "retires_when": "FSLR no longer carries BREAKDOWN/STRONG DOWNTREND or thesis recovers",
+      "reasons": [
+        "thesis watch (secondary, 2 for / 2 against)",
+        "signal polarity net -1 (OVERSOLD BOUNCE, STRONG DOWNTREND, PEER LAGGARD)",
+        "+34.7% vs analyst target",
+        "reported: mixed_revenue_light_eps_strong",
+        "track record 67% (n=3) applies a +1.0% tilt (15% authority at this sample size)"
+      ],
+      "blockers": []
+    }
+  ],
+  "conviction_average": [
+    {
+      "ticker": "LRCX",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 53.3,
+      "rel_strength_1m_pp": 12.6,
+      "abs_return_1m_pct": 0.84,
+      "price_usd": 307.65,
+      "market_value_usd": 922.95,
+      "trigger_type": "conviction_average",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 44.2,
+      "conviction_tier": "low",
+      "support_usd": 292.9751,
+      "size_wanted_usd": 656.88,
+      "suggested_size_usd": 589.33,
+      "clamped_by": "deployable cash",
+      "blended_entry_usd": 309.6843,
+      "current_stop_usd": 278.3002,
+      "retires_when": "LRCX recovers above its support level or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (unverified, 0 for / 0 against)",
+        "signal polarity net +1 (PEER LEADER)",
+        "+20.7% vs analyst target",
+        "+12.6pp vs benchmark"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "AMAT",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 33.3,
+      "rel_strength_1m_pp": -3.12,
+      "abs_return_1m_pct": -3.37,
+      "price_usd": 454.71,
+      "market_value_usd": 1367.85,
+      "trigger_type": "conviction_average",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 32.3,
+      "conviction_tier": "low",
+      "support_usd": 432.1564,
+      "size_wanted_usd": 478.5,
+      "suggested_size_usd": 478.5,
+      "clamped_by": null,
+      "blended_entry_usd": 470.7778,
+      "current_stop_usd": 409.6028,
+      "retires_when": "AMAT recovers above its support level or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (secondary, 0 for / 0 against)",
+        "signal polarity net -1 (PEER LAGGARD)",
+        "+40.8% vs analyst target",
+        "RSI14 33 oversold; -3.1pp vs benchmark"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "CIEN",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 47.2,
+      "rel_strength_1m_pp": 7.39,
+      "abs_return_1m_pct": 4.01,
+      "price_usd": 321.0059,
+      "market_value_usd": 2.74,
+      "trigger_type": "conviction_average",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 31.2,
+      "conviction_tier": "low",
+      "support_usd": 298.2145,
+      "size_wanted_usd": 324.26,
+      "suggested_size_usd": 324.26,
+      "clamped_by": null,
+      "blended_entry_usd": 321.4713,
+      "current_stop_usd": 275.4231,
+      "retires_when": "CIEN recovers above its support level or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (secondary, 3 for / 2 against)",
+        "threat/immediate: COHR/LITE/CIEN sold off in sympathy with MRVL's guide despite neither COHR nor L",
+        "reported: beat",
+        "+7.4pp vs benchmark",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": []
+    }
+  ],
+  "conviction_exit": [
+    {
+      "ticker": "AVGO",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "watch",
+      "rsi14": 22.9,
+      "rel_strength_1m_pp": -13.31,
+      "abs_return_1m_pct": 9.03,
+      "price_usd": 357.895,
+      "market_value_usd": 715.79,
+      "trigger_type": "conviction_exit",
+      "direction": "SELL",
+      "vote": "live",
+      "conviction_score": -14.5,
+      "negative_signal_count": 3,
+      "suggested_size_usd": 357.89,
+      "over_cap_independent": true,
+      "retires_when": "fewer than 3 of AVGO's independent negative signals remain",
+      "reasons": [
+        "3 independent negative signals converged (thesis/catalyst/trend/technical)",
+        "thesis watch (secondary, 2 for / 4 against)",
+        "threat/structural: Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, ",
+        "signal polarity net -1 (PEER LAGGARD)",
+        "reported: beat",
+        "RSI14 23 oversold; -13.3pp vs benchmark",
+        "named by 2 independent source(s) this run"
+      ],
+      "blockers": []
+    }
+  ],
+  "entry_setup": [
+    {
+      "ticker": "APLD",
+      "cluster": null,
+      "thesis_status": null,
+      "watchlist_type": "oversold_bounce",
+      "upside_pct": 66.4,
+      "trigger_type": "entry_setup",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 20.8,
+      "conviction_tier": "low",
+      "suggested_size_usd": null,
+      "retires_when": "APLD drops off the watchlist setups list or conviction falls to 'none'",
+      "reasons": [
+        "+66.4% vs analyst target",
+        "RSI14 31 oversold",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": [
+        "no live price/ATR for APLD this run -- setup valid, sizing needs a fetch"
+      ]
+    },
+    {
+      "ticker": "CORZ",
+      "cluster": null,
+      "thesis_status": null,
+      "watchlist_type": "oversold_bounce",
+      "upside_pct": 54.7,
+      "trigger_type": "entry_setup",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 20.8,
+      "conviction_tier": "low",
+      "suggested_size_usd": null,
+      "retires_when": "CORZ drops off the watchlist setups list or conviction falls to 'none'",
+      "reasons": [
+        "+54.7% vs analyst target",
+        "RSI14 21 oversold",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": [
+        "no live price/ATR for CORZ this run -- setup valid, sizing needs a fetch"
+      ]
+    }
+  ],
+  "reentry": [],
+  "bench_diversifier": [],
+  "rebound": {
+    "correction_state": "none",
+    "reasons": [],
+    "inputs_usable": true,
+    "rel_cache_age_days": 6,
+    "stale_warning": null,
+    "book_drawdown_pct": 0.0,
+    "benchmark_1m_pct": 0.73,
+    "breadth_fallen_share": 0.062,
+    "policy_warn_pct": -15,
+    "candidates": [],
+    "considered": 0,
+    "excluded": {
+      "thesis_blocked": [],
+      "too_quiet": [],
+      "not_fallen_enough": [],
+      "no_data": []
+    },
+    "note": "No broad correction by any of the three routes -- no rebound screen run."
+  },
+  "correction_state": "none",
+  "profit_rotation": [
+    {
+      "pair_id": "profit_rotation-MSFT-KLAC",
+      "trigger_type": "profit_rotation",
+      "vote": "live",
+      "sell_leg": {
+        "ticker": "MSFT",
+        "direction": "SELL",
+        "suggested_size_usd": 149.91,
+        "market_value_usd": 499.7,
+        "reasons": [
+          "stretched (in names_stretched) with a watch thesis -- real profit to book"
+        ]
+      },
+      "buy_leg": {
+        "ticker": "KLAC",
+        "direction": "BUY",
+        "suggested_size_usd": 149.91,
+        "clamped_by": null,
+        "conviction_score": 46.3,
+        "reasons": [
+          "laggard (-5.7pp) with a strengthening thesis -- yet to rally"
+        ]
+      },
+      "retires_when": "EITHER MSFT drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening"
+    }
+  ],
+  "cluster_rotation": [
+    {
+      "pair_id": "cluster_rotation-AMD-LRCX",
+      "trigger_type": "cluster_rotation",
+      "vote": "live",
+      "cluster": "AI Semis/Fabs",
+      "sell_leg": {
+        "ticker": "AMD",
+        "direction": "SELL",
+        "suggested_size_usd": 429.81,
+        "reasons": [
+          "laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster"
+        ]
+      },
+      "buy_leg": {
+        "ticker": "LRCX",
+        "direction": "BUY",
+        "suggested_size_usd": 429.81,
+        "clamped_by": null,
+        "conviction_score": 44.2,
+        "reasons": [
+          "performer within AI Semis/Fabs (+12.6pp), strengthening thesis"
+        ]
+      },
+      "retires_when": "EITHER AMD's thesis strengthens OR LRCX is no longer the cluster's relative-strength leader"
+    },
+    {
+      "pair_id": "cluster_rotation-AVGO-LITE",
+      "trigger_type": "cluster_rotation",
+      "vote": "live",
+      "cluster": "AI Networking/Optics",
+      "sell_leg": {
+        "ticker": "AVGO",
+        "direction": "SELL",
+        "suggested_size_usd": 214.74,
+        "reasons": [
+          "laggard within AI Networking/Optics (-13.3pp), watch thesis -- dead money in this cluster"
+        ]
+      },
+      "buy_leg": {
+        "ticker": "LITE",
+        "direction": "BUY",
+        "suggested_size_usd": 214.74,
+        "clamped_by": null,
+        "conviction_score": 33.8,
+        "reasons": [
+          "performer within AI Networking/Optics (+45.1pp), strengthening thesis"
+        ]
+      },
+      "retires_when": "EITHER AVGO's thesis strengthens OR LITE is no longer the cluster's relative-strength leader"
+    }
+  ],
+  "laggard_rotation": [
+    {
+      "ticker": "CLS",
+      "cluster": "Compute/Hyperscaler OEM",
+      "thesis_status": "strengthening",
+      "rsi14": 49.8,
+      "rel_strength_1m_pp": -17.0,
+      "abs_return_1m_pct": -2.95,
+      "price_usd": 312.35,
+      "market_value_usd": 938.07,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 965.82,
+      "suggested_size_usd": 0.0,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-17.0pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": [
+        "no deployable cash above the band ceiling -- setup valid, funding is not; fund it from a sell leg (rotation pair) rather than from the wallet"
+      ]
+    },
+    {
+      "ticker": "WDC",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "strengthening",
+      "rsi14": 55.4,
+      "rel_strength_1m_pp": -13.65,
+      "abs_return_1m_pct": null,
+      "price_usd": 467.46,
+      "market_value_usd": 934.92,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 590.93,
+      "suggested_size_usd": 0.0,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-13.7pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": [
+        "no deployable cash above the band ceiling -- setup valid, funding is not; fund it from a sell leg (rotation pair) rather than from the wallet"
+      ]
+    },
+    {
+      "ticker": "GOOG",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "strengthening",
+      "rsi14": 28.9,
+      "rel_strength_1m_pp": -13.06,
+      "abs_return_1m_pct": null,
+      "price_usd": 335.31,
+      "market_value_usd": 1341.24,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 4718.57,
+      "suggested_size_usd": 0.0,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-13.1pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": [
+        "no deployable cash above the band ceiling -- setup valid, funding is not; fund it from a sell leg (rotation pair) rather than from the wallet"
+      ]
+    },
+    {
+      "ticker": "QCOM",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 44.1,
+      "rel_strength_1m_pp": -7.8,
+      "abs_return_1m_pct": -5.96,
+      "price_usd": 168.7689,
+      "market_value_usd": 0.13,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 3644.09,
+      "suggested_size_usd": 0.0,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-7.8pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": [
+        "no deployable cash above the band ceiling -- setup valid, funding is not; fund it from a sell leg (rotation pair) rather than from the wallet"
+      ]
+    }
+  ],
+  "profit_ratchet": [],
+  "scale_out_ladder": [],
+  "shadow_new": [
+    {
+      "date": "2026-09-06",
+      "ticker": "CLS",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 312.35,
+      "rsi14": 49.8,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -17.0,
+      "scored": false
+    },
+    {
+      "date": "2026-09-06",
+      "ticker": "WDC",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 467.46,
+      "rsi14": 55.4,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -13.65,
+      "scored": false
+    },
+    {
+      "date": "2026-09-06",
+      "ticker": "GOOG",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 335.31,
+      "rsi14": 28.9,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -13.06,
+      "scored": false
+    },
+    {
+      "date": "2026-09-06",
+      "ticker": "QCOM",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 168.7689,
+      "rsi14": 44.1,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -7.8,
+      "scored": false
+    }
+  ],
+  "rsi_values": {
+    "NVDA": 70.4,
+    "MU": 57.7,
+    "DRAM": 53.9,
+    "MRVL": 58.1,
+    "AMAT": 33.3,
+    "AMZN": 29.8,
+    "ARM": 43.7,
+    "ASML": 49.1,
+    "AVGO": 22.9,
+    "BABA": 34.6,
+    "BX": 59.6,
+    "CEG": 63.5,
+    "CIEN": 47.2,
+    "CLS": 49.8,
+    "FLTW": 63.9,
+    "GEV": 43.2,
+    "INTC": 36.5,
+    "LRCX": 53.3,
+    "META": 34.1,
+    "MSFT": 53.5,
+    "NBIS": 57.8,
+    "NOW": 66.2,
+    "ORCL": 66.6,
+    "QCOM": 44.1,
+    "SNDK": 43.7,
+    "TER": 48.1,
+    "TSM": 54.9,
+    "STM": 34.3,
+    "TXN": 42.4,
+    "AMD": 47.9,
+    "COHR": 32.6,
+    "IREN": 48.5,
+    "GOOG": 28.9,
+    "BE": 49.2,
+    "SKHY": 64.9,
+    "SMCI": 68.1,
+    "AMKR": 43.8,
+    "GLW": 41.5,
+    "LITE": 54.7,
+    "KLAC": 37.2,
+    "WDC": 55.4,
+    "VRT": 67.2
+  },
+  "abs_return_1m_pct_values": {
+    "NVDA": 8.13,
+    "MU": -4.73,
+    "DRAM": -7.27,
+    "MRVL": 6.09,
+    "AMAT": -3.37,
+    "AMZN": 9.01,
+    "ARM": -7.63,
+    "ASML": 0.79,
+    "AVGO": 9.03,
+    "BABA": 5.96,
+    "BX": 16.54,
+    "CEG": 7.71,
+    "CIEN": 4.01,
+    "CLS": -2.95,
+    "FLTW": 6.25,
+    "GEV": -4.12,
+    "INTC": -4.27,
+    "LRCX": 0.84,
+    "META": -8.82,
+    "MSFT": 24.73,
+    "NBIS": 6.87,
+    "NOW": 20.91,
+    "ORCL": 17.47,
+    "QCOM": -5.96,
+    "SNDK": -13.55,
+    "TER": 8.28,
+    "TSM": 1.42,
+    "STM": -14.75,
+    "TXN": -4.15,
+    "AMD": -10.55,
+    "COHR": 10.31
+  },
+  "data_quality": [
+    "STM is oversold (RSI 34.3) but thesis is 'watch' -- deliberately not a bounce candidate (falling knife, not a dip)",
+    "AVGO is oversold (RSI 22.9) but thesis is 'watch' -- deliberately not a bounce candidate (falling knife, not a dip)",
+    "reentry: 39 alumni could not be JUDGED at all -- no state.thesis entry exists for them (AAPL, AIA, AMKR, AMZN, ANET, ARM, BABA, BX, CEG, CORZ...). state.thesis is seeded from CURRENT holdings, so an exited name is absent by construction and fails the conviction gate for lack of evidence, not on the evidence. These are not rejected candidates; they are unexamined ones."
+  ]
+}

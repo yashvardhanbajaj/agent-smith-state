@@ -1,0 +1,79 @@
+{
+ "cycle_position": "late",
+ "confidence": "medium",
+ "falsifier": "Moves to `mid` only if BOTH: TrendForce's 1Q27 conventional-DRAM contract forecast lands at or above 4Q26's +3-8% QoQ (deceleration stops), AND at least one hyperscaler raises 2027 capex guidance at the Oct/Nov round. Moves to `rolling` on EITHER a hyperscaler capex guidance cut/order pushout OR a negative QoQ conventional-DRAM contract print. Moves to `accelerating` only on re-acceleration of the QoQ contract series -- a record price level at a slower rate does not qualify.",
+ "priced_in_read": "Bifurcated. The semicap/infra layer is paying MORE per unit of capex growth than 3m ago -- KLAC/LRCX/AMAT/TER re-rated hard on 2026-09-04 into a decelerating pricing series, the classic late signature. Memory itself is paying LESS: MU at ~6x forward with ~$18B customer prepayments and ~$100B contracted minimum revenue is not a multiple capitalizing peak EPS.",
+ "evidence_for": [
+  {
+   "claim": "TrendForce 4Q26 PC DRAM contract forecast +3-8% QoQ vs 3Q26 +13-18%, 2Q26 +58-63%, 1Q26 +90-95% -- fourth consecutive quarter of sequential deceleration",
+   "date": "2026-09-06",
+   "source": "TrendForce via WebSearch"
+  },
+  {
+   "claim": "TrendForce attributes the 4Q26 convergence to weak end demand and elevated inventory levels",
+   "date": "2026-09-06",
+   "source": "TrendForce 4Q26 outlook"
+  },
+  {
+   "claim": "NAND contract decelerating on the same path: 3Q26 +10-15% QoQ, 4Q26 to converge further",
+   "date": "2026-09-06",
+   "source": "trendforce.com"
+  },
+  {
+   "claim": "SEMI equipment billings 1Q26 $36.55B: +14% YoY but only +1% QoQ -- record level, flat sequential",
+   "date": "2026-09-06",
+   "source": "prnewswire.com SEMI Q1 2026"
+  },
+  {
+   "claim": "Market has stopped paying for good prints: KLAC beat EPS +5.1% and fell ~9.6%; MRVL guided ~4% above consensus and fell; COHR beat-and-raised and fell",
+   "date": "2026-09-03",
+   "source": "data_cache.earnings_facts"
+  }
+ ],
+ "evidence_against": [
+  {
+   "claim": "August hyperscaler round RAISED capex guidance: AMZN ~$200B to ~$220B, GOOGL $180-190B to $195-205B, META floor $125B to $130B; 2027 flagged higher",
+   "date": "2026-09-06",
+   "source": "tmtfinance.com + CreditSights"
+  },
+  {
+   "claim": "Micron sold out of leading-edge allocation through end-2026; Deutsche Bank models ~10% 2026 DRAM capacity shortfall",
+   "date": "2026-09-04",
+   "source": "247wallst.com"
+  },
+  {
+   "claim": "Dell $95B AI-server backlog cited as end-demand validation for memory wafer offtake",
+   "date": "2026-09-04",
+   "source": "247wallst.com"
+  },
+  {
+   "claim": "HBM3E contract prices RISING per tracker C1 corrected view (~20% 2026 supplier hike); memory layer not multiple-expanded (MU ~6x forward)",
+   "date": "2026-08-05",
+   "source": "HBMTracker consumer_view.json C1"
+  }
+ ],
+ "components": {
+  "hyperscaler_capex_revisions": "raised",
+  "memory_contract_direction": "up",
+  "memory_spot_direction": null,
+  "weighted": "CONTRACT. Contract is up but decelerating -- direction and second derivative reported separately, never blended.",
+  "semicap_book_to_bill": null,
+  "inventory_days_trend": "rising",
+  "margin_regime": "peaking"
+ },
+ "hbm_tracker_corrections_checked": [
+  "C1",
+  "C2"
+ ],
+ "prior_position": "late",
+ "position_changed": false,
+ "data_quality": [
+  "HBM tracker snapshot 32 days stale -- exceeds the tracker's own ~30-day rule; confidence degraded accordingly.",
+  "C2 enforced: HBM4 +14.29% is a basis-splice artifact, NOT published as a price signal.",
+  "C1 enforced: within-basis HBM3E FLAT at $9.00/GB; the -51% cross-basis decline was not used.",
+  "semicap_book_to_bill null: SEMI discontinued the book-to-bill ratio in 2017 -- unavailable, not omitted.",
+  "4Q26 DRAM figure is PC DRAM; no server-DRAM-specific 4Q26 number sourced.",
+  "No 3Q26 channel inventory-days figure; inventory leg rests on qualitative language.",
+  "NVDA Q3 gross-margin leg of the prior falsifier remains untested -- NVDA has not printed since 2026-08-26."
+ ]
+}

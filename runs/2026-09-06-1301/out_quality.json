@@ -1,0 +1,259 @@
+{
+ "quality_flags": {
+  "BE": [
+   {
+    "finding": "Heavy share dilution funding capacity buildout",
+    "metric": "diluted_shares_yoy",
+    "magnitude": "+39% YoY (232.5M to 323.3M)",
+    "evidence_for": [
+     {
+      "claim": "Diluted avg shares rose from 232.54M to 323.33M YoY",
+      "date": "2026-09-06",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "OCF ($226M) exceeds NI ($196M) latest quarter; net debt is thin (~$140M) vs ~$223M quarterly EBITDA; SBC is 5.3% of revenue, not dominant driver of dilution alone",
+      "date": "2026-09-06",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "verified": "secondary",
+    "verified_against": "yfinance",
+    "verified_on": "2026-09-06"
+   }
+  ],
+  "NBIS": [
+   {
+    "finding": "Extreme capex/debt funding gap; NI volatility from one-off gains",
+    "metric": "fcf_and_net_income_swing",
+    "magnitude": "NI swung -$268.8M/+$621.2M/-$190.4M across 3 quarters; capex $5.66B vs $582M revenue; FCF -$3.41B",
+    "evidence_for": [
+     {
+      "claim": "Total debt +102% YoY ($4.97B to $10.06B), interest expense +87% YoY, FCF -$3.41B latest quarter",
+      "date": "2026-09-06",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "OCF strength partly reflects $2.03B positive working-capital swing (customer prepayments) not core profitability; large capex is committed AI-datacenter buildout against contracted revenue, not distress",
+      "date": "2026-09-06",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "verified": "secondary",
+    "verified_against": "yfinance",
+    "verified_on": "2026-09-06"
+   }
+  ],
+  "IREN": [
+   {
+    "finding": "Debt and dilution accelerating far faster than revenue; EBITDA swing >2x",
+    "metric": "total_debt_yoy_and_ebitda_swing",
+    "magnitude": "total debt ~8x YoY ($965M to $7.84B); EBITDA -$555M vs +$16.8M in comp quarter",
+    "evidence_for": [
+     {
+      "claim": "Financing cash inflow $5.71B this quarter funding capex-heavy build-out; operating loss widened to -$140.6M",
+      "date": "2026-09-06",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "EBITDA swing likely reflects non-cash impairment/mark, unconfirmed against filed 10-Q; revenue roughly stable ~$137-145M/qtr, not collapsing",
+      "date": "2026-09-06",
+      "source": "yfinance quarterly financials, unconfirmed"
+     }
+    ],
+    "verified": "unverified",
+    "verified_against": "",
+    "verified_on": ""
+   }
+  ],
+  "SMCI": [
+   {
+    "finding": "OCF/PAT below accrual-quality threshold; extreme working-capital swings",
+    "metric": "ocf_to_pat_ratio",
+    "magnitude": "0.63x latest quarter (OCF $747M vs NI $1.18B); prior quarter OCF -$6.62B on $10.1B AP paydown",
+    "evidence_for": [
+     {
+      "claim": "Accounts payable fell from $13.75B to $3.69B in one quarter, driving deeply negative OCF; consistent with SMCI's 2024 filing-delay/auditor-change history",
+      "date": "2026-09-06",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "No new going-concern or qualified-opinion language found this pass; large AP swings are a known feature of SMCI's build-to-order model, not necessarily fraud-indicative",
+      "date": "2026-09-06",
+      "source": "screen only, not primary filing text"
+     }
+    ],
+    "verified": "unverified",
+    "verified_against": "",
+    "verified_on": ""
+   }
+  ],
+  "APH": [
+   {
+    "finding": "Interest expense and debt/goodwill jump consistent with acquisition financing, not structural leverage deterioration",
+    "metric": "interest_expense_qoq",
+    "magnitude": "+157% QoQ ($80.7M to $207.9M); total debt +21%, goodwill +66% same quarter",
+    "evidence_for": [
+     {
+      "claim": "Interest expense and total debt both jumped sharply in the same quarter goodwill rose 66%",
+      "date": "2026-09-06",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "Net debt/EBITDA still ~1.6x and interest coverage ~9.4x, both healthy; pattern matches known one-off acquisition-financing signature (cf. MRVL G44) rather than a run-rate cost-of-debt change",
+      "date": "2026-09-06",
+      "source": "yfinance quarterly financials"
+     }
+    ],
+    "verified": "unverified",
+    "verified_against": "",
+    "verified_on": ""
+   }
+  ]
+ },
+ "book_pct_flagged": 19.3,
+ "top_concern": "BE's 39% YoY share dilution is the single largest quality flag by magnitude; NBIS+IREN together form a debt/capex-funded neocloud cluster worth watching jointly",
+ "financials_updates": {
+  "BE": {
+   "latest_period_end": "2026-06-30",
+   "fetched_at": "2026-09-06",
+   "quarters": [
+    {
+     "period_end": "2026-06-30",
+     "revenue": 1070000000,
+     "ocf": 226430000,
+     "capex": -51640000,
+     "net_income": 196290000,
+     "op_income": 182240000,
+     "interest_expense": 8910000,
+     "total_debt": 2810000000,
+     "sbc": 57230000,
+     "diluted_shares": 323330000
+    },
+    {
+     "period_end": "2026-03-31",
+     "revenue": 751050000,
+     "ocf": 73610000,
+     "capex": -26180000,
+     "net_income": 70650000,
+     "op_income": 72190000,
+     "interest_expense": 8600000,
+     "total_debt": 2950000000,
+     "sbc": 45130000,
+     "diluted_shares": 319710000
+    }
+   ]
+  },
+  "NBIS": {
+   "latest_period_end": "2026-06-30",
+   "fetched_at": "2026-09-06",
+   "quarters": [
+    {
+     "period_end": "2026-06-30",
+     "revenue": 582300000,
+     "ocf": 2250000000,
+     "capex": -5660000000,
+     "net_income": -190400000,
+     "op_income": -175900000,
+     "interest_expense": 119100000,
+     "total_debt": 10060000000,
+     "sbc": 102500000,
+     "diluted_shares": 280380000
+    },
+    {
+     "period_end": "2026-03-31",
+     "revenue": 399000000,
+     "ocf": 2260000000,
+     "capex": -2470000000,
+     "net_income": 621200000,
+     "op_income": -128000000,
+     "interest_expense": 63700000,
+     "total_debt": 9500000000,
+     "sbc": 35300000,
+     "diluted_shares": 308970000
+    }
+   ]
+  },
+  "IREN": {
+   "latest_period_end": "2026-06-30",
+   "fetched_at": "2026-09-06",
+   "quarters": [
+    {
+     "period_end": "2026-06-30",
+     "revenue": 137230000,
+     "ocf": 1810000000,
+     "capex": -1980000000,
+     "net_income": -684000000,
+     "op_income": -140620000,
+     "interest_expense": 24470000,
+     "total_debt": 7840000000,
+     "sbc": 42900000,
+     "diluted_shares": 333730000
+    }
+   ]
+  },
+  "SMCI": {
+   "latest_period_end": "2026-06-30",
+   "fetched_at": "2026-09-06",
+   "quarters": [
+    {
+     "period_end": "2026-06-30",
+     "revenue": 11120000000,
+     "ocf": 746960000,
+     "capex": -28230000,
+     "net_income": 1180000000,
+     "op_income": 1490000000,
+     "interest_expense": 79800000,
+     "total_debt": 8760000000,
+     "sbc": 106560000,
+     "diluted_shares": 705000000
+    },
+    {
+     "period_end": "2026-03-31",
+     "revenue": 10240000000,
+     "ocf": -6620000000,
+     "capex": -80280000,
+     "net_income": 483390000,
+     "op_income": 625870000,
+     "interest_expense": 64480000,
+     "total_debt": 8810000000,
+     "sbc": 125930000,
+     "diluted_shares": 692190000
+    }
+   ]
+  },
+  "APH": {
+   "latest_period_end": "2026-06-30",
+   "fetched_at": "2026-09-06",
+   "quarters": [
+    {
+     "period_end": "2026-06-30",
+     "revenue": 7620000000,
+     "ocf": 1120000000,
+     "capex": -291600000,
+     "net_income": 933000000,
+     "op_income": 1950000000,
+     "interest_expense": 207900000,
+     "total_debt": 18750000000,
+     "sbc": 34200000,
+     "diluted_shares": 1290000000
+    }
+   ]
+  }
+ },
+ "data_quality": [
+  "EDGAR verify calls for BE/NBIS returned truncated output this session \u2014 findings marked secondary/unverified pending clean re-verification",
+  "budget-limited: 17 other holdings (GEV,MRVL,VRT,STM,TER,ASML,MU,ALAB,INTC,AMD,COHR,AMAT,GOOG,TSM,NVDA,KLAC) not independently re-audited this pass per dispatch priority on BE/NBIS/IREN/SMCI/APH",
+  "quality_financials cache was null entering this run (full cache miss) \u2014 all fetched fresh"
+ ]
+}

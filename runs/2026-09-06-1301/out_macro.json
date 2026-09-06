@@ -1,0 +1,40 @@
+{
+ "fed_funds_pct": 3.63,
+ "fomc_stance": "hawkish",
+ "fomc_cache_update": {
+  "rate_pct": 3.63,
+  "stance": "HAWKISH",
+  "next_check_date": "2026-09-17"
+ },
+ "spy_pcr": 1.117,
+ "spy_pcr_oi": 1.117,
+ "spy_pcr_vol": 1.049,
+ "spy_pcr_oi_source": "yfinance-chain",
+ "spy_pcr_vol_source": "yfinance-chain",
+ "spy_max_pain": 770,
+ "qqq_pcr": 0.692,
+ "qqq_pcr_oi": 0.692,
+ "qqq_pcr_vol": 0.858,
+ "qqq_pcr_oi_source": "yfinance-chain",
+ "qqq_pcr_vol_source": "yfinance-chain",
+ "qqq_max_pain": 718,
+ "calendar": {
+  "next_fomc": "2026-09-16",
+  "next_cpi": "2026-09-11",
+  "next_nfp": "2026-10-02",
+  "earnings_season_window": false
+ },
+ "regime": "neutral",
+ "regime_note": "narrow-breadth risk-on (semis) vs broad-index risk-off (SPX/10Y) \u2014 yield-fragile into FOMC",
+ "cluster_impact": {
+  "ai_capex_chain": "favored short-term on momentum, most exposed to hawkish FOMC surprise",
+  "rate_sensitive": "pressured by 10Y near 4.78% and hawkish stance",
+  "defensives": "neutral-to-favored as breadth-divergence hedge"
+ },
+ "data_quality": [
+  "Barchart PCR WebFetch returned empty for both SPY and QQQ \u2014 fell back to yfinance single-expiry (2026-09-08, 3DTE) chain",
+  "yfinance chain unusually had non-zero OI this run, contra documented G18 all-zero-OI failure mode \u2014 treat as narrow-window (7 strikes) approximation, not comparable to Barchart whole-chain aggregates",
+  "max-pain computed only across the narrow strike window returned (767-773 SPY, 716-722 QQQ), not the full chain",
+  "FOMC decision date sourced via web search (Fed press release naming convention), not independently re-verified against federalreserve.gov calendar page"
+ ]
+}

@@ -1,0 +1,23 @@
+{"lot_file_state":{"reconciled":"32/32","lots_dated":"72/72","trusted":true,"note":"lots.json rebuilt mid-run at 13:09 (_rebuilt 2026-09-06); pre-rebuild read showed 26/32 with 6 mismatches incl. GLW +5 -- all figures re-derived post-rebuild"},
+ "ltcg_window":{"earliest_open_lot":"2026-07-21","first_crossing":"2028-07-21","live_decisions":false,"note":"All 72 open lots are short-term. No trim this run can be deferred into long-term treatment; there is no LTCG decision to make and no urgency to claim."},
+ "trim_sequencing":[
+  {"ticker":"MRVL","proposal_id":"P-192","size_usd":220.0,"fifo":{"lots":["2026-08-21 @236.92 x0.9842"],"realised_gain_usd":-13.16},"hifo":{"lots":["2026-08-21 @236.92 x0.9842"],"realised_gain_usd":-13.16},"tax_delta_usd":0.0,"material":false},
+  {"ticker":"MSFT","proposal_id":"P-207","size_usd":152.66,"fifo":{"lots":["2026-08-10 @509.86 x0.3055"],"realised_gain_usd":-3.10},"hifo":{"lots":["2026-08-10 @509.86 x0.3055"],"realised_gain_usd":-3.10},"tax_delta_usd":0.0,"material":false},
+  {"ticker":"AVGO","proposal_id":"P-212","size_usd":142.6,"fifo":{"lots":["2026-08-27 @369.52 x0.3984"],"realised_gain_usd":-4.63},"hifo":{"lots":["2026-08-27 @369.52 x0.3984"],"realised_gain_usd":-4.63},"tax_delta_usd":0.0,"material":false},
+  {"ticker":"FSLR","proposal_id":"P-214","size_usd":182.69,"fifo":{"lots":["2026-08-31 @202.15 x0.8936"],"realised_gain_usd":2.06},"hifo":{"lots":["2026-08-31 @202.15 x0.8936"],"realised_gain_usd":2.06},"tax_delta_usd":0.0,"material":false},
+  {"ticker":"AMD","proposal_id":"P-215","size_usd":273.07,"fifo":{"lots":["2026-08-12 @491.12 x0.5718"],"realised_gain_usd":-7.75},"hifo":{"lots":["2026-08-12 @491.12 x0.5718"],"realised_gain_usd":-7.75},"tax_delta_usd":0.0,"material":false}],
+ "price_source":{"source":"compute_book.json positions","as_of":"2026-09-04 close","session":"closed_weekend"},
+ "harvest_candidates":[
+  {"ticker":"STM","unrealised_loss_usd":-53.90,"thesis_status":"watch","tension":"none -- only clean candidate: no open proposal, no recent fill, watch thesis"},
+  {"ticker":"AMAT","unrealised_loss_usd":-65.24,"thesis_status":"strengthening","tension":"largest loss but it is the BUY leg of P-192 and thesis is strengthening"},
+  {"ticker":"MRVL","unrealised_loss_usd":-52.15,"thesis_status":"strengthening","tension":"is itself the P-192 sell leg"},
+  {"ticker":"GEV","unrealised_loss_usd":-45.21,"thesis_status":"strengthening","tension":"harvesting sells conviction"},
+  {"ticker":"ASML","unrealised_loss_usd":-30.37,"thesis_status":"watch","tension":"0.25sh added 2026-09-03 -- harvest would undo a three-day-old fill"},
+  {"ticker":"GOOG","unrealised_loss_usd":-27.68,"thesis_status":"strengthening","tension":"harvesting sells conviction"},
+  {"ticker":"AVGO","unrealised_loss_usd":-23.25,"thesis_status":"watch","tension":"P-212 already trims part of this position"},
+  {"ticker":"AMD","unrealised_loss_usd":-18.01,"thesis_status":"watch","tension":"1sh added 2026-09-04; P-215 sells part of it"},
+  {"ticker":"MSFT","unrealised_loss_usd":-10.16,"thesis_status":"watch","tension":"P-207 sells part of it"},
+  {"ticker":"LRCX","unrealised_loss_usd":-10.00,"thesis_status":"strengthening","tension":"harvesting sells conviction"}],
+ "wash_sale_note":"India has no US-style 30-day wash-sale prohibition on equities. Rebuying STM soon after a harvest is legal but resets basis lower, surrendering future downside cushion -- an economic trade-off, not a legal bar.",
+ "fy_window":{"fy_ends":"2027-03-31","in_harvest_window":false,"note":"today 2026-09-06, ~4 months before the Jan-Mar window; no timing pressure"},
+ "data_quality":["lots.json was rebuilt by smith-ledger mid-run; all output derived from the post-rebuild file.","Realised gains booked FY-to-date not supplied in slice_tax.json -- harvest tax BENEFIT cannot be sized, only gross unrealised loss. Not estimated.","holdings.json loss percentages diverge from lots-derived weighted basis (AMAT -5.05% vs -4.55%, AMD -2.08% vs -1.24%, ASML -2.15% vs -1.40%, APH -1.11% vs -0.12%). Direction agrees; magnitude does not. Lots basis is tax-correct; gap warrants a ledger check.","compute_book.json ltcg_flags is empty -- consistent with the mid-2028 first crossing, not a data failure."]}

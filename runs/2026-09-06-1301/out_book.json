@@ -1,0 +1,39 @@
+{
+ "div_yield_pct": 0.081,
+ "ex_dates": [
+  {
+   "ticker": "TSM",
+   "ex_dividend_date": "2026-09-16",
+   "days_out": 10
+  },
+  {
+   "ticker": "AVGO",
+   "ex_dividend_date": "2026-09-21",
+   "days_out": 15
+  },
+  {
+   "ticker": "APH",
+   "ex_dividend_date": "2026-09-22",
+   "days_out": 16
+  }
+ ],
+ "ltcg_narrative": [
+  {
+   "ticker": null,
+   "months_to_ltcg": null,
+   "note": "ltcg_flags empty and correct -- earliest open lot 2026-07-15, 24-month boundary ~2028-07, no live LTCG-deferral decisions in the book"
+  }
+ ],
+ "refreshed_betas": {
+  "ALAB": 1.634,
+  "APH": 0.539,
+  "FSLR": 0.17
+ },
+ "risk_narrative": "BE (5.10% wt, beta 2.105) and NBIS (3.99% wt, beta 2.636) contribute disproportionate risk -- 7.57%/7.43% of risk_concentration vs their smaller dollar weight -- while GEV, the largest single position at 9.50%, is risk-light (beta 0.777), making it a size concentration rather than a risk concentration. Portfolio beta 1.417 vs SMH confirms the book runs hotter than the semis benchmark. Drawdown is 0.0% at a fresh peak ($42,418.68); cash 6.39% is mid-band. No policy-threshold proximity.",
+ "data_quality": [
+  "APH has no lots.json entry despite a confirmed 10-share position (qty_changes 0->10, est_cost $827.80) -- ledger gap for smith-ledger, not a beta issue",
+  "dividend/ex-date screen covered only 5 of 32 names (APH/AVGO/GLW/MSFT/TSM); rest of book not checked this run",
+  "dispatch top3 did not match compute_book.top3 (GEV 9.501/ASML 5.399/BE 5.095) -- used compute_book as ground truth"
+ ],
+ "beta_benchmark": "SMH"
+}

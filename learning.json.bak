@@ -342,6 +342,114 @@
       },
       "run_dir": "2026-09-03-1845",
       "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-03",
+      "param_id": "usage:smith-strategist",
+      "value": {
+        "tokens": 138195,
+        "tool_calls": 27,
+        "duration_s": 470.0,
+        "mode": "quick"
+      },
+      "run_dir": "2026-09-03-1845",
+      "note": "mode=quick"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-scout",
+      "value": {
+        "tokens": 74977,
+        "tool_calls": 6,
+        "duration_s": 62.0,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-06-1301",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-watchlist",
+      "value": {
+        "tokens": 96184,
+        "tool_calls": 9,
+        "duration_s": 96.0,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-06-1301",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-ledger",
+      "value": {
+        "tokens": 107874,
+        "tool_calls": 24,
+        "duration_s": 125.0,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-06-1301",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-quality",
+      "value": {
+        "tokens": 89789,
+        "tool_calls": 14,
+        "duration_s": 128.0,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-06-1301",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-tax",
+      "value": {
+        "tokens": 77880,
+        "tool_calls": 12,
+        "duration_s": 144.0,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-06-1301",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-signals",
+      "value": {
+        "tokens": 144878,
+        "tool_calls": 22,
+        "duration_s": 286.0,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-06-1301",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-cycle",
+      "value": {
+        "tokens": 91047,
+        "tool_calls": 19,
+        "duration_s": 207.0,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-06-1301",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-strategist",
+      "value": {
+        "tokens": 87986,
+        "tool_calls": 2,
+        "duration_s": 105.0,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-06-1301",
+      "note": "mode=deep"
     }
   ],
   "parameters": {
@@ -658,6 +766,14 @@
       "text": "Extended the citation audit to the 3 reference/*.md files (dashboard.md, proposals-engine.md, deep-mode-dispatch.md). Key finding, consistent with the agent-files finding: these are NOT bloat to fix, they are ALREADY the correct destination. Both dashboard.md and proposals-engine.md were explicitly split out of SKILL.md on 2026-08-30/-31 for exactly the reason this whole sweep has been chasing -- their own opening lines say so verbatim ('SKILL.md keeps every operative rule; this file holds the WHY, on the same principle as DECISIONS.md'). They are read on-demand (before editing the dashboard builder, before touching a proposal-engine weight), not on every run, so they don't carry SKILL.md's read-every-run cost either. Compressing them further would undo the exact split that already solved this problem for this content. One real bug found and fixed: deep-mode-dispatch.md cited known_gaps G7 for 'silently dropping sub-agents mid-orchestration', but G7 doesn't exist in the registry and -- unlike G5/G10/G87 earlier -- the citing text carried no date, ticker, or incident specifics to responsibly backfill from, just a vague 'has happened before'. Removed the dead pointer rather than fabricate a gap entry from nothing, which would have been worse than the missing citation it replaced. Checked internal G-number repeats in all 3 files (G34 x3 in dashboard.md, G71 x2 in proposals-engine.md) -- both are legitimate distinct facets of the same incident within a short span, not duplication. Generalise: before applying a fix pattern to a new location, check whether that location already IS the fix -- these three files exist because someone already did the SKILL.md-style split for exactly this content; the sweep's job there was verification (are the citations still correct), not the compression itself.",
       "evidence": "reference/deep-mode-dispatch.md G7 citation removed (no backfill possible, insufficient detail); dashboard.md and proposals-engine.md opening lines confirm they are the designed WHY-destination, not bloat targets",
       "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-06",
+      "kind": "correction",
+      "text": "USAGE AUDIT (auto-logged, 2026-09-06-1301): smith-catalyst used 7 tool calls this run vs its stated budget of <=6. Investigate whether this run's dispatch prompt asked smith-catalyst to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
+      "evidence": "usage-audit run_id=2026-09-06-1301, agent=smith-catalyst, tokens=83923, tool_calls=7, duration_s=47.0",
+      "source_run": "2026-09-06-1301",
       "supersedes": null
     }
   ]
