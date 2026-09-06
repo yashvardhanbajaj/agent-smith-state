@@ -450,6 +450,54 @@
       },
       "run_dir": "2026-09-06-1301",
       "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-thesis",
+      "value": {
+        "tokens": 92539,
+        "tool_calls": 8,
+        "duration_s": 78.0,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-06-1301",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-catalyst",
+      "value": {
+        "tokens": 83923,
+        "tool_calls": 7,
+        "duration_s": 47.0,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-06-1301",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-book",
+      "value": {
+        "tokens": 90368,
+        "tool_calls": 10,
+        "duration_s": 99.0,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-06-1301",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-06",
+      "param_id": "usage:smith-macro",
+      "value": {
+        "tokens": 80686,
+        "tool_calls": 9,
+        "duration_s": 88.0,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-06-1301",
+      "note": "mode=deep"
     }
   ],
   "parameters": {
@@ -780,6 +828,14 @@
       "date": "2026-09-06",
       "kind": "correction",
       "text": "SELL-SIDE STACK GUARD DID NOT FIRE ON A RECURRENCE OF THE EXACT CASE IT WAS BUILT FOR. The 2026-09-01 lesson recorded P-164 Sell MSFT 437.92 (accepted_by_user, never executed) stacking with an open MSFT sell, and the fix was supposed to FLAG sell-side stacks at 50pct of position value. On the 2026-09-06 deep run the same P-164 is STILL accepted-and-unexecuted and now stacks with new P-224 Sell MSFT 600.00 -- combined 1037.92 against a 499.70 position, 207.7pct -- and cmd_proposals emitted ZERO review_flags. Two more stacks went equally unflagged: AVGO P-212 142.60 + P-226 500.00 = 89.8pct of position, and FSLR P-214 182.69 + P-228 300.00 = 78.7pct. Probable cause: the dedup/flag pass buckets 'Trim X' and 'Sell X' as DIFFERENT directions, so a Trim and a Sell on one ticker are never compared to each other -- the opposite of the documented intent that direction buckets collapse raw verbs. Separately, CIEN carries an accepted sell P-186 for 341.56 against a position now worth 2.74 while this same run proposed BUYING CIEN 200 on conviction_average -- an accepted-but-stale sell and a fresh buy on one ticker, neither aware of the other. GENERALISE: a guard written against one status pair (open+open) does not cover the status pair that actually recurs (accepted_by_user+open), and a guard keyed on verb strings does not cover the synonym set. Verify a guard fires by reconstructing the original incident against the live engine, not by reading the code that was written to catch it.",
+      "evidence": null,
+      "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-06",
+      "kind": "correction",
+      "text": "A SNAPSHOT-VS-LIVE DIVERGENCE IS NOT AUTOMATICALLY A STALE FEED, AND THE STALENESS GATE'S 'LIVE QUOTE WINS' RULE HAS THE WRONG DEFAULT AFTER THE CLOSE. On 2026-09-06 BE's INDmoney snapshot price was 266.17 against a yfinance regular-session close of 252.87, a 5.26pct divergence and the only name over the 3pct gate. The run flagged it as suspect data and overrode it with the yfinance close per the STALENESS GATE. The user corrected this: BE actually rose in the POST-MARKET session, so INDmoney was carrying a genuine extended-hours print and was the FRESHER of the two sources -- the override substituted a staler price for a newer one and understated the position by 8sh x 13.30 = 106.40. THE STRUCTURAL POINT: SKILL.md 2.5 already knows INDmoney exposes ext_hr_live_price and instructs using it PRE-market, but the STALENESS GATE's arbitration rule assumes divergence means INDmoney lags, which is only reliably true intraday. After the cash close -- including every weekend run, where 'live quote' means Friday's 16:00 ET print and nothing else -- INDmoney can legitimately lead yfinance's regular-session close by the whole extended-hours move. RULE: before overriding a snapshot price on the 3pct gate, check the DIRECTION and TIMING against the extended-hours session. If the divergence is consistent with a post-market move on that name, the snapshot is the live quote and it wins; only override when the snapshot is genuinely behind. Cheapest confirmation is get_us_stocks_details' ext_hr_live_price plus ext_hr_prev_close on that single name, which is one call, not a book-wide refetch. GENERALISE: an arbitration rule that names a winner by SOURCE rather than by TIMESTAMP will be wrong whenever the sources swap which one is ahead.",
       "evidence": null,
       "source_run": null,
       "supersedes": null

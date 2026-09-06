@@ -415,7 +415,13 @@ FRESHNESS = {
     # 21 days, not 30: the tracker's own read_this_first tells consumers to degrade confidence
     # past ~30 days, so escalating at 21 leaves a week to refresh BEFORE it breaches its own
     # rule. `escalate` makes dark_at == ttl, so `validate` fails rather than merely noting it.
-    "hbm_tracker":                 {"stamp": "field:last_run", "ttl_days": 21, "owner": "hbm-tracker", "on_stale": "escalate"},
+    # Stamped on `oldest_price_as_of`, NOT `last_run` (corrected 2026-09-06, same day it was
+    # added). What these three sub-agents consume is PRICE data, and the tracker can legitimately
+    # run without finding a fresh contract quote -- the 2026-09-06 narrow refresh did exactly
+    # that: run age 0 days, price age 32. Stamping on last_run would let any refresh reset this
+    # gate while the prices it guards stayed a month old, which is the failure this row exists
+    # to prevent, reintroduced through the back door.
+    "hbm_tracker":                 {"stamp": "field:oldest_price_as_of", "ttl_days": 21, "owner": "hbm-tracker", "on_stale": "escalate"},
 }
 
 # How far past ttl an artefact must be before its capability counts as genuinely OFF rather

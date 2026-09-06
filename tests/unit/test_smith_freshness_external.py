@@ -25,7 +25,9 @@ class TestExternalProducerFreshness:
     def test_hbm_tracker_is_declared_and_escalates(self):
         row = sc.FRESHNESS.get("hbm_tracker")
         assert row is not None, "hbm_tracker must stay declared -- 3 sub-agents read it every deep run"
-        assert row["stamp"] == "field:last_run"
+        # Stamped on the PRICE age, not the run age. See test_run_freshness_does_not_mask_
+        # stale_prices below for why this specific field and not last_run.
+        assert row["stamp"] == "field:oldest_price_as_of"
         assert row["owner"] == "hbm-tracker"
         # escalate makes dark_at == ttl, so `validate` FAILS rather than merely noting it.
         assert row["on_stale"] == "escalate"
@@ -52,7 +54,8 @@ class TestExternalProducerFreshness:
         """The founding case: last_run 2026-08-05 evaluated at 2026-09-06 is 32 days, past a
         21-day escalate TTL, and must come back `dark` -- not fresh, not merely stale."""
         ext = tmp_path / "consumer_view.json"
-        ext.write_text(json.dumps({"last_run": "2026-08-05", "schema_version": 1}))
+        ext.write_text(json.dumps({"last_run": "2026-08-05", "oldest_price_as_of": "2026-08-05",
+                                   "schema_version": 1}))
         monkeypatch.setattr(sm, "SHARED_SOURCES", {"hbm_tracker": str(ext)})
         (tmp_path / "state.json").write_text("{}")
         (tmp_path / "proposals.json").write_text("{}")
@@ -65,7 +68,7 @@ class TestExternalProducerFreshness:
 
     def test_fresh_tracker_reads_fresh(self, tmp_path, monkeypatch):
         ext = tmp_path / "consumer_view.json"
-        ext.write_text(json.dumps({"last_run": "2026-09-01"}))
+        ext.write_text(json.dumps({"last_run": "2026-09-01", "oldest_price_as_of": "2026-09-01"}))
         monkeypatch.setattr(sm, "SHARED_SOURCES", {"hbm_tracker": str(ext)})
         (tmp_path / "state.json").write_text("{}")
         (tmp_path / "proposals.json").write_text("{}")
@@ -81,3 +84,30 @@ class TestExternalProducerFreshness:
         rows = {r["key"]: r for r in
                 sm.evaluate_freshness(sm.freshness_root(str(tmp_path), state={}), date(2026, 9, 6))}
         assert rows["hbm_tracker"]["state"] == "missing"
+
+    def test_run_freshness_does_not_mask_stale_prices(self, tmp_path, monkeypatch):
+        """The exact 2026-09-06 case. A NARROW REFRESH ran that day and found no fresh contract
+        quote -- legitimately, the market had not published one. That set the tracker's
+        `last_run` to today while every priced generation stayed at 2026-08-05.
+
+        Stamping this row on `last_run` would have marked the artefact fresh and silenced the
+        dispatch trigger, so the next deep run would read month-old prices behind a green gate:
+        the precise failure this row was added to prevent, reintroduced by the fix for it.
+        Stamping on `oldest_price_as_of` keeps the gate honest -- a run that refreshes context
+        without refreshing prices does not clear it."""
+        ext = tmp_path / "consumer_view.json"
+        ext.write_text(json.dumps({
+            "last_run": "2026-09-06",            # run is current...
+            "staleness_days": 0,
+            "oldest_price_as_of": "2026-08-05",  # ...but the prices are not
+            "max_price_staleness_days": 32,
+        }))
+        monkeypatch.setattr(sm, "SHARED_SOURCES", {"hbm_tracker": str(ext)})
+        (tmp_path / "state.json").write_text("{}")
+        (tmp_path / "proposals.json").write_text("{}")
+        rows = {r["key"]: r for r in
+                sm.evaluate_freshness(sm.freshness_root(str(tmp_path), state={}), date(2026, 9, 6))}
+        r = rows["hbm_tracker"]
+        assert r["as_of"] == "2026-08-05", "must age the PRICE, not the run"
+        assert r["age_days"] == 32
+        assert r["state"] == "dark"
