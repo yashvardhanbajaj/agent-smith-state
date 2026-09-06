@@ -1935,6 +1935,13 @@ def freshness_root(base_dir, state=None):
     root = dict(state if state is not None
                 else load_json(os.path.join(base_dir, "state.json"), default={}))
     root["proposals"] = load_json(os.path.join(base_dir, "proposals.json"), default={})
+    # External producers Smith READS but does not write. Mounted under their SHARED_SOURCES key
+    # so FRESHNESS stays a flat declarative table (same reasoning as `proposals.` above) and so
+    # the path is declared exactly once for both the slice snapshot and the age check -- two
+    # copies of a path is how one of them goes stale. A missing file reads as `missing`, which
+    # for an `escalate` artefact is a validate defect, not a silence.
+    for key, path in SHARED_SOURCES.items():
+        root[key] = load_json(path, default={})
     return root
 
 

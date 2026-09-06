@@ -3308,9 +3308,9 @@
   "gate_classification STABILIZING is computed off Friday's close on a closed market -- context, not a live pre-market gate. Asia terms not fetched (not a pre-open run).",
   "G88 opened AND CLOSED this run: stack guard rebuilt, all 3 stacks (MSFT 207.7%, AVGO 89.8%, FSLR 78.7%) now fire HIGH.",
   "Two scheduled daily runs missing: 2026-09-04 and 2026-09-02 (no run dir, no ledger row).",
-  "HBM tracker snapshot 32 days stale -- exceeds its own ~30-day rule; memory-thesis corroboration degraded.",
   "BE/NBIS EDGAR verification truncated in the quality pass -- findings marked secondary, not primary.",
-  "smith-catalyst used 7 tool calls vs its <=6 budget (auto-logged)."
+  "smith-catalyst used 7 tool calls vs its <=6 budget (auto-logged).",
+  "HBM tracker snapshot 32 days stale (last_run 2026-08-05). Root cause: the tracker is an on-demand skill with no cadence and was NOT declared in Smith's FRESHNESS table, so Smith read it every deep run and owned none of its freshness -- this run's headline said 'all artefacts within TTL' while its most-cited external input was 32d old. FIXED same run: declared as hbm_tracker (21d TTL, escalate) and mounted via freshness_root; headline now reads 'Freshness: DARK hbm_tracker 32d' and validate fails on it. A narrow-refresh dispatch trigger was added for deep runs. The snapshot itself is still 32d old -- refresh not yet run."
  ],
  "market_closed_run": false,
  "peer_map": {

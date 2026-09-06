@@ -403,6 +403,19 @@ FRESHNESS = {
     "rebound_candidates":          {"stamp": "field:as_of", "ttl_days": 5,  "owner": "smith-rebound", "on_stale": "flag"},
     "cycle_position":              {"stamp": "field:as_of", "ttl_days": 35, "owner": "smith-cycle",   "on_stale": "escalate"},
     "quality_read":                {"stamp": "field:as_of", "ttl_days": 35, "owner": "smith-quality", "on_stale": "escalate"},
+    # --- EXTERNAL producer, mounted by freshness_root (2026-09-06) ---
+    # The HBM tracker is a SEPARATE, on-demand skill, but three Smith sub-agents (thesis,
+    # catalyst, cycle) read its consumer_view.json every deep run. Until this row existed Smith
+    # depended on it completely and owned none of its freshness: on 2026-09-06 the headline read
+    # "all artefacts within TTL" while the snapshot was 32 days old, and the staleness surfaced
+    # only because smith-thesis happened to check by hand. That is exactly the silence this
+    # table was built to end. It bit on the worst possible day -- Friday's move was a MEMORY
+    # event and the one in-house series that could have corroborated it had no datapoint near
+    # the date.
+    # 21 days, not 30: the tracker's own read_this_first tells consumers to degrade confidence
+    # past ~30 days, so escalating at 21 leaves a week to refresh BEFORE it breaches its own
+    # rule. `escalate` makes dark_at == ttl, so `validate` fails rather than merely noting it.
+    "hbm_tracker":                 {"stamp": "field:last_run", "ttl_days": 21, "owner": "hbm-tracker", "on_stale": "escalate"},
 }
 
 # How far past ttl an artefact must be before its capability counts as genuinely OFF rather
