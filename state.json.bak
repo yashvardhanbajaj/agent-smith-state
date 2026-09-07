@@ -190,7 +190,7 @@
       "weight_pct": 0.0003
     }
   ],
-  "news_watermark": "2026-09-01",
+  "news_watermark": "2026-09-07",
   "thesis": {
     "NVDA": {
       "status": "strengthening",
@@ -207,7 +207,7 @@
       "verified_against": "SEC 8-K filed 2026-08-17 (existence confirmed) + CNBC/Axios news",
       "verified_on": "2026-08-24",
       "note": "Confirms Nvidia guaranteeing up to $105B financing for OpenAI Ohio (Pike County/SB Energy) data center, plus $1.5B direct SB Energy investment; guarantee amount narrowed from an earlier $250B figure reported in prior weeks.",
-      "reviewed_on": "2026-08-31"
+      "reviewed_on": "2026-09-07"
     },
     "ASML": {
       "status": "watch",
@@ -245,19 +245,35 @@
       "verified_against": "",
       "verified_on": "",
       "note": "RESTORED 2026-08-10 (G58 audit). The tail kept only the improving-tone half, so the record read as if the China risk had resolved. It has not.",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "GEV": {
       "status": "strengthening",
-      "thesis": "Grid/power-gen equipment for AI datacenter electrification; Q2 rev +22%, raised guidance, $11B grid capex",
-      "evidence_for": [],
-      "evidence_against": [],
-      "verified": "unverified",
-      "verified_against": "",
-      "verified_on": "",
-      "note": "migrated from legacy bare-string schema 2026-08-16; the original string carried no evidence, so both arrays are explicitly empty rather than invented -- next smith-thesis touch should populate them",
-      "legacy_source": "Grid/power-gen equipment for AI datacenter electrification; Q2 rev +22%, raised guidance, $11B grid capex | strengthening",
-      "reviewed_on": "2026-08-31"
+      "thesis": "Hyperscaler grid/power-gen equipment (turbines + electrification), AI-DC power beneficiary; Q2 FY26 op income +73% YoY confirms operating strength, but trailing-4Q NI is distorted by one-off gains and is not a usable run-rate proxy",
+      "evidence_for": [
+        {
+          "claim": "Q2 FY26 operating income $655M +73% YoY on revenue $11.10B +22% YoY; net cash position; diluted shares -2.2% YoY",
+          "date": "2026-09-07",
+          "source": "smith-quality/yfinance quarterly financials"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "Trailing-4Q NI >5x trailing-4Q op income: Q1 FY26 10-Q shows pretax $5.10B vs op income $179M (a $4.92B non-operating gain that quarter) plus a Q4 FY25 $2.57B tax benefit",
+          "date": "2026-09-07",
+          "source": "SEC EDGAR XBRL, GEV 10-Q accn 0001996810-26-000064, via smith-quality"
+        },
+        {
+          "claim": "No insider buying observed in 60-day Form 4 scan",
+          "date": "2026-09-07",
+          "source": "SEC Form 4"
+        }
+      ],
+      "verified": "primary",
+      "verified_against": "SEC EDGAR XBRL companyconcept, GEV CIK 0001996810 (via smith-quality)",
+      "verified_on": "2026-09-07",
+      "note": "Status unchanged; quality flag is a measurement-quality caveat on trailing NI, not a thesis break.",
+      "reviewed_on": "2026-09-07"
     },
     "CLS": {
       "status": "strengthening",
@@ -269,30 +285,24 @@
       "verified_on": "2026-08-24",
       "note": "$3B share offering priced 2026-08-05 at $310 (bottom of range), completed 08-07; Scotiabank resumed Outperform 08-11, CIBC called it capital-structure de-risking. Corroborates 'dilutive-offering, not demand' framing of the -12.9% move.",
       "legacy_source": "EMS/AI ASIC builder; Q2 beat+raised guide, 08-06 -12.9% dilutive-offering hit was capital-structure not demand | strengthening",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "VRT": {
       "status": "watch",
-      "thesis": "Thermal/power management for AI datacenters; re-entered 3sh on a genuinely split print",
-      "evidence_for": [
-        {
-          "claim": "Q2 adj EPS $1.52 beat $1.43 consensus; FY26 guidance raised across all metrics; Q3 guide ~in-line-to-above",
-          "date": "2026-08-14",
-          "source": "stockanalysis.com/stocks/vrt"
-        }
-      ],
+      "thesis": "unchanged",
+      "evidence_for": [],
       "evidence_against": [
         {
-          "claim": "Q2 revenue $3.27B MISSED $3.38B consensus by ~$110M -- a separate signal from the EPS beat, deliberately not blended; stock fell 14-17% on the print before recovering",
-          "date": "2026-08-14",
-          "source": "stockanalysis.com/stocks/vrt"
+          "claim": "1 insider sold in last 60 days; no insider buying during drawdown",
+          "date": "2026-09-07",
+          "source": "SEC Form 4"
         }
       ],
-      "verified": "secondary",
-      "verified_against": "stockanalysis.com/stocks/vrt",
-      "verified_on": "2026-08-14",
-      "note": "re-entered 3sh. Contested verdict -- strategist retired the fresh-add proposal P-085 on exactly this basis.",
-      "reviewed_on": "2026-09-06"
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "insider note added; status unchanged",
+      "reviewed_on": "2026-09-07"
     },
     "AVGO": {
       "status": "watch",
@@ -335,35 +345,40 @@
       "verified_against": "stockanalysis.com/stocks/avgo",
       "verified_on": "2026-09-03",
       "note": "Downgraded from strengthening. Reported quarter and guide treated as separate signals per G58; guide was in-line with analyst consensus but read as a miss vs buy-side whisper \u2014 not a clean guide_below_consensus by strict definition.",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "MRVL": {
       "status": "strengthening",
-      "thesis": "Custom AI silicon/optical interconnect; expanded Google partnership; Fri -5.57% confirmed as profit-taking post-rally, not a pre-earnings guidance concern",
+      "thesis": "Custom AI ASICs/networking silicon for hyperscalers; Q2 FY26 beat + guide_above_consensus, G44 interest-coverage scare resolved, but SBC/dilution trend and insider selling are new watch items",
       "evidence_for": [
         {
-          "claim": "expanded Google partnership incl. $12.2B warrants, 40% FY27 rev growth guided",
-          "date": "2026-08-20",
-          "source": "INDmoney news"
+          "claim": "Q2 FY26 EPS $0.94 beat $0.93 consensus; Q3 guide ~4% above consensus",
+          "date": "2026-09-07",
+          "source": "smith-earnings earnings_facts cache"
+        },
+        {
+          "claim": "OCF $605.5M vs NI $308.0M (1.97x); interest expense normalized to $81.4M (5.6x op-income coverage), confirming G44 resolution held",
+          "date": "2026-09-07",
+          "source": "yfinance quarterly financials via smith-quality"
         }
       ],
       "evidence_against": [
         {
-          "claim": "08-21 -5.57% drop confirmed as profit-taking after the Google-news rally, no pre-announcement or guidance issue found",
-          "date": "2026-08-24",
-          "source": "stockanalysis.com/stocks/mrvl"
+          "claim": "Diluted shares +5.8% YoY (870.4M to 921.2M); SBC/revenue climbed 6.4%->8.6%->11.9% over 3 consecutive quarters",
+          "date": "2026-09-07",
+          "source": "yfinance quarterly financials via smith-quality"
         },
         {
-          "claim": "CEO insider selling ahead of 08-27 print flagged as an optics concern",
-          "date": "2026-08-18",
-          "source": "INDmoney news"
+          "claim": "3 distinct insiders (Bharathi, Koopmans, CEO Murphy) sold in the last 60 days while stock is -32% off 52wk high -- not a formal sell-into-rally flag but a negative tell",
+          "date": "2026-09-07",
+          "source": "SEC Form 4"
         }
       ],
       "verified": "secondary",
-      "verified_against": "stockanalysis.com/stocks/mrvl",
-      "verified_on": "2026-08-24",
-      "note": "pre-earnings check done ahead of 08-27 print per user request; no guidance concern found",
-      "reviewed_on": "2026-09-06"
+      "verified_against": "smith-earnings/smith-quality tails this run",
+      "verified_on": "2026-09-07",
+      "note": "Upgraded from status-only to full entry this run given material new findings.",
+      "reviewed_on": "2026-09-07"
     },
     "CIEN": {
       "status": "strengthening",
@@ -401,7 +416,7 @@
       "verified_against": "stockanalysis.com/stocks/cien",
       "verified_on": "2026-09-03",
       "note": "Upgraded from watch. The 08-13 weak-guide claim is SUPERSEDED by the 09-03 raise but kept in the array, not dropped, per G58.",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "QCOM": {
       "status": "strengthening",
@@ -413,7 +428,7 @@
       "verified_on": "",
       "note": "migrated from legacy bare-string schema 2026-08-16; the original string carried no evidence, so both arrays are explicitly empty rather than invented -- next smith-thesis touch should populate them",
       "legacy_source": "Diversifying from handsets into AI/datacenter CPUs and auto | strengthening",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "TER": {
       "status": "strengthening",
@@ -425,7 +440,7 @@
       "verified_on": "2026-08-24",
       "note": "Q2 revenue >100% YoY, EPS $2.47 non-GAAP vs $2.05 consensus; Q3 guide well above consensus; CEO cited test demand 'from wafer to AI data center.'",
       "legacy_source": "Semicap automated test equipment geared to AI chip test volume | strengthening",
-      "reviewed_on": "2026-08-31"
+      "reviewed_on": "2026-09-07"
     },
     "TSM": {
       "status": "strengthening",
@@ -447,40 +462,24 @@
       "verified_against": "",
       "verified_on": "",
       "note": "none found this run; not independently re-verified via stockanalysis.com this run, no status change",
-      "reviewed_on": "2026-08-31"
+      "reviewed_on": "2026-09-07"
     },
     "MU": {
       "status": "watch",
-      "thesis": "Memory (DRAM/HBM); WATCH is CXMT structural/capacity risk, not ASP -- HBM3E flat within basis; new Druckenmiller stake + CXL partnership noted",
-      "evidence_for": [
-        {
-          "claim": "Druckenmiller small stake + Primemas CXL memory-expansion partnership amid memory-shortage strength",
-          "date": "2026-08-24",
-          "source": "INDmoney news"
-        },
-        {
-          "claim": "2027 HBM contract prices forecast +80-150%",
-          "date": "2026-06-02",
-          "source": "HBMTracker consumer_view.json forecasts"
-        }
-      ],
+      "thesis": "Memory (DRAM/HBM); WATCH is CXMT structural/capacity risk, not ASP -- HBM3E flat within basis",
+      "evidence_for": [],
       "evidence_against": [
         {
-          "claim": "CXMT closing DRAM wafer-capacity gap to ~25k WSPM end-2026 vs Micron 375k",
-          "date": "2026-08-16",
-          "source": "smith-catalyst scan"
-        },
-        {
-          "claim": "HBM4 Vera Rubin allocation: SK Hynix 60-70%, Samsung 25-30%, Micron low-single-to-teens",
-          "date": "2026-06-05",
-          "source": "HBMTracker supply_structure"
+          "claim": "CXMT reached HBM3E risk production, shipping qualification samples to Alibaba T-Head/Cambricon, ~1yr ahead of 2027 consensus timeline; qualification-stage only, not yet in supplier pricing",
+          "date": "2026-09-01",
+          "source": "smith-catalyst scan citing techtimes.com"
         }
       ],
       "verified": "unverified",
       "verified_against": "",
       "verified_on": "",
-      "note": "status unchanged; HBM3E ASP flat within basis confirms no ASP-based conflict with WATCH",
-      "reviewed_on": "2026-09-06"
+      "note": "reinforces existing structural WATCH, no verdict conflict with flat-within-basis ASP",
+      "reviewed_on": "2026-09-07"
     },
     "AMAT": {
       "status": "strengthening",
@@ -492,7 +491,7 @@
       "verified_on": "2026-08-24",
       "note": "Q3 revenue $9.12B beat $9.0B consensus, EPS $3.50 beat $3.39 consensus; Q4 guide $10.25B\u00b1500M. Stock fell ~5-6% post-print on valuation, separate from the fundamental beat.",
       "legacy_source": "Semicap deposition/etch equipment for AI chip fabs (position cut to dust, 0.012% weight -- sizing only, thesis unaffected) | strengthening",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "AMD": {
       "status": "watch",
@@ -530,30 +529,24 @@
       "verified_against": "stockanalysis.com/stocks/amd",
       "verified_on": "2026-08-14",
       "note": "re-entered 2sh; prior status exited",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "BE": {
       "status": "strengthening",
-      "thesis": "On-site fuel-cell power for AI datacenters; re-entered 2.75sh after a Q2 beat and raised guide",
-      "evidence_for": [
-        {
-          "claim": "Q2 revenue $1.07B and EPS $0.78 both beat; FY guidance raised; JPMorgan raised price target",
-          "date": "2026-08-13",
-          "source": "INDmoney news"
-        }
-      ],
+      "thesis": "unchanged",
+      "evidence_for": [],
       "evidence_against": [
         {
-          "claim": "scandium supply-chain class-action lawsuit filed; company rebutted citing confirmed non-China inventory independence",
-          "date": "2026-08-13",
-          "source": "INDmoney news"
+          "claim": "5 distinct insiders (Chambers, Chitoori, Immelt, Joshi, Soderberg) sold in last 60 days; stock -28% off 52wk high so no formal sell-into-rally flag fires",
+          "date": "2026-09-07",
+          "source": "SEC Form 4"
         }
       ],
       "verified": "unverified",
       "verified_against": "",
       "verified_on": "",
-      "note": "re-entered 2.75sh; prior status exited",
-      "reviewed_on": "2026-08-31"
+      "note": "insider seller count added; status unchanged",
+      "reviewed_on": "2026-09-07"
     },
     "GLW": {
       "status": "strengthening",
@@ -576,7 +569,7 @@
       "verified_against": "SEC 10-Q filed 2026-07-29 and 8-K filed 2026-07-28 (existence confirmed) + stockanalysis.com",
       "verified_on": "2026-08-24",
       "note": "Q2 2026 sales +17%, EPS +30%, growth led by Optical Communications; 19% sales CAGR target through 2030; Zayo fiber-supply expansion announced 2026-08-20. Confirms optical/specialty-glass AI-interconnect thesis.",
-      "reviewed_on": "2026-08-31"
+      "reviewed_on": "2026-09-07"
     },
     "LRCX": {
       "status": "strengthening",
@@ -588,7 +581,7 @@
       "verified_on": "",
       "note": "migrated from legacy bare-string schema 2026-08-16; the original string carried no evidence, so both arrays are explicitly empty rather than invented -- next smith-thesis touch should populate them",
       "legacy_source": "Semicap AI/DRAM capex beneficiary, re-entered post 2026-07-28 stop-out on record Q4 ($6.72bn rev) and raised guidance | strengthening",
-      "reviewed_on": "2026-08-31"
+      "reviewed_on": "2026-09-07"
     },
     "MSFT": {
       "status": "watch",
@@ -610,7 +603,7 @@
       "verified_against": "",
       "verified_on": "",
       "note": "No Azure-specific earnings/guidance check done (below G58 trigger); still no valuation view.",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "INTC": {
       "status": "watch",
@@ -653,7 +646,7 @@
       "verified_against": "yfinance get_key_stats 2026-08-10 (loss-making + valuation confirmed independently)",
       "verified_on": "2026-08-10",
       "note": "RESTORED 2026-08-10 (G58 audit). smith-thesis's prose flagged 'Mixed: -4.9% trailing annual sales decline / negative cash-flow concern' but its JSON tail kept only the bull case, so the permanent record on a 3-day-old position read one-sided. The negative half is real and was verified independently.",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "STM": {
       "status": "watch",
@@ -686,7 +679,7 @@
       "verified_against": "stockanalysis.com/stocks/STM",
       "verified_on": "2026-08-12",
       "note": "new DC-guidance item sourced INDmoney news 08-14, not independently re-verified via stockanalysis this run",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "GOOG": {
       "status": "strengthening",
@@ -703,7 +696,7 @@
       "verified_against": "",
       "verified_on": "",
       "note": "no new earnings event this run; next print ~late Oct",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "WDC": {
       "status": "strengthening",
@@ -726,7 +719,7 @@
       "verified_against": "SEC 8-K (press release) filed 2026-08-05 for Q4/FY26 earnings, plus 10-K filed 2026-08-14",
       "verified_on": "2026-08-24",
       "note": "FY26 revenue +36% YoY to $12.92B, Q4 +44% YoY; CEO Irving Tan on record: AI infrastructure buildout driving sustained data-storage demand. Upgraded secondary to primary per direct 8-K filing confirmation.",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "NBIS": {
       "status": "watch",
@@ -764,40 +757,30 @@
       "verified_against": "INDmoney news aggregation",
       "verified_on": "2026-08-24",
       "note": "no fresh news past the 09-01 watermark; qty-add reconciled as a sizing tension, not a status change.",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "SKHY": {
       "status": "strengthening",
-      "thesis": "Direct SK Hynix ADS -- best-positioned name for the 2027 HBM4 ramp; re-entered after being flagged stopped-out, now back at 2.11% weight.",
+      "thesis": "SK Hynix direct position; leads HBM4 Vera Rubin allocation (60-70% share) vs Samsung 25-30% and Micron low-single-to-teens",
       "evidence_for": [
         {
-          "claim": "SK Hynix 60-70% of HBM4 Vera Rubin allocation vs Micron low-single-to-low-teens",
+          "claim": "SK Hynix holds 60-70% of HBM4 Vera Rubin supplier allocation, largest share of current ramp",
           "date": "2026-06-05",
           "source": "HBMTracker consumer_view.json supply_structure"
-        },
-        {
-          "claim": "2027 HBM contract prices forecast +80-150% higher on tight DRAM supply and multi-year floor-price contracts",
-          "date": "2026-06-02",
-          "source": "HBMTracker consumer_view.json forecasts (TrendForce)"
         }
       ],
       "evidence_against": [
         {
-          "claim": "was flagged stopped-out as of 2026-08-20/2026-08-24; now confirmed back in holdings at 2.11% wt as of this run -- re-entry rationale not independently sourced",
-          "date": "2026-08-25",
-          "source": "holdings.json"
-        },
-        {
-          "claim": "HBM4 apparent +14.29% price move within stack_derived basis is an open, unresolved measurement-basis correction (C2, source-spread widening)",
-          "date": "2026-08-05",
-          "source": "HBMTracker consumer_view.json corrections[C2]"
+          "claim": "CXMT HBM3E risk-production catalyst applies to SKHY per affected-tickers list; qualification-stage only, not yet in pricing",
+          "date": "2026-09-07",
+          "source": "smith-catalyst scan"
         }
       ],
       "verified": "unverified",
       "verified_against": "",
       "verified_on": "",
-      "note": "Evidence refreshed to reflect re-entry.",
-      "reviewed_on": "2026-09-06"
+      "note": "first full write-up this run; status unchanged",
+      "reviewed_on": "2026-09-07"
     },
     "KLAC": {
       "status": "strengthening",
@@ -825,7 +808,7 @@
       "verified_against": "stockanalysis.com/stocks/klac + INDmoney news",
       "verified_on": "2026-08-25",
       "note": "First-ever thesis; brand-new position.",
-      "reviewed_on": "2026-08-31"
+      "reviewed_on": "2026-09-07"
     },
     "COHR": {
       "status": "strengthening",
@@ -858,7 +841,7 @@
       "verified_against": "stockanalysis.com/stocks/cohr",
       "verified_on": "2026-08-25",
       "note": "Reconciles smith-catalyst's exited-vs-held discrepancy.",
-      "reviewed_on": "2026-08-31"
+      "reviewed_on": "2026-09-07"
     },
     "LITE": {
       "status": "strengthening",
@@ -880,7 +863,7 @@
       "verified_against": "stockanalysis.com/stocks/lite",
       "verified_on": "2026-08-26",
       "note": "none found this run. RE-ENTERED 2026-09-03 (0->1sh); prior status at exit was STRENGTHENING not watch/broken, so re-entry is consistent with the standing thesis, not a reversal of a bearish call. Exit rationale (why stopped 09-01 after ~1 day) is uncaptured in the record.",
-      "reviewed_on": "2026-09-06",
+      "reviewed_on": "2026-09-07",
       "held": true,
       "exited": false
     },
@@ -925,7 +908,7 @@
       "verified_against": "stockanalysis.com/stocks/iren",
       "verified_on": "2026-08-29",
       "note": "re-entry, not first thesis; net-loss driver unresolved",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "SMCI": {
       "status": "watch",
@@ -963,7 +946,7 @@
       "verified_against": "stockanalysis.com/stocks/smci + WebSearch",
       "verified_on": "2026-08-26",
       "note": "first thesis, new position; genuinely mixed, not upgraded to strengthening",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "ALAB": {
       "status": "strengthening",
@@ -991,7 +974,7 @@
       "verified_against": "stockanalysis.com/stocks/alab",
       "verified_on": "2026-09-01",
       "note": "First-ever thesis, brand-new position (5sh, 4.22% wt). Classified AI Networking/Optics (exact policy.json string) -- no dedicated PCIe/CXL-retimer cluster exists.",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "FSLR": {
       "status": "watch",
@@ -1024,7 +1007,7 @@
       "verified_against": "stockanalysis.com/stocks/fslr",
       "verified_on": "2026-09-01",
       "note": "First-ever thesis, brand-new position (3sh, 1.72% wt). No dedicated solar/clean-energy diversifier cluster exists in policy.json cluster_targets; used the closest exact existing string (AI Power/Cooling/DC Infra) per this run's no-invent-taxonomy instruction. Flag for user: if the intent buying FSLR was a genuine non-AI-capex diversifier, evidence this run says it isn't one.",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     },
     "APH": {
       "status": "strengthening",
@@ -1047,7 +1030,7 @@
       "verified_against": "",
       "verified_on": "",
       "note": "NEW HOLDING, first appearance this run. Full thesis and cluster assignment written; no discrete corporate event yet to trigger G58 verification.",
-      "reviewed_on": "2026-09-06"
+      "reviewed_on": "2026-09-07"
     }
   },
   "sector_map": {
@@ -1089,12 +1072,9 @@
       "TARGET GAP"
     ],
     "TSM": [
-      "TARGET GAP",
-      "NEW TAILWINDS"
+      "TARGET GAP"
     ],
     "MU": [
-      "PEER LEADER",
-      "TARGET GAP",
       "NEW TAILWINDS"
     ],
     "MRVL": [
@@ -1106,14 +1086,12 @@
       "TARGET GAP"
     ],
     "AMD": [
-      "TARGET GAP",
-      "POLICY IMPACT"
+      "NEW TAILWINDS"
     ],
     "STM": [
       "TARGET GAP"
     ],
     "NVDA": [
-      "NEW TAILWINDS",
       "STRONG UPTREND",
       "TARGET GAP"
     ],
@@ -1122,7 +1100,7 @@
       "TARGET GAP"
     ],
     "GEV": [
-      "TARGET GAP"
+      "NEW TAILWINDS"
     ],
     "QCOM": [
       "PEER LAGGARD"
@@ -1136,8 +1114,7 @@
     "AMZN": [],
     "NOW": [],
     "MSFT": [
-      "NEW TAILWINDS",
-      "PEER LEADER"
+      "PEER_LEADER_OVERRIDDEN_FALSE_vs_XLK"
     ],
     "FLTW": [],
     "TER": [
@@ -1153,12 +1130,13 @@
       "TARGET GAP"
     ],
     "BE": [
-      "PEER LEADER",
-      "NEW TAILWINDS"
+      "TARGET_GAP_NOT_FIRED",
+      "PEER_LEADER_OVERRIDDEN_FALSE_vs_XLU"
     ],
     "IREN": [
       "PEER LEADER",
-      "TARGET GAP"
+      "TARGET GAP",
+      "NEW HEADWINDS"
     ],
     "INTC": [
       "TARGET GAP",
@@ -1186,7 +1164,7 @@
       "PEER LEADER"
     ],
     "GLW": [
-      "TARGET GAP"
+      "NEW TAILWINDS"
     ],
     "BX": [],
     "KLAC": [
@@ -1194,9 +1172,7 @@
       "TARGET GAP"
     ],
     "LRCX": [
-      "NEW TAILWINDS",
-      "PEER LEADER",
-      "TARGET GAP"
+      "NEW TAILWINDS"
     ],
     "SKHY": [
       "PEER LEADER",
@@ -1206,8 +1182,6 @@
       "PEER LEADER"
     ],
     "LITE": [
-      "PEER LEADER",
-      "TARGET GAP",
       "NEW TAILWINDS"
     ],
     "NBIS": [
@@ -1219,10 +1193,10 @@
       "TARGET GAP"
     ],
     "FSLR": [
-      "STRONG DOWNTREND",
       "OVERSOLD BOUNCE",
-      "TARGET GAP",
-      "PEER LAGGARD"
+      "STRONG DOWNTREND",
+      "PEER LAGGARD",
+      "TARGET GAP"
     ],
     "APH": [
       "STRONG UPTREND"
@@ -1598,10 +1572,9 @@
         "benchmark": "SMH"
       },
       "STM": {
-        "value": 1.521,
-        "as_of": "2026-08-16",
-        "benchmark": "SPX_native_yfinance",
-        "note": "refreshed 2026-08-16; prior cache entry was a bare number with no as_of/benchmark. This is yfinance NATIVE (S&P-benchmarked) beta, NOT the SMH regression used elsewhere -- re-derive vs SMH next deep run for consistency."
+        "value": 1.16,
+        "as_of": "2026-09-07",
+        "benchmark": "SMH"
       },
       "TXN": {
         "value": 1.325,
@@ -1673,7 +1646,7 @@
         "as_of": "2026-09-06",
         "benchmark": "SMH"
       },
-      "as_of": "2026-09-06"
+      "as_of": "2026-09-07"
     },
     "benchmark_betas": {
       "SPX": {
@@ -2149,12 +2122,12 @@
       "ASML": {
         "mean_target_usd": 2145.06,
         "n_analysts": 6,
-        "as_of": "2026-09-06"
+        "as_of": "2026-09-07"
       },
       "BE": {
         "mean_target_usd": 275.08,
         "n_analysts": 17,
-        "as_of": "2026-09-06"
+        "as_of": "2026-09-07"
       },
       "BX": {
         "mean_target_usd": 142.57,
@@ -2164,78 +2137,78 @@
       "GEV": {
         "mean_target_usd": 1236.43,
         "n_analysts": 21,
-        "as_of": "2026-09-06"
+        "as_of": "2026-09-07"
       },
       "GOOG": {
         "mean_target_usd": 422.34,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "n_analysts": 12,
+        "as_of": "2026-09-07"
       },
       "MRVL": {
-        "mean_target_usd": 284.8,
+        "mean_target_usd": 285.0,
         "n_analysts": 26,
-        "as_of": "2026-09-06"
+        "as_of": "2026-09-07"
       },
       "MU": {
         "mean_target_usd": 1513.11,
         "n_analysts": 32,
-        "as_of": "2026-09-06"
+        "as_of": "2026-09-07"
       },
       "STM": {
         "mean_target_usd": 75.04,
         "n_analysts": 9,
-        "as_of": "2026-09-06"
+        "as_of": "2026-09-07"
       },
       "VRT": {
         "mean_target_usd": 338.15,
-        "n_analysts": 16,
-        "as_of": "2026-09-06"
+        "n_analysts": 17,
+        "as_of": "2026-09-07"
       },
       "COHR": {
-        "mean_target_usd": 416.09,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "mean_target_usd": 415.36,
+        "n_analysts": 17,
+        "as_of": "2026-09-07"
       },
       "GLW": {
         "mean_target_usd": 191.4,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "n_analysts": 10,
+        "as_of": "2026-09-07"
       },
       "INTC": {
-        "mean_target_usd": 114.88,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "mean_target_usd": 115.78,
+        "n_analysts": 31,
+        "as_of": "2026-09-07"
       },
       "LRCX": {
-        "mean_target_usd": 371.19,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "mean_target_usd": 370.87,
+        "n_analysts": 23,
+        "as_of": "2026-09-07"
       },
       "MSFT": {
-        "mean_target_usd": 569.45,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "mean_target_usd": 572.92,
+        "n_analysts": 33,
+        "as_of": "2026-09-07"
       },
       "NVDA": {
-        "mean_target_usd": 323.42,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "mean_target_usd": 327.13,
+        "n_analysts": 29,
+        "as_of": "2026-09-07"
       },
       "QCOM": {
         "mean_target_usd": 193.1,
         "n_analysts": 24,
-        "as_of": "2026-09-06"
+        "as_of": "2026-09-07"
       },
       "TSM": {
-        "mean_target_usd": 554.45,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "mean_target_usd": 552.38,
+        "n_analysts": 8,
+        "as_of": "2026-09-07"
       },
-      "as_of": "2026-09-06",
+      "as_of": "2026-09-07",
       "AMAT": {
-        "mean_target_usd": 640.31,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "mean_target_usd": 640.89,
+        "n_analysts": 28,
+        "as_of": "2026-09-07"
       },
       "CEG": {
         "mean_target_usd": 348.3,
@@ -2244,8 +2217,8 @@
       },
       "WDC": {
         "mean_target_usd": 664.92,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "n_analysts": 20,
+        "as_of": "2026-09-07"
       },
       "BABA": {
         "mean_target_usd": 186.84,
@@ -2259,18 +2232,18 @@
       },
       "AMD": {
         "mean_target_usd": 613.84,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "n_analysts": 34,
+        "as_of": "2026-09-07"
       },
       "TER": {
         "mean_target_usd": 446.47,
         "n_analysts": 12,
-        "as_of": "2026-09-06"
+        "as_of": "2026-09-07"
       },
       "LITE": {
-        "mean_target_usd": 1148.3,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "mean_target_usd": 1148.43,
+        "n_analysts": 18,
+        "as_of": "2026-09-07"
       },
       "NBIS": {
         "mean_target_usd": 280.0,
@@ -2283,44 +2256,49 @@
         "as_of": "2026-09-06"
       },
       "KLAC": {
-        "mean_target_usd": 234.35,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "mean_target_usd": 233.77,
+        "n_analysts": 21,
+        "as_of": "2026-09-07"
       },
       "AVGO": {
-        "mean_target_usd": 525.97,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "mean_target_usd": 533.41,
+        "n_analysts": 28,
+        "as_of": "2026-09-07"
       },
       "SMCI": {
         "mean_target_usd": 42.38,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "n_analysts": 15,
+        "as_of": "2026-09-07"
       },
       "CLS": {
         "mean_target_usd": 477.22,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "n_analysts": 12,
+        "as_of": "2026-09-07"
       },
       "CIEN": {
-        "mean_target_usd": 551.86,
-        "n_analysts": 13,
-        "as_of": "2026-09-06"
+        "mean_target_usd": 504.13,
+        "n_analysts": 14,
+        "as_of": "2026-09-07"
       },
       "IREN": {
-        "mean_target_usd": 78.19,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "mean_target_usd": 77.84,
+        "n_analysts": 10,
+        "as_of": "2026-09-07"
       },
       "ALAB": {
         "mean_target_usd": 389.95,
         "n_analysts": 16,
-        "as_of": "2026-09-06"
+        "as_of": "2026-09-07"
       },
       "FSLR": {
         "mean_target_usd": 275.3,
-        "n_analysts": null,
-        "as_of": "2026-09-06"
+        "n_analysts": 26,
+        "as_of": "2026-09-07"
+      },
+      "APH": {
+        "mean_target_usd": 96.06,
+        "n_analysts": 11,
+        "as_of": "2026-09-07"
       }
     },
     "atr20": {
@@ -2720,10 +2698,31 @@
         "guide_next_q": "Q3 revenue guide ~4% above consensus -- stock fell on valuation/position unwind after a 179% YTD run, not a guidance miss"
       },
       "AVGO": {
+        "period": "Q3 FY2026",
+        "reported_date": "2026-09-02",
+        "status": "VERIFIED",
+        "revenue_actual": null,
+        "revenue_consensus": null,
+        "eps_actual": 3.32,
+        "eps_consensus": 3.238,
+        "eps_surprise_pct": 2.53,
         "quarter_verdict": "beat",
-        "guide_verdict": "in_line",
-        "price_reaction_pct": -4.0,
-        "reverified_on": "2026-09-06"
+        "guide_verdict": null,
+        "guide_next_q": null,
+        "guide_consensus": null,
+        "price_reaction_pct": -2.75,
+        "drift_2d_avg_pct": -2.54,
+        "surprise_history_pct": [
+          1.6,
+          1.32,
+          2.53
+        ],
+        "avg_surprise_pct": 1.82,
+        "implied_move_pct": null,
+        "implied_move_source": "",
+        "source": "yfinance get_earnings + get_stock_history",
+        "verified_on": "2026-09-07",
+        "note": "3-quarter surprise history, not 4 -- 3Q2025 row absent from feed. Prior entry was a bare verdict with no actuals; now sourced."
       },
       "CIEN": {
         "period": "FQ3 2026",
@@ -2874,7 +2873,7 @@
       },
       "benchmark_return_pct": 2.51,
       "benchmark": "SMH",
-      "as_of": "2026-09-06"
+      "as_of": "2026-09-07"
     },
     "quality_financials": {
       "BE": {
@@ -3000,6 +2999,222 @@
             "total_debt": 18750000000,
             "sbc": 34200000,
             "diluted_shares": 1290000000
+          }
+        ]
+      },
+      "GEV": {
+        "latest_period_end": "2026-06-30",
+        "fetched_at": "2026-09-07",
+        "quarters": [
+          {
+            "period_end": "2025-09-30",
+            "revenue": 9969000000,
+            "ocf": 980000000,
+            "capex": -247000000,
+            "net_income": 452000000,
+            "op_income": 367000000,
+            "interest_expense": null,
+            "total_debt": null,
+            "sbc": null,
+            "diluted_shares": 275000000
+          },
+          {
+            "period_end": "2025-12-31",
+            "revenue": 10956000000,
+            "ocf": 2479000000,
+            "capex": -671000000,
+            "net_income": 3664000000,
+            "op_income": 602000000,
+            "interest_expense": null,
+            "total_debt": 1172000000,
+            "sbc": null,
+            "diluted_shares": 274000000
+          },
+          {
+            "period_end": "2026-03-31",
+            "revenue": 9338000000,
+            "ocf": 5188000000,
+            "capex": -397000000,
+            "net_income": 4745000000,
+            "op_income": 179000000,
+            "interest_expense": null,
+            "total_debt": 2806000000,
+            "sbc": null,
+            "diluted_shares": 272000000
+          },
+          {
+            "period_end": "2026-06-30",
+            "revenue": 11104000000,
+            "ocf": 5492000000,
+            "capex": -386000000,
+            "net_income": 668000000,
+            "op_income": 655000000,
+            "interest_expense": null,
+            "total_debt": 2794000000,
+            "sbc": null,
+            "diluted_shares": 270000000
+          }
+        ]
+      },
+      "ASML": {
+        "latest_period_end": "2026-06-30",
+        "fetched_at": "2026-09-07",
+        "quarters": [
+          {
+            "period_end": "2025-09-30",
+            "revenue": 7516000000,
+            "ocf": 559100000,
+            "capex": -315400000,
+            "net_income": 2124500000,
+            "op_income": 2468400000,
+            "interest_expense": null,
+            "total_debt": 2704700000,
+            "sbc": 57700000,
+            "diluted_shares": 387600000
+          },
+          {
+            "period_end": "2025-12-31",
+            "revenue": 9718100000,
+            "ocf": 11410300000,
+            "capex": -470400000,
+            "net_income": 2839600000,
+            "op_income": 3431100000,
+            "interest_expense": null,
+            "total_debt": 4390900000,
+            "sbc": 55600000,
+            "diluted_shares": 387000000
+          },
+          {
+            "period_end": "2026-03-31",
+            "revenue": 8766900000,
+            "ocf": -2185600000,
+            "capex": -422300000,
+            "net_income": 2756700000,
+            "op_income": 3157800000,
+            "interest_expense": null,
+            "total_debt": 2705600000,
+            "sbc": 31100000,
+            "diluted_shares": 385700000
+          },
+          {
+            "period_end": "2026-06-30",
+            "revenue": 9326500000,
+            "ocf": null,
+            "capex": null,
+            "net_income": 2917600000,
+            "op_income": 3456100000,
+            "interest_expense": null,
+            "total_debt": 1984400000,
+            "sbc": null,
+            "diluted_shares": 384900000
+          }
+        ]
+      },
+      "MRVL": {
+        "latest_period_end": "2026-07-31",
+        "fetched_at": "2026-09-07",
+        "quarters": [
+          {
+            "period_end": "2025-10-31",
+            "revenue": 2074500000,
+            "ocf": 582300000,
+            "capex": -74700000,
+            "net_income": 1901300000,
+            "op_income": 367400000,
+            "interest_expense": 51200000,
+            "total_debt": 4777500000,
+            "sbc": 152100000,
+            "diluted_shares": 863700000
+          },
+          {
+            "period_end": "2026-01-31",
+            "revenue": 2218700000,
+            "ocf": 373700000,
+            "capex": -115400000,
+            "net_income": 396100000,
+            "op_income": 413900000,
+            "interest_expense": 50800000,
+            "total_debt": 4790300000,
+            "sbc": 143000000,
+            "diluted_shares": 856200000
+          },
+          {
+            "period_end": "2026-04-30",
+            "revenue": 2417800000,
+            "ocf": 638800000,
+            "capex": -156200000,
+            "net_income": 34500000,
+            "op_income": 350100000,
+            "interest_expense": 256100000,
+            "total_debt": 5277200000,
+            "sbc": 207600000,
+            "diluted_shares": 893300000
+          },
+          {
+            "period_end": "2026-07-31",
+            "revenue": 2739300000,
+            "ocf": 605500000,
+            "capex": -131200000,
+            "net_income": 308000000,
+            "op_income": 456900000,
+            "interest_expense": 81400000,
+            "total_debt": 5286100000,
+            "sbc": 326200000,
+            "diluted_shares": 921200000
+          }
+        ]
+      },
+      "VRT": {
+        "latest_period_end": "2026-06-30",
+        "fetched_at": "2026-09-07",
+        "quarters": [
+          {
+            "period_end": "2025-09-30",
+            "revenue": 2675800000,
+            "ocf": 508700000,
+            "capex": -46700000,
+            "net_income": 398500000,
+            "op_income": 548300000,
+            "interest_expense": 22800000,
+            "total_debt": 3213900000,
+            "sbc": 14200000,
+            "diluted_shares": 390928669
+          },
+          {
+            "period_end": "2025-12-31",
+            "revenue": 2880000000,
+            "ocf": 978900000,
+            "capex": -95000000,
+            "net_income": 445600000,
+            "op_income": 606900000,
+            "interest_expense": 16700000,
+            "total_debt": 3227900000,
+            "sbc": 7200000,
+            "diluted_shares": 391671334
+          },
+          {
+            "period_end": "2026-03-31",
+            "revenue": 2649500000,
+            "ocf": 766800000,
+            "capex": -114000000,
+            "net_income": 390100000,
+            "op_income": 433600000,
+            "interest_expense": null,
+            "total_debt": 3264900000,
+            "sbc": 17000000,
+            "diluted_shares": 392128170
+          },
+          {
+            "period_end": "2026-06-30",
+            "revenue": 3274300000,
+            "ocf": 1099800000,
+            "capex": -174500000,
+            "net_income": 497800000,
+            "op_income": 637900000,
+            "interest_expense": 17400000,
+            "total_debt": 3338200000,
+            "sbc": 13800000,
+            "diluted_shares": 392746991
           }
         ]
       }
@@ -3231,16 +3446,6 @@
       "next_step": "At the next INTERACTIVE run, work the 2026-08 set using the existing two-step AskUserQuestion flow in SKILL.md 2.9 -- direction-aware, buys get the DCA/diversification/re-entry buttons, sells get the stop-loss yes/no. Do NOT attempt all 32 in one sitting; batch by ticker, prioritise names currently held AND over their ATR cap (AMD, MRVL, MU, SKHY, SNDK, TER, NBIS, GEV), and accept partial completion across several runs."
     },
     {
-      "id": "G1",
-      "description": "LTCG per-lot purchase dates. SUBSTANTIALLY CLOSED 2026-07-31: full backfill from INDmoney transaction-confirmation emails (2025-04-30 through 2026-07-30, ~655-660 non-cancelled transactions processed via Gmail search_threads + get_thread) with FIFO applied per ticker. 12 of 27 currently-held tickers are FULLY covered (BE, NBIS, NVDA, GLW, CIEN, TSM, MKSI, ORCL, GOOGL, CEG, IREN, EWY -- every open lot has a real date and fill, cross-checked to match state.json holdings[].qty exactly). The remaining 15 (ASML, MU, CLS, DRAM, AMD, AVGO, GEV, VRT, AMAT, TER, SNDK, MRVL, QCOM, COHR, ARM) are PARTIALLY covered: the most recent lot(s) are exact, and any un-reconstructed older quantity is recorded as a synthetic lot with date/price both null and note 'predates available email history, real date unknown' -- never a fabricated date. QCOM and AMAT's plugs are sub-1% dust, effectively full. See runs/2026-07-31-1302/lots_backfill_report.md for full methodology, corrections found (3 trades.json entries had wrong reconstructed qty/price vs their own confirmation email: AVGO, TSM, ASML 07-28 clips), and the GOOG->GOOGL swap tax-treatment caveat (kept as separate lot arrays; taxable-exit-vs-like-kind is an open question for the user/CPA, not resolved here). Repeatable process documented in SKILL.md so future trades close this gap incrementally via TRADE RATIONALE CAPTURE writing directly into lots.json, not just trades.json.",
-      "opened": "2026-07-12",
-      "owner": "orchestrator (repeatable via SKILL.md going forward) / user-CPA (GOOG->GOOGL swap tax treatment)",
-      "status": "closed",
-      "closed": "2026-07-31",
-      "resolved_on": "2026-08-16",
-      "resolution": "Fully closed by the lots-engine cutover (2026-08-15). lots.json is now rebuilt deterministically by `smith_math.py lots` from trades.json with FIFO and corporate-action handling. ALL 71 live lots carry a known acquisition date and basis: 0 unknown, 0 reconstructed. Reconciles 35/35 against broker holdings with no mismatches and no orphans, so the LTCG clock is computable for every open position."
-    },
-    {
       "id": "G18",
       "description": "SPY/QQQ max-pain unavailable -- single-expiry options pull returned near-zero/null open interest across nearly all strikes (yfinance data gap)",
       "opened": "2026-07-20",
@@ -3253,6 +3458,74 @@
       "resolved_on": "2026-08-16",
       "reopened": "2026-08-24",
       "reopen_reason": "Independently reconfirmed broken by both smith-macro and smith-earnings on 2026-08-24 -- yfinance returns openInterest=0/bid=0/ask=0 across both SPY and QQQ chains and all expirations; was incorrectly marked wont_fix/closed."
+    },
+    {
+      "id": "G86",
+      "description": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are therefore UNAVAILABLE, not merely skipped, on every scheduled run here. Consequence: exact fill price / timestamp / order type cannot be recovered for any trade, so new trades.json rows are written price_source='reconstructed' (quantities remain broker truth). This structurally blocks stop-vs-deliberate cohort classification for all future fills and quarantines them out of smith_math.py stops scoring. First hit 2026-08-17 on 5 trades (BX exit, NBIS trim, IONQ entry, BE add, AMZN add). This is the CAUSE; G78 tracks the resulting rationale backlog.",
+      "opened": "2026-08-17",
+      "owner": "orchestrator",
+      "status": "partially_closed",
+      "gap": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are therefore UNAVAILABLE, not merely skipped, on every scheduled run here. Consequence: exact fill price / timestamp / order type cannot be recovered for any trade, so new trades.json rows are written price_source='reconstructed' (quantities remain broker truth). This structurally blocks stop-vs-deliberate cohort classification for all future fills and quarantines them out of smith_math.py stops scoring. First hit 2026-08-17 on 5 trades (BX exit, NBIS trim, IONQ entry, BE add, AMZN add). This is the CAUSE; G78 tracks the resulting rationale backlog. || AMENDED 2026-08-19: this gap is scoped to the HEADLESS/CRON deployment ONLY. In an interactive Claude Code session on the user's Mac the Gmail connector IS present and the pipeline works end to end -- proved today, smith-ledger pulled 18 INDmoney confirmations and resolved 10 of 11 qty_changes to a literal `Order Type: stop`, plus corrected 5 prior reconstructed rows. Rule: never conclude the confirmation pipeline is unavailable without first attempting ToolSearch for the Gmail tools; the gap describes an environment, not a permanent capability loss.",
+      "amended": "2026-08-19",
+      "resolution": "Closed for INTERACTIVE Claude Code sessions (Gmail connector present; proved 2026-08-19 -- 18 confirmations pulled, 10 of 11 qty_changes resolved to a literal `Order Type: stop`, 5 prior reconstructed rows corrected). REMAINS OPEN for the headless/cron deployment, which still has no email tooling."
+    },
+    {
+      "id": "G85",
+      "status": "partially_closed",
+      "opened": "2026-08-19",
+      "owner": "orchestrator (smith_lifecycle proposals engine)",
+      "description": "SHADOW-SCORED TRIGGER PROPOSALS ARE STRUCTURALLY EXEMPT FROM CONDITION-BASED AUTO-RETIREMENT. Any proposal whose trigger_type is a shadow trigger (profit_ratchet, scale_out_ladder) is written with retires_when = 'n/a -- shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here', so the \u00a77 retirement pass never tests it and it can never clear itself no matter what happens to the position. The 2026-08-18 stop cascade made three stale at once and all three survived the dedup/retire pass: P-104 (raise MU stop to cost basis) after MU was cut 2.5sh->0.5sh by that very stop; P-114 (TRIM MRVL $550.65, sized on a 1.468x ATR cap) after the stop cut MRVL 7sh->4sh and the cap breach cleared to 0.809x, leaving a $551 trim against an $864 position; P-117 (STOP_RAISE TER) against what is now a $1.10 / 0.00273sh dust residue. The exemption was written so shadow triggers would not be lifecycle-managed on an unmeasured hit rate -- but retirement is not scoring. A proposal whose SUBJECT no longer exists in the form it was written against should retire regardless of whether its trigger has a track record. FIX: give shadow-triggered proposals the same objective retirement tests every other proposal gets (position materially reduced since proposal date, ticker no longer held, size_usd now >50% of remaining position value, position value under the dust threshold), keeping only the SCORING exemption.",
+      "amended": "2026-09-02",
+      "resolution": "Fixed the SHADOW/RETIREMENT conflation for profit_ratchet and scale_out_ladder (smith_lifecycle.py's _check_condition_based_retirement): both now retire on ticker-no-longer-held or remaining position under the $400 dust threshold, and scale_out_ladder additionally retires when its proposed size_usd now exceeds half of the remaining position (the P-114 shape). REMAINS OPEN for the fourth criterion in the original fix note -- 'position materially reduced since proposal date' needs a stored pre-proposal baseline (size/qty at the moment the proposal was created) that proposals.json does not currently carry; the three schema-free checks above catch the reported incidents (P-104/P-114/P-117) but not a partial reduction that stays above the dust floor and under the 50%-of-remaining line."
+    },
+    {
+      "id": "G81",
+      "status": "open",
+      "opened": "2026-08-19",
+      "owner": "smith-catalyst / orchestrator verification",
+      "description": "PROXIMATE CAUSE OF THE 2026-08-18 SEMIS ROUT IS UNRESOLVED, AND THE FIRST ANSWER WAS WRONG. smith-catalyst returned, as its lead catalyst, that the 30-year UST hit a 19-year high of 5.33% on Tuesday and repriced high-multiple AI hardware. Checked against primary data before it reached sizing: ^TYX CLOSED Tuesday at 5.285%, DOWN 2.4bp from Monday's 5.309%, and ^TNX at 4.706%, DOWN 1.8bp. Long yields FELL on the session semis dropped 4.09%. The 19-year-high LEVEL is real and is standing multiple-compression pressure on long-duration names; a Tuesday rates SHOCK is not supported by the tape and cannot be the proximate cause. Best-evidenced named trigger remains the WSJ $3T off-balance-sheet AI-commitments report dated 08-17, one day prior, which smith-catalyst itself named as the driver of the GEV/BE/VRT behind-the-meter selloff. This is the G58/G75 failure class in a new place: a plausible causal narrative that the primary series contradicts, sourced to a single secondary aggregator. STANDING RULE ADDED: a catalyst that asserts a MARKET-DATA move (a yield, an index, a spread) as its mechanism must cite the series and the two prints, not a news paraphrase -- market data is the one class of claim the desk can always check itself in one call."
+    },
+    {
+      "id": "G82",
+      "status": "open",
+      "opened": "2026-08-24",
+      "owner": "orchestrator / user decision",
+      "description": "BX (Blackstone) was re-entered 2026-08-24 (10sh, 3.67% weight) after a full exit on 2026-08-17. smith-thesis classified it into a brand-new satellite cluster 'Financials/Alt-Asset Diversifier' because it does not fit any existing policy.json cluster and is not a clean AI-capex diversifier -- it shares the XPV off-balance-sheet AI-financing tail risk (Blackstone/Apollo funding Anthropic compute) that drove BofA's 08-11 bond downgrade on AVGO. This cluster has NO policy band, so it is invisible to drift math by design until the user sets one. The AI-capex concentration ratio drop from ~89% to 83.7% this run is this reclassification, not real de-risking -- do not read it as improvement without noting the cause."
+    },
+    {
+      "id": "G83",
+      "status": "open",
+      "opened": "2026-08-24",
+      "owner": "smith-ledger (next interactive run)",
+      "description": "BX's re-entry lot is dated 2026-08-21 in trades.json/lots.json, but state/G82 and this run's dispatch both stated the re-entry happened 2026-08-24 -- a 3-day discrepancy independently caught by smith-book, smith-tax, and the strategist this run. Immaterial for tax (all lots are short-term regardless), but the record disagrees with itself and should be reconciled against the actual INDmoney confirmation email at the next interactive run."
+    },
+    {
+      "id": "G88",
+      "opened": "2026-09-06",
+      "owner": "orchestrator",
+      "description": "cmd_proposals' sell-side stack guard does not fire across (a) the accepted_by_user + open status pair or (b) the Trim/Sell verb synonym set. Live on 2026-09-06: MSFT 207.7% of position across P-164(accepted)+P-224(open), AVGO 89.8% across P-212+P-226, FSLR 78.7% across P-214+P-228, all with zero review_flags. Also CIEN holds an accepted sell (P-186, $341.56) against a $2.74 residual position while the same run proposed a $200 buy.",
+      "status": "closed",
+      "closed": "2026-09-06",
+      "resolution": "Rebuilt _compute_stacking_warnings as a per-(ticker, SIDE_GROUP) aggregation instead of accepted-x-open pairing. Two independent v1 defects fixed: (1) it only compared an accepted row against an open one, so open+open stacks were never examined; (2) TRIM and SELL were distinct direction buckets, so the same act under two verbs was treated as unrelated sides. Added SIDE_GROUP to smith_core (TRIM/SELL->REDUCE, BUY->ADD, HOLD->None). Guard now writes stacks_on to every member and reports one warning per group with the full combined total. smith_dashboard.stacks_badge rewritten to render all-open stacks and Trim+Sell merges correctly. 7 regression tests added reconstructing the three live incidents; golden master regenerated (same warnings/totals/severities, additive fields plus SELL->REDUCE, BUY->ADD rename). Verified against the live book: all 3 stacks now fire HIGH, plus a 4th (AMAT buy-side) at note."
+    },
+    {
+      "id": "G84",
+      "description": "2026-08-29 deep review: strategist and orchestrator both asserted a nonexistent '8% drawdown warn line' (policy.json's real drawdown_warn_pct is 15) across the ledger narrative and the chat briefing. Root cause: a number lived only in free-text narrative with nothing checking it against policy.json, so it could be typed once and copied forward. Fixed same-day: smith_memory.py's validate command now has validate_policy_narrative_drift(), which flags the MOST RECENT ledger row if it quotes a drawdown warn/risk-off percentage that disagrees with policy.json.",
+      "opened": "2026-08-29",
+      "owner": "orchestrator",
+      "status": "closed",
+      "closed": "2026-08-29",
+      "resolution": "Corrected the 2026-08-29 ledger row's narrative text in place (a factual error, not a historical value); added validate_policy_narrative_drift() as a standing guard against recurrence."
+    },
+    {
+      "id": "G1",
+      "description": "LTCG per-lot purchase dates. SUBSTANTIALLY CLOSED 2026-07-31: full backfill from INDmoney transaction-confirmation emails (2025-04-30 through 2026-07-30, ~655-660 non-cancelled transactions processed via Gmail search_threads + get_thread) with FIFO applied per ticker. 12 of 27 currently-held tickers are FULLY covered (BE, NBIS, NVDA, GLW, CIEN, TSM, MKSI, ORCL, GOOGL, CEG, IREN, EWY -- every open lot has a real date and fill, cross-checked to match state.json holdings[].qty exactly). The remaining 15 (ASML, MU, CLS, DRAM, AMD, AVGO, GEV, VRT, AMAT, TER, SNDK, MRVL, QCOM, COHR, ARM) are PARTIALLY covered: the most recent lot(s) are exact, and any un-reconstructed older quantity is recorded as a synthetic lot with date/price both null and note 'predates available email history, real date unknown' -- never a fabricated date. QCOM and AMAT's plugs are sub-1% dust, effectively full. See runs/2026-07-31-1302/lots_backfill_report.md for full methodology, corrections found (3 trades.json entries had wrong reconstructed qty/price vs their own confirmation email: AVGO, TSM, ASML 07-28 clips), and the GOOG->GOOGL swap tax-treatment caveat (kept as separate lot arrays; taxable-exit-vs-like-kind is an open question for the user/CPA, not resolved here). Repeatable process documented in SKILL.md so future trades close this gap incrementally via TRADE RATIONALE CAPTURE writing directly into lots.json, not just trades.json.",
+      "opened": "2026-07-12",
+      "owner": "orchestrator (repeatable via SKILL.md going forward) / user-CPA (GOOG->GOOGL swap tax treatment)",
+      "status": "closed",
+      "closed": "2026-07-31",
+      "resolved_on": "2026-08-16",
+      "resolution": "Fully closed by the lots-engine cutover (2026-08-15). lots.json is now rebuilt deterministically by `smith_math.py lots` from trades.json with FIFO and corporate-action handling. ALL 71 live lots carry a known acquisition date and basis: 0 unknown, 0 reconstructed. Reconciles 35/35 against broker holdings with no mismatches and no orphans, so the LTCG clock is computable for every open position."
     },
     {
       "id": "G51",
@@ -3309,75 +3582,6 @@
       "resolution": "Both candidate fixes implemented; they are complementary, not alternatives. (b) A thesis entry that is explicitly source-verified AND re-checked within THESIS_OVERRIDES_STALE_BUCKET_DAYS (7) outranks a stale bucket -- deliberately narrow, since `verified: unverified` (the normal state) overrides nothing. (a) The general decay rule: new `state.signal_history_as_of[ticker]`, stamped ONLY when smith-signals returns successfully. Because that agent rewrites a ticker's bucket list wholesale on every successful run, the stamp advances when signals ran and FREEZES when it failed -- which is exactly the META 2026-08-12 case -- so it measures staleness precisely. Past HEADWIND_BUCKET_MAX_AGE_DAYS (10), or with no stamp at all, a NEW HEADWINDS bucket stops being decisive; it is still REPORTED, since decay removes the veto, not the information. Unknown age fails OPEN because the veto is the dangerous default. Tested three ways against the live run with the bucket injected: fresh stamp -> veto holds (0 notes); 46d stale -> decay fires; stamp absent -> decay fires. SKILL.md PERSIST carries the stamping rule and forbids backfilling it.",
       "status": "closed",
       "resolved_on": "2026-08-16"
-    },
-    {
-      "id": "G63",
-      "opened": "2026-08-13",
-      "owner": "smith_math.py cmd_triggers (cluster_tension blocker text)",
-      "description": "The overbought_distribution cluster_tension blocker tells the reader to 'prefer an intra-cluster rotation: sell this extended name, buy a lagging one in the same cluster' -- but it never checks whether such a laggard EXISTS. Found live 2026-08-13 on MSFT: Compute/Hyperscaler is -10.40pt under floor, yet all three members (MSFT +24.0pp, AMZN +8.28pp, ORCL +16.74pp relative strength) are stretched, so the recommended remedy has no target. The advice should either name an eligible intra-cluster laggard or state that none exists and the choice is trim-anyway vs leave-it. Cosmetic in impact but it sends the reader looking for a trade that is not there.",
-      "closed": "2026-08-13",
-      "closed_by": "fix shipped 2026-08-13",
-      "resolution": "cmd_triggers now searches the cluster for an eligible intra-cluster rotation target before recommending one: same cluster, not this ticker, negative 1m relative strength, inside its own ATR cap, thesis not broken. If targets exist it NAMES the best three with their relative strength and headroom; if none exist it says so explicitly and frames the real choice as trim-anyway vs leave-it, instead of sending the reader hunting for a trade that does not exist (the MSFT/Compute-Hyperscaler case of 2026-08-13).",
-      "status": "closed",
-      "resolved_on": "2026-08-16"
-    },
-    {
-      "id": "G86",
-      "description": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are therefore UNAVAILABLE, not merely skipped, on every scheduled run here. Consequence: exact fill price / timestamp / order type cannot be recovered for any trade, so new trades.json rows are written price_source='reconstructed' (quantities remain broker truth). This structurally blocks stop-vs-deliberate cohort classification for all future fills and quarantines them out of smith_math.py stops scoring. First hit 2026-08-17 on 5 trades (BX exit, NBIS trim, IONQ entry, BE add, AMZN add). This is the CAUSE; G78 tracks the resulting rationale backlog.",
-      "opened": "2026-08-17",
-      "owner": "orchestrator",
-      "status": "partially_closed",
-      "gap": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are therefore UNAVAILABLE, not merely skipped, on every scheduled run here. Consequence: exact fill price / timestamp / order type cannot be recovered for any trade, so new trades.json rows are written price_source='reconstructed' (quantities remain broker truth). This structurally blocks stop-vs-deliberate cohort classification for all future fills and quarantines them out of smith_math.py stops scoring. First hit 2026-08-17 on 5 trades (BX exit, NBIS trim, IONQ entry, BE add, AMZN add). This is the CAUSE; G78 tracks the resulting rationale backlog. || AMENDED 2026-08-19: this gap is scoped to the HEADLESS/CRON deployment ONLY. In an interactive Claude Code session on the user's Mac the Gmail connector IS present and the pipeline works end to end -- proved today, smith-ledger pulled 18 INDmoney confirmations and resolved 10 of 11 qty_changes to a literal `Order Type: stop`, plus corrected 5 prior reconstructed rows. Rule: never conclude the confirmation pipeline is unavailable without first attempting ToolSearch for the Gmail tools; the gap describes an environment, not a permanent capability loss.",
-      "amended": "2026-08-19",
-      "resolution": "Closed for INTERACTIVE Claude Code sessions (Gmail connector present; proved 2026-08-19 -- 18 confirmations pulled, 10 of 11 qty_changes resolved to a literal `Order Type: stop`, 5 prior reconstructed rows corrected). REMAINS OPEN for the headless/cron deployment, which still has no email tooling."
-    },
-    {
-      "id": "G85",
-      "status": "partially_closed",
-      "opened": "2026-08-19",
-      "owner": "orchestrator (smith_lifecycle proposals engine)",
-      "description": "SHADOW-SCORED TRIGGER PROPOSALS ARE STRUCTURALLY EXEMPT FROM CONDITION-BASED AUTO-RETIREMENT. Any proposal whose trigger_type is a shadow trigger (profit_ratchet, scale_out_ladder) is written with retires_when = 'n/a -- shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here', so the \u00a77 retirement pass never tests it and it can never clear itself no matter what happens to the position. The 2026-08-18 stop cascade made three stale at once and all three survived the dedup/retire pass: P-104 (raise MU stop to cost basis) after MU was cut 2.5sh->0.5sh by that very stop; P-114 (TRIM MRVL $550.65, sized on a 1.468x ATR cap) after the stop cut MRVL 7sh->4sh and the cap breach cleared to 0.809x, leaving a $551 trim against an $864 position; P-117 (STOP_RAISE TER) against what is now a $1.10 / 0.00273sh dust residue. The exemption was written so shadow triggers would not be lifecycle-managed on an unmeasured hit rate -- but retirement is not scoring. A proposal whose SUBJECT no longer exists in the form it was written against should retire regardless of whether its trigger has a track record. FIX: give shadow-triggered proposals the same objective retirement tests every other proposal gets (position materially reduced since proposal date, ticker no longer held, size_usd now >50% of remaining position value, position value under the dust threshold), keeping only the SCORING exemption.",
-      "amended": "2026-09-02",
-      "resolution": "Fixed the SHADOW/RETIREMENT conflation for profit_ratchet and scale_out_ladder (smith_lifecycle.py's _check_condition_based_retirement): both now retire on ticker-no-longer-held or remaining position under the $400 dust threshold, and scale_out_ladder additionally retires when its proposed size_usd now exceeds half of the remaining position (the P-114 shape). REMAINS OPEN for the fourth criterion in the original fix note -- 'position materially reduced since proposal date' needs a stored pre-proposal baseline (size/qty at the moment the proposal was created) that proposals.json does not currently carry; the three schema-free checks above catch the reported incidents (P-104/P-114/P-117) but not a partial reduction that stays above the dust floor and under the 50%-of-remaining line."
-    },
-    {
-      "id": "G81",
-      "status": "open",
-      "opened": "2026-08-19",
-      "owner": "smith-catalyst / orchestrator verification",
-      "description": "PROXIMATE CAUSE OF THE 2026-08-18 SEMIS ROUT IS UNRESOLVED, AND THE FIRST ANSWER WAS WRONG. smith-catalyst returned, as its lead catalyst, that the 30-year UST hit a 19-year high of 5.33% on Tuesday and repriced high-multiple AI hardware. Checked against primary data before it reached sizing: ^TYX CLOSED Tuesday at 5.285%, DOWN 2.4bp from Monday's 5.309%, and ^TNX at 4.706%, DOWN 1.8bp. Long yields FELL on the session semis dropped 4.09%. The 19-year-high LEVEL is real and is standing multiple-compression pressure on long-duration names; a Tuesday rates SHOCK is not supported by the tape and cannot be the proximate cause. Best-evidenced named trigger remains the WSJ $3T off-balance-sheet AI-commitments report dated 08-17, one day prior, which smith-catalyst itself named as the driver of the GEV/BE/VRT behind-the-meter selloff. This is the G58/G75 failure class in a new place: a plausible causal narrative that the primary series contradicts, sourced to a single secondary aggregator. STANDING RULE ADDED: a catalyst that asserts a MARKET-DATA move (a yield, an index, a spread) as its mechanism must cite the series and the two prints, not a news paraphrase -- market data is the one class of claim the desk can always check itself in one call."
-    },
-    {
-      "id": "G82",
-      "status": "open",
-      "opened": "2026-08-24",
-      "owner": "orchestrator / user decision",
-      "description": "BX (Blackstone) was re-entered 2026-08-24 (10sh, 3.67% weight) after a full exit on 2026-08-17. smith-thesis classified it into a brand-new satellite cluster 'Financials/Alt-Asset Diversifier' because it does not fit any existing policy.json cluster and is not a clean AI-capex diversifier -- it shares the XPV off-balance-sheet AI-financing tail risk (Blackstone/Apollo funding Anthropic compute) that drove BofA's 08-11 bond downgrade on AVGO. This cluster has NO policy band, so it is invisible to drift math by design until the user sets one. The AI-capex concentration ratio drop from ~89% to 83.7% this run is this reclassification, not real de-risking -- do not read it as improvement without noting the cause."
-    },
-    {
-      "id": "G83",
-      "status": "open",
-      "opened": "2026-08-24",
-      "owner": "smith-ledger (next interactive run)",
-      "description": "BX's re-entry lot is dated 2026-08-21 in trades.json/lots.json, but state/G82 and this run's dispatch both stated the re-entry happened 2026-08-24 -- a 3-day discrepancy independently caught by smith-book, smith-tax, and the strategist this run. Immaterial for tax (all lots are short-term regardless), but the record disagrees with itself and should be reconciled against the actual INDmoney confirmation email at the next interactive run."
-    },
-    {
-      "id": "G84",
-      "description": "2026-08-29 deep review: strategist and orchestrator both asserted a nonexistent '8% drawdown warn line' (policy.json's real drawdown_warn_pct is 15) across the ledger narrative and the chat briefing. Root cause: a number lived only in free-text narrative with nothing checking it against policy.json, so it could be typed once and copied forward. Fixed same-day: smith_memory.py's validate command now has validate_policy_narrative_drift(), which flags the MOST RECENT ledger row if it quotes a drawdown warn/risk-off percentage that disagrees with policy.json.",
-      "opened": "2026-08-29",
-      "owner": "orchestrator",
-      "status": "closed",
-      "closed": "2026-08-29",
-      "resolution": "Corrected the 2026-08-29 ledger row's narrative text in place (a factual error, not a historical value); added validate_policy_narrative_drift() as a standing guard against recurrence."
-    },
-    {
-      "id": "G88",
-      "opened": "2026-09-06",
-      "owner": "orchestrator",
-      "description": "cmd_proposals' sell-side stack guard does not fire across (a) the accepted_by_user + open status pair or (b) the Trim/Sell verb synonym set. Live on 2026-09-06: MSFT 207.7% of position across P-164(accepted)+P-224(open), AVGO 89.8% across P-212+P-226, FSLR 78.7% across P-214+P-228, all with zero review_flags. Also CIEN holds an accepted sell (P-186, $341.56) against a $2.74 residual position while the same run proposed a $200 buy.",
-      "status": "closed",
-      "closed": "2026-09-06",
-      "resolution": "Rebuilt _compute_stacking_warnings as a per-(ticker, SIDE_GROUP) aggregation instead of accepted-x-open pairing. Two independent v1 defects fixed: (1) it only compared an accepted row against an open one, so open+open stacks were never examined; (2) TRIM and SELL were distinct direction buckets, so the same act under two verbs was treated as unrelated sides. Added SIDE_GROUP to smith_core (TRIM/SELL->REDUCE, BUY->ADD, HOLD->None). Guard now writes stacks_on to every member and reports one warning per group with the full combined total. smith_dashboard.stacks_badge rewritten to render all-open stacks and Trim+Sell merges correctly. 7 regression tests added reconstructing the three live incidents; golden master regenerated (same warnings/totals/severities, additive fields plus SELL->REDUCE, BUY->ADD rename). Verified against the live book: all 3 stacks now fire HIGH, plus a 4th (AMAT buy-side) at note."
     }
   ],
   "sentiment": {
@@ -3468,7 +3672,7 @@
       "as_of": "2026-09-06"
     }
   },
-  "watchlist_scan_cursor": 15,
+  "watchlist_scan_cursor": 30,
   "data_quality": [
     "Weekend run (Sun 2026-09-06). All prices are Fri 2026-09-04 regular-session closes from yfinance get_stock_price. No live session.",
     "BE: INDmoney snapshot $266.17 vs yfinance regular-session close $252.87 (+5.26%). CONFIRMED BY USER as a real post-market move, NOT a data fault -- INDmoney carried the extended-hours print and was the fresher source. This run's override used the yfinance close, so BE and the book total are understated by 8sh x $13.30 = $106.40 (0.27% of book). Not re-run: below every sanity/persist threshold, and the next run picks up the true price naturally.",
@@ -3839,57 +4043,39 @@
   },
   "factor_catalysts": [
     {
-      "headline": "Micron sold out cutting-edge memory capacity through late 2026; UBS raises HBM pricing-growth estimate to 79% annually; Dell's $95bn AI server backlog cited as proof hyperscalers are buying every available wafer",
-      "date": "2026-09-04/05",
+      "headline": "CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline",
+      "date": "2026-09-01",
       "horizon": "structural",
-      "direction": "tailwind",
+      "direction": "threat",
       "affects": [
         "MU",
-        "SNDK",
         "SKHY",
-        "DRAM",
+        "EWY",
+        "ASML",
+        "LRCX",
+        "AMAT",
+        "TER"
+      ],
+      "exposure_pct_equity": 8.425,
+      "exposure_pct_book": 8.425,
+      "magnitude": "risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json)",
+      "source": "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm",
+      "invalidates_proposal": null
+    },
+    {
+      "headline": "CXMT DRAM share reaches ~10% domestically as Samsung's HBM capacity pivot vacates conventional-DRAM share",
+      "date": "2026-09-03",
+      "horizon": "structural",
+      "direction": "ambiguous",
+      "affects": [
+        "MU",
+        "SKHY",
         "EWY"
       ],
-      "exposure_pct_equity": 8.4,
-      "exposure_pct_book": 8.15,
-      "magnitude": "UBS HBM pricing-growth revision to 79%/yr; Micron capacity sold out through late-2026 -- independently corroborates the slice's Susquehanna figure's direction, not its magnitude",
-      "source": "https://finance.yahoo.com/markets/article/marvell-sandisk-sk-hynix-lead-semiconductor-stock-rally-as-sp-500-trades-at-record-highs-172216048.html",
-      "invalidates_proposal": null
-    },
-    {
-      "headline": "Susquehanna DRAM +50%+/NAND +60% QoQ contract-price claim -- CONFIDENCE DOWNGRADED: HBMTracker G8 flags this as tier-3-sourced and unverified, conflicting with TrendForce's own 4Q26 guide of +3-8% QoQ",
-      "date": "2026-09-04",
-      "horizon": "structural",
-      "direction": "tailwind",
-      "affects": [
-        "MU",
-        "SKHY",
-        "SNDK",
-        "WDC",
-        "DRAM"
-      ],
-      "exposure_pct_equity": 8.4,
-      "exposure_pct_book": 8.15,
-      "magnitude": "price reaction (MU +6.1%, SNDK +11.9%, SKHY +8.1%) is confirmed; the +50/+60% magnitude driving it is not",
-      "source": "https://247wallst.com/investing/2026/09/04/sandisk-soars-8-is-the-nand-pricing-cycle-still-accelerating/",
-      "invalidates_proposal": null
-    },
-    {
-      "headline": "Nvidia agrees to pay $12.9bn for Hugging Face, driving AI-silicon complex-wide sympathy rally (NVDA, MRVL +6.3%, KLAC +7% per Seeking Alpha, AVGO, COHR record high) with no own-name fundamental change",
-      "date": "2026-09-04",
-      "horizon": "mechanical",
-      "direction": "tailwind",
-      "affects": [
-        "NVDA",
-        "MRVL",
-        "KLAC",
-        "AVGO",
-        "COHR"
-      ],
-      "exposure_pct_equity": 15.1,
-      "exposure_pct_book": 14.66,
-      "magnitude": "$12.9bn deal size; SMH +1.7% intraday 9/5; multiple re-rating, not earnings revision",
-      "source": "https://www.tikr.com/blog/marvell-jumped-13-today-heres-what-could-decide-whether-the-rally-lasts-through-2026",
+      "exposure_pct_equity": 8.425,
+      "exposure_pct_book": 8.425,
+      "magnitude": "~10% domestic China DRAM share vs Samsung/SK Hynix/Micron controlling the large majority of global DRAM; consistent with, not incremental to, the already-logged HBM-crowds-out-DRAM mechanism (18%->30% of DRAM wafer input by end-2027 per TrendForce)",
+      "source": "https://www.techtimes.com/articles/326406/20260903/cxmt-hits-10-dram-share-samsungs-hbm-pivot-handed-china-market-vacancy.htm",
       "invalidates_proposal": null
     }
   ],
@@ -3913,53 +4099,74 @@
     "note": "First complete realised P&L on fully-exited names, computable only after the 116-row recovery. Best: GOOG +$334.46, WDC +$204.77, BE +$142.81. Worst: GLW -$249.02, SMCI -$197.09, META -$107.67, EWY -$96.48. GOOG's figure is partly pre-history basis and is distorted by the unrecorded GOOG->GOOGL conversion (G71) -- treat it as indicative."
   },
   "signal_history_as_of": {
-    "ASML": "2026-09-06",
-    "TSM": "2026-09-06",
-    "MU": "2026-09-06",
-    "MRVL": "2026-09-06",
-    "CIEN": "2026-09-06",
-    "AMD": "2026-09-06",
-    "STM": "2026-09-06",
-    "NVDA": "2026-09-06",
-    "AVGO": "2026-09-06",
-    "GEV": "2026-09-06",
-    "QCOM": "2026-09-06",
-    "CLS": "2026-09-06",
+    "ASML": "2026-09-07",
+    "TSM": "2026-09-07",
+    "MU": "2026-09-07",
+    "MRVL": "2026-09-07",
+    "CIEN": "2026-09-07",
+    "AMD": "2026-09-07",
+    "STM": "2026-09-07",
+    "NVDA": "2026-09-07",
+    "AVGO": "2026-09-07",
+    "GEV": "2026-09-07",
+    "QCOM": "2026-09-07",
+    "CLS": "2026-09-07",
     "BABA": "2026-09-01",
     "CEG": "2026-09-01",
     "AMZN": "2026-09-01",
     "NOW": "2026-08-29",
-    "MSFT": "2026-09-06",
+    "MSFT": "2026-09-07",
     "FLTW": "2026-09-01",
-    "TER": "2026-09-06",
-    "VRT": "2026-09-06",
-    "COHR": "2026-09-06",
-    "AMAT": "2026-09-06",
-    "BE": "2026-09-06",
-    "IREN": "2026-09-06",
-    "LRCX": "2026-09-06",
-    "GLW": "2026-09-06",
-    "INTC": "2026-09-06",
+    "TER": "2026-09-07",
+    "VRT": "2026-09-07",
+    "COHR": "2026-09-07",
+    "AMAT": "2026-09-07",
+    "BE": "2026-09-07",
+    "IREN": "2026-09-07",
+    "LRCX": "2026-09-07",
+    "GLW": "2026-09-07",
+    "INTC": "2026-09-07",
     "TXN": "2026-08-29",
-    "NBIS": "2026-09-06",
+    "NBIS": "2026-09-07",
     "META": "2026-08-29",
-    "GOOG": "2026-09-06",
-    "WDC": "2026-09-06",
-    "SKHY": "2026-09-06",
+    "GOOG": "2026-09-07",
+    "WDC": "2026-09-07",
+    "SKHY": "2026-09-07",
     "HOOD": "2026-08-29",
     "BX": "2026-09-01",
-    "KLAC": "2026-09-06",
-    "LITE": "2026-09-06",
-    "SMCI": "2026-09-06",
+    "KLAC": "2026-09-07",
+    "LITE": "2026-09-07",
+    "SMCI": "2026-09-07",
     "AMKR": "2026-09-01",
-    "FSLR": "2026-09-06",
-    "ALAB": "2026-09-06",
-    "APH": "2026-09-06"
+    "FSLR": "2026-09-07",
+    "ALAB": "2026-09-07",
+    "APH": "2026-09-07"
   },
   "macro_read": {
-    "regime": "neutral",
-    "note": "Calm VIX (15.82) and green Asia session sit against a -2.43% SMH print (confirmed real, not stale) and a hawkish Fed (3.63%, 10y 4.704%) -- index-level complacency over a defensively-skewed options book (SPY put/call OI 3.09) and a semis-specific crack.",
-    "as_of": "2026-08-25"
+    "fed_funds_pct": 3.63,
+    "fomc_stance": "hawkish",
+    "spy_pcr": null,
+    "spy_pcr_oi": null,
+    "spy_pcr_vol": null,
+    "spy_max_pain": null,
+    "qqq_pcr": null,
+    "qqq_pcr_oi": null,
+    "qqq_pcr_vol": null,
+    "qqq_max_pain": null,
+    "calendar": {
+      "next_fomc": "2026-09-16",
+      "next_cpi": "2026-09-11",
+      "next_nfp": "2026-10-02",
+      "earnings_season_window": false
+    },
+    "regime": "risk_on",
+    "regime_note": "VIX 15.01 + greed sentiment (66.7) support near-term risk-on, but 10y at 4.784% under a hawkish cached Fed stance caps upside for long-duration growth; CPI (09-11, 4 trading days out) and FOMC (09-16) are a compressed two-catalyst stretch that could flip the regime fast.",
+    "cluster_impact": {
+      "ai_capex_chain": "favored by current low-vol/greed tape but first to reprice if CPI runs hot and the 10y pushes back toward/above 5%",
+      "rate_sensitive": "pressured now by the elevated 10y; a hawkish CPI/FOMC outcome extends the pressure",
+      "defensives": "structurally out of favor while VIX stays low-15s and sentiment reads greed"
+    },
+    "as_of": "2026-09-07"
   },
   "thesis_tensions_last": {
     "as_of": "2026-08-20",
@@ -3986,86 +4193,28 @@
     "lot_file_state": {
       "reconciled": "32/32",
       "lots_dated": "72/72",
-      "trusted": true,
-      "note": "lots.json rebuilt mid-run at 13:09 (_rebuilt 2026-09-06); pre-rebuild read showed 26/32 with 6 mismatches incl. GLW +5 -- all figures re-derived post-rebuild"
+      "trusted": true
     },
     "ltcg_window": {
       "earliest_open_lot": "2026-07-21",
       "first_crossing": "2028-07-21",
       "live_decisions": false,
-      "note": "All 72 open lots are short-term. No trim this run can be deferred into long-term treatment; there is no LTCG decision to make and no urgency to claim."
+      "note": "All 72 open lots are short-term. No trim this run can be deferred into long-term treatment; there is nothing to sequence on the 24-month boundary."
     },
     "trim_sequencing": [
-      {
-        "ticker": "MRVL",
-        "proposal_id": "P-192",
-        "size_usd": 220.0,
-        "fifo": {
-          "lots": [
-            "2026-08-21 @236.92 x0.9842"
-          ],
-          "realised_gain_usd": -13.16
-        },
-        "hifo": {
-          "lots": [
-            "2026-08-21 @236.92 x0.9842"
-          ],
-          "realised_gain_usd": -13.16
-        },
-        "tax_delta_usd": 0.0,
-        "material": false
-      },
-      {
-        "ticker": "MSFT",
-        "proposal_id": "P-207",
-        "size_usd": 152.66,
-        "fifo": {
-          "lots": [
-            "2026-08-10 @509.86 x0.3055"
-          ],
-          "realised_gain_usd": -3.1
-        },
-        "hifo": {
-          "lots": [
-            "2026-08-10 @509.86 x0.3055"
-          ],
-          "realised_gain_usd": -3.1
-        },
-        "tax_delta_usd": 0.0,
-        "material": false
-      },
-      {
-        "ticker": "AVGO",
-        "proposal_id": "P-212",
-        "size_usd": 142.6,
-        "fifo": {
-          "lots": [
-            "2026-08-27 @369.52 x0.3984"
-          ],
-          "realised_gain_usd": -4.63
-        },
-        "hifo": {
-          "lots": [
-            "2026-08-27 @369.52 x0.3984"
-          ],
-          "realised_gain_usd": -4.63
-        },
-        "tax_delta_usd": 0.0,
-        "material": false
-      },
       {
         "ticker": "FSLR",
         "proposal_id": "P-214",
         "size_usd": 182.69,
         "fifo": {
           "lots": [
-            "2026-08-31 @202.15 x0.8936"
+            "2026-08-31 @ $202.15 x 0.893568"
           ],
           "realised_gain_usd": 2.06
         },
         "hifo": {
           "lots": [
-            "2026-08-31 @202.15 x0.8936"
+            "2026-08-31 @ $202.15 x 0.893568"
           ],
           "realised_gain_usd": 2.06
         },
@@ -4073,20 +4222,77 @@
         "material": false
       },
       {
-        "ticker": "AMD",
-        "proposal_id": "P-215",
-        "size_usd": 273.07,
+        "ticker": "MSFT",
+        "proposal_id": "P-224",
+        "size_usd": 600,
         "fifo": {
           "lots": [
-            "2026-08-12 @491.12 x0.5718"
+            "2026-08-10 @ $509.86 x 1.0"
           ],
-          "realised_gain_usd": -7.75
+          "realised_gain_usd": -10.16
         },
         "hifo": {
           "lots": [
-            "2026-08-12 @491.12 x0.5718"
+            "2026-08-10 @ $509.86 x 1.0"
           ],
-          "realised_gain_usd": -7.75
+          "realised_gain_usd": -10.16
+        },
+        "tax_delta_usd": 0.0,
+        "material": false
+      },
+      {
+        "ticker": "FSLR",
+        "proposal_id": "P-228",
+        "size_usd": 300,
+        "fifo": {
+          "lots": [
+            "2026-08-31 @ $202.15 x 1.467351"
+          ],
+          "realised_gain_usd": 3.37
+        },
+        "hifo": {
+          "lots": [
+            "2026-08-31 @ $202.15 x 1.467351"
+          ],
+          "realised_gain_usd": 3.37
+        },
+        "tax_delta_usd": 0.0,
+        "material": false
+      },
+      {
+        "ticker": "NVDA",
+        "proposal_id": "P-234",
+        "size_usd": 287.95,
+        "fifo": {
+          "lots": [
+            "2026-08-24 @ $210.23 x 1.25"
+          ],
+          "realised_gain_usd": 25.16
+        },
+        "hifo": {
+          "lots": [
+            "2026-08-24 @ $210.23 x 1.25"
+          ],
+          "realised_gain_usd": 25.16
+        },
+        "tax_delta_usd": 0.0,
+        "material": false
+      },
+      {
+        "ticker": "AMD",
+        "proposal_id": "P-237",
+        "size_usd": 429.81,
+        "fifo": {
+          "lots": [
+            "2026-08-12 @ $491.12 x 0.899994"
+          ],
+          "realised_gain_usd": -12.19
+        },
+        "hifo": {
+          "lots": [
+            "2026-08-12 @ $491.12 x 0.899994"
+          ],
+          "realised_gain_usd": -12.19
         },
         "tax_delta_usd": 0.0,
         "material": false
@@ -4094,124 +4300,141 @@
     ],
     "harvest_candidates": [
       {
-        "ticker": "STM",
-        "unrealised_loss_usd": -53.9,
-        "thesis_status": "watch",
-        "tension": "none -- only clean candidate: no open proposal, no recent fill, watch thesis"
-      },
-      {
         "ticker": "AMAT",
         "unrealised_loss_usd": -65.24,
         "thesis_status": "strengthening",
-        "tension": "largest loss but it is the BUY leg of P-192 and thesis is strengthening"
+        "tension": "open BUY P-231 ($400) on the same name -- harvesting sells what the strategist is adding, and the thesis is strengthening"
+      },
+      {
+        "ticker": "STM",
+        "unrealised_loss_usd": -53.9,
+        "thesis_status": "watch",
+        "tension": "cleanest candidate -- no open proposal, thesis only watch; but $54 is too small to justify a trade"
       },
       {
         "ticker": "MRVL",
         "unrealised_loss_usd": -52.15,
         "thesis_status": "strengthening",
-        "tension": "is itself the P-192 sell leg"
+        "tension": "thesis strengthening -- harvesting sells conviction for $52"
       },
       {
         "ticker": "GEV",
         "unrealised_loss_usd": -45.21,
         "thesis_status": "strengthening",
-        "tension": "harvesting sells conviction"
+        "tension": "thesis strengthening -- harvesting sells conviction"
       },
       {
         "ticker": "ASML",
         "unrealised_loss_usd": -30.37,
         "thesis_status": "watch",
-        "tension": "0.25sh added 2026-09-03 -- harvest would undo a three-day-old fill"
+        "tension": "no conflict, but immaterial size"
       },
       {
         "ticker": "GOOG",
         "unrealised_loss_usd": -27.68,
         "thesis_status": "strengthening",
-        "tension": "harvesting sells conviction"
+        "tension": "open BUY P-235 on the same name plus strengthening thesis -- hard conflict"
       },
       {
         "ticker": "AVGO",
-        "unrealised_loss_usd": -23.25,
+        "unrealised_loss_usd": -23.26,
         "thesis_status": "watch",
-        "tension": "P-212 already trims part of this position"
+        "tension": "no conflict, but immaterial size"
       },
       {
         "ticker": "AMD",
         "unrealised_loss_usd": -18.01,
         "thesis_status": "watch",
-        "tension": "1sh added 2026-09-04; P-215 sells part of it"
+        "tension": "open SELL P-237 already realises -$12.19 of this; the harvest is happening inside the trim"
       },
       {
         "ticker": "MSFT",
         "unrealised_loss_usd": -10.16,
         "thesis_status": "watch",
-        "tension": "P-207 sells part of it"
+        "tension": "open SELL P-224 is a full exit realising the entire -$10.16; nothing left to harvest separately"
       },
       {
         "ticker": "LRCX",
         "unrealised_loss_usd": -10.0,
         "thesis_status": "strengthening",
-        "tension": "harvesting sells conviction"
+        "tension": "open BUY P-240 on the same name plus strengthening thesis -- hard conflict"
+      },
+      {
+        "ticker": "APH",
+        "unrealised_loss_usd": -1.0,
+        "thesis_status": "strengthening",
+        "tension": "open BUY P-239 and $1 of loss -- ignore"
+      },
+      {
+        "ticker": "CIEN",
+        "unrealised_loss_usd": -0.47,
+        "thesis_status": "strengthening",
+        "tension": "open BUY P-232 and 0.0085 sh of dust -- ignore"
       }
     ],
     "fy_window": {
       "fy_ends": "2027-03-31",
-      "in_harvest_window": false,
-      "note": "today 2026-09-06, ~4 months before the Jan-Mar window; no timing pressure"
+      "in_harvest_window": false
     },
-    "as_of": "2026-09-06"
+    "as_of": "2026-09-07"
   },
   "watchlist_setups": [
     {
-      "ticker": "IONQ",
-      "type": "oversold_bounce",
-      "upside_pct": 41.6,
-      "pos": 0.23
+      "ticker": "CBRS",
+      "type": "nearing_breakout+target_gap",
+      "upside_pct": 40.9,
+      "pos": 1.0
     },
     {
-      "ticker": "RGTI",
-      "type": "oversold_bounce",
-      "upside_pct": 47.2,
-      "pos": 0.06
-    },
-    {
-      "ticker": "QBTS",
+      "ticker": "DLR",
       "type": "target_gap",
-      "upside_pct": 53.0,
-      "pos": 0.11
+      "upside_pct": 15.6,
+      "pos": 0.68
     },
     {
-      "ticker": "BABA",
+      "ticker": "FLEX",
       "type": "target_gap",
-      "upside_pct": 39.5,
-      "pos": 0.21
-    },
-    {
-      "ticker": "STX",
-      "type": "target_gap",
-      "upside_pct": 24.5,
-      "pos": 0.7
-    },
-    {
-      "ticker": "GOOGL",
-      "type": "target_gap",
-      "upside_pct": 20.9,
-      "pos": 0.62
-    },
-    {
-      "ticker": "DDOG",
-      "type": "target_gap",
-      "upside_pct": 25.3,
-      "pos": 0.59
+      "upside_pct": 30.8,
+      "pos": 0.5
     },
     {
       "ticker": "IREN",
       "type": "target_gap",
       "upside_pct": 42.6,
-      "pos": 0.38
+      "pos": 0.37
+    },
+    {
+      "ticker": "MRVL",
+      "type": "target_gap",
+      "upside_pct": 21.6,
+      "pos": 0.6
+    },
+    {
+      "ticker": "ORCL",
+      "type": "oversold_bounce",
+      "upside_pct": 34.4,
+      "pos": 0.19
+    },
+    {
+      "ticker": "SMR",
+      "type": "oversold_bounce",
+      "upside_pct": 23.2,
+      "pos": 0.05
+    },
+    {
+      "ticker": "LEU",
+      "type": "oversold_bounce+target_gap",
+      "upside_pct": 30.0,
+      "pos": 0.1
+    },
+    {
+      "ticker": "VST",
+      "type": "oversold_bounce",
+      "upside_pct": 31.3,
+      "pos": 0.19
     }
   ],
-  "watchlist_setups_as_of": "2026-09-06",
+  "watchlist_setups_as_of": "2026-09-07",
   "watchlist_priority": {
     "SMR": {
       "date": "2026-08-25",
@@ -4230,9 +4453,9 @@
       "reason": null
     }
   },
-  "sector_map_as_of": "2026-09-06",
-  "factor_themes_as_of": "2026-09-06",
-  "peer_map_as_of": "2026-09-06",
+  "sector_map_as_of": "2026-09-07",
+  "factor_themes_as_of": "2026-09-07",
+  "peer_map_as_of": "2026-09-07",
   "cycle_position": {
     "position": "late",
     "confidence": "medium",
@@ -4315,26 +4538,26 @@
       ],
       "MRVL": [
         {
-          "finding": "Interest coverage math revisits the known G44 false alarm - same quarter, acquisition-financing signature, not re-escalating",
-          "metric": "interest coverage",
-          "magnitude": "n/a - not escalating, informational only",
+          "finding": "Diluted share count and SBC-as-percent-of-revenue both rising materially, distinct from the resolved G44 coverage false alarm",
+          "metric": "diluted_shares_yoy, sbc_pct_revenue_trend",
+          "magnitude": "diluted shares +5.8% YoY (870.4M to 921.2M); SBC/revenue 6.4%->8.6%->11.9% over 3 consecutive quarters",
           "evidence_for": [
             {
-              "claim": "yfinance shows interest expense $256.1M this quarter vs $50.8M prior, nominal coverage 1.37x",
-              "date": "2026-08-30",
+              "claim": "Diluted avg shares 870.4M (Q ended 2025-07-31) to 921.2M (Q ended 2026-07-31); SBC $143.0M/$2,218.7M revenue (Q ended 2026-01-31, 6.4%) to $207.6M/$2,417.8M (Q ended 2026-04-30, 8.6%) to $326.2M/$2,739.3M (Q ended 2026-07-31, 11.9%)",
+              "date": "2026-09-07",
               "source": "yfinance quarterly financials"
             }
           ],
           "evidence_against": [
             {
-              "claim": "MRVL's own 10-Q for the same quarter reports interest expense of $52.8M (~6.6x coverage); goodwill/debt jumped same quarter on Celestial AI + XConn acquisitions plus a $1.0B note - documented and closed as G44",
-              "date": "2026-08-07",
-              "source": "prior smith-quality investigation G44, citing MRVL 10-Q"
+              "claim": "Latest-quarter OCF $605.5M vs NI $308.0M = 1.97x, strong cash generation; interest expense normalized to $81.4M this quarter (5.6x op-income coverage) from the $256.1M acquisition-financing spike, confirming the G44 resolution held",
+              "date": "2026-09-07",
+              "source": "yfinance quarterly financials"
             }
           ],
-          "verified": "secondary",
-          "verified_against": "prior-run primary-source 10-Q read (G44), not re-verified this run",
-          "verified_on": "2026-08-07"
+          "verified": "unverified",
+          "verified_against": "none this run",
+          "verified_on": ""
         }
       ],
       "STM": [
@@ -4541,11 +4764,64 @@
           "verified_against": "",
           "verified_on": ""
         }
+      ],
+      "GEV": [
+        {
+          "finding": "Trailing-4Q net income >5x trailing-4Q operating income, driven by a Q4 FY25 $2.57B tax benefit and a Q1 FY26 $4.92B non-operating gain (pretax $5.10B vs operating income $0.18B that quarter); separately, debt/goodwill/intangibles jumped in Q1 FY26 consistent with an acquisition",
+          "metric": "pretax_vs_op_income_gap, trailing_4Q_NI_vs_op_income",
+          "magnitude": "Q1 FY26 gap $4.92B; trailing-4Q NI $9.53B vs op income $1.80B (5.3x)",
+          "evidence_for": [
+            {
+              "claim": "GEV 10-Q for quarter ended 2026-03-31: OperatingIncomeLoss $179M vs pretax $5,103M for the quarter",
+              "date": "2026-04-22",
+              "source": "SEC EDGAR XBRL, GEV 10-Q, accn 0001996810-26-000064"
+            },
+            {
+              "claim": "Total debt $1.17B (2025-12-31)\u2192$2.81B (2026-03-31); goodwill $4.44B\u2192$9.86B; intangibles $726M\u2192$4.54B, same quarter",
+              "date": "2026-09-07",
+              "source": "yfinance quarterly balance sheet"
+            }
+          ],
+          "evidence_against": [
+            {
+              "claim": "Q2 FY26 alone: operating income $655M (+73% YoY) on revenue $11.10B (+22% YoY); net cash position throughout ($13.12B cash vs $2.79B debt at Q2'26); diluted shares -2.2% YoY (buybacks)",
+              "date": "2026-09-07",
+              "source": "yfinance quarterly financials"
+            }
+          ],
+          "verified": "primary",
+          "verified_against": "SEC EDGAR XBRL companyconcept, GEV CIK 0001996810",
+          "verified_on": "2026-09-07"
+        }
+      ],
+      "ASML": [
+        {
+          "finding": "Q1 FY2026 operating cash flow sharply negative despite positive net income; latest quarter's cash-flow data not returned by this data pull",
+          "metric": "ocf_vs_net_income, data_gap",
+          "magnitude": "Q1 FY26 OCF -$2.19B vs NI +$2.76B; working capital swing -$5.16B same quarter",
+          "evidence_for": [
+            {
+              "claim": "Operating Cash Flow -$2,185.6M vs Net Income +$2,756.7M for quarter ended 2026-03-31",
+              "date": "2026-09-07",
+              "source": "yfinance quarterly cash flow statement"
+            }
+          ],
+          "evidence_against": [
+            {
+              "claim": "Matches ASML's recurring seasonal pattern -- Q1 FY2025 OCF was also negative (-$58.6M) and Q4 quarters run extremely strong (+$11.41B in Q4 FY25) due to customer down-payment/shipment timing; diluted shares -0.9% YoY (buybacks), SBC only 0.35% of revenue, net cash position $4.69B at Q2'26 -- no distress signature",
+              "date": "2026-09-07",
+              "source": "yfinance quarterly financials, multi-quarter pattern"
+            }
+          ],
+          "verified": "unverified",
+          "verified_against": "none this run -- not EDGAR-checked given seasonal precedent already established in the data itself",
+          "verified_on": ""
+        }
       ]
     },
-    "book_pct_flagged": 19.3,
-    "top_concern": "BE's 39% YoY share dilution is the single largest quality flag by magnitude; NBIS+IREN together form a debt/capex-funded neocloud cluster worth watching jointly",
-    "as_of": "2026-09-06",
+    "book_pct_flagged": 25.06,
+    "top_concern": "GEV's Q1 FY26 $4.92B non-operating gain distorts trailing earnings quality on the book's largest position (9.5% weight) -- primary-source confirmed via EDGAR; not distress, but trailing-4Q NI is not a usable run-rate proxy for GEV right now",
+    "as_of": "2026-09-07",
     "primary_source_verification": {
       "verified_on": "2026-08-31",
       "method": "SEC EDGAR XBRL companyfacts/companyconcept via scripts/smith_edgar.py (as-filed values, form+period+accession attached)",
@@ -4643,14 +4919,14 @@
       "AMZN": "2026-08-31",
       "BE": "2026-09-06",
       "INTC": "2026-08-31",
-      "MRVL": "2026-08-31",
+      "MRVL": "2026-09-07",
       "STM": "2026-08-31",
-      "GEV": "2026-08-30",
+      "GEV": "2026-09-07",
       "VRT": "2026-08-30",
       "MU": "2026-08-30",
       "GOOG": "2026-08-31",
       "QCOM": "2026-08-31",
-      "ASML": "2026-08-31",
+      "ASML": "2026-09-07",
       "LRCX": "2026-08-31",
       "GLW": "2026-08-31",
       "BX": "2026-08-31",
@@ -4660,9 +4936,7 @@
       "APH": "2026-09-06"
     },
     "cleared": [
-      "ASML",
       "BX",
-      "GEV",
       "GLW",
       "LRCX",
       "MU",
@@ -4676,7 +4950,7 @@
       }
     }
   },
-  "latest_run_dir": "runs/2026-09-06-1833",
+  "latest_run_dir": "runs/2026-09-07-0741",
   "rebound_candidates": {
     "as_of": "2026-08-31",
     "correction_state": "correction",
@@ -4689,6 +4963,82 @@
     ]
   },
   "stress_table": {
+    "as_of": "2026-09-07",
+    "anchored_to": {
+      "us10y_pct": 4.784,
+      "vix": 15.01,
+      "dxy": 99.099,
+      "fed_rate_pct": 3.63,
+      "fed_stance": "hawkish"
+    },
+    "scenarios": [
+      {
+        "scenario": "AI-capex pause",
+        "impact_pct_low": -25.0,
+        "impact_pct_high": -15.0,
+        "most_exposed": [
+          "NVDA",
+          "AVGO",
+          "MRVL",
+          "VRT",
+          "GEV",
+          "BE",
+          "CLS",
+          "SMCI"
+        ],
+        "mechanism": "Book is 95.4% AI-capex factor; a pause hits the semis/networking/power-infra chain broadly and simultaneously with no diversification to absorb it.",
+        "basis": "static_assumption",
+        "note": "No live capex-pause catalyst fired this run (catalyst_threat count=0); rule-of-thumb magnitude, not re-derived."
+      },
+      {
+        "scenario": "Rates +100bp",
+        "impact_pct_low": -14.0,
+        "impact_pct_high": -8.0,
+        "most_exposed": [
+          "NBIS",
+          "SKHY",
+          "IREN",
+          "WDC",
+          "BE",
+          "MU",
+          "SMCI",
+          "TER"
+        ],
+        "mechanism": "10y already 4.784% under a hawkish cached Fed stance; smith-macro flags the AI-capex chain as first to reprice if CPI runs hot and the 10y pushes toward/above 5%. High-beta long-duration names lead.",
+        "basis": "live",
+        "note": "Anchored to this run's smith-macro regime read (fed_funds 3.63% hawkish, 10y 4.784%, CPI 2026-09-11 / FOMC 2026-09-16 as compressed catalysts)."
+      },
+      {
+        "scenario": "Tariff/export-control escalation",
+        "impact_pct_low": -18.0,
+        "impact_pct_high": -10.0,
+        "most_exposed": [
+          "ASML",
+          "TSM",
+          "AMAT",
+          "LRCX",
+          "KLAC",
+          "NVDA"
+        ],
+        "mechanism": "Renewed China export controls or Taiwan-strait tension hits EUV/etch/fab-tool supply chain and TSM-dependent foundry exposure; NVDA carries prior export-restriction precedent.",
+        "basis": "static_assumption",
+        "note": "No live tariff/export catalyst fired this run; standing rule-of-thumb."
+      },
+      {
+        "scenario": "USD/INR \u00b13%",
+        "impact_pct_low": -0.3,
+        "impact_pct_high": 0.3,
+        "most_exposed": [],
+        "mechanism": "Book is 100% US-listed, USD-reported equities -- a currency move has ~0 direct USD book-value effect. In INR-terms net worth, a 3% USDINR move shifts the INR-equivalent value of the whole US sleeve by roughly the same 3%, independent of any US stock move.",
+        "basis": "live",
+        "note": "Uses today's live USDINR 94.4575."
+      }
+    ],
+    "data_quality": [
+      "No valuation ref this run (FMP access denied for GEV/ASML/BE/MRVL/VRT) -- capex-pause and export-control rows are unscreened for valuation-stretch and remain static_assumption."
+    ]
+  },
+  "stress_table_prev": {
     "as_of": "2026-09-01",
     "anchored_to": {
       "us10y_pct": 4.786,
@@ -4758,108 +5108,6 @@
       "no prior run's stress_table fetched to diff against -- this is a fresh build, not a delta"
     ]
   },
-  "stress_table_prev": {
-    "as_of": "2026-08-31",
-    "source": "backfilled 2026-08-31 from this run's own prose table in out_strategist.md -- the structured contract did not exist when the agent ran. Transcription only: every figure, ticker and caveat below is the agent's, not the orchestrator's.",
-    "anchored_to": {
-      "us10y_pct": 4.72,
-      "vix": 14.43,
-      "dxy": 99.68,
-      "fed_rate_pct": 3.63,
-      "fed_stance": "hawkish"
-    },
-    "scenarios": [
-      {
-        "scenario": "AI-capex pause (hyperscaler guidance cut)",
-        "impact_pct_low": -18.0,
-        "impact_pct_high": -12.0,
-        "most_exposed": [
-          "NVDA",
-          "AVGO",
-          "MRVL",
-          "COHR",
-          "AMAT",
-          "AMKR"
-        ],
-        "mechanism": "29% AI Semis/Fabs plus 17.8% Networking/Optics -- both direct capex-order-book exposure",
-        "basis": "live",
-        "note": ""
-      },
-      {
-        "scenario": "Rates +100bp (10-yr 4.72% -> ~5.7%)",
-        "impact_pct_low": -9.0,
-        "impact_pct_high": -6.0,
-        "most_exposed": [
-          "NVDA",
-          "MRVL",
-          "COHR",
-          "IREN",
-          "NBIS"
-        ],
-        "mechanism": "discount-rate compression on long-duration capex-story growth names, compounded by the cycle's own de-rating-on-cost dynamic",
-        "basis": "static_assumption",
-        "note": "not macro-refreshed this run beyond the supplied strip"
-      },
-      {
-        "scenario": "Tariff/export-control escalation (China semis)",
-        "impact_pct_low": -7.0,
-        "impact_pct_high": -4.0,
-        "most_exposed": [
-          "TSM",
-          "AMAT",
-          "KLAC",
-          "LRCX",
-          "AMKR",
-          "BABA"
-        ],
-        "mechanism": "advanced packaging and China-exposed revenue; TSM additionally flagged unauditable on primary sources",
-        "basis": "live",
-        "note": ""
-      },
-      {
-        "scenario": "USD/INR +/-3% (USD-reported book)",
-        "impact_pct_low": 0.0,
-        "impact_pct_high": 0.0,
-        "most_exposed": [],
-        "mechanism": "no effect on the USD book; INR-terms net worth moves ~+/-3% mechanically with the rupee, independent of any US position move",
-        "basis": "live",
-        "note": "relevant only to INR-terms reporting"
-      },
-      {
-        "scenario": "Credit/CDS repricing broadens past AI-financing names",
-        "impact_pct_low": -6.0,
-        "impact_pct_high": -3.0,
-        "most_exposed": [
-          "AVGO",
-          "AMZN",
-          "GOOG",
-          "MSFT",
-          "NVDA"
-        ],
-        "mechanism": "the five catalyst_threat names; NVDA CDS ~2x in two months and Oracle cut to BBB-",
-        "basis": "live",
-        "note": ""
-      },
-      {
-        "scenario": "Broad correction continuation (correction_state: correction)",
-        "impact_pct_low": -10.0,
-        "impact_pct_high": -5.0,
-        "most_exposed": [
-          "IREN",
-          "AMKR",
-          "NBIS",
-          "SMCI",
-          "COHR"
-        ],
-        "mechanism": "high-volatility names disproportionate; already the de-risk queue's most fragile",
-        "basis": "live",
-        "note": ""
-      }
-    ],
-    "data_quality": [
-      "rate-sensitive rows are static-assumption, not independently macro-refreshed this run"
-    ]
-  },
   "run_outages": [
     {
       "from": "2026-08-27",
@@ -4867,5 +5115,9 @@
       "reason": "Claude membership/account issue -- Claude Code could not run on those days, so the scheduler never fired. Confirmed by the user 2026-09-01. Corroborated by artefacts: no Agent Smith session of any kind on either date, no files written under the state dir, no commits, no run dirs and no ledger rows, while the Mac itself was up (no reboot since 2026-08-06). Not a desk defect.",
       "declared_on": "2026-09-01"
     }
-  ]
+  ],
+  "scout_narrative": {
+    "text": "Score 66.7 (greed, unchanged from prior). Driven almost entirely by low VIX (15.01, sub-component 83.3) and SPX sitting at/near its 52-week high (pct_off_52w_high component 100); MA125, RSI14, and yield_trend components all neutral at 50 -- calm/highs-driven greed, not broad technical overextension. action_hint null: no sizing override triggered this run. Reading is computed off Friday's close since the US market is closed today for Labor Day.",
+    "as_of": "2026-09-07"
+  }
 }

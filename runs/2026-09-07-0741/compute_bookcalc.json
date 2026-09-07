@@ -1,0 +1,183 @@
+{
+  "as_of": "2026-09-07",
+  "ex_dates": [],
+  "ex_window_days": 30,
+  "annual_dividend_income_usd": 0.0,
+  "div_yield_pct": 0.0,
+  "ltcg": {
+    "earliest_open_lot": "2026-07-21",
+    "lots_total": 72,
+    "lots_dated": 72,
+    "live_decisions": false,
+    "first_crossing": "2028-07-21",
+    "note": "All 72 open lots are short-term; the 24-month Indian boundary first bites 2028-07-21. There is no LTCG decision to make and no urgency to claim."
+  },
+  "risk_weighted_concentration": [
+    {
+      "ticker": "BE",
+      "weight_pct": 5.095,
+      "beta": 2.105,
+      "risk_weight_pct": 7.949,
+      "risk_minus_dollar_pp": 2.854
+    },
+    {
+      "ticker": "NBIS",
+      "weight_pct": 3.991,
+      "beta": 2.636,
+      "risk_weight_pct": 7.798,
+      "risk_minus_dollar_pp": 3.807
+    },
+    {
+      "ticker": "MRVL",
+      "weight_pct": 5.067,
+      "beta": 1.676,
+      "risk_weight_pct": 6.295,
+      "risk_minus_dollar_pp": 1.228
+    },
+    {
+      "ticker": "TER",
+      "weight_pct": 4.498,
+      "beta": 1.832,
+      "risk_weight_pct": 6.108,
+      "risk_minus_dollar_pp": 1.61
+    },
+    {
+      "ticker": "MU",
+      "weight_pct": 3.841,
+      "beta": 1.954,
+      "risk_weight_pct": 5.564,
+      "risk_minus_dollar_pp": 1.723
+    },
+    {
+      "ticker": "GEV",
+      "weight_pct": 9.501,
+      "beta": 0.777,
+      "risk_weight_pct": 5.472,
+      "risk_minus_dollar_pp": -4.029
+    },
+    {
+      "ticker": "ALAB",
+      "weight_pct": 3.909,
+      "beta": 1.634,
+      "risk_weight_pct": 4.734,
+      "risk_minus_dollar_pp": 0.825
+    },
+    {
+      "ticker": "COHR",
+      "weight_pct": 3.549,
+      "beta": 1.707,
+      "risk_weight_pct": 4.491,
+      "risk_minus_dollar_pp": 0.942
+    },
+    {
+      "ticker": "INTC",
+      "weight_pct": 3.619,
+      "beta": 1.579,
+      "risk_weight_pct": 4.236,
+      "risk_minus_dollar_pp": 0.617
+    },
+    {
+      "ticker": "AMAT",
+      "weight_pct": 3.445,
+      "beta": 1.648,
+      "risk_weight_pct": 4.208,
+      "risk_minus_dollar_pp": 0.763
+    },
+    {
+      "ticker": "AMD",
+      "weight_pct": 3.608,
+      "beta": 1.566,
+      "risk_weight_pct": 4.188,
+      "risk_minus_dollar_pp": 0.58
+    },
+    {
+      "ticker": "IREN",
+      "weight_pct": 2.251,
+      "beta": 2.436,
+      "risk_weight_pct": 4.064,
+      "risk_minus_dollar_pp": 1.813
+    }
+  ],
+  "risk_hogs": [
+    {
+      "ticker": "BE",
+      "weight_pct": 5.095,
+      "risk_weight_pct": 7.949,
+      "risk_minus_dollar_pp": 2.854,
+      "beta": 2.105
+    },
+    {
+      "ticker": "NBIS",
+      "weight_pct": 3.991,
+      "risk_weight_pct": 7.798,
+      "risk_minus_dollar_pp": 3.807,
+      "beta": 2.636
+    },
+    {
+      "ticker": "MRVL",
+      "weight_pct": 5.067,
+      "risk_weight_pct": 6.295,
+      "risk_minus_dollar_pp": 1.228,
+      "beta": 1.676
+    },
+    {
+      "ticker": "TER",
+      "weight_pct": 4.498,
+      "risk_weight_pct": 6.108,
+      "risk_minus_dollar_pp": 1.61,
+      "beta": 1.832
+    },
+    {
+      "ticker": "MU",
+      "weight_pct": 3.841,
+      "risk_weight_pct": 5.564,
+      "risk_minus_dollar_pp": 1.723,
+      "beta": 1.954
+    }
+  ],
+  "size_not_risk": [
+    {
+      "ticker": "GEV",
+      "weight_pct": 9.501,
+      "risk_weight_pct": 5.472,
+      "risk_minus_dollar_pp": -4.029,
+      "beta": 0.777
+    },
+    {
+      "ticker": "ASML",
+      "weight_pct": 5.399,
+      "risk_weight_pct": 3.705,
+      "risk_minus_dollar_pp": -1.694,
+      "beta": 0.926
+    },
+    {
+      "ticker": "TSM",
+      "weight_pct": 3.241,
+      "risk_weight_pct": 2.169,
+      "risk_minus_dollar_pp": -1.072,
+      "beta": 0.903
+    },
+    {
+      "ticker": "NVDA",
+      "weight_pct": 2.901,
+      "risk_weight_pct": 1.097,
+      "risk_minus_dollar_pp": -1.804,
+      "beta": 0.51
+    },
+    {
+      "ticker": "APH",
+      "weight_pct": 2.085,
+      "risk_weight_pct": 0.833,
+      "risk_minus_dollar_pp": -1.252,
+      "beta": 0.539
+    }
+  ],
+  "betas_missing": [
+    "STM"
+  ],
+  "data_quality": [
+    "no --summary-file supplied: dividends and ex-dates not computed this run.",
+    "no beta for 1 name(s) (STM) -- EXCLUDED from the risk-weighted ranking rather than defaulted to 1.0, which would have quietly understated them."
+  ],
+  "note": "risk_hogs carry MORE portfolio risk than dollars (beta x weight); size_not_risk are the reverse -- big positions that are quiet. A book can be concentrated in dollars and diversified in risk, or the reverse, and only this ranking distinguishes them."
+}

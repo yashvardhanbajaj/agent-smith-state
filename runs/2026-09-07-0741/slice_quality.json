@@ -1,0 +1,71 @@
+{
+  "mode": "deep",
+  "today": "2026-09-07",
+  "market_session": "closed_holiday",
+  "gate_classification": null,
+  "macro": {
+    "us10y": 4.784,
+    "vix": 15.01,
+    "dxy": 99.099,
+    "spx": 7718.6,
+    "ndx": 26506.99,
+    "es_f": 7722.0,
+    "nq_f": 29565.25
+  },
+  "usdinr": 94.4575,
+  "known_gaps": [
+    {
+      "id": "G69",
+      "status": "partially_closed",
+      "gap": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so "
+    },
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    },
+    {
+      "id": "G18",
+      "status": "open",
+      "gap": "SPY/QQQ max-pain unavailable -- single-expiry options pull returned near-zero/null open interest across nearly all strikes (yfinance data gap)"
+    },
+    {
+      "id": "G86",
+      "status": "partially_closed",
+      "gap": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are there"
+    },
+    {
+      "id": "G85",
+      "status": "partially_closed",
+      "gap": "SHADOW-SCORED TRIGGER PROPOSALS ARE STRUCTURALLY EXEMPT FROM CONDITION-BASED AUTO-RETIREMENT. Any proposal whose trigger_type is a shadow trigger (profit_ratchet, scale_out_ladder) is written with retires_when = 'n/a -- shadow-scored, track"
+    },
+    {
+      "id": "G81",
+      "status": "open",
+      "gap": "PROXIMATE CAUSE OF THE 2026-08-18 SEMIS ROUT IS UNRESOLVED, AND THE FIRST ANSWER WAS WRONG. smith-catalyst returned, as its lead catalyst, that the 30-year UST hit a 19-year high of 5.33% on Tuesday and repriced high-multiple AI hardware. C"
+    },
+    {
+      "id": "G82",
+      "status": "open",
+      "gap": "BX (Blackstone) was re-entered 2026-08-24 (10sh, 3.67% weight) after a full exit on 2026-08-17. smith-thesis classified it into a brand-new satellite cluster 'Financials/Alt-Asset Diversifier' because it does not fit any existing policy.jso"
+    },
+    {
+      "id": "G83",
+      "status": "open",
+      "gap": "BX's re-entry lot is dated 2026-08-21 in trades.json/lots.json, but state/G82 and this run's dispatch both stated the re-entry happened 2026-08-24 -- a 3-day discrepancy independently caught by smith-book, smith-tax, and the strategist this"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "agent": "smith-quality",
+  "output_file": "runs/2026-09-07-0741/smith-quality-output.md",
+  "holdings_path": "runs/2026-09-07-0741/holdings.json",
+  "read_these_files": {
+    "open_flags": "/Users/yb/Claude/AgentSmith/runs/2026-09-07-0741/shared/open_flags.7460550d.json",
+    "quality_read": "/Users/yb/Claude/AgentSmith/runs/2026-09-07-0741/shared/quality_read.78605a05.json",
+    "data_cache.quality_financials": "/Users/yb/Claude/AgentSmith/runs/2026-09-07-0741/shared/data_cache_quality_financials.8277ffe4.json",
+    "data_cache.earnings_facts": "/Users/yb/Claude/AgentSmith/runs/2026-09-07-0741/shared/data_cache_earnings_facts.333d29ce.json",
+    "book": "/Users/yb/Claude/AgentSmith/runs/2026-09-07-0741/compute_book.json",
+    "holdings": "/Users/yb/Claude/AgentSmith/runs/2026-09-07-0741/shared/holdings_trim.65c98a1f.json"
+  },
+  "inputs_digest": "9b9c7b4c9214"
+}
