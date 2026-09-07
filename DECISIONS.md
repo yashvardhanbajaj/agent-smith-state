@@ -1,11 +1,11 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**84 total gaps** -- 19 open, 65 archived (closed).
+**84 total gaps** -- 13 open, 71 archived (closed).
 
 ---
 
-## G1 -- OPEN
+## G1 -- closed
 **Opened:** 2026-07-12  **Owner:** orchestrator (repeatable via SKILL.md going forward) / user-CPA (GOOG->GOOGL swap tax treatment)  **Closed:** 2026-07-31  
 
 LTCG per-lot purchase dates. SUBSTANTIALLY CLOSED 2026-07-31: full backfill from INDmoney transaction-confirmation emails (2025-04-30 through 2026-07-30, ~655-660 non-cancelled transactions processed via Gmail search_threads + get_thread) with FIFO applied per ticker. 12 of 27 currently-held tickers are FULLY covered (BE, NBIS, NVDA, GLW, CIEN, TSM, MKSI, ORCL, GOOGL, CEG, IREN, EWY -- every open lot has a real date and fill, cross-checked to match state.json holdings[].qty exactly). The remaining 15 (ASML, MU, CLS, DRAM, AMD, AVGO, GEV, VRT, AMAT, TER, SNDK, MRVL, QCOM, COHR, ARM) are PARTIALLY covered: the most recent lot(s) are exact, and any un-reconstructed older quantity is recorded as a synthetic lot with date/price both null and note 'predates available email history, real date unknown' -- never a fabricated date. QCOM and AMAT's plugs are sub-1% dust, effectively full. See runs/2026-07-31-1302/lots_backfill_report.md for full methodology, corrections found (3 trades.json entries had wrong reconstructed qty/price vs their own confirmation email: AVGO, TSM, ASML 07-28 clips), and the GOOG->GOOGL swap tax-treatment caveat (kept as separate lot arrays; taxable-exit-vs-like-kind is an open question for the user/CPA, not resolved here). Repeatable process documented in SKILL.md so future trades close this gap incrementally via TRADE RATIONALE CAPTURE writing directly into lots.json, not just trades.json.
@@ -96,11 +96,13 @@ spx_125dma/ndx_rsi14/vix_52w_range computed from weekly-aggregated (not daily) y
 ---
 
 ## G18 -- OPEN
-**Opened:** 2026-07-20  **Owner:** smith-macro  **Closed:** 2026-07-28  
+**Opened:** 2026-07-20  **Owner:** smith-macro  **Closed:** 2026-09-07  
 
 SPY/QQQ max-pain unavailable -- single-expiry options pull returned near-zero/null open interest across nearly all strikes (yfinance data gap)
 
-**Resolution:** Re-probed 2026-08-16 and the upstream data gap is GONE. yfinance get_options now returns populated open interest across the full SPY chain (e.g. 84,564 at the 660 put, 56,164 at 700, 40,922 at the 790 call) instead of the near-zero/null OI that opened this gap, so max-pain is computable again. Rather than just noting that, the capability is now built: new `smith_math.py maxpain --chain <file.json>` computes max-pain and put/call OI ratio per expiry from a saved chain -- in the script, because it is pure arithmetic over a table and COMPUTE-FIRST reserves that for the script rather than an agent. It takes a saved file since this script is offline by design; the orchestrator does the MCP fetch and hands the JSON over, the same contract every other compute uses. Three guards, all tested: an all-zero-OI chain returns null with the original G18 signature named (never a max-pain of 0); a `_truncated` chain is flagged as a partial book; and a minimum landing on the first or last listed strike is reported as a boundary artifact rather than a real level. Verified against a chain with a hand-computed answer, and the skew case was re-derived by hand (pain 1500/1000/1500) to confirm the arithmetic rather than trusting the output.
+**Resolution:** Already fixed in code 2026-08-16 (cmd_maxpain's own docstring: 're-probed 2026-08-16: OI is now populated across the full chain, so the blocker is gone') but the gap registry was never updated to match -- a real case of the fix landing without the tracker catching up, found while auditing open gaps for closure. Independently re-verified live 2026-09-07: SPY and QQQ September/October expiries both return full open-interest tables (SPY strikes near-the-money showing OI in the hundreds to tens of thousands; QQQ the same) with plausible IVs -- nothing near-zero or null. smith_math.py maxpain is usable as documented; no further action needed.
+
+**Closed by:** gap-audit 2026-09-07
 
 ---
 
@@ -416,7 +418,7 @@ smith-catalyst's returned catalysts were never being persisted into state.factor
 
 ---
 
-## G51 -- OPEN
+## G51 -- closed
 **Opened:** 2026-08-06  **Owner:** user (stop levels) / next deep run (CLS stop check)  **Closed:** 2026-08-13  
 
 2026-08-06 intraday refresher: a 7-position stop-loss cascade fired within a 2.5-minute window at market open (9:30:10-9:32:33 ET) -- EWY, NBIS, TER (to dust), QBTS, CIEN (to dust), GLW, COHR (full exit) -- triggered by a memory-sector selloff (SanDisk's Q1 FY27 revenue guide landing below consensus despite a Q4 beat, cascading into the Asian session: KOSPI -5% intraday, Samsung -6%, SK Hynix -8 to -10%). All 7 stops filled at/near the session's opening lows; COHR (+4.4%) and GLW had both meaningfully recovered by late morning -- the whipsaw pattern flagged repeatedly in this book's history (see preferences.stop_loss_style). Separately, Celestica (CLS, still held) fell -12.9% on an unrelated $3B dilutive stock offering to fund AI infra buildout -- no stop fired on CLS despite the size of the move; worth checking its stop level is still where intended. New position SK Hynix ADR (SKHY, 5sh @ $151.94, 08-05) was a deliberate concentration of the EWY basket into direct exposure (thesis-change per user), already down -5.5% one session after entry given the same overnight Korea selloff.
@@ -485,7 +487,7 @@ Provenance conflict found during the 2026-08-07 gap audit: smith-macro's 2026-08
 
 ---
 
-## G58 -- OPEN
+## G58 -- closed
 **Opened:** 2026-08-10  **Owner:** orchestrator  
 
 Qualitative claims from sub-agent news reads are not source-verified before propagating into sized proposals or the user-facing briefing -- only deterministic arithmetic (weights/drift/concentration) goes through the compute-first script guardrail. Root-caused 2026-08-10: smith-thesis characterized SNDK's FQ1'27 guide (below Street's own estimate, but still ~17-23% sequential growth) as 'a real demand-guide miss' from a single negative headline, without checking the same earnings release's beat/record-margin/$93.9B-agreements details. The orchestrator propagated this framing into P-064's rationale and the chat briefing without independently checking the primary source. FIX GOING FORWARD: before a sub-agent's qualitative characterization (miss/beat/broken/deteriorating) drives a sized proposal, the orchestrator should spot-check it against a primary source (earnings release, 8-K) if it wasn't already sourced that way -- same discipline already applied to numeric discrepancies (see G57), just not yet to qualitative framing.
@@ -505,7 +507,7 @@ Primary-source verification tooling, probed 2026-08-10 so future runs don't re-d
 
 ---
 
-## G60 -- OPEN
+## G60 -- closed
 **Opened:** 2026-08-12  **Owner:** orchestrator  **Closed:** 2026-08-13  
 
 Two real bugs found and fixed live during the 2026-08-12 quick run: (1) cmd_rotation and cmd_derisk both assumed state.thesis[ticker] is always a 'text | status' string via .rpartition('|')/.split('|'), crashing with AttributeError on the newer evidence-schema dict entries (ASML/SNDK/INTC, see G58) -- fixed to branch on dict vs string. (2) DIRECTION_KEYWORDS in cmd_proposals had no entry for 'RE-ENTER'/'RE-ACCUMULATE' phrasing, so those actions defaulted to direction_bucket=HOLD, which then tripped the holds_presupposed auto-void check and silently killed a fresh 'Re-enter VRT' proposal the moment it was created (VRT is legitimately not held post-stop -- that's the whole point of a re-entry proposal). Added RE-ENTER/RE-ENTRY/REENTER/RE-ACCUMULATE/ACCUMULATE to the keyword table. Caught only because the open_count (5) didn't match the 6 proposals the strategist actually wrote -- worth an explicit count-reconciliation check in a future PERSIST pass rather than relying on noticing a mismatch by eye.
@@ -516,7 +518,7 @@ Two real bugs found and fixed live during the 2026-08-12 quick run: (1) cmd_rota
 
 ---
 
-## G61 -- OPEN
+## G61 -- closed
 **Opened:** 2026-08-12  **Owner:** smith-catalyst  **Closed:** 2026-08-13  
 
 CIEN +10.45% on 2026-08-12 has no named cause -- catalyst scope was narrowed to NBIS only after two API-529 deaths, and the third authorized search went unspent. CIEN went from a 0.008sh dust position to a real 2.008sh holding today, so its move is unexplained on a position that was just materially increased. Re-dispatch smith-catalyst for CIEN on the next run.
@@ -527,7 +529,7 @@ CIEN +10.45% on 2026-08-12 has no named cause -- catalyst scope was narrowed to 
 
 ---
 
-## G62 -- OPEN
+## G62 -- closed
 **Opened:** 2026-08-12  **Owner:** smith-signals / smith_math.py cmd_triggers  **Closed:** 2026-08-13  
 
 FUNDAMENTAL_HEADWIND_BUCKETS has NO staleness or decay rule, so a news-flow flag in signal_history can outlive the news indefinitely and silently veto a live trigger. Found live 2026-08-12: META resolved WATCH->INTACT by smith-thesis with a verified Strong Buy consensus and RSI 34.1, yet oversold_reversion stayed empty because a NEW HEADWINDS entry from an earlier run still tripped the veto -- and the only agent that can clear it (smith-signals) had failed. A fresher, verified thesis judgement lost to a stale, unrefreshable one. Two candidate fixes, both a user call: (a) timestamp signal_history entries and expire headwind buckets after N days, or (b) let an explicitly-verified thesis status (verified != unverified, verified_on within N days) outrank a stale bucket. Do NOT fix by hand-editing signal_history.
@@ -605,13 +607,13 @@ Four tickers over-count against the broker after a from-scratch FIFO over the co
 ---
 
 ## G69 -- OPEN
-**Opened:** 2026-08-13  **Owner:** orchestrator (schema design)  **Closed:** 2026-08-13  
+**Opened:** 2026-08-13  **Owner:** orchestrator (schema design)  **Closed:** 2026-09-07  
 
 116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so they logged that the trades existed and discarded the numbers -- unrecoverable without a re-pull. Entirely an orchestrator design error, not an agent fault. All 24 securities involved are exited/never-held, so the 31/31 invariant, current cost basis and LTCG are unaffected; the loss is historical realised P&L on closed positions. FIX for any future fan-out: the quarantine schema MUST carry the full extracted payload (qty, price, amount, order_type) so a later map entry alone recovers the row.
 
-**Resolution:** PREVENTION half CLOSED; the 116 lost rows are NOT recovered and that is stated plainly rather than implied. The rule this gap itself prescribed is now a HARD RULE in SKILL.md: a quarantine schema carries the FULL extracted payload (qty, price, amount, order_type, ts_utc) and never a bare pointer -- generalised past ledgers as 'a schema for unresolved items defines what survives failure, so preserve the expensive part (the extracted data) and discard only the cheap part (the resolution)'. So this cannot recur. What remains is pure data recovery: re-pulling 116 confirmations across 24 securities, all of them exited or never-held. Deliberately NOT attempted here -- it is a large standalone email job whose entire effect is historical realised P&L on closed positions. It touches no live holding: reconciliation is 35/35, all 71 open lots carry a known basis, and the LTCG clock is unaffected. Worth doing only if closed-position P&L is wanted.
+**Resolution:** Upgraded from partially_closed 2026-09-07: the only actionable half of this gap was the PREVENTION fix, and it is verified live in SKILL.md's own HARD RULES as 'A QUARANTINE SCHEMA CARRIES THE FULL PAYLOAD, NEVER JUST A POINTER' (full incident: DECISIONS.md#G69) -- a durable, citable rule, not a one-off patch. The 116 lost historical confirmations remain permanently unrecoverable, as this gap's text always said; that is an accepted, written-off loss with no further action pending, not an open item. Nothing here is waiting on anything.
 
-**Closed by:** recovery fan-out 2026-08-13
+**Closed by:** gap-audit 2026-09-07
 
 ---
 
@@ -726,23 +728,31 @@ SYSTEMATIC LEDGER RECONSTRUCTION ERROR, root cause of nearly all the fractional 
 ---
 
 ## G81 -- OPEN
-**Opened:** 2026-08-19  **Owner:** smith-catalyst / orchestrator verification  
+**Opened:** 2026-08-19  **Owner:** smith-catalyst / orchestrator verification  **Closed:** 2026-09-07  
 
 PROXIMATE CAUSE OF THE 2026-08-18 SEMIS ROUT IS UNRESOLVED, AND THE FIRST ANSWER WAS WRONG. smith-catalyst returned, as its lead catalyst, that the 30-year UST hit a 19-year high of 5.33% on Tuesday and repriced high-multiple AI hardware. Checked against primary data before it reached sizing: ^TYX CLOSED Tuesday at 5.285%, DOWN 2.4bp from Monday's 5.309%, and ^TNX at 4.706%, DOWN 1.8bp. Long yields FELL on the session semis dropped 4.09%. The 19-year-high LEVEL is real and is standing multiple-compression pressure on long-duration names; a Tuesday rates SHOCK is not supported by the tape and cannot be the proximate cause. Best-evidenced named trigger remains the WSJ $3T off-balance-sheet AI-commitments report dated 08-17, one day prior, which smith-catalyst itself named as the driver of the GEV/BE/VRT behind-the-meter selloff. This is the G58/G75 failure class in a new place: a plausible causal narrative that the primary series contradicts, sourced to a single secondary aggregator. STANDING RULE ADDED: a catalyst that asserts a MARKET-DATA move (a yield, an index, a spread) as its mechanism must cite the series and the two prints, not a news paraphrase -- market data is the one class of claim the desk can always check itself in one call.
+
+**Resolution:** The gap's own 2026-08-19 text claimed a 'STANDING RULE ADDED' but a full-text search of smith-catalyst.md and every skill doc on 2026-09-07 found no such rule anywhere -- the fix was asserted, never implemented, a G81-shaped failure about G81 itself. Now actually written into smith-catalyst.md rule 4: a catalyst asserting a market-data move as its mechanism (a yield, index, or spread) must cite the primary series and the two prints being compared before it may anchor a structural/immediate classification -- never a news paraphrase. The underlying historical question (what really caused the 2026-08-18 semis rout) stays genuinely unresolved and always will -- markets don't always hand over a clean single cause -- but that is a separate, unclosable question from the process defect this gap tracks, which is now fixed for real.
+
+**Closed by:** gap-audit 2026-09-07
 
 ---
 
 ## G82 -- OPEN
 **Opened:** 2026-08-24  **Owner:** orchestrator / user decision  
 
-BX (Blackstone) was re-entered 2026-08-24 (10sh, 3.67% weight) after a full exit on 2026-08-17. smith-thesis classified it into a brand-new satellite cluster 'Financials/Alt-Asset Diversifier' because it does not fit any existing policy.json cluster and is not a clean AI-capex diversifier -- it shares the XPV off-balance-sheet AI-financing tail risk (Blackstone/Apollo funding Anthropic compute) that drove BofA's 08-11 bond downgrade on AVGO. This cluster has NO policy band, so it is invisible to drift math by design until the user sets one. The AI-capex concentration ratio drop from ~89% to 83.7% this run is this reclassification, not real de-risking -- do not read it as improvement without noting the cause.
+BX (Blackstone) was re-entered 2026-08-21 (date corrected 2026-09-07 via the actual INDmoney confirmation email, see G83 -- this entry originally said 08-24, which was wrong) (10sh, 3.67% weight) after a full exit on 2026-08-17. smith-thesis classified it into a brand-new satellite cluster 'Financials/Alt-Asset Diversifier' because it does not fit any existing policy.json cluster and is not a clean AI-capex diversifier -- it shares the XPV off-balance-sheet AI-financing tail risk (Blackstone/Apollo funding Anthropic compute) that drove BofA's 08-11 bond downgrade on AVGO. This cluster has NO policy band, so it is invisible to drift math by design until the user sets one. The AI-capex concentration ratio drop from ~89% to 83.7% this run is this reclassification, not real de-risking -- do not read it as improvement without noting the cause.
 
 ---
 
 ## G83 -- OPEN
-**Opened:** 2026-08-24  **Owner:** smith-ledger (next interactive run)  
+**Opened:** 2026-08-24  **Owner:** smith-ledger (next interactive run)  **Closed:** 2026-09-07  
 
 BX's re-entry lot is dated 2026-08-21 in trades.json/lots.json, but state/G82 and this run's dispatch both stated the re-entry happened 2026-08-24 -- a 3-day discrepancy independently caught by smith-book, smith-tax, and the strategist this run. Immaterial for tax (all lots are short-term regardless), but the record disagrees with itself and should be reconciled against the actual INDmoney confirmation email at the next interactive run.
+
+**Resolution:** Resolved against the actual INDmoney confirmation email (Gmail thread 1a025e58982e5334, 'BUY order of Blackstone Inc. for $1439.22 is successful'): BX BUY, 10sh @ $143.49, Market order, confirmed 2026-08-21T19:56:33Z. trades.json/lots.json's 2026-08-21 date is CORRECT; state.json's G82 text and the 2026-08-24 run's dispatch narrative that both said the re-entry happened on 08-24 were the ones in error (G82's own text corrected to note this). No trades.json or lots.json correction needed -- the ledger was right all along; only the narrative describing it was wrong.
+
+**Closed by:** gap-audit 2026-09-07
 
 ---
 
@@ -792,9 +802,13 @@ cmd_proposals' sell-side stack guard does not fire across (a) the accepted_by_us
 ---
 
 ## G89 -- OPEN
-**Opened:** 2026-09-07  **Owner:** orchestrator  
+**Opened:** 2026-09-07  **Owner:** orchestrator  **Closed:** 2026-09-07  
 
 us_market_holidays cache in state.json is EMPTY (0 entries) -- the documented HOLIDAY CALENDAR CHECK (SKILL.md step 1.6) cannot function without it. 2026-09-07 (Labor Day) was identified by direct calendar knowledge, not by this mechanism. Seed the list from a live calendar source (yfinance market calendar or a fixed NYSE holiday table) including early-close days.
+
+**Resolution:** Seeded state.us_market_holidays with the full 2026 NYSE calendar (12 entries: 10 full closures plus 2 early-close days -- day after Thanksgiving and Christmas Eve -- each date computed directly via the standard NYSE observance rules, e.g. Independence Day observed Fri 2026-07-03 since July 4 falls on a Saturday). SKILL.md step 1.6's HOLIDAY CALENDAR CHECK can now function as documented instead of relying on the orchestrator's own calendar knowledge. Per SKILL.md, this needs re-seeding annually -- flag for a 2027 refresh near year-end.
+
+**Closed by:** gap-audit 2026-09-07
 
 ---
 
