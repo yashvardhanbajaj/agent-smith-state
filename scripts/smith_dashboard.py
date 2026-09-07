@@ -377,22 +377,30 @@ p{margin:0}
 .stamp{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-align:right;line-height:1.7;
   letter-spacing:.01em}
 
-/* ============ status strip -- the hero: bigger numerals, real air ============ */
-/* flex, not grid -- an auto-fit/minmax GRID reserves the same column tracks for every row, so
-   a trailing partial row (e.g. 7 cells at 5-per-row leaves 2 in row 2) shows the leftover
-   tracks as bare background: a visible empty box with nothing in it. Flex-wrap simply stops
-   placing items once a row is full and lets the last row be short, which is what this
-   variable-length cell list (5-8 cells depending on what data a run has) actually needs. */
-.strip{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);border:1px solid var(--line);
-  border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)}
-.cell{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:6px;
-  flex:1 1 150px;min-width:150px}
-.cell .k{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
-  font-family:var(--sans)}
-.cell .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:23px;font-weight:500;letter-spacing:-.02em}
-.cell .s{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
-.cell.flag{background:var(--bad-soft)} .cell.flag .v{color:var(--bad)}
-.cell.okc .v{color:var(--good)}
+/* ============ hero -- REBUILT 2026-09-07, component-level pass. The prior "status strip" was
+   5-8 equal-weight cells in a row -- a generic KPI-tile pattern, the same shape whether the
+   number was Total Book or a footnote. A hero states what matters most FIRST and everything
+   else is visibly secondary, which a grid of identical boxes cannot do no matter what colors or
+   fonts sit inside it -- this is the actual fix for "still looks like the old dashboard": not a
+   new coat of paint on the same tile grid, a different component. ============ */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);padding:26px 26px 22px;display:flex;flex-direction:column;gap:18px}
+.hero-main{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.hero-label{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3);align-self:flex-start;margin-top:6px}
+.hero-value{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:44px;
+  font-weight:500;letter-spacing:-.03em;color:var(--ink);line-height:1}
+.hero-delta{font-family:var(--mono);font-size:15px;font-weight:600;padding:3px 10px;
+  border-radius:100px;align-self:center}
+.hero-delta.pos{color:var(--good);background:var(--good-soft)}
+.hero-delta.neg{color:var(--bad);background:var(--bad-soft)}
+.hero-stats{display:flex;flex-wrap:wrap;gap:22px 30px;padding-top:16px;border-top:1px solid var(--line-soft)}
+.hstat{display:flex;flex-direction:column;gap:3px}
+.hstat .k{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.hstat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:17px;font-weight:500;
+  letter-spacing:-.01em;color:var(--ink)}
+.hstat .v.flag{color:var(--bad)}
+.hstat .s{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
 .macro{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:16px}
 .macro .k{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
 .macro .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:17px;font-weight:500;letter-spacing:-.02em}
@@ -461,130 +469,105 @@ td.txt{font-family:var(--sans);text-align:left;white-space:normal;color:var(--in
 tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:none;padding-top:10px}
 td.blank{color:var(--ink-3)}
 
-/* ============ band meter (clusters) ============ */
-.band{position:relative;height:26px;background:var(--surface-2);border-radius:4px;overflow:hidden;min-width:160px}
-.band .ok{position:absolute;top:0;bottom:0;background:var(--accent-soft)}
-.band .tgt{position:absolute;top:0;bottom:0;width:2px;background:var(--accent-line)}
-.band .mk{position:absolute;top:3px;bottom:3px;width:3px;border-radius:2px;background:var(--ink)}
-.band .mk.bad{background:var(--bad)}
-
-/* ============ expandable cluster rows (added 2026-08-08, user-requested: expand a cluster to
-   see its member holdings and which are peer leaders/laggards) ============ */
-/* FIXED 2026-08-08 (user-reported: rows rendering as unstyled overlapping text with the band
-   meter dropping to its own full-width line below). Root cause: `display:grid` set DIRECTLY on
-   a <summary> element is unreliable across browsers -- <summary> has special UA-stylesheet/
-   marker-box handling per the HTML rendering rules, and several engines silently ignore or only
-   partially apply an author `display: grid`/`flex` on it, falling back toward block flow (spans
-   collapse to inline-in-block and wrap/overlap; the sibling <div class="band"> forces its own
-   line since divs are block-level by default). The fix used throughout the ecosystem for this
-   exact quirk: never style <summary> itself as grid/flex -- wrap the row's content in a plain
-   child <div> and apply the grid to THAT div instead. <summary> keeps simple default styling
-   (cursor, padding, list-style removal), which every engine handles correctly. -->*/
-.clus-hdr{display:grid;grid-template-columns:1fr 70px 70px 90px 150px;gap:12px;padding:0 0 8px;
-  align-items:baseline}
-.clus-hdr .num{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--ink-3);text-align:right}
-details.clus-row{border-top:1px solid var(--line-soft)}
-details.clus-row:first-of-type{border-top:none}
-details.clus-row>summary{cursor:pointer;list-style:none;list-style-type:none;padding:11px 0;
-  font-family:var(--sans)}
+/* ============ cluster bars -- REBUILT 2026-09-07, component pass. Was a 5-column grid (name |
+   equity% | book% | band-text | a 26px-tall meter squeezed into the last 150px column) -- a
+   spreadsheet row wearing new colours. This IS a magnitude-vs-target comparison (dataviz's own
+   form heuristic: that job is a bar, full stop), so it gets a full-width bar each: the allowed
+   band renders as a soft zone, the actual weight as a solid fill, the target as a sharp tick --
+   one glance answers "where do I sit," which five packed columns made you calculate instead. */
+details.clus-row{border-top:1px solid var(--line-soft);padding:12px 0}
+details.clus-row:first-of-type{border-top:none;padding-top:0}
+details.clus-row>summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:8px}
 details.clus-row>summary::-webkit-details-marker{display:none}
 details.clus-row>summary::marker{content:"";display:none}
-details.clus-row>summary::before{content:"";}
-/* the actual grid lives here, one level in -- see the fix note above */
-.clus-summary-grid{display:grid;grid-template-columns:1fr 70px 70px 90px 150px;gap:12px;
-  align-items:center}
-.clus-summary-grid .name{font-weight:640;letter-spacing:-.01em;display:flex;align-items:baseline;gap:7px}
-.clus-summary-grid .name i{font-style:normal;font-family:var(--mono);font-size:11px;font-weight:400;
-  color:var(--ink-3)}
-.clus-summary-grid .name::before{content:"▸";color:var(--ink-3);font-family:var(--sans);width:10px;
-  display:inline-block;flex-shrink:0}
-details.clus-row[open] .clus-summary-grid .name::before{content:"▾"}
-.clus-summary-grid .num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
-.clus-summary-grid .num.blank{color:var(--ink-3)}
-.clus-summary-grid .band{min-width:0}
-details.clus-row>.body{padding:0 0 14px}
+.clus-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.clus-name{font-family:var(--serif);font-size:17px;font-weight:500;color:var(--ink);
+  display:flex;align-items:baseline;gap:8px}
+.clus-name::before{content:"›";color:var(--accent);font-weight:600;transition:transform .15s;display:inline-block}
+details.clus-row[open] .clus-name::before{transform:rotate(90deg)}
+.clus-name i{font-style:normal;font-family:var(--mono);font-size:11px;font-weight:400;color:var(--ink-3)}
+.clus-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:17px;font-weight:600;color:var(--ink)}
+.clus-pct.neg{color:var(--bad)}
+.clus-bar{position:relative;height:10px;background:var(--surface-2);border-radius:5px;overflow:visible}
+.clus-band-zone{position:absolute;top:0;bottom:0;background:var(--accent-soft);border-radius:5px}
+.clus-fill{position:absolute;top:0;bottom:0;left:0;background:var(--accent);border-radius:5px;opacity:.85}
+.clus-fill.neg{background:var(--bad)}
+.clus-target{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink)}
+.clus-sub{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+details.clus-row>.body{padding:12px 0 0}
 .peer-tag{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
   padding:2px 6px;border-radius:4px;white-space:nowrap}
 .peer-tag.lead{background:var(--good-soft);color:var(--good)}
 .peer-tag.lag{background:var(--bad-soft);color:var(--bad)}
 
-/* ============ decision/proposal rows ============ */
-/* REBUILT 2026-09-06 (user: "too much blank space... take a fresh look, propose a new design").
-   Root cause of the whitespace: the 3-column GRID (76px|1fr|auto) sized every row to its
-   TALLEST column, and the 76px label column forced a long cluster name ("Compute/Hyperscaler")
-   to wrap onto 2-3 lines on its own -- ballooning the whole row's height even when the middle
-   column had one line of real content, leaving a visible gap under it. Fixed by moving to a
-   single FLEX-WRAP row: ticker and cluster share one line (cluster inline, small, muted, no
-   longer in its own narrow column), every badge/chip/stat sits in that same flowing row, and
-   the amount pins to the far right with margin-left:auto. The row is exactly as tall as it
-   needs to be -- one line for a plain idea, two only when a stack warning or flag is present --
-   instead of a fixed multi-line grid cell no matter the content.*/
-.pr{display:flex;flex-wrap:wrap;align-items:center;gap:5px 10px;padding:8px 0;
-  border-bottom:1px solid var(--line-soft)}
-.pr:last-child{border-bottom:none}
-.pr-name{font-family:var(--mono);font-size:12.5px;font-weight:700;white-space:nowrap;
-  display:flex;align-items:baseline;gap:7px}
-.pr-clus{font-family:var(--sans);font-size:10.5px;font-weight:500;color:var(--ink-3);
-  font-style:normal;white-space:nowrap}
-.pr .amt{font-family:var(--mono);font-weight:700;color:var(--action);margin-left:auto;
-  white-space:nowrap}
-.pr .decide{margin:0}
-.pr-flagwrap{flex-basis:100%;display:flex;flex-wrap:wrap;gap:5px 10px}
-/* direction badge -- same visual language as the factor-catalyst .cb badges below */
-.dirb{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px}
-.dirb.BUY{background:var(--good-soft);color:var(--good)}
-.dirb.SELL{background:var(--bad-soft);color:var(--bad)}
-.dirb.TRIM{background:var(--warn-soft);color:var(--warn)}
-.dirb.HOLD{background:var(--surface-2);color:var(--ink-3)}
-.pr .amt.BUY{color:var(--good)} .pr .amt.SELL{color:var(--bad)} .pr .amt.TRIM{color:var(--warn)}
-/* priority groups -- collapsible, reusing the details/summary idiom used elsewhere on this
-   dashboard (see "tiers / details" above) rather than inventing a second expand pattern */
-details.pgrp{border-top:1px solid var(--line-soft)}
-details.pgrp:first-of-type{border-top:none}
+/* ============ decision cards -- REBUILT 2026-09-07, a genuinely different component, not a
+   reskin of the old row. The prior `.pr` was a flex-wrap ROW: a small colored badge, ticker,
+   and amount all sitting on one text baseline, differentiated mainly by a 2px border-bottom --
+   still recognizably a table row wearing new CSS variables. A card states the same information
+   as a discrete object: a 4px colour STRIPE down the left edge carries the direction (so the
+   eye reads BUY/SELL/TRIM as a shape and a colour before it reads the word), the ticker sits at
+   real display size on its own line, the amount is peer-sized and pinned opposite it, and every
+   secondary fact (cluster, conviction, trigger, stack/hold flags) collapses into one small meta
+   line below -- closer to how a banking app states "here is one decision," further from "here
+   is one row in a table of decisions." ============ */
+.pr-card{display:flex;border-radius:10px;overflow:hidden;background:var(--surface);
+  border:1px solid var(--line-soft);margin-bottom:8px}
+.pr-card:last-child{margin-bottom:0}
+.pr-card-stripe{width:4px;flex-shrink:0}
+.pr-card-stripe.BUY{background:var(--good)}
+.pr-card-stripe.SELL{background:var(--bad)}
+.pr-card-stripe.TRIM{background:var(--warn)}
+.pr-card-stripe.HOLD{background:var(--ink-3)}
+.pr-card-body{flex:1;min-width:0;padding:12px 15px;display:flex;flex-direction:column;gap:6px}
+.pr-card-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.pr-card-name{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--ink);
+  letter-spacing:-.005em;display:flex;align-items:baseline;gap:9px;min-width:0}
+.pr-card-dir{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;flex-shrink:0}
+.pr-card-dir.BUY{color:var(--good)} .pr-card-dir.SELL{color:var(--bad)}
+.pr-card-dir.TRIM{color:var(--warn)} .pr-card-dir.HOLD{color:var(--ink-3)}
+.pr-card-amt{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:18px;
+  font-weight:600;white-space:nowrap;color:var(--action)}
+.pr-card-amt.BUY{color:var(--good)} .pr-card-amt.SELL{color:var(--bad)} .pr-card-amt.TRIM{color:var(--warn)}
+.pr-card-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;font-size:11.5px;color:var(--ink-3)}
+.pr-card-clus{font-family:var(--sans);font-weight:500}
+.pr-card-extra{display:flex;flex-wrap:wrap;gap:6px 10px;padding-top:2px}
+.pr-card .decide{margin:0}
+/* priority groups -- collapsible */
+details.pgrp{border-top:1px solid var(--line-soft);margin-top:8px;padding-top:8px}
+details.pgrp:first-of-type{border-top:none;margin-top:0;padding-top:0}
 details.pgrp>summary{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;padding:12px 0}
+  text-transform:uppercase;padding:4px 0 8px}
 details.pgrp.HIGH>summary{color:var(--bad)}
 details.pgrp.MEDIUM>summary{color:var(--warn)}
 details.pgrp.LOW>summary{color:var(--ink-3)}
 details.pgrp>summary .n{background:var(--surface-2);color:var(--ink-2);border-radius:10px;padding:1px 8px;
   font-family:var(--mono);margin-left:8px;text-transform:none;letter-spacing:normal;font-weight:400}
-details.pgrp>.body{padding:0 0 4px}
-.pr .clus{font-family:var(--sans);font-size:10px;color:var(--ink-3);font-weight:500}
-/* live re-justification -- recomputed every run, visually distinct from the frozen rationale
-   above it so "why this is still here TODAY" never reads as part of the original prose */
-.pr .lives{display:flex;flex-direction:column;gap:3px;margin-top:7px}
-.pr .lv{font-family:var(--mono);font-size:11px;color:var(--good);line-height:1.4}
-.pr .lv::before{content:"live ";color:var(--ink-3);font-weight:700;letter-spacing:.06em}
-.pr .rvf{display:block;font-family:var(--mono);font-size:11px;color:var(--warn);
-  line-height:1.4;margin-top:5px}
-.pr .rtw{display:block;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);
-  line-height:1.4;margin-top:5px;font-style:italic}
-.pr .tranche{display:block;font-family:var(--mono);font-size:11px;color:var(--action);
-  line-height:1.4;margin-top:5px}
-/* compact inline drawer for a proposal's secondary detail (added 2026-09-06) -- the generic
-   details>summary rule above is sized for a section-level toggle (serif, 13.5px, 14px padding),
-   far too heavy for a one-word toggle sitting inside a single proposal row. */
-.pr-more{margin-top:5px}
+details.pgrp>.body{padding:0}
+/* live re-justification -- recomputed every run */
+.lv{font-family:var(--mono);font-size:11px;color:var(--good)}
+.lv::before{content:"live ";color:var(--ink-3);font-weight:700;letter-spacing:.06em}
+.rvf{font-family:var(--mono);font-size:11px;color:var(--warn)}
+/* compact inline drawer for a card's secondary detail */
+.pr-more{margin-top:2px}
 .pr-more>summary{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.04em;
   color:var(--accent);padding:0;text-transform:uppercase}
 .pr-more>summary::before{content:"+ ";color:var(--accent)}
 .pr-more[open]>summary::before{content:"\2212 "}
-.pr-more>.body{padding:6px 0 0;font-size:12px}
+.pr-more>.body{padding:8px 0 0;font-size:12px}
 
-/* ============ rotation ideas (paired trim+buy proposals) ============ */
-.rotgrp{border-top:1px solid var(--line-soft);padding-top:2px;margin-bottom:2px}
+/* ============ rotation ideas (paired trim+buy proposals) -- two cards joined by an arrow ==== */
+.rotgrp{border-top:1px solid var(--line-soft);padding-top:8px;margin-bottom:2px}
+.rotgrp:first-child{border-top:none;padding-top:0}
 .rotgrp-h{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--accent);padding:12px 0 8px}
+  text-transform:uppercase;color:var(--accent);padding:0 0 8px}
 .rotgrp-h .n{background:var(--accent-soft);color:var(--accent);border-radius:10px;padding:1px 8px;
   font-family:var(--mono);margin-left:8px;text-transform:none;letter-spacing:normal;font-weight:400}
-.rotcard{display:grid;grid-template-columns:1fr 28px 1fr;gap:4px;align-items:center;
-  padding:10px;margin-bottom:10px;border:1px solid var(--accent-line);border-radius:var(--r);
-  background:var(--accent-soft)}
-.rotleg{background:var(--surface);border-radius:5px;padding:2px 10px}
-.rotleg .pr{border-bottom:none;padding:9px 0}
-.rotarrow{text-align:center;font-size:18px;color:var(--accent);font-weight:700}
-@media (max-width:640px){.rotcard{grid-template-columns:1fr}.rotarrow{transform:rotate(90deg)}}
+.rotcard{display:grid;grid-template-columns:1fr 26px 1fr;gap:8px;align-items:center;
+  padding:0;margin-bottom:8px}
+.rotcard .pr-card{margin-bottom:0}
+.rotarrow{text-align:center;font-size:16px;color:var(--accent);font-weight:700}
+@media (max-width:560px){.rotcard{grid-template-columns:1fr}.rotarrow{transform:rotate(90deg);padding:2px 0}}
 
 /* ============ stop-loss efficacy ============ */
 .stops-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;
@@ -622,16 +605,24 @@ td.verd-flat{color:var(--ink-3)}
 .ltcg-row .past{color:var(--bad);font-weight:640}
 .ltcg-row .soon{color:var(--warn);font-weight:640}
 
-/* ============ factor catalysts ============ */
-.ci{display:grid;grid-template-columns:78px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
-.ci:last-child{border-bottom:none}
-.cb{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 6px;border-radius:4px;text-align:center;height:fit-content}
+/* ============ factor catalysts -- REBUILT 2026-09-07, same card family as the decision cards
+   above rather than the old badge-column grid (.ci: a fixed 78px column for the badge, text in
+   the other). A card here carries the same stripe + body language: stripe colour = direction,
+   the pill moves inside the card header, headline reads at real title size. ============ */
+.cat-card{display:flex;border-radius:10px;overflow:hidden;background:var(--surface);
+  border:1px solid var(--line-soft);margin-bottom:8px}
+.cat-card:last-child{margin-bottom:0}
+.cat-card-stripe{width:4px;flex-shrink:0}
+.cat-card-stripe.THREAT{background:var(--bad)}
+.cat-card-stripe.TAILWIND{background:var(--good)}
+.cat-card-stripe.AMBIGUOUS{background:var(--warn)}
+.cat-card-body{flex:1;min-width:0;padding:12px 15px;display:flex;flex-direction:column;gap:7px}
+.cat-card-top{display:flex}
+.cat-card-hh{font-family:var(--serif);font-size:16px;font-weight:500;line-height:1.4;color:var(--ink)}
+.cb{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:100px}
 .cb.TAILWIND{background:var(--good-soft);color:var(--good)}
 .cb.THREAT{background:var(--bad-soft);color:var(--bad)}
 .cb.AMBIGUOUS{background:var(--warn-soft);color:var(--warn)}
-.ci .hh{font-size:13.5px;font-weight:640;line-height:1.4}
-.ci .mm{font-size:12px;color:var(--ink-3);margin-top:4px;line-height:1.45}
-.ci .aa{font-family:var(--mono);font-size:11px;color:var(--accent);margin-top:4px}
 
 /* ============ rotation analysis ============ */
 .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
@@ -871,44 +862,49 @@ DASHBOARD_JS = r"""<script>
 
 
 def status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift, book_compute):
+    """REBUILT 2026-09-07, component-level pass (not a reskin): Total book is now the one hero
+    number the eye lands on first, with today's move as a delta chip beside it -- everything
+    that used to be N equal-weight tiles (Equity, P&L, Cash, Drawdown, Open risk, AI-capex) is
+    now a secondary stat row, visually subordinate on purpose. Same data, same fields, nothing
+    dropped -- see _render_data_quality's sibling comment on day_chg_pct_weighted being optional,
+    unchanged here."""
     ai_capex_pct = drift.get("ai_capex_pct")
-    prior_ai = drift.get("ai_capex_pct_prior")  # optional, not always present
+    prior_ai = drift.get("ai_capex_pct_prior")
     open_risk_pct = risk.get("aggregate_open_risk_pct")
     open_risk_cap = risk.get("aggregate_open_risk_cap_pct")
     open_risk_over = risk.get("aggregate_over_cap")
+    total = (us.get("value_usd", 0) or 0) + (us.get("wallet_usd", 0) or 0)
 
-    cells = []
-    cells.append(("", "Total book", f'${(us.get("value_usd",0) or 0)+(us.get("wallet_usd",0) or 0):,.0f}', "equity + wallet"))
-    cells.append(("", "Equity", f'${us.get("value_usd",0) or 0:,.0f}', f'{us.get("count","-")} positions'))
-    # P&L / day-change (added 2026-08-06, dashboard feature review: the status strip had six
-    # cells and NONE of them was return -- book/cash/drawdown/risk/AI-capex all describe the
-    # book's shape, nothing said how it's doing). pnl_pct is INDmoney's own invested-vs-current
-    # aggregate (compute_book.json, already computed, never rendered). day_chg_pct_weighted is
-    # optional -- only present when the run's holdings.json carried a day_chg_pct per position
-    # (a live-quote overlay, not always fetched) -- so this cell simply doesn't render rather
-    # than showing a stale or fabricated number when that data wasn't gathered this run.
+    day_chg = book_compute.get("day_chg_pct_weighted")
+    delta_html = ""
+    if day_chg is not None:
+        cls = "pos" if day_chg >= 0 else "neg"
+        delta_html = f'<span class="hero-delta {cls}">{day_chg:+.2f}% today</span>'
+
+    stats = []
+    stats.append(("", "Equity", f'${us.get("value_usd",0) or 0:,.0f}', f'{us.get("count","-")} positions'))
     pnl_pct = book_compute.get("pnl_pct")
     if pnl_pct is not None:
-        cells.append(("okc" if pnl_pct >= 0 else "flag", "P&L",
-                      f'{pnl_pct:+.2f}%', "vs invested"))
-    day_chg = book_compute.get("day_chg_pct_weighted")
-    if day_chg is not None:
-        cells.append(("okc" if day_chg >= 0 else "flag", "Today",
-                      f'{day_chg:+.2f}%', "book-weighted"))
-    cells.append(("okc" if not cash_breach else "flag", "Cash",
+        stats.append(("" if pnl_pct >= 0 else "flag", "P&amp;L", f'{pnl_pct:+.2f}%', "vs invested"))
+    stats.append(("" if not cash_breach else "flag", "Cash",
                   f'{cash_pct:.1f}%', f'band [{cash_band[0]},{cash_band[1]}]'))
-    cells.append(("flag" if abs(dd) >= 15 else "", "Drawdown", f'{dd:.2f}%',
+    stats.append(("flag" if abs(dd) >= 15 else "", "Drawdown", f'{dd:.2f}%',
                   f'{15-abs(dd):.2f}pt to warn' if abs(dd) < 15 else "past warn rung"))
     if open_risk_pct is not None:
-        cells.append(("flag" if open_risk_over else "", "Open risk",
+        stats.append(("flag" if open_risk_over else "", "Open risk",
                       f'{open_risk_pct:.1f}%', f'cap {open_risk_cap:g}%' + (" · OVER" if open_risk_over else "")))
     if ai_capex_pct is not None:
-        cells.append(("flag" if ai_capex_pct >= 90 else "", "AI-capex", f'{ai_capex_pct:.1f}%',
+        stats.append(("flag" if ai_capex_pct >= 90 else "", "AI-capex", f'{ai_capex_pct:.1f}%',
                       "of book" + (f', was {prior_ai:.1f}%' if prior_ai is not None else "")))
 
-    return ('<section class="strip">' + "".join(
-        f'<div class="cell {cls}"><span class="k">{esc(k)}</span><span class="v num">{esc(v)}</span>'
-        f'<span class="s">{esc(s)}</span></div>' for cls, k, v, s in cells) + '</section>')
+    stats_html = "".join(
+        f'<div class="hstat"><span class="k">{k}</span><span class="v num {cls}">{esc(v)}</span>'
+        f'<span class="s">{esc(s)}</span></div>' for cls, k, v, s in stats)
+
+    return (f'<section class="hero"><div class="hero-main">'
+            f'<span class="hero-label">Total book</span>'
+            f'<span class="hero-value num">${total:,.0f}</span>{delta_html}</div>'
+            f'<div class="hero-stats">{stats_html}</div></section>')
 
 
 def _render_accepted_awaiting_execution(props):
@@ -957,13 +953,15 @@ def _render_accepted_awaiting_execution(props):
             pid = p.get("id", "")
             when = p.get("accepted_on") or ""
             pair = p.get("pair_id")
-            pair_s = (f'<i class="pr-clus">paired &mdash; self-funding</i>' if pair else "")
-            meta_s = (f'<i class="pr-clus">{esc(pid)}'
-                     f'{" · accepted " + esc(when) if when else ""}</i>')
+            pair_s = ' &middot; paired, self-funding' if pair else ''
+            meta_s = f'{esc(pid)}{" &middot; accepted " + esc(when) if when else ""}{pair_s}'
             rows.append(
-                f'<div class="pr"><span class="pr-name"><span class="dirb {b}">{b}</span>'
-                f'{esc(_clean_action(p, b))}{pair_s}{meta_s}</span>'
-                f'<span class="amt {b}">${p.get("size_usd", 0):,.0f}</span></div>')
+                f'<div class="pr-card"><div class="pr-card-stripe {b}"></div>'
+                f'<div class="pr-card-body"><div class="pr-card-top">'
+                f'<span class="pr-card-name"><span class="pr-card-dir {b}">{b}</span>'
+                f'{esc(_clean_action(p, b))}</span>'
+                f'<span class="pr-card-amt {b}">${p.get("size_usd", 0):,.0f}</span></div>'
+                f'<div class="pr-card-meta">{meta_s}</div></div></div>')
         net_word = "raises cash by" if net >= 0 else "needs cash of"
         # COLLAPSIBLE (2026-09-06, user request) -- <details class="panel"> instead of
         # <section class="panel"><div class="phead">, see the CSS note above. Open by default:
@@ -1019,7 +1017,7 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
             bucket = p.get("direction_bucket", "HOLD")
             pid = p.get("id", "")
             action = esc(p.get("action", ""))
-            clus_s = f'<i class="pr-clus">{esc(p["cluster"])}</i>' if p.get("cluster") else ""
+            clus_s = f'<span class="pr-card-clus">{esc(p["cluster"])}</span>' if p.get("cluster") else ""
             held_s = held_badge(p)
             stack_s = stacks_badge(p)
 
@@ -1083,17 +1081,20 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
                       f'<div class="body">{fact_grid}</div></details>') if facts else ""
 
             decide_s = decision_buttons("proposal", pid) if pid else ""
-            # ONE flowing row: badge+ticker+cluster, conviction meter, tag, held/stack badges,
-            # amount pinned right. flags/drawer/decide wrap onto their own line (pr-flagwrap
-            # forces a break via flex-basis:100%) only when present, instead of every row
-            # reserving vertical space for fields most rows don't have.
-            second_line = f'{flag_s}{stack_s}{drawer}{decide_s}'
-            second_s = f'<div class="pr-flagwrap">{second_line}</div>' if (flag_s or stack_s or drawer or decide_s) else ""
-            return (f'<div class="pr">'
-                    f'<span class="pr-name"><span class="dirb {bucket}">{bucket}</span>{action}{clus_s}</span>'
-                    f'{conv_meter}{tag_s}{held_s}'
-                    f'<span class="amt {bucket}">${p.get("size_usd",0):,.0f}</span>'
-                    f'{second_s}</div>')
+            # CARD, not a row (2026-09-07 component pass): stripe carries direction, name sits
+            # at real display size on its own line with the amount peer-sized opposite it, and
+            # every secondary fact -- cluster, conviction meter, trigger tag, held/stack flags,
+            # the drawer, the decide buttons -- collapses into one small meta line beneath.
+            meta_bits = "".join(x for x in (clus_s, conv_meter, tag_s, held_s) if x)
+            extra_bits = "".join(x for x in (flag_s, stack_s) if x)
+            extra_s = f'<div class="pr-card-extra">{extra_bits}</div>' if extra_bits else ""
+            return (f'<div class="pr-card"><div class="pr-card-stripe {bucket}"></div>'
+                    f'<div class="pr-card-body"><div class="pr-card-top">'
+                    f'<span class="pr-card-name"><span class="pr-card-dir {bucket}">{bucket}</span>'
+                    f'{action}</span>'
+                    f'<span class="pr-card-amt {bucket}">${p.get("size_usd",0):,.0f}</span></div>'
+                    f'<div class="pr-card-meta">{meta_bits}</div>{extra_s}{drawer}{decide_s}'
+                    f'</div></div>')
 
         # -- rotation ideas: paired trim+buy proposals sharing a pair_id (added 2026-08-06,
         # user-reported: proposals were "only ATR risk correction," never capital rotation from
@@ -1179,10 +1180,13 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
         # not a competition for the top slot. Grouped by priority tier same as before.
         hrows = []
         for b in breaches:
-            hrows.append(f'<div class="pr"><span class="pr-name"><span class="dirb TRIM">BREACH</span></span>'
-                         f'<span class="rchip w" title="{esc_attr(b)} -- bring it '
-                         f'inside the band or record why the breach is accepted.">{esc(b)}</span>'
-                         f'<span class="amt">&mdash;</span></div>')
+            hrows.append(
+                f'<div class="pr-card"><div class="pr-card-stripe TRIM"></div>'
+                f'<div class="pr-card-body"><div class="pr-card-top">'
+                f'<span class="pr-card-name"><span class="pr-card-dir TRIM">BREACH</span></span>'
+                f'<span class="pr-card-amt">&mdash;</span></div>'
+                f'<div class="pr-card-meta" title="{esc_attr(b)} -- bring it inside the band or '
+                f'record why the breach is accepted.">{esc(b)}</div></div></div>')
         by_priority = {"HIGH": [], "MEDIUM": [], "LOW": []}
         for p in housekeeping_props:
             by_priority.setdefault(p.get("priority", "LOW"), by_priority["LOW"]).append(p)
@@ -1242,9 +1246,16 @@ def _render_factor_catalysts(state):
                                 for k, v in facts)
             drawer = f'<details class="pr-more"><summary>details</summary><div class="body">{fact_grid}</div></details>'
             exp_chip = (f'<span class="tick">{exp:.1f}% equity</span>' if isinstance(exp, (int, float)) else "")
-            rows.append(f'<div class="ci"><span class="cb {dirn}">{dirn}</span><div>'
-                        f'<div class="hh" title="{esc_attr(headline)}">{esc(head_tag)}</div>'
-                        f'<div class="sch" style="margin:4px 0">{affect_chips}{exp_chip}</div>{drawer}{decide_s}</div></div>')
+            # CARD (2026-09-07 component pass): the badge moves from its own grid column into
+            # the card header next to a real title-sized headline -- same visual family as the
+            # decision cards above (a colour stripe on the left carrying the read), not the old
+            # badge-column-plus-text-block layout.
+            rows.append(
+                f'<div class="cat-card"><div class="cat-card-stripe {dirn}"></div>'
+                f'<div class="cat-card-body"><div class="cat-card-top">'
+                f'<span class="cb {dirn}">{dirn}</span></div>'
+                f'<div class="cat-card-hh" title="{esc_attr(headline)}">{esc(head_tag)}</div>'
+                f'<div class="sch">{affect_chips}{exp_chip}</div>{drawer}{decide_s}</div></div>')
         out.append('<section class="panel"><div class="phead"><h2>Factor catalysts</h2></div>'
                  f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
 
@@ -1571,25 +1582,27 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
                     f'<th>Thesis</th><th>Signals</th><th></th></tr></thead>'
                     f'<tbody>{body_rows}</tbody></table></div>' if body_rows else
                     '<p class="note">No held ticker maps to this cluster.</p>') + ghost_html)
+            # BAR, not a meter squeezed into a 150px grid column (2026-09-07 component pass):
+            # one full-width track per cluster, the filled portion reads as a real magnitude at
+            # a glance (dataviz's own form heuristic -- this IS a magnitude comparison, so it
+            # should look like one), the target sits as a clear tick, and the allowed band is a
+            # soft zone behind it rather than a sliver only visible on close inspection.
+            book_pct = c.get("actual_pct_of_total_book", 0)
             rows.append(
-                # the row's 5 cells are wrapped in a nested div.clus-summary-grid, NOT styled
-                # directly on <summary> -- see the CSS fix note in the stylesheet above
-                f'<details class="clus-row"{" open" if breach else ""}><summary><div class="clus-summary-grid">'
-                f'<span class="name">{esc(cname)}<i>{n_members} held</i></span>'
-                f'<span class="num">{actual:.2f}%</span>'
-                f'<span class="num {"neg" if breach else "pos"}">{c.get("actual_pct_of_total_book",0):.2f}%</span>'
-                f'<span class="num blank">[{lo:g},{hi:g}]</span>'
-                f'<div class="band"><div class="ok" style="left:{pc(lo):.1f}%;width:{pc(hi)-pc(lo):.1f}%"></div>'
-                f'<div class="tgt" style="left:{pc(tgt):.1f}%"></div>'
-                f'<div class="mk{" bad" if breach else ""}" style="left:{pc(actual):.1f}%"></div></div>'
-                f'</div></summary><div class="body">{body}</div></details>')
+                f'<details class="clus-row"{" open" if breach else ""}><summary>'
+                f'<div class="clus-top">'
+                f'<span class="clus-name">{esc(cname)}<i>{n_members} held</i></span>'
+                f'<span class="clus-pct{" neg" if breach else ""}">{actual:.2f}%</span></div>'
+                f'<div class="clus-bar"><div class="clus-band-zone" '
+                f'style="left:{pc(lo):.1f}%;width:{max(pc(hi)-pc(lo),0):.1f}%"></div>'
+                f'<div class="clus-fill{" neg" if breach else ""}" style="width:{pc(actual):.1f}%"></div>'
+                f'<div class="clus-target" style="left:{pc(tgt):.1f}%"></div></div>'
+                f'<div class="clus-sub">book {book_pct:.2f}% &middot; band [{lo:g},{hi:g}]% &middot; target {tgt:g}%</div>'
+                f'</summary><div class="body">{body}</div></details>')
         out.append(
             '<section class="panel"><div class="phead"><h2>Clusters</h2>'
             '<span class="pill">ceiling on book &middot; floor on equity &middot; click a cluster to see its holdings</span></div>'
-            f'<div class="pbody" style="gap:0"><div class="clus-hdr"><span></span>'
-            '<span class="num">Equity</span><span class="num">Book</span>'
-            '<span class="num">Band</span><span></span></div>'
-            f'{"".join(rows)}</div></section>')
+            f'<div class="pbody" style="gap:0">{"".join(rows)}</div></section>')
 
     return out
 
