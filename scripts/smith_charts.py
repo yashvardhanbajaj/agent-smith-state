@@ -117,6 +117,68 @@ def esc(s):
     return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
 
 
+import math
+
+
+def donut_svg(segments, aria_label, center_label="", center_sub=""):
+    """A shared interactive donut generator (added 2026-09-07, user request: Positions and
+    Clusters redesigned as interactive pie charts). `segments`: list of (label, value,
+    color_css_expr, tooltip_extra) already sorted into display order -- callers own ranking,
+    "Other" folding, and color assignment (a cluster's real identity color, or a sequential
+    ramp for a ranked list -- see the two call sites for why each picked what it picked).
+
+    dataviz's own anti-pattern list is explicit that a donut is "part-to-whole at a glance
+    only, <= 6 segments" -- past ~7-8 adjacent classes blur. Callers are responsible for
+    capping segment count (folding a long tail into one "Other" wedge) BEFORE calling this;
+    it does not enforce a cap itself, since what counts as "the tail" is caller-specific
+    (top holdings by weight vs. every policy cluster are different questions).
+
+    Interactive = hover (CSS .mark:hover opacity, already defined in PALETTE_CSS) + a native
+    <title> tooltip per wedge with the exact value, since a donut is deliberately NOT the place
+    exact numbers are read from -- pair this with a legend/list in the caller for that.
+    """
+    total = sum(v for _, v, _, _ in segments) or 1
+    cx, cy, r_out, r_in = 110, 110, 100, 62
+    W = H = 220
+    s = [f'<svg class="viz-svg" viewBox="0 0 {W} {H}" width="220" height="220" '
+         f'role="img" aria-label="{esc(aria_label)}">']
+    angle = -math.pi / 2  # start at 12 o'clock
+    for label, value, color, extra in segments:
+        frac = value / total
+        sweep = frac * 2 * math.pi
+        a0, a1 = angle, angle + sweep
+        large = 1 if sweep > math.pi else 0
+        x0o, y0o = cx + r_out * math.cos(a0), cy + r_out * math.sin(a0)
+        x1o, y1o = cx + r_out * math.cos(a1), cy + r_out * math.sin(a1)
+        x0i, y0i = cx + r_in * math.cos(a1), cy + r_in * math.sin(a1)
+        x1i, y1i = cx + r_in * math.cos(a0), cy + r_in * math.sin(a0)
+        # full-circle special case (one segment = 100%): an arc command can't sweep a full
+        # circle in one path, so draw it as two half-circle arcs instead.
+        if frac >= 0.9999:
+            mid = a0 + math.pi
+            xmo, ymo = cx + r_out * math.cos(mid), cy + r_out * math.sin(mid)
+            xmi, ymi = cx + r_in * math.cos(mid), cy + r_in * math.sin(mid)
+            d = (f"M{x0o:.2f},{y0o:.2f} A{r_out},{r_out} 0 1 1 {xmo:.2f},{ymo:.2f} "
+                 f"A{r_out},{r_out} 0 1 1 {x0o:.2f},{y0o:.2f} "
+                 f"L{xmi:.2f},{ymi:.2f} A{r_in},{r_in} 0 1 0 {x0i:.2f},{y0i:.2f} "
+                 f"A{r_in},{r_in} 0 1 0 {xmi:.2f},{ymi:.2f} Z")
+        else:
+            d = (f"M{x0o:.2f},{y0o:.2f} A{r_out},{r_out} 0 {large} 1 {x1o:.2f},{y1o:.2f} "
+                 f"L{x0i:.2f},{y0i:.2f} A{r_in},{r_in} 0 {large} 0 {x1i:.2f},{y1i:.2f} Z")
+        tip = f"{esc(label)}: {value:,.2f}%" + (f" {esc(extra)}" if extra else "")
+        s.append(f'<path class="mark" d="{d}" fill="{color}" stroke="var(--surface-1)" '
+                 f'stroke-width="2"><title>{tip}</title></path>')
+        angle = a1
+    if center_label:
+        s.append(f'<text x="{cx}" y="{cy-3}" text-anchor="middle" font-size="19" '
+                 f'font-weight="600" fill="var(--ink-1)">{esc(center_label)}</text>')
+    if center_sub:
+        s.append(f'<text x="{cx}" y="{cy+15}" text-anchor="middle" font-size="10.5" '
+                 f'fill="var(--ink-3)">{esc(center_sub)}</text>')
+    s.append("</svg>")
+    return "\n".join(s)
+
+
 def nice_ceil(x):
     """Round an axis max up to a readable step."""
     if x <= 0:
@@ -157,7 +219,6 @@ def chart_bookvalue(base):
     rows = load_ledger(base)
     if len(rows) < 2:
         return {"svg": "", "note": "ledger has <2 rows -- no time series yet"}
-    stops_by_date = load_stops_by_date(base)
 
     W, H = 720, 260
     ML, MR, MT, MB = 62, 76, 16, 34
@@ -198,12 +259,19 @@ def chart_bookvalue(base):
         s.append(f'<text x="{ML-8}" y="{y+3.5:.1f}" text-anchor="end" font-size="10" '
                  f'fill="var(--ink-3)">${v/1000:.0f}k</text>')
 
+    # SIMPLIFIED 2026-09-07 (user: "I am not able to understand the current... Book value & cash
+    # section"). Four overlapping encodings were competing for the same small plot: a filled
+    # equity area, a filled cash band, a total-value LINE tracing the exact top of that same
+    # stack (pure redundancy -- it can never say anything the stack's own top edge doesn't), and
+    # up to 3 stop-loss triangles per date. Dropped the total-line (redundant by construction)
+    # and the stop-loss triangles (a different story -- WHEN stops fired -- that belongs with
+    # the stop-loss efficacy analysis, not fighting for pixels in a value-over-time chart). What
+    # remains is the one honest story this chart exists to tell: how much is equity, how much is
+    # cash, and did any reading get excluded as corrupt.
     s.append(f'<path d="{path(eq, base_y)}" fill="var(--equity)" fill-opacity="0.88"/>')
     # 2px surface gap between the two fills (skill: spacer between stacked segments)
     s.append(f'<path d="{path(eq)}" fill="none" stroke="var(--surface-1)" stroke-width="2"/>')
     s.append(f'<path d="{cash_area}" fill="var(--cash)" fill-opacity="0.9"/>')
-    s.append(f'<path d="{path(tot)}" fill="none" stroke="var(--ink-1)" stroke-width="2" '
-             f'stroke-opacity="0.55"/>')
 
     # suspect-data markers -- honesty about which points are corrupt
     for i, r in enumerate(rows):
@@ -216,23 +284,6 @@ def chart_bookvalue(base):
                      f'stroke="var(--neg)" stroke-width="2"><title>'
                      f'{esc(r["date"])} ${r["total"]:,.0f} - EXCLUDED ({esc(r["trust"])}: '
                      f'price-feed gap, not a real value)</title></circle>')
-
-    # stop-loss markers -- one small triangle above the plot per ledger date that had scored
-    # stop-loss fills that day (added 2026-08-06). Triangle count is capped visually at 3 marks
-    # (no benefit to drawing 7 overlapping glyphs); the tooltip always lists every ticker.
-    for i, r in enumerate(rows):
-        tks = stops_by_date.get(r["date"])
-        if not tks:
-            continue
-        x = X(i)
-        n_shown = min(len(tks), 3)
-        for k in range(n_shown):
-            dx = (k - (n_shown - 1) / 2) * 6
-            s.append(f'<path d="M{x+dx:.1f},{MT-2} l4,7 l-8,0 Z" fill="var(--neg)" '
-                     f'fill-opacity="0.85"/>')
-        s.append(f'<rect class="mark" x="{x-10:.1f}" y="{MT-10}" width="20" height="12" '
-                 f'fill="transparent"><title>{esc(r["date"])}: {len(tks)} stop-loss fill'
-                 f'{"s" if len(tks)!=1 else ""} ({esc(", ".join(sorted(set(tks))))})</title></rect>')
 
     # hover targets, every point
     for i, r in enumerate(rows):
@@ -266,12 +317,9 @@ def chart_bookvalue(base):
     s.append("</svg>")
 
     bad = sum(1 for r in rows if r["trust"] != "ok")
-    note = ("Cash is the top band, not a second axis - the stack shows total book and the "
-            "cash split on one scale. ")
+    note = "Stacked to one scale: blue is equity, the band above it is cash -- together they are the total book."
     if bad:
-        note += (f"{bad} reading(s) ringed in red are EXCLUDED as corrupt "
-                 f"(self-flagged price-feed gaps); they are drawn so the gap is visible, "
-                 f"not silently dropped.")
+        note += f" {bad} reading(s) ringed in red are excluded as corrupt (price-feed gap)."
     return {"svg": "\n".join(s),
             "legend": [("var(--equity)", "Equity"), ("var(--cash)", "Cash")],
             "note": note}
@@ -351,13 +399,16 @@ def chart_relative(base):
              f'above 0 = beat SMH that period</text>')
     s.append("</svg>")
 
+    # CLARIFIED 2026-09-07 (user: "I am not able to understand the current Book vs SMH chart").
+    # Each bar is NOT book value or SMH value -- it's the SPREAD between the two for that one
+    # period (book return minus SMH return), which a title reading "Book vs SMH" doesn't set
+    # up a reader to expect. Leads with the plain-language headline stat instead of the
+    # cumulative-performance caveat, which used to run first and longest.
     ok = [p for p in periods if p["usable"]]
     won = sum(1 for p in ok if p["rel"] > 0)
-    note = (f"Per-period only. {won} of {len(ok)} clean periods beat SMH. "
-            f"CUMULATIVE performance vs SMH is deliberately NOT shown: external "
-            f"contributions are not recorded in the ledger, so a cumulative book line "
-            f"would mix deposits with returns and overstate performance. The new "
-            f"external_flow_usd column fixes this going forward.")
+    note = (f"{won} of {len(ok)} periods beat SMH. Each bar is that period's OWN gap "
+            f"(book return minus SMH return), not a running total -- a cumulative line isn't "
+            f"shown because deposits aren't yet separated from returns in the ledger.")
     hatch_swatch = ("repeating-linear-gradient(45deg,var(--muted) 0 2px,"
                     "transparent 2px 5px)")
     return {"svg": "\n".join(s),
@@ -441,16 +492,20 @@ def chart_drawdown(base):
 # 4. POSITION WEIGHTS vs cap -- magnitude compare => bars, emphasis on breach.
 # ---------------------------------------------------------------------------
 def chart_weights(base):
+    """COMPACTED 2026-09-07 (user request): 14 rows at 21px plus margins ran long for a chart
+    whose only real job is "who's near the cap." Top 10 (was 14) at 17px (was 21) -- the names
+    that matter (anything actually close to breaching) are always in the top handful by weight
+    in a single-position-cap book, so trimming the tail costs no real information."""
     state = json.load(open(os.path.join(base, "state.json")))
     policy = json.load(open(os.path.join(base, "policy.json")))
     cap = policy.get("max_single_position_pct", 12)
-    hold = sorted(state.get("holdings", []), key=lambda h: -h.get("weight_pct", 0))[:14]
+    hold = sorted(state.get("holdings", []), key=lambda h: -h.get("weight_pct", 0))[:10]
     if not hold:
         return {"svg": "", "note": "no holdings in state"}
 
-    RH, MT, ML, MR = 21, 12, 58, 54
+    RH, MT, ML, MR = 17, 10, 58, 54
     W = 720
-    H = MT + RH * len(hold) + 26
+    H = MT + RH * len(hold) + 22
     pw = W - ML - MR
     lim = nice_ceil(max(max(h["weight_pct"] for h in hold), cap) * 1.15)
 
@@ -622,9 +677,81 @@ def chart_treemap(base):
                      "nothing a treemap doesn't already say faster.")}
 
 
+# ---------------------------------------------------------------------------
+# 6. CLUSTERS DONUT -- added 2026-09-07, user request ("Clusters section... redesign
+#    similar to Positions, as an interactive pie chart"). Weight aggregated straight from
+#    state.json holdings + sector_map, same source chart_treemap already uses -- no run-dir
+#    dependency, so this stays computable from base alone like every other chart here. This
+#    is the QUICK VISUAL summary; smith_dashboard.py's own Clusters panel keeps its existing
+#    band/target/breach detail (from compute_drift.json, which DOES need a run dir and carries
+#    precision this donut deliberately doesn't try to match) as the detail underneath it.
+# ---------------------------------------------------------------------------
+def chart_clusters_donut(base):
+    state = json.load(open(os.path.join(base, "state.json")))
+    sector_map = state.get("sector_map", {})
+    holdings = state.get("holdings", [])
+    by_cluster = {}
+    for h in holdings:
+        cl = sector_map.get(h["ticker"], "Unclassified")
+        by_cluster[cl] = by_cluster.get(cl, 0) + (h.get("weight_pct") or 0)
+    if not by_cluster:
+        return {"svg": "", "note": "no holdings/sector_map in state"}
+
+    ranked = sorted(by_cluster.items(), key=lambda kv: -kv[1])
+    segments = [(name, pct, f"var({CLUSTER_COLOR_VAR.get(name, '--muted')})", "of equity")
+                for name, pct in ranked]
+    top = ranked[0]
+    svg = donut_svg(segments, "Portfolio weight by cluster, share of equity",
+                    center_label=f"{top[1]:.0f}%", center_sub=top[0][:16])
+    legend = [(color, f"{name} {pct:.1f}%") for name, pct, color, _ in segments]
+    return {"svg": svg, "legend": legend,
+            "note": "Hover a wedge for the exact share. Full band/target/breach detail is in "
+                    "the Clusters panel above this chart."}
+
+
+# ---------------------------------------------------------------------------
+# 7. POSITIONS DONUT -- added 2026-09-07, user request. Top 7 holdings by weight get their
+#    own wedge (dataviz's own ceiling: a donut reads part-to-whole "at a glance only, <= 6
+#    segments" -- 7 plus one folded "Other" sits right at that edge, not past it). This is a
+#    RANKING/magnitude story, not an identity story (nothing hangs on AMAT being blue vs
+#    green) -- so per dataviz's own default ("sequential is the safe default... reach for it
+#    unless the job is specifically identity or polarity"), it's one hue stepped by rank via
+#    color-mix, not eight unrelated categorical colors fighting for attention.
+# ---------------------------------------------------------------------------
+def chart_positions_donut(base):
+    state = json.load(open(os.path.join(base, "state.json")))
+    holdings = sorted(state.get("holdings", []), key=lambda h: -(h.get("weight_pct") or 0))
+    if not holdings:
+        return {"svg": "", "note": "no holdings in state"}
+
+    TOP_N = 7
+    top = [h for h in holdings if (h.get("weight_pct") or 0) > 0][:TOP_N]
+    rest = holdings[TOP_N:]
+    other_pct = sum(h.get("weight_pct") or 0 for h in rest)
+
+    STEPS = [100, 84, 70, 58, 47, 38, 30]  # % of --equity mixed toward the surface, by rank
+    segments = []
+    for i, h in enumerate(top):
+        pct = STEPS[min(i, len(STEPS) - 1)]
+        color = f"color-mix(in srgb, var(--equity) {pct}%, var(--surface-1))"
+        segments.append((h["ticker"], h.get("weight_pct") or 0, color, "of equity"))
+    if other_pct > 0.005:
+        segments.append((f"Other ({len(rest)})", other_pct, "var(--muted)", "of equity"))
+
+    top1 = top[0]
+    svg = donut_svg(segments, "Position weights, share of equity, top holdings",
+                    center_label=f'{top1.get("weight_pct",0):.0f}%', center_sub=top1["ticker"])
+    legend = [(color, f'{label} {pct:.1f}%') for label, pct, color, _ in segments]
+    return {"svg": svg, "legend": legend,
+            "note": f"Top {len(top)} by weight; {len(rest)} smaller positions folded into "
+                    f"Other ({other_pct:.1f}%) rather than crowding the wheel with slivers. "
+                    "Exact weights for every position are in the table below."}
+
+
 CHARTS = {"bookvalue": chart_bookvalue, "relative": chart_relative,
           "drawdown": chart_drawdown, "weights": chart_weights,
-          "treemap": chart_treemap}
+          "treemap": chart_treemap, "clusters_donut": chart_clusters_donut,
+          "positions_donut": chart_positions_donut}
 
 
 def main():

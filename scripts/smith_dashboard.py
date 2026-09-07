@@ -194,6 +194,24 @@ def fig(d, title, sub=""):
             f'<div class="viz-note">{esc(d.get("note",""))}</div></div></section>')
 
 
+def donut_fig(d):
+    """Same chart dict shape as fig(), rendered WITHOUT the section/panel wrapper -- for
+    embedding a donut directly inside an existing panel (Clusters, Positions) rather than as
+    its own separate section (added 2026-09-07). Donut sits left, a vertical legend listing
+    exact percentages sits right -- a donut is deliberately not where exact numbers are read
+    from (dataviz: "part-to-whole at a glance only"), so the legend is not decorative here,
+    it is the precise reading the wedges themselves can't give."""
+    if not d or not d.get("svg"):
+        return ""
+    leg = ""
+    if d.get("legend"):
+        leg = ('<div class="donut-legend">' + "".join(
+            f'<span><i style="background:{c}"></i>{esc(l)}</span>' for c, l in d["legend"])
+            + "</div>")
+    return (f'<div class="donut-row">{d["svg"]}{leg}</div>'
+            f'<p class="note" style="margin-top:10px">{esc(d.get("note",""))}</p>')
+
+
 def _find_matching_close(html, open_tag_end, tag):
     """Given the index right after an opening `<{tag} ...>`, scan forward tracking nesting
     depth for that same tag name and return the index of the matching `</{tag}>`'s start.
@@ -385,13 +403,21 @@ p{margin:0}
    new coat of paint on the same tile grid, a different component. ============ */
 .hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
   box-shadow:var(--shadow);padding:26px 26px 22px;display:flex;flex-direction:column;gap:18px}
-.hero-main{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+/* FIXED 2026-09-07 (user-reported alignment issue): label/value/delta used to share one
+   baseline-aligned flex row with per-item align-self overrides (flex-start on the label,
+   center on the delta) -- three different vertical anchors in one row is exactly the kind of
+   mixed alignment that reads as "off" the moment the row wraps or the viewport narrows. Now a
+   clean two-line stack: the label sits alone on its own line, the value and delta share a
+   second row aligned on one baseline together -- no per-item override needed, nothing to
+   misalign regardless of width. */
+.hero-main{display:flex;flex-direction:column;gap:6px}
 .hero-label{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--ink-3);align-self:flex-start;margin-top:6px}
+  text-transform:uppercase;color:var(--ink-3)}
+.hero-value-row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
 .hero-value{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:44px;
   font-weight:500;letter-spacing:-.03em;color:var(--ink);line-height:1}
 .hero-delta{font-family:var(--mono);font-size:15px;font-weight:600;padding:3px 10px;
-  border-radius:100px;align-self:center}
+  border-radius:100px}
 .hero-delta.pos{color:var(--good);background:var(--good-soft)}
 .hero-delta.neg{color:var(--bad);background:var(--bad-soft)}
 .hero-stats{display:flex;flex-wrap:wrap;gap:22px 30px;padding-top:16px;border-top:1px solid var(--line-soft)}
@@ -468,6 +494,14 @@ td.name{font-family:var(--sans);font-weight:640;letter-spacing:-.01em}
 td.txt{font-family:var(--sans);text-align:left;white-space:normal;color:var(--ink-2);font-size:12px}
 tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:none;padding-top:10px}
 td.blank{color:var(--ink-3)}
+
+/* ============ donut embed (Clusters, Positions) -- added 2026-09-07 ============ */
+.donut-row{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.donut-row svg{flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:6px;flex:1;min-width:160px}
+.donut-legend span{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);
+  font-family:var(--mono);font-variant-numeric:tabular-nums}
+.donut-legend i{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 
 /* ============ cluster bars -- REBUILT 2026-09-07, component pass. Was a 5-column grid (name |
    equity% | book% | band-text | a 26px-tall meter squeezed into the last 150px column) -- a
@@ -903,7 +937,8 @@ def status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift, book_com
 
     return (f'<section class="hero"><div class="hero-main">'
             f'<span class="hero-label">Total book</span>'
-            f'<span class="hero-value num">${total:,.0f}</span>{delta_html}</div>'
+            f'<div class="hero-value-row"><span class="hero-value num">${total:,.0f}</span>'
+            f'{delta_html}</div></div>'
             f'<div class="hero-stats">{stats_html}</div></section>')
 
 
@@ -1501,7 +1536,7 @@ def _render_rotation_analysis(rotation):
     return out
 
 
-def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map):
+def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map, ch=None):
     out = []
     # -- clusters (moved 2026-08-07: swapped position with de-risk queue, per user request --
     # user wanted Clusters surfaced as a decision-relevant section, not buried after the
@@ -1599,10 +1634,12 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
                 f'<div class="clus-target" style="left:{pc(tgt):.1f}%"></div></div>'
                 f'<div class="clus-sub">book {book_pct:.2f}% &middot; band [{lo:g},{hi:g}]% &middot; target {tgt:g}%</div>'
                 f'</summary><div class="body">{body}</div></details>')
+        donut_html = donut_fig((ch or {}).get("clusters_donut"))
         out.append(
             '<section class="panel"><div class="phead"><h2>Clusters</h2>'
             '<span class="pill">ceiling on book &middot; floor on equity &middot; click a cluster to see its holdings</span></div>'
-            f'<div class="pbody" style="gap:0">{"".join(rows)}</div></section>')
+            f'<div class="pbody">{donut_html}'
+            f'<div style="display:flex;flex-direction:column;gap:0">{"".join(rows)}</div></div></section>')
 
     return out
 
@@ -1806,19 +1843,26 @@ def _render_stop_loss_efficacy(stops_data, sector_map=None, cluster_order=None):
 
 
 def _render_the_read_and_macro(narr, market_inputs, state, book_compute):
+    """REDESIGNED 2026-09-07 (user: "The read, i dont like it"). Two changes: the Gate pill
+    moves out of the header corner into a proper eyebrow tag sitting directly above the
+    headline, where a masthead-style read normally puts its status word -- previously it
+    floated top-right disconnected from the sentence it qualifies. And the macro numbers below
+    switch from their own separate `.macro`/`.col` grid to the SAME `.hstat` component the hero
+    card already uses for its secondary stats -- one stat-pair pattern for the whole page
+    instead of two different tile treatments competing for the same visual role."""
     out = []
-    # -- the read + macro strip --
     session_text = narr.get("session_read")
     if session_text:
         short, rest = trim_lead(session_text, 400)
         more = (f'<details><summary>more</summary><div class="body">{esc(rest)}</div></details>'
                 if len(rest) > 40 else "")
         gate = market_inputs.get("gate_classification")
-        gate_pill = (f'<span class="pill {"b" if gate=="ESCALATING" else ("w" if gate=="AMBIGUOUS" else "g")}">'
-                     f'Gate {esc(gate.title())}</span>') if gate else ""
-        out.append(f'<section class="panel"><div class="phead"><h2>The read</h2>'
-                 f'<div class="pills">{gate_pill}</div></div>'
-                 f'<div class="pbody"><p class="voice">{esc(short)}</p>{more}')
+        gate_eyebrow = ""
+        if gate:
+            cls = "b" if gate == "ESCALATING" else ("w" if gate == "AMBIGUOUS" else "g")
+            gate_eyebrow = f'<span class="pill {cls}" style="margin-bottom:8px">Gate: {esc(gate.title())}</span>'
+        out.append(f'<section class="panel"><div class="phead"><h2>The read</h2></div>'
+                 f'<div class="pbody">{gate_eyebrow}<p class="voice">{esc(short)}</p>{more}')
 
         macro_cells = []
         if market_inputs:
@@ -1842,8 +1886,9 @@ def _render_the_read_and_macro(narr, market_inputs, state, book_compute):
         if beta is not None:
             macro_cells.append(("Beta vs SMH", f'{beta:.3f}', ""))
         if macro_cells:
-            out.append('<hr class="rule"><div class="macro">' + "".join(
-                f'<div class="col"><span class="k">{esc(k)}</span><span class="v">{esc(v)}</span>'
+            out.append('<div class="hero-stats" style="padding-top:14px;border-top:1px solid var(--line-soft)">'
+                       + "".join(
+                f'<div class="hstat"><span class="k">{esc(k)}</span><span class="v num">{esc(v)}</span>'
                 f'<span class="s">{esc(s)}</span></div>' for k, v, s in macro_cells) + '</div>')
         out.append('</div></section>')
 
@@ -2130,7 +2175,7 @@ def _render_risk_cap_and_ltcg(risk, book_compute, base):
     return out
 
 
-def _render_positions_table(state, risk_by_ticker, sector_map, risk, book_compute, cluster_order=None):
+def _render_positions_table(state, risk_by_ticker, sector_map, risk, book_compute, cluster_order=None, ch=None):
     out = []
     holdings = state.get("holdings", [])
     if holdings:
@@ -2202,11 +2247,19 @@ def _render_positions_table(state, risk_by_ticker, sector_map, risk, book_comput
                f'<td>${tot_value:,.0f}</td><td class="blank">{tot_weight:.1f}%</td><td class="blank"></td>'
                f'{c_beta_book}{c_risk_foot}</tr></tfoot>')
 
-        out.append(f'<section class="panel"><div class="phead"><h2>Positions<span class="sub">'
-                 f'{len(holdings)}, grouped by cluster</span></h2></div><div class="pbody"><div class="scroll"><table>'
+        # DONUT (2026-09-07, user request) sits above the table as the quick "who's biggest"
+        # view; the full table -- the one place exact per-position numbers live (ATR, beta,
+        # stop, headroom, none of which a donut could ever show) -- moves behind its own
+        # details toggle so the donut is what's seen first, not competed with immediately.
+        donut_html = donut_fig((ch or {}).get("positions_donut"))
+        table_html = ('<div class="scroll"><table>'
                  '<thead><tr><th>Name</th><th>Qty</th><th>Price</th><th>Value</th><th>Wt</th>'
                  '<th>ATR20</th><th>&beta;</th><th>Stop</th><th>Stop px</th><th>Cap</th><th>Headroom</th></tr></thead>'
-                 f'<tbody>{body}</tbody>{foot}</table></div></div></section>')
+                 f'<tbody>{body}</tbody>{foot}</table></div>')
+        out.append(f'<section class="panel"><div class="phead"><h2>Positions<span class="sub">'
+                 f'{len(holdings)}, grouped by cluster</span></h2></div><div class="pbody">{donut_html}'
+                 f'<details class="pr-more" style="margin-top:4px"><summary>full table, every field</summary>'
+                 f'<div class="body">{table_html}</div></details></div></section>')
 
     return out
 
@@ -2549,7 +2602,7 @@ def _render_historical_charts(ch, policy):
     hist_charts = "".join([
         fig(ch.get("bookvalue"), "Book value & cash", "every ledger row"),
         fig(ch.get("drawdown"), "Drawdown vs trim ladder", "pre-committed rungs"),
-        fig(ch.get("relative"), "Book vs SMH", "per period, clean data only"),
+        fig(ch.get("relative"), "Beat or lag SMH, per period", "the gap each period, not a running total"),
         fig(ch.get("weights"), "Position weights", f"against the {cap}% cap"),
     ])
     if hist_charts:
@@ -2600,9 +2653,14 @@ def build(base, out):
         dd = (total - peak) / peak * 100 if peak else 0
     cash_pct = cash / total * 100 if total else 0
     cash_band = drift.get("cash_band_pct") or policy.get("cash_band_pct", [3, 15])
-    cash_breach = drift.get("cash_breach")
-    if cash_breach is None:
-        cash_breach = cash_pct < cash_band[0] or cash_pct > cash_band[1]
+    # ALWAYS recompute from cash_pct above, never trust drift.cash_breach directly (fixed
+    # 2026-09-07, user-reported false breach). compute_drift.json can carry its OWN stale
+    # cash_pct (found live: drift said cash_pct=0.0%/breach=True while the real, displayed
+    # figure was 6.39% -- comfortably inside a [5,15]% band) if that stage ran against
+    # different inputs than this build. A breach flag is only trustworthy when it agrees with
+    # the number sitting right next to it on the page; recomputing here is cheap and the two
+    # can never visibly contradict each other again.
+    cash_breach = cash_pct < cash_band[0] or cash_pct > cash_band[1]
     mandate = policy.get("mandate", {})
     ts = state.get("ts", "")
     sector_map = state.get("sector_map", {})
@@ -2694,7 +2752,7 @@ def build(base, out):
                  "size = weight · color = cluster · red outline = over risk cap"), True))
 
     H.extend(_collapsible(h) for h in
-             _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map))
+             _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map, ch))
 
     # -- de-risk queue (moved 2026-08-07: swapped position with clusters, per user request) --
     H.extend(_collapsible(h) for h in _render_derisk_queue(derisk, state))
@@ -2702,7 +2760,7 @@ def build(base, out):
     H.extend(_collapsible(h) for h in _render_risk_cap_and_ltcg(risk, book_compute, base))
 
     H.extend(_collapsible(h) for h in _render_positions_table(state, risk_by_ticker, sector_map, risk, book_compute,
-                                       list(policy.get("cluster_targets", {}).keys())))
+                                       list(policy.get("cluster_targets", {}).keys()), ch))
 
     # ================= DIAGNOSTICS -- REMOVED (2026-09-07, user request) =====================
     # Cut entirely, not collapsed: thesis map, signal history, open data gaps, recently
