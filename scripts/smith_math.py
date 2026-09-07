@@ -3609,7 +3609,9 @@ def main():
     sp = sub.add_parser("gaps", help="look up known_gaps across BOTH state.json and the archive")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--id", default=None, help="exact gap id, e.g. G44")
-    sp.add_argument("--query", default=None, help="free-text search across both files")
+    sp.add_argument("--query", default=None,
+                    help="free-text precedent search (BM25-ranked, not substring) across both files")
+    sp.add_argument("--top", type=int, default=8, help="max ranked results for --query (default 8)")
     sp.add_argument("--open-only", action="store_true")
 
     sp = sub.add_parser("compact", help="enforce RETENTION: archive resolved history out of the hot files")

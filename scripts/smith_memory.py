@@ -8,7 +8,10 @@ per-run compute stages, the pipeline runner and the CLI, and imports these.
 import hashlib
 import json
 import csv
+import math
 import os
+import re
+from collections import Counter
 from datetime import date, datetime, timedelta
 
 import smith_risk
@@ -309,8 +312,89 @@ def cmd_compact(args):
         out["written"] = True
     emit(out)
 
+_GAPS_STOPWORDS = {
+    "the", "a", "an", "of", "to", "in", "on", "for", "and", "or", "is", "was", "were",
+    "this", "that", "these", "those", "with", "as", "by", "at", "it", "its", "be", "are",
+    "from", "not", "no", "than", "then", "but", "so", "if", "into", "over", "under",
+    "any", "all", "both", "each", "per", "via", "vs", "run", "runs", "gap", "gaps",
+}
+
+
+def _gaps_tokenize(text):
+    """Lowercase word-tokenize, dropping a small stopword list. No stemming -- deliberately:
+    this corpus is finance/incident jargon (basis, splice, phantom, reconciliation) where
+    stemming risks collapsing distinct terms (e.g. 'stale' vs 'staleness' carry the same
+    signal here, so leaving both surface forms costs nothing and avoids a stemmer dependency).
+    """
+    return [t for t in re.findall(r"[a-z0-9]+", (text or "").lower()) if t not in _GAPS_STOPWORDS and len(t) > 1]
+
+
+def _bm25_rank(query, docs, k1=1.5, b=0.75):
+    """Rank `docs` (list of raw text strings) against `query` by Okapi BM25.
+
+    Added 2026-09-07 to replace cmd_gaps' single-literal-substring '--query' match, which
+    required the exact query text to appear verbatim in a gap's JSON blob -- querying
+    "measurement basis mismatch" would miss a gap phrased "two different measurement bases
+    were plotted as one line" even though that IS the precedent being asked about.
+
+    Hand-rolled rather than a pip dependency (e.g. rank_bm25): every module in this compute
+    layer is stdlib-only by design (see smith_core.py's own docstring, "Stdlib only, no pip
+    deps") so a run never depends on what happens to be installed. The corpus here is small
+    (currently under 100 gap records, growing a few a week) and the algorithm is ~20 lines,
+    so there is no real cost to keeping it in-house -- unlike an embeddings-based approach,
+    which would need a provider Anthropic doesn't offer natively and a key this system
+    doesn't otherwise hold.
+
+    Returns a list of (index_into_docs, score) sorted by score descending, ZERO-score docs
+    excluded (a doc that shares no term with the query is not a ranked-low hit, it is not a
+    hit). This is lexical overlap, not semantic similarity -- a paraphrase with no shared
+    vocabulary at all will still score 0. That is a real, known limitation, not a bug: the
+    fallback is that the caller can still browse by --open-only or --id.
+    """
+    q_terms = _gaps_tokenize(query)
+    if not q_terms:
+        return []
+    doc_tokens = [_gaps_tokenize(d) for d in docs]
+    doc_lens = [len(toks) for toks in doc_tokens]
+    avgdl = (sum(doc_lens) / len(doc_lens)) if doc_lens else 0.0
+    n = len(docs)
+
+    df = Counter()
+    for toks in doc_tokens:
+        for term in set(toks):
+            df[term] += 1
+
+    idf = {}
+    for term in set(q_terms):
+        d = df.get(term, 0)
+        # Standard BM25 idf with a +1 floor so a term present in every doc still contributes
+        # a small positive weight rather than going negative (which the classic formula can).
+        idf[term] = math.log((n - d + 0.5) / (d + 0.5) + 1.0)
+
+    scores = []
+    for i, toks in enumerate(doc_tokens):
+        if not toks:
+            continue
+        tf = Counter(toks)
+        dl = doc_lens[i]
+        score = 0.0
+        for term in q_terms:
+            f = tf.get(term, 0)
+            if f == 0:
+                continue
+            denom = f + k1 * (1 - b + b * dl / avgdl) if avgdl else f + k1
+            score += idf.get(term, 0.0) * (f * (k1 + 1)) / denom
+        if score > 0:
+            scores.append((i, score))
+
+    scores.sort(key=lambda pair: pair[1], reverse=True)
+    return scores
+
+
 def cmd_gaps(args):
-    """Look up known_gaps across BOTH the hot registry and the archive (added 2026-08-16).
+    """Look up known_gaps across BOTH the hot registry and the archive (added 2026-08-16;
+    --query upgraded 2026-09-07 from a literal substring match to ranked BM25 search -- see
+    _bm25_rank's docstring for why).
 
     This exists because `compact` evicts resolved gaps out of state.json, and an eviction that
     made a record unfindable would recreate G72 exactly one level up: the desk told the user LITE
@@ -325,24 +409,50 @@ def cmd_gaps(args):
 
     q = (args.id or args.query or "").strip().lower()
     if args.id:
-        hits = [g for g in rows if (g.get("id") or "").lower() == q]
+        ordered = [(None, g) for g in rows if (g.get("id") or "").lower() == q]
+        ordered.sort(key=lambda pair: (pair[1].get("id") or ""))
     elif args.query:
-        hits = [g for g in rows
-                if q in json.dumps({k: v for k, v in g.items() if k != "_where"}).lower()]
+        # Rank over description/gap + resolution + owner -- the three fields a precedent
+        # search actually cares about; dates and status are structured, not searched text.
+        docs = [" ".join([
+            g.get("gap") or g.get("description") or "",
+            g.get("resolution") or "",
+            g.get("owner") or "",
+        ]) for g in rows]
+        top_n = max(1, args.top)
+        ranked = _bm25_rank(args.query, docs)[:top_n]
+        # Rank order (highest relevance first), not re-sorted by id -- that IS the result.
+        ordered = [(score, rows[i]) for i, score in ranked]
     else:
         hits = [g for g in rows if smith_risk.gap_is_live(g)] if args.open_only else rows
+        hits.sort(key=lambda g: (g.get("id") or ""))
+        ordered = [(None, g) for g in hits]
 
-    hits.sort(key=lambda g: (g.get("id") or ""))
+    out_gaps = []
+    for score, g in ordered:
+        row = {"id": g.get("id"), "status": g.get("status") or "open",
+               "where": g["_where"], "opened": g.get("opened"),
+               "resolved_on": g.get("resolved_on"),
+               "gap": (g.get("gap") or g.get("description") or "")[:400],
+               "resolution": (g.get("resolution") or "")[:400]}
+        if args.query:
+            row["relevance"] = round(score, 3)
+        out_gaps.append(row)
+
+    note = ("Searches BOTH state.json and known-gaps-archive.json. A gap missing from "
+            "state.json is ARCHIVED, never deleted -- absence here, and only here, is "
+            "evidence a gap never existed.")
+    if args.query:
+        note += (" --query is ranked lexical (BM25) search, not semantic: it finds gaps "
+                 "sharing vocabulary with the query, sorted by relevance, top "
+                 f"{max(1, args.top)}. A precedent phrased with entirely different words "
+                 "will not surface here -- browse --open-only or a narrower query if a hit "
+                 "you expected is missing.")
+
     emit({"searched": {"hot": len(hot), "archived": len(arc), "total": len(rows)},
-          "matched": len(hits),
-          "gaps": [{"id": g.get("id"), "status": g.get("status") or "open",
-                    "where": g["_where"], "opened": g.get("opened"),
-                    "resolved_on": g.get("resolved_on"),
-                    "gap": (g.get("gap") or g.get("description") or "")[:400],
-                    "resolution": (g.get("resolution") or "")[:400]} for g in hits],
-          "note": ("Searches BOTH state.json and known-gaps-archive.json. A gap missing from "
-                   "state.json is ARCHIVED, never deleted -- absence here, and only here, is "
-                   "evidence a gap never existed.")})
+          "matched": len(out_gaps),
+          "gaps": out_gaps,
+          "note": note})
 
 # ---------------------------------------------------------------------------
 # drift
