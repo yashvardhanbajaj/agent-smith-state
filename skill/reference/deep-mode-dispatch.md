@@ -119,6 +119,16 @@ so: `quality_read` is declared `escalate` at 35 days, so a genuinely missed mont
 `validate` defect rather than a silence. That is the intended safety net and the reason this
 stagger is safe to make.
 
+## VALUATION-CHECK trigger (added 2026-09-07)
+NOT dispatched automatically by cadence — it is FMP-fetch-cost per ticker, on top of quality's
+own cost, and stacking it onto the quality-check run would repeat exactly the token-spike
+mistake the stagger above exists to prevent. Run it only on an explicit "valuation check", "is
+this stretched", "DCF" request, or when smith-thesis's own review surfaces a name whose price
+action looks disconnected from its fundamentals and a reverse-DCF read would settle it. Full
+procedure, the FMP fields to pull, and the free (no plan tier needed) Form 4 insider-cluster
+check → `reference/valuation-forensics.md`. Form 13F institutional-flow detection logic exists
+but has no free or currently-licensed data source — do not attempt it, say so.
+
 ## DEEP roster confirmation
 Before moving to Stage 2 on a DEEP run, confirm out loud in this exact checklist form: "Deep run
 dispatched: signals ✓ thesis ✓ watchlist ✓ book ✓ scout ✓ macro ✓ [rebound ✓ if hot] [quality ✓ if

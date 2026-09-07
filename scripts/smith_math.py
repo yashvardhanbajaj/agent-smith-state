@@ -54,6 +54,8 @@ from smith_core import *  # noqa: F401,F403
 from smith_core import load_json, emit, fail, clamp
 from smith_ledger import (cmd_lots, cmd_history, cmd_universe, cmd_ledger_parse,
                           cmd_ledger_apply, cmd_bookcalc, cmd_taxcalc)
+import smith_valuation
+from smith_valuation import cmd_valuation
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails, cmd_freshness, cmd_report, cmd_runs, cmd_crosscheck
 from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_add_proposal,
                              cmd_score_shadow_journal, dismiss_proposal_core)
@@ -585,6 +587,12 @@ def cmd_journal(args):
     bucket_scores = {}  # bucket -> [worked/failed/neutral bools at 30d]
     name_bucket_scores = {}  # (ticker,bucket) -> list of (verdict, n) pairs -- see grade() below
     bucket_scores_7d = {}  # same, at 7d -- interim read, see bucket_hit_rates_7d below
+    # bucket -> {"worked": [signed_pct, ...], "failed": [signed_pct, ...]} -- added 2026-09-07
+    # for the Kelly-informed track_record_multiplier tilt (smith_conviction.py). bucket_scores
+    # above only ever counted win/loss, never MAGNITUDE, so a signal that wins small and loses
+    # big looked identical to one that wins big and loses small -- this is the payoff-ratio
+    # data Kelly's formula needs and the plain hit-rate tilt structurally can't use.
+    bucket_score_magnitudes = {}
     needs_price = set()  # tickers with an open entry and no price -- surfaced so the caller
                          # knows exactly which exited names to fetch and re-run with
 
@@ -640,6 +648,11 @@ def cmd_journal(args):
             if out["verdict"] in ("worked", "failed", "neutral", "n/a"):
                 bucket_scores.setdefault(e["bucket"], []).append(out["verdict"])
                 name_bucket_scores.setdefault((e["ticker"], e["bucket"]), []).append(out["verdict"])
+                if out["verdict"] in ("worked", "failed") and out.get("outcome_30d_pct") is not None:
+                    _dir = BUCKET_DIRECTION.get(e["bucket"])
+                    if _dir is not None:
+                        _signed = out["outcome_30d_pct"] if _dir == "up" else -out["outcome_30d_pct"]
+                        bucket_score_magnitudes.setdefault(e["bucket"], {"worked": [], "failed": []})[out["verdict"]].append(_signed)
             updates.append(out)
             continue
 
@@ -679,16 +692,33 @@ def cmd_journal(args):
         if out["verdict"] in ("worked", "failed", "neutral", "n/a"):
             bucket_scores.setdefault(e["bucket"], []).append(out["verdict"])
             name_bucket_scores.setdefault((e["ticker"], e["bucket"]), []).append(out["verdict"])
+            if out["verdict"] in ("worked", "failed") and out.get("outcome_30d_pct") is not None:
+                _dir = BUCKET_DIRECTION.get(e["bucket"])
+                if _dir is not None:
+                    _signed = out["outcome_30d_pct"] if _dir == "up" else -out["outcome_30d_pct"]
+                    bucket_score_magnitudes.setdefault(e["bucket"], {"worked": [], "failed": []})[out["verdict"]].append(_signed)
         updates.append(out)
 
     bucket_hit_rates = {}
     for bucket, verdicts in bucket_scores.items():
         scored = [v for v in verdicts if v in ("worked", "failed")]
         if scored:
-            bucket_hit_rates[bucket] = {
+            row = {
                 "n": len(scored),
                 "hit_rate_pct": round(sum(1 for v in scored if v == "worked") / len(scored) * 100, 1),
             }
+            # payoff_ratio (added 2026-09-07): avg |magnitude| of worked / avg |magnitude| of
+            # failed, both direction-adjusted 30d moves. None (never a made-up 1.0) unless
+            # BOTH sides have at least one scored entry -- a bucket that has never lost has no
+            # observed loss magnitude to divide by, and "infinite payoff ratio" is not a real
+            # number to hand to Kelly's formula.
+            mags = bucket_score_magnitudes.get(bucket, {"worked": [], "failed": []})
+            if mags["worked"] and mags["failed"]:
+                avg_win = sum(mags["worked"]) / len(mags["worked"])
+                avg_loss = abs(sum(mags["failed"]) / len(mags["failed"]))
+                if avg_loss > 0:
+                    row["payoff_ratio"] = round(avg_win / avg_loss, 3)
+            bucket_hit_rates[bucket] = row
 
     bucket_hit_rates_7d = {}
     for bucket, verdicts in bucket_scores_7d.items():
@@ -2905,11 +2935,13 @@ def cmd_triggers(args):
         for b in polarity["bullish"]:
             hr30 = hit_rates_30d.get(b)
             if hr30 and hr30.get("n"):
-                tr = {"hit_rate_pct": hr30["hit_rate_pct"], "n": hr30["n"], "interim": False}
+                tr = {"hit_rate_pct": hr30["hit_rate_pct"], "n": hr30["n"], "interim": False,
+                     "payoff_ratio": hr30.get("payoff_ratio")}  # None if never lost yet -- fine
                 break
             hr7 = hit_rates_7d.get(b)
             if hr7 and hr7.get("n"):
-                tr = {"hit_rate_pct": hr7["hit_rate_pct"], "n": hr7["n"], "interim": True}
+                tr = {"hit_rate_pct": hr7["hit_rate_pct"], "n": hr7["n"], "interim": True,
+                     "payoff_ratio": hr7.get("payoff_ratio")}
                 break
         return tr
 
@@ -3658,6 +3690,18 @@ def main():
                     help="tax delta below which FIFO-vs-HIFO is not worth complicating execution")
     sp.add_argument("--today", default=None)
 
+    sp = sub.add_parser("valuation",
+                        help="reverse-DCF, ROIC-vs-WACC and forensic (Beneish/Altman) checks "
+                             "from agent-fetched FMP statement data")
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--statements-json", required=True,
+                    help="ticker-keyed JSON; see smith_valuation.py's module docstring for shape")
+    sp.add_argument("--today", default=None)
+    sp.add_argument("--terminal-growth-pct", type=float, default=smith_valuation.TERMINAL_GROWTH_PCT_DEFAULT)
+    sp.add_argument("--forecast-years", type=int, default=smith_valuation.FORECAST_YEARS_DEFAULT)
+    sp.add_argument("--stretch-gap-pp", type=float, default=smith_valuation.REVERSE_DCF_STRETCH_GAP_PP_DEFAULT)
+    sp.add_argument("--market-risk-premium-pct", type=float, default=smith_valuation.MARKET_RISK_PREMIUM_PCT_DEFAULT)
+
     sp = sub.add_parser("ledger-apply",
                         help="append parsed confirmations to trades.json (idempotent on "
                              "message_id); dry run unless --write")
@@ -3726,6 +3770,7 @@ def main():
          "usage-log": cmd_usage_log, "usage-audit": cmd_usage_audit,
          "usage-report": cmd_usage_report, "ledger-parse": cmd_ledger_parse, "ledger-apply": cmd_ledger_apply,
          "crosscheck": cmd_crosscheck, "bookcalc": cmd_bookcalc, "taxcalc": cmd_taxcalc,
+         "valuation": cmd_valuation,
          "sync-decisions": cmd_sync_decisions}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")

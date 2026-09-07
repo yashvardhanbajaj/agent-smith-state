@@ -242,19 +242,64 @@ def corroboration_component(mention_count):
     return score, f"named by {mention_count} independent source(s) this run"
 
 
-def track_record_multiplier(hit_rate_pct, n, max_effect=0.20, n_for_full_authority=20):
+KELLY_FRACTION_DEFAULT = 0.25  # quarter-Kelly, conservative by construction
+
+
+def kelly_fraction(p, b, fraction=KELLY_FRACTION_DEFAULT):
+    """f* = (b*p - q) / b, the standard fractional-Kelly formula. p: win probability [0,1].
+    b: payoff ratio (average win magnitude / average loss magnitude, both as positive numbers
+    on the same scale -- e.g. avg_benefit_pct of worked rows over abs(avg_benefit_pct) of
+    missed rows). fraction: the Kelly fraction applied (0.25 = quarter-Kelly). Clamped to
+    [0, 1] -- this function never recommends shorting (negative f) or leverage beyond the full
+    bankroll (f > 1); a negative edge (b*p <= q) returns 0, not a negative size."""
+    if p is None or b is None or b <= 0:
+        return None
+    q = 1.0 - p
+    f_full = (b * p - q) / b
+    f_full = max(0.0, min(1.0, f_full))
+    return round(f_full * fraction, 4)
+
+
+def track_record_multiplier(hit_rate_pct, n, max_effect=0.20, n_for_full_authority=20,
+                            payoff_ratio=None):
     """Bounded tilt, not a veto -- per user decision. A signal bucket with a measured hit rate
     nudges conviction up or down by at most `max_effect` (20%), and that ceiling itself scales
     with sample size so a bucket earns authority rather than being handed it: n=4 gets ~1/5 of
-    the full effect, n=20+ gets the full +/-20%. Centered on 50% (a coin flip moves nothing)."""
+    the full effect, n=20+ gets the full +/-20%. Centered on 50% (a coin flip moves nothing).
+
+    KELLY-INFORMED TILT (added 2026-09-07). The plain hit-rate formula above uses ONLY win
+    probability -- a bucket that wins 55% of the time with a 0.3:1 payoff ratio (small wins,
+    big losses) gets the SAME tilt as one that wins 55% of the time with a 3:1 payoff ratio,
+    even though the first has negative expectancy and the second has a large edge. When
+    `payoff_ratio` (b) is supplied, the tilt direction and magnitude come from the Kelly
+    fraction f* = (b*p-q)/b instead of the bare hit-rate gap -- Kelly's f* is 0 at breakeven
+    edge and grows with true edge, not just win frequency, which is a better description of
+    "how much should this signal's track record move sizing" than win-rate alone.
+
+    THE 20% CEILING IS DELIBERATELY NOT RAISED. Full or even quarter-Kelly can imply far
+    larger swings than 20% for a strong edge -- that would silently override the user's own
+    stated 'tight, large-quantum stops by design' risk posture (confirmed 2026-07-27) and the
+    staged-tranche/ATR-cap discipline the rest of this sizing chain already enforces. Kelly
+    here answers a narrower, safer question: GIVEN the existing +/-20% governance ceiling,
+    should this bucket sit near the top of that band or the bottom? It informs the tilt's
+    shape, not its bound."""
     if hit_rate_pct is None or not n:
         return 1.0, None
     authority = min(1.0, n / n_for_full_authority)
-    tilt = ((hit_rate_pct - 50.0) / 50.0) * max_effect * authority
+    if payoff_ratio is not None and payoff_ratio > 0:
+        p = hit_rate_pct / 100.0
+        f_full_kelly = max(-1.0, min(1.0, (payoff_ratio * p - (1 - p)) / payoff_ratio))
+        # f_full_kelly is in [-1,1] (edge direction and strength); map it onto the SAME
+        # +/-max_effect band the plain formula uses, so the ceiling is identical either way.
+        tilt = f_full_kelly * max_effect * authority
+        basis = f"Kelly edge (p={hit_rate_pct:.0f}%, payoff {payoff_ratio:.2f}:1)"
+    else:
+        tilt = ((hit_rate_pct - 50.0) / 50.0) * max_effect * authority
+        basis = f"hit rate {hit_rate_pct:.0f}%"
     tilt = max(-max_effect, min(max_effect, tilt))
     mult = 1.0 + tilt
-    reason = (f"track record {hit_rate_pct:.0f}% (n={n}) applies a {tilt:+.1%} tilt "
-              f"({authority:.0%} authority at this sample size)")
+    reason = (f"track record {hit_rate_pct:.0f}% (n={n}) via {basis} applies a {tilt:+.1%} "
+              f"tilt ({authority:.0%} authority at this sample size)")
     return mult, reason
 
 
@@ -312,7 +357,8 @@ def score_conviction(ctx):
     tr = ctx.get("track_record")
     mult = 1.0
     if tr:
-        mult, r = track_record_multiplier(tr.get("hit_rate_pct"), tr.get("n"))
+        mult, r = track_record_multiplier(tr.get("hit_rate_pct"), tr.get("n"),
+                                          payoff_ratio=tr.get("payoff_ratio"))
         if r:
             reasons.append(r)
 

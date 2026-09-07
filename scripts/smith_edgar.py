@@ -166,6 +166,36 @@ def _get(url, tries=3):
     raise RuntimeError(f"EDGAR fetch failed for {url}: {last}")
 
 
+def _get_text(url, tries=3):
+    """Same transport as `_get` (curl + declared UA, same CA-bundle reason), but for a Form 4
+    filing's raw XML document rather than a JSON API response -- returns the response body as
+    text, unparsed, or None on a 404."""
+    last = None
+    for i in range(tries):
+        try:
+            proc = subprocess.run(
+                ["curl", "-sS", "--compressed", "--max-time", "30",
+                 "-H", f"User-Agent: {UA}", "-w", "\n%{http_code}", url],
+                capture_output=True, text=True)
+            if proc.returncode != 0:
+                last = (proc.stderr or "").strip()[:200] or f"curl exit {proc.returncode}"
+                time.sleep(1.0 + i)
+                continue
+            body, _, code = proc.stdout.rpartition("\n")
+            code = code.strip()
+            if code == "404":
+                return None
+            if code != "200":
+                last = f"HTTP {code}"
+                time.sleep(1.0 + i)
+                continue
+            return body
+        except Exception as e:       # noqa: BLE001
+            last = str(e)
+            time.sleep(1.0 + i)
+    raise RuntimeError(f"EDGAR fetch failed for {url}: {last}")
+
+
 FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
 
 
@@ -355,6 +385,216 @@ def cmd_tags(a):
                       "tags": hits[:25], "total_matched": len(hits)}, indent=1))
 
 
+# ---------------------------------------------------------------------------
+# Insider transactions (Form 4) -- added 2026-09-07
+# ---------------------------------------------------------------------------
+# WHY THIS TAKES THE RAW-EDGAR PATH, NOT FMP `insiderTrades` (same reasoning that put the rest
+# of this module here in the first place): FMP's insiderTrades and form13F endpoints are BOTH
+# gated behind a plan tier this account does not have -- confirmed live, "ACCESS DENIED ...
+# requires the Starter, Premium, Ultimate, or Enterprise plan" -- while a Form 4 is a public
+# filing SEC serves for free to anyone declaring a User-Agent, exactly like companyconcept was.
+#
+# Form 13F is NOT given the same treatment here. A Form 4 is one ISSUER's own filings -- cheap
+# to enumerate via `submissions`, one CIK. Institutional ownership BY TICKER requires scanning
+# ACROSS many institutional filers' 13F holdings tables for a mention of that ticker's CUSIP --
+# there is no free, ticker-keyed EDGAR endpoint for that; FMP's paid tier exists precisely
+# because it pre-aggregates that fan-out. `cmd_institutional_flow` below is real, tested
+# detection logic that RUNS the moment ticker-keyed 13F data is available (an FMP plan upgrade,
+# or a future scraping project), but this file does not fetch that data itself yet -- said
+# plainly rather than pretending a fetch path exists that doesn't.
+
+TRANSACTION_CODE_LABELS = {
+    "P": "open-market purchase", "S": "open-market sale", "A": "grant/award",
+    "M": "option exercise", "G": "gift", "F": "tax withholding", "D": "disposition to issuer",
+    "C": "conversion",
+}
+# Only P/S are a genuine discretionary market bet -- grants, exercises, gifts and tax
+# withholding are compensation mechanics or routine tax events an insider doesn't choose in
+# the way a cluster-of-sells-into-a-rally signal is supposed to mean. Counting those as
+# "insider selling" is how a normal RSU vesting quarter gets mistaken for a warning sign.
+DISCRETIONARY_CODES = {"P", "S"}
+
+
+def _xml_text(elem, path):
+    node = elem.find(path)
+    return node.text.strip() if node is not None and node.text else None
+
+
+def _parse_form4(xml_text):
+    """Parse one Form 4 XML document (schema confirmed live, 2026-09-07) into a flat list of
+    discretionary (P/S) transactions. Non-derivative table only -- derivative transactions
+    (options, RSUs before vesting) are a distinct signal this pass does not attempt to
+    interpret; returning fewer, cleaner rows beats returning more, ambiguous ones."""
+    import xml.etree.ElementTree as ET
+    root = ET.fromstring(xml_text)
+    owner_name = _xml_text(root, ".//reportingOwner/reportingOwnerId/rptOwnerName")
+    rel = root.find(".//reportingOwner/reportingOwnerRelationship")
+    is_officer = _xml_text(rel, "isOfficer") == "1" if rel is not None else False
+    is_director = _xml_text(rel, "isDirector") == "1" if rel is not None else False
+    officer_title = _xml_text(rel, "officerTitle") if rel is not None else None
+
+    rows = []
+    for tx in root.findall(".//nonDerivativeTable/nonDerivativeTransaction"):
+        code = _xml_text(tx, "transactionCoding/transactionCode")
+        if code not in DISCRETIONARY_CODES:
+            continue
+        shares = _xml_text(tx, "transactionAmounts/transactionShares/value")
+        price = _xml_text(tx, "transactionAmounts/transactionPricePerShare/value")
+        ad_code = _xml_text(tx, "transactionAmounts/transactionAcquiredDisposedCode/value")
+        rows.append({
+            "owner_name": owner_name, "is_officer": is_officer, "is_director": is_director,
+            "officer_title": officer_title,
+            "transaction_date": _xml_text(tx, "transactionDate/value"),
+            "transaction_code": code, "transaction_label": TRANSACTION_CODE_LABELS.get(code),
+            "acquired_or_disposed": ad_code,
+            "shares": float(shares) if shares else None,
+            "price_usd": float(price) if price else None,
+        })
+    return rows
+
+
+def _recent_form4_filings(cik, lookback_days, max_filings):
+    doc = _get(SUBMISSIONS_URL.format(cik=cik)) or {}
+    rec = (doc.get("filings") or {}).get("recent") or {}
+    cutoff = (date.today() - timedelta(days=lookback_days)).isoformat()
+    hits = []
+    for i, form in enumerate(rec.get("form", [])):
+        if form != "4":
+            continue
+        filed = rec["filingDate"][i]
+        if filed < cutoff:
+            continue
+        hits.append({"filed": filed, "accession": rec["accessionNumber"][i],
+                    "primary_document": rec["primaryDocument"][i]})
+        if len(hits) >= max_filings:
+            break
+    return hits
+
+
+def cmd_insider_cluster(a):
+    """Fetch and parse an issuer's recent Form 4 filings, then apply two deterministic cluster
+    rules over the discretionary (P/S) transactions found:
+
+      * insider_sell_into_rally: >= --min-sellers distinct insiders with open-market SALES
+        inside the lookback window, while the caller-supplied price is within
+        --near-high-pct of the 52-week high.
+      * insider_buy_the_drawdown: >= --min-buyers distinct insiders with open-market PURCHASES
+        inside the lookback window, while the caller-supplied drawdown from the 52-week high
+        is at or beyond --severe-drawdown-pct.
+
+    Price/52-week context is NEVER fetched here -- pass --price-usd and --wk52-high-usd (both
+    required to evaluate the rally rule) and/or --drawdown-from-high-pct (required for the
+    drawdown rule); a rule with a missing required price input is skipped, not guessed, and
+    named in data_quality. This mirrors the rest of the codebase's ONE canonical reader for
+    price/52-week data (data_cache.wk52) -- this module has no opinion about it."""
+    cik = cik_for(a.ticker)
+    filings = _recent_form4_filings(cik, a.lookback_days, a.max_filings)
+    all_tx, fetch_errors = [], []
+    for f in filings:
+        doc_name = os.path.basename(f["primary_document"])
+        accn = f["accession"].replace("-", "")
+        url = f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{accn}/{doc_name}"
+        try:
+            xml_text = _get_text(url)
+            if xml_text:
+                for row in _parse_form4(xml_text):
+                    row["filed"] = f["filed"]
+                    all_tx.append(row)
+        except Exception as e:  # noqa: BLE001 -- one bad filing must not sink the whole scan
+            fetch_errors.append({"accession": f["accession"], "error": str(e)[:200]})
+        time.sleep(0.15)  # SEC's <=10 req/s courtesy limit, same spirit as `_get`'s own backoff
+
+    sells = [t for t in all_tx if t["transaction_code"] == "S"]
+    buys = [t for t in all_tx if t["transaction_code"] == "P"]
+    distinct_sellers = sorted({t["owner_name"] for t in sells if t["owner_name"]})
+    distinct_buyers = sorted({t["owner_name"] for t in buys if t["owner_name"]})
+
+    dq = list(fetch_errors and [f"{len(fetch_errors)} filing(s) failed to fetch/parse"] or [])
+    findings = []
+
+    if len(distinct_sellers) >= a.min_sellers:
+        if a.price_usd is not None and a.wk52_high_usd:
+            near_high = a.price_usd >= a.wk52_high_usd * (1 - a.near_high_pct / 100.0)
+            if near_high:
+                findings.append({
+                    "type": "insider_sell_into_rally",
+                    "sellers": distinct_sellers, "seller_count": len(distinct_sellers),
+                    "total_shares_sold": round(sum(t["shares"] or 0 for t in sells), 0),
+                    "note": (f"{len(distinct_sellers)} distinct insider(s) sold in the last "
+                             f"{a.lookback_days}d while price (${a.price_usd:.2f}) sits within "
+                             f"{a.near_high_pct:g}% of the 52-week high (${a.wk52_high_usd:.2f}).")})
+        else:
+            dq.append(f"{len(distinct_sellers)} distinct seller(s) found but --price-usd/"
+                      f"--wk52-high-usd not supplied -- rally proximity not evaluated")
+
+    if len(distinct_buyers) >= a.min_buyers:
+        if a.drawdown_from_high_pct is not None:
+            severe = a.drawdown_from_high_pct <= -abs(a.severe_drawdown_pct)
+            if severe:
+                findings.append({
+                    "type": "insider_buy_the_drawdown",
+                    "buyers": distinct_buyers, "buyer_count": len(distinct_buyers),
+                    "total_shares_bought": round(sum(t["shares"] or 0 for t in buys), 0),
+                    "note": (f"{len(distinct_buyers)} distinct insider(s) bought in the last "
+                             f"{a.lookback_days}d during a {a.drawdown_from_high_pct:.1f}% "
+                             f"drawdown from the 52-week high.")})
+        else:
+            dq.append(f"{len(distinct_buyers)} distinct buyer(s) found but "
+                      f"--drawdown-from-high-pct not supplied -- severity not evaluated")
+
+    print(json.dumps({"ticker": a.ticker.upper(), "cik": cik,
+                      "lookback_days": a.lookback_days, "filings_scanned": len(filings),
+                      "transactions": all_tx, "findings": findings,
+                      "distinct_sellers": distinct_sellers, "distinct_buyers": distinct_buyers,
+                      "data_quality": dq}, indent=1))
+
+
+# ---------------------------------------------------------------------------
+# Institutional ownership (Form 13F) -- detection logic only, see module note above
+# ---------------------------------------------------------------------------
+
+def cmd_institutional_flow(a):
+    """Deterministic QoQ institutional flow read from a PRE-FETCHED positions file (FMP
+    `form13F` positions-summary shape, or any source keyed the same way) -- this command does
+    not fetch 13F data itself (see the module note above). --positions-json: a JSON object
+    with "current" and "prior" quarter arrays, each row carrying at least
+    {"investor_name", "shares"}. Net share change across the top --top-n holders by current
+    shares classifies the flow; a holder present in one quarter and absent in the other counts
+    as a full exit/new entry, not silently dropped."""
+    try:
+        with open(a.positions_json) as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        data = None
+    if not isinstance(data, dict) or "current" not in data or "prior" not in data:
+        print(json.dumps({"error": f"--positions-json must be {{'current':[...], 'prior':[...]}}, "
+                                    f"got: {a.positions_json}"}))
+        return
+    cur = sorted(data["current"], key=lambda r: -(r.get("shares") or 0))[:a.top_n]
+    prior_by_name = {r.get("investor_name"): r.get("shares") or 0 for r in data.get("prior", [])}
+    rows, net_change = [], 0
+    for r in cur:
+        name, shares_now = r.get("investor_name"), r.get("shares") or 0
+        shares_prior = prior_by_name.pop(name, 0)
+        delta = shares_now - shares_prior
+        net_change += delta
+        rows.append({"investor_name": name, "shares_current": shares_now,
+                    "shares_prior": shares_prior, "delta_shares": delta,
+                    "status": "new_entry" if shares_prior == 0 else
+                              "full_exit" if shares_now == 0 else
+                              "increased" if delta > 0 else "decreased" if delta < 0 else "unchanged"})
+    exits = [{"investor_name": n, "shares_prior": s, "delta_shares": -s}
+            for n, s in prior_by_name.items() if s > 0]
+    total_current = sum(r["shares_current"] for r in rows) or 1
+    flow = "institutional_distribution" if net_change < 0 else \
+           "institutional_accumulation" if net_change > 0 else "flat"
+    print(json.dumps({"ticker": a.ticker.upper() if a.ticker else None, "top_n": a.top_n,
+                      "rows": rows, "exited_top_holders": exits,
+                      "net_share_change": net_change, "flow": flow,
+                      "net_change_pct_of_current": round(net_change / total_current * 100, 2)},
+                     indent=1))
+
+
 def main():
     global _BASE_DIR
     p = argparse.ArgumentParser(description=__doc__)
@@ -374,6 +614,31 @@ def main():
     f = sub.add_parser("filings"); f.add_argument("--ticker", required=True)
     f.add_argument("--form", default=None); f.add_argument("--limit", type=int, default=5)
     f.set_defaults(fn=cmd_filings)
+
+    ic = sub.add_parser("insider-cluster",
+                        help="Form 4 cluster detection: insiders selling into a rally, or "
+                             "buying a severe drawdown -- free EDGAR source, no FMP plan needed")
+    ic.add_argument("--ticker", required=True)
+    ic.add_argument("--lookback-days", type=int, default=30)
+    ic.add_argument("--max-filings", type=int, default=20)
+    ic.add_argument("--min-sellers", type=int, default=3)
+    ic.add_argument("--min-buyers", type=int, default=2)
+    ic.add_argument("--near-high-pct", type=float, default=5.0)
+    ic.add_argument("--severe-drawdown-pct", type=float, default=15.0)
+    ic.add_argument("--price-usd", type=float, default=None)
+    ic.add_argument("--wk52-high-usd", type=float, default=None)
+    ic.add_argument("--drawdown-from-high-pct", type=float, default=None)
+    ic.set_defaults(fn=cmd_insider_cluster)
+
+    inst = sub.add_parser("institutional-flow",
+                          help="QoQ institutional ownership flow from a pre-fetched 13F "
+                               "positions file (detection logic only -- see module note; "
+                               "needs a data source, this repo has none free yet)")
+    inst.add_argument("--ticker", default=None)
+    inst.add_argument("--positions-json", required=True)
+    inst.add_argument("--top-n", type=int, default=10)
+    inst.set_defaults(fn=cmd_institutional_flow)
+
     a = p.parse_args()
     _BASE_DIR = a.base_dir
     a.fn(a)

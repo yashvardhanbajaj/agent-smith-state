@@ -1533,7 +1533,12 @@ AGENT_SLICES = {
                    # buckets"), which until now only existed in SKILL.md prose. Requires this
                    # slice to be (re)generated AFTER Wave 1 has landed -- see the WAVES section
                    # for the two-slices-calls-per-run instruction this fix requires.
-                   "refs": ["catalyst_tail", "quality_tail", "signals_tail"],
+                   # "valuation" added 2026-09-07 -- reverse-DCF/ROIC-WACC checks are
+                   # on-demand/monthly (see SKILL.md), so this ref reports MISSING on most
+                   # runs by design, same accepted pattern as catalyst_tail on a run where
+                   # catalyst wasn't dispatched. When present: roic_weakened means downgrade
+                   # to WEAKENED regardless of an earnings beat (§ROIC-WACC in SKILL.md).
+                   "refs": ["catalyst_tail", "quality_tail", "signals_tail", "valuation"],
                    "holdings": "trim", "shared": ["hbm_tracker"]},
     "watchlist":  {"state": ["news_watermark", "watchlist_scan_cursor"],
                    "cache": ["earnings_calendar", "analyst_targets"], "refs": ["attribution"],
@@ -1574,7 +1579,9 @@ AGENT_SLICES = {
     # against itself. Same promised-but-undelivered class already fixed for thesis/cycle/book/tax.
     "quality":    {"state": ["open_flags", "quality_read"],
                    "cache": ["quality_financials", "earnings_facts"],
-                   "refs": ["book"], "holdings": "trim"},
+                   # "valuation" added 2026-09-07 -- forensic_risk (Beneish/Altman), on-demand/
+                   # monthly, MISSING on most runs by design (see the thesis slice's comment).
+                   "refs": ["book", "valuation"], "holdings": "trim"},
     "rebound":    {"state": ["sector_map"], "cache": [], "refs": ["book", "risk"],
                    "holdings": "full"},
     "ledger":     {"state": [], "cache": ["ticker_map"], "refs": ["book", "lots"],
@@ -1584,8 +1591,11 @@ AGENT_SLICES = {
                    # cmd_crosscheck's docstring), specifically so its findings reach the
                    # strategist as a real ref instead of depending on the orchestrator to paste
                    # them into the dispatch prompt by hand.
+                   # "valuation" added 2026-09-07 -- valuation_stretched means suppress a NEW
+                   # BUY on that name (SKILL.md's valuation section); on-demand/monthly,
+                   # MISSING on most runs by design.
                    "refs": ["drift", "sentiment", "risk", "book", "derisk", "triggers",
-                            "rotation", "crosscheck", "macro_tail"],
+                            "rotation", "crosscheck", "macro_tail", "valuation"],
                    "holdings": "trim"},
 }
 
@@ -1618,6 +1628,13 @@ REF_FILES = {
     # crosscheck.json (added 2026-09-07, see cmd_crosscheck's docstring for the invocation-
     # order fix that makes this file exist before WAVE 3 dispatches).
     "crosscheck": "crosscheck.json",
+    # compute_valuation.json (added 2026-09-07, smith_valuation.py) -- ON-DEMAND / MONTHLY,
+    # not a mandatory every-run stage (see SKILL.md's valuation section). Only produced on a
+    # run where the orchestrator dispatched a fetch of FMP statement data and ran
+    # `smith_math.py valuation`; missing on a normal run is EXPECTED, not a problem -- refs
+    # this file only from agents that already gate on cadence/mode, so cmd_slices' missing-ref
+    # warning doesn't fire noise on every quick sweep.
+    "valuation": "compute_valuation.json",
 }
 BASE_REF_FILES = {"lots": "lots.json"}
 
