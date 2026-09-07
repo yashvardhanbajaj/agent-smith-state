@@ -142,16 +142,32 @@ available same-run, not held over. A ticker missing `data_cache.wk52` (name too 
 count reported, just with the price-dependent rally/drawdown classification skipped and
 data_quality naming why — never guess a 52-week high to force the classification through.
 
-## VALUATION-CHECK trigger (added 2026-09-07)
-The DCF/ROIC-WACC/Beneish/Altman checks — NOT the insider-cluster check above, which is cadence-
-wired separately for the reason stated there (free vs FMP-metered) — are NOT dispatched
-automatically by cadence — it is FMP-fetch-cost per ticker, on top of quality's own cost, and
-stacking it onto the quality-check run would repeat exactly the token-spike mistake the stagger
-above exists to prevent. Run these only on an explicit "valuation check", "is this stretched",
-"DCF" request, or when smith-thesis's own review surfaces a name whose price action looks
-disconnected from its fundamentals and a reverse-DCF read would settle it. Full procedure, the
-FMP fields to pull → `reference/valuation-forensics.md`. Form 13F institutional-flow detection
-logic exists but has no free or currently-licensed data source — do not attempt it, say so.
+## VALUATION-CHECK trigger (added 2026-09-07, cadence-wired 2026-09-07)
+Runs automatically on the SAME dispatch as QUALITY-CHECK and INSIDER-CLUSTER above (second deep
+review of the calendar month), same top-5-by-weight ticker list. This is NOT the same cost
+shape as the cycle+quality sub-agent stacking the stagger above exists to prevent — that was
+two full sub-agent dispatches landing on the same run (180,836 tokens, each agent re-sending
+its whole system prompt); this is the ORCHESTRATOR itself making ~5 FMP tool calls per ticker
+(key-metrics, financial-scores, as-reported income/balance/cashflow x2 years) and running one
+deterministic script — no new agent spawned. Estimated ~25 calls x ~500-3,000 tokens of JSON
+each, roughly 30-40K tokens added to that one monthly run — real, but a different order of
+magnitude from the sub-agent-stacking case, and User-confirmed 2026-09-07 as worth it monthly.
+
+Procedure, per ticker (see `reference/valuation-forensics.md` for the exact FMP fields):
+1. Fetch `key-metrics` (enterpriseValue, freeCashFlowToFirm history, returnOnInvestedCapital),
+   `financial-scores` (altmanZScore), and 2 years of `as-reported-*-statements` (Beneish inputs).
+2. Reuse smith-macro's risk-free rate if a deep run has one fresh this month; reuse
+   `data_cache.betas` (SMH-benchmarked, already cached) for beta -- no extra fetch for either.
+3. Build `--statements-json`, run `smith_math.py valuation --run-dir <run> --statements-json
+   <path> --today <date>`. Writes `compute_valuation.json`, already ref'd by
+   `AGENT_SLICES["thesis"|"quality"|"strategist"]`.
+
+Can ALSO be run standalone on an explicit "valuation check", "is this stretched", "DCF" request,
+or a mid-run trigger (smith-thesis surfaces a name whose price looks disconnected from its
+fundamentals) — same procedure, any ticker, any time, not limited to the monthly top-5.
+
+Form 13F institutional-flow detection logic exists but has no free or currently-licensed data
+source — do not attempt it, say so.
 
 ## DEEP roster confirmation
 Before moving to Stage 2 on a DEEP run, confirm out loud in this exact checklist form: "Deep run

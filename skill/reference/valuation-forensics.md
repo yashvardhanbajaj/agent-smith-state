@@ -1,15 +1,16 @@
-# Valuation & forensic checks (added 2026-09-07)
+# Valuation & forensic checks (added 2026-09-07, cadence-wired 2026-09-07)
 
-Two different cadences, do not conflate them:
-- **DCF / ROIC-WACC / Beneish / Altman** — on-demand only. Load this file when the user asks
-  for a "valuation check", "DCF", "is this stretched", or smith-thesis's own review surfaces a
-  name whose price looks disconnected from its fundamentals. FMP-fetch cost per ticker is why
-  this stays on-demand rather than cadence-wired — see the deep-mode-dispatch.md VALUATION-CHECK
-  trigger for the full reasoning.
-- **Form 4 insider-cluster** — runs automatically alongside every monthly `smith-quality`
-  dispatch (the SECOND deep review of the calendar month — see deep-mode-dispatch.md's
-  QUALITY-CHECK trigger), because it's genuinely free (raw SEC EDGAR, no plan tier) and doesn't
-  carry the same cost tradeoff. It can also be run standalone on an explicit request.
+All four checks below — reverse-DCF, ROIC-vs-WACC, Beneish M-Score, Altman Z classification,
+plus Form 4 insider-cluster in its own section — run automatically alongside every monthly
+`smith-quality` dispatch (the SECOND deep review of the calendar month, same top-5-by-weight
+ticker list — see deep-mode-dispatch.md's QUALITY-CHECK/VALUATION-CHECK/INSIDER-CLUSTER
+triggers). Confirmed with the user 2026-09-07: the earlier on-demand-only design overstated the
+cost by analogizing to the cycle+quality SUB-AGENT stacking incident (180,836 tokens, two full
+agent dispatches landing on one run) — fetching FMP data for the valuation check spawns no new
+agent at all, it's the orchestrator making ~25 tool calls and running one script, roughly
+30-40K tokens for the whole monthly batch. Real, but a different order of magnitude, and worth
+it monthly. All four can ALSO be run standalone at any time, any ticker, on an explicit
+"valuation check" request.
 
 ## What it answers that nothing else in this codebase does
 
