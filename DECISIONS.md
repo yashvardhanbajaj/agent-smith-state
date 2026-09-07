@@ -1,7 +1,7 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**80 total gaps** -- 16 open, 64 archived (closed).
+**84 total gaps** -- 19 open, 65 archived (closed).
 
 ---
 
@@ -538,7 +538,7 @@ FUNDAMENTAL_HEADWIND_BUCKETS has NO staleness or decay rule, so a news-flow flag
 
 ---
 
-## G63 -- OPEN
+## G63 -- closed
 **Opened:** 2026-08-13  **Owner:** smith_math.py cmd_triggers (cluster_tension blocker text)  **Closed:** 2026-08-13  
 
 The overbought_distribution cluster_tension blocker tells the reader to 'prefer an intra-cluster rotation: sell this extended name, buy a lagging one in the same cluster' -- but it never checks whether such a laggard EXISTS. Found live 2026-08-13 on MSFT: Compute/Hyperscaler is -10.40pt under floor, yet all three members (MSFT +24.0pp, AMZN +8.28pp, ORCL +16.74pp relative strength) are stretched, so the recommended remedy has no target. The advice should either name an eligible intra-cluster laggard or state that none exists and the choice is trim-anyway vs leave-it. Cosmetic in impact but it sends the reader looking for a trade that is not there.
@@ -779,5 +779,37 @@ NO email/transaction-confirmation tooling exists in this standalone deployment (
 Proposal dedup keyed on (ticker, direction, date), so the SAME idea restated on a different calendar day (the common case -- e.g. 'Exit ORCL' recommended 07-22, 07-27 AND 07-31) was never recognized as a duplicate; only accidental same-day double-asks were ever merged. User-reported as "the open proposal keeps on increasing" -- 32 of 51 open proposals had piled up as restatements of the same underlying idea.
 
 **Resolution:** Dedup key changed to (ticker, direction) with no date component, so any currently-open proposal for the same ticker+direction merges into one running row regardless of how many days apart the restatements were. The merge keeps the chronologically latest occurrence's numbers/date and rolls earlier occurrences into a `history` list with a `repeat_count` ("recommended 4x since 07-22" as one row, not four); the 7-day expiry clock resets off the latest restatement. Fixed same day: 32 open -> 19 on first run against the live file.
+
+---
+
+## G88 -- OPEN
+**Opened:** 2026-09-06  **Owner:** orchestrator  **Closed:** 2026-09-06  
+
+cmd_proposals' sell-side stack guard does not fire across (a) the accepted_by_user + open status pair or (b) the Trim/Sell verb synonym set. Live on 2026-09-06: MSFT 207.7% of position across P-164(accepted)+P-224(open), AVGO 89.8% across P-212+P-226, FSLR 78.7% across P-214+P-228, all with zero review_flags. Also CIEN holds an accepted sell (P-186, $341.56) against a $2.74 residual position while the same run proposed a $200 buy.
+
+**Resolution:** Rebuilt _compute_stacking_warnings as a per-(ticker, SIDE_GROUP) aggregation instead of accepted-x-open pairing. Two independent v1 defects fixed: (1) it only compared an accepted row against an open one, so open+open stacks were never examined; (2) TRIM and SELL were distinct direction buckets, so the same act under two verbs was treated as unrelated sides. Added SIDE_GROUP to smith_core (TRIM/SELL->REDUCE, BUY->ADD, HOLD->None). Guard now writes stacks_on to every member and reports one warning per group with the full combined total. smith_dashboard.stacks_badge rewritten to render all-open stacks and Trim+Sell merges correctly. 7 regression tests added reconstructing the three live incidents; golden master regenerated (same warnings/totals/severities, additive fields plus SELL->REDUCE, BUY->ADD rename). Verified against the live book: all 3 stacks now fire HIGH, plus a 4th (AMAT buy-side) at note.
+
+---
+
+## G89 -- OPEN
+**Opened:** 2026-09-07  **Owner:** orchestrator  
+
+us_market_holidays cache in state.json is EMPTY (0 entries) -- the documented HOLIDAY CALENDAR CHECK (SKILL.md step 1.6) cannot function without it. 2026-09-07 (Labor Day) was identified by direct calendar knowledge, not by this mechanism. Seed the list from a live calendar source (yfinance market calendar or a fixed NYSE holiday table) including early-close days.
+
+---
+
+## G90 -- OPEN
+**Opened:** 2026-09-07  **Owner:** orchestrator  
+
+FMP plan tier blocks `statements` (key-metrics/financial-scores) for this book's actual holdings by a per-symbol coverage limit, not a blanket endpoint permission as previously assumed -- NVDA worked in isolated testing, but all 5 of this run's top-5-by-weight tickers (GEV/ASML/BE/MRVL/VRT) returned ACCESS DENIED. The monthly valuation check (reverse-DCF/ROIC-WACC/Beneish/Altman) cannot run for this book's real holdings until either the plan is upgraded or the actual coverage boundary is mapped. insiderTrades/form13F remain separately denied (Ultimate/Enterprise tier only).
+
+---
+
+## G91 -- OPEN
+**Opened:** 2026-09-07  **Owner:** orchestrator  **Closed:** 2026-09-07  
+
+compute_book.json's pnl_pct returned null on the 2026-09-07-0741 run -- root-caused: cmd_book NEVER derives pnl_pct itself (totals.get('pnl_pct') only, no fallback), and every normal orchestrator-built holdings.json (checked runs/2026-09-03-1845, 2026-08-31-1554) always precomputes and supplies it directly from networth_holdings' asset_summary (invested_usd vs total_value_usd) -- there is no 'invested' figure in totals at all for a fallback to use. This was MY OWN ad-hoc holdings.json build (the live tokenomics-demo run) omitting that precompute step, not a script defect. Corrected here rather than left mischaracterized. Closing.
+
+**Resolution:** Root-caused as an ad-hoc holdings.json build gap, not a script defect -- no code change needed. Corrected the mischaracterization in this entry rather than leaving it standing as a false product-bug report.
 
 ---

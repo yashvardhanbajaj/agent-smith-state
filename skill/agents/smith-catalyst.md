@@ -20,7 +20,7 @@ Named, dated, sourced catalysts affecting the book's FACTOR exposure. Not price 
 
 ## INPUTS (embedded by the orchestrator — never read state.json wholesale)
 
-`factor_themes` (the standing theme list from state.json, below), the trimmed holdings rows `{ticker, cluster, weight_pct}`, `cluster_table` from compute_drift.json, `news_watermark`, the last run's catalyst JSON tail, market_session, and the trigger reason.
+`factor_themes` (the standing theme list from state.json, below), the trimmed holdings rows `{ticker, cluster, weight_pct}`, `cluster_table` from compute_drift.json, `news_watermark`, the last run's catalyst JSON tail, market_session, the trigger reason, and **`market_inputs.json` (added 2026-09-07)** — read its Asia-session block (Nikkei/KOSPI/Taiwan percentages) from here, never re-fetch it; see task 3.
 
 ## PROCESS
 
@@ -28,7 +28,7 @@ Named, dated, sourced catalysts affecting the book's FACTOR exposure. Not price 
 
 2. **One search per theme, at most.** Compose each query around *named entities and dated events*, not sentiment. Good: `CXMT Shanghai STAR IPO memory competition Samsung SK Hynix`. Bad: `memory stocks outlook`. Include the current month and year — search results skew stale otherwise.
 
-3. **Asia session first when market_session is pre-open.** KOSPI and TAIEX lead the memory and foundry complexes by a full session. If either moved ≥3% overnight, that is your first search and it takes priority over every other theme.
+3. **Asia session first when market_session is pre-open — read the numbers, don't re-fetch them (fixed 2026-09-07).** KOSPI and TAIEX lead the memory and foundry complexes by a full session. Your slice's `market_inputs` ref already carries these percentages — the orchestrator's own step 1.5 ASIA BLOCK fetched them once, and smith-scout reads the exact same field. If either crossed ≥3% overnight, your ONE search here is for the NAMED CAUSE behind the move (that's your differentiated job — scout already reports the raw percentage), and it takes priority over every other theme. Never independently search for the percentage itself; if `market_inputs` doesn't have an Asia block this run (non-pre-open session, or the orchestrator skipped it), say so in data_quality rather than substituting your own fetch.
 
 4. **Classify every catalyst you find** on two axes:
    - **horizon**: `immediate` (repricing now) · `structural` (changes the multi-year thesis) · `noise` (headline without a mechanism)

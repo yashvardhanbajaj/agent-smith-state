@@ -1586,8 +1586,14 @@ AGENT_SLICES = {
                    "refs": ["sentiment", "market_inputs"], "holdings": "trim"},
     "macro":      {"state": ["fomc_cache"], "cache": [],
                    "refs": ["sentiment", "market_inputs"], "holdings": None},
+    # "market_inputs" added 2026-09-07 -- catalyst's own task 6 ("Asia session leadership")
+    # independently WebSearched KOSPI/TAIEX/Nikkei moves every run, genuinely redundant with the
+    # orchestrator's own step 1.5 ASIA BLOCK (fetched once, into market_inputs.json, and already
+    # read by smith-scout the same way) -- catalyst simply never had this ref to read from. Its
+    # actual differentiated job is the NAMED CAUSE behind a move that crossed the threshold, not
+    # rediscovering the raw percentage a sibling agent's input already carries.
     "catalyst":   {"state": ["factor_themes", "factor_catalysts", "news_watermark"],
-                   "cache": [], "refs": ["drift"], "holdings": "trim",
+                   "cache": [], "refs": ["drift", "market_inputs"], "holdings": "trim",
                    "shared": ["hbm_tracker"]},
     "cycle":      {"state": ["factor_themes", "sector_map"], "cache": ["earnings_facts"],
                    # "catalyst_tail" added 2026-09-07 -- same WAVES-promise fix as thesis above
