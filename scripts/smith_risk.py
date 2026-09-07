@@ -122,6 +122,9 @@ def support_anchored_cap(atr_pct, price_usd, support_usd, total_book_usd, policy
     }
 
 
+CAP_BREACH_MATERIALITY_PCT_DEFAULT = 2.0
+
+
 def stop_and_cap(atr_pct, price_usd, qty, total_book_usd, policy):
     """
     Implements policy.json's stop_loss_framework:
@@ -130,7 +133,19 @@ def stop_and_cap(atr_pct, price_usd, qty, total_book_usd, policy):
       max_position_usd  = (risk_per_position_pct_of_book/100 * total_book_usd)
                            / (stop_distance_pct/100)
       headroom_usd      = max_position_usd - market_value_usd
-      over_cap          = market_value_usd > max_position_usd
+      over_cap          = market_value_usd > max_position_usd * (1 + materiality_pct/100)
+
+    MATERIALITY BUFFER (added 2026-09-07). Before this, `over_cap` was a bare `mv >
+    max_position_usd` -- a position one dollar over its cap flipped identically to one 50%
+    over, and because max_position_usd itself moves every run with ATR/price, a name sitting
+    within noise of its cap could flip over_cap true/false run to run with no real change in
+    risk, generating a low-conviction trim proposal off pure measurement noise. `cap_multiple`
+    already reported the ratio; nothing consumed it before firing. `cap_breach_materiality_pct`
+    in policy.json's stop_loss_framework (default 2.0) requires the breach to be more than
+    that many percent past the cap before `over_cap` fires -- the ratio itself (`cap_multiple`)
+    is still reported at any value, so a caller that wants the raw boolean can reconstruct it,
+    but the field that downstream trim logic (rotation_bucket, cmd_derisk, proposal scoring)
+    actually keys off no longer flips on a rounding-error breach.
 
     atr_pct is None (no live ATR20 cache entry for this ticker) -> every
     numeric risk field is None, over_cap is False, data_quality_flag is True.
@@ -139,6 +154,7 @@ def stop_and_cap(atr_pct, price_usd, qty, total_book_usd, policy):
     """
     framework = (policy or {}).get("stop_loss_framework", {})
     risk_pct_of_book = framework.get("risk_per_position_pct_of_book", 0.5)
+    materiality_pct = framework.get("cap_breach_materiality_pct", CAP_BREACH_MATERIALITY_PCT_DEFAULT)
 
     market_value_usd = None
     if qty is not None and price_usd is not None:
@@ -158,7 +174,7 @@ def stop_and_cap(atr_pct, price_usd, qty, total_book_usd, policy):
     max_position_usd = (risk_pct_of_book / 100 * total_book_usd) / (stop_distance_pct / 100)
     mv = market_value_usd or 0
     headroom_usd = max_position_usd - mv
-    over_cap = mv > max_position_usd
+    over_cap = mv > max_position_usd * (1 + materiality_pct / 100)
     position_open_risk_usd = mv * stop_distance_pct / 100
     cap_multiple = (mv / max_position_usd) if max_position_usd else None
 
@@ -169,6 +185,7 @@ def stop_and_cap(atr_pct, price_usd, qty, total_book_usd, policy):
         "max_position_usd": round(max_position_usd, 2),
         "headroom_usd": round(headroom_usd, 2),
         "over_cap": over_cap,
+        "cap_breach_materiality_pct": materiality_pct,
         "position_open_risk_usd": round(position_open_risk_usd, 2),
         "cap_multiple": round(cap_multiple, 3) if cap_multiple is not None else None,
         "market_value_usd": round(mv, 2),

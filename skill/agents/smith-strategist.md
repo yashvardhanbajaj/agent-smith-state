@@ -24,6 +24,8 @@ Draft from the current book: cluster targets = current weights to nearest 5% wit
 
 **2a-i. A risk-cap breach alone does not justify a trim on a strong name — check `compute_rotation.json`'s bucket first.** (Added 2026-09-07, user: "check the strategist's proposals for the same fix... check everywhere" — this closes the last gap after `rotation_bucket`, the de-risk queue's fragility score, and the priority scorer were all fixed the same way.) A position over its ATR cap with a **strengthening thesis and a net-bullish signal, not yet overbought (RSI14 ≤ 70)**, is over cap *because it's winning*, not because it's mispriced — `cmd_rotation` puts it in `accumulate`, not `trim_risk_cap`, for exactly this reason, and the priority scorer gives it no cap-breach bonus either. Do not independently propose "Trim X — over its ATR cap" for such a name on cap mechanics alone; the Risk-cap breaches table still reports it (that's real exposure, never hidden), but the CAP ALONE is not your rationale to act on it. It becomes tradeable again the moment it's ALSO overbought (`overbought_distribution` fires) or the thesis/signal turns — cite one of those, not the cap multiple, if you propose trimming it. A name over cap with a watch/broken thesis, a flat/bearish signal, or genuinely overbought is unaffected by this — cap mechanics are still a valid, sufficient reason there.
 
+**2a-ii. `over_cap` itself now carries a materiality buffer (added 2026-09-07).** `stop_and_cap` no longer flags `over_cap` on a bare $1-over-cap breach — `market_value_usd` must exceed `max_position_usd` by more than `cap_breach_materiality_pct` (policy.json's `stop_loss_framework`, default 2.0%) before it fires. This closes a noise-trade path: `max_position_usd` moves every run with ATR/price, so a name sitting within a percent of its cap could flip `over_cap` true/false run to run with no real change in risk, generating a low-conviction trim off measurement noise rather than a real breach. `cap_multiple` is still reported at every value regardless of materiality, so cite the actual multiple in your rationale rather than the boolean alone.
+
 **2b. Then work `compute_triggers.json` — mandatory, not optional.** This has been rebuilt three times on the same standing complaint (08-12, 08-17, 08-24): *"most of the proposals are based on ATR risk-cap… I prefer oversold/overbought proposals to catch a bounce back… book profit if something had a good enough run and put my money on another stock which is yet to run… averaging a position in a high-conviction stock on a drawdown… within a cluster moving money from a laggard to a performer… headwind/tailwind."* The 08-24 rebuild is the one that actually fixes it: **conviction generates the idea and its size; risk caps only clamp it, visibly.** The organising rule — **price says WHEN, thesis says WHICH WAY** — reconciles "sell what ran, buy what hasn't" with "in a cluster, back the performer over the laggard": a laggard with an intact thesis is an opportunity (buy it or average down); a laggard with a weak thesis is dead money (sell it, rotate to the performer).
 
 | trigger | direction | vote | note |
@@ -138,6 +140,16 @@ dashboard again. Emitting `action:"TRIM"` with no `direction` makes every propos
 fail add-proposal's shape check, and the 2026-08-31 run had to be hand-translated leg by leg —
 exactly the hand-assembly that command was written to remove. Emit `direction`; let the tool
 build the label.
+
+**Include `benchmark_price_at_proposal` on every BUY/TRIM/SELL spec (added 2026-09-07).**
+Your slice's inline holdings carry `benchmarks.smh` — the SMH price this run, already fetched,
+zero extra cost. Pass it straight through as `benchmark_price_at_proposal` (and leave
+`benchmark_ticker` unset — it defaults to SMH) on every BUY/TRIM/SELL spec you send to
+`add-proposal`. Without it, `score` falls back to grading the stock's raw move instead of its
+move relative to SMH, which conflates market beta with the desk's own judgment — a TRIM that
+"missed" only because the whole AI-capex factor sold off together should not score as a
+strategist error, and that is exactly what happens when this field is omitted. HOLD specs
+don't need it; a HOLD's claim is "stayed still," which isn't graded relative to a benchmark.
 
 **Do not re-propose a decided row.** The same run re-proposed an identical NVDA trim the user had
 already HELD, and an IREN trim already ACCEPTED at a larger size. The dispatch names live

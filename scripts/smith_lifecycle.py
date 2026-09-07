@@ -1302,13 +1302,36 @@ def cmd_score(args):
             continue
         move = (now - p0) / p0 * 100.0
         direction = pr.get("direction_bucket") or _proposal_direction(pr.get("action"))
+
+        # ALPHA VS BENCHMARK (added 2026-09-07). A TRIM that "missed" only because the whole
+        # ~89% AI-capex-factor book (and SMH with it) sold off together is not a strategist
+        # error, and a BUY that "worked" only because SMH ripped 8% that month is not
+        # strategist skill -- grading on the raw move conflates market beta with the desk's
+        # own judgment. Grade against SMH whenever a benchmark anchor exists on the proposal
+        # (see cmd_add_proposal); fall back to the unchanged absolute-move grading, flagged in
+        # `scored_vs` and counted in data_quality, for the pre-2026-09-07 backlog and any
+        # proposal a caller wrote without one. HOLD is deliberately excluded from the
+        # benchmark comparison -- its whole claim is "stayed still", which a relative-move
+        # framework doesn't fit any better than it fits profit_ratchet's stop management.
+        bench_ticker = pr.get("benchmark_ticker") or "SMH"
+        b0 = pr.get("benchmark_price_at_proposal")
+        bnow = prices.get(bench_ticker)
+        bench_move = None
+        scored_vs = "absolute (no benchmark anchor)"
+        if direction in ("BUY", "TRIM", "SELL") and b0 and bnow:
+            bench_move = (bnow - b0) / b0 * 100.0
+            scored_vs = f"alpha vs {bench_ticker}"
+
         # direction-aware: the same move is a win or a loss depending on what was advised
         if direction == "BUY":
-            signed = move
+            signed = (move - bench_move) if bench_move is not None else move
         elif direction in ("TRIM", "SELL"):
-            signed = -move
+            # a TRIM/SELL worked if the stock fell MORE than the benchmark -- avoiding a
+            # drawdown worse than the market's own is the actual claim being graded
+            signed = (bench_move - move) if bench_move is not None else -move
         else:  # HOLD -- the claim is "no action needed", so small moves vindicate it
             signed = VERDICT_THRESHOLD_PCT - abs(move)
+            scored_vs = "absolute (HOLD)"
         # ANCHOR PLAUSIBILITY GUARD (added 2026-08-15, first run of this scorer).
         # The very first scoring pass produced a "TRIM TSM missed by 39.4%" row off a
         # price_at_proposal of $305.87 dated 2026-07-14. TSM traded $386-$448 that week and
@@ -1321,7 +1344,10 @@ def cmd_score(args):
         # in full so it is visible, and kept OUT of the aggregate until a human confirms the
         # anchor. Real 30-day moves of this size do happen (NBIS ran +34% this month), so this
         # is deliberately a REVIEW flag, not a discard -- the row is never silently dropped.
-        if abs(move) > ANCHOR_REVIEW_PCT:
+        # A benchmark anchor gets the same guard -- SMH itself does not move 60% in a quarter,
+        # so an implausible bench_move means a corrupt benchmark_price_at_proposal, not a real
+        # regime shift, and must not silently poison the alpha figure.
+        if abs(move) > ANCHOR_REVIEW_PCT or (bench_move is not None and abs(bench_move) > ANCHOR_REVIEW_PCT):
             verdict = "needs_anchor_review"
         else:
             verdict = ("worked" if signed > VERDICT_THRESHOLD_PCT
@@ -1329,6 +1355,8 @@ def cmd_score(args):
         row = {"id": pr.get("id"), "ticker": tk, "direction": direction, "status": st,
                "date": str(d0), "age_days": age, "price_at_proposal": round(p0, 4),
                "price_now": round(now, 4), "move_pct": round(move, 2),
+               "benchmark_move_pct": round(bench_move, 2) if bench_move is not None else None,
+               "scored_vs": scored_vs,
                "signed_benefit_pct": round(signed, 2), "verdict": verdict,
                "window": "90d" if age >= 90 else "30d"}
         rows.append(row)
@@ -1353,6 +1381,7 @@ def cmd_score(args):
     trims = [r for r in graded if r["direction"] in ("TRIM", "SELL")]
     buys = [r for r in graded if r["direction"] == "BUY"]
     holds = [r for r in graded if r["direction"] == "HOLD"]
+    alpha_scored = [r for r in graded if r["scored_vs"].startswith("alpha vs")]
     scorecard = {
         "as_of": str(today),
         "trim_accuracy_30d": (agg(trims) or {}).get("accuracy_pct"),
@@ -1361,6 +1390,7 @@ def cmd_score(args):
         "by_direction": {"TRIM/SELL": agg(trims), "BUY": agg(buys), "HOLD": agg(holds)},
         "overall": agg(graded),
         "scored_count": len(graded),
+        "alpha_scored_count": len(alpha_scored),
         "quarantined_anchor_review": len(review),
         "excluded_dismissed_by_user": excluded_n,
         "withdrawn_by_desk": len(desk_withdrawn),
@@ -1368,9 +1398,12 @@ def cmd_score(args):
         "not_yet_30d": too_young,
         "note": ("Direction-aware: a TRIM 'worked' if the price FELL after it, a BUY if it ROSE, "
                  "a HOLD if the move stayed inside the +/-%.1f%% noise band. Threshold shared with "
-                 "the journal scorer so 'worked' means the same magnitude in both. "
-                 "dismissed_by_user proposals are excluded -- a user override is not a strategist "
-                 "error." % VERDICT_THRESHOLD_PCT),
+                 "the journal scorer so 'worked' means the same magnitude in both. BUY/TRIM/SELL "
+                 "are graded on ALPHA VS SMH when the proposal carries a benchmark anchor -- "
+                 "%d of %d graded rows this run -- not the stock's raw move, so a trim that "
+                 "'missed' only because the whole factor sold off together isn't scored as a "
+                 "strategist error. dismissed_by_user proposals are excluded -- a user override "
+                 "is not a strategist error." % (VERDICT_THRESHOLD_PCT, len(alpha_scored), len(graded))),
     }
     # REFUSE TO SHRINK THE RECORD (added 2026-08-30, found live).
     #
@@ -1407,6 +1440,14 @@ def cmd_score(args):
                   f"{'...' if len(u) > 12 else ''}")
     if too_young:
         dq.append(f"{too_young} proposal(s) are under 30 days old -- not yet in the scoring window.")
+    absolute_fallback = [r for r in graded if r["direction"] in ("BUY", "TRIM", "SELL")
+                         and r["scored_vs"] == "absolute (no benchmark anchor)"]
+    if absolute_fallback:
+        dq.append(f"{len(absolute_fallback)} BUY/TRIM/SELL row(s) graded on absolute move, not "
+                  f"alpha vs SMH -- no benchmark_price_at_proposal on the proposal (pre-2026-09-07 "
+                  f"history, or a caller that omitted it): "
+                  + ", ".join(r["id"] for r in absolute_fallback[:12])
+                  + ("..." if len(absolute_fallback) > 12 else "") + ".")
     if review:
         dq.append("QUARANTINED pending anchor review, excluded from the scorecard: "
                   + "; ".join(f"{r['id']} {r['direction']} {r['ticker']} implies {r['move_pct']:+.1f}% "
@@ -2014,7 +2055,11 @@ def cmd_add_proposal(args):
        HOLD and "action" is given explicitly for a portfolio-level hold), "size_usd": 520.97,
        "price_at_proposal": 1559.08 (or null), "rationale": "...", "trigger_type": "..." or
        null, "pair_id": "..." or null, "pair_role": "sell"|"buy" or null, "cluster": "..." or
-       null, "action": "..." (only for a ticker-less HOLD, e.g. "Rebuild cash buffer")}
+       null, "action": "..." (only for a ticker-less HOLD, e.g. "Rebuild cash buffer"),
+       "benchmark_price_at_proposal": 567.01 (or null -- holdings.json's benchmarks.smh,
+       already fetched every run; pass it for BUY/TRIM/SELL so cmd_score can grade alpha vs
+       SMH instead of the stock's raw move), "benchmark_ticker": "SMH" (optional, defaults to
+       SMH if benchmark_price_at_proposal is given)}
 
     Does NOT assign `id` -- that stays cmd_proposals' job (it already assigns ids to any
     freshly-appended proposal missing one, "once, never reused"), so ids stay allocated from
@@ -2062,6 +2107,15 @@ def cmd_add_proposal(args):
             "date": ts,
             "status": "open",
         }
+        # Benchmark anchor for alpha-relative scoring (added 2026-09-07). holdings.json's
+        # `benchmarks.smh` is already fetched every run at zero extra cost -- the caller
+        # (smith-strategist, via the dispatch prompt) is expected to pass it straight through
+        # for every BUY/TRIM/SELL spec. cmd_score falls back to absolute-move grading, flagged
+        # in data_quality, for any proposal missing this (all pre-2026-09-07 history, and any
+        # caller that omits it) -- it is never backfilled or guessed.
+        if spec.get("benchmark_price_at_proposal") is not None:
+            pr["benchmark_price_at_proposal"] = spec["benchmark_price_at_proposal"]
+            pr["benchmark_ticker"] = spec.get("benchmark_ticker") or "SMH"
         for optional in ("pair_id", "pair_role", "cluster"):
             if spec.get(optional) is not None:
                 pr[optional] = spec[optional]
