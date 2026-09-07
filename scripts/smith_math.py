@@ -2548,8 +2548,18 @@ def cmd_buckets(args):
     rel = (dc.get("rel_strength_1m") or {}).get("values_pp", {}) or {}
     targets = dc.get("analyst_targets", {}) or {}
     wk52 = dc.get("wk52") or {}
+    peer_map = state.get("peer_map", {}) or {}
+    # rel_strength_1m above is ALWAYS SMH-relative for the whole book. Added 2026-09-07: prefer
+    # a peer_map-aware reading, when cached, for any ticker whose true peer isn't SMH -- before
+    # this, smith-signals recomputed the same BE/GEV/VRT-vs-XLU, MSFT/NBIS-vs-XLK override from
+    # a fresh fetch on EVERY dispatch (quick or deep, no TTL gate at all), because the compute
+    # layer had nowhere to cache the answer and hand it back next run. See FRESHNESS's
+    # data_cache.rel_strength_1m_peer entry.
+    rel_peer_cache = dc.get("rel_strength_1m_peer") or {}
+    rel_peer = rel_peer_cache.get("values_pp", {}) or {}
+    rel_peer_etf = rel_peer_cache.get("peer_etf", {}) or {}
 
-    rows, unnormalized, sigmas = {}, [], []
+    rows, unnormalized, sigmas, stale_peer_fallback = {}, [], [], []
     for h in holdings.get("holdings_inr", []):
         t = h.get("ticker")
         price = h.get("live_price_usd")
@@ -2579,11 +2589,22 @@ def cmd_buckets(args):
                 buckets.append("MOMENTUM+VOLUME?")
 
         # --- peer-relative ----------------------------------------------------------
-        r = rel.get(t)
+        # Prefer the cached peer_map-aware reading over the SMH-default one whenever this
+        # ticker's true peer isn't SMH and a fresh cache entry exists for it -- see the
+        # rel_peer_cache setup above. benchmark_used records which one actually applied, so a
+        # reader (and the agent, when the cache is stale/missing and it falls back to a fresh
+        # override) always knows without guessing.
+        true_peer = (peer_map.get(t) or {}).get("peer_etf")
+        r, benchmark_used = rel.get(t), "SMH"
+        if true_peer and true_peer != "SMH" and t in rel_peer:
+            r, benchmark_used = rel_peer.get(t), rel_peer_etf.get(t, true_peer)
+        elif true_peer and true_peer != "SMH":
+            stale_peer_fallback.append(t)
         if isinstance(r, (int, float)) and isinstance(a, (int, float)) and a > 0:
             sig = round(_rel_sigma(r, a), 2)
             why["rel_sigma"] = sig
             why["rel_strength_1m_pp"] = r
+            why["peer_benchmark_used"] = benchmark_used
             sigmas.append(sig)
             if sig >= 1.0:
                 buckets.append("PEER LEADER")
@@ -2643,6 +2664,11 @@ def cmd_buckets(args):
         dq.append(f"SELF-CALIBRATION: SD(rel_sigma)={sd} is outside the 0.8-1.3 band a correctly "
                   f"scaled measure should show. {'Denominator too wide, bucket under-firing' if sd < 0.8 else 'Denominator too narrow, bucket over-firing'}. "
                   f"REPORT this, never silently retune the constant -- that is the user's call.")
+    if stale_peer_fallback:
+        dq.append(f"{len(stale_peer_fallback)} ticker(s) have a non-SMH true peer in peer_map "
+                  f"but no fresh data_cache.rel_strength_1m_peer entry, so PEER LEADER/LAGGARD "
+                  f"fell back to the SMH-default reading this run: {','.join(sorted(stale_peer_fallback))}. "
+                  f"smith-signals should refresh these (task 9, cache-check-first) on its next dispatch.")
 
     out = {"as_of": args.today, "tickers": rows,
            "suffixed_buckets_need_agent_confirmation": [
@@ -2651,13 +2677,14 @@ def cmd_buckets(args):
                "OVERBOUGHT PULLBACK? -- pos leg only; the agent confirms negatives/above-target"],
            "deferred_pos_buckets": (not wk52),
            "rel_sigma_sd": sd, "unnormalized_tickers": sorted(unnormalized),
+           "stale_peer_fallback_tickers": sorted(stale_peer_fallback),
            "peer_benchmark_caveat": (
-               "PEER LEADER/LAGGARD here is computed against data_cache.rel_strength_1m, whose "
-               "benchmark is SMH for the whole book. smith-signals refines this per name using "
-               "peer_map's own ETF (XLK for MSFT, etc), so its verdict may differ on names whose "
-               "true peer is not the semis index -- and its version is the better one where the "
-               "mapping differs. Treat these as the default read, not the final one: the agent "
-               "may override with a peer_map-based sigma and should say when it does."),
+               "PEER LEADER/LAGGARD prefers a cached peer_map-aware reading (data_cache."
+               "rel_strength_1m_peer, added 2026-09-07) for any ticker whose true peer isn't "
+               "SMH -- check each row's `peer_benchmark_used` field to see which one applied. "
+               "Falls back to the SMH-default reading (data_cache.rel_strength_1m) only when "
+               "that cache is missing or stale for a ticker, named in `stale_peer_fallback_"
+               "tickers` -- those are the only names still needing an agent override this run."),
            "data_quality": dq,
            "note": ("Deterministic bucket arithmetic, moved out of smith-signals 2026-09-06. "
                     "A '?' suffix means the script computed the measurable leg and the agent "

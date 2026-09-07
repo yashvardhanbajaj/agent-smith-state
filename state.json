@@ -3597,9 +3597,12 @@
   },
   {
    "id": "G91",
-   "description": "compute_book.json's pnl_pct field returned null this run despite value_usd/invested both being computable -- worked around by computing it directly from holdings.json's aggregate invested/current (2.0994%). Root cause not investigated this run (scope); check cmd_book's expected input field name for invested value against what holdings.json actually supplies.",
+   "description": "compute_book.json's pnl_pct returned null on the 2026-09-07-0741 run -- root-caused: cmd_book NEVER derives pnl_pct itself (totals.get('pnl_pct') only, no fallback), and every normal orchestrator-built holdings.json (checked runs/2026-09-03-1845, 2026-08-31-1554) always precomputes and supplies it directly from networth_holdings' asset_summary (invested_usd vs total_value_usd) -- there is no 'invested' figure in totals at all for a fallback to use. This was MY OWN ad-hoc holdings.json build (the live tokenomics-demo run) omitting that precompute step, not a script defect. Corrected here rather than left mischaracterized. Closing.",
    "opened": "2026-09-07",
-   "owner": "orchestrator"
+   "owner": "orchestrator",
+   "status": "closed",
+   "closed": "2026-09-07",
+   "resolution": "Root-caused as an ad-hoc holdings.json build gap, not a script defect -- no code change needed. Corrected the mischaracterization in this entry rather than leaving it standing as a false product-bug report."
   }
  ],
  "sentiment": {

@@ -363,6 +363,15 @@ FRESHNESS = {
     # --- technical caches: feed LIVE proposal triggers, suppressed by cmd_triggers ---
     "data_cache.rsi14":            {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "suppress"},
     "data_cache.rel_strength_1m":  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "suppress"},
+    # Peer-map-aware companion to rel_strength_1m, added 2026-09-07. rel_strength_1m above is
+    # ALWAYS SMH-relative for the whole book -- correct for the semis majority, wrong for the
+    # utility/hyperscaler names (BE/GEV/VRT vs XLU, MSFT/NBIS/GOOG vs XLK). Before this cache
+    # existed, smith-signals recomputed the same handful of peer-ETF overrides from a fresh
+    # fetch on EVERY dispatch, quick or deep (task 9 was gated on no TTL at all) -- this cache
+    # gives that recompute a home so it only happens once per 7-day window per affected ticker,
+    # not once per run. "flag", not "suppress": a stale/missing entry here just falls back to
+    # the SMH default in cmd_buckets, same degrade-gracefully contract atr20 already uses.
+    "data_cache.rel_strength_1m_peer": {"stamp": "field:as_of", "ttl_days": 7, "owner": "smith-signals", "on_stale": "flag"},
     "signal_history":              {"stamp": "per_entry:signal_history_as_of", "ttl_days": HEADWIND_BUCKET_MAX_AGE_DAYS,
                                     "owner": "smith-signals", "on_stale": "suppress"},
     # --- technical caches: degrade gracefully (a stale ATR makes stops marginally wide) ---

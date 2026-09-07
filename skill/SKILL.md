@@ -200,6 +200,7 @@ Measured 2026-07-28: a quick run was costing ~119KB of raw payload (~33k tokens)
 | `atr20` | 7 days | deep run only, or MANDATORY REFRESH below | smith-signals |
 | `rsi14` | 7 days | deep run only, or MANDATORY REFRESH below | smith-signals |
 | `rel_strength_1m` | 7 days | deep run only, or MANDATORY REFRESH below | smith-signals |
+| `rel_strength_1m_peer` | 7 days | any mode — check-first, only the tickers `compute_buckets.json`'s `stale_peer_fallback_tickers` names (added 2026-09-07, closes a real gap: this override was previously recomputed from a fresh fetch on EVERY dispatch with no TTL gate at all — see `cmd_buckets`' `peer_benchmark_used` field) | smith-signals |
 | `ret_5d` | 3 days | free byproduct of the atr20/rsi14 refresh above (same daily bars) | smith-signals |
 | `betas` | 30 days | deep run only | smith-book |
 | `earnings_calendar` | 30 days | deep run only | smith-earnings |

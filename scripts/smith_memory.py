@@ -920,6 +920,33 @@ def _merge_signals(out, state, today, scanned_tickers=None, base_dir="."):
             c["benchmark_return_1m_pct"] = rel_raw["benchmark_return_1m_pct"]
         c["as_of"] = today
 
+    # rel_strength_1m_peer -- the peer_map-aware companion, added 2026-09-07. Before this cache
+    # existed, smith-signals recomputed the same BE/GEV/VRT-vs-XLU, MSFT/NBIS-vs-XLK override
+    # from a fresh fetch on EVERY dispatch (no TTL gate at all, quick or deep) because the
+    # compute layer had nowhere to persist the answer for cmd_buckets to reuse next run. Shape
+    # per ticker: {"rel_pp": float, "peer_etf": str}. Rejects (never guesses) a row whose
+    # peer_etf is missing or literally "SMH" -- that ticker belongs in the plain
+    # rel_strength_1m cache above, not here; this cache exists specifically for the tickers
+    # where SMH is the WRONG benchmark.
+    rel_peer_raw = out.get("rel_strength_1m_peer_updates") or {}
+    rel_peer_upd, rel_peer_rejected = {}, []
+    for tk, v in rel_peer_raw.items():
+        if not isinstance(v, dict):
+            rel_peer_rejected.append(tk)
+            continue
+        pp, etf = v.get("rel_pp"), v.get("peer_etf")
+        if isinstance(pp, (int, float)) and isinstance(etf, str) and etf and etf.upper() != "SMH":
+            rel_peer_upd[tk] = (pp, etf)
+        else:
+            rel_peer_rejected.append(tk)
+    if rel_peer_upd:
+        c = state["data_cache"].setdefault("rel_strength_1m_peer", {})
+        vp, pe = c.setdefault("values_pp", {}), c.setdefault("peer_etf", {})
+        for tk, (pp, etf) in rel_peer_upd.items():
+            vp[tk] = pp
+            pe[tk] = etf
+        c["as_of"] = today
+
     # wk52 -- 52-week high/low, added 2026-09-06. Feeds the pos-based buckets in cmd_buckets,
     # which were `deferred_pos_buckets` until this cache existed because nothing persisted a
     # 52-week range: smith-signals fetched it every run and it died with the run. Each entry
@@ -951,6 +978,8 @@ def _merge_signals(out, state, today, scanned_tickers=None, base_dir="."):
             "rsi14_updated": len(rsi_upd), "atr20_updated": len(atr_upd),
             "rel_strength_1m_updated": len(rel_upd),
             "rel_strength_1m_rejected": rel_rejected,
+            "rel_strength_1m_peer_updated": len(rel_peer_upd),
+            "rel_strength_1m_peer_rejected": sorted(rel_peer_rejected),
             "journal_new_added": added if jn else []}
 
 
@@ -1525,7 +1554,10 @@ AGENT_SLICES = {
                              "open_flags", "peer_map"],
                    # `buckets` added 2026-09-06: compute_buckets.json is now this agent's FIRST
                    # input, carrying the move arithmetic it used to derive itself.
-                   "cache": ["atr20"], "refs": ["journal", "buckets"], "holdings": "trim"},
+                   # `rel_strength_1m_peer` added 2026-09-07: task 9's cache-check-first
+                   # rewrite needs to see the CURRENT peer-cache entries to know which tickers
+                   # are actually stale before spending a fetch on one that isn't.
+                   "cache": ["atr20", "rel_strength_1m_peer"], "refs": ["journal", "buckets"], "holdings": "trim"},
     "thesis":     {"state": ["thesis", "sector_map", "news_watermark", "open_flags"],
                    "cache": ["etf_constituents", "earnings_facts"],
                    # Added 2026-09-07 -- this is the code-side half of the WAVES rewrite's
