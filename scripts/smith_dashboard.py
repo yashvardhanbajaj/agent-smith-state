@@ -208,8 +208,8 @@ def donut_fig(d):
         leg = ('<div class="donut-legend">' + "".join(
             f'<span><i style="background:{c}"></i>{esc(l)}</span>' for c, l in d["legend"])
             + "</div>")
-    return (f'<div class="donut-row">{d["svg"]}{leg}</div>'
-            f'<p class="note" style="margin-top:10px">{esc(d.get("note",""))}</p>')
+    return (f'<div class="viz"><div class="donut-row">{d["svg"]}{leg}</div>'
+            f'<p class="note" style="margin-top:10px">{esc(d.get("note",""))}</p></div>')
 
 
 def _find_matching_close(html, open_tag_end, tag):
