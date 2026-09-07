@@ -73,6 +73,17 @@ Form 4 filings directly from SEC EDGAR (same free, UA-declared curl path the res
 Only open-market P/S transactions count — grants, option exercises, gifts and tax-withholding
 dispositions are excluded (routine compensation mechanics, not a discretionary bet).
 
+**Consumer: smith-thesis, as an inline embed, not a ref file (added 2026-09-07).** This
+command's output is small and per-ticker — there is no AGENT_SLICES ref for it, and there
+should not be one; fold any `findings` you get for a ticker directly into that dispatch's
+inline context, the same way catalyst/quality/signals tails are already handed to thesis. When
+present, smith-thesis writes it into `evidence_for`/`evidence_against` with a
+`(src: SEC Form 4, as_of <today>)` provenance tag, same rule as any other quantitative claim —
+`insider_sell_into_rally` is `evidence_against`, `insider_buy_the_drawdown` is `evidence_for`.
+Running this and NOT handing the result to smith-thesis is the same "computed, never consumed"
+gap this codebase has already found and fixed twice this session (compute_bookcalc.json,
+compute_valuation.json before the OPTIONAL_REFS fix) — don't reintroduce it a third time.
+
 ## Institutional ownership (Form 13F) — NOT available yet
 
 FMP's `insiderTrades` and `form13F` tools both returned **ACCESS DENIED** live on this

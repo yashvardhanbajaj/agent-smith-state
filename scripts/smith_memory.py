@@ -1638,6 +1638,20 @@ REF_FILES = {
 }
 BASE_REF_FILES = {"lots": "lots.json"}
 
+# Refs whose PRODUCER is genuinely on-demand, not a WAVE-0/Wave-1 stage that runs every time --
+# a missing file here is the expected case, not a problem. Added 2026-09-07: cmd_slices'
+# missing-ref check has no such distinction before this, so "valuation" (an on-demand check
+# that runs on maybe 1 run in 50) would have reported MISSING on essentially every single run,
+# training the orchestrator (and the user reading "problems") to tune out that list as
+# permanently noisy -- the same alarm-fatigue risk this codebase's own G50/silence-shape
+# incidents exist to prevent. catalyst_tail is folded in for the same reason, found live in
+# the same audit that added "valuation": it is only conditionally dispatched (SKILL.md's
+# CATALYST trigger), so a run where catalyst didn't fire showed the identical false-alarm
+# MISSING line -- previously assessed as "cosmetic, not a bug", now actually fixed rather than
+# just noted. An optional ref that IS present still resolves into read_these_files exactly
+# like a mandatory one; only the missing case is treated differently.
+OPTIONAL_REFS = {"valuation", "catalyst_tail"}
+
 # Agents whose REAL input is the outside world, not a file. Their slice can be byte-identical to
 # last run's and they still have work to do, because news, prices and filings moved even when
 # state did not. NEVER skip these on an unchanged digest -- that is the difference between a
@@ -2010,8 +2024,11 @@ def cmd_slices(args):
             if path is None:
                 problems.append(f"smith-{agent}: unknown ref '{r}'")
             elif not os.path.exists(path):
-                problems.append(f"smith-{agent}: {os.path.basename(path)} MISSING -- run the "
-                                f"pipeline before rendering slices")
+                if r not in OPTIONAL_REFS:
+                    problems.append(f"smith-{agent}: {os.path.basename(path)} MISSING -- run the "
+                                    f"pipeline before rendering slices")
+                # else: silent by design -- an on-demand ref's absence is the expected case,
+                # not a problem to surface every run (see OPTIONAL_REFS above).
             else:
                 sl["read_these_files"][r] = path
         for sname in spec.get("shared", []):
