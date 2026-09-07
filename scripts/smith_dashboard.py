@@ -27,6 +27,7 @@ Usage:  smith_dashboard.py --base-dir DIR [--out dashboard.html]
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime, timedelta
@@ -193,6 +194,76 @@ def fig(d, title, sub=""):
             f'<div class="viz-note">{esc(d.get("note",""))}</div></div></section>')
 
 
+def _find_matching_close(html, open_tag_end, tag):
+    """Given the index right after an opening `<{tag} ...>`, scan forward tracking nesting
+    depth for that same tag name and return the index of the matching `</{tag}>`'s start.
+    Returns -1 if no match (malformed input). Depth-aware, unlike a naive "first closing tag
+    wins" regex -- needed because e.g. a panel's <div class="phead"> is not always flat (the
+    read/macro panel nests a <div class="pills"> of its own inside the header)."""
+    open_re = re.compile(rf'<{tag}\b[^>]*>')
+    close_re = re.compile(rf'</{tag}>')
+    pos, depth = open_tag_end, 1
+    while depth > 0:
+        nxt_open = open_re.search(html, pos)
+        nxt_close = close_re.search(html, pos)
+        if not nxt_close:
+            return -1
+        if nxt_open and nxt_open.start() < nxt_close.start():
+            depth += 1
+            pos = nxt_open.end()
+        else:
+            depth -= 1
+            pos = nxt_close.end()
+            if depth == 0:
+                return nxt_close.start()
+    return -1
+
+
+def _collapsible(html, default_open=False):
+    """Convert every top-level <section class="panel..."> block in `html` into a collapsible
+    <details class="panel..." [open]>, with its <div class="phead"> becoming <summary
+    class="phead">. Added 2026-09-07 for the redesign's information-hierarchy pass: the prior
+    layout put all 26 sections at the same visual weight, always expanded, which is what made
+    the page read as dense/undifferentiated. Rather than hand-editing 19 render_* functions this
+    session hasn't touched (each with its own hard-won bug-fix history -- see the CSS block's
+    own note on why those are left alone), this operates on their OUTPUT strings generically at
+    the call site in build(), so every function keeps emitting exactly the markup it always has
+    and build() alone decides what's open by default.
+
+    Depth-tracked, not a naive "first closing tag wins" regex -- a panel can nest other <div>s
+    (e.g. the read/macro panel's <div class="phead"> itself contains a <div class="pills">), and
+    a first-</div>-wins version silently produced UNBALANCED output on exactly that panel: caught
+    by an html.parser structural check before shipping, not by eyeballing the render.
+    """
+    open_attr = " open" if default_open else ""
+    out, pos = [], 0
+    sec_re = re.compile(r'<section class="panel([^"]*)">')
+    while True:
+        m = sec_re.search(html, pos)
+        if not m:
+            out.append(html[pos:])
+            break
+        out.append(html[pos:m.start()])
+        sec_close = _find_matching_close(html, m.end(), "section")
+        if sec_close == -1:  # malformed -- leave untouched rather than corrupt it further
+            out.append(html[m.start():])
+            break
+        inner = html[m.end():sec_close]
+        # swap this panel's own <div class="phead"> (there is exactly one, right at the top of
+        # `inner`) for <summary class="phead">, matching ITS true close by the same depth-aware
+        # scan -- not the first </div>, which may belong to something phead nests.
+        phead_m = re.search(r'<div class="phead">', inner)
+        if phead_m:
+            phead_close = _find_matching_close(inner, phead_m.end(), "div")
+            if phead_close != -1:
+                inner = (inner[:phead_m.start()] + '<summary class="phead">'
+                          + inner[phead_m.end():phead_close] + "</summary>"
+                          + inner[phead_close + len("</div>"):])
+        out.append(f'<details class="panel{m.group(1)}"{open_attr}>{inner}</details>')
+        pos = sec_close + len("</section>")
+    return "".join(out)
+
+
 def trim_lead(text, max_len=180):
     """First sentence (or a word-boundary-safe cut), plus the remainder for a
     <details> expansion. Returns (short, rest_or_empty).
@@ -222,113 +293,141 @@ def trim_lead(text, max_len=180):
 CSS = """
 *{box-sizing:border-box}
 .stack-badge{color:var(--ink-2)}
-.stack-badge.hi{color:#b04e72;font-weight:600}
+.stack-badge.hi{color:#c2688a;font-weight:600}
 .held-badge{display:inline-block;margin-left:.5rem;padding:.08rem .4rem;border-radius:3px;
   font-size:.72rem;font-weight:600;letter-spacing:.02em;
   background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
-/* ============ tokens ============ */
+
+/* ============ tokens -- redesigned 2026-09-07 =============================================
+   Full visual redesign (user: "still don't like how it looks... too dense... feels dated...
+   poor hierarchy... full redesign from scratch"). Every class name below stays IDENTICAL to
+   the prior design -- the 26 render_* functions that emit markup by class name are untouched,
+   deliberately: they carry ~20 documented, hard-won bug fixes (the .tw scroll-wrapper bug, the
+   display:grid-on-<summary> bug, the h2 .sub spacing bug, the truncation-period bug, etc.) and
+   rewriting that logic from scratch would risk reintroducing every one of them for a complaint
+   that was never about correctness. What changed is the token system, the type, the panel
+   chrome, and (in build(), below) the information hierarchy -- density and defaults, not data.
+
+   COLOR: a cool graphite ground (not pure black -- a picked neutral, not an inherited one) with
+   a desaturated slate-cyan accent for the Agent Smith "system" identity -- evokes precision
+   instrumentation without the literal-Matrix-green cliche. The warm copper --action stays: it
+   already reads correctly as "a human decision sits here" against a cool system palette, and a
+   second redesign pass losing that contrast would be a regression, not an improvement.
+   TYPE: Newsreader (a serif built for on-screen reading, variable optical size) carries section
+   heads and the narrative "voice" prose -- the committed, wealth-manager-briefing gravitas this
+   desk's own persona calls for, not a status-dump font. IBM Plex Sans carries body/UI/labels --
+   the same family as the Agent Smith architecture diagram, so the product family reads as one
+   thing. IBM Plex Mono carries every number, ticker and tabular figure, as before. */
 :root{
-  --ground:#f2f4f5; --surface:#ffffff; --surface-2:#f7f9f9;
-  --ink:#12171b; --ink-2:#48545c; --ink-3:#79868e;
-  --line:#dbe1e3; --line-soft:#e9edee;
-  --accent:#35586a; --accent-soft:#e4ecef; --accent-line:#b6cbd4;
-  --action:#8f5322; --action-soft:#f7ece2; --action-line:#e0bd9c;
-  --good:#1f7a4d; --good-soft:#e3f1e9;
-  --warn:#9c6f18; --warn-soft:#f8efd9;
-  --bad:#a83737;  --bad-soft:#f8e5e5;
-  --sans:-apple-system,"Segoe UI",system-ui,sans-serif;
-  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
-  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  --r:7px; --shadow:0 1px 2px rgba(18,23,27,.05),0 1px 10px rgba(18,23,27,.03);
+  --ground:#f4f5f4; --surface:#ffffff; --surface-2:#eceeed;
+  --ink:#14181a; --ink-2:#4c565b; --ink-3:#7c878c;
+  --line:#dbe0df; --line-soft:#e9edec;
+  --accent:#3d6b76; --accent-soft:#e2edee; --accent-line:#b3ccd0;
+  --action:#935a26; --action-soft:#f7ece0; --action-line:#e0c19c;
+  --good:#1f7a52; --good-soft:#e2f1e8;
+  --warn:#96700f; --warn-soft:#f7efd8;
+  --bad:#a13f37;  --bad-soft:#f7e5e2;
+  --sans:"IBM Plex Sans",-apple-system,"Segoe UI",system-ui,sans-serif;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(20,24,26,.04),0 2px 14px rgba(20,24,26,.04);
 }
 @media (prefers-color-scheme:dark){
   :root:where(:not([data-theme="light"])){
-    --ground:#0d1013; --surface:#161b1f; --surface-2:#1b2126;
-    --ink:#e6eaec; --ink-2:#a3b0b7; --ink-3:#6f7c84;
-    --line:#283036; --line-soft:#212930;
-    --accent:#82abbf; --accent-soft:#182831; --accent-line:#2d4653;
-    --action:#d1904f; --action-soft:#2b1e12; --action-line:#4d3620;
-    --good:#5cb98a; --good-soft:#12251c;
-    --warn:#d3a446; --warn-soft:#2a2211;
-    --bad:#d97676;  --bad-soft:#2b1717;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 1px 10px rgba(0,0,0,.2);
+    --ground:#0a0c0e; --surface:#15181b; --surface-2:#1b1f22;
+    --ink:#e7ebec; --ink-2:#a2acb1; --ink-3:#626c72;
+    --line:#262b2e; --line-soft:#1c2124;
+    --accent:#5fa0ae; --accent-soft:#15272b; --accent-line:#2b4a52;
+    --action:#c9853f; --action-soft:#2a1d10; --action-line:#4d3419;
+    --good:#4fa578; --good-soft:#10261a;
+    --warn:#cca738; --warn-soft:#2a2210;
+    --bad:#c46059;  --bad-soft:#2a1815;
+    --shadow:0 1px 2px rgba(0,0,0,.35),0 2px 16px rgba(0,0,0,.25);
   }
 }
 :root[data-theme="dark"]{
-  --ground:#0d1013; --surface:#161b1f; --surface-2:#1b2126;
-  --ink:#e6eaec; --ink-2:#a3b0b7; --ink-3:#6f7c84;
-  --line:#283036; --line-soft:#212930;
-  --accent:#82abbf; --accent-soft:#182831; --accent-line:#2d4653;
-  --action:#d1904f; --action-soft:#2b1e12; --action-line:#4d3620;
-  --good:#5cb98a; --good-soft:#12251c;
-  --warn:#d3a446; --warn-soft:#2a2211;
-  --bad:#d97676;  --bad-soft:#2b1717;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 1px 10px rgba(0,0,0,.2);
+  --ground:#0a0c0e; --surface:#15181b; --surface-2:#1b1f22;
+  --ink:#e7ebec; --ink-2:#a2acb1; --ink-3:#626c72;
+  --line:#262b2e; --line-soft:#1c2124;
+  --accent:#5fa0ae; --accent-soft:#15272b; --accent-line:#2b4a52;
+  --action:#c9853f; --action-soft:#2a1d10; --action-line:#4d3419;
+  --good:#4fa578; --good-soft:#10261a;
+  --warn:#cca738; --warn-soft:#2a2210;
+  --bad:#c46059;  --bad-soft:#2a1815;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 2px 16px rgba(0,0,0,.25);
 }
 
 body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
-  -webkit-font-smoothing:antialiased;line-height:1.5;font-size:15px}
-.wrap{max-width:1140px;margin:0 auto;padding:26px 20px 80px;display:flex;flex-direction:column;gap:26px}
-h1,h2{margin:0;text-wrap:balance;font-weight:640;letter-spacing:-.015em}
+  -webkit-font-smoothing:antialiased;line-height:1.55;font-size:14.5px}
+.wrap{max-width:900px;margin:0 auto;padding:34px 22px 90px;display:flex;flex-direction:column;gap:34px}
+h1,h2{margin:0;text-wrap:balance;font-weight:600;letter-spacing:-.01em;font-family:var(--serif)}
 p{margin:0}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.voice{font-family:var(--serif);font-size:15.5px;line-height:1.62;color:var(--ink-2)}
+.voice{font-family:var(--serif);font-size:16.5px;line-height:1.65;color:var(--ink-2)}
 .voice em{color:var(--ink);font-style:italic}
 .pos{color:var(--good)} .neg{color:var(--bad)}
 .col{display:flex;flex-direction:column}
 
-/* ============ masthead ============ */
-.mast{display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;justify-content:space-between;
-  padding-bottom:16px;border-bottom:2px solid var(--ink)}
-.mast h1{font-size:25px}
-.mast h1 span{color:var(--accent);font-weight:500}
-.stamp{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right;line-height:1.65}
+/* ============ masthead -- editorial, not a form header ============ */
+.mast{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;
+  padding-bottom:20px;border-bottom:1px solid var(--line)}
+.mast h1{font-size:30px;font-weight:560;letter-spacing:-.015em}
+.mast h1 span{color:var(--accent);font-weight:400;font-style:italic}
+.stamp{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-align:right;line-height:1.7;
+  letter-spacing:.01em}
 
-/* ============ status strip ============ */
-.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:1px;
-  background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.cell{background:var(--surface);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
-.cell .k{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
-.cell .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:19px;font-weight:600;letter-spacing:-.02em}
-.cell .s{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+/* ============ status strip -- the hero: bigger numerals, real air ============ */
+/* flex, not grid -- an auto-fit/minmax GRID reserves the same column tracks for every row, so
+   a trailing partial row (e.g. 7 cells at 5-per-row leaves 2 in row 2) shows the leftover
+   tracks as bare background: a visible empty box with nothing in it. Flex-wrap simply stops
+   placing items once a row is full and lets the last row be short, which is what this
+   variable-length cell list (5-8 cells depending on what data a run has) actually needs. */
+.strip{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);border:1px solid var(--line);
+  border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)}
+.cell{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:6px;
+  flex:1 1 150px;min-width:150px}
+.cell .k{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
+  font-family:var(--sans)}
+.cell .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:23px;font-weight:500;letter-spacing:-.02em}
+.cell .s{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
 .cell.flag{background:var(--bad-soft)} .cell.flag .v{color:var(--bad)}
 .cell.okc .v{color:var(--good)}
 .macro{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:16px}
-.macro .k{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
-.macro .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:18px;font-weight:600;letter-spacing:-.02em}
-.macro .s{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.macro .k{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.macro .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:17px;font-weight:500;letter-spacing:-.02em}
+.macro .s{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
 
 /* ============ panels ============ */
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow)}
 .phead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
-  padding:13px 17px;border-bottom:1px solid var(--line-soft)}
-.phead h2{font-size:14.5px}
-/* collapsible panel (added 2026-09-06, user request) -- a <summary class="phead"> reuses the
-   ordinary panel header's flex layout exactly (class selectors apply regardless of tag), so a
-   panel becomes collapsible by wrapping it in <details class="panel ..."><summary class="phead">
-   instead of <section class="panel"><div class="phead">. Only two things need overriding: the
-   generic details>summary rule elsewhere in this file (serif, 14px padding, "▸ " marker sized
-   for a section-level toggle) and the default marker itself, replaced with a small chevron that
-   matches the .clus-row expand affordance already used for cluster rows. */
-details.panel>summary{cursor:pointer;list-style:none;padding:13px 17px;font-family:var(--sans);
-  font-weight:640;font-size:14.5px}
+  padding:14px 18px;border-bottom:1px solid var(--line-soft)}
+.phead h2{font-size:16px;font-weight:560}
+/* collapsible panel -- a <summary class="phead"> reuses the ordinary panel header's flex layout
+   exactly (class selectors apply regardless of tag), so a panel becomes collapsible by wrapping
+   it in <details class="panel ..."><summary class="phead"> instead of
+   <section class="panel"><div class="phead">. build()'s _collapsible() helper performs exactly
+   this swap on a function's rendered output -- the redesign's information-hierarchy pass -- so
+   the 26 render_* functions above never need to know or care whether their panel ends up always
+   visible or tucked behind a click. */
+details.panel>summary{cursor:pointer;list-style:none;padding:14px 18px;font-family:var(--serif);
+  font-weight:560;font-size:16px;transition:background-color .12s}
+details.panel>summary:hover{background:var(--surface-2)}
 details.panel>summary::-webkit-details-marker{display:none}
-details.panel>summary::before{content:"▸  ";color:var(--ink-3);font-family:var(--sans);font-weight:400}
-details.panel[open]>summary::before{content:"▾  "}
-/* FIXED 2026-08-08 (user-reported: "Factor themesthe standing watch list..." ran together with
-   no space) -- .sub was used as a class on <span> throughout (h2 subtitles) AND on <td> (muted
-   table-cell text) but never had a CSS rule at all, so h2 subtitles inherited zero spacing and
-   ran directly into the heading text. Base rule mutes both contexts; the nested h2 override adds
-   the spacing that only makes sense next to a heading, without touching td.sub's table layout. */
-.sub{color:var(--ink-3)}
-h2 .sub{display:inline-block;margin-left:8px;font-family:var(--sans);font-weight:400;
+details.panel>summary::before{content:"›  ";color:var(--accent);font-family:var(--sans);font-weight:600;
+  display:inline-block;transition:transform .15s}
+details.panel[open]>summary::before{transform:rotate(90deg) translateX(1px)}
+/* .sub is used both on <span> (h2 subtitles) and <td> (muted table-cell text). */
+.sub{color:var(--ink-3);font-family:var(--sans)}
+h2 .sub{display:inline-block;margin-left:9px;font-family:var(--sans);font-weight:400;
   font-size:12px;letter-spacing:0;vertical-align:middle}
-.pbody{padding:17px;display:flex;flex-direction:column;gap:14px}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:26px;align-items:start}
+.pbody{padding:18px;display:flex;flex-direction:column;gap:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:22px;align-items:start}
 
 .act{border-color:var(--action-line);background:var(--action-soft)}
 .act .phead{border-bottom-color:var(--action-line)}
 .act .phead h2{color:var(--action)}
+details.panel.act>summary::before{color:var(--action)}
 
 .pill{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;
   letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:100px;
@@ -599,10 +698,13 @@ td.verd-flat{color:var(--ink-3)}
 .srow{display:grid;grid-template-columns:150px 1fr;gap:11px;align-items:baseline;padding:5px 0}
 .slab{font-size:11.5px;color:var(--ink-2)} .sch{display:flex;flex-wrap:wrap;gap:4px}
 
-/* ============ tiers / details (t3) ============ */
-.tier{margin-top:6px;display:flex;align-items:center;gap:13px}
-.tier h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-3);white-space:nowrap}
-.tier .ln{flex:1;height:1px;background:var(--line)}
+/* ============ tiers / details (t3) -- the primary wayfinding device on the page, restyled
+   editorial (was a small uppercase label + rule; now a real section break the eye catches
+   scrolling past, per the redesign's hierarchy pass) ============ */
+.tier{margin-top:4px;display:flex;align-items:baseline;gap:16px}
+.tier h2{font-family:var(--serif);font-size:20px;font-weight:500;font-style:italic;
+  color:var(--ink-2);white-space:nowrap;letter-spacing:0}
+.tier .ln{flex:1;height:1px;background:var(--line);transform:translateY(-4px)}
 .t3 .panel{padding:0}
 details{border-top:1px solid var(--line-soft)}
 details:first-of-type{border-top:none}
@@ -2508,6 +2610,10 @@ def build(base, out):
     H = []
     H.append(f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
              f'<meta name="viewport" content="width=device-width,initial-scale=1">'
+             f'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?'
+             f'family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,560;'
+             f'1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&'
+             f'family=IBM+Plex+Mono:wght@400;500;600&display=swap">'
              f'<title>Agent Smith - US Book</title><style>{CSS}{chart_css(base)}</style>'
              f'</head><body><div class="wrap">'
              # Always emitted empty on a freshly-built page (added 2026-08-25) -- sync-decisions
@@ -2526,50 +2632,70 @@ def build(base, out):
     # ---------------- status strip ----------------
     H.append(status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift, book_compute))
 
-    # ================= TIER: DECISIONS =================
+    # ================= TIER: DECISIONS (always visible -- redesign 2026-09-07) =================
+    # Only the three genuinely actionable panels stay always-expanded. Everything that used to
+    # sit in one flat, always-open list under this heading (11 sections) now sorts into
+    # SIGNALS & CONTEXT or BOOK & RISK below, collapsed by default via _collapsible() -- the
+    # direct fix for "too dense... poor hierarchy": the reader's eye used to have to do the
+    # triage this heading now does for them.
     H.append('<div class="tier"><h2>Decisions</h2><div class="ln"></div></div>')
 
     H.extend(_render_accepted_awaiting_execution(props))
 
     H.extend(_render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, cash_band))
 
-    H.extend(_render_factor_catalysts(state))
+    # ================= TIER: SIGNALS & CONTEXT =================
+    # What's feeding the decisions above -- worth a look, not worth permanent screen space.
+    # Factor catalysts is the one exception that opens itself: a live THREAT this run is exactly
+    # the kind of thing a collapsed-by-default panel would wrongly bury.
+    H.append('<div class="tier"><h2>Signals &amp; context</h2><div class="ln"></div></div>')
 
-    H.extend(_render_trade_triggers(triggers))
+    live_catalysts = [c for c in state.get("factor_catalysts", [])
+                      if not smith_risk.catalyst_is_suppressed(state, c.get("headline"), c.get("date"))]
+    has_threat = any(c.get("direction") == "threat" for c in live_catalysts)
+    H.extend(_collapsible(h, has_threat) for h in _render_factor_catalysts(state))
 
-    H.extend(_render_factor_themes(state))
+    H.extend(_collapsible(h, True) for h in _render_the_read_and_macro(narr, market_inputs, state, book_compute))
 
-    H.extend(_render_diversifier_bench(state))
+    H.extend(_collapsible(h) for h in _render_trade_triggers(triggers))
 
-    H.extend(_render_rotation_analysis(rotation))
+    H.extend(_render_factor_themes(state))  # already its own collapsed <details>, untouched
 
-    H.extend(_render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map))
+    H.extend(_collapsible(h) for h in _render_rotation_analysis(rotation))
 
-    H.extend(_render_stop_loss_efficacy(stops_data, sector_map, list(policy.get("cluster_targets", {}).keys())))
+    H.extend(_collapsible(h) for h in _render_diversifier_bench(state))
 
-    H.extend(_render_the_read_and_macro(narr, market_inputs, state, book_compute))
+    H.extend(_collapsible(h) for h in _render_watchlist_setups(state))
 
-    H.extend(_render_sentiment_session_grid(state, market_inputs))
+    H.extend(_collapsible(h) for h in _render_sentiment_session_grid(state, market_inputs))
 
-    H.extend(_render_week_ahead(state, ts))
+    H.extend(_collapsible(h) for h in _render_week_ahead(state, ts))
 
-    H.extend(_render_watchlist_setups(state))
-
-    # ================= TIER: BOOK COMPOSITION =================
-    H.append('<div class="tier"><h2>Book composition</h2><div class="ln"></div></div>')
+    # ================= TIER: BOOK & RISK =================
+    # Allocation and exposure detail -- glance at the treemap, drill into the rest on demand.
+    # Clusters and stop-loss efficacy moved here from their previous homes (clusters sat, oddly,
+    # in the old flat DECISIONS list; stop-loss efficacy too) -- both are book-composition/risk
+    # questions, not decisions themselves, and belong with the rest of this tier.
+    H.append('<div class="tier"><h2>Book &amp; risk</h2><div class="ln"></div></div>')
 
     # FIXED 2026-08-08: fig()'s `sub` param is passed through esc() internally (see its
     # definition above), so it needs the literal "·" character here, not the "&middot;" HTML
     # entity -- esc() would escape the "&" a second time into the literal text "&middot;".
-    H.append(fig(ch.get("treemap"), "Allocation treemap",
-                 "size = weight · color = cluster · red outline = over risk cap"))
+    H.append(_collapsible(fig(ch.get("treemap"), "Allocation treemap",
+                 "size = weight · color = cluster · red outline = over risk cap"), True))
+
+    H.extend(_collapsible(h) for h in
+             _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map))
 
     # -- de-risk queue (moved 2026-08-07: swapped position with clusters, per user request) --
-    H.extend(_render_derisk_queue(derisk, state))
+    H.extend(_collapsible(h) for h in _render_derisk_queue(derisk, state))
 
-    H.extend(_render_risk_cap_and_ltcg(risk, book_compute, base))
+    H.extend(_collapsible(h) for h in _render_risk_cap_and_ltcg(risk, book_compute, base))
 
-    H.extend(_render_positions_table(state, risk_by_ticker, sector_map, risk, book_compute,
+    H.extend(_collapsible(h) for h in
+             _render_stop_loss_efficacy(stops_data, sector_map, list(policy.get("cluster_targets", {}).keys())))
+
+    H.extend(_collapsible(h) for h in _render_positions_table(state, risk_by_ticker, sector_map, risk, book_compute,
                                        list(policy.get("cluster_targets", {}).keys())))
 
     # ================= TIER: DIAGNOSTICS =================
