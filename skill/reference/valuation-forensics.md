@@ -1,10 +1,15 @@
 # Valuation & forensic checks (added 2026-09-07)
 
-On-demand / monthly, like smith-quality's cadence — NOT a mandatory stage on every run. Load
-this file when the user asks for a "valuation check", "DCF", "is this stretched", or on
-smith-quality's monthly deep review (first deep review of the calendar month, same trigger it
-already uses for the PAT-vs-OCF/dilution/accruals audit — bundle this with that dispatch rather
-than adding a second monthly round-trip).
+Two different cadences, do not conflate them:
+- **DCF / ROIC-WACC / Beneish / Altman** — on-demand only. Load this file when the user asks
+  for a "valuation check", "DCF", "is this stretched", or smith-thesis's own review surfaces a
+  name whose price looks disconnected from its fundamentals. FMP-fetch cost per ticker is why
+  this stays on-demand rather than cadence-wired — see the deep-mode-dispatch.md VALUATION-CHECK
+  trigger for the full reasoning.
+- **Form 4 insider-cluster** — runs automatically alongside every monthly `smith-quality`
+  dispatch (the SECOND deep review of the calendar month — see deep-mode-dispatch.md's
+  QUALITY-CHECK trigger), because it's genuinely free (raw SEC EDGAR, no plan tier) and doesn't
+  carry the same cost tradeoff. It can also be run standalone on an explicit request.
 
 ## What it answers that nothing else in this codebase does
 
@@ -59,7 +64,12 @@ than adding a second monthly round-trip).
    "strategist"]` already ref it (added 2026-09-07); it reports MISSING on every run this
    wasn't run on, by design, same as `catalyst_tail` on a run catalyst didn't dispatch.
 
-## Insider transactions (Form 4) — free, works today
+## Insider transactions (Form 4) — free, runs monthly automatically
+
+**Dispatched automatically** on the same run `smith-quality` runs on (deep-mode-dispatch.md's
+QUALITY-CHECK trigger, second deep review of the month) — the orchestrator runs this itself,
+same top-5-by-weight ticker list, before or alongside dispatching smith-quality; not something
+smith-quality or any sub-agent invokes itself. Also runnable standalone on request.
 
 `python3 scripts/smith_edgar.py insider-cluster --ticker <T> --price-usd <p>
 --wk52-high-usd <h> --drawdown-from-high-pct <d>` fetches and parses the issuer's own recent

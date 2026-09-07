@@ -119,15 +119,39 @@ so: `quality_read` is declared `escalate` at 35 days, so a genuinely missed mont
 `validate` defect rather than a silence. That is the intended safety net and the reason this
 stagger is safe to make.
 
+**INSIDER-CLUSTER runs alongside QUALITY-CHECK (added 2026-09-07).** Whenever the test above
+dispatches `smith-quality`, ALSO run `smith_edgar.py insider-cluster` for the same ticker list
+(top 5 by weight, monthly cadence — same SCOPE line smith-quality already uses). Unlike the
+FMP-gated valuation checks below, this is genuinely free — one curl-based EDGAR fetch per
+ticker, no plan tier, no per-ticker cost to weigh against the cycle/quality stagger this section
+exists to protect. For each ticker:
+
+```
+python3 scripts/smith_edgar.py insider-cluster --ticker <T> \
+  --price-usd <live price from holdings.json> \
+  --wk52-high-usd <data_cache.wk52.<T>.high> \
+  --drawdown-from-high-pct <(price - wk52.high) / wk52.high * 100>
+```
+
+`data_cache.wk52` is already cached (smith-signals maintains it) — no extra fetch to get the
+price context. Fold any `findings` into smith-thesis's dispatch as documented in
+`reference/valuation-forensics.md`'s "Consumer: smith-thesis" note — this is now the SAME run
+smith-thesis is dispatched on (Wave 2, after quality's Wave-1 tail lands), so the finding is
+available same-run, not held over. A ticker missing `data_cache.wk52` (name too new to have a
+52-week range yet) still gets its Form 4 transactions fetched and its distinct-seller/buyer
+count reported, just with the price-dependent rally/drawdown classification skipped and
+data_quality naming why — never guess a 52-week high to force the classification through.
+
 ## VALUATION-CHECK trigger (added 2026-09-07)
-NOT dispatched automatically by cadence — it is FMP-fetch-cost per ticker, on top of quality's
-own cost, and stacking it onto the quality-check run would repeat exactly the token-spike
-mistake the stagger above exists to prevent. Run it only on an explicit "valuation check", "is
-this stretched", "DCF" request, or when smith-thesis's own review surfaces a name whose price
-action looks disconnected from its fundamentals and a reverse-DCF read would settle it. Full
-procedure, the FMP fields to pull, and the free (no plan tier needed) Form 4 insider-cluster
-check → `reference/valuation-forensics.md`. Form 13F institutional-flow detection logic exists
-but has no free or currently-licensed data source — do not attempt it, say so.
+The DCF/ROIC-WACC/Beneish/Altman checks — NOT the insider-cluster check above, which is cadence-
+wired separately for the reason stated there (free vs FMP-metered) — are NOT dispatched
+automatically by cadence — it is FMP-fetch-cost per ticker, on top of quality's own cost, and
+stacking it onto the quality-check run would repeat exactly the token-spike mistake the stagger
+above exists to prevent. Run these only on an explicit "valuation check", "is this stretched",
+"DCF" request, or when smith-thesis's own review surfaces a name whose price action looks
+disconnected from its fundamentals and a reverse-DCF read would settle it. Full procedure, the
+FMP fields to pull → `reference/valuation-forensics.md`. Form 13F institutional-flow detection
+logic exists but has no free or currently-licensed data source — do not attempt it, say so.
 
 ## DEEP roster confirmation
 Before moving to Stage 2 on a DEEP run, confirm out loud in this exact checklist form: "Deep run
