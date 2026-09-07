@@ -2645,9 +2645,18 @@ def build(base, out):
     H.extend(_render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, cash_band))
 
     # ================= TIER: SIGNALS & CONTEXT =================
-    # What's feeding the decisions above -- worth a look, not worth permanent screen space.
-    # Factor catalysts is the one exception that opens itself: a live THREAT this run is exactly
-    # the kind of thing a collapsed-by-default panel would wrongly bury.
+    # CUT DOWN HARD (2026-09-07, user: "don't just use all the sections as is... keep high
+    # priority things only"). This tier used to carry 9 sections; now 3. Cut: trade triggers
+    # (meta-commentary on the proposal engine, not itself a decision input -- what got proposed
+    # already shows in Ideas), factor themes (a slow-moving background watchlist), diversifier
+    # bench (exploratory, nothing here is held), rotation analysis (the same rotation pairs
+    # already render as cards inside Ideas), watchlist setups (exploratory, not held), sentiment
+    # gauge + intraday/international session (context that doesn't change what to do today).
+    # Kept: factor catalysts (real, dated, sourced news -- the one thing here that can actually
+    # invalidate a thesis), the read + macro (short, three sentences), week ahead (event-risk
+    # planning for a concentrated single-factor book). The render_* functions for everything cut
+    # stay defined below, unused -- restoring one is a one-line change, not a rewrite, if any of
+    # this turns out to be missed.
     H.append('<div class="tier"><h2>Signals &amp; context</h2><div class="ln"></div></div>')
 
     live_catalysts = [c for c in state.get("factor_catalysts", [])
@@ -2657,25 +2666,12 @@ def build(base, out):
 
     H.extend(_collapsible(h, True) for h in _render_the_read_and_macro(narr, market_inputs, state, book_compute))
 
-    H.extend(_collapsible(h) for h in _render_trade_triggers(triggers))
-
-    H.extend(_render_factor_themes(state))  # already its own collapsed <details>, untouched
-
-    H.extend(_collapsible(h) for h in _render_rotation_analysis(rotation))
-
-    H.extend(_collapsible(h) for h in _render_diversifier_bench(state))
-
-    H.extend(_collapsible(h) for h in _render_watchlist_setups(state))
-
-    H.extend(_collapsible(h) for h in _render_sentiment_session_grid(state, market_inputs))
-
     H.extend(_collapsible(h) for h in _render_week_ahead(state, ts))
 
     # ================= TIER: BOOK & RISK =================
     # Allocation and exposure detail -- glance at the treemap, drill into the rest on demand.
-    # Clusters and stop-loss efficacy moved here from their previous homes (clusters sat, oddly,
-    # in the old flat DECISIONS list; stop-loss efficacy too) -- both are book-composition/risk
-    # questions, not decisions themselves, and belong with the rest of this tier.
+    # Cut here (same pass): stop-loss efficacy (a backward-looking self-assessment of the stop
+    # discipline, not something that changes today's decisions).
     H.append('<div class="tier"><h2>Book &amp; risk</h2><div class="ln"></div></div>')
 
     # FIXED 2026-08-08: fig()'s `sub` param is passed through esc() internally (see its
@@ -2692,33 +2688,20 @@ def build(base, out):
 
     H.extend(_collapsible(h) for h in _render_risk_cap_and_ltcg(risk, book_compute, base))
 
-    H.extend(_collapsible(h) for h in
-             _render_stop_loss_efficacy(stops_data, sector_map, list(policy.get("cluster_targets", {}).keys())))
-
     H.extend(_collapsible(h) for h in _render_positions_table(state, risk_by_ticker, sector_map, risk, book_compute,
                                        list(policy.get("cluster_targets", {}).keys())))
 
-    # ================= TIER: DIAGNOSTICS =================
-    H.append('<div class="tier"><h2>Diagnostics</h2><div class="ln"></div></div>')
-    H.append('<div class="t3">')
-
-    H.extend(_render_thesis_map(state, held_tickers, sector_map, thesis_status, thesis_text, thesis_evidence))
-
-    H.extend(_render_signal_history(state, held_tickers))
-
-    H.extend(_render_open_gaps(state))
-
-    H.extend(_render_retired_recent(props))
-
-    H.extend(_render_execution_log(trades_data))
-
-    H.extend(_render_data_quality(state, book_compute, risk, drift, derisk))
-
-    H.extend(_render_self_learning(base))
-
-    H.append('</div>')  # /t3
-
-    H.extend(_render_historical_charts(ch, policy))
+    # ================= DIAGNOSTICS -- REMOVED (2026-09-07, user request) =====================
+    # Cut entirely, not collapsed: thesis map, signal history, open data gaps, recently
+    # auto-retired, execution log, data quality caveats, self-learning. All were audit-trail /
+    # debug-style detail -- useful for investigating something specific, never for deciding what
+    # to do today, and their prose was a large share of the page's total text. Historical charts
+    # (equity curve, drawdown, benchmark, weights) survive, folded into Book & risk below --
+    # visual and glanceable, not diagnostic prose, so they earn their place on a trimmed page.
+    # The render_* functions for every cut section stay defined below, unused; the trades.json /
+    # base-dir loads that fed only cut sections are left in place too rather than half-threading
+    # their removal through this function's top -- both are cheap, inert, and easy to wire back.
+    H.extend(_collapsible(h, True) for h in _render_historical_charts(ch, policy))
 
     # ---------------- footer ----------------
     confirm_flags = [f for f in state.get("open_flags", [])
