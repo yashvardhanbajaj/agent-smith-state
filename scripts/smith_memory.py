@@ -109,6 +109,9 @@ TERMINAL_PROPOSAL_STATUSES = ("superseded", "auto_retired", "dismissed_by_user",
                               "executed", "fulfilled", "filled")
 
 def _archive_load(path):
+    # default=None returns None on a first-ever archive write (smith_core._NO_DEFAULT); the
+    # isinstance test below then seeds the documented shape. Before the 2026-09-08 load_json
+    # fix this raised instead, so the very first eviction into a new archive crashed.
     d = load_json(path, default=None)
     if not isinstance(d, dict):
         d = {"schema_version": 1,
@@ -258,10 +261,11 @@ def cmd_compact(args):
     journal_writes = {}
     for fname, cfg in STANDALONE_JOURNAL_RETENTION.items():
         fpath = os.path.join(base, fname)
-        # load_json's `default` param only kicks in when truthy (`if default is not None`
-        # reads as "was a default given", but `None` itself fails that test and falls through
-        # to raise) -- pass {} so a missing file (learning.json doesn't exist until Phase 0's
-        # smith_learning.py creates it) degrades to "nothing to compact" instead of a crash.
+        # `default={}` here is deliberate and outlives the 2026-09-08 load_json fix (see the
+        # _NO_DEFAULT sentinel in smith_core): an absent file and an existing-but-empty one
+        # must take the same "nothing to compact" path, which `{}` + the emptiness test below
+        # gives and `default=None` + an `is None` test would not. learning.json in particular
+        # does not exist until Phase 0's smith_learning.py creates it.
         raw = load_json(fpath, default={})
         if not raw:
             continue
