@@ -1,0 +1,58 @@
+{
+  "mode": "deep",
+  "today": "2026-09-08",
+  "market_session": "pre-open",
+  "gate_classification": "AMBIGUOUS",
+  "macro": {
+    "usdinr": 94.728,
+    "us10y": 4.784,
+    "vix": 15.69,
+    "dxy": 98.954,
+    "spx": 7718.6,
+    "ndx": 26506.99,
+    "smh": 567.01,
+    "es_f": 7696.5,
+    "nq_f": 29565.5
+  },
+  "usdinr": 94.728,
+  "known_gaps": [
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    },
+    {
+      "id": "G86",
+      "status": "partially_closed",
+      "gap": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are there"
+    },
+    {
+      "id": "G85",
+      "status": "partially_closed",
+      "gap": "SHADOW-SCORED TRIGGER PROPOSALS ARE STRUCTURALLY EXEMPT FROM CONDITION-BASED AUTO-RETIREMENT. Any proposal whose trigger_type is a shadow trigger (profit_ratchet, scale_out_ladder) is written with retires_when = 'n/a -- shadow-scored, track"
+    },
+    {
+      "id": "G82",
+      "status": "open",
+      "gap": "BX (Blackstone) was re-entered 2026-08-21 (date corrected 2026-09-07 via the actual INDmoney confirmation email, see G83 -- this entry originally said 08-24, which was wrong) (10sh, 3.67% weight) after a full exit on 2026-08-17. smith-thesi"
+    },
+    {
+      "id": "G90",
+      "status": "open",
+      "gap": "FMP plan tier blocks `statements` (key-metrics/financial-scores) for this book's actual holdings by a per-symbol coverage limit, not a blanket endpoint permission as previously assumed -- NVDA worked in isolated testing, but all 5 of this r"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "agent": "smith-book",
+  "agent_key": "book",
+  "output_file": "runs/2026-09-08-0752/smith-book-output.md",
+  "holdings_path": "runs/2026-09-08-0752/holdings.json",
+  "read_these_files": {
+    "data_cache.betas": "/Users/yb/Claude/AgentSmith/runs/2026-09-08-0752/shared/data_cache_betas.6267fd2f.json",
+    "book": "/Users/yb/Claude/AgentSmith/runs/2026-09-08-0752/compute_book.json",
+    "lots": "/Users/yb/Claude/AgentSmith/lots.json",
+    "bookcalc": "/Users/yb/Claude/AgentSmith/runs/2026-09-08-0752/compute_bookcalc.json"
+  },
+  "_lots_digest": "8ec9f9205c83",
+  "inputs_digest": "58a2bf3181bd"
+}
