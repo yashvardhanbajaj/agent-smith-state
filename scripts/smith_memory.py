@@ -1277,6 +1277,57 @@ def _merge_quality(out, state, today):
             "force_thesis_review": len(ftr), "financials_cache_updated": len(fin_updates)}
 
 
+def _merge_cluster(out, state, today, cluster_name=None):
+    """Fold ONE cluster specialist's tail into state.cluster_ladders[<cluster>].
+
+    PER-CLUSTER, never wholesale. Up to LADDER_MAX_DISPATCH clusters are refreshed per run and
+    the rest keep the ladder they already have -- replacing the whole map with one agent's
+    answer would silently blank every cluster the round-robin did not reach this run, which is
+    the exact shape of the archived-on-exit / re-derived-on-entry cluster-name incident.
+
+    `confidence` is load-bearing and is written verbatim from the agent, with one exception:
+    a cluster whose own track record has gone below coin-flip over a real sample is FORCED to
+    `low` here, which removes its trigger authority. The agent does not get to grade its own
+    homework. See _apply_ladder_track_record.
+    """
+    cname = out.get("cluster") or cluster_name
+    if not cname:
+        return {"merged": False, "reason": "tail carries no `cluster` field -- cannot place it"}
+    ranking = out.get("ranking") or []
+    # Read-only until the tail is known good -- a refused merge must leave state byte-identical,
+    # not quietly create the key it declined to write into.
+    prior = (state.get("cluster_ladders") or {}).get(cname) or {}
+    entry = {
+        "as_of": today,
+        "cluster_thesis": out.get("cluster_thesis"),
+        "margin_pool": out.get("margin_pool"),
+        "ranking": ranking,
+        "leader": out.get("leader"),
+        "laggard": out.get("laggard"),
+        "confidence": out.get("confidence"),
+        "redundant_pairs": out.get("redundant_pairs") or [],
+        "bench": out.get("bench") or [],
+        "reorder_when": out.get("reorder_when") or [],
+        "catalysts": out.get("catalysts") or [],
+        # Carried forward, never rewritten by the agent -- the score of its PREVIOUS calls.
+        "track_record": prior.get("track_record") or [],
+    }
+    # A ladder with no ordering is not a ladder. Persisting one would hand the rotation trigger
+    # a `leader`/`laggard` pair with nothing behind it, which is worse than having no ladder at
+    # all because the trigger's freshness gate would treat it as a real answer.
+    if len(ranking) < 2 or not entry["leader"] or not entry["laggard"]:
+        return {"merged": False, "cluster": cname,
+                "reason": f"tail carries {len(ranking)} ranked name(s) and "
+                          f"leader={entry['leader']!r}/laggard={entry['laggard']!r} -- "
+                          f"not a ladder; prior entry left intact"}
+    state.setdefault("cluster_ladders", {})[cname] = entry
+    state["cluster_ladders_as_of"] = today
+    state.setdefault("cluster_scan_cursor", {})[cname] = today
+    return {"merged": True, "cluster": cname, "ranked": len(ranking),
+            "leader": entry["leader"], "laggard": entry["laggard"],
+            "confidence": entry["confidence"]}
+
+
 def _merge_strategist(out, state, today):
     """Persist the strategist's stress table (added 2026-08-31).
 
@@ -1381,6 +1432,8 @@ MERGE_RULES = {
     "quality": _merge_quality,
     "strategist": _merge_strategist,
     "tax": _merge_tax,
+    # Reached through the cluster_<slug> prefix, never by that literal key -- see the merge loop.
+    "cluster": _merge_cluster,
 }
 
 
@@ -1433,13 +1486,20 @@ def cmd_merge_tails(args):
     state.setdefault("thesis", {})
 
     today = args.today or date.today().isoformat()
-    requested = args.agents.split(",") if args.agents else list(MERGE_RULES)
+    # The bare "cluster" key is a TEMPLATE, not a dispatchable agent -- there is never an
+    # out_cluster.json. When --agents is omitted, discover the real cluster tails on disk.
+    requested = args.agents.split(",") if args.agents else (
+        [a for a in MERGE_RULES if a != "cluster"] +
+        sorted(f[4:-5] for f in os.listdir(args.run_dir)
+               if f.startswith("out_" + CLUSTER_AGENT_PREFIX) and f.endswith(".json")))
 
     results = {}
     skipped_no_file = []
     skipped_no_rule = []
     for agent in requested:
-        if agent not in MERGE_RULES:
+        # cluster_<slug> keys all resolve to the one _merge_cluster rule (see resolve_agent).
+        rule = MERGE_RULES.get("cluster") if is_cluster_agent(agent) else MERGE_RULES.get(agent)
+        if rule is None:
             skipped_no_rule.append(agent)
             continue
         out_path = os.path.join(args.run_dir, f"out_{agent}.json")
@@ -1452,7 +1512,13 @@ def cmd_merge_tails(args):
             holdings = load_json(os.path.join(args.run_dir, "holdings.json"), default={})
             extra["scanned_tickers"] = [h["ticker"] for h in holdings.get("holdings_inr", [])]
             extra["base_dir"] = args.base_dir
-        results[agent] = MERGE_RULES[agent](out, state, today, **extra)
+        if is_cluster_agent(agent):
+            # Fall back to the slice's own cluster_name when the tail omits it -- the slice is
+            # what TOLD the agent which cluster it was working on, so it is authoritative, and
+            # a dropped field must not silently misfile a ladder onto another cluster.
+            sl = load_json(os.path.join(args.run_dir, f"slice_{agent}.json"), default={})
+            extra["cluster_name"] = sl.get("cluster_name")
+        results[agent] = rule(out, state, today, **extra)
         for key in MERGE_STAMPS.get(agent, []):
             state[f"{key}_as_of"] = today
 
@@ -1734,6 +1800,26 @@ AGENT_SLICES = {
                    "holdings": "full"},
     "ledger":     {"state": [], "cache": ["ticker_map"], "refs": ["book", "lots"],
                    "holdings": "full"},
+    # ONE TEMPLATE, N DISPATCHES (added 2026-09-08). Cluster specialists are dispatched under
+    # pseudo-agent keys -- cluster_semis, cluster_optics, cluster_memory -- so their slices and
+    # tails do not collide, but they all resolve to THIS one entry and all run the single
+    # smith-cluster.md agent. Seven per-cluster agent files would drift apart and each would
+    # re-derive the shared output contract; the cluster-specific knowledge lives in
+    # policy.cluster_playbooks instead, as data, editable without touching a prompt.
+    # See _resolve_agent_spec for the prefix resolution.
+    # No "sector_map": cluster_ladder_row.members already IS this cluster's membership, and the
+    # whole-book map would be filtered to held names and add nothing. `thesis` is here only so
+    # the agent can report thesis_tensions -- a ladder rank that contradicts a per-name verdict.
+    "cluster":    {"state": ["thesis", "cluster_ladders", "open_flags"],
+                   "cache": ["atr20", "earnings_calendar", "analyst_targets", "earnings_facts"],
+                   # `ladder` is this agent's FIRST input: the deterministic ranking arithmetic
+                   # (rel_intra_pp, dispersion, redundancy candidates, cluster room) it must not
+                   # re-derive. The Wave-1 tails are the judgment it reasons ON TOP of -- a
+                   # cluster ladder that ignores this run's catalysts is a price ranking wearing
+                   # a fundamental costume.
+                   "refs": ["ladder", "risk", "drift", "catalyst_tail", "signals_tail",
+                            "quality_tail", "earnings_tail"],
+                   "holdings": "trim", "shared": ["hbm_tracker"]},
     "strategist": {"state": ["thesis", "sector_map", "preferences", "open_flags"], "cache": [],
                    # "crosscheck" added 2026-09-07 -- crosscheck now runs after WAVE 2 (see
                    # cmd_crosscheck's docstring), specifically so its findings reach the
@@ -1767,7 +1853,9 @@ REF_FILES = {
     # code-guaranteed instead of orchestrator hand-assembly: AGENT_SLICES["thesis"]/["cycle"]
     # below now actually reference these paths.
     "catalyst_tail": "out_catalyst.json", "quality_tail": "out_quality.json",
-    "signals_tail": "out_signals.json",
+    "signals_tail": "out_signals.json", "earnings_tail": "out_earnings.json",
+    # compute_ladder.json (added 2026-09-08) -- the deterministic half of the cluster ladder.
+    "ladder": "compute_ladder.json",
     # macro_tail (added 2026-09-07): smith-strategist.md line 72 documents its stress table as
     # "anchored to smith-macro's live regime read" but AGENT_SLICES["strategist"] had no ref for
     # it -- the orchestrator had to hand-paste smith-macro's tail into the strategist dispatch
@@ -1786,6 +1874,39 @@ REF_FILES = {
 }
 BASE_REF_FILES = {"lots": "lots.json"}
 
+# ---------------------------------------------------------------------------
+# PSEUDO-AGENT KEYS (added 2026-09-08)
+# ---------------------------------------------------------------------------
+# A cluster specialist is dispatched once per cluster in the same run, so it needs a distinct
+# key per dispatch (slice_cluster_semis.json, out_cluster_optics.json) while running ONE agent
+# definition. `cluster_<slug>` is that key: everything file-scoped uses the full key, everything
+# prompt-scoped resolves to the shared template and to smith-cluster.md.
+#
+# Kept as a prefix convention rather than a registry deliberately -- the set of clusters is
+# state.sector_map's business, changes whenever the book does, and a hard-coded roster here
+# would silently make a newly-created cluster undispatchable.
+CLUSTER_AGENT_PREFIX = "cluster_"
+
+
+def is_cluster_agent(agent):
+    return bool(agent) and agent.startswith(CLUSTER_AGENT_PREFIX)
+
+
+def _skip_key(agent):
+    """The key EXTERNAL_READERS / NEVER_SKIP are tested against. Every cluster_* dispatch is an
+    external reader -- its real input is filings, product news and qualification announcements,
+    which move when no file in the run dir does -- so it must resolve to the template name, not
+    to its own namespaced key, or the never-skip protection would silently not apply to it."""
+    return "cluster" if is_cluster_agent(agent) else agent
+
+
+def resolve_agent(agent):
+    """(slice spec, agent name for the prompt/definition). Any cluster_<slug> key resolves to
+    the one shared "cluster" template; everything else is itself."""
+    if is_cluster_agent(agent):
+        return AGENT_SLICES.get("cluster"), "smith-cluster"
+    return AGENT_SLICES.get(agent), f"smith-{agent}"
+
 # Refs whose PRODUCER is genuinely on-demand, not a WAVE-0/Wave-1 stage that runs every time --
 # a missing file here is the expected case, not a problem. Added 2026-09-07: cmd_slices'
 # missing-ref check has no such distinction before this, so "valuation" (an on-demand check
@@ -1798,14 +1919,18 @@ BASE_REF_FILES = {"lots": "lots.json"}
 # MISSING line -- previously assessed as "cosmetic, not a bug", now actually fixed rather than
 # just noted. An optional ref that IS present still resolves into read_these_files exactly
 # like a mandatory one; only the missing case is treated differently.
-OPTIONAL_REFS = {"valuation", "catalyst_tail"}
+# quality_tail / earnings_tail / signals_tail added 2026-09-08 with the cluster agent: quality
+# is monthly, earnings is dispatched only near a print, and signals does not run on every mode.
+# A cluster slice refs all three deliberately (they are the judgment it reasons on top of) and
+# would otherwise report MISSING on most runs -- the same false-alarm class as `valuation`.
+OPTIONAL_REFS = {"valuation", "catalyst_tail", "quality_tail", "earnings_tail", "signals_tail"}
 
 # Agents whose REAL input is the outside world, not a file. Their slice can be byte-identical to
 # last run's and they still have work to do, because news, prices and filings moved even when
 # state did not. NEVER skip these on an unchanged digest -- that is the difference between a
 # genuine saving and silently going blind.
 EXTERNAL_READERS = {"signals", "thesis", "watchlist", "catalyst", "scout", "macro",
-                    "earnings", "cycle", "quality"}
+                    "earnings", "cycle", "quality", "cluster"}
 # NEVER_SKIP covers a second, subtler case: agents whose true inputs are NOT VISIBLE in their
 # slice, so the digest cannot speak for them. smith-strategist is the example -- it reasons over
 # the Stage-1 JSON tails, which arrive inline in its prompt and never touch its slice file. Its
@@ -1841,6 +1966,12 @@ AGENT_DOMAIN = {
     "macro": "macro", "scout": "session",
     "book": "holdings", "ledger": "holdings", "tax": "lots_trims", "rebound": "session",
     "strategist": "always",
+    # "cluster" (added 2026-09-08) is the TEMPLATE key every cluster_<slug> dispatch resolves
+    # to via _skip_key. Its domain is `news`: a substitution ladder is reordered by
+    # qualification announcements, product-transition timing and margin-pool evidence, none of
+    # which move a file in the run dir. It is in EXTERNAL_READERS for the same reason and
+    # therefore never skips on an unchanged digest.
+    "cluster": "news",
 }
 DOMAIN_HELP = {
     "news": "new items since news_watermark",
@@ -2117,12 +2248,16 @@ def cmd_slices(args):
     want = [a.strip() for a in (args.agents or "").split(",") if a.strip()] or list(AGENT_SLICES)
     written, problems = [], []
     for agent in want:
-        spec = AGENT_SLICES.get(agent)
+        spec, agent_label = resolve_agent(agent)
         if not spec:
             problems.append(f"unknown agent '{agent}' -- not in AGENT_SLICES")
             continue
         sl = dict(common)
-        sl["agent"] = f"smith-{agent}"
+        # The prompt-facing name is the AGENT DEFINITION (smith-cluster for every cluster_*
+        # key); every file path stays on the namespaced key so N same-run dispatches of one
+        # agent cannot overwrite each other's slice or tail.
+        sl["agent"] = agent_label
+        sl["agent_key"] = agent
         sl["output_file"] = os.path.join(rd, f"smith-{agent}-output.md")
         sl["holdings_path"] = os.path.join(rd, "holdings.json")
         sl["read_these_files"] = {}
@@ -2135,6 +2270,26 @@ def cmd_slices(args):
             sl["_lots_digest"] = lots_digest
         if agent == "tax":
             sl["_open_trims_sig"] = open_trims_sig
+        if is_cluster_agent(agent):
+            # WHICH cluster this dispatch is for. Without this the agent has a template and a
+            # 30-cluster file and no idea which row is its job. The playbook (the axes that
+            # decide the winner in THIS cluster) and the deterministic ladder row are inlined
+            # because they are its primary input; compute_ladder.json stays referenced too, so
+            # it can still see how its cluster sits against the rest of the book.
+            slug = agent[len(CLUSTER_AGENT_PREFIX):]
+            ladder = load_json(os.path.join(rd, "compute_ladder.json"), default={})
+            match = [(name, row) for name, row in (ladder.get("clusters") or {}).items()
+                     if row.get("slug") == slug]
+            if not match:
+                problems.append(f"{agent_label} [{agent}]: no cluster in compute_ladder.json has "
+                                f"slug '{slug}' -- run `ladder` before rendering this slice, or "
+                                f"check policy.cluster_playbooks for a renamed slug")
+            else:
+                cname, crow = match[0]
+                sl["cluster_name"] = cname
+                sl["cluster_prior_ladder"] = crow.get("prior_ladder")
+                _place(sl, "cluster_ladder_row", crow, shared_dir, shared_once,
+                       name=f"ladder_{slug}")
 
         for k in spec["state"]:
             v = state.get(k)
@@ -2170,10 +2325,10 @@ def cmd_slices(args):
                     else os.path.join(base, BASE_REF_FILES[r]) if r in BASE_REF_FILES else None)
             path = os.path.abspath(path) if path else None
             if path is None:
-                problems.append(f"smith-{agent}: unknown ref '{r}'")
+                problems.append(f"{agent_label} [{agent}]: unknown ref '{r}'")
             elif not os.path.exists(path):
                 if r not in OPTIONAL_REFS:
-                    problems.append(f"smith-{agent}: {os.path.basename(path)} MISSING -- run the "
+                    problems.append(f"{agent_label} [{agent}]: {os.path.basename(path)} MISSING -- run the "
                                     f"pipeline before rendering slices")
                 # else: silent by design -- an on-demand ref's absence is the expected case,
                 # not a problem to surface every run (see OPTIONAL_REFS above).
@@ -2183,7 +2338,7 @@ def cmd_slices(args):
             if sname in shared_paths:
                 sl["read_these_files"][sname] = os.path.abspath(shared_paths[sname])
             else:
-                problems.append(f"smith-{agent}: shared source '{sname}' unavailable this run")
+                problems.append(f"{agent_label} [{agent}]: shared source '{sname}' unavailable this run")
 
         if spec.get("holdings") == "trim":
             _place(sl, "holdings", trim, shared_dir, shared_once, name="holdings_trim")
@@ -2195,7 +2350,7 @@ def cmd_slices(args):
         # only knows the old shape reports false alarms instead of real ones.
         for k in spec["state"]:
             if k in ("thesis", "sector_map") and not sl.get(k) and k not in sl["read_these_files"]:
-                problems.append(f"smith-{agent}: '{k}' is neither inline nor referenced -- "
+                problems.append(f"{agent_label} [{agent}]: '{k}' is neither inline nor referenced -- "
                                 f"refusing to pretend that is a valid embed")
         # Fingerprint the agent's ACTUAL inputs: inline values plus the CONTENT of every
         # referenced file (not its path -- paths are stable while contents change).
@@ -2213,15 +2368,18 @@ def cmd_slices(args):
         out = os.path.join(rd, f"slice_{agent}.json")
         with open(out, "w") as fh:
             json.dump(sl, fh, indent=2)
-        rec = {"agent": f"smith-{agent}", "file": out, "bytes": os.path.getsize(out),
+        rec = {"agent": agent_label, "agent_key": agent, "file": out,
+               "bytes": os.path.getsize(out),
                "refs": len(sl["read_these_files"]), "inputs_digest": sl["inputs_digest"]}
-        dom = AGENT_DOMAIN.get(agent, "always")
+        if is_cluster_agent(agent):
+            rec["cluster"] = sl.get("cluster_name")
+        dom = AGENT_DOMAIN.get(_skip_key(agent), "always")
         moved, evidence = _domain_moved(dom, ctx)
         rec["domain"] = dom
         rec["domain_moved"] = moved
         rec["domain_evidence"] = evidence
         if moved is False:
-            no_domain_move.append(f"smith-{agent}")
+            no_domain_move.append(agent)
         # materiality: compare this slice against the prior run's slice, field by field
         prior_slice = prior_slices.get(agent)
         if prior_slice is not None:
@@ -2240,8 +2398,8 @@ def cmd_slices(args):
                         f"(at {where}), below the {MATERIALITY_PCT}% materiality bar -- this is "
                         f"noise, not news. Skipping is defensible for a file-only agent; the "
                         f"decision is the orchestrator's and must be stated in the briefing.")
-                    if agent not in EXTERNAL_READERS and agent not in NEVER_SKIP:
-                        immaterial.append(f"smith-{agent}")
+                    if _skip_key(agent) not in EXTERNAL_READERS and _skip_key(agent) not in NEVER_SKIP:
+                        immaterial.append(agent)
 
         # THE SKIP SIGNAL IS `domain_moved`, NOT THE BYTE DIGEST (rewired 2026-09-06).
         #
@@ -2259,11 +2417,12 @@ def cmd_slices(args):
         # strongest skip signal" -- it simply was not wired to anything. Now it is.
         # `moved is None` means the script cannot tell (news, fundamentals) and always
         # dispatches; only an explicit False skips.
-        if moved is False and agent not in EXTERNAL_READERS and agent not in NEVER_SKIP:
+        if moved is False and _skip_key(agent) not in EXTERNAL_READERS \
+                and _skip_key(agent) not in NEVER_SKIP:
             rec["skip"] = True
             rec["skip_reason"] = (f"input domain '{dom}' did not move: {evidence}. "
                                   f"Reuse its prior output.")
-            skippable.append(f"smith-{agent}")
+            skippable.append(agent)
 
         prior = prior_digests.get(agent)
         if prior and prior == sl["inputs_digest"]:

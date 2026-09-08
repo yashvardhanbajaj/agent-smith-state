@@ -253,5 +253,115 @@
   },
   "confirmed_date": "2026-08-06",
   "confirmation_note": "Top-level confirmation given by the user 2026-08-06 in an interactive Agent Smith session. Individual components had already been confirmed separately on their own dates (mandate 2026-07-26; stop_loss_framework 2026-07-27; monthly_contribution 2026-07-27; cash_regimes 2026-07-28); this flips the whole document from draft to binding, so drift/breach analysis is no longer provisional. Per the desk's standing rule, a confirmed policy is never modified again without an explicit user instruction.",
-  "ai_capex_factor_flag_note": "OBSERVATION ONLY -- never a breach, never a proposal, never a reason to trim. max_ai_capex_factor_pct stays 100 and concentration_is_intentional stays true: the concentration is a deliberate mandate, not drift. This threshold exists solely so crossing 90% produces a stated line in the briefing rather than the number being invisible. Set 2026-08-30 at the user's instruction, with AI-capex at 88.2%. The mandate's own glide path steps the ceiling down to ~70% at year 4; this is the observation that will make that transition visible when it arrives."
+  "ai_capex_factor_flag_note": "OBSERVATION ONLY -- never a breach, never a proposal, never a reason to trim. max_ai_capex_factor_pct stays 100 and concentration_is_intentional stays true: the concentration is a deliberate mandate, not drift. This threshold exists solely so crossing 90% produces a stated line in the briefing rather than the number being invisible. Set 2026-08-30 at the user's instruction, with AI-capex at 88.2%. The mandate's own glide path steps the ceiling down to ~70% at year 4; this is the observation that will make that transition visible when it arrives.",
+  "cluster_playbooks_note": "Added 2026-09-08 with cmd_ladder and smith-cluster. ONE agent definition is dispatched once per cluster; the cluster-specific knowledge -- the axes that actually decide which name wins inside THIS cluster -- lives here as DATA rather than in seven agent prompt files that would drift apart and each re-derive the shared output contract. Editable without touching a prompt. `slug` becomes the agent key (cluster_<slug>) and the slice/tail filename, so it must be unique and stable; changing one orphans that cluster's dispatch for a run. `differentiators` are the ranking axes the agent must actually rank on -- a ladder that re-states price is the thing this whole layer exists to replace. `read_throughs` are the cross-member inferences a per-name agent structurally cannot make.",
+  "cluster_playbooks": {
+    "AI Semis/Fabs": {
+      "slug": "semis",
+      "differentiators": [
+        "share of WFE spend captured, and whether that share is rising or defended",
+        "process-step mix -- litho vs deposition vs etch vs metrology vs test -- and which steps gain intensity as gate-all-around and advanced packaging ramp",
+        "leading-edge vs mature-node revenue split, and exposure to mature-node overcapacity",
+        "China export-control exposure: revenue at risk, licences held, and domestic substitution",
+        "foundry/IDM customer concentration and whether the customer is itself gaining share",
+        "advanced packaging (CoWoS-class) capacity as a distinct bottleneck from wafer capacity"
+      ],
+      "read_throughs": [
+        "TSMC monthly revenue -> the whole cluster's near-term utilisation",
+        "ASML bookings -> AMAT/LRCX/KLAC 2-3 quarters later",
+        "any WFE guide-down -> test (TER) usually lags the front end, do not assume synchrony"
+      ]
+    },
+    "AI Memory/Storage": {
+      "slug": "memory",
+      "differentiators": [
+        "HBM qualification status at each of NVDA / AMD / Broadcom, and at which HBM generation",
+        "HBM4 sampling timing and committed capacity vs announced capacity",
+        "DRAM vs NAND revenue mix, and the direction of each cycle independently",
+        "contract-price pass-through: how much of a spot move reaches this supplier's realised ASP",
+        "conventional-DRAM crowd-out -- HBM wafer conversion tightening commodity supply",
+        "enterprise SSD exposure as a separate AI-adjacent driver from DRAM"
+      ],
+      "read_throughs": [
+        "SK Hynix quarterly and guidance -> MU, and directionally -> SKHY itself",
+        "TrendForce contract guide -> the whole cluster's next-quarter ASP",
+        "a hyperscaler capex cut -> HBM before commodity DRAM"
+      ],
+      "external_feed": "hbm_tracker"
+    },
+    "AI Networking/Optics": {
+      "slug": "optics",
+      "differentiators": [
+        "800G -> 1.6T transition timing, and who is qualified at 1.6T today vs promising it",
+        "co-packaged optics as a THREAT to pluggable-module economics -- who is disintermediated",
+        "position in the stack: laser/EML supply vs module assembly vs switch silicon vs connector",
+        "scale-up (within-rack) vs scale-out (between-rack) exposure -- different growth rates",
+        "custom-ASIC attach: whose silicon rides which hyperscaler's in-house accelerator",
+        "merchant switch silicon share vs in-house displacement risk"
+      ],
+      "read_throughs": [
+        "CIEN print -> LITE and COHR on component demand, with a lag",
+        "a hyperscaler naming an in-house NIC/switch -> merchant silicon exposure in this cluster",
+        "laser/EML lead times -> module makers' next-quarter gross margin, not revenue"
+      ]
+    },
+    "AI Power/Cooling/DC Infra": {
+      "slug": "power",
+      "differentiators": [
+        "turbine and grid-equipment BACKLOG and its delivery window -- backlog is not revenue timing",
+        "liquid-cooling attach rate per rack, and whether it is priced as content or as a service",
+        "interconnection-queue and permitting exposure -- the real constraint on datacenter builds",
+        "behind-the-meter vs grid-connected power, and which regulatory regime each faces",
+        "fuel cell / on-site generation as a distinct bet from grid equipment",
+        "utility capex cycle exposure that is INDEPENDENT of AI datacenter demand"
+      ],
+      "read_throughs": [
+        "a hyperscaler datacenter announcement -> the local utility and the grid-equipment supplier",
+        "a large PPA or nuclear/gas offtake -> power names before cooling names",
+        "GEV/VRT order books -> the cluster's demand read; solar (FSLR) is policy-driven and should NOT be read as an AI-capex signal"
+      ]
+    },
+    "Compute/Hyperscaler": {
+      "slug": "hyperscaler",
+      "differentiators": [
+        "capex as a share of operating cash flow -- who is self-funding the build and who is not",
+        "in-house accelerator progress, which reduces merchant silicon spend but raises own capex",
+        "cloud revenue growth vs capex growth -- the gap is the market's real question",
+        "neocloud financing structure: debt, GPU collateral, and contracted vs speculative capacity",
+        "customer contract duration and counterparty quality for the neoclouds specifically",
+        "depreciation-schedule changes as an earnings-quality tell"
+      ],
+      "read_throughs": [
+        "any hyperscaler capex guide -> the entire AI-capex book, this is the apex read-through",
+        "a neocloud financing round or GPU-backed facility -> the whole neocloud sub-group's cost of capital, not just the issuer"
+      ]
+    },
+    "Compute/Hyperscaler OEM": {
+      "slug": "oem",
+      "differentiators": [
+        "gross margin per rack and whether it is holding as volume scales -- the core OEM question",
+        "direct-to-hyperscaler vs channel mix",
+        "liquid-cooling rack integration capability as a differentiator vs a commodity",
+        "working capital and inventory turns -- an OEM's real risk is a balance sheet, not demand",
+        "governance, audit and filing history (a live, name-specific issue in this cluster)"
+      ],
+      "read_throughs": [
+        "an NVDA allocation shift -> OEM revenue timing before OEM margin",
+        "any rack-scale reference-design change -> the integrator's requalification cost"
+      ]
+    },
+    "Analog/Industrial Semis": {
+      "slug": "analog",
+      "differentiators": [
+        "automotive vs industrial vs personal-electronics end-market mix and each cycle's phase",
+        "inventory correction stage at distributors -- the dominant driver in this cluster",
+        "internal vs foundry manufacturing and the fixed-cost drag at low utilisation",
+        "pricing discipline as prior-cycle price increases unwind",
+        "this cluster is a NON-AI-capex diversifier -- rank it on its own cycle, and say so explicitly if the ranking is being contaminated by AI-capex read-across"
+      ],
+      "read_throughs": [
+        "any analog peer's inventory commentary -> the whole cluster's correction stage"
+      ]
+    }
+  }
 }

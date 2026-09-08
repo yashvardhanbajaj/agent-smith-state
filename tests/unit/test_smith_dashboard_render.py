@@ -325,3 +325,106 @@ class TestHistoricalCharts:
         ch = {"bookvalue": {"svg": "<svg></svg>", "legend": [], "note": ""}}
         html = joined(sd._render_historical_charts(ch, {"max_single_position_pct": 12}))
         assert "Historical charts" in html
+
+
+# ---------------------------------------------------------------------------
+# _render_cluster_ladders (added 2026-09-08)
+# ---------------------------------------------------------------------------
+
+def _ladder_state(**kw):
+    L = {"as_of": "2026-09-08", "confidence": "high", "leader": "COHR", "laggard": "APH",
+         "cluster_thesis": {"status": "strengthening", "innings": "early"},
+         "margin_pool": {"moving_toward": "laser/EML supply"},
+         "ranking": [
+             {"rank": 1, "ticker": "COHR", "held": True, "verdict": "leader",
+              "differentiator_reads": [{"axis": "1.6T timing", "read": "qualified at two hyperscalers"}]},
+             {"rank": 2, "ticker": "APH", "held": True, "verdict": "laggard",
+              "differentiator_reads": []}]}
+    L.update(kw)
+    return {"cluster_ladders": {"AI Networking/Optics": L},
+            "thesis": {"COHR": "lasers|strengthening", "APH": "connectors|strengthening"}}
+
+
+LADDER_FILE = {"clusters": {"AI Networking/Optics": {"members": [
+    {"ticker": "COHR", "rel_intra_pp": 6.0}, {"ticker": "APH", "rel_intra_pp": -9.0}]}}}
+
+
+class TestClusterLadders:
+    def test_no_ladders_renders_nothing(self):
+        """Absence is not a finding. A ladder panel built from an empty map would read as
+        'no cluster has a winner', which is a claim nobody made."""
+        assert sd._render_cluster_ladders({}, {}, smith_risk.thesis_status) == []
+        assert sd._render_cluster_ladders({"cluster_ladders": {}}, {}, smith_risk.thesis_status) == []
+
+    def test_a_ladder_with_no_ranking_renders_nothing(self):
+        assert sd._render_cluster_ladders(_ladder_state(ranking=[]), {},
+                                          smith_risk.thesis_status) == []
+
+    def test_a_populated_ladder_renders_its_order_and_rationale(self):
+        html = joined(sd._render_cluster_ladders(_ladder_state(), LADDER_FILE,
+                                                 smith_risk.thesis_status))
+        assert "Cluster ladders" in html
+        assert "COHR" in html and "APH" in html
+        assert "qualified at two hyperscalers" in html      # the WHY, not just the order
+        assert "1.6T timing" in html                        # the axis it was ranked on
+        assert "early innings" in html
+
+    def test_rel_intra_pp_comes_from_the_compute_file_not_the_agent(self):
+        """The deterministic number sits beside each rank precisely so a ranking that merely
+        restates price is visible as such at a glance."""
+        html = joined(sd._render_cluster_ladders(_ladder_state(), LADDER_FILE,
+                                                 smith_risk.thesis_status))
+        assert "+6.0 pp" in html and "-9.0 pp" in html
+
+    def test_a_missing_compute_ladder_degrades_to_a_dash(self):
+        html = joined(sd._render_cluster_ladders(_ladder_state(), {}, smith_risk.thesis_status))
+        assert " pp</span>" not in html      # no fabricated number where the cache is silent
+        assert "COHR" in html                 # the ranking itself still renders
+
+    def test_a_rank_contradicting_the_thesis_is_flagged(self):
+        """A laggard the desk still calls strengthening is the most informative cell here --
+        flag it rather than leaving it to be noticed."""
+        html = joined(sd._render_cluster_ladders(_ladder_state(), LADDER_FILE,
+                                                 smith_risk.thesis_status))
+        assert "vs thesis" in html                          # APH: laggard on a strengthening thesis
+
+    def test_an_agreeing_rank_is_not_flagged(self):
+        st = _ladder_state()
+        st["thesis"]["APH"] = "connectors|watch"
+        html = joined(sd._render_cluster_ladders(st, LADDER_FILE, smith_risk.thesis_status))
+        assert "vs thesis" not in html
+
+    def test_the_track_record_is_never_shown_without_its_denominator(self):
+        st = _ladder_state(track_record=[{"scored": True, "correct": True},
+                                         {"scored": True, "correct": False},
+                                         {"scored": False}])
+        html = joined(sd._render_cluster_ladders(st, LADDER_FILE, smith_risk.thesis_status))
+        assert "ladder calls 1/2" in html                   # unscoreable calls are not wrong calls
+
+    def test_bench_names_are_marked_and_not_mistaken_for_holdings(self):
+        st = _ladder_state(bench=[{"ticker": "LITE", "why_better_than": "APH",
+                                   "entry_condition": "below $110"}])
+        html = joined(sd._render_cluster_ladders(st, LADDER_FILE, smith_risk.thesis_status))
+        assert "LITE" in html and "bench" in html and "better than APH" in html
+
+    def test_a_redundant_pair_verdict_surfaces_but_a_distinct_one_does_not(self):
+        redundant = _ladder_state(redundant_pairs=[
+            {"pair": ["AVGO", "MRVL"], "verdict": "redundant", "keep": "AVGO"}])
+        distinct = _ladder_state(redundant_pairs=[
+            {"pair": ["AVGO", "MRVL"], "verdict": "distinct", "keep": "AVGO"}])
+        assert "are one bet" in joined(sd._render_cluster_ladders(
+            redundant, LADDER_FILE, smith_risk.thesis_status))
+        assert "are one bet" not in joined(sd._render_cluster_ladders(
+            distinct, LADDER_FILE, smith_risk.thesis_status))
+
+    def test_confidence_is_shown_because_it_gates_trigger_authority(self):
+        for conf in ("high", "medium", "low"):
+            html = joined(sd._render_cluster_ladders(_ladder_state(confidence=conf),
+                                                     LADDER_FILE, smith_risk.thesis_status))
+            assert conf in html
+
+    def test_a_legacy_string_thesis_entry_reads_as_a_status_not_as_its_whole_text(self):
+        st = _ladder_state()
+        st["thesis"]["COHR"] = "a very long legacy thesis sentence|watch"
+        html = joined(sd._render_cluster_ladders(st, LADDER_FILE, smith_risk.thesis_status))
+        assert "a very long legacy thesis sentence" not in html

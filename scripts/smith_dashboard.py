@@ -1569,6 +1569,115 @@ def _render_rotation_analysis(rotation):
     return out
 
 
+def _render_cluster_ladders(state, ladder, thesis_reader):
+    """The intra-cluster substitution ladder (added 2026-09-08).
+
+    The Clusters panel above answers "how much of each?" against policy bands. This one answers
+    the question the bands cannot: WITHIN a cluster whose members all share one tailwind, which
+    name is capturing it and which is dead money. Renders smith-cluster's ranking with the
+    deterministic rel_intra_pp beside each rank -- each member against its OWN cluster's mean
+    return, not against SMH -- so a ranking that merely restates price is visible as such at a
+    glance, which is the failure mode this whole layer exists to avoid.
+
+    Shows nothing at all when no ladder has been built. A ladder panel rendered from an empty
+    map would read as "no cluster has a winner", which is a finding; absence is not.
+    """
+    ladders = (state or {}).get("cluster_ladders") or {}
+    if not ladders:
+        return []
+    # `thesis_reader` is smith_risk.thesis_status -- the canonical reader for BOTH entry shapes
+    # (the legacy "text|status" string and the dict), never a {ticker: status} map. Reading the
+    # raw entry here instead would silently show a legacy row's whole text where a status belongs.
+    thesis = (state or {}).get("thesis") or {}
+    intra = {}
+    for cname, crow in ((ladder or {}).get("clusters") or {}).items():
+        for m in crow.get("members") or []:
+            intra[(cname, m.get("ticker"))] = m.get("rel_intra_pp")
+
+    rows = []
+    for cname in sorted(ladders):
+        L = ladders[cname] or {}
+        ranking = L.get("ranking") or []
+        if not ranking:
+            continue
+        conf = (L.get("confidence") or "").lower()
+        conf_cls = {"high": "g", "medium": "w", "low": "b"}.get(conf, "")
+        ct = L.get("cluster_thesis") or {}
+        tr = [t for t in (L.get("track_record") or []) if t.get("scored")]
+        hits = sum(1 for t in tr if t.get("correct"))
+        # Only ever shown with its denominator. A hit rate without a sample size is the shape
+        # that makes 1-of-1 look like a track record.
+        record = (" &middot; ladder calls %d/%d" % (hits, len(tr))) if tr else ""
+
+        lines = []
+        for m in ranking:
+            t = m.get("ticker") or ""
+            pp = intra.get((cname, t))
+            pp_html = ('<span class="mono%s">%+.1f pp</span>' % (" neg" if pp < 0 else "", pp)
+                       if isinstance(pp, (int, float)) else '<span class="mono">&mdash;</span>')
+            reads = m.get("differentiator_reads") or []
+            why = esc((reads[0].get("read") or "")[:110]) if reads else ""
+            axis = esc((reads[0].get("axis") or "")[:40]) if reads else ""
+            ts = thesis_reader(thesis.get(t)) if t in thesis else None
+            # A rank that contradicts the per-name thesis is the most informative cell on this
+            # panel -- a laggard the desk still calls strengthening, or a leader on a watch
+            # thesis. smith-cluster reports it as thesis_tensions and crosscheck picks it up;
+            # flag it visually too rather than leaving it to be noticed.
+            tension = ((m.get("verdict") == "laggard" and ts == "strengthening")
+                       or (m.get("verdict") == "leader" and ts in ("watch", "broken")))
+            lines.append(
+                '<tr><td class="mono">%s</td><td><b>%s</b>%s%s</td><td>%s</td><td>%s</td>'
+                '<td>%s</td></tr>' % (
+                    m.get("rank", ""), esc(t),
+                    "" if m.get("held", True) else " <i>bench</i>",
+                    ' <span class="pill w">vs thesis</span>' if tension else "",
+                    pp_html, esc(ts or "-"),
+                    ("<b>%s</b> &mdash; " % axis if axis else "") + why))
+        for b in (L.get("bench") or [])[:3]:
+            lines.append(
+                '<tr><td class="mono">&mdash;</td><td><b>%s</b> <i>bench</i></td>'
+                '<td><span class="mono">&mdash;</span></td><td>&mdash;</td>'
+                '<td>better than %s &mdash; %s</td></tr>' % (
+                    esc(b.get("ticker") or ""), esc(b.get("why_better_than") or "?"),
+                    esc((b.get("entry_condition") or "")[:80])))
+
+        mp = L.get("margin_pool") or {}
+        sub = []
+        if ct.get("status") or ct.get("innings"):
+            sub.append("cluster thesis %s &middot; %s innings"
+                       % (esc(ct.get("status") or "?"), esc(ct.get("innings") or "?")))
+        if mp.get("moving_toward"):
+            sub.append("margin pool &rarr; %s" % esc(mp["moving_toward"]))
+        for rp in (L.get("redundant_pairs") or [])[:2]:
+            if rp.get("verdict") == "redundant":
+                sub.append("%s are one bet &mdash; keep %s"
+                           % (esc(" + ".join(rp.get("pair") or [])), esc(rp.get("keep") or "?")))
+
+        rows.append(
+            '<details class="clus-row"><summary><div class="clus-top">'
+            '<span class="clus-name">%s<i>%s over %s</i></span>'
+            '<span class="pill %s">%s</span></div>'
+            '<div class="clus-sub">as of %s%s%s</div>'
+            '</summary><div class="body"><div class="tw"><table>'
+            '<thead><tr><th>#</th><th>Name</th><th>vs cluster</th><th>Thesis</th>'
+            '<th>Why this rank</th></tr></thead><tbody>%s</tbody>'
+            '</table></div></div></details>' % (
+                esc(cname), esc(L.get("leader") or "?"), esc(L.get("laggard") or "?"),
+                conf_cls, esc(conf or "no confidence"),
+                esc(L.get("as_of") or "?"), record,
+                (" &middot; " + " &middot; ".join(sub)) if sub else "",
+                "".join(lines)))
+
+    if not rows:
+        return []
+    return ['<section class="panel"><div class="phead"><h2>Cluster ladders</h2>'
+            '<span class="pill">who wins inside each cluster &middot; '
+            '&ldquo;vs cluster&rdquo; is measured against the cluster&rsquo;s own mean, '
+            'not SMH</span></div><div class="pbody">'
+            '<div style="display:flex;flex-direction:column;gap:0">%s</div></div>'
+            '</section>' % "".join(rows)]
+
+
 def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map, ch=None):
     out = []
     # -- clusters (moved 2026-08-07: swapped position with de-risk queue, per user request --
@@ -2790,6 +2899,8 @@ def build(base, out):
 
     H.extend(_collapsible(h) for h in
              _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map, ch))
+    H.extend(_collapsible(h) for h in
+             _render_cluster_ladders(state, run_file("compute_ladder.json"), thesis_status))
 
     # -- de-risk queue (moved 2026-08-07: swapped position with clusters, per user request) --
     H.extend(_collapsible(h) for h in _render_derisk_queue(derisk, state))
