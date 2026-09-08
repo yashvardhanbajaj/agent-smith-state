@@ -132,3 +132,73 @@ class TestCleanRun:
     def test_a_run_with_no_conflicts_reports_none(self, tmp_path):
         r = run(tmp_path, thesis={"thesis": {"changed": {}}}, quality={"quality_flags": {}})
         assert r["count"] == 0 and r["blocking"] == []
+
+
+# ---------------------------------------------------------------------------
+# ladder_vs_thesis (added 2026-09-08)
+# ---------------------------------------------------------------------------
+# smith-cluster ranks members COMPARATIVELY; smith-thesis judges each on its own. A name ranked
+# last in its cluster while the desk calls it strengthening means two agents looked at the same
+# company and disagreed. Since 2026-09-08 the ladder can drive a live rotation, so leaving that
+# unadjudicated turns it into a sized trade.
+
+import json
+import os
+
+import smith_memory as sm
+
+
+class _CCArgs:
+    def __init__(self, base_dir, run_dir, today="2026-09-08"):
+        self.base_dir, self.run_dir, self.today = base_dir, run_dir, today
+
+
+def _cc(tmp_path, capsys, *, verdict="laggard", status="strengthening",
+        confidence="high", as_of="2026-09-06", tensions=None):
+    base, rd = tmp_path / "b", tmp_path / "r"
+    base.mkdir(exist_ok=True); rd.mkdir(exist_ok=True)
+    (base / "state.json").write_text(json.dumps({
+        "thesis": {"APH": f"connectors|{status}"},
+        "cluster_ladders": {"AI Networking/Optics": {
+            "as_of": as_of, "confidence": confidence, "leader": "COHR", "laggard": "APH",
+            "thesis_tensions": tensions or [],
+            "ranking": [{"rank": 1, "ticker": "COHR", "verdict": "leader"},
+                        {"rank": 2, "ticker": "APH", "verdict": verdict}]}}}))
+    sm.cmd_crosscheck(_CCArgs(str(base), str(rd)))
+    out = json.loads(capsys.readouterr().out)
+    return [f for f in out["findings"] if f["kind"] == "ladder_vs_thesis"]
+
+
+class TestLadderVsThesis:
+    def test_a_laggard_on_a_strengthening_thesis_is_flagged(self, tmp_path, capsys):
+        f = _cc(tmp_path, capsys)
+        assert len(f) == 1 and f[0]["ticker"] == "APH" and f[0]["severity"] == "high"
+        assert f[0]["cluster"] == "AI Networking/Optics"
+
+    def test_a_leader_on_a_watch_thesis_is_flagged(self, tmp_path, capsys):
+        f = _cc(tmp_path, capsys, verdict="leader", status="watch")
+        assert len(f) == 1 and "ranks APH FIRST" in f[0]["detail"]
+
+    def test_an_agreeing_rank_is_not_flagged(self, tmp_path, capsys):
+        assert _cc(tmp_path, capsys, verdict="laggard", status="watch") == []
+        assert _cc(tmp_path, capsys, verdict="leader", status="strengthening") == []
+
+    def test_a_middle_rank_is_never_a_contradiction(self, tmp_path, capsys):
+        assert _cc(tmp_path, capsys, verdict="middle") == []
+
+    def test_a_self_reported_tension_is_not_double_counted(self, tmp_path, capsys):
+        """The agent is asked to report these itself; this rule catches the ones it missed."""
+        assert _cc(tmp_path, capsys, tensions=[{"ticker": "APH"}]) == []
+
+    def test_an_advisory_only_ladder_is_medium_not_high(self, tmp_path, capsys):
+        """A contradicted ranking that carries no trigger authority is worth reporting, not
+        worth blocking on."""
+        f = _cc(tmp_path, capsys, confidence="low")
+        assert f[0]["severity"] == "medium" and "advisory only" in f[0]["detail"]
+
+    def test_a_stale_ladder_is_medium_not_high(self, tmp_path, capsys):
+        f = _cc(tmp_path, capsys, as_of="2026-07-01")
+        assert f[0]["severity"] == "medium"
+
+    def test_a_medium_confidence_ladder_still_blocks_because_it_can_size(self, tmp_path, capsys):
+        assert _cc(tmp_path, capsys, confidence="medium")[0]["severity"] == "high"

@@ -748,3 +748,12 @@ LADDER_EARNINGS_WINDOW_DAYS = 7
 # PARTIAL ranking and says so. Matches TRIGGER_CACHE_MIN_COVERAGE_PCT's intent: partial coverage
 # degrades a ranking exactly the way staleness does, and silently is the wrong way to do it.
 LADDER_MIN_COVERAGE_PCT = 70.0
+
+# Rolling window of scored ladder calls kept per cluster. A ranking that was right about a
+# different cluster composition two years ago is not evidence about this one.
+LADDER_TRACK_RECORD_CAP = 20
+
+# Scored ladder calls required before a track record is allowed to force confidence to `low`
+# and withdraw trigger authority. Below this, a 2-of-3 record is noise, and acting on it would
+# be exactly the small-sample overreaction the journal's own hit-rate machinery avoids.
+LADDER_MIN_SCORED_CALLS = 6

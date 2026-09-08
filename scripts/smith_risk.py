@@ -26,6 +26,8 @@ see the G34 plan notes -- not an oversight.
 # smith_core does not import smith_risk (it only mentions it in a comment), so there is no cycle,
 # and duplicating the constant here instead would create the two-sources-of-truth problem this
 # codebase's ONE FIELD, ONE READER rule exists to prevent.
+from datetime import date
+
 from smith_core import REBOUND_STOP_ATR_FLOOR_MULT
 
 
@@ -435,3 +437,66 @@ def derisk_override_for(state, ticker):
     data point the shadow-scoring hit-rate can eventually measure against."""
     ov = (state or {}).get("derisk_overrides") or {}
     return ov.get(ticker)
+
+
+# ---------------------------------------------------------------------------
+# CLUSTER LADDER AUTHORITY (added 2026-09-08)
+# ---------------------------------------------------------------------------
+
+def ladder_authority(entry, today, ttl_days=14, min_scored=6):
+    """Decide whether a cluster ladder may drive a LIVE rotation, and at what strength.
+
+    Returns (authority, effective_confidence, reasons) where authority is one of:
+      "none"    -- rank on price, exactly as before this layer existed
+      "rank"    -- use the ladder's ordering, but keep the sell leg's `watch`-thesis requirement
+      "full"    -- use the ordering AND relax the sell leg to "not strengthening"
+
+    THE RELAXATION IS THE RISKY HALF and is priced accordingly. Requiring the sell leg to carry
+    a `watch` thesis is what has kept cluster_rotation from ever selling a name the desk still
+    believes in. Lifting it unlocks the common real case -- an INTACT laggard, of which this book
+    has many and zero broken -- but it means a ladder can now sell something no other agent has
+    flagged. That is only defensible at `high` confidence, which the agent must earn by
+    defending every rank on a sourced fundamental axis.
+
+    THE AGENT DOES NOT GRADE ITS OWN HOMEWORK. `confidence` comes from the tail, but a cluster
+    whose ladder has been WRONG more often than right across at least `min_scored` scored calls
+    is forced to "low" and loses all authority, regardless of how confident it says it is. A
+    ranking that is measured and failing must not keep sizing trades; this is the condition on
+    which the whole layer was allowed near a trigger. Below `min_scored` the record is not yet
+    evidence either way and is reported but not acted on -- a 2-of-3 record is noise.
+    """
+    reasons = []
+    if not entry:
+        return "none", None, ["no ladder for this cluster"]
+    as_of = entry.get("as_of")
+    age = None
+    if as_of:
+        try:
+            age = (today - date.fromisoformat(str(as_of))).days
+        except ValueError:
+            age = None
+    if age is None:
+        return "none", None, [f"ladder as_of is missing or unparseable ({as_of!r})"]
+    if age > ttl_days:
+        return "none", None, [f"ladder is {age}d old (TTL {ttl_days}d) -- ranking on price instead"]
+
+    conf = (entry.get("confidence") or "").strip().lower()
+    scored = [t for t in (entry.get("track_record") or []) if t.get("scored")]
+    hits = sum(1 for t in scored if t.get("correct"))
+    if len(scored) >= min_scored and hits * 2 < len(scored):
+        reasons.append(f"ladder track record {hits}/{len(scored)} is below coin-flip over a real "
+                       f"sample -- confidence forced to low, authority withdrawn")
+        return "none", "low", reasons
+    if scored:
+        reasons.append(f"ladder track record {hits}/{len(scored)}"
+                       + ("" if len(scored) >= min_scored else " (below the sample bar, reported not acted on)"))
+
+    if conf == "high":
+        reasons.append(f"ladder is {age}d old with high confidence")
+        return "full", conf, reasons
+    if conf == "medium":
+        reasons.append(f"ladder is {age}d old with medium confidence -- ordering used, but the "
+                       f"sell leg still requires a watch thesis")
+        return "rank", conf, reasons
+    reasons.append(f"ladder confidence is {conf or 'unset'} -- no trigger authority")
+    return "none", conf or None, reasons

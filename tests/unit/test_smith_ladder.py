@@ -406,3 +406,204 @@ class TestLadderMisc:
                       abs_returns={"A": 9.0, "B": 0.0, "D": -9.0})   # no compute_triggers.json
         out = _run(capsys, args)
         assert out["dispatch"][0]["priority_score"] == 5     # 3 stale + 2 dispersion, no pair
+
+
+# ---------------------------------------------------------------------------
+# PHASE 3 -- the ladder drives cluster_rotation, behind a confidence gate
+# ---------------------------------------------------------------------------
+
+from datetime import date          # noqa: E402  (kept beside the tests that use it)
+
+import smith_risk                  # noqa: E402
+
+TODAY = date(2026, 9, 8)
+
+
+def _ladder(confidence="high", as_of="2026-09-06", order=("BEST", "MID", "WORST"),
+            track_record=None, reads=True):
+    return {"as_of": as_of, "confidence": confidence,
+            "leader": order[0], "laggard": order[-1],
+            "track_record": track_record or [],
+            "ranking": [{"rank": i + 1, "ticker": t, "held": True,
+                         "verdict": ("leader" if i == 0 else
+                                     "laggard" if i == len(order) - 1 else "middle"),
+                         "differentiator_reads": ([{"axis": "1.6T timing",
+                                                    "read": f"{t} qualified first"}]
+                                                  if reads else [])}
+                        for i, t in enumerate(order)]}
+
+
+class TestLadderAuthority:
+    """The gate. `full` buys the thesis relaxation, which is the risky half of this change."""
+
+    def test_high_confidence_and_fresh_gets_full_authority(self):
+        assert smith_risk.ladder_authority(_ladder("high"), TODAY)[0] == "full"
+
+    def test_medium_confidence_gets_ordering_but_not_the_relaxation(self):
+        assert smith_risk.ladder_authority(_ladder("medium"), TODAY)[0] == "rank"
+
+    def test_low_confidence_gets_nothing(self):
+        assert smith_risk.ladder_authority(_ladder("low"), TODAY)[0] == "none"
+
+    def test_an_unset_confidence_gets_nothing(self):
+        assert smith_risk.ladder_authority(_ladder(""), TODAY)[0] == "none"
+
+    def test_a_stale_ladder_gets_nothing_however_confident(self):
+        auth, _, why = smith_risk.ladder_authority(_ladder("high", as_of="2026-08-01"), TODAY)
+        assert auth == "none" and "38d old" in why[0]
+
+    def test_an_unparseable_as_of_gets_nothing_rather_than_being_assumed_fresh(self):
+        assert smith_risk.ladder_authority({"confidence": "high", "as_of": "soon"}, TODAY)[0] == "none"
+        assert smith_risk.ladder_authority({"confidence": "high"}, TODAY)[0] == "none"
+
+    def test_a_failing_track_record_forces_low_and_withdraws_authority(self):
+        """The agent does not grade its own homework. A ranking that is measured and failing
+        must not keep sizing trades -- this is the condition the whole layer was allowed on."""
+        tr = [{"scored": True, "correct": False}] * 5 + [{"scored": True, "correct": True}]
+        auth, conf, why = smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY)
+        assert auth == "none" and conf == "low"
+        assert "below coin-flip" in why[0]
+
+    def test_a_small_failing_sample_is_reported_but_not_acted_on(self):
+        # 2-of-3 is noise, and acting on it is the small-sample overreaction the journal's own
+        # hit-rate machinery avoids.
+        tr = [{"scored": True, "correct": False}] * 2 + [{"scored": True, "correct": True}]
+        auth, conf, why = smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY)
+        assert auth == "full" and conf == "high"
+        assert any("below the sample bar" in w for w in why)
+
+    def test_exactly_coin_flip_keeps_authority(self):
+        tr = [{"scored": True, "correct": True}] * 3 + [{"scored": True, "correct": False}] * 3
+        assert smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY)[0] == "full"
+
+    def test_unscoreable_calls_do_not_count_against_the_record(self):
+        tr = [{"scored": False}] * 10 + [{"scored": True, "correct": True}]
+        assert smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY)[0] == "full"
+
+
+class TestLadderDrivenRotation:
+    def _run(self, ladder, conv, thesis):
+        out = []
+        smith_math._trigger_cluster_rotation(conv, thesis, out, cluster_rows={},
+                                             cluster_ladders={"C": ladder} if ladder else {},
+                                             today=TODAY)
+        return out
+
+    def _conv(self, **over):
+        from test_smith_math_triggers import _conv_row
+        base = {"BEST": _conv_row(1000.0, "C", rel_pp=-8.0),    # ladder #1, but PRICE laggard
+                "MID": _conv_row(1000.0, "C", rel_pp=0.0),
+                "WORST": _conv_row(3000.0, "C", rel_pp=9.0)}    # ladder #3, but PRICE leader
+        base.update(over)
+        return base
+
+    INTACT = {"BEST": "x|strengthening", "MID": "x|intact", "WORST": "x|intact"}
+    WATCH = {"BEST": "x|strengthening", "MID": "x|intact", "WORST": "x|watch"}
+    # A thesis the PRICE rule can actually fire on: its laggard leg needs rel_pp<0 AND watch,
+    # which only BEST (-8pp) satisfies. Used to prove the fallback still works, so a fallback
+    # test cannot pass merely because nothing fired.
+    PRICE_RULE = {"BEST": "x|watch", "MID": "x|intact", "WORST": "x|strengthening"}
+
+    def test_the_ladder_inverts_the_price_ranking(self):
+        """The whole point. On price, WORST is the leader (+9pp) and BEST the laggard (-8pp);
+        the ladder says the opposite, and the ladder wins."""
+        pairs = self._run(_ladder("high"), self._conv(), self.INTACT)
+        assert len(pairs) == 1
+        assert pairs[0]["sell_leg"]["ticker"] == "WORST"
+        assert pairs[0]["buy_leg"]["ticker"] == "BEST"
+        assert pairs[0]["ladder_driven"] is True
+
+    def test_full_authority_unlocks_the_intact_laggard(self):
+        """The most common real case: 16 strengthening / 16 watch / 0 broken, so a `watch`-only
+        sell gate can never rotate an intact name."""
+        assert self._run(_ladder("high"), self._conv(), self.INTACT)[0]["sell_leg"]["ticker"] == "WORST"
+
+    def test_medium_authority_still_requires_a_watch_thesis_to_sell(self):
+        assert self._run(_ladder("medium"), self._conv(), self.INTACT) == []
+        pairs = self._run(_ladder("medium"), self._conv(), self.WATCH)
+        assert pairs[0]["sell_leg"]["ticker"] == "WORST" and pairs[0]["ladder_driven"] is True
+
+    def test_full_authority_will_not_sell_a_strengthening_name(self):
+        """The relaxation is `not strengthening`, not `anything goes`."""
+        thesis = dict(self.INTACT, WORST="x|strengthening")
+        assert self._run(_ladder("high"), self._conv(), thesis) == []
+
+    def test_a_low_confidence_ladder_falls_back_to_the_price_rule(self):
+        pairs = self._run(_ladder("low"), self._conv(), self.PRICE_RULE)
+        assert pairs[0]["ladder_driven"] is False
+        assert pairs[0]["sell_leg"]["ticker"] == "BEST"      # the PRICE laggard, -8pp
+        assert pairs[0]["buy_leg"]["ticker"] == "WORST"      # the PRICE leader, +9pp
+
+    def test_a_stale_ladder_falls_back_even_at_high_confidence(self):
+        pairs = self._run(_ladder("high", as_of="2026-07-01"), self._conv(), self.PRICE_RULE)
+        assert pairs[0]["ladder_driven"] is False and pairs[0]["ladder_authority"] == "none"
+
+    def test_no_ladder_reproduces_the_pre_existing_behaviour_exactly(self):
+        from test_smith_math_triggers import _conv_row
+        conv = {"LAG": _conv_row(1000.0, "C", rel_pp=-5.0),
+                "PERF": _conv_row(1000.0, "C", rel_pp=5.0)}
+        pairs = self._run(None, conv, {"LAG": "x|watch", "PERF": "x|strengthening"})
+        assert pairs[0]["sell_leg"]["ticker"] == "LAG" and pairs[0]["buy_leg"]["ticker"] == "PERF"
+        assert pairs[0]["ladder_driven"] is False
+        assert "relative-strength leader" in pairs[0]["retires_when"]
+
+    def test_the_reason_cites_the_differentiator_axis_not_a_price_delta(self):
+        pairs = self._run(_ladder("high"), self._conv(), self.INTACT)
+        why = pairs[0]["buy_leg"]["reasons"][0]
+        assert "1.6T timing" in why and "qualified first" in why
+        assert "pp" not in why
+
+    def test_a_ladder_with_no_reads_still_names_the_rank(self):
+        pairs = self._run(_ladder("high", reads=False), self._conv(), self.INTACT)
+        assert "ranks BEST #1 of 3" in pairs[0]["buy_leg"]["reasons"][0]
+
+    def test_the_retirement_condition_names_what_the_pair_was_built_on(self):
+        """A ladder-driven pair revalidated against a price fact nobody used is a pair that
+        retires for the wrong reason."""
+        pairs = self._run(_ladder("high"), self._conv(), self.INTACT)
+        assert "ladder no longer ranks BEST above WORST" in pairs[0]["retires_when"]
+
+    def test_an_over_cap_member_appears_on_neither_leg(self):
+        """It cannot be bought (already past its risk cap) and selling it is trim_risk_cap's
+        job, not a rotation's. The rest of the cluster still rotates around it."""
+        from test_smith_math_triggers import _conv_row
+        conv = self._conv(WORST=_conv_row(3000.0, "C", rel_pp=9.0, over_cap=True))
+        pairs = self._run(_ladder("high"), conv, self.INTACT)
+        assert pairs and "WORST" not in (pairs[0]["sell_leg"]["ticker"],
+                                          pairs[0]["buy_leg"]["ticker"])
+
+    def test_a_cluster_with_only_one_eligible_member_produces_nothing(self):
+        from test_smith_math_triggers import _conv_row
+        conv = self._conv(WORST=_conv_row(3000.0, "C", rel_pp=9.0, over_cap=True),
+                          MID=_conv_row(1000.0, "C", rel_pp=0.0, over_cap=True))
+        assert self._run(_ladder("high"), conv, self.INTACT) == []
+
+    def test_the_pair_id_shape_is_unchanged_so_paired_retirement_still_works(self):
+        """_retire_orphaned_rotation_legs keys off this prefix; without it, 19 of 19 earlier
+        rotation pairs died half-open."""
+        pairs = self._run(_ladder("high"), self._conv(), self.INTACT)
+        assert pairs[0]["pair_id"] == "cluster_rotation-WORST-BEST"
+
+    def test_the_largest_bottom_third_position_is_sold_not_merely_the_last_rank(self):
+        """With ten names the difference between rank 9 and 10 is inside the agent's own
+        resolution; dead money costs most where the position is biggest."""
+        from test_smith_math_triggers import _conv_row
+        order = tuple(f"N{i}" for i in range(9))
+        conv = {t: _conv_row(100.0, "C", rel_pp=0.0) for t in order}
+        conv["N6"] = _conv_row(9000.0, "C", rel_pp=0.0)     # bottom third, much the largest
+        thesis = {t: "x|intact" for t in order}
+        thesis["N0"] = "x|strengthening"
+        pairs = self._run(_ladder("high", order=order), conv, thesis)
+        assert pairs[0]["sell_leg"]["ticker"] == "N6"
+        assert pairs[0]["buy_leg"]["ticker"] == "N0"
+
+    def test_a_ladder_naming_only_unheld_names_falls_back(self):
+        pairs = self._run(_ladder("high", order=("GHOST1", "GHOST2", "GHOST3")),
+                          self._conv(), self.PRICE_RULE)
+        assert pairs and pairs[0]["ladder_driven"] is False
+
+    def test_provenance_is_recorded_on_every_pair(self):
+        pairs = self._run(_ladder("high"), self._conv(), self.INTACT)
+        p = pairs[0]
+        assert p["ladder_as_of"] == "2026-09-06" and p["ladder_confidence"] == "high"
+        assert p["ladder_authority"] == "full" and p["ladder_authority_reasons"]

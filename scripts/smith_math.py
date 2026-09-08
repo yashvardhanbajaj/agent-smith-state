@@ -2833,29 +2833,116 @@ def _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, tota
             "retires_when": f"EITHER {sell_t} drops out of the stretched cohort OR {buy_t}'s thesis leaves intact/strengthening"})
 
 
-def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cluster_rows=None):
+def _cluster_rotation_legs_from_ladder(entry, tickers_here, conviction_by_ticker, thesis, authority):
+    """Pick the sell and buy legs from the AGENT'S ranking rather than from a price delta.
+
+    Returns (sell_t, buy_t, sell_reason, buy_reason) or None when the ladder cannot name a
+    usable pair -- in which case the caller falls back to the price rule, which is a genuine
+    fallback and not a degraded version of this one.
+
+    Only HELD, non-over-cap members are eligible on either leg; a ladder ranks the bench too,
+    and buying a bench name is a different trigger (it introduces a name the book has never
+    owned, on agent judgment alone) that must earn its own vote separately.
+
+    The sell leg is taken from the BOTTOM THIRD of the ranking, not simply "last". With ten
+    names in AI Semis/Fabs the difference between rank 9 and rank 10 is inside the agent's own
+    resolution; insisting on the exact last name would make the pair hostage to a distinction
+    the ladder cannot actually make. Among the bottom third, the largest position is sold --
+    that is where dead money actually costs something.
+    """
+    ranking = [r for r in (entry.get("ranking") or []) if r.get("ticker")]
+    if len(ranking) < 2:
+        return None
+    order = {r["ticker"]: r.get("rank") or (i + 1) for i, r in enumerate(ranking)}
+    reads = {r["ticker"]: r for r in ranking}
+    eligible = [t for t in tickers_here
+                if t in order and not conviction_by_ticker[t]["over_cap"]]
+    if len(eligible) < 2:
+        return None
+    by_rank = sorted(eligible, key=lambda t: order[t])
+    cutoff = by_rank[max(1, int(len(by_rank) * 2 / 3)):] or by_rank[-1:]
+
+    # THE THESIS GATE, and the one thing `full` authority buys. `watch` keeps cluster_rotation
+    # from ever selling a name the desk still believes in -- which also means it can never
+    # rotate an INTACT laggard, the most common real case in a book with 16 strengthening,
+    # 16 watch and 0 broken. Lifting it lets a ladder sell something no other agent flagged,
+    # so it costs `high` confidence.
+    ok_to_sell = ((lambda st: st != "strengthening") if authority == "full"
+                  else (lambda st: st == "watch"))
+    sells = [t for t in cutoff if ok_to_sell(smith_risk.thesis_status(thesis.get(t)))]
+    buys = [t for t in by_rank[:max(1, len(by_rank) // 3)]
+            if smith_risk.thesis_status(thesis.get(t)) in ("intact", "strengthening")]
+    if not sells or not buys:
+        return None
+    sell_t = max(sells, key=lambda t: conviction_by_ticker[t]["market_value_usd"])
+    buy_t = min(buys, key=lambda t: order[t])
+    if sell_t == buy_t:
+        return None
+
+    def _why(t, side):
+        r = reads.get(t) or {}
+        dr = (r.get("differentiator_reads") or [{}])[0]
+        axis, read = dr.get("axis"), dr.get("read")
+        base = f"cluster ladder ranks {t} #{order[t]} of {len(ranking)} ({side})"
+        return f"{base}: {axis} -- {read}" if axis and read else base
+
+    return sell_t, buy_t, _why(sell_t, "laggard"), _why(buy_t, "leader")
+
+
+def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cluster_rows=None,
+                              cluster_ladders=None, today=None):
     """Section P: cluster_rotation (PAIRED, live). ORGANISING RULE -- within the SAME cluster,
-    sell the laggard with a WEAK thesis, buy the performer with a STRONG thesis. This is the
-    opposite price/thesis pairing from profit_rotation and is why the two do not contradict --
-    same price state (laggard), opposite thesis, opposite action."""
+    sell the laggard, buy the performer. This is the opposite price/thesis pairing from
+    profit_rotation and is why the two do not contradict -- same price state (laggard), opposite
+    thesis, opposite action.
+
+    TWO WAYS TO RANK (2026-09-08). Where a fresh, confident cluster ladder exists, the ordering
+    comes from smith-cluster's FUNDAMENTAL ranking. Otherwise it comes from `rel_pp`, exactly as
+    before. The fallback is retained deliberately rather than made conditional-on-nothing: a
+    cluster the round-robin has not reached, or one whose ladder is failing its own track
+    record, must still be able to produce a rotation on the evidence that is actually available.
+
+    Why `rel_pp` was never good enough on its own: it is ALWAYS SMH-relative for the whole book,
+    and `data_cache.rel_strength_1m_peer` is null, so power and hyperscaler names were ranked
+    against a semiconductor ETF. On the live 2026-09-07 book that put AVGO last in optics on a
+    -13.31pp reading while it was in fact +5.19pp ahead of its own cluster -- and an open
+    proposal was selling it.
+    """
     by_cluster = {}
     for t, c in conviction_by_ticker.items():
         by_cluster.setdefault(c["cluster"], []).append(t)
     for cluster, tickers_here in by_cluster.items():
         if not cluster or len(tickers_here) < 2:
             continue
-        laggard_weak = [t for t in tickers_here if (conviction_by_ticker[t]["rel_pp"] or 0) < 0
-                        and smith_risk.thesis_status(thesis.get(t)) == "watch"
-                        and not conviction_by_ticker[t]["over_cap"]]
-        performer_strong = [t for t in tickers_here if (conviction_by_ticker[t]["rel_pp"] or 0) > 0
-                            and smith_risk.thesis_status(thesis.get(t)) in ("intact", "strengthening")
+        entry = (cluster_ladders or {}).get(cluster)
+        authority, eff_conf, auth_reasons = smith_risk.ladder_authority(
+            entry, today or date.today(), ttl_days=LADDER_TTL_DAYS,
+            min_scored=LADDER_MIN_SCORED_CALLS) if entry else ("none", None, [])
+        picked = (_cluster_rotation_legs_from_ladder(
+            entry, tickers_here, conviction_by_ticker, thesis, authority)
+            if authority in ("rank", "full") else None)
+
+        if picked:
+            sell_t, buy_t, sell_why, buy_why = picked
+            ladder_driven = True
+        else:
+            laggard_weak = [t for t in tickers_here if (conviction_by_ticker[t]["rel_pp"] or 0) < 0
+                            and smith_risk.thesis_status(thesis.get(t)) == "watch"
                             and not conviction_by_ticker[t]["over_cap"]]
-        if not laggard_weak or not performer_strong:
-            continue
-        sell_t = min(laggard_weak, key=lambda t: conviction_by_ticker[t]["rel_pp"] or 0)
-        buy_t = max(performer_strong, key=lambda t: conviction_by_ticker[t]["conviction_score"])
-        if sell_t == buy_t:
-            continue
+            performer_strong = [t for t in tickers_here if (conviction_by_ticker[t]["rel_pp"] or 0) > 0
+                                and smith_risk.thesis_status(thesis.get(t)) in ("intact", "strengthening")
+                                and not conviction_by_ticker[t]["over_cap"]]
+            if not laggard_weak or not performer_strong:
+                continue
+            sell_t = min(laggard_weak, key=lambda t: conviction_by_ticker[t]["rel_pp"] or 0)
+            buy_t = max(performer_strong, key=lambda t: conviction_by_ticker[t]["conviction_score"])
+            if sell_t == buy_t:
+                continue
+            ladder_driven = False
+            sell_why = (f"laggard within {cluster} ({conviction_by_ticker[sell_t]['rel_pp']:+.1f}pp), "
+                        f"watch thesis -- dead money in this cluster")
+            buy_why = (f"performer within {cluster} ({conviction_by_ticker[buy_t]['rel_pp']:+.1f}pp), "
+                       f"{smith_risk.thesis_status(thesis.get(buy_t))} thesis")
         sell_mv = conviction_by_ticker[sell_t]["market_value_usd"]
         sell_size = round(sell_mv * 0.30, 2)
         buy_conv = conviction_by_ticker[buy_t]
@@ -2865,15 +2952,26 @@ def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cl
         cluster_room = _pair_cluster_room_usd(cluster_rows, cluster, cluster, sell_size)
         buy_size, clamped_by = smith_conviction.clamp_size(sell_size, buy_conv["headroom_usd"],
                                                            cluster_room, None)
+        # The retirement condition must name what the pair was actually BUILT on, or the
+        # lifecycle pass revalidates a ladder-driven pair against a price fact nobody used.
+        retires = (f"EITHER {cluster}'s ladder no longer ranks {buy_t} above {sell_t} "
+                   f"OR that ladder goes stale (>{LADDER_TTL_DAYS}d)" if ladder_driven else
+                   f"EITHER {sell_t}'s thesis strengthens OR {buy_t} is no longer the "
+                   f"cluster's relative-strength leader")
         cluster_rotation.append({
             "pair_id": f"cluster_rotation-{sell_t}-{buy_t}", "trigger_type": "cluster_rotation", "vote": "live",
             "cluster": cluster,
+            "ladder_driven": ladder_driven,
+            "ladder_as_of": (entry or {}).get("as_of") if ladder_driven else None,
+            "ladder_confidence": eff_conf if ladder_driven else None,
+            "ladder_authority": authority,
+            "ladder_authority_reasons": auth_reasons,
             "sell_leg": {"ticker": sell_t, "direction": "SELL", "suggested_size_usd": sell_size,
-                        "reasons": [f"laggard within {cluster} ({conviction_by_ticker[sell_t]['rel_pp']:+.1f}pp), watch thesis -- dead money in this cluster"]},
+                        "reasons": [sell_why]},
             "buy_leg": {"ticker": buy_t, "direction": "BUY", "suggested_size_usd": buy_size, "clamped_by": clamped_by,
                        "conviction_score": buy_conv["conviction_score"],
-                       "reasons": [f"performer within {cluster} ({buy_conv['rel_pp']:+.1f}pp), {smith_risk.thesis_status(thesis.get(buy_t))} thesis"]},
-            "retires_when": f"EITHER {sell_t}'s thesis strengthens OR {buy_t} is no longer the cluster's relative-strength leader"})
+                       "reasons": [buy_why]},
+            "retires_when": retires})
 
 
 
@@ -3476,7 +3574,8 @@ def cmd_triggers(args):
     # --- O/P. profit_rotation + cluster_rotation (PAIRED, live) ---------------------------
     _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, total_book, policy,
                              profit_rotation, cluster_rows)
-    _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cluster_rows)
+    _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cluster_rows,
+                              state.get("cluster_ladders") or {}, today)
 
     oversold.sort(key=lambda x: x["rsi14"])
     overbought.sort(key=lambda x: -x["rsi14"])
@@ -4077,8 +4176,11 @@ def main():
     sp.add_argument("--today", default=None)
 
     sp = sub.add_parser("crosscheck",
-                        help="detect conflicts BETWEEN this run's sub-agent outputs; run after "
-                             "the observer wave merges and before the interpreter wave dispatches")
+                        help="detect conflicts BETWEEN this run's sub-agent outputs; run AFTER "
+                             "WAVE 2 (interpreters) has merged and BEFORE WAVE 3 (strategist) "
+                             "dispatches -- this help contradicted cmd_crosscheck's own "
+                             "docstring until 2026-09-08; the docstring is right, and explains "
+                             "why the earlier timing left 4 of 5 rules structurally inert")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--run-dir", required=True)
     sp.add_argument("--today", default=None)

@@ -1277,7 +1277,7 @@ def _merge_quality(out, state, today):
             "force_thesis_review": len(ftr), "financials_cache_updated": len(fin_updates)}
 
 
-def _merge_cluster(out, state, today, cluster_name=None):
+def _merge_cluster(out, state, today, cluster_name=None, ladder_track_record=None):
     """Fold ONE cluster specialist's tail into state.cluster_ladders[<cluster>].
 
     PER-CLUSTER, never wholesale. Up to LADDER_MAX_DISPATCH clusters are refreshed per run and
@@ -1312,6 +1312,16 @@ def _merge_cluster(out, state, today, cluster_name=None):
         # Carried forward, never rewritten by the agent -- the score of its PREVIOUS calls.
         "track_record": prior.get("track_record") or [],
     }
+    # APPEND THE SCORE OF THE LADDER BEING REPLACED, here, at the only moment both exist.
+    # cmd_ladder computes it (did the previous leader actually beat the previous laggard?) and
+    # emits it, but emitting is not persisting -- without this the record would be recomputed
+    # and discarded every run, which is the same G50 shape this codebase keeps fixing, and the
+    # confidence auto-downgrade in smith_risk.ladder_authority would never have a sample to act
+    # on. Capped at LADDER_TRACK_RECORD_CAP: a rolling window, because a ranking that was right
+    # about a different cluster composition two years ago is not evidence about this one.
+    score = (ladder_track_record or {}).get(cname)
+    if score:
+        entry["track_record"] = (entry["track_record"] + [score])[-LADDER_TRACK_RECORD_CAP:]
     # A ladder with no ordering is not a ladder. Persisting one would hand the rotation trigger
     # a `leader`/`laggard` pair with nothing behind it, which is worse than having no ladder at
     # all because the trigger's freshness gate would treat it as a real answer.
@@ -1518,6 +1528,9 @@ def cmd_merge_tails(args):
             # a dropped field must not silently misfile a ladder onto another cluster.
             sl = load_json(os.path.join(args.run_dir, f"slice_{agent}.json"), default={})
             extra["cluster_name"] = sl.get("cluster_name")
+            extra["ladder_track_record"] = (
+                load_json(os.path.join(args.run_dir, "compute_ladder.json"),
+                          default={}).get("track_record") or {})
         results[agent] = rule(out, state, today, **extra)
         for key in MERGE_STAMPS.get(agent, []):
             state[f"{key}_as_of"] = today
@@ -3616,6 +3629,56 @@ def cmd_crosscheck(args):
                            f"Often correct -- that is what a value entry looks like -- but it is "
                            f"the pattern that also describes a thesis lagging the tape."),
                 "action": "note in the briefing rather than resolve"})
+
+    # --- 6. cluster ladder vs per-name thesis (added 2026-09-08) --------------------------
+    # smith-cluster ranks members COMPARATIVELY; smith-thesis judges each one on its own. When
+    # a name is ranked last in its cluster while the desk still calls it strengthening -- or is
+    # ranked first on a watch thesis -- two agents have looked at the same company and reached
+    # opposite conclusions. That is not noise to be averaged away: from 2026-09-08 the ladder
+    # can DRIVE a live rotation, so an unadjudicated tension here becomes a sized trade. The
+    # agent is asked to self-report these in `thesis_tensions`; this rule catches the ones it
+    # did not, which is the whole point of a backstop.
+    #
+    # Reads state, not a tail: only up to LADDER_MAX_DISPATCH clusters refresh per run, and a
+    # ladder from two runs ago that still contradicts today's thesis is exactly as consequential
+    # as one written this morning -- it has the same trigger authority.
+    _cc_state = load_json(os.path.join(args.base_dir, "state.json"), default={}) or {}
+    _ladders = _cc_state.get("cluster_ladders") or {}
+    _thesis_map = _cc_state.get("thesis") or {}
+    for _cname, _L in _ladders.items():
+        if not isinstance(_L, dict):
+            continue
+        _auth, _, _ = smith_risk.ladder_authority(
+            _L, date.fromisoformat(args.today) if args.today else date.today(),
+            ttl_days=LADDER_TTL_DAYS, min_scored=LADDER_MIN_SCORED_CALLS)
+        _ranking = _L.get("ranking") or []
+        _self_reported = {r.get("ticker") for r in (_L.get("thesis_tensions") or [])
+                          if isinstance(r, dict)}
+        for _r in _ranking:
+            if not isinstance(_r, dict):
+                continue
+            _tk, _verdict = _r.get("ticker"), _r.get("verdict")
+            if not _tk or _tk in _self_reported:
+                continue
+            _st = smith_risk.thesis_status(_thesis_map.get(_tk))
+            if _verdict == "laggard" and _st == "strengthening":
+                _detail = (f"the {_cname} ladder ranks {_tk} LAST while smith-thesis calls it "
+                           f"strengthening. One of the two is wrong about the same company.")
+            elif _verdict == "leader" and _st in ("watch", "broken"):
+                _detail = (f"the {_cname} ladder ranks {_tk} FIRST while smith-thesis calls it "
+                           f"{_st}. One of the two is wrong about the same company.")
+            else:
+                continue
+            findings.append({
+                "kind": "ladder_vs_thesis", "ticker": _tk, "cluster": _cname,
+                # `high` only when the ladder can actually act. A contradicted ranking that
+                # carries no trigger authority is worth reporting, not worth blocking on.
+                "severity": "high" if _auth in ("rank", "full") else "medium",
+                "detail": (_detail + f" The ladder's authority this run is `{_auth}`"
+                           + (" -- it can size a rotation on this ranking."
+                              if _auth in ("rank", "full") else
+                              " -- advisory only, so nothing is being sized on it yet.")),
+                "action": "strategist adjudicates before sizing any rotation in this cluster"})
 
     by_sev = {"high": 0, "medium": 0, "low": 0}
     for f in findings:
