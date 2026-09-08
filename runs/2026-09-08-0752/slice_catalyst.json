@@ -1,0 +1,97 @@
+{
+  "mode": "deep",
+  "today": "2026-09-08",
+  "market_session": "pre-open",
+  "gate_classification": "AMBIGUOUS",
+  "macro": {
+    "usdinr": 94.728,
+    "us10y": 4.784,
+    "vix": 15.69,
+    "dxy": 98.954,
+    "spx": 7718.6,
+    "ndx": 26506.99,
+    "smh": 567.01,
+    "es_f": 7696.5,
+    "nq_f": 29565.5
+  },
+  "usdinr": 94.728,
+  "known_gaps": [
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    },
+    {
+      "id": "G86",
+      "status": "partially_closed",
+      "gap": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are there"
+    },
+    {
+      "id": "G85",
+      "status": "partially_closed",
+      "gap": "SHADOW-SCORED TRIGGER PROPOSALS ARE STRUCTURALLY EXEMPT FROM CONDITION-BASED AUTO-RETIREMENT. Any proposal whose trigger_type is a shadow trigger (profit_ratchet, scale_out_ladder) is written with retires_when = 'n/a -- shadow-scored, track"
+    },
+    {
+      "id": "G82",
+      "status": "open",
+      "gap": "BX (Blackstone) was re-entered 2026-08-21 (date corrected 2026-09-07 via the actual INDmoney confirmation email, see G83 -- this entry originally said 08-24, which was wrong) (10sh, 3.67% weight) after a full exit on 2026-08-17. smith-thesi"
+    },
+    {
+      "id": "G90",
+      "status": "open",
+      "gap": "FMP plan tier blocks `statements` (key-metrics/financial-scores) for this book's actual holdings by a per-symbol coverage limit, not a blanket endpoint permission as previously assumed -- NVDA worked in isolated testing, but all 5 of this r"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "agent": "smith-catalyst",
+  "agent_key": "catalyst",
+  "output_file": "runs/2026-09-08-0752/smith-catalyst-output.md",
+  "holdings_path": "runs/2026-09-08-0752/holdings.json",
+  "read_these_files": {
+    "factor_themes": "/Users/yb/Claude/AgentSmith/runs/2026-09-08-0752/shared/factor_themes.69aec446.json",
+    "drift": "/Users/yb/Claude/AgentSmith/runs/2026-09-08-0752/compute_drift.json",
+    "market_inputs": "/Users/yb/Claude/AgentSmith/runs/2026-09-08-0752/market_inputs.json",
+    "hbm_tracker": "/Users/yb/Claude/AgentSmith/runs/2026-09-08-0752/shared/hbm_tracker.json",
+    "holdings": "/Users/yb/Claude/AgentSmith/runs/2026-09-08-0752/shared/holdings_trim.575c44b5.json"
+  },
+  "factor_catalysts": [
+    {
+      "headline": "CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline",
+      "date": "2026-09-01",
+      "horizon": "structural",
+      "direction": "threat",
+      "affects": [
+        "MU",
+        "SKHY",
+        "EWY",
+        "ASML",
+        "LRCX",
+        "AMAT",
+        "TER"
+      ],
+      "exposure_pct_equity": 8.425,
+      "exposure_pct_book": 8.425,
+      "magnitude": "risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json)",
+      "source": "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm",
+      "invalidates_proposal": null
+    },
+    {
+      "headline": "CXMT DRAM share reaches ~10% domestically as Samsung's HBM capacity pivot vacates conventional-DRAM share",
+      "date": "2026-09-03",
+      "horizon": "structural",
+      "direction": "ambiguous",
+      "affects": [
+        "MU",
+        "SKHY",
+        "EWY"
+      ],
+      "exposure_pct_equity": 8.425,
+      "exposure_pct_book": 8.425,
+      "magnitude": "~10% domestic China DRAM share vs Samsung/SK Hynix/Micron controlling the large majority of global DRAM; consistent with, not incremental to, the already-logged HBM-crowds-out-DRAM mechanism (18%->30% of DRAM wafer input by end-2027 per TrendForce)",
+      "source": "https://www.techtimes.com/articles/326406/20260903/cxmt-hits-10-dram-share-samsungs-hbm-pivot-handed-china-market-vacancy.htm",
+      "invalidates_proposal": null
+    }
+  ],
+  "news_watermark": "2026-09-07",
+  "inputs_digest": "006f219aac0e"
+}

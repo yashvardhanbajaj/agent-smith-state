@@ -716,6 +716,29 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
     # 0-for-17 beyond even four restatements -- a proposal recommended 3+ times and never
     # acted on is not "still building a case", it has been declined in practice. Only applies
     # when no other retirement reason already fired above (those are more specific).
+    # PAIRED LEGS ARE EXEMPT FROM RESTATEMENT RETIREMENT (added 2026-09-08, found live on the
+    # first ladder-driven run). A rotation's two legs share a pair_id and MUST retire together --
+    # that rule is the whole reason 19 earlier rotation pairs died and _retire_orphaned_rotation_legs
+    # exists. But that pass only retires legs whose PAIR is no longer live; it cannot re-unify a
+    # pair that IS live this run and had one leg retired underneath it by a different rule.
+    #
+    # That is exactly what happened: the ladder-driven pair cluster_rotation-INTC-KLAC was live,
+    # its BUY leg hit repeat_count 3 (KLAC has been proposed as a buy under several trigger types
+    # for weeks) and auto-retired, and the SELL leg stayed open -- leaving a naked "Sell INTC"
+    # with no funding destination, which is the orphaning failure mode wearing a different hat.
+    #
+    # A leg's repeat_count is also a poor signal in the first place: it counts how often the IDEA
+    # was restated, and a pair being re-proposed each run inflates BOTH legs' counts by
+    # construction. Retiring one half of a still-live pair on that basis is not "declined in
+    # practice", it is bookkeeping. The pair-level retirement rule remains the only thing allowed
+    # to retire a paired leg.
+    _is_paired_leg = bool(pr.get("pair_id")) and str(pr.get("pair_id")).startswith(PAIRED_TRIGGER_PREFIXES)
+    if not why and _is_paired_leg and pr.get("repeat_count", 1) >= 3:
+        # Return None -- the caller's contract is "a dict means retired, None means kept". Stamp
+        # the exemption on the row so a reader can see the rule fired and was declined, rather
+        # than wondering why a 3x-restated leg is still open.
+        pr["review_flags"] = sorted(set((pr.get("review_flags") or []) + ["paired_leg_repeat_exempt"]))
+        return None
     if not why and pr.get("repeat_count", 1) >= 3:
         _rc = pr["repeat_count"]
         why = (f"recommended {_rc}x and never actioned -- 0-for-17 historically beyond four "

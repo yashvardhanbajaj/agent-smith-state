@@ -1313,6 +1313,19 @@ def _merge_cluster(out, state, today, cluster_name=None, ladder_track_record=Non
         "bench": out.get("bench") or [],
         "reorder_when": out.get("reorder_when") or [],
         "catalysts": out.get("catalysts") or [],
+        # PERSISTED, not dropped (fixed 2026-09-08 on the first live run). The agent is asked to
+        # self-report ranks that contradict state.thesis, and cmd_crosscheck's ladder_vs_thesis
+        # rule dedups against exactly this list so it only reports the tensions the agent MISSED.
+        # Leaving it out of the entry meant the dedup could never match: on the first real run all
+        # three findings crosscheck raised were ones the agents had already flagged themselves.
+        # That is the G50 shape -- produced, then discarded -- in new code.
+        "thesis_tensions": out.get("thesis_tensions") or [],
+        # Also carried: the honest limits the agent put on its own ranking. `unranked` names are
+        # ones it refused to rank rather than guess at, and confidence_reasons is what `confidence`
+        # -- which gates trigger authority -- actually rests on. Both are load-bearing for a reader
+        # deciding how much to trust the order.
+        "unranked": out.get("unranked") or [],
+        "confidence_reasons": out.get("confidence_reasons") or [],
         # Carried forward, never rewritten by the agent -- the score of its PREVIOUS calls.
         "track_record": prior.get("track_record") or [],
     }

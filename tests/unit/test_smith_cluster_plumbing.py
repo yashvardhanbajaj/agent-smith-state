@@ -282,3 +282,36 @@ class TestTrackRecordPersistence:
         res = sm._merge_cluster(_tail(n=0, leader="A", laggard="B"), state, "2026-09-08",
                                 ladder_track_record={"AI Networking/Optics": self.SCORE})
         assert res["merged"] is False and "scored_call" not in res and state == {}
+
+
+class TestTensionsArePersisted:
+    """FOUND LIVE on the first real ladder run (2026-09-08). The agent is asked to self-report
+    ranks that contradict state.thesis, and cmd_crosscheck's ladder_vs_thesis rule dedups against
+    exactly that list so it only reports what the agent MISSED. _merge_cluster did not persist
+    the field, so the dedup could never match -- all three findings crosscheck raised on that run
+    were ones the agents had already flagged themselves. Produced, then discarded: the G50 shape,
+    in new code."""
+
+    def test_thesis_tensions_survive_the_merge(self):
+        state = {}
+        tensions = [{"ticker": "AVGO", "ladder_rank": 5, "thesis_status": "watch",
+                     "tension": "ranked mid-cluster on a watch thesis"}]
+        sm._merge_cluster(_tail(thesis_tensions=tensions), state, "2026-09-08")
+        assert state["cluster_ladders"]["AI Networking/Optics"]["thesis_tensions"] == tensions
+
+    def test_unranked_and_confidence_reasons_survive_too(self):
+        """Both are the agent's honest limits on its own ranking -- `unranked` is what it refused
+        to guess at, confidence_reasons is what the authority-gating `confidence` rests on."""
+        state = {}
+        sm._merge_cluster(_tail(unranked=[{"ticker": "GLW", "reason": "no cached return"}],
+                                confidence_reasons=["coverage is 6 of 8"]),
+                          state, "2026-09-08")
+        e = state["cluster_ladders"]["AI Networking/Optics"]
+        assert e["unranked"] == [{"ticker": "GLW", "reason": "no cached return"}]
+        assert e["confidence_reasons"] == ["coverage is 6 of 8"]
+
+    def test_the_fields_default_to_empty_lists_not_missing_keys(self):
+        state = {}
+        sm._merge_cluster(_tail(), state, "2026-09-08")
+        e = state["cluster_ladders"]["AI Networking/Optics"]
+        assert e["thesis_tensions"] == [] and e["unranked"] == [] and e["confidence_reasons"] == []

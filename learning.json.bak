@@ -511,6 +511,102 @@
       },
       "run_dir": null,
       "note": null
+    },
+    {
+      "date": "2026-09-08",
+      "param_id": "usage:catalyst",
+      "value": {
+        "tokens": 106385,
+        "tool_calls": 10,
+        "duration_s": 69,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-08-0752",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-08",
+      "param_id": "usage:macro",
+      "value": {
+        "tokens": 78668,
+        "tool_calls": 7,
+        "duration_s": 65,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-08-0752",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-08",
+      "param_id": "usage:watchlist",
+      "value": {
+        "tokens": 106774,
+        "tool_calls": 9,
+        "duration_s": 82,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-08-0752",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-08",
+      "param_id": "usage:scout",
+      "value": {
+        "tokens": 79444,
+        "tool_calls": 5,
+        "duration_s": 72,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-08-0752",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-08",
+      "param_id": "usage:thesis",
+      "value": {
+        "tokens": 122235,
+        "tool_calls": 9,
+        "duration_s": 128,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-08-0752",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-08",
+      "param_id": "usage:book",
+      "value": {
+        "tokens": 95125,
+        "tool_calls": 15,
+        "duration_s": 141,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-08-0752",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-08",
+      "param_id": "usage:cluster_semis",
+      "value": {
+        "tokens": 92258,
+        "tool_calls": 11,
+        "duration_s": 245,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-08-0752",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-08",
+      "param_id": "usage:cluster_hyperscaler",
+      "value": {
+        "tokens": 81704,
+        "tool_calls": 8,
+        "duration_s": 155,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-08-0752",
+      "note": "mode=deep"
     }
   ],
   "parameters": {
@@ -883,6 +979,14 @@
       "text": "PARALLEL DISPATCH SILENTLY DEFEATED THE DESK'S OWN EVIDENCE RULE. Every Stage-1 analyst ran in one flat parallel batch, so no agent could see any other's findings -- correct for agents that OBSERVE independent things, wrong for agents whose job is to INTERPRET what the others found. Four failures in the single 2026-09-06 deep run, none detected by anything at the time. (1) EVIDENCE GAP: smith-thesis wrote APH 'strengthening' with evidence_against 'none found this run' while smith-quality, the same run, found APH interest expense +157pct QoQ, debt +21pct, goodwill +66pct. G58 requires both sides to survive compression; parallelism defeats it, because the other side sat in a sibling's output the agent could not read. (2) HANDOFF TO NOWHERE: smith-thesis closed a tension with 'proximate cause unresolved, handed to smith-catalyst' -- catalyst had already run in the same wave, so the handoff went nowhere and thesis's verdict was formed without the answer catalyst had actually found. (3) UNADJUDICATED CONTRADICTION: smith-catalyst reported a STRUCTURAL memory tailwind (DRAM +50pct QoQ) while smith-cycle reported TrendForce 4Q26 at +3-8pct; neither saw the other, both entered the briefing, and the catalyst figure later failed tier-1 corroboration outright. (4) READ-WRITE RACE: smith-ledger rebuilt lots.json while smith-tax read it (tax logged a 13:04 read with 6 mismatches and a 13:09 read clean) and smith-book reported 'APH has no lots.json entry' for the same reason -- SKILL.md ordered exactly one thing, ledger before strategist, and said nothing about the two agents that READ the file ledger writes. GENERALISE: a set of agents is not parallelisable just because they can be launched at once. Classify each as OBSERVER (reads the world) or INTERPRETER (reads other agents' conclusions), and never put an interpreter in the same wave as its inputs. And when a shared FILE has a writer, every reader of that file is downstream of the writer whether or not anyone wrote that down. FIX: four dependency waves (facts -> observers -> crosscheck -> interpreters -> strategist) plus smith_math.py crosscheck, which detects 1-3 mechanically and catches all three unaided on the 2026-09-06 data.",
       "evidence": null,
       "source_run": null,
+      "supersedes": null
+    },
+    {
+      "date": "2026-09-06",
+      "kind": "correction",
+      "text": "ORCHESTRATOR SELF-ERROR, not a script bug: when building a --prices-json map for score/stops by hand, DRAM (a real ticker, Roundhill Memory ETF) was assigned MU's price ($1016.59) as a lazy placeholder because both are memory-themed and DRAM's real price wasn't immediately fetched. This fabricated a +1690% phantom move on 3 stop-loss rows and inflated stops_analysis.json's overall net_dollar_impact from a real $3,422.52 to a fake $75,190.02 -- 96% of the reported figure was fictitious, caught only because the user found the number implausible on sight. NEVER substitute one ticker's price for another's as a stand-in, even within the same theme/sector -- fetch the real quote (DRAM priced fine via yfinance, $59.69) or leave it null and flag it, per the HARD GUARDRAIL against estimating a number COMPUTE-FIRST covers.",
+      "evidence": null,
+      "source_run": "manual-fix-2026-09-06",
       "supersedes": null
     }
   ]

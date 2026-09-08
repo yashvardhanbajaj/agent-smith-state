@@ -1,0 +1,34 @@
+{
+ "ts": "2026-09-08T07:52:00Z",
+ "usdinr": 94.728,
+ "us10y": 4.784,
+ "vix": 15.69,
+ "dxy": 98.954,
+ "spx": 7718.6,
+ "ndx": 26506.99,
+ "es_f": 7696.5,
+ "nq_f": 29565.5,
+ "smh": 567.01,
+ "spx_125dma": 7413.82,
+ "spx_52w_high": 7816.7,
+ "vix_52w_range": [
+  13.8,
+  28
+ ],
+ "ndx_rsi14": 53.4,
+ "us10y_chg_1m_bps": 12.4,
+ "asia": {
+  "n225_pct": -1.7,
+  "kospi_pct": -0.58,
+  "twii_pct": -0.47,
+  "stoxx50_pct": -0.45
+ },
+ "market_session": "pre-open",
+ "gate_classification": "AMBIGUOUS",
+ "gate_note": "First session after the Labor Day long weekend; last completed session was FRIDAY 2026-09-04, so every price here is byte-identical to the 2026-09-07 holiday run's. Gate is AMBIGUOUS on the rule as written: no ESCALATING term fires (worst Asia -1.70%, SMH last session +2.61%, no cluster <=-4%), but STABILIZING requires VIX change <=+2% and VIX is +2.55% on thin holiday-session futures. Calling this calm would overstate a number that has not traded since Friday.",
+ "data_quality": [
+  "vix_52w_range, spx_52w_high and spx_125dma are derived from a 23-week window, not a full 52 weeks: yfinance's ~69-row global budget truncated a 1y weekly pull to 23 of 53 rows for each of 3 symbols. They are ~6-month statistics labelled as such, and they still beat the hardcoded [10,40] VIX default and the neutral-50 placeholders the prior 4 runs used for ma125/rsi14/52w-high. A true 52-week range needs a single-symbol pull.",
+  "spx_125dma is the mean of 23 WEEKLY closes (~115 trading days), an approximation of the 125-day MA -- daily bars for 125 sessions do not fit the row budget.",
+  "ndx_rsi14 is a real 14-period RSI over 23 daily ^IXIC closes, not a placeholder."
+ ]
+}

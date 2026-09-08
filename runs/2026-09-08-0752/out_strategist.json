@@ -1,0 +1,104 @@
+{
+ "policy_draft": null,
+ "stress_table": {
+  "as_of": "2026-09-08",
+  "anchored_to": {
+   "us10y_pct": 4.784,
+   "vix": 15.69,
+   "dxy": 98.954,
+   "fed_rate_pct": 3.63,
+   "fed_stance": "hawkish"
+  },
+  "scenarios": [
+   {
+    "scenario": "AI-capex pause",
+    "impact_pct_low": -18.0,
+    "impact_pct_high": -12.0,
+    "most_exposed": [
+     "GEV",
+     "BE",
+     "NBIS",
+     "TER"
+    ],
+    "mechanism": "95.4% AI-capex concentration; pause hits power/infra and hyperscaler-capex-linked names first",
+    "basis": "static_assumption",
+    "note": ""
+   },
+   {
+    "scenario": "Rates +100bp",
+    "impact_pct_low": -9.0,
+    "impact_pct_high": -5.0,
+    "most_exposed": [
+     "NBIS",
+     "IREN",
+     "VRT"
+    ],
+    "mechanism": "rent-vs-self-fund cluster split; NBIS/IREN carry cost-of-capital exposure directly, live 10y already +12.4bp/1m into hawkish-cached Fed",
+    "basis": "live",
+    "note": ""
+   },
+   {
+    "scenario": "Tariff/export-control escalation",
+    "impact_pct_low": -14.0,
+    "impact_pct_high": -7.0,
+    "most_exposed": [
+     "TSM",
+     "ASML",
+     "AMAT",
+     "LRCX"
+    ],
+    "mechanism": "semicap/foundry supply chain most exposed to fresh control tightening",
+    "basis": "static_assumption",
+    "note": ""
+   },
+   {
+    "scenario": "USD/INR +/-3%",
+    "impact_pct_low": 0.0,
+    "impact_pct_high": 0.0,
+    "most_exposed": [],
+    "mechanism": "USD-reported book; ~0% USD effect, proportional effect in INR-terms net worth only",
+    "basis": "static_assumption",
+    "note": "approx +/-Rs1.2L equivalent in INR terms on $42,309.58 total book"
+   },
+   {
+    "scenario": "Soft CPI/hawkish-surprise week (09-11/09-15-16)",
+    "impact_pct_low": -6.0,
+    "impact_pct_high": -3.0,
+    "most_exposed": [
+     "NBIS",
+     "IREN",
+     "VRT",
+     "BE"
+    ],
+    "mechanism": "macro regime read: rate-sensitive names pressured first and hardest into CPI+FOMC window",
+    "basis": "live",
+    "note": ""
+   },
+   {
+    "scenario": "Asia/memory-chain soft patch",
+    "impact_pct_low": -5.0,
+    "impact_pct_high": -2.0,
+    "most_exposed": [
+     "MU",
+     "TSM",
+     "STM"
+    ],
+    "mechanism": "soft Asia overnight (Nikkei -1.7%) hitting memory/semicap chain; STMPA.PA -2.91% overnight already flagged",
+    "basis": "live",
+    "note": ""
+   }
+  ],
+  "data_quality": [
+   "options PCR/max-pain unavailable this run",
+   "rate/tariff/capex-pause rows are static rule-of-thumb ranges, not re-derived this run"
+  ]
+ },
+ "scorecard_read": "Stored scorecard as_of 2026-09-08, n=29: overall 27.6%, TRIM/SELL 18.2% (n=11, avg benefit -12.19%), BUY 40.0% (n=15, avg +0.15%), HOLD 0% (n=3). alpha_scored_count=0 -- all 29 graded on absolute move, not vs SMH, since benchmark capture only started 2026-09-07; in a tape where SMH ran hard this makes trims look worse than their true alpha may be, but that caveat does not erase an 18.2% trim hit rate on n=11 -- both facts stand. 3 rows quarantined for anchor review. This run is the first where every new proposal carries benchmark_price_at_proposal, so the next scorecard can finally separate alpha from beta.",
+ "deemphasize_buckets": [],
+ "data_quality": [
+  "catalyst returned 0 events over the long weekend, wiping live catalyst_threat 6->0 -- absence of new evidence, not an all-clear",
+  "options PCR/max-pain null this run",
+  "P-237 and P-241/P-242 open proposals have rationale disputed by new cluster ladders -- flagged, not altered or duplicated",
+  "KLAC has 3 competing funding paths (P-236 open, and two proposals here) against a single $587.54 deployable-cash ceiling"
+ ]
+}

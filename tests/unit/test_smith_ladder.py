@@ -761,3 +761,67 @@ class TestClusterConsolidation:
         smith_math._trigger_cluster_consolidation({"C": L}, conv, {t: {} for t in conv},
                                                   TODAY, out)
         assert out == []
+
+
+class TestPairedLegRepeatExemption:
+    """FOUND LIVE on the first ladder-driven run (2026-09-08). The ladder-driven pair
+    cluster_rotation-INTC-KLAC was live; its BUY leg hit repeat_count 3 (KLAC had been proposed
+    under several trigger types for weeks) and auto-retired on the restatement rule, while its
+    SELL leg stayed open -- leaving a naked "Sell INTC" with no funding destination. That is the
+    19-of-19 orphaning failure arriving through a door _retire_orphaned_rotation_legs cannot
+    watch: that pass only retires legs whose PAIR is no longer live, and this pair WAS live."""
+
+    import smith_lifecycle
+    from datetime import date
+
+    def _retire(self, pr, live=None):
+        """`live` keeps the name inside its own trigger's live set, so the earlier and more
+        specific "trigger has cleared" rule does not fire and the restatement rule is the one
+        actually under test."""
+        from datetime import date
+        import smith_lifecycle
+        tt = pr.get("trigger_type")
+        return smith_lifecycle._check_condition_based_retirement(
+            pr, date(2026, 9, 8), risk_by_ticker={}, directional_breach=lambda c, b: None,
+            current_tickers={"KLAC", "INTC"}, drift={}, trig_rsi={}, trig_abs={},
+            trigger_live_sets=(live if live is not None else {tt: {pr.get("ticker")}}),
+            state_thesis={}, derisk={}, cluster_breach=lambda c: None,
+            rotation_by_ticker={}, hit_rates_7d={}, parse_date=lambda d: None,
+            hold_max_age_days=30)
+
+    def _leg(self, **kw):
+        pr = {"id": "P-246", "ticker": "KLAC", "action": "Buy KLAC", "status": "open",
+              "direction_bucket": "BUY", "date": "2026-09-08", "repeat_count": 3,
+              "trigger_type": "cluster_rotation", "pair_id": "cluster_rotation-INTC-KLAC",
+              "pair_role": "buy"}
+        pr.update(kw)
+        return pr
+
+    def test_a_paired_leg_is_not_retired_on_restatement_count(self):
+        pr = self._leg()
+        assert self._retire(pr) is None
+        assert pr["status"] == "open"
+
+    def test_the_exemption_is_stamped_so_it_is_auditable(self):
+        """A 3x-restated leg still open should say why, not look like an oversight."""
+        pr = self._leg()
+        self._retire(pr)
+        assert "paired_leg_repeat_exempt" in pr["review_flags"]
+
+    def test_an_unpaired_proposal_still_retires_on_restatement(self):
+        pr = self._leg(pair_id=None, pair_role=None, trigger_type="conviction_average")
+        res = self._retire(pr)
+        assert res is not None and pr["status"] == "auto_retired"
+        assert "never actioned" in pr["retired_reason"]
+
+    def test_every_paired_trigger_type_is_covered_by_the_prefix_test(self):
+        import smith_core
+        for tt in smith_core.PAIRED_TRIGGERS:
+            pr = self._leg(pair_id=f"{tt}-AAA-BBB", trigger_type=tt)
+            assert self._retire(pr) is None, tt
+
+    def test_a_pair_id_that_is_not_a_registered_paired_trigger_is_not_exempt(self):
+        """The exemption keys off PAIRED_TRIGGER_PREFIXES, not off the mere presence of a
+        pair_id -- an unregistered prefix must not silently buy immunity."""
+        pr = self._leg(pair_id="some_other_thing-AAA-BBB")
+        assert self._retire(pr) is not None
