@@ -120,7 +120,7 @@ def esc(s):
 import math
 
 
-def donut_svg(segments, aria_label, center_label="", center_sub=""):
+def donut_svg(segments, aria_label, center_label="", center_sub="", uid="d0"):
     """A shared interactive donut generator (added 2026-09-07, user request: Positions and
     Clusters redesigned as interactive pie charts). `segments`: list of (label, value,
     color_css_expr, tooltip_extra) already sorted into display order -- callers own ranking,
@@ -134,13 +134,18 @@ def donut_svg(segments, aria_label, center_label="", center_sub=""):
     (top holdings by weight vs. every policy cluster are different questions).
 
     Interactive = hover (CSS .mark:hover opacity, already defined in PALETTE_CSS) + a native
-    <title> tooltip per wedge with the exact value, since a donut is deliberately NOT the place
-    exact numbers are read from -- pair this with a legend/list in the caller for that.
+    <title> tooltip per wedge with the exact value, PLUS the center label swaps to the hovered
+    wedge's own name/share (FIXED 2026-09-07, user-reported: "static ... it should change when
+    I hover to another segment" -- the center text used to be hardcoded to the top segment and
+    never moved on hover). `uid` scopes the center-text element ids so two donuts on one page
+    (Clusters, Positions) don't collide; DASHBOARD_JS's donut-hover listener reads each path's
+    data-label/data-pct and writes them into #{uid}-pct/#{uid}-sub on hover, restoring the
+    top-segment default on mouseleave.
     """
     total = sum(v for _, v, _, _ in segments) or 1
     cx, cy, r_out, r_in = 110, 110, 100, 62
     W = H = 220
-    s = [f'<svg class="viz-svg" viewBox="0 0 {W} {H}" width="220" height="220" '
+    s = [f'<svg class="viz-svg donut-svg" viewBox="0 0 {W} {H}" width="220" height="220" '
          f'role="img" aria-label="{esc(aria_label)}">']
     angle = -math.pi / 2  # start at 12 o'clock
     for label, value, color, extra in segments:
@@ -167,13 +172,14 @@ def donut_svg(segments, aria_label, center_label="", center_sub=""):
                  f"L{x0i:.2f},{y0i:.2f} A{r_in},{r_in} 0 {large} 0 {x1i:.2f},{y1i:.2f} Z")
         tip = f"{esc(label)}: {value:,.2f}%" + (f" {esc(extra)}" if extra else "")
         s.append(f'<path class="mark" d="{d}" fill="{color}" stroke="var(--surface-1)" '
-                 f'stroke-width="2"><title>{tip}</title></path>')
+                 f'stroke-width="2" data-label="{esc(label)}" data-pct="{value:.1f}">'
+                 f'<title>{tip}</title></path>')
         angle = a1
     if center_label:
-        s.append(f'<text x="{cx}" y="{cy-3}" text-anchor="middle" font-size="19" '
+        s.append(f'<text id="{uid}-pct" x="{cx}" y="{cy-3}" text-anchor="middle" font-size="19" '
                  f'font-weight="600" fill="var(--ink-1)">{esc(center_label)}</text>')
     if center_sub:
-        s.append(f'<text x="{cx}" y="{cy+15}" text-anchor="middle" font-size="10.5" '
+        s.append(f'<text id="{uid}-sub" x="{cx}" y="{cy+15}" text-anchor="middle" font-size="10.5" '
                  f'fill="var(--ink-3)">{esc(center_sub)}</text>')
     s.append("</svg>")
     return "\n".join(s)
@@ -702,7 +708,7 @@ def chart_clusters_donut(base):
                 for name, pct in ranked]
     top = ranked[0]
     svg = donut_svg(segments, "Portfolio weight by cluster, share of equity",
-                    center_label=f"{top[1]:.0f}%", center_sub=top[0][:16])
+                    center_label=f"{top[1]:.0f}%", center_sub=top[0][:16], uid="dclusters")
     legend = [(color, f"{name} {pct:.1f}%") for name, pct, color, _ in segments]
     return {"svg": svg, "legend": legend,
             "note": "Hover a wedge for the exact share. Full band/target/breach detail is in "
@@ -740,7 +746,8 @@ def chart_positions_donut(base):
 
     top1 = top[0]
     svg = donut_svg(segments, "Position weights, share of equity, top holdings",
-                    center_label=f'{top1.get("weight_pct",0):.0f}%', center_sub=top1["ticker"])
+                    center_label=f'{top1.get("weight_pct",0):.0f}%', center_sub=top1["ticker"],
+                    uid="dpositions")
     legend = [(color, f'{label} {pct:.1f}%') for label, pct, color, _ in segments]
     return {"svg": svg, "legend": legend,
             "note": f"Top {len(top)} by weight; {len(rest)} smaller positions folded into "

@@ -282,30 +282,24 @@ def _collapsible(html, default_open=False):
     return "".join(out)
 
 
-def trim_lead(text, max_len=180):
-    """First sentence (or a word-boundary-safe cut), plus the remainder for a
-    <details> expansion. Returns (short, rest_or_empty).
+_SENT_SPLIT_RE = re.compile(r'(?<=[.!?])\s+(?=[A-Z(])')
 
-    FIXED 2026-09-06 (user-reported: Ideas panel text "not rendering properly"). When the
-    text's first natural sentence (up to the first ". ") ran longer than max_len, the old
-    version hard-cut it at a word boundary and then unconditionally appended "." -- which reads
-    as a complete, grammatical sentence even though the cut usually landed mid-clause or inside
-    a parenthetical ("...rel strength -13.19pp, -13.66%." / "...sympathy rally (NVDA, MRVL.").
-    That is not a rendering bug in the HTML/CSS sense (the markup was well-formed); it is this
-    function silently asserting a sentence boundary that was never there. A hard cut now gets
-    an ellipsis, never a period, so truncation always looks like truncation."""
+
+def split_into_reads(text, n=5):
+    """Split a narrative paragraph into its natural sentences for a scannable "top N reads"
+    list, replacing the prior 400-char truncation + hidden "more" drawer (FIXED 2026-09-07,
+    user: "the read part... is displaying just 1 sentence... the more tab... too much text...
+    difficult to find important things"). Splits on sentence-ending punctuation followed by
+    whitespace and a capital letter or opening paren -- deliberately simple, no NLP dependency.
+    This works because narrative.json's session_read is itself written as short, complete
+    declarative sentences with no internal abbreviations ("U.S.", "Inc.") that would mis-split.
+    Never fabricates content: every returned item is a verbatim slice of the source text, so
+    "top 5 reads" is a display reorganization, not new judgment the dashboard generator isn't
+    allowed to originate (COMPUTE-FIRST / EVIDENCE PRINCIPLE, SKILL.md)."""
     text = (text or "").strip()
     if not text:
-        return "", ""
-    natural = text.split(". ")[0]
-    if len(natural) <= max_len:
-        short = natural.rstrip(" ,;:-") + "."
-        rest = text[len(natural):].strip(" .")
-        return short, rest
-    head = natural[:max_len].rsplit(" ", 1)[0]
-    short = head.rstrip(" ,;:-.") + "…"
-    rest = text[len(head):].strip(" .")
-    return short, rest
+        return []
+    return [s.strip() for s in _SENT_SPLIT_RE.split(text) if s.strip()][:n]
 
 
 CSS = """
@@ -386,6 +380,18 @@ p{margin:0}
 .voice em{color:var(--ink);font-style:italic}
 .pos{color:var(--good)} .neg{color:var(--bad)}
 .col{display:flex;flex-direction:column}
+
+/* ============ "the read" top-N list -- added 2026-09-07 (user: "remake the read section so
+   it contains top 5 reads"). Each item is one whole sentence from the same session narrative,
+   numbered because a ranked "top 5" is what was asked for -- not decoration on content that
+   isn't actually a sequence (see artifact-design's own numbering caveat). Replaces a single
+   dense paragraph + hidden "more" drawer with everything visible at once. ============ */
+.read-list{display:flex;flex-direction:column;gap:2px}
+.read-item{display:flex;gap:14px;align-items:baseline;padding:11px 0;border-top:1px solid var(--line-soft)}
+.read-item:first-child{border-top:none;padding-top:0}
+.read-num{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent);
+  flex-shrink:0;letter-spacing:.02em;min-width:1.4em}
+.read-item .voice{font-size:15px;line-height:1.55}
 
 /* ============ masthead -- editorial, not a form header ============ */
 .mast{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;
@@ -889,6 +895,33 @@ DASHBOARD_JS = r"""<script>
       alert('Could not record that decision (' + (code || 'unknown error') +
             '). It was not saved -- try again.');
       controls.forEach(function(x){ x.disabled = false; });
+    });
+  });
+})();
+</script>"""
+
+# Donut hover-to-update-center (FIXED 2026-09-07, user-reported: the Clusters/Positions donut
+# center label was hardcoded to the top segment and never changed on hover). Deliberately its
+# own script, separate from DASHBOARD_JS's decisions IIFE above: this is pure display
+# interactivity with no window.claude dependency, so it must run unconditionally, including in
+# the read-only preview path where DASHBOARD_JS returns early before ever reaching its own
+# listener setup.
+DONUT_JS = r"""<script>
+(function(){
+  document.querySelectorAll('svg.donut-svg').forEach(function(svg){
+    var pctEl = svg.querySelector('text[id$="-pct"]');
+    var subEl = svg.querySelector('text[id$="-sub"]');
+    if (!pctEl || !subEl) return;
+    var defaultPct = pctEl.textContent, defaultSub = subEl.textContent;
+    svg.querySelectorAll('path.mark').forEach(function(p){
+      p.addEventListener('mouseenter', function(){
+        pctEl.textContent = p.getAttribute('data-pct') + '%';
+        subEl.textContent = p.getAttribute('data-label');
+      });
+      p.addEventListener('mouseleave', function(){
+        pctEl.textContent = defaultPct;
+        subEl.textContent = defaultSub;
+      });
     });
   });
 })();
@@ -1843,26 +1876,30 @@ def _render_stop_loss_efficacy(stops_data, sector_map=None, cluster_order=None):
 
 
 def _render_the_read_and_macro(narr, market_inputs, state, book_compute):
-    """REDESIGNED 2026-09-07 (user: "The read, i dont like it"). Two changes: the Gate pill
-    moves out of the header corner into a proper eyebrow tag sitting directly above the
-    headline, where a masthead-style read normally puts its status word -- previously it
-    floated top-right disconnected from the sentence it qualifies. And the macro numbers below
-    switch from their own separate `.macro`/`.col` grid to the SAME `.hstat` component the hero
-    card already uses for its secondary stats -- one stat-pair pattern for the whole page
-    instead of two different tile treatments competing for the same visual role."""
+    """REDESIGNED 2026-09-07 (user: "The read, i dont like it"), then further redesigned same
+    day (user: "displaying just 1 sentence... the more tab... too much text... difficult to
+    find important things... remake... top 5 reads"). Three changes now: the Gate pill sits as
+    an eyebrow above the list instead of floating top-right; the single dense paragraph (400
+    chars visible, the rest hidden behind a "more" drawer nobody wanted to open) is replaced by
+    split_into_reads() breaking the same narrative text into up to 5 standalone sentence cards,
+    all visible at once, numbered as a ranked list since "top 5" is literally what was asked
+    for; and the macro numbers below reuse the hero card's `.hstat` component rather than a
+    separate `.macro` grid, one stat-pair pattern for the whole page."""
     out = []
     session_text = narr.get("session_read")
     if session_text:
-        short, rest = trim_lead(session_text, 400)
-        more = (f'<details><summary>more</summary><div class="body">{esc(rest)}</div></details>'
-                if len(rest) > 40 else "")
+        reads = split_into_reads(session_text, 5)
         gate = market_inputs.get("gate_classification")
         gate_eyebrow = ""
         if gate:
             cls = "b" if gate == "ESCALATING" else ("w" if gate == "AMBIGUOUS" else "g")
-            gate_eyebrow = f'<span class="pill {cls}" style="margin-bottom:8px">Gate: {esc(gate.title())}</span>'
-        out.append(f'<section class="panel"><div class="phead"><h2>The read</h2></div>'
-                 f'<div class="pbody">{gate_eyebrow}<p class="voice">{esc(short)}</p>{more}')
+            gate_eyebrow = f'<span class="pill {cls}" style="margin-bottom:10px">Gate: {esc(gate.title())}</span>'
+        read_items = "".join(
+            f'<div class="read-item"><span class="read-num">{i+1:02d}</span>'
+            f'<p class="voice">{esc(r)}</p></div>' for i, r in enumerate(reads))
+        out.append(f'<section class="panel"><div class="phead"><h2>The read</h2>'
+                 f'<span class="pill">top {len(reads)}, this session</span></div>'
+                 f'<div class="pbody">{gate_eyebrow}<div class="read-list">{read_items}</div>')
 
         macro_cells = []
         if market_inputs:
@@ -2798,6 +2835,7 @@ def build(base, out):
     H.append('</footer>')
 
     H.append(DASHBOARD_JS)
+    H.append(DONUT_JS)
     H.append('</div></body></html>')
 
     html = "\n".join(H)
