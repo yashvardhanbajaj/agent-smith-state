@@ -69,10 +69,9 @@ def _today(args_today=None):
 
 
 def load_store(base_dir):
-    # load_json's `default` only kicks in when truthy (`if default is not None` reads as "was
-    # a default given", but None itself fails that test and falls through to raise) -- same
-    # footgun documented in smith_memory.py's standalone-journal compaction pass. Pass {} and
-    # test emptiness, not `default=None` + `is None`.
+    # `default={}` here is deliberate and outlives the 2026-09-08 load_json fix: an EXISTING
+    # but empty/`null` store must take the same first-run path as an absent one, which `{}` +
+    # an emptiness test gives and `default=None` + `is None` would not.
     raw = load_json(os.path.join(base_dir, STORE_FILENAME), default={})
     if not raw:
         # Genuinely absent (Phase 0 has just been built, or a fresh checkout) -- start from

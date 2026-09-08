@@ -589,11 +589,23 @@ DUST_USD_DEFAULT = 400.0
 
 CA_TYPES = ("conversion", "split", "fractional_credit", "spinoff", "adjustment")
 
-def load_json(path, default=None):
+# Sentinel so "no default given" is distinguishable from "the default IS None". Before
+# 2026-09-08 this function tested `if default is not None`, which read as "was a default
+# given" -- so `load_json(path, default=None)` RAISED on a missing file instead of returning
+# None. Nine call sites across scripts/ paired that call with an `if x is None:` degrade-
+# gracefully guard that could therefore never run; they crashed with a traceback instead of
+# emitting the self-describing empty result they were written to emit (cmd_rotation and
+# cmd_ladder in smith_math, cmd_validate/_archive_load/compact/shared-snapshot in
+# smith_memory, cmd_stops/cmd_build_proposals in smith_lifecycle, cmd_valuation). With the
+# sentinel, `default=None` genuinely means "return None"; omitting `default` still raises.
+_NO_DEFAULT = object()
+
+
+def load_json(path, default=_NO_DEFAULT):
     if not os.path.exists(path):
-        if default is not None:
-            return default
-        raise FileNotFoundError(path)
+        if default is _NO_DEFAULT:
+            raise FileNotFoundError(path)
+        return default
     with open(path) as f:
         return json.load(f)
 

@@ -1199,6 +1199,9 @@ def cmd_drift(args):
 # ---------------------------------------------------------------------------
 def cmd_rotation(args):
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    # default=None returns None on a missing file (smith_core._NO_DEFAULT); the guard below is
+    # what a hand-run `rotation` before `risk` hits. cmd_pipeline asserts the input first, so
+    # this path only shows up in the per-stage invocation SKILL.md documents.
     risk = load_json(os.path.join(args.run_dir, "compute_risk.json"), default=None)
     polarity_table_json = {k: sorted(v) for k, v in smith_risk.SIGNAL_POLARITY.items()}
 
@@ -1313,12 +1316,10 @@ def _ladder_track_record(prior_ladder, abs_ret, today):
 
 
 def cmd_ladder(args):
-    # os.path.exists, not load_json(default=None): smith_core.load_json RAISES when the file is
-    # absent and default is None, so the `if risk is None` guard below would never be reached --
-    # the stage would crash instead of degrading. (cmd_rotation carries the identical latent
-    # pattern; it is masked there because cmd_pipeline asserts the input first.)
-    risk_path = os.path.join(args.run_dir, "compute_risk.json")
-    risk = load_json(risk_path) if os.path.exists(risk_path) else None
+    # `default=None` means "return None if absent" -- see the _NO_DEFAULT sentinel in
+    # smith_core.load_json. Until 2026-09-08 it raised instead, so the `if risk is None`
+    # guard below was unreachable and the stage crashed rather than degrading.
+    risk = load_json(os.path.join(args.run_dir, "compute_risk.json"), default=None)
     drift = load_json(os.path.join(args.run_dir, "compute_drift.json"), default={})
     rotation = load_json(os.path.join(args.run_dir, "compute_rotation.json"), default={})
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
