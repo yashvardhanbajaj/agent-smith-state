@@ -1762,13 +1762,14 @@ def cmd_pipeline(args):
         ("book",        ["holdings.json"],                          lambda d: d.get("value_usd")),
         ("universe",    ["holdings.json"],                          lambda d: d.get("total")),
         ("risk",        ["compute_book.json"],                      lambda d: d.get("positions")),
-        ("drift",       ["compute_book.json"],                      lambda d: d.get("cluster_table")),
+        ("drift",       ["compute_book.json", "holdings.json"],     lambda d: d.get("cluster_table")),
         ("journal",     ["holdings.json"],                          lambda d: True),
         ("attribution", ["holdings.json"],                          lambda d: True),
         ("rotation",    ["compute_risk.json"],                      lambda d: d.get("tickers")),
         ("buckets",     ["holdings.json"],                          lambda d: d.get("tickers") is not None),
         ("sentiment",   ["market_inputs.json"],                     lambda d: d.get("score") is not None),
-        ("derisk",      ["compute_risk.json", "compute_sentiment.json"], lambda d: d.get("queue")),
+        ("derisk",      ["compute_risk.json", "compute_sentiment.json", "compute_book.json"],
+                                                                    lambda d: d.get("queue")),
         ("triggers",    ["compute_risk.json", "compute_book.json"], lambda d: True),
         # `ladder` runs LAST, after triggers, deliberately: its dispatch gate reads
         # compute_triggers.json to score a cluster higher when a rotation pair is already
