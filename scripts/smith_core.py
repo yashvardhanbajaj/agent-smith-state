@@ -683,3 +683,56 @@ def _prior_run_prices(base_dir, run_dir, state):
         return {}
     return {pp["ticker"]: pp["price_usd"]
             for pp in prior_book.get("positions", []) if pp.get("price_usd")}
+
+
+# ---------------------------------------------------------------------------
+# CLUSTER LADDER (added 2026-09-08)
+# ---------------------------------------------------------------------------
+# The ladder is the intra-cluster substitution ranking produced by smith-cluster and consumed,
+# once it has a track record, by _trigger_cluster_rotation. These constants govern the
+# DETERMINISTIC half (cmd_ladder): who is eligible, how stale is too stale, and how many
+# clusters may be dispatched per run.
+
+# A ladder older than this is not trusted to rank anything -- it neither gates dispatch out nor
+# carries trigger authority. 14d ~= 10 trading sessions, deliberately longer than
+# TRIGGER_CACHE_MAX_AGE_DAYS (10) because a ladder is a FUNDAMENTAL ranking (qualification
+# status, product transitions, margin pools) that moves on quarters, not on a price cache's
+# cadence. Set it as short as a price cache and every ladder would be permanently stale and the
+# whole layer would never once carry authority.
+LADDER_TTL_DAYS = 14
+
+# Cost control, not analysis. A cluster agent costs the same 75-145K tokens as any other agent
+# in this fleet regardless of what it does, so dispatching all 7 held clusters every deep run
+# roughly doubles fleet cost. Three per run plus the round-robin cursor refreshes every eligible
+# cluster within 2-3 deep runs, which is well inside LADDER_TTL_DAYS.
+LADDER_MAX_DISPATCH = 3
+
+# A cluster with fewer than 3 held names has no meaningful ladder -- with 2 members the "ranking"
+# is a single comparison the rotation trigger already makes, and with 1 there is nothing to
+# substitute into. Compute/Hyperscaler OEM (CLS, SMCI) and Analog/Industrial Semis (STM) sit
+# below this line today and are correctly excluded.
+LADDER_MIN_MEMBERS = 3
+
+# Standard deviation of member 1-month returns, in percentage points. Below this the cluster is
+# moving as one block -- it is a beta trade, and swapping inside it is churn dressed as
+# selection. Above it there is a real contest for the cluster's dollar. 4.0pp is roughly the
+# dispersion at which the best and worst member of a 4-name cluster are a full ATR apart.
+LADDER_DISPERSION_MIN_PP = 4.0
+
+# Redundancy CANDIDATE thresholds. Two names in one cluster whose 1-month returns and whose
+# volatility are both this close are behaving like one position. This is a screen, NOT a finding:
+# no return series is cached, so a true correlation is not computable here and must never be
+# faked. The agent makes the same-bet call on business grounds (same customer, same product,
+# same node); this only decides which pairs are worth its attention.
+LADDER_REDUNDANCY_RETURN_GAP_PP = 1.5
+LADDER_REDUNDANCY_ATR_GAP_PCT = 1.0
+
+# ~5 trading days. An imminent print reorders a ladder more than anything else on this list, so
+# a member reporting inside this window is a reason to look at the cluster now rather than let
+# the cursor reach it.
+LADDER_EARNINGS_WINDOW_DAYS = 7
+
+# Below this share of a cluster's held names carrying a cached 1-month return, the ladder is a
+# PARTIAL ranking and says so. Matches TRIGGER_CACHE_MIN_COVERAGE_PCT's intent: partial coverage
+# degrades a ranking exactly the way staleness does, and silently is the wrong way to do it.
+LADDER_MIN_COVERAGE_PCT = 70.0

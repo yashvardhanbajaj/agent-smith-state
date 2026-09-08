@@ -1028,6 +1028,35 @@ def cmd_drift(args):
         c["actual_pct"] = c["actual_pct_of_equity"]
         c["drift_pt"] = round(c["actual_pct_of_equity"] - c["target_pct"], 3)
 
+    # CLUSTER CEILING ROOM IN DOLLARS (added 2026-09-08). smith_conviction.clamp_size has taken a
+    # `cluster_room_usd` argument since it was written, and EVERY caller passes None -- so "never
+    # push a cluster over its ceiling", which that function's own docstring promises, has never
+    # actually been enforced on a single sized buy. Nothing computed the number. This is the only
+    # place that can: the band, the denominator switch and both bases all live here.
+    #
+    # Which denominator, and why the arithmetic differs between them:
+    #   total_book basis -- a cash-funded buy moves dollars from wallet to equity, so total book
+    #     is UNCHANGED and the room is exactly linear: (hi - actual_of_total_book)% of total book.
+    #   invested_equity basis -- a cash-funded buy grows the numerator AND the denominator, so the
+    #     exact solve is X = (hi/100*E - c) / (1 - hi/100), which is LARGER than the linear figure.
+    #     The linear figure is used deliberately: it under-states available room, and a sizing
+    #     clamp that errs small is the correct direction to err.
+    # A cluster with no band cannot be over a ceiling it doesn't have -- None, not zero, so
+    # clamp_size treats it as non-binding rather than as "no room" (unknown != a reason to block).
+    for c in cluster_table:
+        band = c.get("band_pct")
+        hi = band[1] if band else None
+        if hi is None:
+            c["cluster_room_usd"] = None
+            c["cluster_room_basis"] = None
+            continue
+        if c.get("ceiling_tested_on") == "total_book":
+            room = (hi - c["actual_pct_of_total_book"]) / 100.0 * total_book_usd
+        else:
+            room = (hi - c["actual_pct_of_equity"]) / 100.0 * value_usd
+        c["cluster_room_usd"] = round(max(0.0, room), 2)
+        c["cluster_room_basis"] = c.get("ceiling_tested_on")
+
     max_single = policy.get("max_single_position_pct")
     position_breaches = []
     for r in rows:
@@ -1153,6 +1182,9 @@ def cmd_drift(args):
         "ai_capex_pct_of_equity": ai_capex_pct_equity,
         "ai_capex_pct_of_total_book": ai_capex_pct_total_book,
         "total_book_usd": round(total_book_usd, 2),
+        # Added 2026-09-08 alongside cluster_room_usd: consumers previously had to back this out
+        # of total_book_usd and cash_pct to know the denominator the equity-basis figures use.
+        "invested_equity_usd": round(value_usd, 2),
         "peak_total_book_usd": round(peak_total_book_usd, 2),
         "drawdown_pct": drawdown_pct, "drawdown_basis": "total_book", "risk_off_status": risk_off_status,
         "drawdown_action": drawdown_action,
@@ -1211,6 +1243,317 @@ def cmd_rotation(args):
         }
 
     emit({"tickers": tickers, "polarity_table": polarity_table_json, "data_quality": dq})
+
+
+# ---------------------------------------------------------------------------
+# ladder -- the DETERMINISTIC half of the cluster substitution ladder.
+# Needs risk + drift + rotation to have run first in this run-dir.
+# ---------------------------------------------------------------------------
+# WHY THIS EXISTS (added 2026-09-08). Within a cluster every name shares one tailwind, so the
+# question that moves money is not "is NVDA's story intact?" -- smith-thesis owns that, per name
+# -- but "given the same tailwind, which of these ten captures the most of it?". Nothing in the
+# fleet owned that comparative question, and the one place it leaked into behaviour,
+# _trigger_cluster_rotation, answered it with `rel_pp` from data_cache.rel_strength_1m.
+#
+# That number is ALWAYS SMH-relative, for the whole book. data_cache.rel_strength_1m_peer is
+# null, so GEV/VRT/BE/FSLR and MSFT/GOOG/NBIS/IREN have been ranked against a semiconductor ETF.
+# For an INTRA-cluster comparison the fix is not a better external benchmark -- it is to stop
+# using one. rel_intra_pp measures each member against its OWN CLUSTER'S mean return, which is
+# benchmark-free by construction and is precisely what "who is winning inside this cluster"
+# means. It sidesteps the empty peer cache entirely.
+#
+# This stage computes only what a script can honestly compute: intra-cluster relative strength,
+# dispersion, redundancy CANDIDATES, cluster room, and the dispatch gate. The ranking rationale,
+# the margin-pool read, the bench and the cluster thesis are judgment and belong to smith-cluster.
+
+
+def _ladder_slug(cluster, playbook):
+    """Stable, collision-free agent-key suffix for a cluster. The playbook may override for
+    readability (`memory` reads better than `ai_memory_storage` in a dispatch line); the derived
+    form is the fallback so Phase 1 works before any playbook exists, and so a cluster added to
+    sector_map without a playbook entry is still dispatchable rather than silently unreachable."""
+    slug = (playbook or {}).get("slug")
+    if slug:
+        return re.sub(r"[^a-z0-9_]", "", str(slug).strip().lower())
+    return re.sub(r"_+", "_", re.sub(r"[^a-z0-9]+", "_", cluster.lower())).strip("_")
+
+
+def _stdev(xs):
+    if len(xs) < 2:
+        return 0.0
+    mean = sum(xs) / len(xs)
+    return math.sqrt(sum((x - mean) ** 2 for x in xs) / (len(xs) - 1))
+
+
+def _ladder_track_record(prior_ladder, abs_ret, today):
+    """Score the PREVIOUS ladder before it is replaced: did the name it called the leader
+    actually beat the name it called the laggard?
+
+    This is the whole reason a judgment layer is allowed to touch a trigger. A ranking that is
+    never checked becomes a confident-nonsense generator, and this book already has the
+    machinery (journal scoring, signal hit-rates) that says so. The measurement is deliberately
+    crude -- one pairwise call per cluster per refresh, on the same 1-month return window every
+    other price comparison here uses -- because a crude falsifiable score beats a sophisticated
+    unfalsifiable one. Returns None when the prior ladder or either name's return is missing;
+    an unscoreable call is NOT a wrong call and must not be recorded as one.
+    """
+    if not prior_ladder:
+        return None
+    leader, laggard = prior_ladder.get("leader"), prior_ladder.get("laggard")
+    if not leader or not laggard or leader == laggard:
+        return None
+    lead_r, lag_r = abs_ret.get(leader), abs_ret.get(laggard)
+    if lead_r is None or lag_r is None:
+        return {"scored": False, "reason": f"no 1m return cached for {leader if lead_r is None else laggard}"}
+    return {"scored": True, "as_of": today.isoformat(), "ladder_as_of": prior_ladder.get("as_of"),
+            "leader": leader, "laggard": laggard,
+            "leader_return_1m_pct": lead_r, "laggard_return_1m_pct": lag_r,
+            "spread_pp": round(lead_r - lag_r, 2), "correct": bool(lead_r > lag_r),
+            "ladder_confidence_at_call": prior_ladder.get("confidence")}
+
+
+def cmd_ladder(args):
+    # os.path.exists, not load_json(default=None): smith_core.load_json RAISES when the file is
+    # absent and default is None, so the `if risk is None` guard below would never be reached --
+    # the stage would crash instead of degrading. (cmd_rotation carries the identical latent
+    # pattern; it is masked there because cmd_pipeline asserts the input first.)
+    risk_path = os.path.join(args.run_dir, "compute_risk.json")
+    risk = load_json(risk_path) if os.path.exists(risk_path) else None
+    drift = load_json(os.path.join(args.run_dir, "compute_drift.json"), default={})
+    rotation = load_json(os.path.join(args.run_dir, "compute_rotation.json"), default={})
+    state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    policy = load_json(os.path.join(args.base_dir, "policy.json"), default={})
+
+    if risk is None:
+        emit({"clusters": {}, "dispatch": [], "dispatch_selected": [],
+              "data_quality": ["compute_risk.json not found in run-dir -- run `risk` before `ladder`"]})
+        return
+
+    today = date.fromisoformat(args.today) if args.today else date.today()
+    dq = []
+    dc = state.get("data_cache", {}) or {}
+    thesis = state.get("thesis", {}) or {}
+    playbooks = policy.get("cluster_playbooks", {}) or {}
+    prior_ladders = state.get("cluster_ladders", {}) or {}
+    rot_by_ticker = rotation.get("tickers", {}) or {}
+    cluster_rows = {c.get("cluster"): c for c in (drift.get("cluster_table") or [])}
+
+    rel_cache = dc.get("rel_strength_1m", {}) or {}
+    abs_ret = rel_cache.get("values_abs_pct", {}) or {}
+    rel_smh = rel_cache.get("values_pp", {}) or {}
+    rel_as_of = _parse_as_of(rel_cache.get("as_of"))
+    rel_age = (today - rel_as_of).days if rel_as_of else None
+    rel_usable = bool(abs_ret) and rel_age is not None and rel_age <= TRIGGER_CACHE_MAX_AGE_DAYS
+    if not rel_usable:
+        dq.append(f"rel_strength_1m.values_abs_pct unusable (age={rel_age}d, n={len(abs_ret)}) -- "
+                  f"rel_intra_pp and dispersion cannot be computed, so every cluster reads as "
+                  f"zero-dispersion and the gate falls back to staleness alone. Not estimated.")
+
+    atr_vals = (dc.get("atr20", {}) or {}).get("values_pct", {}) or {}
+    rsi_vals = (dc.get("rsi14", {}) or {}).get("values", {}) or {}
+    ecal = dc.get("earnings_calendar", {}) or {}
+    equity_usd = drift.get("invested_equity_usd") or risk.get("total_book_usd") or 0.0
+
+    # --- group held positions by cluster ------------------------------------
+    by_cluster = {}
+    for r in risk.get("positions", []):
+        by_cluster.setdefault(r.get("cluster") or "Unclassified", []).append(r)
+
+    clusters, track_record = {}, {}
+    for cluster, positions in sorted(by_cluster.items()):
+        pb = playbooks.get(cluster) or {}
+        slug = _ladder_slug(cluster, pb)
+        rets = {r["ticker"]: abs_ret[r["ticker"]] for r in positions if r["ticker"] in abs_ret}
+        missing = sorted(r["ticker"] for r in positions if r["ticker"] not in abs_ret)
+        # EQUAL-weighted, not value-weighted. The question is "which NAME is winning", and a
+        # value-weighted mean lets the largest holding define the bar it is then measured
+        # against -- an over-sized laggard would drag the mean down until it looked like a
+        # leader. Equal weight treats every member as one candidate for the cluster's dollar,
+        # which is what a substitution ladder is choosing between.
+        mean_ret = round(sum(rets.values()) / len(rets), 3) if rets else None
+        # None, not 0.0, when the cache covers fewer than two members. A single covered name has
+        # no dispersion -- reporting 0.0 would say "this cluster moves as one block", which is a
+        # finding, and a missing measurement must never be dressed as one.
+        dispersion = round(_stdev(list(rets.values())), 3) if len(rets) >= 2 else None
+
+        members = []
+        for r in positions:
+            t = r["ticker"]
+            ret = abs_ret.get(t)
+            ed = (ecal.get(t) or {}).get("date")
+            days_to_earnings = None
+            if ed:
+                try:
+                    days_to_earnings = (date.fromisoformat(ed) - today).days
+                except ValueError:
+                    dq.append(f"{t}: unparseable earnings_calendar date {ed!r} -- ignored")
+            members.append({
+                "ticker": t, "held": True,
+                "market_value_usd": r.get("market_value_usd"),
+                "weight_pct": (round(r["market_value_usd"] / equity_usd * 100, 3)
+                               if equity_usd and r.get("market_value_usd") is not None else None),
+                "abs_return_1m_pct": ret,
+                "rel_intra_pp": (round(ret - mean_ret, 3) if ret is not None and mean_ret is not None else None),
+                "rel_smh_pp": rel_smh.get(t),
+                "atr20_pct": atr_vals.get(t) or r.get("atr20_pct"),
+                "rsi14": rsi_vals.get(t),
+                "thesis_status": smith_risk.thesis_status(thesis.get(t)),
+                "over_cap": bool(r.get("over_cap")),
+                "headroom_usd": r.get("headroom_usd"),
+                "cap_multiple": r.get("cap_multiple"),
+                "rotation_bucket": (rot_by_ticker.get(t) or {}).get("bucket"),
+                "earnings_date": ed, "days_to_earnings": days_to_earnings,
+            })
+        members.sort(key=lambda m: (m["rel_intra_pp"] is None, -(m["rel_intra_pp"] or 0)))
+        ranked = [m for m in members if m["rel_intra_pp"] is not None]
+
+        # --- redundancy CANDIDATES (a screen, never a finding) ----------------
+        redundancy = []
+        for i, a in enumerate(ranked):
+            for b in ranked[i + 1:]:
+                if a["atr20_pct"] is None or b["atr20_pct"] is None:
+                    continue
+                rgap = abs(a["rel_intra_pp"] - b["rel_intra_pp"])
+                agap = abs(a["atr20_pct"] - b["atr20_pct"])
+                if rgap <= LADDER_REDUNDANCY_RETURN_GAP_PP and agap <= LADDER_REDUNDANCY_ATR_GAP_PCT:
+                    redundancy.append({"pair": [a["ticker"], b["ticker"]],
+                                       "return_gap_pp": round(rgap, 3), "atr_gap_pct": round(agap, 3),
+                                       "note": "moves and volatility are near-identical -- CANDIDATE "
+                                               "only; the same-bet call is a business judgment "
+                                               "(customer, product, node), not this arithmetic"})
+
+        # A ranking that cannot see a third of its cluster is a partial ranking, and the agent
+        # must be told so it reports one rather than a confident ordering of whoever happened to
+        # be cached. This bites hardest on the names that matter: on 2026-09-08 the live
+        # cluster_rotation buy leg (LITE) had no 1-month return at all.
+        if missing and len(positions) >= LADDER_MIN_MEMBERS:
+            cov = 100.0 * len(rets) / len(positions)
+            if cov < LADDER_MIN_COVERAGE_PCT:
+                dq.append(f"{cluster}: 1-month returns cover only {cov:.0f}% of members "
+                          f"({', '.join(missing)} missing) -- the ladder for this cluster is a "
+                          f"PARTIAL ranking; refresh rel_strength_1m before trusting its ends")
+
+        prior = prior_ladders.get(cluster) or {}
+        ladder_as_of = _parse_as_of(prior.get("as_of"))
+        ladder_age = (today - ladder_as_of).days if ladder_as_of else None
+        ladder_stale = ladder_age is None or ladder_age > LADDER_TTL_DAYS
+        tr = _ladder_track_record(prior, abs_ret, today)
+        if tr:
+            track_record[cluster] = tr
+
+        drow = cluster_rows.get(cluster) or {}
+        ineligible = []
+        if len(positions) < LADDER_MIN_MEMBERS:
+            ineligible.append(f"only {len(positions)} held name(s), below LADDER_MIN_MEMBERS={LADDER_MIN_MEMBERS}")
+        if len([m for m in members if not m["over_cap"]]) < 2:
+            ineligible.append("fewer than 2 members are under their ATR cap -- nothing to rotate into")
+
+        clusters[cluster] = {
+            "slug": slug, "playbook_present": bool(pb),
+            "differentiators": pb.get("differentiators", []),
+            "read_throughs": pb.get("read_throughs", []),
+            "external_feed": pb.get("external_feed"),
+            "member_count": len(positions),
+            "return_coverage": {"with_return": len(rets), "total": len(positions), "missing": missing},
+            "mean_return_1m_pct": mean_ret, "dispersion_pp": dispersion,
+            "members": members,
+            # A "leader" needs somebody to lead. With one covered member both ends would be the
+            # same ticker, which reads as a ranking and is not one.
+            "leader_by_price": ranked[0]["ticker"] if len(ranked) >= 2 else None,
+            "laggard_by_price": ranked[-1]["ticker"] if len(ranked) >= 2 else None,
+            "redundancy_candidates": redundancy,
+            "cluster_room_usd": drow.get("cluster_room_usd"),
+            "actual_pct_of_equity": drow.get("actual_pct_of_equity"),
+            "band_pct": drow.get("band_pct"), "breach": bool(drow.get("breach")),
+            "breach_edge": drow.get("breach_edge"),
+            "prior_ladder": {"present": bool(prior), "as_of": prior.get("as_of"),
+                             "age_days": ladder_age, "stale": ladder_stale,
+                             "confidence": prior.get("confidence"),
+                             "leader": prior.get("leader"), "laggard": prior.get("laggard")},
+            "eligible": not ineligible, "ineligible_reasons": ineligible,
+        }
+
+    # --- dispatch gate ------------------------------------------------------
+    # Scores WHY a cluster is worth an agent this run, not how good it looks. A cluster nobody
+    # has ranked in three weeks scores above one whose ladder is a week old and whose members
+    # are moving as a block -- the gate spends attention on where the ranking is most likely to
+    # be both wrong and consequential.
+    live_rotation_clusters = set()
+    trig = load_json(os.path.join(args.run_dir, "compute_triggers.json"), default={})
+    for pair in (trig.get("cluster_rotation") or []):
+        if pair.get("cluster"):
+            live_rotation_clusters.add(pair["cluster"])
+
+    dispatch = []
+    for cluster, c in clusters.items():
+        if not c["eligible"]:
+            continue
+        score, reasons = 0, []
+        if c["prior_ladder"]["stale"]:
+            score += 3
+            age = c["prior_ladder"]["age_days"]
+            reasons.append(f"no ladder yet" if age is None else
+                           f"ladder is {age}d old (TTL {LADDER_TTL_DAYS}d)")
+        if c["dispersion_pp"] is not None and c["dispersion_pp"] >= LADDER_DISPERSION_MIN_PP:
+            score += 2
+            reasons.append(f"dispersion {c['dispersion_pp']}pp -- a real contest, not a block move")
+        if cluster in live_rotation_clusters:
+            score += 2
+            reasons.append("a live cluster_rotation pair is already proposed here")
+        if c["breach"]:
+            score += 2
+            reasons.append(f"cluster is outside its policy band ({c['breach_edge']})")
+        soon = [m["ticker"] for m in c["members"]
+                if m["days_to_earnings"] is not None and 0 <= m["days_to_earnings"] <= LADDER_EARNINGS_WINDOW_DAYS]
+        if soon:
+            score += 1
+            reasons.append(f"{', '.join(soon)} reports within {LADDER_EARNINGS_WINDOW_DAYS}d")
+        if c["redundancy_candidates"]:
+            score += 1
+            reasons.append(f"{len(c['redundancy_candidates'])} redundancy candidate pair(s) to judge")
+        dispatch.append({"cluster": cluster, "slug": c["slug"], "agent": f"cluster_{c['slug']}",
+                         "priority_score": score, "reasons": reasons})
+
+    # Round-robin cursor breaks ties so a permanently-quiet cluster still gets refreshed. Ties
+    # are ordered by how long since that cluster was LAST DISPATCHED, oldest first -- the same
+    # cursor idea as watchlist_scan_cursor, which rotates a list nobody would otherwise finish.
+    cursor = state.get("cluster_scan_cursor", {}) or {}
+
+    def _last_seen(row):
+        d = _parse_as_of(cursor.get(row["cluster"]))
+        return (today - d).days if d else 10 ** 6
+
+    # Tie-break order: how long since this cluster was last looked at (the round-robin), then
+    # dispersion (a 12pp contest deserves attention before a 6pp one), then name for determinism.
+    dispatch.sort(key=lambda r: (-r["priority_score"], -_last_seen(r),
+                                 -(clusters[r["cluster"]]["dispersion_pp"] or 0), r["cluster"]))
+    selected = dispatch[:LADDER_MAX_DISPATCH]
+    for row in dispatch:
+        row["last_dispatched"] = cursor.get(row["cluster"])
+        row["selected"] = row in selected
+
+    if not clusters:
+        dq.append("no held positions grouped into clusters -- check state.sector_map coverage")
+    unclassified = clusters.get("Unclassified")
+    if unclassified:
+        dq.append(f"{unclassified['member_count']} held name(s) are Unclassified in sector_map "
+                  f"and cannot be ranked against a cluster: "
+                  f"{', '.join(m['ticker'] for m in unclassified['members'])}")
+
+    emit({
+        "as_of": today.isoformat(),
+        "return_basis": {"source": "data_cache.rel_strength_1m.values_abs_pct",
+                         "as_of": rel_cache.get("as_of"), "age_days": rel_age, "usable": rel_usable,
+                         "note": "rel_intra_pp is measured against the cluster's own equal-weighted "
+                                 "mean return, NOT against SMH -- benchmark-free by construction"},
+        "ttl_days": LADDER_TTL_DAYS, "max_dispatch": LADDER_MAX_DISPATCH,
+        "clusters": clusters,
+        "dispatch": dispatch,
+        "dispatch_selected": [r["agent"] for r in selected],
+        "dispatch_selected_clusters": [r["cluster"] for r in selected],
+        "track_record": track_record,
+        "data_quality": dq,
+    })
 
 
 # ---------------------------------------------------------------------------
@@ -1426,6 +1769,11 @@ def cmd_pipeline(args):
         ("sentiment",   ["market_inputs.json"],                     lambda d: d.get("score") is not None),
         ("derisk",      ["compute_risk.json", "compute_sentiment.json"], lambda d: d.get("queue")),
         ("triggers",    ["compute_risk.json", "compute_book.json"], lambda d: True),
+        # `ladder` runs LAST, after triggers, deliberately: its dispatch gate reads
+        # compute_triggers.json to score a cluster higher when a rotation pair is already
+        # proposed there. It is a GATE, not a data dependency -- a missing triggers file
+        # degrades the score by 2 points, it does not fail the stage.
+        ("ladder",      ["compute_risk.json"],                      lambda d: d.get("clusters") is not None),
     ]
 
     results, failed = [], None
@@ -1443,7 +1791,7 @@ def cmd_pipeline(args):
             cmd += ["--market-inputs", os.path.join(run_dir, "market_inputs.json")]
         else:
             cmd += ["--run-dir", run_dir]
-        if name in ("journal", "derisk", "triggers", "buckets") and args.today:
+        if name in ("journal", "derisk", "triggers", "buckets", "ladder") and args.today:
             cmd += ["--today", args.today]
         if name == "book" and args.lots:
             cmd += ["--lots", args.lots]
@@ -2407,8 +2755,31 @@ def _trigger_bench_diversifier_scan(diversifier_candidates, risk_by_ticker, stat
                                   "blockers": ([] if pmax else [f"no live ATR for {ticker} this run"])})
 
 
+def _pair_cluster_room_usd(cluster_rows, sell_cluster, buy_cluster, sell_size):
+    """Cluster ceiling room available to the BUY leg of a PAIRED rotation, in dollars.
+
+    Added 2026-09-08 with cmd_drift's cluster_room_usd. The subtlety that makes this a function
+    rather than a dict lookup: a rotation is a SWAP, and when both legs sit in the same cluster
+    the sale creates the very room the purchase consumes -- net cluster weight change is ~zero.
+    Clamping such a buy to the cluster's standing room would zero the buy leg of any rotation
+    inside an already-full cluster and silently convert it into a naked sell, which is the exact
+    opposite of what a rotation trigger is for. So the sale's proceeds are added back when, and
+    only when, the legs share a cluster.
+
+    Returns None (non-binding, clamp_size's documented "unknown != a reason to block") when the
+    buy cluster has no policy band or drift didn't run.
+    """
+    row = (cluster_rows or {}).get(buy_cluster) or {}
+    room = row.get("cluster_room_usd")
+    if room is None:
+        return None
+    if sell_cluster and buy_cluster and sell_cluster == buy_cluster:
+        room += max(0.0, sell_size or 0.0)
+    return round(max(0.0, room), 2)
+
+
 def _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, total_book, policy,
-                             profit_rotation):
+                             profit_rotation, cluster_rows=None):
     """Section O: profit_rotation (PAIRED, live). ORGANISING RULE -- sell an EXTENDED name whose
     thesis is WEAK (book profit), buy a LAGGARD whose thesis is STRONG (yet to rally). This is
     "sell what ran, buy what hasn't", scoped by thesis so it never contradicts cluster_rotation.
@@ -2442,7 +2813,14 @@ def _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, tota
                           smith_conviction.conviction_size(buy_conv["conviction_tier_pct"], pmax["max_position_usd"]))
         # buy leg is funded from the sell leg, never sized past the smaller of the two --
         # sizing past the sell proceeds or the buy's own headroom creates a fresh breach.
-        buy_size, clamped_by = smith_conviction.clamp_size(min(wanted or 0, sell_size), buy_conv["headroom_usd"], None, None)
+        # cluster_room added 2026-09-08 -- profit_rotation pairs are frequently CROSS-cluster
+        # (sell the stretched name wherever it sits, buy the best laggard anywhere), which is
+        # precisely the case where a buy can push its cluster through the ceiling. Same-cluster
+        # pairs get the sale's proceeds credited back; see _pair_cluster_room_usd.
+        cluster_room = _pair_cluster_room_usd(cluster_rows, conviction_by_ticker[sell_t]["cluster"],
+                                              buy_conv["cluster"], sell_size)
+        buy_size, clamped_by = smith_conviction.clamp_size(min(wanted or 0, sell_size),
+                                                           buy_conv["headroom_usd"], cluster_room, None)
         profit_rotation.append({
             "pair_id": pair_id, "trigger_type": "profit_rotation", "vote": "live",
             "sell_leg": {"ticker": sell_t, "direction": "SELL", "suggested_size_usd": sell_size,
@@ -2454,7 +2832,7 @@ def _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, tota
             "retires_when": f"EITHER {sell_t} drops out of the stretched cohort OR {buy_t}'s thesis leaves intact/strengthening"})
 
 
-def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation):
+def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cluster_rows=None):
     """Section P: cluster_rotation (PAIRED, live). ORGANISING RULE -- within the SAME cluster,
     sell the laggard with a WEAK thesis, buy the performer with a STRONG thesis. This is the
     opposite price/thesis pairing from profit_rotation and is why the two do not contradict --
@@ -2480,7 +2858,12 @@ def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation):
         sell_mv = conviction_by_ticker[sell_t]["market_value_usd"]
         sell_size = round(sell_mv * 0.30, 2)
         buy_conv = conviction_by_ticker[buy_t]
-        buy_size, clamped_by = smith_conviction.clamp_size(sell_size, buy_conv["headroom_usd"], None, None)
+        # Always a same-cluster pair, so the sale funds its own room -- this is effectively
+        # non-binding by construction and is passed for consistency and for the case where a
+        # cluster is so far over its ceiling that even the swap leaves it breached.
+        cluster_room = _pair_cluster_room_usd(cluster_rows, cluster, cluster, sell_size)
+        buy_size, clamped_by = smith_conviction.clamp_size(sell_size, buy_conv["headroom_usd"],
+                                                           cluster_room, None)
         cluster_rotation.append({
             "pair_id": f"cluster_rotation-{sell_t}-{buy_t}", "trigger_type": "cluster_rotation", "vote": "live",
             "cluster": cluster,
@@ -3091,8 +3474,8 @@ def cmd_triggers(args):
 
     # --- O/P. profit_rotation + cluster_rotation (PAIRED, live) ---------------------------
     _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, total_book, policy,
-                             profit_rotation)
-    _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation)
+                             profit_rotation, cluster_rows)
+    _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cluster_rows)
 
     oversold.sort(key=lambda x: x["rsi14"])
     overbought.sort(key=lambda x: -x["rsi14"])
@@ -3484,13 +3867,13 @@ def main():
     sub = p.add_subparsers(dest="cmd", required=True)
 
     for name in ("book", "journal", "attribution", "drift", "risk", "rotation", "derisk",
-                 "triggers", "buckets"):
+                 "triggers", "buckets", "ladder"):
         sp = sub.add_parser(name)
         sp.add_argument("--base-dir", default=DEFAULT_BASE)
         sp.add_argument("--run-dir", required=True, help="this run's directory containing holdings.json")
         if name == "book":
             sp.add_argument("--lots", default=None)
-        if name in ("journal", "derisk", "triggers", "buckets"):
+        if name in ("journal", "derisk", "triggers", "buckets", "ladder"):
             sp.add_argument("--today", default=None)
         if name == "journal":
             sp.add_argument("--prices-json", default=None,
@@ -3784,7 +4167,8 @@ def main():
     try:
         {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
-         "triggers": cmd_triggers, "buckets": cmd_buckets, "score": cmd_score,
+         "triggers": cmd_triggers, "buckets": cmd_buckets, "ladder": cmd_ladder,
+         "score": cmd_score,
          "pipeline": cmd_pipeline, "lots": cmd_lots,
          "history": cmd_history, "universe": cmd_universe, "maxpain": cmd_maxpain, "compact": cmd_compact, "gaps": cmd_gaps, "slices": cmd_slices,
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,

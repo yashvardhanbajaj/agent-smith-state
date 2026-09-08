@@ -1,0 +1,408 @@
+"""cmd_ladder and the cluster-room sizing clamp (added 2026-09-08).
+
+Two things are pinned here.
+
+1. rel_intra_pp. _trigger_cluster_rotation ranked cluster members on `rel_pp` from
+   data_cache.rel_strength_1m, which is ALWAYS SMH-relative for the whole book -- so power and
+   hyperscaler names were being ranked against a semiconductor ETF. rel_intra_pp measures each
+   member against its own cluster's mean return instead, which is benchmark-free by construction.
+   The reordering is not cosmetic: on the live 2026-09-07 book AVGO went from worst-in-cluster on
+   SMH (-13.31pp) to second-best on intra (+5.19pp), and a live proposal was selling it.
+
+2. cluster_room_usd. smith_conviction.clamp_size has taken a cluster_room_usd argument since it
+   was written and every caller passed None, so its documented promise ("never push a cluster
+   over its ceiling") was never once enforced. The subtle half is the SAME-CLUSTER credit-back:
+   a rotation is a swap, so the sale funds the purchase and clamping the buy to the cluster's
+   standing room would zero the buy leg of any rotation inside a full cluster -- silently
+   converting a rotation into a naked sell.
+"""
+import json
+import os
+
+import pytest
+
+import smith_math
+import smith_core
+
+
+# ---------------------------------------------------------------------------
+# _pair_cluster_room_usd -- the swap-aware clamp input
+# ---------------------------------------------------------------------------
+
+ROWS = {"Full": {"cluster_room_usd": 0.0},
+        "Roomy": {"cluster_room_usd": 5000.0},
+        "Unbanded": {"cluster_room_usd": None}}
+
+
+class TestPairClusterRoom:
+    def test_cross_cluster_buy_is_clamped_to_the_buy_clusters_room(self):
+        assert smith_math._pair_cluster_room_usd(ROWS, "Roomy", "Full", sell_size=900.0) == 0.0
+
+    def test_same_cluster_swap_credits_the_sale_back(self):
+        # The rotation this protects: sell 900 of a laggard in a cluster with zero standing
+        # room, buy 900 of the leader in the SAME cluster. Net cluster weight is unchanged, so
+        # a 0.0 clamp here would be wrong -- and would turn the rotation into a naked sell.
+        assert smith_math._pair_cluster_room_usd(ROWS, "Full", "Full", sell_size=900.0) == 900.0
+
+    def test_unbanded_cluster_is_non_binding_not_zero(self):
+        # clamp_size's own rule: unknown != a reason to block.
+        assert smith_math._pair_cluster_room_usd(ROWS, "Roomy", "Unbanded", 900.0) is None
+
+    def test_missing_drift_is_non_binding(self):
+        assert smith_math._pair_cluster_room_usd({}, "A", "B", 900.0) is None
+        assert smith_math._pair_cluster_room_usd(None, "A", "B", 900.0) is None
+
+    def test_room_never_goes_negative(self):
+        assert smith_math._pair_cluster_room_usd({"X": {"cluster_room_usd": -500.0}},
+                                                  "Y", "X", sell_size=0.0) == 0.0
+
+
+class TestClusterRotationRespectsClusterRoom:
+    """The end-to-end version of the credit-back: a same-cluster rotation inside a cluster that
+    is already at its ceiling must still size its buy leg."""
+
+    def _pair(self, cluster_rows):
+        from test_smith_math_triggers import _conv_row
+        out = []
+        conv = {"LAG": _conv_row(3000.0, "Semis", rel_pp=-5.0),
+                "PERF": _conv_row(1000.0, "Semis", rel_pp=5.0)}
+        smith_math._trigger_cluster_rotation(
+            conv, {"LAG": "stuck|watch", "PERF": "running|strengthening"}, out,
+            cluster_rows=cluster_rows)
+        return out[0]
+
+    def test_full_cluster_still_sizes_the_buy_leg(self):
+        pair = self._pair({"Semis": {"cluster_room_usd": 0.0}})
+        assert pair["buy_leg"]["suggested_size_usd"] == pytest.approx(900.0)  # 30% of 3000
+        assert pair["buy_leg"]["clamped_by"] is None
+
+    def test_no_drift_data_degrades_to_the_prior_behaviour(self):
+        assert self._pair({})["buy_leg"]["suggested_size_usd"] == pytest.approx(900.0)
+
+
+class TestProfitRotationRespectsClusterRoom:
+    """profit_rotation pairs are frequently CROSS-cluster, which is where the clamp genuinely
+    binds -- this is the case the None argument had been silently skipping."""
+
+    def test_cross_cluster_buy_is_clamped_by_the_buy_clusters_ceiling(self):
+        from test_smith_math_triggers import _conv_row, POLICY
+        out = []
+        conv = {"SELL_ME": _conv_row(2000.0, "Compute", rel_pp=10.0),
+                "BUY_ME": _conv_row(500.0, "Networking", rel_pp=-8.0)}
+        smith_math._trigger_profit_rotation(
+            names_stretched={"SELL_ME"}, conviction_by_ticker=conv,
+            thesis={"SELL_ME": "extended|watch", "BUY_ME": "cheap|strengthening"},
+            total_book=100000.0, policy=POLICY, profit_rotation=out,
+            cluster_rows={"Networking": {"cluster_room_usd": 150.0}})
+        assert out[0]["buy_leg"]["suggested_size_usd"] == pytest.approx(150.0)
+        assert out[0]["buy_leg"]["clamped_by"] == "cluster ceiling room"
+
+
+# ---------------------------------------------------------------------------
+# helpers
+# ---------------------------------------------------------------------------
+
+class TestLadderSlug:
+    def test_derives_a_stable_slug_from_the_cluster_name(self):
+        assert smith_math._ladder_slug("AI Semis/Fabs", None) == "ai_semis_fabs"
+        assert smith_math._ladder_slug("Compute/Hyperscaler OEM", {}) == "compute_hyperscaler_oem"
+
+    def test_playbook_slug_wins_for_readability(self):
+        assert smith_math._ladder_slug("AI Memory/Storage", {"slug": "memory"}) == "memory"
+
+    def test_playbook_slug_is_sanitised(self):
+        # The slug becomes an agent key and a filename (slice_cluster_<slug>.json).
+        assert smith_math._ladder_slug("X", {"slug": "Bad Slug/../x"}) == "badslugx"
+
+    def test_sibling_clusters_do_not_collide(self):
+        a = smith_math._ladder_slug("Compute/Hyperscaler", None)
+        b = smith_math._ladder_slug("Compute/Hyperscaler OEM", None)
+        assert a != b
+
+
+class TestStdev:
+    def test_sample_stdev(self):
+        assert smith_math._stdev([2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0]) == pytest.approx(2.13809, rel=1e-4)
+
+    def test_single_value_has_no_dispersion(self):
+        assert smith_math._stdev([3.0]) == 0.0
+        assert smith_math._stdev([]) == 0.0
+
+
+class TestLadderTrackRecord:
+    """The falsifiability hook. A ranking nobody checks becomes a confident-nonsense generator,
+    and this layer is allowed to touch a live trigger only because it is scored."""
+    from datetime import date
+    TODAY = date(2026, 9, 8)
+
+    def test_scores_a_correct_call(self):
+        tr = smith_math._ladder_track_record(
+            {"leader": "GOOD", "laggard": "BAD", "as_of": "2026-08-20", "confidence": "high"},
+            {"GOOD": 10.0, "BAD": 2.0}, self.TODAY)
+        assert tr["correct"] is True and tr["spread_pp"] == 8.0
+        assert tr["ladder_confidence_at_call"] == "high"
+
+    def test_scores_a_wrong_call(self):
+        tr = smith_math._ladder_track_record(
+            {"leader": "GOOD", "laggard": "BAD", "as_of": "2026-08-20"},
+            {"GOOD": 1.0, "BAD": 6.0}, self.TODAY)
+        assert tr["correct"] is False and tr["spread_pp"] == -5.0
+
+    def test_an_unscoreable_call_is_not_a_wrong_call(self):
+        tr = smith_math._ladder_track_record(
+            {"leader": "GOOD", "laggard": "BAD"}, {"GOOD": 1.0}, self.TODAY)
+        assert tr["scored"] is False and "correct" not in tr
+
+    def test_no_prior_ladder_scores_nothing(self):
+        assert smith_math._ladder_track_record({}, {"A": 1.0}, self.TODAY) is None
+        assert smith_math._ladder_track_record(None, {"A": 1.0}, self.TODAY) is None
+
+
+# ---------------------------------------------------------------------------
+# cmd_ladder, end to end
+# ---------------------------------------------------------------------------
+
+class _Args:
+    def __init__(self, base_dir, run_dir, today="2026-09-08"):
+        self.base_dir, self.run_dir, self.today = base_dir, run_dir, today
+
+
+def _build(tmp_path, positions, *, abs_returns, atr=None, clusters_in_drift=None,
+           prior_ladders=None, cursor=None, triggers=None, rel_as_of="2026-09-06",
+           earnings=None, playbooks=None):
+    base, rd = tmp_path / "base", tmp_path / "rd"
+    base.mkdir(); rd.mkdir()
+    (rd / "compute_risk.json").write_text(json.dumps({
+        "positions": positions, "total_book_usd": 10000.0}))
+    (rd / "compute_drift.json").write_text(json.dumps({
+        "invested_equity_usd": 10000.0,
+        "cluster_table": clusters_in_drift or []}))
+    (rd / "compute_rotation.json").write_text(json.dumps({"tickers": {}}))
+    if triggers is not None:
+        (rd / "compute_triggers.json").write_text(json.dumps(triggers))
+    (base / "state.json").write_text(json.dumps({
+        "data_cache": {
+            "rel_strength_1m": {"as_of": rel_as_of, "values_abs_pct": abs_returns,
+                                "values_pp": {}},
+            "atr20": {"values_pct": atr or {}},
+            "rsi14": {"values": {}},
+            "earnings_calendar": earnings or {}},
+        "thesis": {}, "cluster_ladders": prior_ladders or {},
+        "cluster_scan_cursor": cursor or {}}))
+    (base / "policy.json").write_text(json.dumps({"cluster_playbooks": playbooks or {}}))
+    return _Args(str(base), str(rd))
+
+
+def _run(capsys, args):
+    smith_math.cmd_ladder(args)
+    return json.loads(capsys.readouterr().out)
+
+
+def _pos(t, cluster, mv=1000.0, **kw):
+    d = {"ticker": t, "cluster": cluster, "market_value_usd": mv, "over_cap": False,
+         "headroom_usd": 5000.0, "atr20_pct": 5.0, "cap_multiple": 0.5}
+    d.update(kw)
+    return d
+
+
+class TestRelIntraPp:
+    def test_members_are_ranked_against_their_own_cluster_mean(self, tmp_path, capsys):
+        # The live 2026-09-07 case in miniature: the whole cluster is up a lot, so every member
+        # looks weak against a hot external benchmark -- but internally there is a clear order.
+        args = _build(tmp_path,
+                      [_pos("A", "C"), _pos("B", "C"), _pos("D", "C")],
+                      abs_returns={"A": 20.0, "B": 10.0, "D": 0.0})
+        out = _run(capsys, args)
+        c = out["clusters"]["C"]
+        assert c["mean_return_1m_pct"] == 10.0
+        assert [m["ticker"] for m in c["members"]] == ["A", "B", "D"]
+        assert [m["rel_intra_pp"] for m in c["members"]] == [10.0, 0.0, -10.0]
+        assert c["leader_by_price"] == "A" and c["laggard_by_price"] == "D"
+
+    def test_the_mean_is_equal_weighted_not_value_weighted(self, tmp_path, capsys):
+        # A value-weighted mean would let the largest holding define the bar it is then judged
+        # against -- an oversized laggard would drag the mean down until it looked like a leader.
+        args = _build(tmp_path,
+                      [_pos("BIG", "C", mv=90000.0), _pos("S1", "C", mv=100.0),
+                       _pos("S2", "C", mv=100.0)],
+                      abs_returns={"BIG": -10.0, "S1": 10.0, "S2": 10.0})
+        out = _run(capsys, args)
+        assert out["clusters"]["C"]["mean_return_1m_pct"] == pytest.approx(10.0 / 3, abs=1e-3)
+        assert out["clusters"]["C"]["laggard_by_price"] == "BIG"
+
+    def test_uncovered_members_are_listed_not_ranked(self, tmp_path, capsys):
+        args = _build(tmp_path, [_pos("A", "C"), _pos("B", "C"), _pos("GHOST", "C")],
+                      abs_returns={"A": 5.0, "B": -5.0})
+        out = _run(capsys, args)
+        c = out["clusters"]["C"]
+        assert c["return_coverage"] == {"with_return": 2, "total": 3, "missing": ["GHOST"]}
+        assert c["members"][-1]["ticker"] == "GHOST"       # sorted to the end
+        assert c["members"][-1]["rel_intra_pp"] is None
+        assert c["laggard_by_price"] == "B"                # never an unranked name
+
+
+class TestCoverageAndDispersion:
+    def test_thin_coverage_is_flagged_as_a_partial_ranking(self, tmp_path, capsys):
+        args = _build(tmp_path, [_pos("A", "C"), _pos("B", "C"), _pos("D", "C")],
+                      abs_returns={"A": 5.0})
+        out = _run(capsys, args)
+        assert any("PARTIAL ranking" in q and "B, D" in q for q in out["data_quality"])
+
+    def test_single_covered_member_has_no_dispersion_and_no_ends(self, tmp_path, capsys):
+        # None, not 0.0: "moves as one block" is a finding, and a missing measurement must
+        # never be dressed as one.
+        args = _build(tmp_path, [_pos("A", "C"), _pos("B", "C"), _pos("D", "C")],
+                      abs_returns={"A": 5.0})
+        c = _run(capsys, args)["clusters"]["C"]
+        assert c["dispersion_pp"] is None
+        assert c["leader_by_price"] is None and c["laggard_by_price"] is None
+
+    def test_stale_return_cache_is_reported_and_not_estimated(self, tmp_path, capsys):
+        args = _build(tmp_path, [_pos("A", "C"), _pos("B", "C"), _pos("D", "C")],
+                      abs_returns={"A": 5.0, "B": 1.0, "D": -5.0}, rel_as_of="2026-01-01")
+        out = _run(capsys, args)
+        assert out["return_basis"]["usable"] is False
+        assert any("unusable" in q for q in out["data_quality"])
+
+
+class TestRedundancyCandidates:
+    def test_near_identical_move_and_volatility_pairs_are_screened(self, tmp_path, capsys):
+        args = _build(tmp_path, [_pos("TWIN1", "C"), _pos("TWIN2", "C"), _pos("OTHER", "C")],
+                      abs_returns={"TWIN1": 5.0, "TWIN2": 5.5, "OTHER": -20.0},
+                      atr={"TWIN1": 5.0, "TWIN2": 5.2, "OTHER": 5.1})
+        pairs = _run(capsys, args)["clusters"]["C"]["redundancy_candidates"]
+        # pairs are emitted in ladder-rank order, best performer first
+        assert [p["pair"] for p in pairs] == [["TWIN2", "TWIN1"]]
+
+    def test_it_is_a_screen_and_says_so(self, tmp_path, capsys):
+        args = _build(tmp_path, [_pos("T1", "C"), _pos("T2", "C"), _pos("T3", "C")],
+                      abs_returns={"T1": 5.0, "T2": 5.1, "T3": -30.0},
+                      atr={"T1": 5.0, "T2": 5.0, "T3": 5.0})
+        note = _run(capsys, args)["clusters"]["C"]["redundancy_candidates"][0]["note"]
+        assert "CANDIDATE" in note and "business judgment" in note
+
+
+class TestEligibility:
+    def test_a_cluster_below_min_members_is_ineligible(self, tmp_path, capsys):
+        args = _build(tmp_path, [_pos("A", "Small"), _pos("B", "Small")],
+                      abs_returns={"A": 5.0, "B": -5.0})
+        out = _run(capsys, args)
+        assert out["clusters"]["Small"]["eligible"] is False
+        assert out["dispatch"] == []
+
+    def test_a_cluster_with_nothing_to_rotate_into_is_ineligible(self, tmp_path, capsys):
+        args = _build(tmp_path,
+                      [_pos("A", "C", over_cap=True), _pos("B", "C", over_cap=True),
+                       _pos("D", "C")],
+                      abs_returns={"A": 5.0, "B": 1.0, "D": -5.0})
+        out = _run(capsys, args)
+        assert out["clusters"]["C"]["eligible"] is False
+        assert "under their ATR cap" in out["clusters"]["C"]["ineligible_reasons"][0]
+
+
+class TestDispatchGate:
+    def _three(self, cluster):
+        """Distinct ATRs so the redundancy screen never fires -- these tests isolate the
+        staleness and dispersion legs of the gate, and a stray +1 would hide a real change."""
+        return [_pos("A" + cluster, cluster, atr20_pct=3.0),
+                _pos("B" + cluster, cluster, atr20_pct=9.0),
+                _pos("D" + cluster, cluster, atr20_pct=15.0)]
+
+    def test_an_unranked_cluster_scores_the_staleness_points(self, tmp_path, capsys):
+        args = _build(tmp_path, self._three("C"),
+                      abs_returns={"AC": 1.0, "BC": 0.0, "DC": -1.0})
+        row = _run(capsys, args)["dispatch"][0]
+        assert row["priority_score"] == 3 and "no ladder yet" in row["reasons"][0]
+
+    def test_a_fresh_ladder_scores_no_staleness_points(self, tmp_path, capsys):
+        args = _build(tmp_path, self._three("C"),
+                      abs_returns={"AC": 1.0, "BC": 0.0, "DC": -1.0},
+                      prior_ladders={"C": {"as_of": "2026-09-06", "confidence": "high"}})
+        out = _run(capsys, args)
+        assert out["dispatch"][0]["priority_score"] == 0
+        assert out["clusters"]["C"]["prior_ladder"]["stale"] is False
+
+    def test_a_ladder_past_its_ttl_is_stale_again(self, tmp_path, capsys):
+        stale_by_one = "2026-08-24"   # 15 days before 2026-09-08, TTL is 14
+        args = _build(tmp_path, self._three("C"),
+                      abs_returns={"AC": 1.0, "BC": 0.0, "DC": -1.0},
+                      prior_ladders={"C": {"as_of": stale_by_one}})
+        assert _run(capsys, args)["clusters"]["C"]["prior_ladder"]["stale"] is True
+
+    def test_dispersion_breach_earnings_and_redundancy_all_score(self, tmp_path, capsys):
+        args = _build(tmp_path, self._three("C"),
+                      abs_returns={"AC": 10.0, "BC": 9.5, "DC": -10.0},
+                      atr={"AC": 5.0, "BC": 5.0, "DC": 5.0},
+                      clusters_in_drift=[{"cluster": "C", "breach": True, "breach_edge": "over",
+                                          "cluster_room_usd": 0.0}],
+                      earnings={"AC": {"date": "2026-09-10"}},
+                      triggers={"cluster_rotation": [{"cluster": "C"}]})
+        row = _run(capsys, args)["dispatch"][0]
+        # 3 stale + 2 dispersion + 2 live pair + 2 breach + 1 earnings + 1 redundancy
+        assert row["priority_score"] == 11
+
+    def test_a_block_moving_cluster_scores_no_dispersion_points(self, tmp_path, capsys):
+        args = _build(tmp_path, self._three("C"),
+                      abs_returns={"AC": 5.1, "BC": 5.0, "DC": 4.9})
+        assert _run(capsys, args)["dispatch"][0]["priority_score"] == 3
+
+    def test_only_max_dispatch_clusters_are_selected(self, tmp_path, capsys):
+        pos, rets = [], {}
+        for name in "VWXYZ":
+            pos += self._three(name)
+            rets.update({"A" + name: 9.0, "B" + name: 0.0, "D" + name: -9.0})
+        out = _run(capsys, _build(tmp_path, pos, abs_returns=rets))
+        assert len(out["dispatch"]) == 5
+        assert len(out["dispatch_selected"]) == smith_core.LADDER_MAX_DISPATCH
+        assert out["dispatch_selected"] == [r["agent"] for r in out["dispatch"][:3]]
+
+    def test_the_cursor_breaks_ties_toward_the_least_recently_seen(self, tmp_path, capsys):
+        pos, rets = [], {}
+        for name in "XYZ":
+            pos += self._three(name)
+            rets.update({"A" + name: 9.0, "B" + name: 0.0, "D" + name: -9.0})
+        # All three tie on score; Z was looked at longest ago, so it goes first.
+        out = _run(capsys, _build(tmp_path, pos, abs_returns=rets,
+                                  cursor={"X": "2026-09-07", "Y": "2026-09-01", "Z": "2026-07-01"}))
+        assert out["dispatch_selected_clusters"] == ["Z", "Y", "X"]
+
+    def test_dispersion_breaks_a_remaining_tie(self, tmp_path, capsys):
+        pos = self._three("Q") + self._three("W")
+        rets = {"AQ": 1.0, "BQ": 0.0, "DQ": -1.0,      # tight
+                "AW": 40.0, "BW": 0.0, "DW": -40.0}    # wide
+        out = _run(capsys, _build(tmp_path, pos, abs_returns=rets))
+        assert out["dispatch_selected_clusters"][0] == "W"
+
+
+class TestLadderMisc:
+    def test_agent_key_is_the_slug_prefixed(self, tmp_path, capsys):
+        args = _build(tmp_path,
+                      [_pos("A", "AI Memory/Storage"), _pos("B", "AI Memory/Storage"),
+                       _pos("D", "AI Memory/Storage")],
+                      abs_returns={"A": 9.0, "B": 0.0, "D": -9.0},
+                      playbooks={"AI Memory/Storage": {"slug": "memory",
+                                                       "differentiators": ["HBM4 qual"]}})
+        out = _run(capsys, args)
+        assert out["dispatch"][0]["agent"] == "cluster_memory"
+        c = out["clusters"]["AI Memory/Storage"]
+        assert c["playbook_present"] is True and c["differentiators"] == ["HBM4 qual"]
+
+    def test_unclassified_holdings_are_surfaced_not_ranked_silently(self, tmp_path, capsys):
+        args = _build(tmp_path, [_pos("A", "Unclassified"), _pos("B", "Unclassified"),
+                                 _pos("D", "Unclassified")],
+                      abs_returns={"A": 9.0, "B": 0.0, "D": -9.0})
+        out = _run(capsys, args)
+        assert any("Unclassified in sector_map" in q for q in out["data_quality"])
+
+    def test_missing_risk_file_degrades_rather_than_raises(self, tmp_path, capsys):
+        base, rd = tmp_path / "b", tmp_path / "r"
+        base.mkdir(); rd.mkdir()
+        out = _run(capsys, _Args(str(base), str(rd)))
+        assert out["clusters"] == {} and out["dispatch"] == []
+        assert "compute_risk.json not found" in out["data_quality"][0]
+
+    def test_a_missing_triggers_file_costs_points_but_does_not_fail(self, tmp_path, capsys):
+        args = _build(tmp_path, [_pos("A", "C"), _pos("B", "C"), _pos("D", "C")],
+                      abs_returns={"A": 9.0, "B": 0.0, "D": -9.0})   # no compute_triggers.json
+        out = _run(capsys, args)
+        assert out["dispatch"][0]["priority_score"] == 5     # 3 stale + 2 dispersion, no pair
