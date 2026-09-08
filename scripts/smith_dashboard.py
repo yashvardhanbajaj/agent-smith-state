@@ -1274,11 +1274,43 @@ def _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, 
     return out
 
 
+def _catalyst_today(state):
+    """The run date this dashboard is rendering, as a `date` -- the reference point for
+    catalyst freshness. Falls back to the wall clock only if state carries no `ts`."""
+    ts = str(state.get("ts") or "")[:10]
+    try:
+        return datetime.strptime(ts, "%Y-%m-%d").date()
+    except ValueError:
+        return datetime.now().date()
+
+
 def _render_factor_catalysts(state):
     out = []
     # -- factor catalysts --
-    catalysts = [c for c in state.get("factor_catalysts", [])
-                if not smith_risk.catalyst_is_suppressed(state, c.get("headline"), c.get("date"))]
+    # THE PANEL NO LONGER VANISHES (2026-09-08). It used to render only `if catalysts:`, so a
+    # run where smith-catalyst returned [] produced no section at all -- and on 2026-09-08 that
+    # is exactly what happened: a section diff showed 19 h2s before and after, with "Factor
+    # catalysts" simply gone. That is the silent-failure shape SKILL.md's own regression guard
+    # warns about: the reader cannot tell "nothing is moving the factor" from "this panel broke".
+    # It now always prints, and says which of the two it means.
+    today = _catalyst_today(state)
+    catalysts = smith_risk.live_catalysts(state, today)
+    fresh_n, carried_n = smith_risk.catalyst_carry_summary(state, today)
+    scanned = state.get("factor_catalysts_as_of") or state.get("factor_themes_as_of")
+    if fresh_n:
+        sub = f'{fresh_n} new this run' + (f' &middot; {carried_n} carried forward' if carried_n else '')
+    elif carried_n:
+        sub = f'No NEW catalysts this run &middot; {carried_n} carried forward'
+    else:
+        sub = 'No live factor catalysts' + (f' &middot; last scanned {esc(str(scanned))}' if scanned else '')
+    subpill = f'<span class="pill">{sub}</span>'
+    if not catalysts:
+        out.append('<section class="panel"><div class="phead"><h2>Factor catalysts</h2>'
+                   f'{subpill}</div><div class="pbody"><div class="muted">'
+                   'Nothing carried forward and nothing new &mdash; the last scan found no '
+                   'catalyst clearing its sourcing bar, and every prior catalyst has aged out '
+                   'past its own horizon. This is a finding, not a missing panel.'
+                   '</div></div></section>')
     if catalysts:
         rows = []
         for i, c in enumerate(catalysts[:6]):
@@ -1314,6 +1346,11 @@ def _render_factor_catalysts(state):
                                 for k, v in facts)
             drawer = f'<details class="pr-more"><summary>details</summary><div class="body">{fact_grid}</div></details>'
             exp_chip = (f'<span class="tick">{exp:.1f}% equity</span>' if isinstance(exp, (int, float)) else "")
+            if c.get("carried_forward"):
+                lc = c.get("last_confirmed") or c.get("date") or ""
+                exp_chip += (f'<span class="tick" title="Carried forward from an earlier scan; '
+                             f'still inside its {smith_risk.catalyst_ttl_days(c)}d '
+                             f'{esc_attr(c.get("horizon",""))} horizon">carried &middot; {esc(str(lc))}</span>')
             # CARD (2026-09-07 component pass): the badge moves from its own grid column into
             # the card header next to a real title-sized headline -- same visual family as the
             # decision cards above (a colour stripe on the left carrying the read), not the old
@@ -1324,7 +1361,8 @@ def _render_factor_catalysts(state):
                 f'<span class="cb {dirn}">{dirn}</span></div>'
                 f'<div class="cat-card-hh" title="{esc_attr(headline)}">{esc(head_tag)}</div>'
                 f'<div class="sch">{affect_chips}{exp_chip}</div>{drawer}{decide_s}</div></div>')
-        out.append('<section class="panel"><div class="phead"><h2>Factor catalysts</h2></div>'
+        out.append('<section class="panel"><div class="phead"><h2>Factor catalysts</h2>'
+                 f'{subpill}</div>'
                  f'<div class="pbody"><div>{"".join(rows)}</div></div></section>')
 
     return out
@@ -2876,9 +2914,8 @@ def build(base, out):
     # this turns out to be missed.
     H.append('<div class="tier"><h2>Signals &amp; context</h2><div class="ln"></div></div>')
 
-    live_catalysts = [c for c in state.get("factor_catalysts", [])
-                      if not smith_risk.catalyst_is_suppressed(state, c.get("headline"), c.get("date"))]
-    has_threat = any(c.get("direction") == "threat" for c in live_catalysts)
+    live_cats = smith_risk.live_catalysts(state, _catalyst_today(state))
+    has_threat = any(c.get("direction") == "threat" for c in live_cats)
     H.extend(_collapsible(h, has_threat) for h in _render_factor_catalysts(state))
 
     H.extend(_collapsible(h, True) for h in _render_the_read_and_macro(narr, market_inputs, state, book_compute))

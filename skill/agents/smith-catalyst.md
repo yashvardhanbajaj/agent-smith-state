@@ -82,15 +82,38 @@ Full output to `output_file`, capped at 60 lines. Return a ≤6-line prose summa
 {"catalysts":[{"headline":"","date":"","horizon":"immediate|structural|noise","direction":"threat|tailwind|ambiguous",
  "affects":["TICKER"],"exposure_pct_equity":0,"exposure_pct_book":0,"magnitude":"the counter-scale, in numbers",
  "source":"url","invalidates_proposal":null}],
+ "retired_catalysts":[{"headline":"","date":"","reason":"why it is no longer live, with a source"}],
  "asia_session":{"kospi_pct":null,"taiex_pct":null,"nikkei_pct":null,"named_cause":null},
  "theme_updates":{},"searches_used":0,"data_quality":[]}
 ```
+
+### CONFIRM OR RETIRE WHAT YOU CAN ALREADY SEE (added 2026-09-08)
+
+Your slice embeds `state.factor_catalysts` — the catalysts the desk is currently carrying. For
+each of them you have three options, and **saying nothing is one of them**:
+
+- **Re-list it in `catalysts`** — you re-confirmed it this run. It is stamped fresh.
+- **Name it in `retired_catalysts`** (exact `headline` + `date`, plus a `reason`) — you found
+  positive evidence it is no longer live: the qualification failed, the order was withdrawn, the
+  financing closed. **This is the only thing that deletes a catalyst**, and it needs a reason a
+  reader can check, not a hunch.
+- **Say nothing about it** — it is carried forward untouched until its own horizon expires
+  (structural 45d, immediate 10d, noise 3d).
+
+**An empty `catalysts` array no longer erases anything.** Before 2026-09-08 it did: on the first
+session after a Labor Day long weekend you ran five searches, correctly found nothing that
+cleared the sourcing bar, returned `[]` — and the orchestrator's wholesale REPLACE wiped six live
+`catalyst_threat` triggers, made the dashboard panel vanish, and deleted two structural CXMT
+HBM3E threats that were four and seven days old. "I found nothing new this window" and "nothing
+is live" are different claims. Keep making the first one honestly; only make the second by
+naming names in `retired_catalysts`.
 
 ## HARD RULES
 
 - Every catalyst carries a **source URL and a date**. An unsourced catalyst is a rumour and does not go in the tail.
 - **Report magnitude with every threat.** A threat without a scale is fear, not analysis.
 - **Never infer a fundamental verdict from a price move (G75).** "beat"/"miss" mean reported actuals vs consensus and nothing else; a stock can fall on a beat and rise on a miss. Reported quarter and forward guide are separate signals — name which one you weighted. If you cannot source the actual-vs-estimate, write "fell N% after reporting" and stop there. See process step 5.
-- If the scan finds nothing material, say so in one line and return an empty `catalysts` array. A quiet day is a valid, useful finding — do not manufacture a catalyst to justify the dispatch.
+- If the scan finds nothing material, say so in one line and return an empty `catalysts` array. A quiet day is a valid, useful finding — do not manufacture a catalyst to justify the dispatch, and do not "clear" the carried-forward list to make the quiet look tidy.
+- **Silence is not retirement.** Deleting a catalyst requires naming it in `retired_catalysts` with a sourced reason. Never retire something merely because this window's searches did not resurface it — absence of a follow-up headline is not evidence the threat resolved.
 - Never fetch prices. If you need to know what a stock did, the orchestrator already has it.
 - You are read-only on state. Propose `theme_updates`; the orchestrator merges them.

@@ -47,15 +47,49 @@ class TestIdeasAndHousekeeping:
 
 
 class TestFactorCatalysts:
-    def test_no_catalysts_renders_nothing(self):
-        assert sd._render_factor_catalysts({}) == []
+    """The panel must never VANISH (2026-09-08). Before that date it rendered only when the
+    array was non-empty, so a quiet scan removed the whole section from the dashboard -- the
+    silent-failure shape, where the reader cannot distinguish 'nothing is moving the factor'
+    from 'this panel broke'."""
+
+    def test_no_catalysts_still_renders_a_panel_that_says_so(self):
+        html = joined(sd._render_factor_catalysts({"ts": "2026-09-08T07:52:00Z"}))
+        assert "Factor catalysts" in html
+        assert "No live factor catalysts" in html
 
     def test_a_catalyst_renders_headline_and_affected_tickers(self):
-        state = {"factor_catalysts": [{"headline": "Supply glut", "direction": "threat",
-                                       "magnitude": "large", "affects": ["AAA"],
-                                       "date": "2026-08-01"}]}
+        state = {"ts": "2026-09-08T07:52:00Z",
+                 "factor_catalysts": [{"headline": "Supply glut", "direction": "threat",
+                                       "horizon": "structural", "magnitude": "large",
+                                       "affects": ["AAA"], "date": "2026-09-01",
+                                       "last_confirmed": "2026-09-08"}]}
         html = joined(sd._render_factor_catalysts(state))
         assert "Supply glut" in html and "AAA" in html
+        assert "1 new this run" in html
+
+    def test_carried_forward_only_run_renders_the_carried_count_not_nothing(self):
+        """The 2026-09-08 regression, as a test: smith-catalyst ran and found nothing new,
+        so every live catalyst is carried forward. The panel must print the carry count."""
+        state = {"ts": "2026-09-08T07:52:00Z",
+                 "factor_catalysts": [{"headline": "CXMT reaches HBM3E risk production",
+                                       "direction": "threat", "horizon": "structural",
+                                       "magnitude": "5 units vs 131", "affects": ["MU"],
+                                       "date": "2026-09-01", "first_seen": "2026-09-01",
+                                       "last_confirmed": "2026-09-07", "carried_forward": True}]}
+        html = joined(sd._render_factor_catalysts(state))
+        assert "Factor catalysts" in html
+        assert "No NEW catalysts this run" in html and "1 carried forward" in html
+        assert "CXMT reaches HBM3E risk production"[:60] in html
+
+    def test_stale_catalyst_ages_out_of_the_panel(self):
+        """A `noise` item is not carried for a month just because nobody retired it."""
+        state = {"ts": "2026-09-08T07:52:00Z",
+                 "factor_catalysts": [{"headline": "One-day tape wobble", "direction": "ambiguous",
+                                       "horizon": "noise", "affects": ["AAA"],
+                                       "date": "2026-08-01", "last_confirmed": "2026-08-01"}]}
+        html = joined(sd._render_factor_catalysts(state))
+        assert "One-day tape wobble" not in html
+        assert "No live factor catalysts" in html
 
 
 class TestTradeTriggers:

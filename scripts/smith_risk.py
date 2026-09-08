@@ -500,3 +500,100 @@ def ladder_authority(entry, today, ttl_days=14, min_scored=6):
         return "rank", conf, reasons
     reasons.append(f"ladder confidence is {conf or 'unset'} -- no trigger authority")
     return "none", conf or None, reasons
+
+
+# ---------------------------------------------------------------------------
+# FACTOR-CATALYST FRESHNESS (added 2026-09-08)
+# ---------------------------------------------------------------------------
+#
+# THE INCIDENT. Until today `_merge_catalyst` REPLACED `state.factor_catalysts`
+# wholesale with whatever smith-catalyst returned. On the 2026-09-08 deep run --
+# the first session after a Labor Day long weekend, news genuinely thin -- the
+# agent ran five searches and correctly returned `"catalysts": []`, having found
+# nothing that cleared its sourcing bar. The REPLACE then wiped the array. Live
+# `catalyst_threat` triggers went 6 -> 0, the dashboard's "Factor catalysts"
+# panel disappeared entirely, and two CXMT HBM3E items dated 2026-09-01 and
+# 2026-09-03 -- days old, structural, still live -- were deleted for the sole
+# offence of not being RE-reported in a window that started after them.
+#
+# The bug is a conflation: "no NEW catalyst found in this window" was being
+# stored as "no catalyst exists". Those are different claims. The first is a
+# statement about the scan; the second is a statement about the world, and only
+# the second justifies deleting evidence the desk already has.
+#
+# THE FIX, in one sentence: a catalyst lives until its OWN horizon says it has
+# passed, or until an agent explicitly retires it -- never because a later scan
+# was quiet. Silence is not retirement.
+
+CATALYST_TTL_DAYS = {
+    # A structural threat -- a competitor reaching risk production, a financing
+    # structure changing -- does not stop being true because a week went by with
+    # no follow-up headline. It outlives a noise item by design; that asymmetry
+    # is the whole point of asking the agent to classify `horizon` at all.
+    "structural": 45,
+    "immediate": 10,
+    "mechanical": 7,
+    "noise": 3,
+}
+CATALYST_TTL_DEFAULT = 14
+
+
+def catalyst_key(cat):
+    """(headline, date) -- the real identity of a catalyst, which has no id field.
+    Same pair `catalyst_is_suppressed` matches on, deliberately: an update to an
+    ongoing situation is dated differently and IS a different catalyst."""
+    return ((cat or {}).get("headline"), (cat or {}).get("date"))
+
+
+def catalyst_ttl_days(cat):
+    return CATALYST_TTL_DAYS.get((cat or {}).get("horizon"), CATALYST_TTL_DEFAULT)
+
+
+def catalyst_age_days(cat, today):
+    """Days since the catalyst was last EVIDENCED -- the later of its own event
+    date and the last run on which an agent re-confirmed it. Returns None if
+    neither parses, in which case the caller must not expire it (an unparseable
+    date is a data-quality problem, not a licence to delete a threat)."""
+    stamps = []
+    for k in ("last_confirmed", "date", "first_seen"):
+        v = (cat or {}).get(k)
+        if not v:
+            continue
+        try:
+            stamps.append(date.fromisoformat(str(v)[:10]))
+        except ValueError:
+            continue
+    if not stamps:
+        return None
+    return (today - max(stamps)).days
+
+
+def catalyst_is_expired(cat, today):
+    age = catalyst_age_days(cat, today)
+    if age is None:
+        return False
+    return age > catalyst_ttl_days(cat)
+
+
+def live_catalysts(state, today, include_suppressed=False):
+    """The catalysts that are actually live right now: not expired by their own
+    horizon, and (by default) not user-suppressed as already priced in. The one
+    reader every consumer -- triggers, dashboard, slices -- should go through, so
+    the freshness rule cannot drift between them."""
+    out = []
+    for c in (state or {}).get("factor_catalysts", []) or []:
+        if catalyst_is_expired(c, today):
+            continue
+        if not include_suppressed and catalyst_is_suppressed(state, c.get("headline"), c.get("date")):
+            continue
+        out.append(c)
+    return out
+
+
+def catalyst_carry_summary(state, today):
+    """(fresh_count, carried_count) for a given run date -- what the dashboard
+    prints instead of vanishing. `fresh` means confirmed by THIS run's scan."""
+    live = live_catalysts(state, today)
+    iso = today.isoformat()
+    fresh = sum(1 for c in live if str(c.get("last_confirmed") or c.get("date") or "")[:10] == iso)
+    return fresh, len(live) - fresh

@@ -2398,8 +2398,14 @@ def _trigger_catalyst_threat(base, ticker, mv, catalyst_threats_by_ticker, rotat
     cats = catalyst_threats_by_ticker.get(ticker)
     if cats:
         size = mv * CATALYST_THREAT_TRIM_FRACTION
+        # A carried-forward catalyst is labelled as such in the reason line (2026-09-08).
+        # It is NOT downweighted: a structural threat that no one re-reported this week is
+        # still a structural threat -- the label exists so the strategist can see the
+        # evidence's age, not so the trigger can quietly discount it.
         reasons = [f"{c.get('headline', '')} ({c.get('date', '')}) -- {c.get('magnitude', '')}"
-                  for c in cats]
+                   + (f" [carried forward, last confirmed {c.get('last_confirmed') or c.get('date')}]"
+                      if c.get("carried_forward") else "")
+                   for c in cats]
         blockers = []
         # TENSION, not suppression (same idiom as overbought_distribution's cluster_tension
         # check above): a name can simultaneously carry a strengthening thesis/accumulate
@@ -3434,7 +3440,11 @@ def cmd_triggers(args):
     # smith-catalyst itself distinguishes, and a "ambiguous" direction is not a threat by definition.
     # Keyed by ticker so the per-ticker loop below can just look itself up, same shape as every
     # other precomputed map here (rel_vals, laggard_set, etc).
-    factor_catalysts = state.get("factor_catalysts", []) or []
+    # 2026-09-08: read through `smith_risk.live_catalysts` rather than the raw array, so an
+    # entry that has aged out past its own horizon stops driving triggers even though the
+    # carry-forward merge keeps it in state until the next scan can retire it explicitly.
+    # ONE READER for the freshness rule -- the dashboard goes through the same helper.
+    factor_catalysts = smith_risk.live_catalysts(state, today, include_suppressed=True)
     catalyst_threats_by_ticker = {}
     for cat in factor_catalysts:
         if cat.get("direction") != "threat" or cat.get("horizon") != "structural":

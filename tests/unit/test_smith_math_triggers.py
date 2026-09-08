@@ -175,6 +175,21 @@ class TestCatalystThreat:
             status="intact", catalyst_threat=catalyst_threat)
         assert catalyst_threat == []
 
+    def test_carried_forward_catalyst_still_fires_and_is_labelled(self, base):
+        """2026-09-08: a structural threat nobody re-reported this week is still a structural
+        threat. It fires at full size; the reason line just discloses the evidence's age."""
+        catalyst_threat = []
+        cats = {"AAA": [{"headline": "Supply glut", "date": "2026-09-01", "magnitude": "large",
+                          "source": "reuters", "carried_forward": True,
+                          "last_confirmed": "2026-09-07"}]}
+        smith_math._trigger_catalyst_threat(
+            base, "AAA", mv=1000.0, catalyst_threats_by_ticker=cats, rotation_by_ticker={},
+            status="intact", catalyst_threat=catalyst_threat)
+        assert len(catalyst_threat) == 1
+        row = catalyst_threat[0]
+        assert row["suggested_size_usd"] == 1000.0 * smith_core.CATALYST_THREAT_TRIM_FRACTION
+        assert "carried forward, last confirmed 2026-09-07" in row["reasons"][0]
+
     def test_flags_tension_with_accumulate_rotation(self, base):
         catalyst_threat = []
         cats = {"AAA": [{"headline": "x", "date": "2026-08-01", "magnitude": "m", "source": "s"}]}

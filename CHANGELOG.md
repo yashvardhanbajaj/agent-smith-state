@@ -4,6 +4,63 @@ Dated record of fixes and decisions. See [ARCHITECTURE.md](ARCHITECTURE.md) for 
 currently exists, [POLICY-DECISIONS.md](POLICY-DECISIONS.md) for policy-specific
 rationale.
 
+## 2026-09-08 (factor-catalyst carry-forward: an empty scan is not a retirement)
+
+**Observed live on the 2026-09-08 deep run.** First session after a Labor Day long weekend,
+news genuinely thin. `smith-catalyst` ran five searches and correctly returned
+`"catalysts": []` — nothing cleared its sourcing bar. `_merge_catalyst`'s wholesale REPLACE
+then wiped `state.factor_catalysts`, and in one run:
+
+- live `catalyst_threat` triggers went **6 → 0**;
+- the **"Factor catalysts" panel disappeared** from the dashboard (a section diff showed 19
+  `h2`s before and after, with that one dropped and "Cluster ladders" added);
+- the two CXMT HBM3E items dated 2026-09-01 and 2026-09-03 — structural, days old, still live
+  — were deleted because they were not *re-reported* in a window that started after them.
+
+**The bug is a conflation.** "No NEW catalyst found in this window" was being stored as "no
+catalyst exists". The first is a claim about the scan; the second is a claim about the world,
+and only the second justifies deleting evidence the desk already has. Storing a scan's silence
+as a fact about the world silently removes risk signals that were properly sourced when found.
+
+- **`_merge_catalyst` is now a carry-forward merge** (`scripts/smith_memory.py`). Three
+  distinct states, only one of which deletes anything: **no `catalysts` key** → the agent did
+  not run, array untouched (unchanged behaviour); **a `catalysts` list, empty or not** → merged
+  by `(headline, date)`, returned items stamped `last_confirmed: today`, everything else
+  carried forward with `carried_forward: true` and its original `first_seen`; **`retired_catalysts`**
+  naming specific `(headline, date)` pairs → those, and only those, deleted, with the agent's
+  reason recorded in the merge result.
+- **Each catalyst now expires on its OWN horizon**, not on the next scan's mood —
+  `smith_risk.CATALYST_TTL_DAYS`: structural 45d, immediate 10d, mechanical 7d, noise 3d,
+  default 14d, measured from the later of `date` and `last_confirmed`. A structural threat
+  outlives a noise one by design; carrying forward stays bounded, so the array cannot become
+  the accumulating log the REPLACE rule was guarding against. An unparseable date never expires
+  anything — that is a data-quality problem, not a licence to delete a threat.
+- **One reader for the freshness rule**: `smith_risk.live_catalysts(state, today)`, used by both
+  `cmd_triggers`' `catalyst_threat` precompute and the dashboard, so the two cannot drift. A
+  carried-forward catalyst fires at **full size** — it is not downweighted — with its
+  `last_confirmed` date disclosed in the reason line so the strategist can see the evidence's age.
+- **The dashboard panel no longer vanishes.** It always renders, and says which case it means:
+  "N new this run · M carried forward", "No NEW catalysts this run · N carried forward", or
+  "No live factor catalysts · last scanned <date>". A disappearing panel is exactly the
+  silent-failure shape SKILL.md's own regression guard warns about. Carried entries wear a
+  `carried · <date>` chip. `factor_catalysts_as_of` is now stamped by `merge-tails`, so "last
+  scanned" is a real fact rather than an inference from the newest catalyst.
+- **`smith-catalyst` must now confirm or retire what it can already see.** Its slice has always
+  embedded `state.factor_catalysts`; the agent file now spells out the three options (re-list =
+  confirm, `retired_catalysts` = delete with a sourced reason, silence = carry forward) and
+  states the rule directly: **silence is not retirement**.
+- **Data repair**: the two CXMT catalysts wiped on 2026-09-08 were restored to `state.json`
+  from `runs/2026-09-07-0741/out_catalyst.json`, marked carried forward with
+  `last_confirmed: 2026-09-07`.
+- **Tests**: `tests/unit/test_smith_catalyst_freshness.py` (12 cases — empty return carries
+  forward and does not forge a confirmation; absent key changes nothing; explicit retirement
+  deletes and must match the date, not just the headline; noise ages out while structural
+  survives the same gap; structural eventually ages out too; an unparseable date never expires;
+  `live_catalysts`/`catalyst_carry_summary` readers), plus dashboard cases for the
+  carried-forward count and the stale-entry drop, and a trigger case proving a carried-forward
+  catalyst still fires at full size. Golden dashboard master updated for the new subtitle pill
+  (the only rendered diff).
+
 ## 2026-09-08 (benchmark plausibility gate)
 
 **User-reported**: the dashboard's "Beat or lag SMH, per period" chart showed impossible
