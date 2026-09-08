@@ -3300,8 +3300,19 @@ def cmd_triggers(args):
     This does NOT create proposals -- it hands the strategist typed, pre-screened candidate lists
     so it no longer has to invent non-ATR ideas from narrative judgment. Same compute-first
     contract as every other subcommand: every gate is a number from a compute file or a cache,
-    never a prose reading, and a missing input yields an empty list plus a data_quality line
-    rather than an estimate.
+    never a prose reading.
+
+    Inputs split two ways, and the distinction is deliberate:
+
+      REQUIRED -- compute_risk.json and compute_book.json are loaded with no default, so their
+                  absence stops the stage rather than yielding a confidently empty answer. There
+                  is no held-position universe and no price without them, so every trigger here
+                  would return "no candidates" for a book that in fact has plenty. In a pipeline
+                  run cmd_pipeline's STAGES registry asserts both first and BLOCKS by name.
+      OPTIONAL -- drift, rotation, state, lots, policy and the state caches (rsi14, rel_strength,
+                  atr20) all default to empty and degrade to an empty candidate list plus a
+                  data_quality line rather than an estimate. See rsi_usable / rel_usable below,
+                  and the cluster-tension note, for what that degradation looks like per gate.
 
     vote=="live"   (oversold_reversion, overbought_distribution, catalyst_threat, thesis_break)
                    may become sized proposals now.
