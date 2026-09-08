@@ -4,6 +4,37 @@ Dated record of fixes and decisions. See [ARCHITECTURE.md](ARCHITECTURE.md) for 
 currently exists, [POLICY-DECISIONS.md](POLICY-DECISIONS.md) for policy-specific
 rationale.
 
+## 2026-09-08 (benchmark plausibility gate)
+
+**User-reported**: the dashboard's "Beat or lag SMH, per period" chart showed impossible
+periods — `SMH +754.66%`, `-123.90%`, `+579.06%` in a single session — and its footer
+("17 of 29 periods beat SMH") was COUNTING them, so every relative-performance statement
+the desk made was suspect.
+
+- **Root cause is a WRITE, not the chart.** `ledger.csv`'s `smh` column holds a mix of real
+  SMH levels (~$545–590) and a completely different quantity. On 2026-08-12 and 2026-08-13
+  the real close (586.22, 584.83) sits one column to the RIGHT, in `est_net_flows_usd`, and
+  the net flow (4896.61, −1170.30) is in `smh` — an argument-order slip. On 2026-08-25 and
+  2026-08-26 a flow figure was passed as `--smh` outright. A period-over-period percentage
+  taken across two different units isn't a small error, it's a category error. Same
+  measurement-basis-mismatch class the weekly report already guards against.
+- **`append-ledger` now refuses an implausible `--smh`** (smith_memory.py): the value is
+  checked against the MEDIAN of the last 10 recorded levels — not the last one, which is
+  exactly what a corrupt cell overwrites — and rejected if it implies a move beyond
+  `BENCHMARK_WEEKLY_PLAUSIBLE_PCT` (±25%). When `--est-net-flows-usd` IS a plausible level,
+  the error names the swap explicitly. An empty benchmark cell is honest; a wrong one is not,
+  so the write is refused rather than repaired downstream. ledger.csv itself is NOT
+  hand-edited — the historical rows stay as written and are excluded at read time.
+- **`chart_relative` excludes out-of-band periods** (smith_charts.py) through the same
+  `#hatch` mechanism the corrupt-price-feed exclusions already used, with the reason named in
+  the tooltip. The footer now reads "N of M **scored** periods" and states how many were
+  hatched and why. Side effect worth noting: with the corrupt bars no longer setting the
+  axis, the scale went from ±1000% to ±8% and every real bar is legible for the first time.
+- **Pinned** by `tests/unit/test_smith_benchmark_plausibility.py` (7 tests): an out-of-band
+  period is hatched not plotted, the beat/lag tally ignores it, an in-band period still
+  counts, and the four `append-ledger` paths (refuse / name the swap / accept a real level /
+  allow an empty cell). `tests/golden/dashboard_case1.html` regenerated deliberately.
+
 ## 2026-07-26 (review/cleanup pass)
 
 **Fixed two live defects before they could fire on a scheduled run:**

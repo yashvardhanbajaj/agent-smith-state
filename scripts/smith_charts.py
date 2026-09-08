@@ -28,6 +28,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import smith_risk
+from smith_core import BENCHMARK_WEEKLY_PLAUSIBLE_PCT
 
 DEFAULT_BASE = "/Users/yb/Claude/AgentSmith"
 
@@ -343,11 +344,35 @@ def chart_relative(base):
 
     periods = []
     for a, b in zip(rows, rows[1:]):
-        usable = (a["trust"] == "ok" and b["trust"] == "ok")
         bp = (b["total"] - a["total"]) / a["total"] * 100 if a["total"] else 0
         sp = (b["smh"] - a["smh"]) / a["smh"] * 100 if a["smh"] else 0
+        # TWO independent exclusion tests, same doctrine, different corruption.
+        #
+        # (1) value_trust != ok -- the BOOK side of the pair is a bad reading.
+        #
+        # (2) BENCHMARK PLAUSIBILITY (added 2026-09-08, user-reported). SMH is a sector ETF;
+        #     it does not move +754% in a session. Five periods in the live chart claimed
+        #     exactly that, because ledger.csv's `smh` column holds a mix of real SMH levels
+        #     (~$545-590) and values from an entirely different quantity -- on 2026-08-12 and
+        #     2026-08-13 the real level was written one column to the RIGHT, into
+        #     est_net_flows_usd, and a net-flow figure landed in `smh`. A period-over-period
+        #     percentage across two different units is not a small error, it is a category
+        #     error, and it was being COUNTED in the "N of M periods beat SMH" tally. Same
+        #     rule the weekly report and the axis scaling already apply: a corrupt reading
+        #     never sets an axis and never counts as performance.
+        bench_ok = abs(sp) <= BENCHMARK_WEEKLY_PLAUSIBLE_PCT
+        trust_ok = (a["trust"] == "ok" and b["trust"] == "ok")
+        if not trust_ok:
+            why = "corrupt price feed in this interval"
+        elif not bench_ok:
+            why = (f"implausible benchmark move ({sp:+.1f}%, outside "
+                   f"\u00b1{BENCHMARK_WEEKLY_PLAUSIBLE_PCT:.0f}%) -- the `smh` column holds a "
+                   f"value from another series on one end of this period")
+        else:
+            why = ""
         periods.append({"label": b["date"][5:], "rel": bp - sp, "book": bp, "smh": sp,
-                        "usable": usable, "to": b["date"], "frm": a["date"]})
+                        "usable": trust_ok and bench_ok, "why": why,
+                        "to": b["date"], "frm": a["date"]})
 
     W, H = 720, 230
     ML, MR, MT, MB = 46, 16, 14, 40
@@ -386,8 +411,8 @@ def chart_relative(base):
         if not p["usable"]:
             s.append(f'<rect class="mark" x="{x:.1f}" y="{zero-ph/2*0.16:.1f}" width="{bw:.1f}" '
                      f'height="{ph/2*0.32:.1f}" fill="url(#hatch)" rx="2"><title>'
-                     f'{esc(p["frm"])} to {esc(p["to"])} - EXCLUDED, corrupt price feed in '
-                     f'this interval</title></rect>')
+                     f'{esc(p["frm"])} to {esc(p["to"])} - EXCLUDED, '
+                     f'{esc(p["why"])}</title></rect>')
             continue
         col = "var(--pos)" if p["rel"] >= 0 else "var(--neg)"
         s.append(f'<rect class="mark" x="{x:.1f}" y="{y:.1f}" width="{bw:.1f}" '
@@ -412,9 +437,22 @@ def chart_relative(base):
     # cumulative-performance caveat, which used to run first and longest.
     ok = [p for p in periods if p["usable"]]
     won = sum(1 for p in ok if p["rel"] > 0)
-    note = (f"{won} of {len(ok)} periods beat SMH. Each bar is that period's OWN gap "
+    dropped = [p for p in periods if not p["usable"]]
+    note = (f"{won} of {len(ok)} scored periods beat SMH. Each bar is that period's OWN gap "
             f"(book return minus SMH return), not a running total -- a cumulative line isn't "
             f"shown because deposits aren't yet separated from returns in the ledger.")
+    if dropped:
+        n_bench = sum(1 for p in dropped if "implausible benchmark" in p["why"])
+        n_trust = len(dropped) - n_bench
+        bits = []
+        if n_bench:
+            bits.append(f"{n_bench} for an implausible benchmark move (beyond "
+                        f"\u00b1{BENCHMARK_WEEKLY_PLAUSIBLE_PCT:.0f}%, so the `smh` cell holds "
+                        f"a value from another series)")
+        if n_trust:
+            bits.append(f"{n_trust} for a corrupt price feed")
+        note += (f" A further {len(dropped)} period(s) are hatched and EXCLUDED from that tally: "
+                 + "; ".join(bits) + ".")
     hatch_swatch = ("repeating-linear-gradient(45deg,var(--muted) 0 2px,"
                     "transparent 2px 5px)")
     return {"svg": "\n".join(s),

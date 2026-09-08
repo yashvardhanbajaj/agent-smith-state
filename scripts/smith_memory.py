@@ -10,6 +10,7 @@ import json
 import csv
 import math
 import os
+import statistics
 import re
 from collections import Counter
 from datetime import date, datetime, timedelta
@@ -880,6 +881,43 @@ def cmd_append_ledger(args):
     else:
         ts_normalised = None
 
+    # BENCHMARK GUARD (added 2026-09-08, user-reported). The chart's plausibility gate keeps a
+    # corrupt cell out of the tally, but the real defect is upstream: --smh was taken verbatim,
+    # and four rows in August received a NET-FLOW figure in the benchmark column. On 2026-08-12
+    # and 2026-08-13 the real SMH level (586.22, 584.83) is sitting one column to the RIGHT, in
+    # est_net_flows_usd, and the flow (4896.61, -1170.30) is in `smh` -- an argument-order slip,
+    # not a bad price feed. Left unguarded it silently poisons every relative-performance
+    # statement the desk makes, so the write is REFUSED here rather than repaired later.
+    smh_in = _f(args.smh) if args.smh not in (None, "") else None
+    if smh_in is not None:
+        # Baseline is the MEDIAN of the last 10 recorded levels, not the last one. The last
+        # one is exactly what a corrupt cell overwrites, and once one lands, comparing to it
+        # would wave the next corrupt cell through (and refuse the next correct one). A median
+        # over a window survives a minority of poisoned cells, which is the actual failure
+        # shape here -- 4 bad rows out of ~30.
+        hist = []
+        if os.path.exists(ledger_path):
+            for r in csv.DictReader(open(ledger_path)):
+                v = _f(r.get("smh"))
+                if v:
+                    hist.append(v)
+        prev = statistics.median(hist[-10:]) if hist else None
+        if prev:
+            move = 100.0 * (smh_in - prev) / prev
+            if abs(move) > BENCHMARK_WEEKLY_PLAUSIBLE_PCT:
+                flow_in = _f(args.est_net_flows_usd) if args.est_net_flows_usd not in (None, "") else None
+                swap = ""
+                if flow_in and abs(100.0 * (flow_in - prev) / prev) <= BENCHMARK_WEEKLY_PLAUSIBLE_PCT:
+                    swap = (f" --est-net-flows-usd is {flow_in}, which IS a plausible SMH level "
+                            f"against {prev:.2f} -- the two arguments look swapped.")
+                fail(f"--smh {smh_in} implies a {move:+.1f}% move from the last recorded level "
+                     f"{prev:.2f} (median of the last 10 recorded levels), outside the \u00b1{BENCHMARK_WEEKLY_PLAUSIBLE_PCT:.0f}% "
+                     f"plausibility band. SMH is a sector ETF; it does not move that far between "
+                     f"runs, so this is a value from another series, not a price.{swap} Pass the "
+                     f"SMH close in --smh, or omit --smh entirely if you don't have one -- an "
+                     f"empty benchmark cell is honest, a wrong one corrupts every "
+                     f"relative-performance number downstream.")
+
     row = [args.ts, args.mode, args.value_usd, args.usdinr, args.wallet_usd, args.spx,
            args.ndx, args.smh or "", args.smh_asof or "", args.est_net_flows_usd or "",
            args.external_flow_usd or "", args.value_trust, notes]
@@ -1097,16 +1135,99 @@ def _merge_signals(out, state, today, scanned_tickers=None, base_dir="."):
             "journal_new_added": added if jn else []}
 
 
+def _as_date(today):
+    """merge-tails hands `today` around as an ISO string; the freshness helpers work in
+    `date`. Tolerant of already being a date so callers don't have to care."""
+    return today if isinstance(today, date) else date.fromisoformat(str(today)[:10])
+
+
 def _merge_catalyst(out, state, today):
+    """CARRY-FORWARD merge (rewritten 2026-09-08; the full incident is in
+    `smith_risk`'s FACTOR-CATALYST FRESHNESS block).
+
+    This used to be a wholesale REPLACE. That is correct for the case it was
+    written for -- an agent that returns two catalysts should not leave last
+    week's three sitting alongside them -- and catastrophic for the case nobody
+    wrote it for: an agent that ran, searched honestly, and found nothing NEW.
+    On 2026-09-08 that emptied the array, took live `catalyst_threat` triggers
+    from 6 to 0, made the dashboard panel vanish, and deleted two structural
+    CXMT threats that were four and seven days old.
+
+    Three distinct states now, only one of which deletes anything:
+
+      1. The `catalysts` key is ABSENT   -> the agent did not run (or returned no
+         opinion). Leave the array exactly as it is. Unchanged behaviour.
+      2. The `catalysts` key is PRESENT  -> the returned items are merged by
+         (headline, date): a returned item is fresh (`last_confirmed = today`),
+         and an existing item the agent did NOT return is CARRIED FORWARD, not
+         dropped. An empty list is therefore a valid, non-destructive answer --
+         it says "nothing new", which is what the agent meant.
+      3. `retired_catalysts` names specific (headline, date) pairs -> THOSE, and
+         only those, are deleted. Deletion becomes an affirmative act with a
+         reason attached, rather than a side effect of a quiet news day.
+
+    Entries also age out on their own `horizon` (structural 45d, noise 3d --
+    `smith_risk.catalyst_is_expired`), so carrying forward is bounded and the
+    array cannot grow into the accumulating log the REPLACE rule was guarding
+    against. `first_seen` is preserved across confirmations so the age clock
+    measures the event, not the last time someone mentioned it.
+    """
     cats = out.get("catalysts")
-    if cats is not None:
-        state["factor_catalysts"] = cats  # REPLACE, never append -- point-in-time snapshot (G50)
+    existing = list(state.get("factor_catalysts", []) or [])
+    result = {"factor_catalysts_ran": cats is not None}
+    if cats is None:
+        result["factor_catalysts_carried"] = len(existing)
+        result["reason"] = "agent did not run / returned no `catalysts` key -- array untouched"
+        return result
+
+    retired = {smith_risk.catalyst_key(r): (r.get("reason") or "retired by smith-catalyst")
+               for r in (out.get("retired_catalysts") or [])}
+    fresh_by_key = {}
+    merged, fresh_n = [], 0
+    for c in cats:
+        c = dict(c)
+        k = smith_risk.catalyst_key(c)
+        prior = next((e for e in existing if smith_risk.catalyst_key(e) == k), None)
+        c["first_seen"] = (prior or {}).get("first_seen") or c.get("date") or today
+        c["last_confirmed"] = today
+        c["carried_forward"] = False
+        fresh_by_key[k] = c
+        merged.append(c)
+        fresh_n += 1
+
+    carried, dropped_retired, dropped_stale = [], [], []
+    for e in existing:
+        k = smith_risk.catalyst_key(e)
+        if k in fresh_by_key:
+            continue
+        if k in retired:
+            dropped_retired.append({"headline": k[0], "date": k[1], "reason": retired[k]})
+            continue
+        if smith_risk.catalyst_is_expired(e, _as_date(today)):
+            dropped_stale.append({"headline": k[0], "date": k[1],
+                                  "horizon": e.get("horizon"),
+                                  "ttl_days": smith_risk.catalyst_ttl_days(e)})
+            continue
+        e = dict(e)
+        e.setdefault("first_seen", e.get("date") or today)
+        e["carried_forward"] = True
+        carried.append(e)
+        merged.append(e)
+
+    state["factor_catalysts"] = merged
+    result.update({"factor_catalysts_fresh": fresh_n,
+                   "factor_catalysts_carried": len(carried),
+                   "factor_catalysts_retired": dropped_retired,
+                   "factor_catalysts_aged_out": dropped_stale})
+    if not cats:
+        result["reason"] = (f"agent ran and found nothing new -- {len(carried)} catalyst(s) "
+                            "carried forward. A quiet scan is not a retirement.")
     themes = out.get("theme_updates", {})
     if isinstance(themes, dict) and themes.get("id") is not None:
         for t in state.setdefault("factor_themes", {}).setdefault("themes", []):
             if t.get("id") == themes["id"]:
                 t[f"live_{today.replace('-', '_')}"] = themes.get("update")
-    return {"factor_catalysts_replaced": cats is not None}
+    return result
 
 
 def _merge_earnings(out, state, today):
@@ -1440,7 +1561,10 @@ def _merge_rebound(out, state, today):
 MERGE_STAMPS = {
     "thesis":    ["sector_map"],
     "signals":   ["peer_map"],
-    "catalyst":  ["factor_themes"],
+    # factor_catalysts_as_of added 2026-09-08: the dashboard needs to be able to say "last
+    # scanned <date>" when the live array is empty, which is only honest if something records
+    # WHEN a scan last happened as distinct from when a catalyst was last found.
+    "catalyst":  ["factor_themes", "factor_catalysts"],
     # scout: diversifier_candidates carries its own per-entry `as_of`; no sibling stamp.
     "watchlist": ["watchlist_setups"],
 }
