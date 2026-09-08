@@ -607,3 +607,157 @@ class TestLadderDrivenRotation:
         p = pairs[0]
         assert p["ladder_as_of"] == "2026-09-06" and p["ladder_confidence"] == "high"
         assert p["ladder_authority"] == "full" and p["ladder_authority_reasons"]
+
+
+# ---------------------------------------------------------------------------
+# PHASE 4 -- the two SHADOW triggers
+# ---------------------------------------------------------------------------
+
+import smith_core                # noqa: E402
+
+
+class TestPairedTriggerRegistry:
+    """PAIRED_TRIGGERS exists because the pair of trigger names was written out by hand at FOUR
+    sites in smith_lifecycle.py. Adding a fifth paired trigger without updating all four
+    reintroduces the orphaning bug that killed 19 of 19 rotation pairs -- silently."""
+
+    def test_both_new_paired_triggers_are_registered(self):
+        assert {"cluster_bench_rotation", "cluster_consolidation"} <= smith_core.PAIRED_TRIGGERS
+        assert {"profit_rotation", "cluster_rotation"} <= smith_core.PAIRED_TRIGGERS
+
+    def test_the_prefixes_derive_from_the_set_so_they_cannot_drift(self):
+        assert smith_core.PAIRED_TRIGGER_PREFIXES == tuple(
+            f"{t}-" for t in sorted(smith_core.PAIRED_TRIGGERS))
+
+    def test_every_pair_id_this_module_emits_matches_a_registered_prefix(self):
+        for tt in smith_core.PAIRED_TRIGGERS:
+            assert f"{tt}-SELL-BUY".startswith(smith_core.PAIRED_TRIGGER_PREFIXES)
+
+    def test_the_new_pairs_are_shadow_voted(self):
+        """A new signal class earns its vote before it gets one."""
+        assert {"cluster_bench_rotation", "cluster_consolidation"} <= smith_core.SHADOW_TRIGGERS
+        assert not ({"cluster_bench_rotation", "cluster_consolidation"} & smith_core.LIVE_TRIGGERS)
+
+    def test_cluster_bench_rotation_does_not_collide_with_cluster_rotations_prefix(self):
+        """`cluster_bench_rotation-X-Y` must not be mistaken for a cluster_rotation pair."""
+        assert not "cluster_bench_rotation-A-B".startswith("cluster_rotation-")
+
+
+class TestClusterBenchRotation:
+    def _run(self, ladder, *, held_bench=False, conv=None):
+        from test_smith_math_triggers import _conv_row
+        conv = conv or {"BEST": _conv_row(1000.0, "C", rel_pp=0.0),
+                        "WORST": _conv_row(3000.0, "C", rel_pp=0.0)}
+        risk = {t: {} for t in conv}
+        if held_bench:
+            risk["NEWNAME"] = {}
+        out = []
+        smith_math._trigger_cluster_bench_rotation(
+            {"C": ladder}, conv, {"BEST": "x|strengthening", "WORST": "x|intact"},
+            risk, TODAY, out)
+        return out
+
+    def _bench_ladder(self, **kw):
+        L = _ladder(order=("BEST", "MID", "WORST"), **kw)
+        L["bench"] = [{"ticker": "NEWNAME", "price_usd": 42.0, "why_better_than": "WORST",
+                       "entry_condition": "below $40"}]
+        return L
+
+    def test_it_pairs_the_ladder_laggard_with_a_bench_name(self):
+        pairs = self._run(self._bench_ladder())
+        assert len(pairs) == 1
+        assert pairs[0]["sell_leg"]["ticker"] == "WORST"
+        assert pairs[0]["buy_leg"]["ticker"] == "NEWNAME"
+
+    def test_it_is_shadow_and_says_why(self):
+        p = self._run(self._bench_ladder())[0]
+        assert p["vote"] == "shadow"
+        assert "never-held name" in p["buy_leg"]["blockers"][0]
+
+    def test_the_buy_leg_is_not_sized(self):
+        """A never-held name has no lot, no thesis entry and no journal history -- sizing it
+        here would be the whole point of the shadow vote skipped."""
+        assert self._run(self._bench_ladder())[0]["buy_leg"]["suggested_size_usd"] is None
+
+    def test_a_bench_name_that_is_actually_held_is_skipped(self):
+        """That is cluster_rotation's job, and cluster_rotation is LIVE. A bench entry naming a
+        holding is a stale ladder, not an idea."""
+        assert self._run(self._bench_ladder(), held_bench=True) == []
+
+    def test_no_bench_produces_nothing(self):
+        assert self._run(_ladder()) == []
+
+    def test_it_requires_the_same_ladder_authority_a_live_rotation_does(self):
+        assert self._run(self._bench_ladder(confidence="low")) == []
+        assert self._run(self._bench_ladder(as_of="2026-01-01")) == []
+
+    def test_the_sell_leg_is_not_relaxed_just_because_the_vote_is_shadow(self):
+        """The shadow-ness is entirely about the buy. At `medium` the sell leg still needs a
+        watch thesis, and WORST here is only `intact`."""
+        assert self._run(self._bench_ladder(confidence="medium")) == []
+
+    def test_the_entry_condition_travels_with_the_proposal(self):
+        p = self._run(self._bench_ladder())[0]
+        assert any("below $40" in r for r in p["buy_leg"]["reasons"])
+
+
+class TestClusterConsolidation:
+    def _run(self, pairs_in, *, over_cap_keep=False):
+        from test_smith_math_triggers import _conv_row
+        conv = {"KEEP": _conv_row(1000.0, "C", rel_pp=0.0, over_cap=over_cap_keep),
+                "DROP": _conv_row(2500.0, "C", rel_pp=0.0),
+                "OTHER": _conv_row(500.0, "C", rel_pp=0.0)}
+        L = _ladder(order=("KEEP", "DROP", "OTHER"))
+        L["redundant_pairs"] = pairs_in
+        out = []
+        smith_math._trigger_cluster_consolidation({"C": L}, conv, {t: {} for t in conv},
+                                                  TODAY, out)
+        return out
+
+    REDUNDANT = [{"pair": ["KEEP", "DROP"], "verdict": "redundant", "keep": "KEEP",
+                  "drop": "DROP", "same_bet_because": "same customer, same process step"}]
+
+    def test_it_collapses_the_drop_side_into_the_keep_side(self):
+        p = self._run(self.REDUNDANT)[0]
+        assert p["sell_leg"]["ticker"] == "DROP" and p["buy_leg"]["ticker"] == "KEEP"
+        assert p["vote"] == "shadow"
+
+    def test_it_sells_the_whole_position_because_the_exposure_is_kept(self):
+        """This is the only rotation here that does not change factor exposure at all -- it
+        shortens the tail. A partial sale would leave the redundancy in place."""
+        p = self._run(self.REDUNDANT)[0]
+        assert p["sell_leg"]["suggested_size_usd"] == 2500.0
+        assert p["buy_leg"]["suggested_size_usd"] == 2500.0
+
+    def test_a_distinct_verdict_produces_nothing(self):
+        """A candidate the agent looked at and called distinct is a judgment already made."""
+        assert self._run([dict(self.REDUNDANT[0], verdict="distinct")]) == []
+
+    def test_an_unjudged_candidate_produces_nothing(self):
+        """cmd_ladder's screen is a resemblance, never a cause. Only the agent's explicit
+        `redundant` verdict acts."""
+        assert self._run([{"pair": ["KEEP", "DROP"]}]) == []
+
+    def test_the_drop_side_is_inferred_only_for_a_two_name_pair(self):
+        assert self._run([{"pair": ["KEEP", "DROP"], "verdict": "redundant",
+                           "keep": "KEEP"}])[0]["sell_leg"]["ticker"] == "DROP"
+        # Guessing which of three to sell is not a gap worth filling silently.
+        assert self._run([{"pair": ["KEEP", "DROP", "OTHER"], "verdict": "redundant",
+                           "keep": "KEEP"}]) == []
+
+    def test_it_will_not_add_to_a_name_already_past_its_risk_cap(self):
+        assert self._run(self.REDUNDANT, over_cap_keep=True) == []
+
+    def test_an_unheld_side_produces_nothing(self):
+        assert self._run([{"pair": ["KEEP", "GHOST"], "verdict": "redundant",
+                           "keep": "KEEP", "drop": "GHOST"}]) == []
+
+    def test_it_requires_ladder_authority(self):
+        from test_smith_math_triggers import _conv_row
+        conv = {"KEEP": _conv_row(1000.0, "C", rel_pp=0.0), "DROP": _conv_row(2500.0, "C", rel_pp=0.0)}
+        L = _ladder(confidence="low")
+        L["redundant_pairs"] = self.REDUNDANT
+        out = []
+        smith_math._trigger_cluster_consolidation({"C": L}, conv, {t: {} for t in conv},
+                                                  TODAY, out)
+        assert out == []

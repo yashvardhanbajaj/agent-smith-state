@@ -2779,6 +2779,122 @@ def _pair_cluster_room_usd(cluster_rows, sell_cluster, buy_cluster, sell_size):
     return round(max(0.0, room), 2)
 
 
+def _trigger_cluster_bench_rotation(cluster_ladders, conviction_by_ticker, thesis,
+                                    risk_by_ticker, today, cluster_bench_rotation):
+    """Section Q: cluster_bench_rotation (PAIRED, SHADOW). Sell the ladder's laggard, buy a name
+    the book does NOT own.
+
+    WHY THIS IS SEPARATE FROM cluster_rotation, and why it is shadow. Often the honest answer to
+    "rotate the laggard into what?" is a name outside the book -- a ladder that can only
+    recommend from what is already held is choosing the best of a set nobody re-examined. But
+    this is the one trigger that introduces a never-held name on a single agent's judgment, with
+    no price history in the journal, no thesis entry, no lot, and no track record of this desk
+    ever having been right about it. Every other live trigger either acts on a name the book
+    knows or is corroborated by a second source. So it logs `price_at_flag` and is scored at
+    7/30d first, exactly like laggard_rotation did before it earned a vote -- the standing "a
+    new signal class earns its vote before it gets one" rule.
+
+    The SELL leg still has to clear the same bars as a live rotation: fresh ladder, real
+    authority, held, not over cap, and a thesis the authority level permits selling. A shadow
+    vote is not a licence to relax the sell side; the shadow-ness is entirely about the buy.
+    """
+    for cluster, entry in (cluster_ladders or {}).items():
+        bench = [b for b in (entry.get("bench") or []) if isinstance(b, dict) and b.get("ticker")]
+        if not bench:
+            continue
+        authority, eff_conf, _ = smith_risk.ladder_authority(
+            entry, today, ttl_days=LADDER_TTL_DAYS, min_scored=LADDER_MIN_SCORED_CALLS)
+        if authority not in ("rank", "full"):
+            continue
+        here = [t for t, c in conviction_by_ticker.items() if c["cluster"] == cluster]
+        picked = _cluster_rotation_legs_from_ladder(entry, here, conviction_by_ticker,
+                                                    thesis, authority)
+        if not picked:
+            continue
+        sell_t = picked[0]
+        # Never propose buying something already held -- that is cluster_rotation's job and it
+        # is LIVE. A bench entry naming a holding is a stale ladder, not an idea.
+        cand = next((b for b in bench if b["ticker"] not in risk_by_ticker), None)
+        if not cand:
+            continue
+        buy_t = cand["ticker"]
+        sell_mv = conviction_by_ticker[sell_t]["market_value_usd"]
+        sell_size = round(sell_mv * 0.30, 2)
+        cluster_bench_rotation.append({
+            "pair_id": f"cluster_bench_rotation-{sell_t}-{buy_t}",
+            "trigger_type": "cluster_bench_rotation", "vote": "shadow", "cluster": cluster,
+            "ladder_as_of": entry.get("as_of"), "ladder_confidence": eff_conf,
+            "ladder_authority": authority,
+            "sell_leg": {"ticker": sell_t, "direction": "SELL", "suggested_size_usd": sell_size,
+                         "reasons": [picked[2]]},
+            "buy_leg": {"ticker": buy_t, "direction": "BUY", "suggested_size_usd": None,
+                        "price_usd": cand.get("price_usd"),
+                        "reasons": [f"cluster bench: better than {cand.get('why_better_than') or sell_t}",
+                                    f"entry condition: {cand.get('entry_condition') or 'none stated'}"],
+                        "blockers": ["SHADOW -- a never-held name on one agent's judgment, with no "
+                                     "journal history and no thesis entry. Scored at 7/30d before "
+                                     "it can be sized."]},
+            "retires_when": (f"EITHER {cluster}'s ladder drops {buy_t} from its bench "
+                             f"OR {sell_t} leaves the bottom of that ladder")})
+
+
+def _trigger_cluster_consolidation(cluster_ladders, conviction_by_ticker, risk_by_ticker,
+                                   today, cluster_consolidation):
+    """Section R: cluster_consolidation (PAIRED, SHADOW). Two holdings that are ONE bet -- same
+    customer, same product, same process step -- collapsed into the better of the two.
+
+    This is the only rotation on this list that does not change factor exposure at all. It
+    shortens the tail: three expressions of one WFE trade carry three sets of idiosyncratic
+    risk for one thesis. Shadow because "these are the same bet" is a business judgment with no
+    numeric proof available here -- cmd_ladder can only screen for near-identical move and
+    volatility, which is a resemblance, not a cause, and no return series is cached to compute
+    a real correlation from.
+
+    Only acts on pairs the agent explicitly marked `verdict: "redundant"`. A candidate the agent
+    looked at and called `distinct` is a judgment already made, not an unanswered question.
+    """
+    for cluster, entry in (cluster_ladders or {}).items():
+        authority, eff_conf, _ = smith_risk.ladder_authority(
+            entry, today, ttl_days=LADDER_TTL_DAYS, min_scored=LADDER_MIN_SCORED_CALLS)
+        if authority not in ("rank", "full"):
+            continue
+        for rp in (entry.get("redundant_pairs") or []):
+            if not isinstance(rp, dict) or rp.get("verdict") != "redundant":
+                continue
+            keep, drop = rp.get("keep"), rp.get("drop")
+            pair = rp.get("pair") or []
+            if not keep or not drop:
+                # Infer the drop side only when the pair names exactly two and one is `keep`.
+                # Guessing which of three names to sell is not a gap worth filling silently.
+                others = [t for t in pair if t != keep]
+                drop = others[0] if keep and len(pair) == 2 and others else None
+            if not keep or not drop or keep == drop:
+                continue
+            if keep not in conviction_by_ticker or drop not in conviction_by_ticker:
+                continue
+            if conviction_by_ticker[keep]["over_cap"]:
+                continue
+            drop_mv = conviction_by_ticker[drop]["market_value_usd"]
+            cluster_consolidation.append({
+                "pair_id": f"cluster_consolidation-{drop}-{keep}",
+                "trigger_type": "cluster_consolidation", "vote": "shadow", "cluster": cluster,
+                "ladder_as_of": entry.get("as_of"), "ladder_confidence": eff_conf,
+                "ladder_authority": authority,
+                "sell_leg": {"ticker": drop, "direction": "SELL",
+                             "suggested_size_usd": round(drop_mv, 2),
+                             "market_value_usd": round(drop_mv, 2),
+                             "reasons": [f"same bet as {keep}: {rp.get('same_bet_because') or 'agent verdict'}"]},
+                "buy_leg": {"ticker": keep, "direction": "BUY",
+                            "suggested_size_usd": round(drop_mv, 2),
+                            "reasons": [f"the better expression of the {cluster} bet {keep} and "
+                                        f"{drop} both make"],
+                            "blockers": ["SHADOW -- 'same bet' is a business judgment with no "
+                                         "numeric proof available here; the script can only "
+                                         "screen for resemblance, never for cause."]},
+                "retires_when": (f"EITHER {cluster}'s ladder stops calling {keep}/{drop} "
+                                 f"redundant OR that ladder goes stale")})
+
+
 def _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, total_book, policy,
                              profit_rotation, cluster_rows=None):
     """Section O: profit_rotation (PAIRED, live). ORGANISING RULE -- sell an EXTENDED name whose
@@ -3293,6 +3409,7 @@ def cmd_triggers(args):
     trend_entry, trend_breakdown, conviction_average, conviction_exit = [], [], [], []
     entry_setup, reentry, bench_diversifier = [], [], []
     profit_rotation, cluster_rotation = [], []
+    cluster_bench_rotation, cluster_consolidation = [], []
     conviction_by_ticker = {}  # populated in the main loop, consumed by the rotation-pairing pass
 
     rel_ranked = sorted((t for t in risk_by_ticker if rel_vals.get(t) is not None),
@@ -3574,8 +3691,15 @@ def cmd_triggers(args):
     # --- O/P. profit_rotation + cluster_rotation (PAIRED, live) ---------------------------
     _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, total_book, policy,
                              profit_rotation, cluster_rows)
+    _cluster_ladders = state.get("cluster_ladders") or {}
     _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cluster_rows,
-                              state.get("cluster_ladders") or {}, today)
+                              _cluster_ladders, today)
+
+    # --- Q/R. cluster_bench_rotation + cluster_consolidation (PAIRED, SHADOW) --------------
+    _trigger_cluster_bench_rotation(_cluster_ladders, conviction_by_ticker, thesis,
+                                    risk_by_ticker, today, cluster_bench_rotation)
+    _trigger_cluster_consolidation(_cluster_ladders, conviction_by_ticker, risk_by_ticker,
+                                   today, cluster_consolidation)
 
     oversold.sort(key=lambda x: x["rsi14"])
     overbought.sort(key=lambda x: -x["rsi14"])
@@ -3620,7 +3744,9 @@ def cmd_triggers(args):
                    "bench_diversifier": len(bench_diversifier),
                    "profit_rotation": len(profit_rotation), "cluster_rotation": len(cluster_rotation)}
     shadow_counts = {"laggard_rotation": len(laggard), "profit_ratchet": len(ratchet),
-                     "scale_out_ladder": len(ladder)}
+                     "scale_out_ladder": len(ladder),
+                     "cluster_bench_rotation": len(cluster_bench_rotation),
+                     "cluster_consolidation": len(cluster_consolidation)}
 
     # Shadow entries mirror cmd_derisk's shadow_new contract: price_at_flag now, scored later.
     shadow_new = [{"date": today.isoformat(), "ticker": c["ticker"],
@@ -3628,6 +3754,15 @@ def cmd_triggers(args):
                    "rsi14": c.get("rsi14"), "gain_pct": c.get("gain_pct"),
                    "rel_strength_1m_pp": c.get("rel_strength_1m_pp"), "scored": False}
                   for c in laggard + ratchet + ladder]
+    # Paired shadow triggers log their BUY leg -- that is the half whose vote is being tested
+    # (the sell leg has already cleared the same bars a live rotation's sell leg does).
+    shadow_new += [{"date": today.isoformat(), "ticker": p["buy_leg"]["ticker"],
+                    "trigger_type": p["trigger_type"],
+                    "price_at_flag": (p["buy_leg"].get("price_usd")
+                                      or price_by_ticker.get(p["buy_leg"]["ticker"])),
+                    "rsi14": None, "gain_pct": None, "rel_strength_1m_pp": None,
+                    "pair_id": p["pair_id"], "scored": False}
+                   for p in cluster_bench_rotation + cluster_consolidation]
 
     emit({
         "as_of": today.isoformat(),
@@ -3649,6 +3784,8 @@ def cmd_triggers(args):
         "entry_setup": entry_setup, "reentry": reentry, "bench_diversifier": bench_diversifier,
         "rebound": rebound, "correction_state": rebound["correction_state"],
         "profit_rotation": profit_rotation, "cluster_rotation": cluster_rotation,
+        "cluster_bench_rotation": cluster_bench_rotation,
+        "cluster_consolidation": cluster_consolidation,
         "laggard_rotation": laggard, "profit_ratchet": ratchet, "scale_out_ladder": ladder,
         "shadow_new": shadow_new,
         # Published for cmd_proposals' retirement pass so it tests RSI-triggered proposals against

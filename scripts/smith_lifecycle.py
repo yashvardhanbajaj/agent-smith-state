@@ -344,7 +344,7 @@ def _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short,
     has_live_trigger = False
     if tt in LIVE_TRIGGERS and ticker in trigger_live_sets.get(tt, set()):
         row = trigger_rows[tt].get(ticker) or {}
-        if not row and tt in ("profit_rotation", "cluster_rotation") and pr.get("pair_id") in trigger_pairs:
+        if not row and tt in PAIRED_TRIGGERS and pr.get("pair_id") in trigger_pairs:
             # Paired rows carry no top-level ticker, so trigger_rows (single-ticker only) is
             # empty for them -- pull the matching leg out of trigger_pairs instead of losing
             # the conviction number entirely.
@@ -565,7 +565,7 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             if ticker not in trigger_live_sets.get(tt_now, set()):
                 why = (f"{ticker} no longer appears in this run's live {tt_now} list -- the "
                        "condition this trim/exit was sized against has cleared")
-        elif pr.get("trigger_type") in ("profit_rotation", "cluster_rotation"):
+        elif pr.get("trigger_type") in PAIRED_TRIGGERS:
             # Paired rotation SELL legs (added 2026-08-24, bug found live on first real
             # dispatch): must NOT fall through to the generic cap/cluster test below -- a
             # profit_rotation/cluster_rotation sell leg's reason for existing is "stretched
@@ -742,7 +742,7 @@ def _retire_orphaned_rotation_legs(props, trigger_pairs, today_date, retired):
     by_pair_id = {}
     for pr in props:
         pid = pr.get("pair_id")
-        if pr.get("status") == "open" and pid and pid.startswith(("profit_rotation-", "cluster_rotation-")):
+        if pr.get("status") == "open" and pid and pid.startswith(PAIRED_TRIGGER_PREFIXES):
             by_pair_id.setdefault(pid, []).append(pr)
     for pid, legs in by_pair_id.items():
         if pid in trigger_pairs:
@@ -836,7 +836,7 @@ def _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directi
     elif _tt == "reentry":
         retires_when = (f"{ticker} no longer appears in this run's live reentry list, or 20 "
                         "trading days pass since its exit, whichever comes first")
-    elif _tt in ("profit_rotation", "cluster_rotation"):
+    elif _tt in PAIRED_TRIGGERS:
         retires_when = (f"the {_tt} pairing {pr.get('pair_id')} is no longer live this run -- "
                         "both legs retire together, never one alone")
     elif _tt in SHADOW_TRIGGERS:
@@ -1061,7 +1061,7 @@ def cmd_proposals(args):
     trigger_rows = {tt: {c["ticker"]: c for c in (triggers.get(tt) or []) if c.get("ticker")}
                     for tt in LIVE_TRIGGERS | SHADOW_TRIGGERS}
     # pair_id -> the live compute_triggers.json row, for the paired-rotation retirement pass.
-    trigger_pairs = {c["pair_id"]: c for tt in ("profit_rotation", "cluster_rotation")
+    trigger_pairs = {c["pair_id"]: c for tt in sorted(PAIRED_TRIGGERS)
                      for c in (triggers.get(tt) or []) if c.get("pair_id")}
     # Already staleness-gated by cmd_triggers -- empty dicts when the cache is too old, which makes
     # every RSI-based retirement check below untestable and therefore a no-op (proposal stays open).

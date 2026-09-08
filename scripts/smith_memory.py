@@ -1335,7 +1335,11 @@ def _merge_cluster(out, state, today, cluster_name=None, ladder_track_record=Non
     state.setdefault("cluster_scan_cursor", {})[cname] = today
     return {"merged": True, "cluster": cname, "ranked": len(ranking),
             "leader": entry["leader"], "laggard": entry["laggard"],
-            "confidence": entry["confidence"]}
+            "confidence": entry["confidence"],
+            # Handed back so the caller can log it to learning.json. Returned rather than
+            # written here because this function stays a pure state-merge; the learning store
+            # is a separate spine with its own append-only contract.
+            "scored_call": score if (score or {}).get("scored") else None}
 
 
 def _merge_strategist(out, state, today):
@@ -1532,6 +1536,23 @@ def cmd_merge_tails(args):
                 load_json(os.path.join(args.run_dir, "compute_ladder.json"),
                           default={}).get("track_record") or {})
         results[agent] = rule(out, state, today, **extra)
+        # LADDER CALLS FEED THE LEARNING STORE (added 2026-09-08). Each scored call -- did the
+        # ladder's named leader actually beat its named laggard -- is one observation, on the
+        # same append-only spine the journal's own hit-rate work uses. The per-cluster
+        # track_record already gates trigger authority on its own; this is the fleet-wide view,
+        # which is what answers "is the cluster layer worth its token cost at all?". Local
+        # import: smith_learning pulls in smith_lifecycle, which this module does not otherwise
+        # need, and a top-level import would make every `slices`/`gaps` call pay for it.
+        _sc = (results[agent] or {}).get("scored_call") if isinstance(results[agent], dict) else None
+        if _sc:
+            import smith_learning
+            smith_learning.record_observation(
+                args.base_dir, "ladder.hit_rate", 1 if _sc.get("correct") else 0,
+                today=today, run_dir=args.run_dir,
+                note=(f"{_sc.get('leader')} over {_sc.get('laggard')} in "
+                      f"{results[agent].get('cluster')}: spread {_sc.get('spread_pp')}pp "
+                      f"(ladder of {_sc.get('ladder_as_of')}, confidence "
+                      f"{_sc.get('ladder_confidence_at_call')})"))
         for key in MERGE_STAMPS.get(agent, []):
             state[f"{key}_as_of"] = today
 

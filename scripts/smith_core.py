@@ -449,7 +449,30 @@ HEALTHY_THESIS = {"intact", "strengthening"}
 
 LIVE_TRIGGERS = {"oversold_reversion", "overbought_distribution", "catalyst_threat", "thesis_break"}
 
-SHADOW_TRIGGERS = {"laggard_rotation", "profit_ratchet", "scale_out_ladder"}
+SHADOW_TRIGGERS = {"laggard_rotation", "profit_ratchet", "scale_out_ladder",
+                   # Added 2026-09-08 with the cluster ladder. Both are PAIRED and shadow:
+                   # cluster_bench_rotation buys a name the book has NEVER held on one agent's
+                   # judgment, with no journal history, no thesis entry and no track record of
+                   # this desk being right about it; cluster_consolidation asserts two holdings
+                   # are "the same bet", a business judgment with no numeric proof available
+                   # here (no return series is cached, so a real correlation is not computable
+                   # and must not be faked). Standing rule: a new signal class earns its vote
+                   # before it gets one -- price_at_flag now, scored at 7/30d, promoted later.
+                   "cluster_bench_rotation", "cluster_consolidation"}
+
+# EVERY paired trigger, in ONE place (added 2026-09-08). Both legs of a paired rotation share a
+# pair_id and MUST retire together; a leg that retires alone becomes an unpaired,
+# half-explained proposal, which is precisely why 19 rotation pairs were attempted all-time and
+# 0 survived before _retire_orphaned_rotation_legs existed.
+#
+# This constant exists because the pair of trigger names was written out by hand at FOUR
+# separate sites in smith_lifecycle.py -- the retirement pass, trigger_pairs' construction, the
+# sell-leg carve-out, and retires_when. Adding a fifth paired trigger without updating all four
+# reintroduces exactly the orphaning bug the retirement pass was built to fix, silently. A
+# paired trigger's membership is now stated once and read everywhere.
+PAIRED_TRIGGERS = {"profit_rotation", "cluster_rotation",
+                   "cluster_bench_rotation", "cluster_consolidation"}
+PAIRED_TRIGGER_PREFIXES = tuple(f"{t}-" for t in sorted(PAIRED_TRIGGERS))
 
 # ---------------------------------------------------------------------------
 # CONVICTION-DRIVEN TRIGGERS (added 2026-08-24, third time the user reported the same defect --

@@ -227,3 +227,58 @@ class TestPlaybooks:
         policy, _ = live
         for name, pb in policy["cluster_playbooks"].items():
             assert len(pb.get("differentiators") or []) >= 3, name
+
+
+class TestTrackRecordPersistence:
+    """cmd_ladder has computed a score since phase 1 -- did the previous leader actually beat
+    the previous laggard -- but emitting is not persisting. Without this the record would be
+    recomputed and discarded every run, and the confidence auto-downgrade that gates trigger
+    authority would never have a sample to act on. That is the G50 shape, in new code."""
+
+    SCORE = {"scored": True, "correct": True, "leader": "A", "laggard": "B", "spread_pp": 5.0}
+
+    def test_the_score_is_appended_when_the_ladder_is_replaced(self):
+        state = {}
+        sm._merge_cluster(_tail(), state, "2026-09-08",
+                          ladder_track_record={"AI Networking/Optics": self.SCORE})
+        assert state["cluster_ladders"]["AI Networking/Optics"]["track_record"] == [self.SCORE]
+
+    def test_it_appends_rather_than_replaces(self):
+        prior = {"scored": True, "correct": False}
+        state = {"cluster_ladders": {"AI Networking/Optics": {"track_record": [prior]}}}
+        sm._merge_cluster(_tail(), state, "2026-09-08",
+                          ladder_track_record={"AI Networking/Optics": self.SCORE})
+        assert state["cluster_ladders"]["AI Networking/Optics"]["track_record"] == [prior, self.SCORE]
+
+    def test_the_window_is_rolling(self):
+        """A ranking that was right about a different cluster composition two years ago is not
+        evidence about this one."""
+        old = [{"scored": True, "correct": False}] * (sm.LADDER_TRACK_RECORD_CAP + 5)
+        state = {"cluster_ladders": {"AI Networking/Optics": {"track_record": old}}}
+        sm._merge_cluster(_tail(), state, "2026-09-08",
+                          ladder_track_record={"AI Networking/Optics": self.SCORE})
+        tr = state["cluster_ladders"]["AI Networking/Optics"]["track_record"]
+        assert len(tr) == sm.LADDER_TRACK_RECORD_CAP and tr[-1] == self.SCORE
+
+    def test_a_score_for_another_cluster_is_not_misfiled(self):
+        state = {}
+        sm._merge_cluster(_tail(), state, "2026-09-08",
+                          ladder_track_record={"AI Semis/Fabs": self.SCORE})
+        assert state["cluster_ladders"]["AI Networking/Optics"]["track_record"] == []
+
+    def test_an_unscoreable_call_is_handed_back_as_nothing_to_log(self):
+        """An unscoreable call is not a wrong call and must not reach the learning store."""
+        res = sm._merge_cluster(_tail(), {}, "2026-09-08", ladder_track_record={
+            "AI Networking/Optics": {"scored": False, "reason": "no return cached"}})
+        assert res["scored_call"] is None
+
+    def test_a_scored_call_is_handed_back_for_the_learning_store(self):
+        res = sm._merge_cluster(_tail(), {}, "2026-09-08",
+                                ladder_track_record={"AI Networking/Optics": self.SCORE})
+        assert res["scored_call"] == self.SCORE
+
+    def test_a_refused_merge_records_nothing_anywhere(self):
+        state = {}
+        res = sm._merge_cluster(_tail(n=0, leader="A", laggard="B"), state, "2026-09-08",
+                                ladder_track_record={"AI Networking/Optics": self.SCORE})
+        assert res["merged"] is False and "scored_call" not in res and state == {}
