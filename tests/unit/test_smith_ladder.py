@@ -420,7 +420,7 @@ TODAY = date(2026, 9, 8)
 
 
 def _ladder(confidence="high", as_of="2026-09-06", order=("BEST", "MID", "WORST"),
-            track_record=None, reads=True):
+            track_record=None, reads=True, case_against=False):
     return {"as_of": as_of, "confidence": confidence,
             "leader": order[0], "laggard": order[-1],
             "track_record": track_record or [],
@@ -429,7 +429,9 @@ def _ladder(confidence="high", as_of="2026-09-06", order=("BEST", "MID", "WORST"
                                      "laggard" if i == len(order) - 1 else "middle"),
                          "differentiator_reads": ([{"axis": "1.6T timing",
                                                     "read": f"{t} qualified first"}]
-                                                  if reads else [])}
+                                                  if reads else []),
+                         **({"case_against": f"{t} bear case: the axis may not hold"}
+                            if case_against else {})}
                         for i, t in enumerate(order)]}
 
 
@@ -547,11 +549,44 @@ class TestLadderDrivenRotation:
         assert pairs[0]["ladder_driven"] is False
         assert "relative-strength leader" in pairs[0]["retires_when"]
 
-    def test_the_reason_cites_the_differentiator_axis_not_a_price_delta(self):
-        pairs = self._run(_ladder("high"), self._conv(), self.INTACT)
+    def test_the_buy_leg_cites_the_differentiator_axis_not_a_price_delta(self):
+        """The buy leg keeps quoting `differentiator_reads`: the agent's case FOR the rank
+        argues in the same direction as buying the name."""
+        pairs = self._run(_ladder("high", case_against=True), self._conv(), self.INTACT)
         why = pairs[0]["buy_leg"]["reasons"][0]
-        assert "1.6T timing" in why and "qualified first" in why
+        assert "1.6T timing" in why and "BEST qualified first" in why
+        assert "case against" not in why.lower()
         assert "pp" not in why
+
+    def test_the_sell_leg_quotes_the_case_against_not_the_differentiator(self):
+        """The bug this replaced: quoting the case FOR a rank as the reason to SELL produced
+        rationales that argued against their own trade (live P-252, Sell AMD)."""
+        pairs = self._run(_ladder("high", case_against=True), self._conv(), self.INTACT)
+        why = pairs[0]["sell_leg"]["reasons"][0]
+        assert "ranks WORST #3 of 3 (laggard)" in why
+        assert "Case against: WORST bear case" in why
+        assert "1.6T timing" not in why and "qualified first" not in why
+
+    def test_a_sell_leg_without_a_case_against_falls_back_and_says_so(self):
+        """The fallback is allowed, but never silently -- an unlabelled differentiator read on
+        the sell leg is exactly the contradiction this trigger used to emit."""
+        pairs = self._run(_ladder("high", case_against=False), self._conv(), self.INTACT)
+        why = pairs[0]["sell_leg"]["reasons"][0]
+        assert "ranks WORST #3 of 3 (laggard)" in why
+        assert "NO case_against SUPPLIED" in why
+        assert "1.6T timing" in why
+
+    def test_a_sell_leg_with_an_empty_case_against_falls_back_too(self):
+        ladder = _ladder("high", case_against=True)
+        for row in ladder["ranking"]:
+            row["case_against"] = "   "
+        why = self._run(ladder, self._conv(), self.INTACT)[0]["sell_leg"]["reasons"][0]
+        assert "NO case_against SUPPLIED" in why
+
+    def test_a_sell_leg_with_neither_field_states_the_rank_alone(self):
+        ladder = _ladder("high", reads=False)
+        why = self._run(ladder, self._conv(), self.INTACT)[0]["sell_leg"]["reasons"][0]
+        assert why == "cluster ladder ranks WORST #3 of 3 (laggard). No case_against supplied."
 
     def test_a_ladder_with_no_reads_still_names_the_rank(self):
         pairs = self._run(_ladder("high", reads=False), self._conv(), self.INTACT)

@@ -3002,14 +3002,43 @@ def _cluster_rotation_legs_from_ladder(entry, tickers_here, conviction_by_ticker
     if sell_t == buy_t:
         return None
 
-    def _why(t, side):
-        r = reads.get(t) or {}
-        dr = (r.get("differentiator_reads") or [{}])[0]
+    def _differentiator(t):
+        dr = ((reads.get(t) or {}).get("differentiator_reads") or [{}])[0]
         axis, read = dr.get("axis"), dr.get("read")
-        base = f"cluster ladder ranks {t} #{order[t]} of {len(ranking)} ({side})"
-        return f"{base}: {axis} -- {read}" if axis and read else base
+        return f"{axis} -- {read}" if axis and read else None
 
-    return sell_t, buy_t, _why(sell_t, "laggard"), _why(buy_t, "leader")
+    def _rank_line(t, side):
+        return f"cluster ladder ranks {t} #{order[t]} of {len(ranking)} ({side})"
+
+    def _why_buy(t):
+        """The buy leg quotes `differentiator_reads` -- the agent's case FOR the rank. On this
+        leg that argument and the trade point the same way."""
+        d = _differentiator(t)
+        base = _rank_line(t, "leader")
+        return f"{base}: {d}" if d else base
+
+    def _why_sell(t):
+        """The sell leg must quote `case_against` -- the BEAR case the agent is required to
+        supply for every rank (G58). Quoting `differentiator_reads` here produced rationales
+        that argued against their own trade ("sell AMD because it is gaining share"), because
+        that field is the case FOR the rank, not against the name.
+
+        State the rank, then the bear case. Fall back to the differentiator read only when no
+        `case_against` was supplied, and label the fallback so a reader can tell which of the
+        two they are looking at -- an unlabelled fallback reintroduces the same contradiction
+        silently.
+        """
+        base = _rank_line(t, "laggard")
+        against = ((reads.get(t) or {}).get("case_against") or "").strip()
+        if against:
+            return f"{base}. Case against: {against}"
+        d = _differentiator(t)
+        if d:
+            return (f"{base}. NO case_against SUPPLIED -- what follows is the agent's case FOR "
+                    f"its rank, not against the name: {d}")
+        return f"{base}. No case_against supplied."
+
+    return sell_t, buy_t, _why_sell(sell_t), _why_buy(buy_t)
 
 
 def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cluster_rows=None,
