@@ -460,14 +460,25 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
                                       current_tickers, drift, trig_rsi, trig_abs,
                                       trigger_live_sets, state_thesis, derisk, cluster_breach,
                                       rotation_by_ticker, hit_rates_7d, parse_date,
-                                      hold_max_age_days):
-    """Retires one open proposal in place (status/retired_on/retired_reason/note) the moment
-    its OWN objective trigger is verifiably gone -- reusing the same typed structural signals
-    the priority scorer computes (over_cap, directional cluster/cash breach, live trigger
-    membership), never free-text rationale (that approach false-positived and was disabled
-    2026-07-29). A condition requiring judgement is left open for the strategist instead of
-    guessed at. Appends a {"id","action","reason"} dict to the caller-supplied `retired` list
-    when it fires; returns nothing."""
+                                      hold_max_age_days, is_accepted=False):
+    """Retires one open (or accepted-but-unexecuted) proposal in place (status/retired_on/
+    retired_reason/note) the moment its OWN objective trigger is verifiably gone -- reusing the
+    same typed structural signals the priority scorer computes (over_cap, directional
+    cluster/cash breach, live trigger membership), never free-text rationale (that approach
+    false-positived and was disabled 2026-07-29). A condition requiring judgement is left open
+    for the strategist instead of guessed at. Appends a {"id","action","reason"} dict to the
+    caller-supplied `retired` list when it fires; returns nothing.
+
+    EXTENDED 2026-09-09 to also test `accepted_by_user` rows (user: "once accepted, the
+    proposal stay forever. however i want it to go if the underlying reason is gone or the
+    current setup no longer remains supportive"). Accepting is a stated intention, not proof
+    the trade happened -- see the dashboard's own "Accepted -- awaiting execution" panel note --
+    so a row can sit there for days while its cap/cluster/trigger/thesis premise quietly
+    reverses. `is_accepted` gates OUT the two retirement paths that measure INACTION rather
+    than a cleared condition (tactical HOLD age-out, restatement-count decay): acceptance is
+    itself the opposite of inaction, so neither should fire on an accepted row. Every objective
+    condition check below (cap cleared, cluster back in band, trigger no longer live, thesis
+    resolved, position exited or gone to dust) still runs exactly as it does for an open row."""
     ticker = pr.get("ticker")
     bucket = pr.get("direction_bucket", "HOLD")
     rpos = risk_by_ticker.get(ticker) if ticker else None
@@ -708,7 +719,10 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
                 why = (f"{ticker}'s remaining position (${rpos['market_value_usd']:,.0f}) is "
                        f"under the ${DUST_USD_DEFAULT:g} dust threshold -- this stop "
                        "instruction has nothing material left to protect")
-        elif age >= hold_max_age_days:
+        elif age >= hold_max_age_days and not is_accepted:
+            # Age-out measures INACTION -- days spent unacted on. An accepted HOLD has already
+            # been acted on (mentally, if not yet in the ledger), so its clock is irrelevant;
+            # gated out for accepted rows rather than retiring something the user just approved.
             why = (f"tactical HOLD is {age} days old -- hold-fire advice is time-bound by nature "
                    "and is not carried forward as standing guidance")
 
@@ -733,24 +747,29 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
     # practice", it is bookkeeping. The pair-level retirement rule remains the only thing allowed
     # to retire a paired leg.
     _is_paired_leg = bool(pr.get("pair_id")) and str(pr.get("pair_id")).startswith(PAIRED_TRIGGER_PREFIXES)
-    if not why and _is_paired_leg and pr.get("repeat_count", 1) >= 3:
+    if not why and _is_paired_leg and not is_accepted and pr.get("repeat_count", 1) >= 3:
         # Return None -- the caller's contract is "a dict means retired, None means kept". Stamp
         # the exemption on the row so a reader can see the rule fired and was declined, rather
         # than wondering why a 3x-restated leg is still open.
         pr["review_flags"] = sorted(set((pr.get("review_flags") or []) + ["paired_leg_repeat_exempt"]))
         return None
-    if not why and pr.get("repeat_count", 1) >= 3:
+    # Restatement decay measures the same thing age-out does -- unactioned repetition -- and is
+    # gated out for accepted rows for the same reason (is_accepted means the user has already
+    # acted, so a frozen repeat_count from before acceptance cannot mean "declined in practice").
+    if not why and not is_accepted and pr.get("repeat_count", 1) >= 3:
         _rc = pr["repeat_count"]
         why = (f"recommended {_rc}x and never actioned -- 0-for-17 historically beyond four "
                "restatements, so 3+ now auto-retires rather than losing only its priority bonus; "
                "re-propose fresh if the condition still holds")
 
     if why:
+        if is_accepted:
+            why = f"(accepted, never executed) {why}"
         pr["status"] = "auto_retired"
         pr["retired_on"] = str(today_date)
         pr["retired_reason"] = why
         pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {why}").strip(" |")
-        return {"id": pr.get("id"), "action": pr.get("action"), "reason": why}
+        return {"id": pr.get("id"), "action": pr.get("action"), "reason": why, "was_accepted": is_accepted}
     return None
 
 
@@ -759,25 +778,33 @@ def _retire_orphaned_rotation_legs(props, trigger_pairs, today_date, retired):
     direct fix for "19 rotation pairs attempted all-time, 0 survived" (single-sided retirement
     used to orphan the other leg into an unpaired, half-explained proposal). Both legs share a
     pair_id; if the pair is no longer in this run's live trigger_pairs, retire whichever leg(s)
-    are still open, together, one reason. Mutates `props` in place and appends to `retired`."""
+    are still open, together, one reason. Mutates `props` in place and appends to `retired`.
+
+    Covers `accepted_by_user` legs too (2026-09-09) -- a pair can go stale exactly as easily
+    after one leg is accepted as before, and there is no reason a pair should stay half-real
+    (one leg auto-retired, its accepted twin still standing) just because acceptance happened
+    to land on the surviving side."""
     if trigger_pairs is None:
         return
     by_pair_id = {}
     for pr in props:
         pid = pr.get("pair_id")
-        if pr.get("status") == "open" and pid and pid.startswith(PAIRED_TRIGGER_PREFIXES):
+        if pr.get("status") in ("open", "accepted_by_user") and pid and pid.startswith(PAIRED_TRIGGER_PREFIXES):
             by_pair_id.setdefault(pid, []).append(pr)
     for pid, legs in by_pair_id.items():
         if pid in trigger_pairs:
             continue  # still live this run -- both legs stay open
         for pr in legs:
+            was_accepted = pr.get("status") == "accepted_by_user"
             why = (f"the {pid.split('-')[0]} pairing this leg belongs to is no longer live "
                    "this run -- both legs of a rotation retire together, never one alone")
+            if was_accepted:
+                why = f"(accepted, never executed) {why}"
             pr["status"] = "auto_retired"
             pr["retired_on"] = str(today_date)
             pr["retired_reason"] = why
             pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {why}").strip(" |")
-            retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": why})
+            retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": why, "was_accepted": was_accepted})
 
 
 def _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directional_breach, today_date,
@@ -1165,15 +1192,24 @@ def cmd_proposals(args):
     # shows who retired what -- and so a genuinely re-emerging condition is free to be proposed
     # afresh under a new id rather than being permanently suppressed.
     HOLD_MAX_AGE_DAYS = 2  # HOLDs are tactical ("hold fire until tonight's print") and go off fast
+    # RETIREMENT-ELIGIBLE STATUSES (extended 2026-09-09, user: "once accepted, the proposal stay
+    # forever. however i want it to go if the underlying reason is gone or the current setup no
+    # longer remains supportive"). `accepted_by_user` is a stated intention, not proof the trade
+    # happened -- see the "Accepted -- awaiting execution" panel -- so it can go just as stale as
+    # an open one while sitting unexecuted. `is_accepted` tells the checker which row it's
+    # looking at so it can gate out the two decay paths (HOLD age-out, restatement count) that
+    # measure inaction rather than a cleared condition -- see that function's own docstring.
+    RETIREMENT_ELIGIBLE_STATUSES = ("open", "accepted_by_user")
     retired = []
     for pr in props:
-        if pr.get("status") != "open":
+        if pr.get("status") not in RETIREMENT_ELIGIBLE_STATUSES:
             continue
         result = _check_condition_based_retirement(pr, today_date, risk_by_ticker, directional_breach,
                                                     current_tickers, drift, trig_rsi, trig_abs,
                                                     trigger_live_sets, state_thesis, derisk, cluster_breach,
                                                     rotation_by_ticker, hit_rates_7d, parse_date,
-                                                    HOLD_MAX_AGE_DAYS)
+                                                    HOLD_MAX_AGE_DAYS,
+                                                    is_accepted=(pr.get("status") == "accepted_by_user"))
         if result:
             retired.append(result)
 

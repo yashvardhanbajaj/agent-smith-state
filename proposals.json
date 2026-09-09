@@ -5874,7 +5874,7 @@
       "size_usd": 437.92,
       "price_at_proposal": null,
       "rationale": "Stretched (ahead of SMH, up on month), thesis watch/unverified; recently dropped out of TARGET GAP while remaining PEER LEADER. Self-funds the CLS buy leg.",
-      "status": "accepted_by_user",
+      "status": "auto_retired",
       "trigger_type": "profit_rotation",
       "trigger_bucket": "live",
       "pair_id": "profit_rotation-MSFT-CLS",
@@ -5899,7 +5899,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-08-24, still open",
+      "note": "recommended 2x since 2026-08-24, still open | auto-retired 2026-09-09: (accepted, never executed) the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
       "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
@@ -5917,7 +5917,9 @@
       "revalidated_on": "2026-08-25",
       "retires_when": "the profit_rotation pairing profit_rotation-MSFT-CLS is no longer live this run -- both legs retire together, never one alone",
       "accepted_on": "2026-08-25",
-      "accepted_reason": null
+      "accepted_reason": null,
+      "retired_on": "2026-09-09",
+      "retired_reason": "(accepted, never executed) the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "date": "2026-08-25",
@@ -5927,7 +5929,7 @@
       "size_usd": 424.65,
       "price_at_proposal": 297.5001,
       "rationale": "Laggard (-3.7pp) with strengthening thesis (secondary verified) -- yet to rally. Funded by MSFT sale proceeds, not new cash.",
-      "status": "accepted_by_user",
+      "status": "auto_retired",
       "trigger_type": "profit_rotation",
       "trigger_bucket": "live",
       "pair_id": "profit_rotation-MSFT-CLS",
@@ -5952,7 +5954,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-08-24, still open",
+      "note": "recommended 2x since 2026-08-24, still open | auto-retired 2026-09-09: (accepted, never executed) the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
       "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
@@ -5968,7 +5970,9 @@
       "revalidated_on": "2026-08-25",
       "retires_when": "the profit_rotation pairing profit_rotation-MSFT-CLS is no longer live this run -- both legs retire together, never one alone",
       "accepted_on": "2026-08-25",
-      "accepted_reason": null
+      "accepted_reason": null,
+      "retired_on": "2026-09-09",
+      "retired_reason": "(accepted, never executed) the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "date": "2026-08-25",
@@ -6503,7 +6507,7 @@
       "rationale": "trend_breakdown: STRONG DOWNTREND (-12.53% earnings-day move, abnormal vs ATR). WATCH thesis contested, sizing off computed trigger not thesis label.",
       "trigger_type": "trend_breakdown",
       "date": "2026-08-29T08:16:00Z",
-      "status": "accepted_by_user",
+      "status": "auto_retired",
       "id": "P-180",
       "direction_bucket": "TRIM",
       "priority_score": 3,
@@ -6522,7 +6526,10 @@
       "revalidated_on": "2026-08-31",
       "retires_when": "IREN no longer appears in this run's live trend_breakdown list (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
       "accepted_on": "2026-08-31",
-      "accepted_reason": null
+      "accepted_reason": null,
+      "retired_on": "2026-09-09",
+      "retired_reason": "(accepted, never executed) IREN no longer appears in this run's live trend_breakdown list -- the condition this trim/exit was sized against has cleared",
+      "note": "auto-retired 2026-09-09: (accepted, never executed) IREN no longer appears in this run's live trend_breakdown list -- the condition this trim/exit was sized against has cleared"
     },
     {
       "action": "Trim NVDA",
@@ -8374,7 +8381,7 @@
       "rationale": "",
       "trigger_type": "cluster_rotation",
       "date": "2026-09-06T00:00:00Z",
-      "status": "accepted_by_user",
+      "status": "auto_retired",
       "pair_id": "cluster_rotation-AMD-NVDA",
       "pair_role": "buy_leg",
       "id": "P-238",
@@ -8392,7 +8399,10 @@
       "revalidated_on": "2026-09-06",
       "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-NVDA is no longer live this run -- both legs retire together, never one alone",
       "accepted_on": "2026-09-06",
-      "accepted_reason": null
+      "accepted_reason": null,
+      "retired_on": "2026-09-09",
+      "retired_reason": "(accepted, never executed) the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-09-09: (accepted, never executed) the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "action": "Buy APH",

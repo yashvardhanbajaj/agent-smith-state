@@ -1050,7 +1050,11 @@ def _render_accepted_awaiting_execution(props):
             f'<p class="note"><b>${sells:,.0f}</b> of sells/trims against <b>${buys:,.0f}</b> of buys '
             f'&mdash; net {net_word} <b>${abs(net):,.0f}</b>. '
             'Accepting is a stated intention, not a trade: Agent Smith never places orders. '
-            'A row leaves this panel only when the actual fill reaches the ledger.</p></div></details>')
+            'A row leaves this panel when the actual fill reaches the ledger, or -- since '
+            '2026-09-09 -- when its own underlying reason clears first (cap/cluster back in '
+            'band, the trigger no longer live, thesis resolved, position exited): accepting '
+            'does not exempt a proposal from the same condition checks an open one gets, it '
+            'only exempts it from decaying on age or restatement count alone.</p></div></details>')
 
     return out
 
