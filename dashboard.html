@@ -290,7 +290,15 @@ details.pgrp>.body{padding:0}
   color:var(--accent);padding:0;text-transform:uppercase}
 .pr-more>summary::before{content:"+ ";color:var(--accent)}
 .pr-more[open]>summary::before{content:"2 "}
-.pr-more>.body{padding:8px 0 0;font-size:12px}
+/* FIXED 2026-09-09 (user-reported: "when a stock inside of a cluster is expanded again the
+   table is not comprehendable due to large text"): the base `td` rule sets white-space:nowrap,
+   which is an inherited property -- a `.pr-more` dropped inside a table cell (the Clusters
+   panel's per-row ladder rationale, added the same day) inherited that nowrap and rendered its
+   whole paragraph as one unbroken line stretching the table far past the viewport instead of
+   wrapping. `.pr-more` had never previously been used inside a table cell (only inside
+   `.pr-card-body`, a flex div with no nowrap), so this never surfaced before. Reset wrapping
+   and cap the width so an expanded remark reads as a short paragraph, not a horizontal scroll. */
+.pr-more>.body{padding:8px 0 0;font-size:12px;white-space:normal;max-width:340px;line-height:1.5;color:var(--ink-2)}
 
 /* ============ rotation ideas (paired trim+buy proposals) -- two cards joined by an arrow ==== */
 .rotgrp{border-top:1px solid var(--line-soft);padding-top:8px;margin-bottom:2px}
