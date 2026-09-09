@@ -1671,10 +1671,29 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
         # added after the ladder was last built) sort to the bottom of the ranked group, still
         # by weight, so a stale gap never masquerades as rank 1. Clusters with no ladder at all
         # fall back to the prior weight-only order.
+        def _why_toggle(label, full_text):
+            # Compact rationale: a small "+ AXIS" toggle inside the Name cell rather than a
+            # dedicated table column full of prose (redesigned 2026-09-09, user: "the table is
+            # not formatted well. too much text at the last column is making it bad"). Reuses
+            # the existing `.pr-more` details/summary component (already styled for exactly
+            # this -- collapsed by default, a few words as the closed label, the full reasoning
+            # only on click) instead of inventing a new pattern or truncating into a tooltip
+            # nobody notices is hoverable.
+            if not full_text:
+                return ""
+            label = (label or "why").strip()
+            if len(label) > 34:
+                cut = label[:34].rsplit(" ", 1)[0] or label[:34]
+                label = esc(cut) + "&hellip;"
+            else:
+                label = esc(label)
+            return (f'<details class="pr-more"><summary>{label}</summary>'
+                    f'<div class="body">{esc(full_text)}</div></details>')
+
         def member_rows(cluster_name):
             members = cluster_members.get(cluster_name, [])
             cladder = cluster_ladders_all.get(cluster_name) or {}
-            rank_by_ticker, why_by_ticker = {}, {}
+            rank_by_ticker, why_by_ticker, axis_by_ticker = {}, {}, {}
             for m in cladder.get("ranking") or []:
                 t = m.get("ticker")
                 if not t:
@@ -1682,6 +1701,7 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
                 rank_by_ticker[t] = m.get("rank")
                 reads = m.get("differentiator_reads") or []
                 why_by_ticker[t] = (reads[0].get("read") or "") if reads else ""
+                axis_by_ticker[t] = (reads[0].get("axis") or "") if reads else ""
 
             if rank_by_ticker:
                 members = sorted(
@@ -1718,39 +1738,35 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
                 pp = intra.get((cluster_name, tk))
                 pp_html = ('<span class="mono%s">%+.1f pp</span>' % (" neg" if pp < 0 else "", pp)
                            if isinstance(pp, (int, float)) else '<span class="mono">&mdash;</span>')
-                why_full = why_by_ticker.get(tk) or ""
-                why_short = esc(why_full[:70]) + ("&hellip;" if len(why_full) > 70 else "")
-                why_s = (f'<span title="{esc(why_full)}">{why_short}</span>' if why_full
-                         else '<span style="color:var(--ink-3)">&mdash;</span>')
+                why_html = _why_toggle(axis_by_ticker.get(tk), why_by_ticker.get(tk))
                 out_rows.append(
                     f'<tr><td class="mono">{rank_s}</td>'
-                    f'<td class="name" style="text-align:left;padding-left:0">{esc(tk)}</td>'
+                    f'<td class="name" style="text-align:left;padding-left:0">{esc(tk)}{why_html}</td>'
                     f'<td>{h.get("weight_pct",0):.2f}%</td>'
                     f'<td>{pe_cell(tk)}</td>'
                     f'<td>{f"${price:,.2f}" if price is not None else "&mdash;"}</td>'
                     f'<td>{pp_html}</td>'
                     f'<td class="txt">{st_s}</td>'
                     f'<td class="txt">{peer_s}{other_tags}</td>'
-                    f'<td class="txt">{why_s}</td>'
                     f'<td>{cap_s}</td></tr>')
             # bench candidates (non-held names smith-cluster ranks better than the laggard) --
             # part of the same substitution-ladder answer, so they belong in the same table,
-            # not a separate one a reader has to go find.
+            # not a separate one a reader has to go find. Priced and P/E'd the same as held
+            # members (fetched 2026-09-09 -- previously these rows were all dashes) so a bench
+            # name reads as a real comparable, not a placeholder.
             for b in (cladder.get("bench") or [])[:3]:
                 bt = b.get("ticker") or ""
-                # `why_better_than` varies in shape across sub-agent tails -- sometimes a short
-                # comparator ("APH"), sometimes a full clause. Render it as-is (never assume
-                # short) and join with entry_condition rather than hardcoding a "better than X"
-                # sentence that reads broken when the field is already a full sentence.
+                bpx = b.get("price_usd")
                 why_bt = (b.get("why_better_than") or "").strip()
                 entry = (b.get("entry_condition") or "").strip()
-                remark = " &mdash; ".join(esc(t[:150]) for t in (why_bt, entry) if t) or "&mdash;"
+                bench_why = " — ".join(t for t in (why_bt, entry) if t)  # literal em dash: esc() must still run on this text, and "&mdash;" would double-escape to "&amp;mdash;"
+                why_html = _why_toggle("why better", bench_why)
                 out_rows.append(
                     '<tr><td class="mono">&mdash;</td>'
-                    f'<td class="name" style="text-align:left;padding-left:0"><b>{esc(bt)}</b> <i>bench</i></td>'
-                    f'<td>&mdash;</td><td>{pe_cell(bt)}</td><td>&mdash;</td><td class="mono">&mdash;</td>'
-                    '<td>&mdash;</td><td>&mdash;</td>'
-                    f'<td class="txt">{remark}</td><td></td></tr>')
+                    f'<td class="name" style="text-align:left;padding-left:0"><b>{esc(bt)}</b> <i>bench</i>{why_html}</td>'
+                    f'<td>&mdash;</td><td>{pe_cell(bt)}</td>'
+                    f'<td>{f"${bpx:,.2f}" if isinstance(bpx, (int, float)) else "&mdash;"}</td>'
+                    '<td class="mono">&mdash;</td><td>&mdash;</td><td>&mdash;</td><td></td></tr>')
             has_ladder = bool(rank_by_ticker)
             return "".join(out_rows), has_ladder, cladder
 
@@ -1806,7 +1822,7 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
 
             body = ((f'<div class="scroll"><table><thead><tr><th>#</th><th>Name</th><th>Wt</th>'
                     f'<th>P/E<span class="sub"> trail/fwd</span></th><th>Price</th>'
-                    f'<th>vs cluster</th><th>Thesis</th><th>Signals</th><th>Ladder note</th>'
+                    f'<th>vs cluster</th><th>Thesis</th><th>Signals</th>'
                     f'<th></th></tr></thead><tbody>{body_rows}</tbody></table></div>' if body_rows else
                     '<p class="note">No held ticker maps to this cluster.</p>')
                     + ladder_sub + no_ladder_note + ghost_html)
