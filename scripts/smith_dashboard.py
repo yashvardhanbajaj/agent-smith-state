@@ -40,6 +40,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from smith_core import ticker_rows
 import smith_risk
 import smith_learning
+import smith_charts
 
 DEFAULT_BASE = "/Users/yb/Claude/AgentSmith"
 
@@ -2063,7 +2064,54 @@ def _render_stop_loss_efficacy(stops_data, sector_map=None, cluster_order=None):
     return out
 
 
-def _render_the_read_and_macro(narr, market_inputs, state, book_compute):
+def _trailing_performance(base, days, trust_only=True):
+    """% change in total book value (equity + cash) over the trailing `days` calendar days,
+    read straight from ledger.csv -- COMPUTE-FIRST, never eyeballed into narrative prose (added
+    2026-09-09, user: "the read should also include a summary of portfolio performance in past
+    7 & 21 days"). Picks the most recent ledger row as the end point and the LATEST row at or
+    before (end date - days) as the start point, so a gap in the schedule (a missed daily) still
+    resolves to the closest real observation rather than failing outright. Rows flagged
+    value_trust != "ok" are excluded on both ends, same discipline as the historical charts --
+    a corrupt price-feed reading must not silently set the baseline or the endpoint for a
+    performance claim. Returns None (not zero) when fewer than 2 trusted rows span the window,
+    which is the honest answer for a book with under `days` days of ledger history.
+    """
+    rows = smith_charts.load_ledger(base)
+    if trust_only:
+        rows = [r for r in rows if r.get("trust", "ok") == "ok"]
+    if len(rows) < 2:
+        return None
+    rows.sort(key=lambda r: r["ts"])
+    end = rows[-1]
+    try:
+        end_date = datetime.strptime(end["date"], "%Y-%m-%d").date()
+    except ValueError:
+        return None
+    target = end_date - timedelta(days=days)
+    candidates = [r for r in rows[:-1]
+                  if _safe_date(r["date"]) is not None and _safe_date(r["date"]) <= target]
+    if not candidates:
+        return None
+    start = max(candidates, key=lambda r: r["date"])
+    if not start.get("total") or not end.get("total"):
+        return None
+    pct = (end["total"] - start["total"]) / start["total"] * 100
+    out = {"pct": pct, "start_date": start["date"], "end_date": end["date"],
+           "span_days": (end_date - _safe_date(start["date"])).days}
+    if start.get("smh") and end.get("smh"):
+        out["smh_pct"] = (end["smh"] - start["smh"]) / start["smh"] * 100
+        out["vs_smh_pp"] = pct - out["smh_pct"]
+    return out
+
+
+def _safe_date(s):
+    try:
+        return datetime.strptime(s, "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        return None
+
+
+def _render_the_read_and_macro(narr, market_inputs, state, book_compute, base=None):
     """REDESIGNED 2026-09-07 (user: "The read, i dont like it"), then further redesigned same
     day (user: "displaying just 1 sentence... the more tab... too much text... difficult to
     find important things... remake... top 5 reads"). Three changes now: the Gate pill sits as
@@ -2088,6 +2136,24 @@ def _render_the_read_and_macro(narr, market_inputs, state, book_compute):
         out.append(f'<section class="panel"><div class="phead"><h2>The read</h2>'
                  f'<span class="pill">top {len(reads)}, this session</span></div>'
                  f'<div class="pbody">{gate_eyebrow}<div class="read-list">{read_items}</div>')
+
+        # PORTFOLIO PERFORMANCE, 7d/21d (added 2026-09-09, user request) -- computed straight
+        # from ledger.csv by _trailing_performance, never estimated in prose. Rendered as its
+        # own stat row, ahead of the macro row below, since "how has the book actually done"
+        # outranks index-level context in a section whose whole job is the top-of-page read.
+        perf_cells = []
+        for days, label in ((7, "7d"), (21, "21d")):
+            perf = _trailing_performance(base, days) if base else None
+            if not perf:
+                continue
+            sub = f'vs SMH {perf["vs_smh_pp"]:+.1f}pp' if "vs_smh_pp" in perf else f'{perf["span_days"]}d span'
+            perf_cells.append((f'Book {label}', f'{perf["pct"]:+.2f}%', sub))
+        if perf_cells:
+            out.append('<div class="hero-stats" style="padding-top:14px;border-top:1px solid var(--line-soft)">'
+                       + "".join(
+                f'<div class="hstat"><span class="k">{esc(k)}</span>'
+                f'<span class="v num{" flag" if v.startswith("-") else ""}">{esc(v)}</span>'
+                f'<span class="s">{esc(s)}</span></div>' for k, v, s in perf_cells) + '</div>')
 
         macro_cells = []
         if market_inputs:
@@ -2928,6 +2994,16 @@ def build(base, out):
     # ---------------- status strip ----------------
     H.append(status_strip(us, dd, cash_pct, cash_band, cash_breach, risk, drift, book_compute))
 
+    # ================= THE READ + WEEK AHEAD -- moved to the very top (2026-09-09, user: "bring
+    # the read at the top, after the total book section... bring other future looking info to
+    # me"). This used to sit mid-page inside Signals & Context; the read is the session's own
+    # summary judgment and the week-ahead calendar is the nearest forward-looking content on the
+    # page, so both now render immediately under the hero, before any decision panel -- read the
+    # state of the book and what's coming before triaging what to do about it, not after.
+    # Always open: this is the top-of-page orientation, not something to click to reveal.
+    H.extend(_collapsible(h, True) for h in _render_the_read_and_macro(narr, market_inputs, state, book_compute, base))
+    H.extend(_collapsible(h, True) for h in _render_week_ahead(state, ts))
+
     # ================= TIER: DECISIONS (always visible -- redesign 2026-09-07) =================
     # Only the three genuinely actionable panels stay always-expanded. Everything that used to
     # sit in one flat, always-open list under this heading (11 sections) now sorts into
@@ -2938,7 +3014,11 @@ def build(base, out):
 
     H.extend(_render_accepted_awaiting_execution(props))
 
-    H.extend(_render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, cash_band))
+    # Ideas / Risk housekeeping made collapsible (2026-09-09, user request) -- both still open
+    # by default (they are the two genuinely actionable panels on the page), just no longer
+    # forced permanently expanded the way a bare <section> is.
+    H.extend(_collapsible(h, True) for h in
+             _render_ideas_and_housekeeping(props, policy, state, cash_breach, cash_pct, cash_band))
 
     # ================= TIER: SIGNALS & CONTEXT =================
     # CUT DOWN HARD (2026-09-07, user: "don't just use all the sections as is... keep high
@@ -2949,19 +3029,23 @@ def build(base, out):
     # already render as cards inside Ideas), watchlist setups (exploratory, not held), sentiment
     # gauge + intraday/international session (context that doesn't change what to do today).
     # Kept: factor catalysts (real, dated, sourced news -- the one thing here that can actually
-    # invalidate a thesis), the read + macro (short, three sentences), week ahead (event-risk
-    # planning for a concentrated single-factor book). The render_* functions for everything cut
-    # stay defined below, unused -- restoring one is a one-line change, not a rewrite, if any of
-    # this turns out to be missed.
+    # invalidate a thesis). The read/week-ahead that used to live here moved to the top of the
+    # page (see above). The render_* functions for everything cut stay defined below, unused --
+    # restoring one is a one-line change, not a rewrite, if any of this turns out to be missed.
     H.append('<div class="tier"><h2>Signals &amp; context</h2><div class="ln"></div></div>')
 
     live_cats = smith_risk.live_catalysts(state, _catalyst_today(state))
     has_threat = any(c.get("direction") == "threat" for c in live_cats)
     H.extend(_collapsible(h, has_threat) for h in _render_factor_catalysts(state))
 
-    H.extend(_collapsible(h, True) for h in _render_the_read_and_macro(narr, market_inputs, state, book_compute))
+    # Clusters and De-risk queue moved here, right after Factor catalysts (2026-09-09, user:
+    # "bring cluster section and the de-risk section after the factor catalyst") -- both used to
+    # sit down in Book & Risk, after the allocation treemap.
+    H.extend(_collapsible(h) for h in
+             _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map,
+                               run_file("compute_ladder.json"), ch))
 
-    H.extend(_collapsible(h) for h in _render_week_ahead(state, ts))
+    H.extend(_collapsible(h) for h in _render_derisk_queue(derisk, state))
 
     # ================= TIER: BOOK & RISK =================
     # Allocation and exposure detail -- glance at the treemap, drill into the rest on demand.
@@ -2974,13 +3058,6 @@ def build(base, out):
     # entity -- esc() would escape the "&" a second time into the literal text "&middot;".
     H.append(_collapsible(fig(ch.get("treemap"), "Allocation treemap",
                  "size = weight · color = cluster · red outline = over risk cap"), True))
-
-    H.extend(_collapsible(h) for h in
-             _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map,
-                               run_file("compute_ladder.json"), ch))
-
-    # -- de-risk queue (moved 2026-08-07: swapped position with clusters, per user request) --
-    H.extend(_collapsible(h) for h in _render_derisk_queue(derisk, state))
 
     H.extend(_collapsible(h) for h in _render_risk_cap_and_ltcg(risk, book_compute, base))
 
