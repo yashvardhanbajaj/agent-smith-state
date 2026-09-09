@@ -1742,9 +1742,36 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
         thesis = state.get("thesis") or {}
         thesis_dot = {"strengthening": "dot-g", "watch": "dot-w", "broken": "dot-b"}
 
+        cluster_ladders_all = (state or {}).get("cluster_ladders") or {}
+
+        # SORT BY THE CLUSTER'S OWN LADDER RANK, WHEN ONE EXISTS (added on user request: "show
+        # and sort according to the cluster specific ladder ranking, add a small remark/reason
+        # along with the rankings"). The ladder (smith-cluster's ranked substitution call, see
+        # _render_cluster_ladders above) is the fleet's actual answer to "which of these names
+        # captures the shared tailwind" -- weight-order was never that, only a proxy. Held
+        # members with no ladder entry (a name added after the ladder was last built) sort to
+        # the bottom of the ranked group, still by weight, so a stale gap never masquerades as
+        # rank 1. Clusters with no ladder at all fall back to the prior weight-only order.
         def member_rows(cluster_name):
             members = cluster_members.get(cluster_name, [])
-            members = sorted(members, key=lambda tk: -(holdings_by_ticker.get(tk, {}).get("weight_pct") or 0))
+            ladder = cluster_ladders_all.get(cluster_name) or {}
+            rank_by_ticker, why_by_ticker = {}, {}
+            for m in ladder.get("ranking") or []:
+                t = m.get("ticker")
+                if not t:
+                    continue
+                rank_by_ticker[t] = m.get("rank")
+                reads = m.get("differentiator_reads") or []
+                why_by_ticker[t] = (reads[0].get("read") or "") if reads else ""
+
+            if rank_by_ticker:
+                members = sorted(
+                    members,
+                    key=lambda tk: (rank_by_ticker.get(tk, 10 ** 6),
+                                     -(holdings_by_ticker.get(tk, {}).get("weight_pct") or 0)))
+            else:
+                members = sorted(members, key=lambda tk: -(holdings_by_ticker.get(tk, {}).get("weight_pct") or 0))
+
             out = []
             for tk in members:
                 h = holdings_by_ticker.get(tk, {})
@@ -1767,14 +1794,23 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
                     for b in buckets if b not in ("PEER LEADER", "PEER LAGGARD"))
                 cap_s = (f'<span class="neg" title="{rpos.get("cap_multiple",0):.2f}x its ATR risk cap">&#9888;&#65039;</span>'
                         if rpos.get("over_cap") else "")
+                rank = rank_by_ticker.get(tk)
+                rank_s = (f'<b>{rank}</b>' if rank else '<span style="color:var(--ink-3)">&mdash;</span>')
+                why_full = why_by_ticker.get(tk) or ""
+                why_short = esc(why_full[:70]) + ("&hellip;" if len(why_full) > 70 else "")
+                why_s = (f'<span title="{esc(why_full)}">{why_short}</span>' if why_full
+                         else '<span style="color:var(--ink-3)">&mdash;</span>')
                 out.append(
-                    f'<tr><td class="name">{esc(tk)}</td>'
+                    f'<tr><td class="mono">{rank_s}</td>'
+                    f'<td class="name" style="text-align:left;padding-left:0">{esc(tk)}</td>'
                     f'<td>{h.get("weight_pct",0):.2f}%</td>'
                     f'<td>{f"${price:,.2f}" if price is not None else "&mdash;"}</td>'
                     f'<td class="txt">{st_s}</td>'
                     f'<td class="txt">{peer_s}{other_tags}</td>'
+                    f'<td class="txt">{why_s}</td>'
                     f'<td>{cap_s}</td></tr>')
-            return "".join(out)
+            has_ladder = bool(rank_by_ticker)
+            return "".join(out), has_ladder
 
         rows = []
         for c in sorted(cluster_table, key=lambda r: -r.get("actual_pct_of_equity", r.get("actual_pct", 0))):
@@ -1787,16 +1823,18 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
             pc = lambda v: max(0, min(100, v / scale * 100))
             breach = c.get("breach")
             n_members = len(cluster_members.get(cname, []))
-            body_rows = member_rows(cname)
+            body_rows, has_ladder = member_rows(cname)
             ghosts = sorted(cluster_ghosts.get(cname, []))
             ghost_html = (
                 '<p class="note" style="margin-top:8px">No longer held / tracked only: '
                 + "".join(f'<span class="tick gone" style="margin-right:4px">{esc(tk)}</span>' for tk in ghosts)
                 + '</p>') if ghosts else ""
-            body = ((f'<div class="scroll"><table><thead><tr><th>Name</th><th>Wt</th><th>Price</th>'
-                    f'<th>Thesis</th><th>Signals</th><th></th></tr></thead>'
+            no_ladder_note = ('<p class="note" style="margin-top:8px">No cluster ladder built yet for '
+                               f'{esc(cname)} &mdash; sorted by weight.</p>') if body_rows and not has_ladder else ""
+            body = ((f'<div class="scroll"><table><thead><tr><th>#</th><th>Name</th><th>Wt</th><th>Price</th>'
+                    f'<th>Thesis</th><th>Signals</th><th>Ladder note</th><th></th></tr></thead>'
                     f'<tbody>{body_rows}</tbody></table></div>' if body_rows else
-                    '<p class="note">No held ticker maps to this cluster.</p>') + ghost_html)
+                    '<p class="note">No held ticker maps to this cluster.</p>') + no_ladder_note + ghost_html)
             # BAR, not a meter squeezed into a 150px grid column (2026-09-07 component pass):
             # one full-width track per cluster, the filled portion reads as a real magnitude at
             # a glance (dataviz's own form heuristic -- this IS a magnitude comparison, so it
