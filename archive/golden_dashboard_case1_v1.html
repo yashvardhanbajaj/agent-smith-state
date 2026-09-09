@@ -1,0 +1,914 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,560;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"><title>Agent Smith - US Book</title><style>
+*{box-sizing:border-box}
+.stack-badge{color:var(--ink-2)}
+.stack-badge.hi{color:#c2688a;font-weight:600}
+.held-badge{display:inline-block;margin-left:.5rem;padding:.08rem .4rem;border-radius:3px;
+  font-size:.72rem;font-weight:600;letter-spacing:.02em;
+  background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
+
+/* ============ tokens -- redesigned 2026-09-07 =============================================
+   Full visual redesign (user: "still don't like how it looks... too dense... feels dated...
+   poor hierarchy... full redesign from scratch"). Every class name below stays IDENTICAL to
+   the prior design -- the 26 render_* functions that emit markup by class name are untouched,
+   deliberately: they carry ~20 documented, hard-won bug fixes (the .tw scroll-wrapper bug, the
+   display:grid-on-<summary> bug, the h2 .sub spacing bug, the truncation-period bug, etc.) and
+   rewriting that logic from scratch would risk reintroducing every one of them for a complaint
+   that was never about correctness. What changed is the token system, the type, the panel
+   chrome, and (in build(), below) the information hierarchy -- density and defaults, not data.
+
+   COLOR: a cool graphite ground (not pure black -- a picked neutral, not an inherited one) with
+   a desaturated slate-cyan accent for the Agent Smith "system" identity -- evokes precision
+   instrumentation without the literal-Matrix-green cliche. The warm copper --action stays: it
+   already reads correctly as "a human decision sits here" against a cool system palette, and a
+   second redesign pass losing that contrast would be a regression, not an improvement.
+   TYPE: Newsreader (a serif built for on-screen reading, variable optical size) carries section
+   heads and the narrative "voice" prose -- the committed, wealth-manager-briefing gravitas this
+   desk's own persona calls for, not a status-dump font. IBM Plex Sans carries body/UI/labels --
+   the same family as the Agent Smith architecture diagram, so the product family reads as one
+   thing. IBM Plex Mono carries every number, ticker and tabular figure, as before. */
+:root{
+  --ground:#f4f5f4; --surface:#ffffff; --surface-2:#eceeed;
+  --ink:#14181a; --ink-2:#4c565b; --ink-3:#7c878c;
+  --line:#dbe0df; --line-soft:#e9edec;
+  --accent:#3d6b76; --accent-soft:#e2edee; --accent-line:#b3ccd0;
+  --action:#935a26; --action-soft:#f7ece0; --action-line:#e0c19c;
+  --good:#1f7a52; --good-soft:#e2f1e8;
+  --warn:#96700f; --warn-soft:#f7efd8;
+  --bad:#a13f37;  --bad-soft:#f7e5e2;
+  --sans:"IBM Plex Sans",-apple-system,"Segoe UI",system-ui,sans-serif;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(20,24,26,.04),0 2px 14px rgba(20,24,26,.04);
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme="light"])){
+    --ground:#0a0c0e; --surface:#15181b; --surface-2:#1b1f22;
+    --ink:#e7ebec; --ink-2:#a2acb1; --ink-3:#626c72;
+    --line:#262b2e; --line-soft:#1c2124;
+    --accent:#5fa0ae; --accent-soft:#15272b; --accent-line:#2b4a52;
+    --action:#c9853f; --action-soft:#2a1d10; --action-line:#4d3419;
+    --good:#4fa578; --good-soft:#10261a;
+    --warn:#cca738; --warn-soft:#2a2210;
+    --bad:#c46059;  --bad-soft:#2a1815;
+    --shadow:0 1px 2px rgba(0,0,0,.35),0 2px 16px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0a0c0e; --surface:#15181b; --surface-2:#1b1f22;
+  --ink:#e7ebec; --ink-2:#a2acb1; --ink-3:#626c72;
+  --line:#262b2e; --line-soft:#1c2124;
+  --accent:#5fa0ae; --accent-soft:#15272b; --accent-line:#2b4a52;
+  --action:#c9853f; --action-soft:#2a1d10; --action-line:#4d3419;
+  --good:#4fa578; --good-soft:#10261a;
+  --warn:#cca738; --warn-soft:#2a2210;
+  --bad:#c46059;  --bad-soft:#2a1815;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 2px 16px rgba(0,0,0,.25);
+}
+
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;line-height:1.55;font-size:14.5px}
+.wrap{max-width:900px;margin:0 auto;padding:34px 22px 90px;display:flex;flex-direction:column;gap:34px}
+h1,h2{margin:0;text-wrap:balance;font-weight:600;letter-spacing:-.01em;font-family:var(--serif)}
+p{margin:0}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.voice{font-family:var(--serif);font-size:16.5px;line-height:1.65;color:var(--ink-2)}
+.voice em{color:var(--ink);font-style:italic}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.col{display:flex;flex-direction:column}
+
+/* ============ "the read" top-N list -- added 2026-09-07 (user: "remake the read section so
+   it contains top 5 reads"). Each item is one whole sentence from the same session narrative,
+   numbered because a ranked "top 5" is what was asked for -- not decoration on content that
+   isn't actually a sequence (see artifact-design's own numbering caveat). Replaces a single
+   dense paragraph + hidden "more" drawer with everything visible at once. ============ */
+.read-list{display:flex;flex-direction:column;gap:2px}
+.read-item{display:flex;gap:14px;align-items:baseline;padding:11px 0;border-top:1px solid var(--line-soft)}
+.read-item:first-child{border-top:none;padding-top:0}
+.read-num{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent);
+  flex-shrink:0;letter-spacing:.02em;min-width:1.4em}
+.read-item .voice{font-size:15px;line-height:1.55}
+
+/* ============ masthead -- editorial, not a form header ============ */
+.mast{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;
+  padding-bottom:20px;border-bottom:1px solid var(--line)}
+.mast h1{font-size:30px;font-weight:560;letter-spacing:-.015em}
+.mast h1 span{color:var(--accent);font-weight:400;font-style:italic}
+.stamp{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-align:right;line-height:1.7;
+  letter-spacing:.01em}
+
+/* ============ hero -- REBUILT 2026-09-07, component-level pass. The prior "status strip" was
+   5-8 equal-weight cells in a row -- a generic KPI-tile pattern, the same shape whether the
+   number was Total Book or a footnote. A hero states what matters most FIRST and everything
+   else is visibly secondary, which a grid of identical boxes cannot do no matter what colors or
+   fonts sit inside it -- this is the actual fix for "still looks like the old dashboard": not a
+   new coat of paint on the same tile grid, a different component. ============ */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);padding:26px 26px 22px;display:flex;flex-direction:column;gap:18px}
+/* FIXED 2026-09-07 (user-reported alignment issue): label/value/delta used to share one
+   baseline-aligned flex row with per-item align-self overrides (flex-start on the label,
+   center on the delta) -- three different vertical anchors in one row is exactly the kind of
+   mixed alignment that reads as "off" the moment the row wraps or the viewport narrows. Now a
+   clean two-line stack: the label sits alone on its own line, the value and delta share a
+   second row aligned on one baseline together -- no per-item override needed, nothing to
+   misalign regardless of width. */
+.hero-main{display:flex;flex-direction:column;gap:6px}
+.hero-label{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3)}
+.hero-value-row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.hero-value{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:44px;
+  font-weight:500;letter-spacing:-.03em;color:var(--ink);line-height:1}
+.hero-delta{font-family:var(--mono);font-size:15px;font-weight:600;padding:3px 10px;
+  border-radius:100px}
+.hero-delta.pos{color:var(--good);background:var(--good-soft)}
+.hero-delta.neg{color:var(--bad);background:var(--bad-soft)}
+.hero-stats{display:flex;flex-wrap:wrap;gap:22px 30px;padding-top:16px;border-top:1px solid var(--line-soft)}
+.hstat{display:flex;flex-direction:column;gap:3px}
+.hstat .k{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.hstat .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:17px;font-weight:500;
+  letter-spacing:-.01em;color:var(--ink)}
+.hstat .v.flag{color:var(--bad)}
+.hstat .s{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+.macro{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:16px}
+.macro .k{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.macro .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:17px;font-weight:500;letter-spacing:-.02em}
+.macro .s{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+
+/* ============ panels ============ */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow)}
+.phead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--line-soft)}
+.phead h2{font-size:16px;font-weight:560}
+/* collapsible panel -- a <summary class="phead"> reuses the ordinary panel header's flex layout
+   exactly (class selectors apply regardless of tag), so a panel becomes collapsible by wrapping
+   it in <details class="panel ..."><summary class="phead"> instead of
+   <section class="panel"><div class="phead">. build()'s _collapsible() helper performs exactly
+   this swap on a function's rendered output -- the redesign's information-hierarchy pass -- so
+   the 26 render_* functions above never need to know or care whether their panel ends up always
+   visible or tucked behind a click. */
+details.panel>summary{cursor:pointer;list-style:none;padding:14px 18px;font-family:var(--serif);
+  font-weight:560;font-size:16px;transition:background-color .12s}
+details.panel>summary:hover{background:var(--surface-2)}
+details.panel>summary::-webkit-details-marker{display:none}
+details.panel>summary::before{content:"›  ";color:var(--accent);font-family:var(--sans);font-weight:600;
+  display:inline-block;transition:transform .15s}
+details.panel[open]>summary::before{transform:rotate(90deg) translateX(1px)}
+/* .sub is used both on <span> (h2 subtitles) and <td> (muted table-cell text). */
+.sub{color:var(--ink-3);font-family:var(--sans)}
+h2 .sub{display:inline-block;margin-left:9px;font-family:var(--sans);font-weight:400;
+  font-size:12px;letter-spacing:0;vertical-align:middle}
+.pbody{padding:18px;display:flex;flex-direction:column;gap:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:22px;align-items:start}
+
+.act{border-color:var(--action-line);background:var(--action-soft)}
+.act .phead{border-bottom-color:var(--action-line)}
+.act .phead h2{color:var(--action)}
+details.panel.act>summary::before{color:var(--action)}
+
+.pill{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:100px;
+  background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.pill.g{background:var(--good-soft);color:var(--good)}
+.pill.w{background:var(--warn-soft);color:var(--warn)}
+.pill.b{background:var(--bad-soft);color:var(--bad)}
+.pill.a{background:var(--surface);color:var(--action);border:1px solid var(--action-line)}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ============ tables ============ */
+.scroll{overflow-x:auto}
+/* FIXED 2026-08-12: `.tw` is the horizontal-scroll wrapper used around every wide table in this
+   file (de-risk queue, positions, stop-loss efficacy, trade triggers -- ~16 call sites) and it had
+   NEVER been defined, so none of those tables could actually scroll and a wide one pushed the page
+   into horizontal overflow instead. Exactly the silent-failure class SKILL.md warns about: an
+   undefined class produces no browser warning, and a static tag-balance check cannot see it.
+   `.tbl` is also used-but-undefined and is left that way deliberately -- the bare `table`/`th`/`td`
+   element selectors below already style it, so it is a genuine no-op rather than a missing rule. */
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+  text-align:right;padding:0 10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+th:last-child,td:last-child{padding-right:0}
+td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap;
+  font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:none}
+td.name{font-family:var(--sans);font-weight:640;letter-spacing:-.01em}
+td.txt{font-family:var(--sans);text-align:left;white-space:normal;color:var(--ink-2);font-size:12px}
+tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:none;padding-top:10px}
+td.blank{color:var(--ink-3)}
+
+/* ============ donut embed (Clusters, Positions) -- added 2026-09-07 ============ */
+.donut-row{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.donut-row svg{flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:6px;flex:1;min-width:160px}
+.donut-legend span{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);
+  font-family:var(--mono);font-variant-numeric:tabular-nums}
+.donut-legend i{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* ============ cluster bars -- REBUILT 2026-09-07, component pass. Was a 5-column grid (name |
+   equity% | book% | band-text | a 26px-tall meter squeezed into the last 150px column) -- a
+   spreadsheet row wearing new colours. This IS a magnitude-vs-target comparison (dataviz's own
+   form heuristic: that job is a bar, full stop), so it gets a full-width bar each: the allowed
+   band renders as a soft zone, the actual weight as a solid fill, the target as a sharp tick --
+   one glance answers "where do I sit," which five packed columns made you calculate instead. */
+details.clus-row{border-top:1px solid var(--line-soft);padding:12px 0}
+details.clus-row:first-of-type{border-top:none;padding-top:0}
+details.clus-row>summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:8px}
+details.clus-row>summary::-webkit-details-marker{display:none}
+details.clus-row>summary::marker{content:"";display:none}
+.clus-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.clus-name{font-family:var(--serif);font-size:17px;font-weight:500;color:var(--ink);
+  display:flex;align-items:baseline;gap:8px}
+.clus-name::before{content:"›";color:var(--accent);font-weight:600;transition:transform .15s;display:inline-block}
+details.clus-row[open] .clus-name::before{transform:rotate(90deg)}
+.clus-name i{font-style:normal;font-family:var(--mono);font-size:11px;font-weight:400;color:var(--ink-3)}
+.clus-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:17px;font-weight:600;color:var(--ink)}
+.clus-pct.neg{color:var(--bad)}
+.clus-bar{position:relative;height:10px;background:var(--surface-2);border-radius:5px;overflow:visible}
+.clus-band-zone{position:absolute;top:0;bottom:0;background:var(--accent-soft);border-radius:5px}
+.clus-fill{position:absolute;top:0;bottom:0;left:0;background:var(--accent);border-radius:5px;opacity:.85}
+.clus-fill.neg{background:var(--bad)}
+.clus-target{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink)}
+.clus-sub{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+details.clus-row>.body{padding:12px 0 0}
+.peer-tag{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 6px;border-radius:4px;white-space:nowrap}
+.peer-tag.lead{background:var(--good-soft);color:var(--good)}
+.peer-tag.lag{background:var(--bad-soft);color:var(--bad)}
+
+/* ============ decision cards -- REBUILT 2026-09-07, a genuinely different component, not a
+   reskin of the old row. The prior `.pr` was a flex-wrap ROW: a small colored badge, ticker,
+   and amount all sitting on one text baseline, differentiated mainly by a 2px border-bottom --
+   still recognizably a table row wearing new CSS variables. A card states the same information
+   as a discrete object: a 4px colour STRIPE down the left edge carries the direction (so the
+   eye reads BUY/SELL/TRIM as a shape and a colour before it reads the word), the ticker sits at
+   real display size on its own line, the amount is peer-sized and pinned opposite it, and every
+   secondary fact (cluster, conviction, trigger, stack/hold flags) collapses into one small meta
+   line below -- closer to how a banking app states "here is one decision," further from "here
+   is one row in a table of decisions." ============ */
+.pr-card{display:flex;border-radius:10px;overflow:hidden;background:var(--surface);
+  border:1px solid var(--line-soft);margin-bottom:8px}
+.pr-card:last-child{margin-bottom:0}
+.pr-card-stripe{width:4px;flex-shrink:0}
+.pr-card-stripe.BUY{background:var(--good)}
+.pr-card-stripe.SELL{background:var(--bad)}
+.pr-card-stripe.TRIM{background:var(--warn)}
+.pr-card-stripe.HOLD{background:var(--ink-3)}
+.pr-card-body{flex:1;min-width:0;padding:12px 15px;display:flex;flex-direction:column;gap:6px}
+.pr-card-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.pr-card-name{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--ink);
+  letter-spacing:-.005em;display:flex;align-items:baseline;gap:9px;min-width:0}
+.pr-card-dir{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;flex-shrink:0}
+.pr-card-dir.BUY{color:var(--good)} .pr-card-dir.SELL{color:var(--bad)}
+.pr-card-dir.TRIM{color:var(--warn)} .pr-card-dir.HOLD{color:var(--ink-3)}
+.pr-card-amt{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:18px;
+  font-weight:600;white-space:nowrap;color:var(--action)}
+.pr-card-amt.BUY{color:var(--good)} .pr-card-amt.SELL{color:var(--bad)} .pr-card-amt.TRIM{color:var(--warn)}
+.pr-card-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;font-size:11.5px;color:var(--ink-3)}
+.pr-card-clus{font-family:var(--sans);font-weight:500}
+.pr-card-extra{display:flex;flex-wrap:wrap;gap:6px 10px;padding-top:2px}
+.pr-card .decide{margin:0}
+/* priority groups -- collapsible */
+details.pgrp{border-top:1px solid var(--line-soft);margin-top:8px;padding-top:8px}
+details.pgrp:first-of-type{border-top:none;margin-top:0;padding-top:0}
+details.pgrp>summary{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;padding:4px 0 8px}
+details.pgrp.HIGH>summary{color:var(--bad)}
+details.pgrp.MEDIUM>summary{color:var(--warn)}
+details.pgrp.LOW>summary{color:var(--ink-3)}
+details.pgrp>summary .n{background:var(--surface-2);color:var(--ink-2);border-radius:10px;padding:1px 8px;
+  font-family:var(--mono);margin-left:8px;text-transform:none;letter-spacing:normal;font-weight:400}
+details.pgrp>.body{padding:0}
+/* live re-justification -- recomputed every run */
+.lv{font-family:var(--mono);font-size:11px;color:var(--good)}
+.lv::before{content:"live ";color:var(--ink-3);font-weight:700;letter-spacing:.06em}
+.rvf{font-family:var(--mono);font-size:11px;color:var(--warn)}
+/* compact inline drawer for a card's secondary detail */
+.pr-more{margin-top:2px}
+.pr-more>summary{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.04em;
+  color:var(--accent);padding:0;text-transform:uppercase}
+.pr-more>summary::before{content:"+ ";color:var(--accent)}
+.pr-more[open]>summary::before{content:"2 "}
+.pr-more>.body{padding:8px 0 0;font-size:12px}
+
+/* ============ rotation ideas (paired trim+buy proposals) -- two cards joined by an arrow ==== */
+.rotgrp{border-top:1px solid var(--line-soft);padding-top:8px;margin-bottom:2px}
+.rotgrp:first-child{border-top:none;padding-top:0}
+.rotgrp-h{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent);padding:0 0 8px}
+.rotgrp-h .n{background:var(--accent-soft);color:var(--accent);border-radius:10px;padding:1px 8px;
+  font-family:var(--mono);margin-left:8px;text-transform:none;letter-spacing:normal;font-weight:400}
+.rotcard{display:grid;grid-template-columns:1fr 26px 1fr;gap:8px;align-items:center;
+  padding:0;margin-bottom:8px}
+.rotcard .pr-card{margin-bottom:0}
+.rotarrow{text-align:center;font-size:16px;color:var(--accent);font-weight:700}
+@media (max-width:560px){.rotcard{grid-template-columns:1fr}.rotarrow{transform:rotate(90deg);padding:2px 0}}
+
+/* ============ stop-loss efficacy ============ */
+.stops-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:4px}
+.stops-sum .c{background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.stops-sum .c .k{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.stops-sum .c .v{font-family:var(--mono);font-size:16px;font-weight:640}
+.stops-sum .c .v.pos{color:var(--good)} .stops-sum .c .v.neg{color:var(--bad)}
+.cohort-row{display:flex;gap:18px;flex-wrap:wrap;padding:9px 0;border-bottom:1px solid var(--line-soft);
+  font-size:12.5px;align-items:baseline}
+.cohort-row:last-child{border-bottom:none}
+.cohort-row b{font-family:var(--mono);text-transform:uppercase;font-size:11px;letter-spacing:.06em;
+  color:var(--ink-2);min-width:82px;display:inline-block}
+.cohort-row .m{color:var(--ink-3)}
+td.verd-hurt{color:var(--bad);font-weight:640} td.verd-saved{color:var(--good);font-weight:640}
+td.verd-flat{color:var(--ink-3)}
+.cohort-tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  padding:1px 5px;border-radius:3px;background:var(--surface-2);color:var(--ink-3)}
+.cohort-tag.cascade{background:var(--bad-soft);color:var(--bad)}
+
+/* ============ execution log ============ */
+.exec-row{display:grid;grid-template-columns:78px 46px 1fr auto;gap:10px;padding:7px 0;
+  border-bottom:1px solid var(--line-soft);align-items:baseline;font-size:12px}
+.exec-row:last-child{border-bottom:none}
+.exec-row .d{font-family:var(--mono);color:var(--ink-3);font-size:11px}
+.exec-row .t{font-family:var(--mono);font-weight:700}
+.exec-row .rsn{color:var(--ink-2)}
+.exec-row .px{font-family:var(--mono);text-align:right}
+.exec-row .px.buy{color:var(--good)} .exec-row .px.sell{color:var(--bad)}
+
+/* ============ LTCG watch ============ */
+.ltcg-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;
+  border-bottom:1px solid var(--line-soft);font-size:12.5px;align-items:baseline}
+.ltcg-row:last-child{border-bottom:none}
+.ltcg-row .past{color:var(--bad);font-weight:640}
+.ltcg-row .soon{color:var(--warn);font-weight:640}
+
+/* ============ factor catalysts -- REBUILT 2026-09-07, same card family as the decision cards
+   above rather than the old badge-column grid (.ci: a fixed 78px column for the badge, text in
+   the other). A card here carries the same stripe + body language: stripe colour = direction,
+   the pill moves inside the card header, headline reads at real title size. ============ */
+.cat-card{display:flex;border-radius:10px;overflow:hidden;background:var(--surface);
+  border:1px solid var(--line-soft);margin-bottom:8px}
+.cat-card:last-child{margin-bottom:0}
+.cat-card-stripe{width:4px;flex-shrink:0}
+.cat-card-stripe.THREAT{background:var(--bad)}
+.cat-card-stripe.TAILWIND{background:var(--good)}
+.cat-card-stripe.AMBIGUOUS{background:var(--warn)}
+.cat-card-body{flex:1;min-width:0;padding:12px 15px;display:flex;flex-direction:column;gap:7px}
+.cat-card-top{display:flex}
+.cat-card-hh{font-family:var(--serif);font-size:16px;font-weight:500;line-height:1.4;color:var(--ink)}
+.cb{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:100px}
+.cb.TAILWIND{background:var(--good-soft);color:var(--good)}
+.cb.THREAT{background:var(--bad-soft);color:var(--bad)}
+.cb.AMBIGUOUS{background:var(--warn-soft);color:var(--warn)}
+
+/* ============ rotation analysis ============ */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.rcol{display:flex;flex-direction:column;gap:9px}
+.rct{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:400;margin-left:auto}
+.grp-h{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
+.dot-g,.dot-w,.dot-b{width:7px;height:7px;border-radius:50%}
+.dot-g{background:var(--good)} .dot-w{background:var(--warn)} .dot-b{background:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.rchip{display:inline-flex;align-items:baseline;gap:5px;padding:5px 9px;border-radius:5px;
+  font-size:12.5px;font-weight:700;cursor:help;border:1px solid var(--line)}
+.rchip.g{background:var(--good-soft);color:var(--good);border-color:transparent}
+.rchip.b{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.rchip.w{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.rchip i{font-style:normal;font-family:var(--mono);font-size:10.5px;opacity:.75}
+
+/* ============ sentiment gauge ============ */
+.sg{display:flex;flex-direction:column;gap:10px}
+.sg-head{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;color:var(--ink-3)}
+.sg-head b{font-size:19px;color:var(--ink)}
+.sg-track{position:relative;height:14px;border-radius:7px;overflow:hidden;display:flex}
+.sg-seg{height:100%}
+.sg-seg.xfear{background:#7a3a3a} .sg-seg.fear{background:#a86a4a}
+.sg-seg.neu{background:var(--ink-3);opacity:.4} .sg-seg.greed{background:#7a9a5a} .sg-seg.xgreed{background:#4a7a5a}
+.sg-marker{position:absolute;top:-5px;width:2px;height:24px;background:var(--ink);transform:translateX(-1px)}
+.sg-marker::after{content:"";position:absolute;top:-4px;left:-4px;width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.sg-val{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-family:var(--mono);
+  font-size:11px;font-weight:700;white-space:nowrap;color:var(--ink)}
+.sg-labels{display:flex;justify-content:space-between;font-size:10px;font-family:var(--mono);color:var(--ink-3)}
+.sg-dist{display:flex;gap:6px;flex-wrap:wrap}
+.sg-comp{display:flex;gap:12px;flex-wrap:wrap;padding-top:6px;border-top:1px solid var(--line-soft)}
+.scc{font-size:11.5px;color:var(--ink-3)} .scc b{font-family:var(--mono);color:var(--ink-2);font-weight:640}
+
+/* ============ intl session ============ */
+.kv{display:flex;flex-direction:column;gap:9px}
+.kv .row{display:flex;gap:12px;align-items:baseline;justify-content:space-between;
+  padding-bottom:9px;border-bottom:1px solid var(--line-soft)}
+.kv .row:last-child{border-bottom:none;padding-bottom:0}
+.kv .lab{font-size:13px;color:var(--ink-2)}
+.kv .val{font-family:var(--mono);font-size:13.5px;font-weight:640;text-align:right;line-height:1.45}
+.db{font-family:var(--mono);font-weight:640}
+.db.pos{color:var(--good)} .db.neg{color:var(--bad)}
+.value-sub{font-size:12.5px;color:var(--ink-2);line-height:1.5;padding-top:8px;border-top:1px solid var(--line-soft)}
+.value-sub b{color:var(--ink)}
+
+/* ============ week ahead calendar ============ */
+.cal{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.day{background:var(--surface);padding:11px 12px;display:flex;flex-direction:column;gap:7px;min-height:64px}
+.day.empty{min-height:0;padding:9px 12px;opacity:.55}
+.day.hot{background:var(--warn-soft)}
+.day .d{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.day.hot .d{color:var(--warn)}
+.ev{font-size:12px;line-height:1.4;color:var(--ink)}
+.ev.est{color:var(--ink-3);font-style:italic}
+
+/* ============ diagnostics: chips / ticks ============ */
+.chip{display:inline-flex;flex-direction:column;gap:1px;padding:5px 9px;border-radius:5px;background:var(--surface-2);
+ border:1px solid var(--line);border-left-width:3px;font-size:12.5px;font-weight:700;cursor:help}
+.chip i{font-style:normal;font-size:9.5px;font-weight:500;color:var(--ink-3)}
+.tick{font-family:var(--mono);font-size:11.5px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--surface-2);color:var(--ink-2)}
+.tick.g{background:var(--good-soft);color:var(--good)} .tick.b{background:var(--bad-soft);color:var(--bad)}
+.tick.gone{opacity:.42;text-decoration:line-through}
+.srow{display:grid;grid-template-columns:150px 1fr;gap:11px;align-items:baseline;padding:5px 0}
+.slab{font-size:11.5px;color:var(--ink-2)} .sch{display:flex;flex-wrap:wrap;gap:4px}
+
+/* ============ tiers / details (t3) -- the primary wayfinding device on the page, restyled
+   editorial (was a small uppercase label + rule; now a real section break the eye catches
+   scrolling past, per the redesign's hierarchy pass) ============ */
+.tier{margin-top:4px;display:flex;align-items:baseline;gap:16px}
+.tier h2{font-family:var(--serif);font-size:20px;font-weight:500;font-style:italic;
+  color:var(--ink-2);white-space:nowrap;letter-spacing:0}
+.tier .ln{flex:1;height:1px;background:var(--line);transform:translateY(-4px)}
+.t3 .panel{padding:0}
+details{border-top:1px solid var(--line-soft)}
+details:first-of-type{border-top:none}
+.t3 details{margin:0;padding:0 20px}
+details>summary{cursor:pointer;list-style:none;user-select:none;padding:14px 0;
+  font-size:13.5px;font-weight:640;letter-spacing:-.01em;color:var(--ink);font-family:var(--serif)}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▸  ";color:var(--ink-3)}
+details[open]>summary::before{content:"▾  "}
+details>summary:hover{color:var(--accent)}
+details>summary .c{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:400;margin-left:7px}
+details .body{padding:2px 0 17px;font-size:12.5px;color:var(--ink-2);line-height:1.6}
+
+/* ============ de-risk queue meters ============ */
+.mbar{display:inline-block;width:52px;height:6px;border-radius:3px;background:var(--line);
+  vertical-align:middle;overflow:hidden}
+.mbar i{display:block;height:100%;border-radius:3px}
+.mbar i.f{background:var(--bad)}
+.mbar i.s{background:var(--warn)}
+.mbar i.x{background:var(--ink-3)}
+.mbar i.c{background:var(--accent)}
+.pr .mbar{margin-right:6px}
+.pill.warn{color:var(--warn);border-color:var(--warn)}
+.pill.bad{color:var(--bad);border-color:var(--bad)}
+.pill.good{color:var(--good);border-color:var(--good)}
+
+/* ============ misc ============ */
+.note{font-size:12.5px;color:var(--ink-3);line-height:1.55}
+.note b{color:var(--ink-2)}
+.rule{height:1px;background:var(--line-soft);border:0;margin:0}
+footer{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:10px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ============ interactive decisions (added 2026-08-25) ============ */
+.decide{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.decide button{font:inherit;font-size:11.5px;padding:3px 9px;border-radius:6px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-2);cursor:pointer}
+.decide button:hover{border-color:var(--accent);color:var(--ink)}
+.decide button.b-accept,.decide button.b-approve,.decide button.b-revive,
+.decide button.b-confirm,.decide button.b-resolve,.decide button.b-watch{
+  border-color:var(--good);color:var(--good)}
+.decide button.b-reject,.decide button.b-disagree,.decide button.b-override{
+  border-color:var(--bad);color:var(--bad)}
+.decide input.reason{font:inherit;font-size:11.5px;padding:3px 7px;border-radius:6px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-2);flex:1;min-width:140px}
+.decide select.new-status{font:inherit;font-size:11.5px;padding:3px 5px;border-radius:6px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-2)}
+.decide .recorded{font-size:11.5px;color:var(--ink-3);font-style:italic}
+.decide.readonly{display:none}
+
+.viz{ --surface-1:#ffffff; --grid:#e8eaea; --axis:#c8cdce;
+      --ink-1:#14181c; --ink-2:#4a5157; --ink-3:#7c8389;
+      --equity:#2a78d6; --cash:#eda100; --pos:#2a78d6; --neg:#d03b3b;
+      --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+      --muted:#b6bbbd;
+      --cl-semis:#5b8fa8; --cl-memory:#b8862b; --cl-networking:#7a6ca8;
+      --cl-power:#3f8f6b; --cl-compute-oem:#a86f5b; --cl-hyperscaler:#4a6fa5;
+      --cl-diversified:#6b7c8f; --cl-software:#8a8a4a; }
+@media (prefers-color-scheme: dark){ :root:where(:not([data-theme="light"])) .viz{
+      --surface-1:#171a1d; --grid:#262a2e; --axis:#3a4045;
+      --ink-1:#e8eaec; --ink-2:#a7adb2; --ink-3:#71787d;
+      --equity:#3987e5; --cash:#c98500; --pos:#3987e5; --neg:#d03b3b;
+      --muted:#4d5457;
+      --cl-semis:#7fb0c9; --cl-memory:#d9a34f; --cl-networking:#9a8cc8;
+      --cl-power:#5fb08b; --cl-compute-oem:#c98f7b; --cl-hyperscaler:#6a8fc5;
+      --cl-diversified:#8b9cad; --cl-software:#aaaa6a; } }
+:root[data-theme="dark"] .viz{
+      --surface-1:#171a1d; --grid:#262a2e; --axis:#3a4045;
+      --ink-1:#e8eaec; --ink-2:#a7adb2; --ink-3:#71787d;
+      --equity:#3987e5; --cash:#c98500; --pos:#3987e5; --neg:#d03b3b;
+      --muted:#4d5457;
+      --cl-semis:#7fb0c9; --cl-memory:#d9a34f; --cl-networking:#9a8cc8;
+      --cl-power:#5fb08b; --cl-compute-oem:#c98f7b; --cl-hyperscaler:#6a8fc5;
+      --cl-diversified:#8b9cad; --cl-software:#aaaa6a; }
+.viz text{ font-family:ui-monospace,"SF Mono",Consolas,monospace; }
+.viz .lbl{ font-family:-apple-system,"Segoe UI",Inter,Roboto,sans-serif; }
+.viz .mark{ transition:opacity .12s; }
+.viz .mark:hover{ opacity:.72; }
+.viz-legend{ display:flex; gap:16px; flex-wrap:wrap; align-items:center;
+      font-size:12px; color:var(--ink-2); margin:2px 0 10px;
+      font-family:-apple-system,"Segoe UI",Inter,Roboto,sans-serif; }
+.viz-legend i{ width:10px; height:10px; border-radius:2px; display:inline-block;
+      margin-right:6px; vertical-align:-1px; }
+.viz-note{ font-size:11.5px; color:var(--ink-3); line-height:1.5; margin-top:8px;
+      font-family:-apple-system,"Segoe UI",Inter,Roboto,sans-serif; }
+
+</style></head><body><div class="wrap"><script type="application/json" id="smith-decisions">[]</script>
+<header class="mast"><h1>Agent Smith <span>&middot; US</span></h1><div class="stamp">2026-09-01 22:06<br>USD/INR - &middot; stops on ATR20 &middot; betas vs SMH</div></header>
+<section class="hero"><div class="hero-main"><span class="hero-label">Total book</span><div class="hero-value-row"><span class="hero-value num">$39,946</span><span class="hero-delta neg">-2.11% today</span></div></div><div class="hero-stats"><div class="hstat"><span class="k">Equity</span><span class="v num ">$34,519</span><span class="s">30 positions</span></div><div class="hstat"><span class="k">P&amp;L</span><span class="v num flag">-4.52%</span><span class="s">vs invested</span></div><div class="hstat"><span class="k">Cash</span><span class="v num ">13.6%</span><span class="s">band [5,15]</span></div><div class="hstat"><span class="k">Drawdown</span><span class="v num ">-10.98%</span><span class="s">4.02pt to warn</span></div><div class="hstat"><span class="k">Open risk</span><span class="v num ">8.5%</span><span class="s">cap 10%</span></div><div class="hstat"><span class="k">AI-capex</span><span class="v num flag">95.0%</span><span class="s">of book</span></div></div></section>
+<div class="tier"><h2>Decisions</h2><div class="ln"></div></div>
+<details class="panel act" open><summary class="phead"><h2>Accepted &mdash; awaiting execution</h2><span class="pill a">6 decided, not yet filled</span></summary><div class="pbody"><div><div class="pr-card"><div class="pr-card-stripe SELL"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir SELL">SELL</span>MSFT</span><span class="pr-card-amt SELL">$438</span></div><div class="pr-card-meta">P-164 &middot; accepted 2026-08-25 &middot; paired, self-funding</div></div></div><div class="pr-card"><div class="pr-card-stripe SELL"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir SELL">SELL</span>Sell CIEN</span><span class="pr-card-amt SELL">$342</span></div><div class="pr-card-meta">P-186 &middot; accepted 2026-08-31 &middot; paired, self-funding</div></div></div><div class="pr-card"><div class="pr-card-stripe TRIM"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir TRIM">TRIM</span>Trim IREN</span><span class="pr-card-amt TRIM">$243</span></div><div class="pr-card-meta">P-180 &middot; accepted 2026-08-31</div></div></div><div class="pr-card"><div class="pr-card-stripe BUY"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir BUY">BUY</span>CLS</span><span class="pr-card-amt BUY">$425</span></div><div class="pr-card-meta">P-165 &middot; accepted 2026-08-25 &middot; paired, self-funding</div></div></div><div class="pr-card"><div class="pr-card-stripe BUY"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir BUY">BUY</span>Buy AMAT</span><span class="pr-card-amt BUY">$342</span></div><div class="pr-card-meta">P-187 &middot; accepted 2026-08-31 &middot; paired, self-funding</div></div></div><div class="pr-card"><div class="pr-card-stripe BUY"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir BUY">BUY</span>Buy WDC</span><span class="pr-card-amt BUY">$150</span></div><div class="pr-card-meta">P-149 &middot; accepted 2026-08-31</div></div></div></div><p class="note"><b>$1,023</b> of sells/trims against <b>$916</b> of buys &mdash; net raises cash by <b>$107</b>. Accepting is a stated intention, not a trade: Agent Smith never places orders. A row leaves this panel only when the actual fill reaches the ledger.</p></div></details>
+<section class="panel act"><div class="phead"><h2>Ideas</h2><span class="pill a">Ranked by conviction &mdash; for review, never executed</span></div><div class="pbody"><div><div class="rotcard"><div class="rotleg sell"><div class="pr-card"><div class="pr-card-stripe SELL"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir SELL">SELL</span>Sell MSFT</span><span class="pr-card-amt SELL">$153</span></div><div class="pr-card-meta"><span class="pr-card-clus">Compute/Hyperscaler</span><span class="rchip w" title="profit_rotation sell leg: stretched (in names_stretched, +24.7% on month, +15.7pp rel. strength) with a watch thesis -- real profit to book. Independently reinforced by a live catalyst_threat hit this run (NVDA/Oracle CDS-widening contagion read; single-source, self-flagged as lacking an absolute bp level for MSFT specifically).">profit rotation</span></div><div class="pr-card-extra"><span class="stack-badge hi" title="stacks with P-164 (accepted, not yet filled) &amp;mdash; $591 combined = 116% of the position">&#9888; 116% stacked</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Why</span><span>profit_rotation sell leg: stretched (in names_stretched, +24.7% on month, +15.7pp rel. strength) with a watch thesis -- real profit to book. Independently reinforced by a live catalyst_threat hit this run (NVDA/Oracle CDS-widening contagion read; single-source, self-flagged as lacking an absolute bp level for MSFT specifically).</span></div><div class="srow"><span class="slab">Still valid</span><span>MSFT genuinely stretched: +24.7% 1m, +15.7pp vs SMH -- real profit to take, not just a smaller loss; profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book</span></div><div class="srow"><span class="slab">Retires when</span><span>the profit_rotation pairing profit_rotation-MSFT-KLAC is no longer live this run -- both legs retire together, never one alone</span></div><div class="srow"><span class="slab">ID</span><span>P-207</span></div></div></details><div class="decide" data-surface="proposal" data-element-id="P-207"><button type="button" class="b-accept" data-decision="accept">Accept</button><button type="button" class="b-reject" data-decision="reject">Reject</button><button type="button" class="b-hold" data-decision="hold">Hold</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div></div><div class="rotarrow">&rarr;</div><div class="rotleg buy"><div class="pr-card"><div class="pr-card-stripe BUY"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir BUY">BUY</span>Buy KLAC</span><span class="pr-card-amt BUY">$153</span></div><div class="pr-card-meta"><span class="pr-card-clus">AI Semis/Fabs</span><span class="rchip w" title="profit_rotation buy leg: laggard (-5.7pp rel. strength) with thesis strengthening (secondary, 2 for/1 against -- verified), reported earnings beat.">profit rotation</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Why</span><span>profit_rotation buy leg: laggard (-5.7pp rel. strength) with thesis strengthening (secondary, 2 for/1 against -- verified), reported earnings beat.</span></div><div class="srow"><span class="slab">Still valid</span><span>profit_rotation: conviction 37.1 (unscored) -- laggard (-5.7pp) with a strengthening thesis -- yet to rally</span></div><div class="srow"><span class="slab">Retires when</span><span>the profit_rotation pairing profit_rotation-MSFT-KLAC is no longer live this run -- both legs retire together, never one alone</span></div><div class="srow"><span class="slab">ID</span><span>P-208</span></div></div></details><div class="decide" data-surface="proposal" data-element-id="P-208"><button type="button" class="b-accept" data-decision="accept">Accept</button><button type="button" class="b-reject" data-decision="reject">Reject</button><button type="button" class="b-hold" data-decision="hold">Hold</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div></div></div><div class="pr-card"><div class="pr-card-stripe BUY"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir BUY">BUY</span>Buy LITE</span><span class="pr-card-amt BUY">$382</span></div><div class="pr-card-meta"><span class="pr-card-clus">AI Networking/Optics</span><span class="rchip w" title="reentry: exited 2026-07-23 at $895.29, conviction score 47.1 (medium -- highest-conviction idea this run). Thesis strengthening (secondary, 2 for/0 against). COHR/LITE/CIEN sold off in sympathy with MRVL&#39;s guide despite neither COHR nor LITE carrying the same headwind. Signal polarity net +1 (PEER LEADER); +28.3% vs analyst target; +45.1pp vs benchmark. Sized off target weight, not ATR headroom (structurally $0 with no open position). Price is last-known/exit price -- no fresh quote pulled this quick run.">reentry</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Why</span><span>reentry: exited 2026-07-23 at $895.29, conviction score 47.1 (medium -- highest-conviction idea this run). Thesis strengthening (secondary, 2 for/0 against). COHR/LITE/CIEN sold off in sympathy with MRVL's guide despite neither COHR nor LITE carrying the same headwind. Signal polarity net +1 (PEER LEADER); +28.3% vs analyst target; +45.1pp vs benchmark. Sized off target weight, not ATR headroom (structurally $0 with no open position). Price is last-known/exit price -- no fresh quote pulled this quick run.</span></div><div class="srow"><span class="slab">Still valid</span><span>reentry: conviction 47.1 (medium) -- exited 2026-07-23 at $895.29; thesis strengthening (secondary, 2 for / 0 against); threat/immediate: COHR/LITE/CIEN sold off in sympathy with MRVL's guide despite neither COHR nor L; signal polarity net +1 (PEER LEADER); +28.3% vs analyst target; +45.1pp vs benchmark; named by 1 independent source(s) this run</span></div><div class="srow"><span class="slab">Retires when</span><span>LITE no longer appears in this run's live reentry list, or 20 trading days pass since its exit, whichever comes first</span></div><div class="srow"><span class="slab">ID</span><span>P-209</span></div></div></details><div class="decide" data-surface="proposal" data-element-id="P-209"><button type="button" class="b-accept" data-decision="accept">Accept</button><button type="button" class="b-reject" data-decision="reject">Reject</button><button type="button" class="b-hold" data-decision="hold">Hold</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div><div class="rotcard"><div class="rotleg sell"><div class="pr-card"><div class="pr-card-stripe TRIM"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir TRIM">TRIM</span>Trim MRVL</span><span class="pr-card-amt TRIM">$220</span></div><div class="pr-card-meta"><span class="pr-card-clus">AI Networking/Optics</span><span class="rchip w" title="Over ATR cap (computed, cap_multiple 1.118, headroom -$206.54), derisk queue rank #2 (fragility 72.2 computed). Thesis strengthening (secondary) but evidence_against flags CEO insider selling ahead of the 08-27 print -- partial trim into strength, not a thesis reversal; fund AMAT add.">Over ATR cap (computed, …</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Why</span><span>Over ATR cap (computed, cap_multiple 1.118, headroom -$206.54), derisk queue rank #2 (fragility 72.2 computed). Thesis strengthening (secondary) but evidence_against flags CEO insider selling ahead of the 08-27 print -- partial trim into strength, not a thesis reversal; fund AMAT add.</span></div><div class="srow"><span class="slab">Still valid</span><span>MRVL at 1.12x its ATR risk cap; MRVL genuinely stretched: +6.1% 1m, +34.1pp vs SMH -- real profit to take, not just a smaller loss; capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock</span></div><div class="srow"><span class="slab">Retires when</span><span>MRVL drops under its ATR risk cap</span></div><div class="srow"><span class="slab">ID</span><span>P-192</span></div></div></details><div class="decide" data-surface="proposal" data-element-id="P-192"><button type="button" class="b-accept" data-decision="accept">Accept</button><button type="button" class="b-reject" data-decision="reject">Reject</button><button type="button" class="b-hold" data-decision="hold">Hold</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div></div><div class="rotarrow">&rarr;</div><div class="rotleg buy"><div class="pr-card"><div class="pr-card-stripe BUY"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir BUY">BUY</span>Buy AMAT</span><span class="pr-card-amt BUY">$220</span></div><div class="pr-card-meta"><span class="pr-card-clus">AI Semis/Fabs</span><span class="rchip w" title="RSI14 33.3 oversold (computed), thesis strengthening (secondary), conviction 34.3 tier low; size_wanted $485.60 was clamped to $0 by cash in the raw trigger -- this pair supplies the funding. Blended entry $486.58 clears the $415.87 stop.">conviction average</span></div><div class="pr-card-extra"><span class="stack-badge" title="stacks with P-187 (accepted, not yet filled) &amp;mdash; $562 combined = 41% of the position">&#9888; 41% stacked</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Why</span><span>RSI14 33.3 oversold (computed), thesis strengthening (secondary), conviction 34.3 tier low; size_wanted $485.60 was clamped to $0 by cash in the raw trigger -- this pair supplies the funding. Blended entry $486.58 clears the $415.87 stop.</span></div><div class="srow"><span class="slab">Still valid</span><span>conviction_average: conviction 32.3 (low) -- thesis strengthening (secondary, 0 for / 0 against); RSI14 33 oversold; -3.1pp vs benchmark; recommended 2x, still unactioned -- one more restatement auto-retires it</span></div><div class="srow"><span class="slab">Retires when</span><span>AMAT no longer appears in this run's live conviction_average list</span></div><div class="srow"><span class="slab">Repeated</span><span>2&times; since 2026-08-31</span></div><div class="srow"><span class="slab">ID</span><span>P-193</span></div></div></details><div class="decide" data-surface="proposal" data-element-id="P-193"><button type="button" class="b-accept" data-decision="accept">Accept</button><button type="button" class="b-reject" data-decision="reject">Reject</button><button type="button" class="b-hold" data-decision="hold">Hold</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div></div></div><div class="rotcard"><div class="rotleg sell"><div class="pr-card"><div class="pr-card-stripe SELL"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir SELL">SELL</span>Sell AMD</span><span class="pr-card-amt SELL">$283</span></div><div class="pr-card-meta"><span class="pr-card-clus">AI Semis/Fabs</span><span class="rchip w" title="cluster_rotation sell leg: laggard within AI Semis/Fabs (-2.7pp rel. strength vs SMH), thesis watch -- dead money in a cluster where LRCX is the performer.">cluster rotation</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Why</span><span>cluster_rotation sell leg: laggard within AI Semis/Fabs (-2.7pp rel. strength vs SMH), thesis watch -- dead money in a cluster where LRCX is the performer.</span></div><div class="srow"><span class="slab">Still valid</span><span>cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster</span></div><div class="srow"><span class="slab">Retires when</span><span>the cluster_rotation pairing cluster_rotation-AMD-LRCX is no longer live this run -- both legs retire together, never one alone</span></div><div class="srow"><span class="slab">ID</span><span>P-205</span></div></div></details><div class="decide" data-surface="proposal" data-element-id="P-205"><button type="button" class="b-accept" data-decision="accept">Accept</button><button type="button" class="b-reject" data-decision="reject">Reject</button><button type="button" class="b-hold" data-decision="hold">Hold</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div></div><div class="rotarrow">&rarr;</div><div class="rotleg buy"><div class="pr-card"><div class="pr-card-stripe BUY"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir BUY">BUY</span>Buy LRCX</span><span class="pr-card-amt BUY">$283</span></div><div class="pr-card-meta"><span class="pr-card-clus">AI Semis/Fabs</span><span class="rchip w" title="cluster_rotation buy leg: cluster performer (+12.6pp rel. strength vs SMH), thesis strengthening (tagged UNVERIFIED, 0 for/0 against -- a supporting input only, computed relative-strength/RSI math carries this trade), +22.7% vs analyst target. Blended entry $305.47 clears the $273.58 stop.">cluster rotation</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Why</span><span>cluster_rotation buy leg: cluster performer (+12.6pp rel. strength vs SMH), thesis strengthening (tagged UNVERIFIED, 0 for/0 against -- a supporting input only, computed relative-strength/RSI math carries this trade), +22.7% vs analyst target. Blended entry $305.47 clears the $273.58 stop.</span></div><div class="srow"><span class="slab">Still valid</span><span>cluster_rotation: conviction 31.0 (unscored) -- performer within AI Semis/Fabs (+12.6pp), strengthening thesis</span></div><div class="srow"><span class="slab">Retires when</span><span>the cluster_rotation pairing cluster_rotation-AMD-LRCX is no longer live this run -- both legs retire together, never one alone</span></div><div class="srow"><span class="slab">ID</span><span>P-206</span></div></div></details><div class="decide" data-surface="proposal" data-element-id="P-206"><button type="button" class="b-accept" data-decision="accept">Accept</button><button type="button" class="b-reject" data-decision="reject">Reject</button><button type="button" class="b-hold" data-decision="hold">Hold</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div></div></div><div class="pr-card"><div class="pr-card-stripe BUY"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir BUY">BUY</span>Buy WDC</span><span class="pr-card-amt BUY">$302</span></div><div class="pr-card-meta"><span class="pr-card-clus">AI Memory/Storage</span><span class="rchip w" title="conviction_average: conviction score 30.0 (low). Thesis strengthening (primary source, 1 for/1 against -- verified). -13.7pp rel. strength vs SMH (laggard, hasn&#39;t run yet). Blended entry $459.36 clears the $389.13 stop.">conviction average</span></div><div class="pr-card-extra"><span class="stack-badge" title="stacks with P-149 (accepted, not yet filled) &amp;mdash; $452 combined = 50% of the position">&#9888; 50% stacked</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Why</span><span>conviction_average: conviction score 30.0 (low). Thesis strengthening (primary source, 1 for/1 against -- verified). -13.7pp rel. strength vs SMH (laggard, hasn't run yet). Blended entry $459.36 clears the $389.13 stop.</span></div><div class="srow"><span class="slab">Still valid</span><span>conviction_average: conviction 30.0 (low) -- thesis strengthening (primary, 1 for / 1 against); -13.7pp vs benchmark</span></div><div class="srow"><span class="slab">Retires when</span><span>WDC no longer appears in this run's live conviction_average list</span></div><div class="srow"><span class="slab">ID</span><span>P-210</span></div></div></details><div class="decide" data-surface="proposal" data-element-id="P-210"><button type="button" class="b-accept" data-decision="accept">Accept</button><button type="button" class="b-reject" data-decision="reject">Reject</button><button type="button" class="b-hold" data-decision="hold">Hold</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div><div class="pr-card"><div class="pr-card-stripe BUY"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir BUY">BUY</span>Buy GLW</span><span class="pr-card-amt BUY">$365</span></div><div class="pr-card-meta"><span class="pr-card-clus">AI Networking/Optics</span><span class="rchip w" title="conviction_average: conviction score 29.5 (low). Thesis strengthening (secondary, 1 for/1 against -- verified). +9.5pp rel. strength vs SMH. Blended entry $149.48 clears the $132.27 stop.">conviction average</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Why</span><span>conviction_average: conviction score 29.5 (low). Thesis strengthening (secondary, 1 for/1 against -- verified). +9.5pp rel. strength vs SMH. Blended entry $149.48 clears the $132.27 stop.</span></div><div class="srow"><span class="slab">Still valid</span><span>conviction_average: conviction 29.5 (low) -- thesis strengthening (secondary, 1 for / 1 against); +9.5pp vs benchmark</span></div><div class="srow"><span class="slab">Retires when</span><span>GLW no longer appears in this run's live conviction_average list</span></div><div class="srow"><span class="slab">ID</span><span>P-211</span></div></div></details><div class="decide" data-surface="proposal" data-element-id="P-211"><button type="button" class="b-accept" data-decision="accept">Accept</button><button type="button" class="b-reject" data-decision="reject">Reject</button><button type="button" class="b-hold" data-decision="hold">Hold</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div></div><p class="note">To drop an idea you don't want to act on, just tell Agent Smith &mdash; e.g. "dismiss P-014" &mdash; citing the id shown under its action. It will not be re-proposed.</p></div></section>
+<section class="panel act"><div class="phead"><h2>Risk housekeeping</h2><span class="pill a">Sized &amp; actionable &mdash; not ranked against ideas</span></div><div class="pbody"><div><details class="pgrp HIGH" open><summary>HIGH PRIORITY<span class="n">1</span></summary><div class="body"><div class="pr-card"><div class="pr-card-stripe TRIM"></div><div class="pr-card-body"><div class="pr-card-top"><span class="pr-card-name"><span class="pr-card-dir TRIM">TRIM</span>Trim NVDA</span><span class="pr-card-amt TRIM">$272</span></div><div class="pr-card-meta"><span class="pr-card-clus">AI Semis/Fabs</span><span class="rchip w" title="Double-evidenced and the only TRIM in the book carrying both a technical and a credit leg. (1) overbought_distribution fired LIVE for the first time in this book&#39;s history on the 08-31 cache refresh: RSI14 70.4, the highest in the book, +6.34pp vs SMH. (2) catalyst_threat: NVDA&#39;s own 5-year CDS has roughly doubled in two months and it is backstopping ~125bn USD of a ~500bn USD third-party compute-financing platform. smith-cycle&#39;s late-cycle call rests substantially on NVDA&#39;s own guidance -- gross margin stepping 75pct to 74pct to a 71-72pct Q4 trough on memory cost, with component commitments up 119bn to 279bn USD in a single quarter. Trimming 25pct of a strengthening-thesis name is a de-risk of the financing leg, not a thesis exit; NVDA stays a position. RE-BASED 2026-08-31: the GOOG buy leg this was paired to (P-182) was dismissed after primary-source verification killed its premise, so this now stands ALONE -- and it does not need a buy leg. Cash is 3.005% of book against a policy floor of 5% (cash_breach true), so an unfunded trim is not idle capital, it is the cheapest available way to rebuild the buffer back toward its band. The two reasons to trim NVDA are untouched by the GOOG finding: RSI14 70.4 firing overbought_distribution, and the credit leg (5-year CDS roughly doubled in two months, ~125bn USD backstop of a third-party compute-financing platform, guided gross margin stepping to a 71-72% Q4 trough on memory cost). Deliberately NOT re-paired with a substitute buy: manufacturing a new buy leg to preserve the shape of a rotation would be reverse-engineering evidence to fit a trade I had already decided on.">overbought distribution</span><span class="held-badge" title="You put this on hold 2026-08-31; it stays open until you accept or reject it.">HELD</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Why</span><span>Double-evidenced and the only TRIM in the book carrying both a technical and a credit leg. (1) overbought_distribution fired LIVE for the first time in this book's history on the 08-31 cache refresh: RSI14 70.4, the highest in the book, +6.34pp vs SMH. (2) catalyst_threat: NVDA's own 5-year CDS has roughly doubled in two months and it is backstopping ~125bn USD of a ~500bn USD third-party compute-financing platform. smith-cycle's late-cycle call rests substantially on NVDA's own guidance -- gross margin stepping 75pct to 74pct to a 71-72pct Q4 trough on memory cost, with component commitments up 119bn to 279bn USD in a single quarter. Trimming 25pct of a strengthening-thesis name is a de-risk of the financing leg, not a thesis exit; NVDA stays a position. RE-BASED 2026-08-31: the GOOG buy leg this was paired to (P-182) was dismissed after primary-source verification killed its premise, so this now stands ALONE -- and it does not need a buy leg. Cash is 3.005% of book against a policy floor of 5% (cash_breach true), so an unfunded trim is not idle capital, it is the cheapest available way to rebuild the buffer back toward its band. The two reasons to trim NVDA are untouched by the GOOG finding: RSI14 70.4 firing overbought_distribution, and the credit leg (5-year CDS roughly doubled in two months, ~125bn USD backstop of a third-party compute-financing platform, guided gross margin stepping to a 71-72% Q4 trough on memory cost). Deliberately NOT re-paired with a substitute buy: manufacturing a new buy leg to preserve the shape of a rotation would be reverse-engineering evidence to fit a trade I had already decided on.</span></div><div class="srow"><span class="slab">Still valid</span><span>NVDA genuinely stretched: +8.1% 1m, +6.3pp vs SMH -- real profit to take, not just a smaller loss; overbought_distribution: RSI14 70.4 &gt; 70 (overbought); up +8.1% on the month -- real gain to protect; recommended 2x, still unactioned -- one more restatement auto-retires it</span></div><div class="srow"><span class="slab">Retires when</span><span>NVDA RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)</span></div><div class="srow"><span class="slab">Repeated</span><span>2&times; since 2026-08-31</span></div><div class="srow"><span class="slab">ID</span><span>P-181</span></div></div></details><div class="decide" data-surface="proposal" data-element-id="P-181"><button type="button" class="b-accept" data-decision="accept">Accept</button><button type="button" class="b-reject" data-decision="reject">Reject</button><button type="button" class="b-hold" data-decision="hold">Hold</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div></div></details></div></div></section>
+<div class="tier"><h2>Signals &amp; context</h2><div class="ln"></div></div>
+<details class="panel" open><summary class="phead"><h2>Factor catalysts</h2><span class="pill">No NEW catalysts this run &middot; 5 carried forward</span></summary><div class="pbody"><div><div class="cat-card"><div class="cat-card-stripe AMBIGUOUS"></div><div class="cat-card-body"><div class="cat-card-top"><span class="cb AMBIGUOUS">AMBIGUOUS</span></div><div class="cat-card-hh" title="Marvell beat Q2 revenue but FY28 guide read as too far out to move numbers despite Google AI-chip deal; stock -10%">Marvell beat Q2 revenue but FY28 guide read as too far out t…</div><div class="sch"><span class="tick ">MRVL</span><span class="tick">4.9% equity</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Headline</span><span>Marvell beat Q2 revenue but FY28 guide read as too far out to move numbers despite Google AI-chip deal; stock -10%</span></div><div class="srow"><span class="slab">Magnitude</span><span>revenue beat confirmed; guidance-timing disappointment, not a miss -- no consensus EPS figure sourced</span></div><div class="srow"><span class="slab">Exposure</span><span>4.9% of equity</span></div><div class="srow"><span class="slab">Date</span><span>2026-08-27</span></div></div></details><div class="decide" data-surface="catalyst" data-element-id="c0" data-headline="Marvell beat Q2 revenue but FY28 guide read as too far out to move numbers despite Google AI-chip deal; stock -10%" data-date="2026-08-27"><button type="button" class="b-hold" data-decision="priced_in">Already priced in</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div><div class="cat-card"><div class="cat-card-stripe THREAT"></div><div class="cat-card-body"><div class="cat-card-top"><span class="cb THREAT">THREAT</span></div><div class="cat-card-hh" title="COHR/LITE/CIEN sold off in sympathy with MRVL&#39;s guide despite neither COHR nor LITE having reported this cycle">COHR/LITE/CIEN sold off in sympathy with MRVL's guide despit…</div><div class="sch"><span class="tick b">COHR</span><span class="tick b">LITE</span><span class="tick b">CIEN</span><span class="tick">8.0% equity</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Headline</span><span>COHR/LITE/CIEN sold off in sympathy with MRVL's guide despite neither COHR nor LITE having reported this cycle</span></div><div class="srow"><span class="slab">Magnitude</span><span>no own-name beat/miss data exists for COHR or LITE yet; complex had run up sharply pre-earnings, priced for perfection</span></div><div class="srow"><span class="slab">Exposure</span><span>8.0% of equity</span></div><div class="srow"><span class="slab">Date</span><span>2026-08-28</span></div></div></details><div class="decide" data-surface="catalyst" data-element-id="c1" data-headline="COHR/LITE/CIEN sold off in sympathy with MRVL&#39;s guide despite neither COHR nor LITE having reported this cycle" data-date="2026-08-28"><button type="button" class="b-hold" data-decision="priced_in">Already priced in</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div><div class="cat-card"><div class="cat-card-stripe AMBIGUOUS"></div><div class="cat-card-body"><div class="cat-card-top"><span class="cb AMBIGUOUS">AMBIGUOUS</span></div><div class="cat-card-hh" title="IREN FY26: $638.8M noncash bitcoin-rig impairment flips $86.9M profit to $702.6M GAAP loss as AI-cloud pivot accelerates">IREN FY26: $638.8M noncash bitcoin-rig impairment flips $86.…</div><div class="sch"><span class="tick ">IREN</span><span class="tick">1.8% equity</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Headline</span><span>IREN FY26: $638.8M noncash bitcoin-rig impairment flips $86.9M profit to $702.6M GAAP loss as AI-cloud pivot accelerates</span></div><div class="srow"><span class="slab">Magnitude</span><span>AI Cloud revenue +8x to $128.8M, 51% of Q4 rev; $4bn signed ARR but only $1bn operational -- mgmt flagged recognized revenue could run below ARR</span></div><div class="srow"><span class="slab">Exposure</span><span>1.8% of equity</span></div><div class="srow"><span class="slab">Date</span><span>2026-08-28</span></div></div></details><div class="decide" data-surface="catalyst" data-element-id="c2" data-headline="IREN FY26: $638.8M noncash bitcoin-rig impairment flips $86.9M profit to $702.6M GAAP loss as AI-cloud pivot accelerates" data-date="2026-08-28"><button type="button" class="b-hold" data-decision="priced_in">Already priced in</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div><div class="cat-card"><div class="cat-card-stripe THREAT"></div><div class="cat-card-body"><div class="cat-card-top"><span class="cb THREAT">THREAT</span></div><div class="cat-card-hh" title="Nvidia&#39;s 5Y CDS roughly doubled over two months; S&amp;P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: &#39;CDS, not EPS&#39;">Nvidia's 5Y CDS roughly doubled over two months; S&amp;P downgra…</div><div class="sch"><span class="tick b">NVDA</span><span class="tick b">AVGO</span><span class="tick b">AMZN</span><span class="tick b">GOOG</span><span class="tick b">MSFT</span><span class="tick">16.7% equity</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Headline</span><span>Nvidia's 5Y CDS roughly doubled over two months; S&amp;P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: 'CDS, not EPS'</span></div><div class="srow"><span class="slab">Magnitude</span><span>NVDA CDS ~2x in 2 months; Oracle downgraded to lowest IG rung, CDS 215bp -- directional credit repricing, no absolute NVDA bp level sourced</span></div><div class="srow"><span class="slab">Exposure</span><span>16.7% of equity</span></div><div class="srow"><span class="slab">Date</span><span>2026-08-27</span></div></div></details><div class="decide" data-surface="catalyst" data-element-id="c3" data-headline="Nvidia&#39;s 5Y CDS roughly doubled over two months; S&amp;P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: &#39;CDS, not EPS&#39;" data-date="2026-08-27"><button type="button" class="b-hold" data-decision="priced_in">Already priced in</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div><div class="cat-card"><div class="cat-card-stripe THREAT"></div><div class="cat-card-body"><div class="cat-card-top"><span class="cb THREAT">THREAT</span></div><div class="cat-card-hh" title="KOSPI stayed negative Thu-Fri (-0.94% then further down) even as NVDA&#39;s own beat lifted Nikkei/TAIEX; Samsung/SK Hynix fell against the grain">KOSPI stayed negative Thu-Fri (-0.94% then further down) eve…</div><div class="sch"><span class="tick b">SKHY</span><span class="tick">2.0% equity</span></div><details class="pr-more"><summary>details</summary><div class="body"><div class="srow"><span class="slab">Headline</span><span>KOSPI stayed negative Thu-Fri (-0.94% then further down) even as NVDA's own beat lifted Nikkei/TAIEX; Samsung/SK Hynix fell against the grain</span></div><div class="srow"><span class="slab">Magnitude</span><span>Nikkei +0.41%/TAIEX positive same session Korea fell -- isolated to Korea/memory, not a regional read</span></div><div class="srow"><span class="slab">Exposure</span><span>2.0% of equity</span></div><div class="srow"><span class="slab">Date</span><span>2026-08-29</span></div></div></details><div class="decide" data-surface="catalyst" data-element-id="c4" data-headline="KOSPI stayed negative Thu-Fri (-0.94% then further down) even as NVDA&#39;s own beat lifted Nikkei/TAIEX; Samsung/SK Hynix fell against the grain" data-date="2026-08-29"><button type="button" class="b-hold" data-decision="priced_in">Already priced in</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></div></div></div></div></details>
+<section class="panel"><div class="phead"><h2>The read</h2><span class="pill">top 4, this session</span></div><div class="pbody"><div class="read-list"><div class="read-item"><span class="read-num">01</span><p class="voice">Broad down day across the book's factor (SMH -2.1%, VIX +4.8% to 15.61) landed on top of the heaviest single-day portfolio turnover in weeks -- 7 full exits, 2 new positions, several adds/trims, all confirmed via email by smith-ledger.</p></div><div class="read-item"><span class="read-num">02</span><p class="voice">Book drawdown -10.98% crossed the correction_state half-warn threshold (not risk-off; policy warn line is -15%).</p></div><div class="read-item"><span class="read-num">03</span><p class="voice">AI-capex concentration jumped to ~95% of the book as ALAB and FSLR were both classified into the theme rather than treated as diversifiers.</p></div><div class="read-item"><span class="read-num">04</span><p class="voice">The idea-generation layer's 30d hit rate remains weak (21.1% overall) against a strong 67.5% stop-loss win rate, so this run's 7 new proposals were sized conservatively and a stacking conflict between an already-accepted MSFT sell and a fresh one was caught before it could be actioned twice.</p></div></div>
+<div class="hero-stats" style="padding-top:14px;border-top:1px solid var(--line-soft)"><div class="hstat"><span class="k">10-yr</span><span class="v num">4.786%</span><span class="s"></span></div><div class="hstat"><span class="k">VIX</span><span class="v num">15.61</span><span class="s">+0.0% today</span></div><div class="hstat"><span class="k">Fed</span><span class="v num">3.63%</span><span class="s">hawkish</span></div><div class="hstat"><span class="k">Beta vs SMH</span><span class="v num">1.190</span><span class="s"></span></div></div>
+</div></section>
+<details class="panel"><summary class="phead"><h2>The week ahead</h2></summary><div class="pbody"><div class="cal"><div class="day empty"><span class="d">Today</span></div><div class="day hot"><span class="d">Wed 2</span><span class="ev">AVGO</span></div><div class="day hot"><span class="d">Thu 3</span><span class="ev">CIEN</span></div><div class="day empty"><span class="d">Fri 4</span></div><div class="day empty"><span class="d">Sat 5</span></div><div class="day empty"><span class="d">Sun 6</span></div></div></div></details>
+<div class="tier"><h2>Book &amp; risk</h2><div class="ln"></div></div>
+<details class="panel viz" open><summary class="phead"><h2>Allocation treemap<span class="sub">size = weight · color = cluster · red outline = over risk cap</span></h2></summary><div class="pbody"><div class="viz-legend"><span><i style="background:var(--cl-power)"></i>AI Power/Cooling/DC Infra</span><span><i style="background:var(--cl-networking)"></i>AI Networking/Optics</span><span><i style="background:var(--muted)"></i>Analog/Industrial Semis</span><span><i style="background:var(--cl-semis)"></i>AI Semis/Fabs</span><span><i style="background:var(--cl-memory)"></i>AI Memory/Storage</span><span><i style="background:var(--cl-hyperscaler)"></i>Compute/Hyperscaler</span><span><i style="background:var(--cl-compute-oem)"></i>Compute/Hyperscaler OEM</span></div><svg class="viz-svg" viewBox="0 0 760 320" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Position allocation treemap, size by weight, color by cluster">
+<rect class="mark" x="0.0" y="0.0" width="195.2" height="129.2" fill="var(--cl-power)" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>GEV &#8212; 10.37% of equity &#8212; $3,581 &#8212; AI Power/Cooling/DC Infra  (OVER RISK CAP)</title></rect>
+<text x="6.0" y="17.0" font-size="12" font-weight="700" fill="#fff">GEV</text>
+<text x="6.0" y="32.0" font-size="10" fill="#ffffffcc">10.4%</text>
+<rect class="mark" x="195.2" y="0.0" width="101.8" height="129.2" fill="var(--cl-networking)" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>MRVL &#8212; 5.41% of equity &#8212; $1,868 &#8212; AI Networking/Optics  (OVER RISK CAP)</title></rect>
+<text x="201.2" y="17.0" font-size="12" font-weight="700" fill="#fff">MRVL</text>
+<text x="201.2" y="32.0" font-size="10" fill="#ffffffcc">5.4%</text>
+<rect class="mark" x="297.0" y="0.0" width="96.8" height="129.2" fill="var(--cl-power)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>VRT &#8212; 5.14% of equity &#8212; $1,776 &#8212; AI Power/Cooling/DC Infra</title></rect>
+<text x="303.0" y="17.0" font-size="12" font-weight="700" fill="#fff">VRT</text>
+<text x="303.0" y="32.0" font-size="10" fill="#ffffffcc">5.1%</text>
+<rect class="mark" x="393.8" y="0.0" width="93.8" height="129.2" fill="var(--muted)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>STM &#8212; 4.98% of equity &#8212; $1,721 &#8212; Analog/Industrial Semis</title></rect>
+<text x="399.8" y="17.0" font-size="12" font-weight="700" fill="#fff">STM</text>
+<text x="399.8" y="32.0" font-size="10" fill="#ffffffcc">5.0%</text>
+<rect class="mark" x="487.6" y="0.0" width="93.5" height="129.2" fill="var(--cl-semis)" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>TER &#8212; 4.97% of equity &#8212; $1,716 &#8212; AI Semis/Fabs  (OVER RISK CAP)</title></rect>
+<text x="493.6" y="17.0" font-size="12" font-weight="700" fill="#fff">TER</text>
+<text x="493.6" y="32.0" font-size="10" fill="#ffffffcc">5.0%</text>
+<rect class="mark" x="581.1" y="0.0" width="90.6" height="129.2" fill="var(--cl-semis)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>ASML &#8212; 4.82% of equity &#8212; $1,663 &#8212; AI Semis/Fabs</title></rect>
+<text x="587.1" y="17.0" font-size="12" font-weight="700" fill="#fff">ASML</text>
+<text x="587.1" y="32.0" font-size="10" fill="#ffffffcc">4.8%</text>
+<rect class="mark" x="671.8" y="0.0" width="88.2" height="129.2" fill="var(--cl-power)" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>BE &#8212; 4.69% of equity &#8212; $1,618 &#8212; AI Power/Cooling/DC Infra  (OVER RISK CAP)</title></rect>
+<text x="677.8" y="17.0" font-size="12" font-weight="700" fill="#fff">BE</text>
+<text x="677.8" y="32.0" font-size="10" fill="#ffffffcc">4.7%</text>
+<rect class="mark" x="0.0" y="129.2" width="107.1" height="95.7" fill="var(--cl-networking)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>ALAB &#8212; 4.22% of equity &#8212; $1,456 &#8212; AI Networking/Optics</title></rect>
+<text x="6.0" y="146.2" font-size="12" font-weight="700" fill="#fff">ALAB</text>
+<text x="6.0" y="161.2" font-size="10" fill="#ffffffcc">4.2%</text>
+<rect class="mark" x="107.1" y="129.2" width="103.8" height="95.7" fill="var(--cl-memory)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>MU &#8212; 4.09% of equity &#8212; $1,410 &#8212; AI Memory/Storage</title></rect>
+<text x="113.1" y="146.2" font-size="12" font-weight="700" fill="#fff">MU</text>
+<text x="113.1" y="161.2" font-size="10" fill="#ffffffcc">4.1%</text>
+<rect class="mark" x="210.9" y="129.2" width="99.5" height="95.7" fill="var(--cl-semis)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>AMAT &#8212; 3.92% of equity &#8212; $1,352 &#8212; AI Semis/Fabs</title></rect>
+<text x="216.9" y="146.2" font-size="12" font-weight="700" fill="#fff">AMAT</text>
+<text x="216.9" y="161.2" font-size="10" fill="#ffffffcc">3.9%</text>
+<rect class="mark" x="310.4" y="129.2" width="96.9" height="95.7" fill="var(--cl-semis)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>INTC &#8212; 3.81% of equity &#8212; $1,316 &#8212; AI Semis/Fabs</title></rect>
+<text x="316.4" y="146.2" font-size="12" font-weight="700" fill="#fff">INTC</text>
+<text x="316.4" y="161.2" font-size="10" fill="#ffffffcc">3.8%</text>
+<rect class="mark" x="407.3" y="129.2" width="96.8" height="95.7" fill="var(--cl-hyperscaler)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>GOOG &#8212; 3.81% of equity &#8212; $1,315 &#8212; Compute/Hyperscaler</title></rect>
+<text x="413.3" y="146.2" font-size="12" font-weight="700" fill="#fff">GOOG</text>
+<text x="413.3" y="161.2" font-size="10" fill="#ffffffcc">3.8%</text>
+<rect class="mark" x="504.1" y="129.2" width="89.9" height="95.7" fill="var(--cl-semis)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>TSM &#8212; 3.54% of equity &#8212; $1,222 &#8212; AI Semis/Fabs</title></rect>
+<text x="510.1" y="146.2" font-size="12" font-weight="700" fill="#fff">TSM</text>
+<text x="510.1" y="161.2" font-size="10" fill="#ffffffcc">3.5%</text>
+<rect class="mark" x="594.0" y="129.2" width="85.8" height="95.7" fill="var(--cl-networking)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>GLW &#8212; 3.38% of equity &#8212; $1,167 &#8212; AI Networking/Optics</title></rect>
+<text x="600.0" y="146.2" font-size="12" font-weight="700" fill="#fff">GLW</text>
+<text x="600.0" y="161.2" font-size="10" fill="#ffffffcc">3.4%</text>
+<rect class="mark" x="679.8" y="129.2" width="80.2" height="95.7" fill="var(--cl-networking)" fill-opacity="0.85" stroke="var(--critical)" stroke-width="2.5"><title>COHR &#8212; 3.16% of equity &#8212; $1,090 &#8212; AI Networking/Optics  (OVER RISK CAP)</title></rect>
+<text x="685.8" y="146.2" font-size="12" font-weight="700" fill="#fff">COHR</text>
+<text x="685.8" y="161.2" font-size="10" fill="#ffffffcc">3.2%</text>
+<rect class="mark" x="0.0" y="225.0" width="93.6" height="81.5" fill="var(--cl-semis)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>NVDA &#8212; 3.14% of equity &#8212; $1,082 &#8212; AI Semis/Fabs</title></rect>
+<text x="6.0" y="242.0" font-size="12" font-weight="700" fill="#fff">NVDA</text>
+<text x="6.0" y="257.0" font-size="10" fill="#ffffffcc">3.1%</text>
+<rect class="mark" x="93.6" y="225.0" width="87.4" height="81.5" fill="var(--cl-hyperscaler)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>NBIS &#8212; 2.93% of equity &#8212; $1,011 &#8212; Compute/Hyperscaler</title></rect>
+<text x="99.6" y="242.0" font-size="12" font-weight="700" fill="#fff">NBIS</text>
+<text x="99.6" y="257.0" font-size="10" fill="#ffffffcc">2.9%</text>
+<rect class="mark" x="181.0" y="225.0" width="79.8" height="81.5" fill="var(--cl-semis)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>AMD &#8212; 2.67% of equity &#8212; $923 &#8212; AI Semis/Fabs</title></rect>
+<text x="187.0" y="242.0" font-size="12" font-weight="700" fill="#fff">AMD</text>
+<text x="187.0" y="257.0" font-size="10" fill="#ffffffcc">2.7%</text>
+<rect class="mark" x="260.8" y="225.0" width="76.7" height="81.5" fill="var(--cl-semis)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>LRCX &#8212; 2.57% of equity &#8212; $887 &#8212; AI Semis/Fabs</title></rect>
+<text x="266.8" y="242.0" font-size="12" font-weight="700" fill="#fff">LRCX</text>
+<text x="266.8" y="257.0" font-size="10" fill="#ffffffcc">2.6%</text>
+<rect class="mark" x="337.5" y="225.0" width="76.4" height="81.5" fill="var(--cl-memory)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>WDC &#8212; 2.56% of equity &#8212; $883 &#8212; AI Memory/Storage</title></rect>
+<text x="343.5" y="242.0" font-size="12" font-weight="700" fill="#fff">WDC</text>
+<text x="343.5" y="257.0" font-size="10" fill="#ffffffcc">2.6%</text>
+<rect class="mark" x="413.9" y="225.0" width="76.2" height="81.5" fill="var(--cl-compute-oem)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>CLS &#8212; 2.55% of equity &#8212; $882 &#8212; Compute/Hyperscaler OEM</title></rect>
+<text x="419.9" y="242.0" font-size="12" font-weight="700" fill="#fff">CLS</text>
+<text x="419.9" y="257.0" font-size="10" fill="#ffffffcc">2.6%</text>
+<rect class="mark" x="490.1" y="225.0" width="74.4" height="81.5" fill="var(--cl-semis)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>KLAC &#8212; 2.49% of equity &#8212; $861 &#8212; AI Semis/Fabs</title></rect>
+<text x="496.1" y="242.0" font-size="12" font-weight="700" fill="#fff">KLAC</text>
+<text x="496.1" y="257.0" font-size="10" fill="#ffffffcc">2.5%</text>
+<rect class="mark" x="564.5" y="225.0" width="69.8" height="81.5" fill="var(--cl-memory)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>SKHY &#8212; 2.34% of equity &#8212; $807 &#8212; AI Memory/Storage</title></rect>
+<text x="570.5" y="242.0" font-size="12" font-weight="700" fill="#fff">SKHY</text>
+<text x="570.5" y="257.0" font-size="10" fill="#ffffffcc">2.3%</text>
+<rect class="mark" x="634.3" y="225.0" width="62.9" height="81.5" fill="var(--cl-hyperscaler)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>IREN &#8212; 2.11% of equity &#8212; $728 &#8212; Compute/Hyperscaler</title></rect>
+<text x="640.3" y="242.0" font-size="12" font-weight="700" fill="#fff">IREN</text>
+<text x="640.3" y="257.0" font-size="10" fill="#ffffffcc">2.1%</text>
+<rect class="mark" x="697.2" y="225.0" width="62.8" height="81.5" fill="var(--cl-networking)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>AVGO &#8212; 2.10% of equity &#8212; $726 &#8212; AI Networking/Optics</title></rect>
+<text x="703.2" y="242.0" font-size="12" font-weight="700" fill="#fff">AVGO</text>
+<text x="703.2" y="257.0" font-size="10" fill="#ffffffcc">2.1%</text>
+<rect class="mark" x="0.0" y="306.5" width="309.1" height="13.5" fill="var(--cl-power)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>FSLR &#8212; 1.72% of equity &#8212; $594 &#8212; AI Power/Cooling/DC Infra</title></rect>
+<rect class="mark" x="309.1" y="306.5" width="258.9" height="13.5" fill="var(--cl-hyperscaler)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>MSFT &#8212; 1.44% of equity &#8212; $497 &#8212; Compute/Hyperscaler</title></rect>
+<rect class="mark" x="568.1" y="306.5" width="190.3" height="13.5" fill="var(--cl-compute-oem)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>SMCI &#8212; 1.06% of equity &#8212; $366 &#8212; Compute/Hyperscaler OEM</title></rect>
+<rect class="mark" x="758.3" y="306.5" width="1.7" height="13.5" fill="var(--cl-networking)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>CIEN &#8212; 0.01% of equity &#8212; $3 &#8212; AI Networking/Optics</title></rect>
+<rect class="mark" x="0.0" y="320.0" width="760.0" height="0.0" fill="var(--cl-semis)" fill-opacity="0.85" stroke="var(--surface-1)" stroke-width="1.5"><title>QCOM &#8212; 0.00% of equity &#8212; $0 &#8212; AI Semis/Fabs</title></rect>
+</svg><div class="viz-note">Not shown: a correlation heatmap. On a book this concentrated in one factor every pair correlates near 1.0 -- it would render as a wall of red saying nothing a treemap doesn't already say faster.</div></div></details>
+<details class="panel"><summary class="phead"><h2>Clusters</h2><span class="pill">ceiling on book &middot; floor on equity &middot; click a cluster to see its holdings</span></summary><div class="pbody"><div class="viz"><div class="donut-row"><svg class="viz-svg donut-svg" viewBox="0 0 220 220" width="220" height="220" role="img" aria-label="Portfolio weight by cluster, share of equity">
+<path class="mark" d="M110.00,10.00 A100,100 0 0 1 200.67,152.17 L166.22,136.15 A62,62 0 0 0 110.00,48.00 Z" fill="var(--cl-semis)" stroke="var(--surface-1)" stroke-width="2" data-label="AI Semis/Fabs" data-pct="31.9"><title>AI Semis/Fabs: 31.93% of equity</title></path>
+<path class="mark" d="M200.67,152.17 A100,100 0 0 1 86.02,207.08 L95.13,170.19 A62,62 0 0 0 166.22,136.15 Z" fill="var(--cl-power)" stroke="var(--surface-1)" stroke-width="2" data-label="AI Power/Cooling/DC Infra" data-pct="21.9"><title>AI Power/Cooling/DC Infra: 21.93% of equity</title></path>
+<path class="mark" d="M86.02,207.08 A100,100 0 0 1 11.62,127.93 L49.00,121.12 A62,62 0 0 0 95.13,170.19 Z" fill="var(--cl-networking)" stroke="var(--surface-1)" stroke-width="2" data-label="AI Networking/Optics" data-pct="18.3"><title>AI Networking/Optics: 18.28% of equity</title></path>
+<path class="mark" d="M11.62,127.93 A100,100 0 0 1 20.67,65.05 L54.62,82.13 A62,62 0 0 0 49.00,121.12 Z" fill="var(--cl-hyperscaler)" stroke="var(--surface-1)" stroke-width="2" data-label="Compute/Hyperscaler" data-pct="10.3"><title>Compute/Hyperscaler: 10.29% of equity</title></path>
+<path class="mark" d="M20.67,65.05 A100,100 0 0 1 58.57,24.24 L78.11,56.83 A62,62 0 0 0 54.62,82.13 Z" fill="var(--cl-memory)" stroke="var(--surface-1)" stroke-width="2" data-label="AI Memory/Storage" data-pct="9.0"><title>AI Memory/Storage: 8.98% of equity</title></path>
+<path class="mark" d="M58.57,24.24 A100,100 0 0 1 87.49,12.57 L96.05,49.59 A62,62 0 0 0 78.11,56.83 Z" fill="var(--muted)" stroke="var(--surface-1)" stroke-width="2" data-label="Analog/Industrial Semis" data-pct="5.0"><title>Analog/Industrial Semis: 4.98% of equity</title></path>
+<path class="mark" d="M87.49,12.57 A100,100 0 0 1 110.00,10.00 L110.00,48.00 A62,62 0 0 0 96.05,49.59 Z" fill="var(--cl-compute-oem)" stroke="var(--surface-1)" stroke-width="2" data-label="Compute/Hyperscaler OEM" data-pct="3.6"><title>Compute/Hyperscaler OEM: 3.61% of equity</title></path>
+<text id="dclusters-pct" x="110" y="107" text-anchor="middle" font-size="19" font-weight="600" fill="var(--ink-1)">32%</text>
+<text id="dclusters-sub" x="110" y="125" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">AI Semis/Fabs</text>
+</svg><div class="donut-legend"><span><i style="background:var(--cl-semis)"></i>AI Semis/Fabs 31.9%</span><span><i style="background:var(--cl-power)"></i>AI Power/Cooling/DC Infra 21.9%</span><span><i style="background:var(--cl-networking)"></i>AI Networking/Optics 18.3%</span><span><i style="background:var(--cl-hyperscaler)"></i>Compute/Hyperscaler 10.3%</span><span><i style="background:var(--cl-memory)"></i>AI Memory/Storage 9.0%</span><span><i style="background:var(--muted)"></i>Analog/Industrial Semis 5.0%</span><span><i style="background:var(--cl-compute-oem)"></i>Compute/Hyperscaler OEM 3.6%</span></div></div><p class="note" style="margin-top:10px">Hover a wedge for the exact share. Full band/target/breach detail is in the Clusters panel above this chart.</p></div><div style="display:flex;flex-direction:column;gap:0"><details class="clus-row"><summary><div class="clus-top"><span class="clus-name">AI Semis/Fabs<i>10 held</i></span><span class="clus-pct">31.93%</span></div><div class="clus-bar"><div class="clus-band-zone" style="left:60.6%;width:26.4%"></div><div class="clus-fill" style="width:84.1%"></div><div class="clus-target" style="left:73.8%"></div></div><div class="clus-sub">book 27.59% &middot; band [23,33]% &middot; target 28%</div></summary><div class="body"><div class="scroll"><table><thead><tr><th>Name</th><th>Wt</th><th>Price</th><th>Thesis</th><th>Signals</th><th></th></tr></thead><tbody><tr><td class="name">TER</td><td>4.97%</td><td>$350.92</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td><span class="neg" title="1.10x its ATR risk cap">&#9888;&#65039;</span></td></tr><tr><td class="name">ASML</td><td>4.82%</td><td>$1,701.28</td><td class="txt"><span class="dot-w" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>watch</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">AMAT</td><td>3.92%</td><td>$459.81</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="peer-tag lag">PEER LAGGARD</span><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">INTC</td><td>3.81%</td><td>$89.79</td><td class="txt"><span class="dot-w" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>watch</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">TSM</td><td>3.54%</td><td>$416.61</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span><span class="tick g" style="margin-left:4px">NEW TAILWINDS</span></td><td></td></tr><tr><td class="name">NVDA</td><td>3.14%</td><td>$221.47</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span><span class="tick " style="margin-left:4px">EARNINGS PROXIMITY</span></td><td></td></tr><tr><td class="name">AMD</td><td>2.67%</td><td>$472.19</td><td class="txt"><span class="dot-w" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>watch</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span><span class="tick " style="margin-left:4px">POLICY IMPACT</span></td><td></td></tr><tr><td class="name">LRCX</td><td>2.57%</td><td>$302.43</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">KLAC</td><td>2.49%</td><td>$176.09</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">QCOM</td><td>0.00%</td><td>$170.60</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"></td><td></td></tr></tbody></table></div><p class="note" style="margin-top:8px">No longer held / tracked only: <span class="tick gone" style="margin-right:4px">AMKR</span></p></div></details><details class="clus-row"><summary><div class="clus-top"><span class="clus-name">AI Power/Cooling/DC Infra<i>4 held</i></span><span class="clus-pct">21.93%</span></div><div class="clus-bar"><div class="clus-band-zone" style="left:47.4%;width:39.5%"></div><div class="clus-fill" style="width:86.7%"></div><div class="clus-target" style="left:67.2%"></div></div><div class="clus-sub">book 18.95% &middot; band [12,22]% &middot; target 17%</div></summary><div class="body"><div class="scroll"><table><thead><tr><th>Name</th><th>Wt</th><th>Price</th><th>Thesis</th><th>Signals</th><th></th></tr></thead><tbody><tr><td class="name">GEV</td><td>10.37%</td><td>$914.76</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td><span class="neg" title="1.58x its ATR risk cap">&#9888;&#65039;</span></td></tr><tr><td class="name">VRT</td><td>5.14%</td><td>$259.52</td><td class="txt"><span class="dot-w" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>watch</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">BE</td><td>4.69%</td><td>$206.94</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td><span class="neg" title="1.32x its ATR risk cap">&#9888;&#65039;</span></td></tr><tr><td class="name">FSLR</td><td>1.72%</td><td>$202.53</td><td class="txt"><span class="dot-w" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>watch</td><td class="txt"><span class="peer-tag lag">PEER LAGGARD</span><span class="tick b" style="margin-left:4px">STRONG DOWNTREND</span><span class="tick g" style="margin-left:4px">OVERSOLD BOUNCE</span><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr></tbody></table></div><p class="note" style="margin-top:8px">No longer held / tracked only: <span class="tick gone" style="margin-right:4px">CEG</span></p></div></details><details class="clus-row"><summary><div class="clus-top"><span class="clus-name">AI Networking/Optics<i>6 held</i></span><span class="clus-pct">18.28%</span></div><div class="clus-bar"><div class="clus-band-zone" style="left:45.5%;width:41.4%"></div><div class="clus-fill" style="width:75.7%"></div><div class="clus-target" style="left:66.3%"></div></div><div class="clus-sub">book 15.79% &middot; band [11,21]% &middot; target 16%</div></summary><div class="body"><div class="scroll"><table><thead><tr><th>Name</th><th>Wt</th><th>Price</th><th>Thesis</th><th>Signals</th><th></th></tr></thead><tbody><tr><td class="name">MRVL</td><td>5.41%</td><td>$212.32</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td><span class="neg" title="1.12x its ATR risk cap">&#9888;&#65039;</span></td></tr><tr><td class="name">ALAB</td><td>4.22%</td><td>$297.90</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="peer-tag lag">PEER LAGGARD</span><span class="tick b" style="margin-left:4px">STRONG DOWNTREND</span><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">GLW</td><td>3.38%</td><td>$149.19</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">COHR</td><td>3.16%</td><td>$278.69</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td><span class="neg" title="1.06x its ATR risk cap">&#9888;&#65039;</span></td></tr><tr><td class="name">AVGO</td><td>2.10%</td><td>$371.49</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">CIEN</td><td>0.01%</td><td>$383.44</td><td class="txt"><span class="dot-w" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>watch</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr></tbody></table></div><p class="note" style="margin-top:8px">No longer held / tracked only: <span class="tick gone" style="margin-right:4px">LITE</span></p></div></details><details class="clus-row"><summary><div class="clus-top"><span class="clus-name">Compute/Hyperscaler<i>4 held</i></span><span class="clus-pct">10.29%</span></div><div class="clus-bar"><div class="clus-band-zone" style="left:43.5%;width:43.5%"></div><div class="clus-fill" style="width:44.7%"></div><div class="clus-target" style="left:65.2%"></div></div><div class="clus-sub">book 8.89% &middot; band [10,20]% &middot; target 15%</div></summary><div class="body"><div class="scroll"><table><thead><tr><th>Name</th><th>Wt</th><th>Price</th><th>Thesis</th><th>Signals</th><th></th></tr></thead><tbody><tr><td class="name">GOOG</td><td>3.81%</td><td>$336.45</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="peer-tag lag">PEER LAGGARD</span><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">NBIS</td><td>2.93%</td><td>$206.96</td><td class="txt"><span class="dot-w" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>watch</td><td class="txt"></td><td><span class="neg" title="1.02x its ATR risk cap">&#9888;&#65039;</span></td></tr><tr><td class="name">IREN</td><td>2.11%</td><td>$37.23</td><td class="txt"><span class="dot-w" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>watch</td><td class="txt"><span class="tick g" style="margin-left:4px">OVERSOLD BOUNCE</span><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">MSFT</td><td>1.44%</td><td>$508.87</td><td class="txt"><span class="dot-w" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>watch</td><td class="txt"><span class="tick g" style="margin-left:4px">NEW TAILWINDS</span></td><td></td></tr></tbody></table></div><p class="note" style="margin-top:8px">No longer held / tracked only: <span class="tick gone" style="margin-right:4px">AMZN</span></p></div></details><details class="clus-row"><summary><div class="clus-top"><span class="clus-name">AI Memory/Storage<i>3 held</i></span><span class="clus-pct">8.98%</span></div><div class="clus-bar"><div class="clus-band-zone" style="left:32.6%;width:54.3%"></div><div class="clus-fill" style="width:48.8%"></div><div class="clus-target" style="left:54.3%"></div></div><div class="clus-sub">book 7.76% &middot; band [6,16]% &middot; target 10%</div></summary><div class="body"><div class="scroll"><table><thead><tr><th>Name</th><th>Wt</th><th>Price</th><th>Thesis</th><th>Signals</th><th></th></tr></thead><tbody><tr><td class="name">MU</td><td>4.09%</td><td>$961.71</td><td class="txt"><span class="dot-w" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>watch</td><td class="txt"><span class="peer-tag lead">PEER LEADER</span><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">WDC</td><td>2.56%</td><td>$451.95</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">SKHY</td><td>2.34%</td><td>$165.09</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr></tbody></table></div></div></details><details class="clus-row"><summary><div class="clus-top"><span class="clus-name">Analog/Industrial Semis<i>1 held</i></span><span class="clus-pct">4.98%</span></div><div class="clus-bar"><div class="clus-band-zone" style="left:0.0%;width:87.0%"></div><div class="clus-fill" style="width:54.2%"></div><div class="clus-target" style="left:43.5%"></div></div><div class="clus-sub">book 4.31% &middot; band [0,8]% &middot; target 4%</div></summary><div class="body"><div class="scroll"><table><thead><tr><th>Name</th><th>Wt</th><th>Price</th><th>Thesis</th><th>Signals</th><th></th></tr></thead><tbody><tr><td class="name">STM</td><td>4.98%</td><td>$50.30</td><td class="txt"><span class="dot-w" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>watch</td><td class="txt"><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr></tbody></table></div></div></details><details class="clus-row"><summary><div class="clus-top"><span class="clus-name">Compute/Hyperscaler OEM<i>2 held</i></span><span class="clus-pct">3.61%</span></div><div class="clus-bar"><div class="clus-band-zone" style="left:0.0%;width:87.0%"></div><div class="clus-fill" style="width:39.3%"></div><div class="clus-target" style="left:32.6%"></div></div><div class="clus-sub">book 3.12% &middot; band [0,8]% &middot; target 3%</div></summary><div class="body"><div class="scroll"><table><thead><tr><th>Name</th><th>Wt</th><th>Price</th><th>Thesis</th><th>Signals</th><th></th></tr></thead><tbody><tr><td class="name">CLS</td><td>2.55%</td><td>$300.33</td><td class="txt"><span class="dot-g" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>strengthening</td><td class="txt"><span class="peer-tag lag">PEER LAGGARD</span><span class="tick " style="margin-left:4px">TARGET GAP</span></td><td></td></tr><tr><td class="name">SMCI</td><td>1.06%</td><td>$37.40</td><td class="txt"><span class="dot-w" style="display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px"></span>watch</td><td class="txt"><span class="peer-tag lead">PEER LEADER</span></td><td></td></tr></tbody></table></div></div></details><details class="clus-row"><summary><div class="clus-top"><span class="clus-name">Diversified/Regional ETF<i>0 held</i></span><span class="clus-pct">0.00%</span></div><div class="clus-bar"><div class="clus-band-zone" style="left:0.0%;width:87.0%"></div><div class="clus-fill" style="width:0.0%"></div><div class="clus-target" style="left:21.7%"></div></div><div class="clus-sub">book 0.00% &middot; band [0,8]% &middot; target 2%</div></summary><div class="body"><p class="note">No held ticker maps to this cluster.</p><p class="note" style="margin-top:8px">No longer held / tracked only: <span class="tick gone" style="margin-right:4px">FLTW</span></p></div></details><details class="clus-row"><summary><div class="clus-top"><span class="clus-name">Enterprise Software<i>0 held</i></span><span class="clus-pct">0.00%</span></div><div class="clus-bar"><div class="clus-band-zone" style="left:0.0%;width:87.0%"></div><div class="clus-fill" style="width:0.0%"></div><div class="clus-target" style="left:0.0%"></div></div><div class="clus-sub">book 0.00% &middot; band [0,5]% &middot; target 0%</div></summary><div class="body"><p class="note">No held ticker maps to this cluster.</p></div></details><details class="clus-row"><summary><div class="clus-top"><span class="clus-name">Critical Minerals/Rare Earth<i>0 held</i></span><span class="clus-pct">0.00%</span></div><div class="clus-bar"><div class="clus-band-zone" style="left:0.0%;width:87.0%"></div><div class="clus-fill" style="width:0.0%"></div><div class="clus-target" style="left:0.0%"></div></div><div class="clus-sub">book 0.00% &middot; band [0,5]% &middot; target 0%</div></summary><div class="body"><p class="note">No held ticker maps to this cluster.</p></div></details><details class="clus-row"><summary><div class="clus-top"><span class="clus-name">Financials/Alt-Asset Diversifier<i>0 held</i></span><span class="clus-pct">0.00%</span></div><div class="clus-bar"><div class="clus-band-zone" style="left:0.0%;width:87.0%"></div><div class="clus-fill" style="width:0.0%"></div><div class="clus-target" style="left:43.5%"></div></div><div class="clus-sub">book 0.00% &middot; band [0,8]% &middot; target 4%</div></summary><div class="body"><p class="note">No held ticker maps to this cluster.</p><p class="note" style="margin-top:8px">No longer held / tracked only: <span class="tick gone" style="margin-right:4px">BX</span></p></div></details><details class="clus-row"><summary><div class="clus-top"><span class="clus-name">China Internet/Diversifier<i>0 held</i></span><span class="clus-pct">0.00%</span></div><div class="clus-bar"><div class="clus-band-zone" style="left:0.0%;width:87.0%"></div><div class="clus-fill" style="width:0.0%"></div><div class="clus-target" style="left:17.4%"></div></div><div class="clus-sub">book 0.00% &middot; band [0,5]% &middot; target 1%</div></summary><div class="body"><p class="note">No held ticker maps to this cluster.</p><p class="note" style="margin-top:8px">No longer held / tracked only: <span class="tick gone" style="margin-right:4px">BABA</span></p></div></details></div></div></details>
+<details class="panel"><summary class="phead"><h2>De-risk queue<span class="sub">ranked by damage-if-a-drawdown-comes, not by prediction</span></h2><span class="pill bad">BROAD STRETCH</span></summary><div class="pbody"><p class="note">9 names both ahead of SMH and up on the month -- broad strength. This is the regime the queue is built for; work the top of it. (7 more beat SMH but are still down absolutely -- fell less, nothing to give back, deliberately not counted as stretched.)</p><div class="tw"><table class="tbl"><thead><tr><th>#</th><th>Name</th><th>Score</th><th>Fragility</th><th>Stretch</th><th>Thesis</th><th>1m abs</th><th>vs SMH</th><th>cap</th><th>Value</th><th></th></tr></thead><tbody><tr><td class="num">1</td><td><b>BE</b></td><td class="num"><b>107</b></td><td><span class="mbar"><i class="f" style="width:70%"></i></span></td><td><span class="mbar"><i class="s" style="width:54%"></i></span></td><td><span class="pill g">STRENGTHENING</span></td><td class="num">&mdash;</td><td class="num">+19.4</td><td class="num">1.32x</td><td class="num">$1,656</td><td class="sub"><div class="decide" data-surface="derisk" data-element-id="BE"><button type="button" class="b-disagree" data-decision="disagree">Disagree — not fragile</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></td></tr><tr><td class="num">2</td><td><b>GEV</b></td><td class="num"><b>100</b></td><td><span class="mbar"><i class="f" style="width:100%"></i></span></td><td><span class="mbar"><i class="s" style="width:0%"></i></span></td><td><span class="pill g">STRENGTHENING</span></td><td class="num">-4.1%</td><td class="num">-7.7</td><td class="num">1.58x</td><td class="num">$3,664</td><td class="sub"><div class="decide" data-surface="derisk" data-element-id="GEV"><button type="button" class="b-disagree" data-decision="disagree">Disagree — not fragile</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></td></tr><tr><td class="num">3</td><td><b>MRVL</b></td><td class="num"><b>98</b></td><td><span class="mbar"><i class="f" style="width:50%"></i></span></td><td><span class="mbar"><i class="s" style="width:95%"></i></span></td><td><span class="pill g">STRENGTHENING</span></td><td class="num">+6.1%</td><td class="num">+34.1</td><td class="num">1.12x</td><td class="num">$1,911</td><td class="sub"><div class="decide" data-surface="derisk" data-element-id="MRVL"><button type="button" class="b-disagree" data-decision="disagree">Disagree — not fragile</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></td></tr><tr><td class="num">4</td><td><b>NBIS</b></td><td class="num"><b>81</b></td><td><span class="mbar"><i class="f" style="width:42%"></i></span></td><td><span class="mbar"><i class="s" style="width:94%"></i></span></td><td><span class="pill w">WATCH</span></td><td class="num">+6.9%</td><td class="num">+33.8</td><td class="num">1.02x</td><td class="num">$1,035</td><td class="sub"><div class="decide" data-surface="derisk" data-element-id="NBIS"><button type="button" class="b-disagree" data-decision="disagree">Disagree — not fragile</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></td></tr><tr><td class="num">5</td><td><b>COHR</b></td><td class="num"><b>69</b></td><td><span class="mbar"><i class="f" style="width:45%"></i></span></td><td><span class="mbar"><i class="s" style="width:54%"></i></span></td><td><span class="pill g">STRENGTHENING</span></td><td class="num">+10.3%</td><td class="num">+19.4</td><td class="num">1.06x</td><td class="num">$1,115</td><td class="sub"><div class="decide" data-surface="derisk" data-element-id="COHR"><button type="button" class="b-disagree" data-decision="disagree">Disagree — not fragile</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></td></tr><tr><td class="num">6</td><td><b>TER</b></td><td class="num"><b>53</b></td><td><span class="mbar"><i class="f" style="width:49%"></i></span></td><td><span class="mbar"><i class="s" style="width:8%"></i></span></td><td><span class="pill g">STRENGTHENING</span></td><td class="num">+8.3%</td><td class="num">+2.8</td><td class="num">1.10x</td><td class="num">$1,756</td><td class="sub"><div class="decide" data-surface="derisk" data-element-id="TER"><button type="button" class="b-disagree" data-decision="disagree">Disagree — not fragile</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></td></tr><tr><td class="num">7</td><td><b>IREN</b></td><td class="num"><b>40</b></td><td><span class="mbar"><i class="f" style="width:24%"></i></span></td><td><span class="mbar"><i class="s" style="width:68%"></i></span></td><td><span class="pill w">WATCH</span></td><td class="num">&mdash;</td><td class="num">+24.6</td><td class="num">0.60x</td><td class="num">$745</td><td class="sub"><div class="decide" data-surface="derisk" data-element-id="IREN"><button type="button" class="b-disagree" data-decision="disagree">Disagree — not fragile</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></td></tr><tr><td class="num">8</td><td><b>VRT</b></td><td class="num"><b>38</b></td><td><span class="mbar"><i class="f" style="width:32%"></i></span></td><td><span class="mbar"><i class="s" style="width:20%"></i></span></td><td><span class="pill w">WATCH</span></td><td class="num">&mdash;</td><td class="num">+7.1</td><td class="num">0.80x</td><td class="num">$1,817</td><td class="sub"><div class="decide" data-surface="derisk" data-element-id="VRT"><button type="button" class="b-disagree" data-decision="disagree">Disagree — not fragile</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></td></tr><tr><td class="num">9</td><td><b>GLW</b></td><td class="num"><b>34</b></td><td><span class="mbar"><i class="f" style="width:27%"></i></span></td><td><span class="mbar"><i class="s" style="width:26%"></i></span></td><td><span class="pill g">STRENGTHENING</span></td><td class="num">&mdash;</td><td class="num">+9.5</td><td class="num">0.68x</td><td class="num">$1,194</td><td class="sub"><div class="decide" data-surface="derisk" data-element-id="GLW"><button type="button" class="b-disagree" data-decision="disagree">Disagree — not fragile</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></td></tr><tr><td class="num">10</td><td><b>MU</b></td><td class="num"><b>32</b></td><td><span class="mbar"><i class="f" style="width:32%"></i></span></td><td><span class="mbar"><i class="s" style="width:0%"></i></span></td><td><span class="pill w">WATCH</span></td><td class="num">-4.7%</td><td class="num">+12.9</td><td class="num">0.80x</td><td class="num">$1,443</td><td class="sub"><div class="decide" data-surface="derisk" data-element-id="MU"><button type="button" class="b-disagree" data-decision="disagree">Disagree — not fragile</button><input class="reason" type="text" placeholder="reason (optional)" maxlength="200"></div></td></tr></tbody></table></div><details><summary>How this is scored</summary><div class="body"><b>Fragility</b> &mdash; share of the book&rsquo;s total open risk (already embeds ATR &times; position size) multiplied by how far the position sits over its own 2&times;ATR cap. This is <i>how hard it hits</i>, and it is the dominant term.<br><b>Stretch</b> &mdash; 1-month return relative to SMH, but <i>only counted when the name is also up in absolute terms</i>. Beating a benchmark that is itself falling means the name merely fell less; there is no gain to give back, so it is not a trim candidate. Relative rather than absolute deliberately: in a ~100% single-factor book an absolute RSI/52-week screen flags all-or-nothing.<br><b>Thesis</b> &mdash; the current per-name thesis status from smith-thesis. This is what turns a fragility/stretch reading into a decision: a fragile, stretched name on a STRENGTHENING or INTACT thesis is a candidate to trim into strength and stay long; the same fragility on a WATCH or BROKEN thesis is a candidate to cut, not just trim.<br>Sentiment (book-wide urgency dial, band &rarr; multiplier) still scales the whole queue behind the scenes but is no longer shown as its own column &mdash; it cannot manufacture stretch that does not exist per name, so it belongs in the score, not the table.<br><br><b>This queue is shadow-scored and does not drive proposals.</b> Each deep run logs its top names to derisk_journal.json and scores them at 30/90d. It earns a vote in sizing decisions only once it has a real hit rate.</div></details></div></details>
+<details class="panel"><summary class="phead"><h2>Risk-cap breaches</h2><span class="pill w">6 names</span></summary><div class="pbody"><div class="scroll"><table><thead><tr><th>Name</th><th>Held</th><th>Cap</th><th>&times;</th><th>Excess</th></tr></thead><tbody><tr><td class="name">GEV</td><td>$3,664</td><td class="blank">$2,317</td><td class="neg">1.58x</td><td class="neg" style="font-weight:640">$1,347</td></tr><tr><td class="name">BE</td><td>$1,656</td><td class="blank">$1,253</td><td class="neg">1.32x</td><td class="neg" style="font-weight:640">$403</td></tr><tr><td class="name">MRVL</td><td>$1,911</td><td class="blank">$1,704</td><td class="neg">1.12x</td><td class="neg" style="font-weight:640">$207</td></tr><tr><td class="name">TER</td><td>$1,756</td><td class="blank">$1,590</td><td class="neg">1.10x</td><td class="neg" style="font-weight:640">$165</td></tr><tr><td class="name">COHR</td><td>$1,115</td><td class="blank">$1,053</td><td class="neg">1.06x</td><td class="neg" style="font-weight:640">$61</td></tr><tr><td class="name">NBIS</td><td>$1,035</td><td class="blank">$1,011</td><td class="neg">1.02x</td><td class="neg" style="font-weight:640">$24</td></tr></tbody></table></div><p class="note">Cap = 0.5% of book &divide; that name's 2&times;ATR20 stop.</p></div></details>
+<details class="panel"><summary class="phead"><h2>Positions<span class="sub">30, grouped by cluster</span></h2></summary><div class="pbody"><div class="viz"><div class="donut-row"><svg class="viz-svg donut-svg" viewBox="0 0 220 220" width="220" height="220" role="img" aria-label="Position weights, share of equity, top holdings">
+<path class="mark" d="M110.00,10.00 A100,100 0 0 1 170.66,30.50 L147.61,60.71 A62,62 0 0 0 110.00,48.00 Z" fill="color-mix(in srgb, var(--equity) 100%, var(--surface-1))" stroke="var(--surface-1)" stroke-width="2" data-label="GEV" data-pct="10.4"><title>GEV: 10.37% of equity</title></path>
+<path class="mark" d="M170.66,30.50 A100,100 0 0 1 193.70,55.28 L161.89,76.07 A62,62 0 0 0 147.61,60.71 Z" fill="color-mix(in srgb, var(--equity) 84%, var(--surface-1))" stroke="var(--surface-1)" stroke-width="2" data-label="MRVL" data-pct="5.4"><title>MRVL: 5.41% of equity</title></path>
+<path class="mark" d="M193.70,55.28 A100,100 0 0 1 206.74,84.69 L169.98,94.31 A62,62 0 0 0 161.89,76.07 Z" fill="color-mix(in srgb, var(--equity) 70%, var(--surface-1))" stroke="var(--surface-1)" stroke-width="2" data-label="VRT" data-pct="5.1"><title>VRT: 5.14% of equity</title></path>
+<path class="mark" d="M206.74,84.69 A100,100 0 0 1 209.84,115.73 L171.90,113.55 A62,62 0 0 0 169.98,94.31 Z" fill="color-mix(in srgb, var(--equity) 58%, var(--surface-1))" stroke="var(--surface-1)" stroke-width="2" data-label="STM" data-pct="5.0"><title>STM: 4.98% of equity</title></path>
+<path class="mark" d="M209.84,115.73 A100,100 0 0 1 203.25,146.13 L167.81,132.40 A62,62 0 0 0 171.90,113.55 Z" fill="color-mix(in srgb, var(--equity) 47%, var(--surface-1))" stroke="var(--surface-1)" stroke-width="2" data-label="TER" data-pct="5.0"><title>TER: 4.97% of equity</title></path>
+<path class="mark" d="M203.25,146.13 A100,100 0 0 1 188.24,172.28 L158.51,148.61 A62,62 0 0 0 167.81,132.40 Z" fill="color-mix(in srgb, var(--equity) 38%, var(--surface-1))" stroke="var(--surface-1)" stroke-width="2" data-label="ASML" data-pct="4.8"><title>ASML: 4.82% of equity</title></path>
+<path class="mark" d="M188.24,172.28 A100,100 0 0 1 166.79,192.31 L145.21,161.03 A62,62 0 0 0 158.51,148.61 Z" fill="color-mix(in srgb, var(--equity) 30%, var(--surface-1))" stroke="var(--surface-1)" stroke-width="2" data-label="BE" data-pct="4.7"><title>BE: 4.69% of equity</title></path>
+<path class="mark" d="M166.79,192.31 A100,100 0 1 1 110.00,10.00 L110.00,48.00 A62,62 0 1 0 145.21,161.03 Z" fill="var(--muted)" stroke="var(--surface-1)" stroke-width="2" data-label="Other (23)" data-pct="59.6"><title>Other (23): 59.61% of equity</title></path>
+<text id="dpositions-pct" x="110" y="107" text-anchor="middle" font-size="19" font-weight="600" fill="var(--ink-1)">10%</text>
+<text id="dpositions-sub" x="110" y="125" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">GEV</text>
+</svg><div class="donut-legend"><span><i style="background:color-mix(in srgb, var(--equity) 100%, var(--surface-1))"></i>GEV 10.4%</span><span><i style="background:color-mix(in srgb, var(--equity) 84%, var(--surface-1))"></i>MRVL 5.4%</span><span><i style="background:color-mix(in srgb, var(--equity) 70%, var(--surface-1))"></i>VRT 5.1%</span><span><i style="background:color-mix(in srgb, var(--equity) 58%, var(--surface-1))"></i>STM 5.0%</span><span><i style="background:color-mix(in srgb, var(--equity) 47%, var(--surface-1))"></i>TER 5.0%</span><span><i style="background:color-mix(in srgb, var(--equity) 38%, var(--surface-1))"></i>ASML 4.8%</span><span><i style="background:color-mix(in srgb, var(--equity) 30%, var(--surface-1))"></i>BE 4.7%</span><span><i style="background:var(--muted)"></i>Other (23) 59.6%</span></div></div><p class="note" style="margin-top:10px">Top 7 by weight; 23 smaller positions folded into Other (59.6%) rather than crowding the wheel with slivers. Exact weights for every position are in the table below.</p></div><details class="pr-more" style="margin-top:4px"><summary>full table, every field</summary><div class="body"><div class="scroll"><table><thead><tr><th>Name</th><th>Qty</th><th>Price</th><th>Value</th><th>Wt</th><th>ATR20</th><th>&beta;</th><th>Stop</th><th>Stop px</th><th>Cap</th><th>Headroom</th></tr></thead><tbody><tr><td class="txt" colspan="4" style="font-weight:640;color:var(--ink-2);padding-top:14px">AI Semis/Fabs <span class="sub">(10)</span></td><td class="blank"><b>31.9%</b></td><td colspan="6" class="blank" style="text-align:left">$11,276</td></tr><tr><td class="name">TER</td><td>5.00273</td><td>350.92</td><td>$1,756</td><td class="blank">4.97%</td><td class="blank">6.28%</td><td class="neg">1.832</td><td>12.6%</td><td>306.84</td><td class="blank">$1,590</td><td class="neg" style="font-weight:640">&minus;$165</td></tr><tr><td class="name">ASML</td><td>1</td><td>1701.28</td><td>$1,701</td><td class="blank">4.82%</td><td class="blank">2.89%</td><td class="">0.926</td><td>5.8%</td><td>1602.95</td><td class="blank">$3,456</td><td class="pos" style="font-weight:640">$1,754</td></tr><tr><td class="name">AMAT</td><td>3.00818</td><td>459.81</td><td>$1,383</td><td class="blank">3.92%</td><td class="blank">4.96%</td><td class="neg">1.648</td><td>9.9%</td><td>414.20</td><td class="blank">$2,013</td><td class="pos" style="font-weight:640">$630</td></tr><tr><td class="name">INTC</td><td>15</td><td>89.79</td><td>$1,347</td><td class="blank">3.81%</td><td class="blank">5.15%</td><td class="neg">1.579</td><td>10.3%</td><td>80.54</td><td class="blank">$1,939</td><td class="pos" style="font-weight:640">$592</td></tr><tr><td class="name">TSM</td><td>3</td><td>416.61</td><td>$1,250</td><td class="blank">3.54%</td><td class="blank">2.42%</td><td class="">0.903</td><td>4.8%</td><td>396.45</td><td class="blank">$4,127</td><td class="pos" style="font-weight:640">$2,877</td></tr><tr><td class="name">NVDA</td><td>5</td><td>221.47</td><td>$1,107</td><td class="blank">3.14%</td><td class="blank">4.36%</td><td class="pos">0.510</td><td>8.7%</td><td>202.15</td><td class="blank">$2,290</td><td class="pos" style="font-weight:640">$1,183</td></tr><tr><td class="name">AMD</td><td>2</td><td>472.19</td><td>$944</td><td class="blank">2.67%</td><td class="blank">4.02%</td><td class="neg">1.566</td><td>8.0%</td><td>434.22</td><td class="blank">$2,484</td><td class="pos" style="font-weight:640">$1,540</td></tr><tr><td class="name">LRCX</td><td>3</td><td>302.43</td><td>$907</td><td class="blank">2.57%</td><td class="blank">4.77%</td><td class="neg">1.772</td><td>9.5%</td><td>273.58</td><td class="blank">$2,094</td><td class="pos" style="font-weight:640">$1,186</td></tr><tr><td class="name">KLAC</td><td>5</td><td>176.09</td><td>$880</td><td class="blank">2.49%</td><td class="blank">4.56%</td><td class="">1.458</td><td>9.1%</td><td>160.03</td><td class="blank">$2,190</td><td class="pos" style="font-weight:640">$1,310</td></tr><tr><td class="name">QCOM</td><td>0.000762</td><td>170.60</td><td>$0</td><td class="blank">0.00%</td><td class="blank">2.91%</td><td class="pos">0.372</td><td>5.8%</td><td>161.04</td><td class="blank">$3,432</td><td class="pos" style="font-weight:640">$3,432</td></tr><tr><td class="txt" colspan="4" style="font-weight:640;color:var(--ink-2);padding-top:14px">AI Memory/Storage <span class="sub">(3)</span></td><td class="blank"><b>9.0%</b></td><td colspan="6" class="blank" style="text-align:left">$3,172</td></tr><tr><td class="name">MU</td><td>1.50036</td><td>961.71</td><td>$1,443</td><td class="blank">4.09%</td><td class="blank">5.50%</td><td class="neg">1.954</td><td>11.0%</td><td>855.92</td><td class="blank">$1,816</td><td class="pos" style="font-weight:640">$373</td></tr><tr><td class="name">WDC</td><td>2</td><td>451.95</td><td>$904</td><td class="blank">2.56%</td><td class="blank">6.95%</td><td class="neg">2.217</td><td>13.9%</td><td>389.13</td><td class="blank">$1,437</td><td class="pos" style="font-weight:640">$533</td></tr><tr><td class="name">SKHY</td><td>5</td><td>165.09</td><td>$825</td><td class="blank">2.34%</td><td class="blank">5.66%</td><td class="neg">2.442</td><td>11.3%</td><td>146.40</td><td class="blank">$1,764</td><td class="pos" style="font-weight:640">$939</td></tr><tr><td class="txt" colspan="4" style="font-weight:640;color:var(--ink-2);padding-top:14px">AI Networking/Optics <span class="sub">(6)</span></td><td class="blank"><b>18.3%</b></td><td colspan="6" class="blank" style="text-align:left">$6,455</td></tr><tr><td class="name">MRVL</td><td>9</td><td>212.32</td><td>$1,911</td><td class="blank">5.41%</td><td class="blank">5.86%</td><td class="neg">1.676</td><td>11.7%</td><td>187.43</td><td class="blank">$1,704</td><td class="neg" style="font-weight:640">&minus;$207</td></tr><tr><td class="name">ALAB</td><td>5</td><td>297.90</td><td>$1,490</td><td class="blank">4.22%</td><td class="blank">&mdash;</td><td class="">&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="blank">&mdash;</td><td class="pos" style="font-weight:640">&mdash;</td></tr><tr><td class="name">GLW</td><td>8</td><td>149.19</td><td>$1,194</td><td class="blank">3.38%</td><td class="blank">5.67%</td><td class="">1.449</td><td>11.3%</td><td>132.27</td><td class="blank">$1,761</td><td class="pos" style="font-weight:640">$568</td></tr><tr><td class="name">COHR</td><td>4</td><td>278.69</td><td>$1,115</td><td class="blank">3.16%</td><td class="blank">9.48%</td><td class="neg">1.707</td><td>19.0%</td><td>225.85</td><td class="blank">$1,053</td><td class="neg" style="font-weight:640">&minus;$61</td></tr><tr><td class="name">AVGO</td><td>2</td><td>371.49</td><td>$743</td><td class="blank">2.10%</td><td class="blank">3.57%</td><td class="">0.713</td><td>7.1%</td><td>344.97</td><td class="blank">$2,797</td><td class="pos" style="font-weight:640">$2,054</td></tr><tr><td class="name">CIEN</td><td>0.008528</td><td>383.44</td><td>$3</td><td class="blank">0.01%</td><td class="blank">7.10%</td><td class="">1.499</td><td>14.2%</td><td>329.47</td><td class="blank">$1,407</td><td class="pos" style="font-weight:640">$1,403</td></tr><tr><td class="txt" colspan="4" style="font-weight:640;color:var(--ink-2);padding-top:14px">AI Power/Cooling/DC Infra <span class="sub">(4)</span></td><td class="blank"><b>21.9%</b></td><td colspan="6" class="blank" style="text-align:left">$7,743</td></tr><tr><td class="name">GEV</td><td>4.00495</td><td>914.76</td><td>$3,664</td><td class="blank">10.37%</td><td class="blank">4.31%</td><td class="">0.777</td><td>8.6%</td><td>835.91</td><td class="blank">$2,317</td><td class="neg" style="font-weight:640">&minus;$1,347</td></tr><tr><td class="name">VRT</td><td>7</td><td>259.52</td><td>$1,817</td><td class="blank">5.14%</td><td class="blank">4.37%</td><td class="">1.082</td><td>8.7%</td><td>236.84</td><td class="blank">$2,285</td><td class="pos" style="font-weight:640">$469</td></tr><tr><td class="name">BE</td><td>8</td><td>206.94</td><td>$1,656</td><td class="blank">4.69%</td><td class="blank">7.97%</td><td class="neg">2.105</td><td>15.9%</td><td>173.95</td><td class="blank">$1,253</td><td class="neg" style="font-weight:640">&minus;$403</td></tr><tr><td class="name">FSLR</td><td>3</td><td>202.53</td><td>$608</td><td class="blank">1.72%</td><td class="blank">&mdash;</td><td class="">&mdash;</td><td>&mdash;</td><td>&mdash;</td><td class="blank">&mdash;</td><td class="pos" style="font-weight:640">&mdash;</td></tr><tr><td class="txt" colspan="4" style="font-weight:640;color:var(--ink-2);padding-top:14px">Compute/Hyperscaler OEM <span class="sub">(2)</span></td><td class="blank"><b>3.6%</b></td><td colspan="6" class="blank" style="text-align:left">$1,276</td></tr><tr><td class="name">CLS</td><td>3.00327</td><td>300.33</td><td>$902</td><td class="blank">2.55%</td><td class="blank">5.57%</td><td class="">0.997</td><td>11.1%</td><td>266.87</td><td class="blank">$1,793</td><td class="pos" style="font-weight:640">$891</td></tr><tr><td class="name">SMCI</td><td>10</td><td>37.40</td><td>$374</td><td class="blank">1.06%</td><td class="blank">6.93%</td><td class="neg">1.967</td><td>13.9%</td><td>32.21</td><td class="blank">$1,441</td><td class="pos" style="font-weight:640">$1,067</td></tr><tr><td class="txt" colspan="4" style="font-weight:640;color:var(--ink-2);padding-top:14px">Compute/Hyperscaler <span class="sub">(4)</span></td><td class="blank"><b>10.3%</b></td><td colspan="6" class="blank" style="text-align:left">$3,634</td></tr><tr><td class="name">GOOG</td><td>4</td><td>336.45</td><td>$1,346</td><td class="blank">3.81%</td><td class="blank">1.75%</td><td class="pos">0.244</td><td>3.5%</td><td>324.68</td><td class="blank">$5,707</td><td class="pos" style="font-weight:640">$4,361</td></tr><tr><td class="name">NBIS</td><td>5</td><td>206.96</td><td>$1,035</td><td class="blank">2.93%</td><td class="blank">9.88%</td><td class="neg">2.636</td><td>19.8%</td><td>166.07</td><td class="blank">$1,011</td><td class="neg" style="font-weight:640">&minus;$24</td></tr><tr><td class="name">IREN</td><td>20</td><td>37.23</td><td>$745</td><td class="blank">2.11%</td><td class="blank">8.05%</td><td class="neg">2.436</td><td>16.1%</td><td>31.24</td><td class="blank">$1,241</td><td class="pos" style="font-weight:640">$496</td></tr><tr><td class="name">MSFT</td><td>1</td><td>508.87</td><td>$509</td><td class="blank">1.44%</td><td class="blank">1.95%</td><td class="pos">0.459</td><td>3.9%</td><td>489.02</td><td class="blank">$5,121</td><td class="pos" style="font-weight:640">$4,612</td></tr><tr><td class="txt" colspan="4" style="font-weight:640;color:var(--ink-2);padding-top:14px">Analog/Industrial Semis <span class="sub">(1)</span></td><td class="blank"><b>5.0%</b></td><td colspan="6" class="blank" style="text-align:left">$1,760</td></tr><tr><td class="name">STM</td><td>35</td><td>50.30</td><td>$1,760</td><td class="blank">4.98%</td><td class="blank">3.63%</td><td class="neg">1.521</td><td>7.3%</td><td>46.64</td><td class="blank">$2,751</td><td class="pos" style="font-weight:640">$991</td></tr></tbody><tfoot><tr><td class="name">Book</td><td></td><td></td><td>$35,317</td><td class="blank">100.0%</td><td class="blank"></td><td class="pos">1.395</td><td colspan="3" class="blank" style="text-align:right">aggregate open risk</td><td class="neg">8.5%</td></tr></tfoot></table></div></div></details></div></details>
+<details class="panel" open><div class="pbody" style="gap:0"><details><summary>Historical charts<span class="c">ledger &middot; drawdown &middot; benchmark &middot; weights</span></summary><div class="body" style="display:flex;flex-direction:column;gap:26px"><section class="panel viz"><summary class="phead"><h2>Book value &amp; cash<span class="sub">every ledger row</span></h2></summary><div class="pbody"><div class="viz-legend"><span><i style="background:var(--equity)"></i>Equity</span><span><i style="background:var(--cash)"></i>Cash</span></div><svg class="viz-svg" viewBox="0 0 720 260" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Total book value over time, split into equity and cash">
+<line x1="62" y1="226.0" x2="644" y2="226.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="229.5" text-anchor="end" font-size="10" fill="var(--ink-3)">$0k</text>
+<line x1="62" y1="173.5" x2="644" y2="173.5" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="177.0" text-anchor="end" font-size="10" fill="var(--ink-3)">$12k</text>
+<line x1="62" y1="121.0" x2="644" y2="121.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="124.5" text-anchor="end" font-size="10" fill="var(--ink-3)">$25k</text>
+<line x1="62" y1="68.5" x2="644" y2="68.5" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="72.0" text-anchor="end" font-size="10" fill="var(--ink-3)">$38k</text>
+<line x1="62" y1="16.0" x2="644" y2="16.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="19.5" text-anchor="end" font-size="10" fill="var(--ink-3)">$50k</text>
+<path d="M62.0,94.4 L76.9,94.9 L91.8,94.7 L106.8,125.7 L121.7,108.8 L136.6,101.8 L151.5,75.7 L166.5,58.5 L181.4,37.6 L196.3,62.7 L211.2,54.5 L226.2,50.1 L241.1,76.2 L256.0,135.9 L270.9,136.6 L285.8,162.3 L300.8,107.8 L315.7,104.3 L330.6,77.2 L345.5,62.6 L360.5,57.7 L375.4,59.1 L390.3,82.3 L405.2,65.4 L420.2,88.8 L435.1,58.0 L450.0,62.7 L464.9,42.3 L479.8,42.6 L494.8,41.3 L509.7,100.3 L524.6,50.5 L539.5,62.1 L554.5,62.1 L569.4,106.3 L584.3,67.2 L599.2,52.5 L614.2,58.1 L629.1,59.2 L644.0,81.0 L644.0,226.0 L62.0,226.0 Z" fill="var(--equity)" fill-opacity="0.88"/>
+<path d="M62.0,94.4 L76.9,94.9 L91.8,94.7 L106.8,125.7 L121.7,108.8 L136.6,101.8 L151.5,75.7 L166.5,58.5 L181.4,37.6 L196.3,62.7 L211.2,54.5 L226.2,50.1 L241.1,76.2 L256.0,135.9 L270.9,136.6 L285.8,162.3 L300.8,107.8 L315.7,104.3 L330.6,77.2 L345.5,62.6 L360.5,57.7 L375.4,59.1 L390.3,82.3 L405.2,65.4 L420.2,88.8 L435.1,58.0 L450.0,62.7 L464.9,42.3 L479.8,42.6 L494.8,41.3 L509.7,100.3 L524.6,50.5 L539.5,62.1 L554.5,62.1 L569.4,106.3 L584.3,67.2 L599.2,52.5 L614.2,58.1 L629.1,59.2 L644.0,81.0" fill="none" stroke="var(--surface-1)" stroke-width="2"/>
+<path d="M62.0,75.7 L76.9,76.2 L91.8,76.0 L106.8,83.2 L121.7,81.0 L136.6,81.4 L151.5,75.6 L166.5,56.7 L181.4,37.5 L196.3,62.6 L211.2,52.6 L226.2,49.9 L241.1,52.5 L256.0,59.7 L270.9,60.2 L285.8,64.4 L300.8,65.0 L315.7,64.8 L330.6,59.1 L345.5,53.3 L360.5,57.6 L375.4,43.6 L390.3,49.5 L405.2,48.4 L420.2,48.9 L435.1,44.7 L450.0,44.5 L464.9,42.3 L479.8,42.6 L494.8,39.2 L509.7,48.7 L524.6,50.3 L539.5,50.4 L554.5,50.5 L569.4,54.1 L584.3,52.5 L599.2,51.9 L614.2,53.2 L629.1,54.0 L644.0,58.2 L644.0,81.0 L629.1,59.2 L614.2,58.1 L599.2,52.5 L584.3,67.2 L569.4,106.3 L554.5,62.1 L539.5,62.1 L524.6,50.5 L509.7,100.3 L494.8,41.3 L479.8,42.6 L464.9,42.3 L450.0,62.7 L435.1,58.0 L420.2,88.8 L405.2,65.4 L390.3,82.3 L375.4,59.1 L360.5,57.7 L345.5,62.6 L330.6,77.2 L315.7,104.3 L300.8,107.8 L285.8,162.3 L270.9,136.6 L256.0,135.9 L241.1,76.2 L226.2,50.1 L211.2,54.5 L196.3,62.7 L181.4,37.6 L166.5,58.5 L151.5,75.7 L136.6,101.8 L121.7,108.8 L106.8,125.7 L91.8,94.7 L76.9,94.9 L62.0,94.4 Z" fill="var(--cash)" fill-opacity="0.9"/>
+<line x1="166.5" y1="16" x2="166.5" y2="226" stroke="var(--neg)" stroke-width="1" stroke-dasharray="2 3" stroke-opacity="0.65"/>
+<circle cx="166.5" cy="56.7" r="4" fill="var(--surface-1)" stroke="var(--neg)" stroke-width="2"><title>2026-07-17 $40,300 - EXCLUDED (suspect: price-feed gap, not a real value)</title></circle>
+<line x1="181.4" y1="16" x2="181.4" y2="226" stroke="var(--neg)" stroke-width="1" stroke-dasharray="2 3" stroke-opacity="0.65"/>
+<circle cx="181.4" cy="37.5" r="4" fill="var(--surface-1)" stroke="var(--neg)" stroke-width="2"><title>2026-07-18 $44,873 - EXCLUDED (suspect: price-feed gap, not a real value)</title></circle>
+<line x1="241.1" y1="16" x2="241.1" y2="226" stroke="var(--neg)" stroke-width="1" stroke-dasharray="2 3" stroke-opacity="0.65"/>
+<circle cx="241.1" cy="52.5" r="4" fill="var(--surface-1)" stroke="var(--neg)" stroke-width="2"><title>2026-07-24 $41,312 - EXCLUDED (stale_dated: price-feed gap, not a real value)</title></circle>
+<rect class="mark" x="54.0" y="16" width="16" height="210" fill="transparent"><title>2026-07-12 14:43  total $35,795  |  equity $31,340  |  cash $4,455 (12.4%)</title></rect>
+<rect class="mark" x="68.9" y="16" width="16" height="210" fill="transparent"><title>2026-07-13 13:22  total $35,665  |  equity $31,226  |  cash $4,439 (12.4%)</title></rect>
+<rect class="mark" x="83.8" y="16" width="16" height="210" fill="transparent"><title>2026-07-13 15:35  total $35,709  |  equity $31,264  |  cash $4,444 (12.4%)</title></rect>
+<rect class="mark" x="98.8" y="16" width="16" height="210" fill="transparent"><title>2026-07-14 17:42  total $33,993  |  equity $23,873  |  cash $10,120 (29.8%)</title></rect>
+<rect class="mark" x="113.7" y="16" width="16" height="210" fill="transparent"><title>2026-07-14 22:10  total $34,533  |  equity $27,897  |  cash $6,636 (19.2%)</title></rect>
+<rect class="mark" x="128.6" y="16" width="16" height="210" fill="transparent"><title>2026-07-15 15:42  total $34,424  |  equity $29,567  |  cash $4,856 (14.1%)</title></rect>
+<rect class="mark" x="143.5" y="16" width="16" height="210" fill="transparent"><title>2026-07-16 16:44  total $35,811  |  equity $35,777  |  cash $34 (0.1%)</title></rect>
+<rect class="mark" x="158.5" y="16" width="16" height="210" fill="transparent"><title>2026-07-17 13:44  total $40,300  |  equity $39,872  |  cash $427 (1.1%)</title></rect>
+<rect class="mark" x="173.4" y="16" width="16" height="210" fill="transparent"><title>2026-07-18 13:41  total $44,873  |  equity $44,850  |  cash $23 (0.1%)</title></rect>
+<rect class="mark" x="188.3" y="16" width="16" height="210" fill="transparent"><title>2026-07-20 12:40  total $38,903  |  equity $38,880  |  cash $23 (0.1%)</title></rect>
+<rect class="mark" x="203.2" y="16" width="16" height="210" fill="transparent"><title>2026-07-22 14:31  total $41,292  |  equity $40,834  |  cash $458 (1.1%)</title></rect>
+<rect class="mark" x="218.2" y="16" width="16" height="210" fill="transparent"><title>2026-07-23 19:07  total $41,923  |  equity $41,887  |  cash $36 (0.1%)</title></rect>
+<rect class="mark" x="233.1" y="16" width="16" height="210" fill="transparent"><title>2026-07-24 18:29  total $41,312  |  equity $35,655  |  cash $5,657 (13.7%)</title></rect>
+<rect class="mark" x="248.0" y="16" width="16" height="210" fill="transparent"><title>2026-07-25 16:07  total $39,592  |  equity $21,461  |  cash $18,132 (45.8%)</title></rect>
+<rect class="mark" x="262.9" y="16" width="16" height="210" fill="transparent"><title>2026-07-27 10:09  total $39,468  |  equity $21,277  |  cash $18,191 (46.1%)</title></rect>
+<rect class="mark" x="277.8" y="16" width="16" height="210" fill="transparent"><title>2026-07-28 18:50  total $38,473  |  equity $15,178  |  cash $23,295 (60.5%)</title></rect>
+<rect class="mark" x="292.8" y="16" width="16" height="210" fill="transparent"><title>2026-07-28 14:45  total $38,340  |  equity $28,142  |  cash $10,199 (26.6%)</title></rect>
+<rect class="mark" x="307.7" y="16" width="16" height="210" fill="transparent"><title>2026-07-29 14:35  total $38,374  |  equity $28,982  |  cash $9,391 (24.5%)</title></rect>
+<rect class="mark" x="322.6" y="16" width="16" height="210" fill="transparent"><title>2026-07-30 20:21  total $39,727  |  equity $35,433  |  cash $4,294 (10.8%)</title></rect>
+<rect class="mark" x="337.5" y="16" width="16" height="210" fill="transparent"><title>2026-07-31 13:02  total $41,126  |  equity $38,905  |  cash $2,222 (5.4%)</title></rect>
+<rect class="mark" x="352.5" y="16" width="16" height="210" fill="transparent"><title>2026-08-03 11:14  total $40,106  |  equity $40,068  |  cash $38 (0.1%)</title></rect>
+<rect class="mark" x="367.4" y="16" width="16" height="210" fill="transparent"><title>2026-08-06 00:14  total $43,417  |  equity $39,729  |  cash $3,688 (8.5%)</title></rect>
+<rect class="mark" x="382.3" y="16" width="16" height="210" fill="transparent"><title>2026-08-07 11:47  total $42,030  |  equity $34,225  |  cash $7,805 (18.6%)</title></rect>
+<rect class="mark" x="397.2" y="16" width="16" height="210" fill="transparent"><title>2026-08-10 08:46  total $42,296  |  equity $38,230  |  cash $4,067 (9.6%)</title></rect>
+<rect class="mark" x="412.2" y="16" width="16" height="210" fill="transparent"><title>2026-08-12 12:57  total $42,164  |  equity $32,679  |  cash $9,486 (22.5%)</title></rect>
+<rect class="mark" x="427.1" y="16" width="16" height="210" fill="transparent"><title>2026-08-12 20:25  total $43,160  |  equity $39,995  |  cash $3,164 (7.3%)</title></rect>
+<rect class="mark" x="442.0" y="16" width="16" height="210" fill="transparent"><title>2026-08-13 11:39  total $43,211  |  equity $38,890  |  cash $4,321 (10.0%)</title></rect>
+<rect class="mark" x="456.9" y="16" width="16" height="210" fill="transparent"><title>2026-08-15 18:09  total $43,748  |  equity $43,736  |  cash $12 (0.0%)</title></rect>
+<rect class="mark" x="471.8" y="16" width="16" height="210" fill="transparent"><title>2026-08-17 13:35  total $43,669  |  equity $43,657  |  cash $12 (0.0%)</title></rect>
+<rect class="mark" x="486.8" y="16" width="16" height="210" fill="transparent"><title>2026-08-17 23:54  total $44,485  |  equity $43,986  |  cash $499 (1.1%)</title></rect>
+<rect class="mark" x="501.7" y="16" width="16" height="210" fill="transparent"><title>2026-08-19 11:05  total $42,219  |  equity $29,937  |  cash $12,282 (29.1%)</title></rect>
+<rect class="mark" x="516.6" y="16" width="16" height="210" fill="transparent"><title>2026-08-20 22:11  total $41,831  |  equity $41,775  |  cash $55 (0.1%)</title></rect>
+<rect class="mark" x="531.5" y="16" width="16" height="210" fill="transparent"><title>2026-08-24 08:55  total $41,801  |  equity $39,031  |  cash $2,770 (6.6%)</title></rect>
+<rect class="mark" x="546.5" y="16" width="16" height="210" fill="transparent"><title>2026-08-24 14:45  total $41,781  |  equity $39,012  |  cash $2,769 (6.6%)</title></rect>
+<rect class="mark" x="561.4" y="16" width="16" height="210" fill="transparent"><title>2026-08-24 21:07  total $40,929  |  equity $28,498  |  cash $12,431 (30.4%)</title></rect>
+<rect class="mark" x="576.3" y="16" width="16" height="210" fill="transparent"><title>2026-08-25 13:57  total $41,310  |  equity $37,811  |  cash $3,499 (8.5%)</title></rect>
+<rect class="mark" x="591.2" y="16" width="16" height="210" fill="transparent"><title>2026-08-26 13:15  total $41,442  |  equity $41,317  |  cash $125 (0.3%)</title></rect>
+<rect class="mark" x="606.2" y="16" width="16" height="210" fill="transparent"><title>2026-08-29 13:46  total $41,149  |  equity $39,985  |  cash $1,164 (2.8%)</title></rect>
+<rect class="mark" x="621.1" y="16" width="16" height="210" fill="transparent"><title>2026-08-31 15:54  total $40,956  |  equity $39,725  |  cash $1,231 (3.0%)</title></rect>
+<rect class="mark" x="636.0" y="16" width="16" height="210" fill="transparent"><title>2026-09-01 22:06  total $39,946  |  equity $34,519  |  cash $5,427 (13.6%)</title></rect>
+<text x="652" y="157.0" font-size="11" fill="var(--ink-2)">equity</text>
+<text x="652" y="169.5" font-size="11" fill="var(--ink-1)" font-weight="600">$34.5k</text>
+<text x="652" y="73.1" font-size="11" fill="var(--ink-2)">cash</text>
+<text x="652" y="85.6" font-size="11" fill="var(--ink-1)" font-weight="600">$5.4k</text>
+<text x="62.0" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-12</text>
+<text x="136.6" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-15</text>
+<text x="211.2" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-22</text>
+<text x="285.8" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-28</text>
+<text x="360.5" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">08-03</text>
+<text x="435.1" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">08-12</text>
+<text x="509.7" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">08-19</text>
+<text x="584.3" y="242" text-anchor="middle" font-size="10" fill="var(--ink-3)">08-25</text>
+<line x1="62" y1="226" x2="644" y2="226" stroke="var(--axis)" stroke-width="1"/>
+</svg><div class="viz-note">Stacked to one scale: blue is equity, the band above it is cash -- together they are the total book. 3 reading(s) ringed in red are excluded as corrupt (price-feed gap).</div></div></section><section class="panel viz"><div class="phead"><h2>Beat or lag SMH, per period<span class="sub">the gap each period, not a running total</span></h2></div><div class="pbody"><div class="viz-legend"><span><i style="background:var(--pos)"></i>Beat SMH</span><span><i style="background:var(--neg)"></i>Lagged SMH</span><span><i style="background:repeating-linear-gradient(45deg,var(--muted) 0 2px,transparent 2px 5px)"></i>Excluded (bad data)</span></div><svg class="viz-svg" viewBox="0 0 720 230" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Book return minus SMH return, per period">
+<defs><pattern id="hatch" width="5" height="5" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="0" y2="5" stroke="var(--muted)" stroke-width="2.5"/></pattern></defs>
+<line x1="46" y1="190.0" x2="704" y2="190.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="38" y="193.5" text-anchor="end" font-size="10" fill="var(--ink-3)">-8%</text>
+<line x1="46" y1="146.0" x2="704" y2="146.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="38" y="149.5" text-anchor="end" font-size="10" fill="var(--ink-3)">-4%</text>
+<line x1="46" y1="58.0" x2="704" y2="58.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="38" y="61.5" text-anchor="end" font-size="10" fill="var(--ink-3)">+4%</text>
+<line x1="46" y1="14.0" x2="704" y2="14.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="38" y="17.5" text-anchor="end" font-size="10" fill="var(--ink-3)">+8%</text>
+<rect class="mark" x="49.7" y="102.0" width="12.0" height="4.3" rx="3" fill="var(--neg)"><title>2026-07-12 to 2026-07-13  book -0.36%  SMH +0.00%  =>  -0.36% vs benchmark</title></rect>
+<rect class="mark" x="69.0" y="100.6" width="12.0" height="1.5" rx="3" fill="var(--pos)"><title>2026-07-13 to 2026-07-13  book +0.12%  SMH +0.00%  =>  +0.12% vs benchmark</title></rect>
+<rect class="mark" x="88.4" y="102.0" width="12.0" height="7.6" rx="3" fill="var(--neg)"><title>2026-07-13 to 2026-07-14  book -4.80%  SMH -4.16%  =>  -0.65% vs benchmark</title></rect>
+<rect class="mark" x="107.7" y="83.4" width="12.0" height="18.6" rx="3" fill="var(--pos)"><title>2026-07-14 to 2026-07-14  book +1.59%  SMH +0.00%  =>  +1.59% vs benchmark</title></rect>
+<rect class="mark" x="127.1" y="102.0" width="12.0" height="33.2" rx="3" fill="var(--neg)"><title>2026-07-14 to 2026-07-15  book -0.32%  SMH +2.51%  =>  -2.83% vs benchmark</title></rect>
+<rect class="mark" x="146.4" y="36.1" width="12.0" height="65.9" rx="3" fill="var(--pos)"><title>2026-07-15 to 2026-07-16  book +4.03%  SMH -1.59%  =>  +5.62% vs benchmark</title></rect>
+<rect class="mark" x="165.8" y="87.9" width="12.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-07-16 to 2026-07-17 - EXCLUDED, corrupt price feed in this interval</title></rect>
+<rect class="mark" x="185.1" y="87.9" width="12.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-07-17 to 2026-07-18 - EXCLUDED, corrupt price feed in this interval</title></rect>
+<rect class="mark" x="204.5" y="87.9" width="12.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-07-18 to 2026-07-20 - EXCLUDED, corrupt price feed in this interval</title></rect>
+<rect class="mark" x="223.9" y="88.0" width="12.0" height="14.0" rx="3" fill="var(--pos)"><title>2026-07-20 to 2026-07-22  book +6.14%  SMH +4.95%  =>  +1.19% vs benchmark</title></rect>
+<rect class="mark" x="243.2" y="89.7" width="12.0" height="12.3" rx="3" fill="var(--pos)"><title>2026-07-22 to 2026-07-23  book +1.53%  SMH +0.48%  =>  +1.04% vs benchmark</title></rect>
+<rect class="mark" x="262.6" y="87.9" width="12.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-07-23 to 2026-07-24 - EXCLUDED, corrupt price feed in this interval</title></rect>
+<rect class="mark" x="281.9" y="87.9" width="12.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-07-24 to 2026-07-25 - EXCLUDED, corrupt price feed in this interval</title></rect>
+<rect class="mark" x="301.3" y="77.3" width="12.0" height="24.7" rx="3" fill="var(--pos)"><title>2026-07-25 to 2026-07-28  book -2.83%  SMH -4.93%  =>  +2.11% vs benchmark</title></rect>
+<rect class="mark" x="320.6" y="102.0" width="12.0" height="1.5" rx="3" fill="var(--neg)"><title>2026-07-28 to 2026-07-28  book -0.35%  SMH -0.34%  =>  -0.00% vs benchmark</title></rect>
+<rect class="mark" x="340.0" y="75.9" width="12.0" height="26.1" rx="3" fill="var(--pos)"><title>2026-07-28 to 2026-07-30  book +3.62%  SMH +1.39%  =>  +2.22% vs benchmark</title></rect>
+<rect class="mark" x="359.3" y="60.3" width="12.0" height="41.7" rx="3" fill="var(--pos)"><title>2026-07-30 to 2026-07-31  book +3.52%  SMH -0.03%  =>  +3.56% vs benchmark</title></rect>
+<rect class="mark" x="378.7" y="102.0" width="12.0" height="32.7" rx="3" fill="var(--neg)"><title>2026-07-31 to 2026-08-03  book -2.48%  SMH +0.30%  =>  -2.78% vs benchmark</title></rect>
+<rect class="mark" x="398.0" y="81.7" width="12.0" height="20.3" rx="3" fill="var(--pos)"><title>2026-08-03 to 2026-08-06  book +8.25%  SMH +6.52%  =>  +1.73% vs benchmark</title></rect>
+<rect class="mark" x="417.4" y="102.0" width="12.0" height="28.7" rx="3" fill="var(--neg)"><title>2026-08-06 to 2026-08-07  book -3.19%  SMH -0.75%  =>  -2.45% vs benchmark</title></rect>
+<rect class="mark" x="436.7" y="102.0" width="12.0" height="15.6" rx="3" fill="var(--neg)"><title>2026-08-07 to 2026-08-10  book +0.63%  SMH +1.96%  =>  -1.33% vs benchmark</title></rect>
+<rect class="mark" x="456.1" y="86.0" width="12.0" height="16.0" rx="3" fill="var(--pos)"><title>2026-08-10 to 2026-08-12  book -0.31%  SMH -1.68%  =>  +1.36% vs benchmark</title></rect>
+<rect class="mark" x="475.4" y="87.9" width="12.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-08-12 to 2026-08-12 - EXCLUDED, implausible benchmark move (+754.7%, outside ±25%) -- the `smh` column holds a value from another series on one end of this period</title></rect>
+<rect class="mark" x="494.8" y="87.9" width="12.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-08-12 to 2026-08-13 - EXCLUDED, implausible benchmark move (-123.9%, outside ±25%) -- the `smh` column holds a value from another series on one end of this period</title></rect>
+<rect class="mark" x="514.1" y="87.9" width="12.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-08-13 to 2026-08-15 - EXCLUDED, implausible benchmark move (-150.2%, outside ±25%) -- the `smh` column holds a value from another series on one end of this period</title></rect>
+<rect class="mark" x="533.5" y="102.0" width="12.0" height="2.1" rx="3" fill="var(--neg)"><title>2026-08-15 to 2026-08-17  book -0.18%  SMH +0.00%  =>  -0.18% vs benchmark</title></rect>
+<rect class="mark" x="552.9" y="96.0" width="12.0" height="6.0" rx="3" fill="var(--pos)"><title>2026-08-17 to 2026-08-17  book +1.87%  SMH +1.36%  =>  +0.51% vs benchmark</title></rect>
+<rect class="mark" x="572.2" y="102.0" width="12.0" height="8.5" rx="3" fill="var(--neg)"><title>2026-08-17 to 2026-08-19  book -5.09%  SMH -4.37%  =>  -0.73% vs benchmark</title></rect>
+<rect class="mark" x="591.6" y="95.5" width="12.0" height="6.5" rx="3" fill="var(--pos)"><title>2026-08-19 to 2026-08-20  book -0.92%  SMH -1.47%  =>  +0.55% vs benchmark</title></rect>
+<rect class="mark" x="610.9" y="100.8" width="12.0" height="1.5" rx="3" fill="var(--pos)"><title>2026-08-20 to 2026-08-24  book -0.07%  SMH -0.17%  =>  +0.10% vs benchmark</title></rect>
+<rect class="mark" x="630.3" y="102.0" width="12.0" height="1.5" rx="3" fill="var(--neg)"><title>2026-08-24 to 2026-08-24  book -0.05%  SMH +0.00%  =>  -0.05% vs benchmark</title></rect>
+<rect class="mark" x="649.6" y="94.9" width="12.0" height="7.1" rx="3" fill="var(--pos)"><title>2026-08-24 to 2026-08-24  book -2.04%  SMH -2.64%  =>  +0.60% vs benchmark</title></rect>
+<rect class="mark" x="669.0" y="87.9" width="12.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-08-24 to 2026-08-25 - EXCLUDED, implausible benchmark move (+579.1%, outside ±25%) -- the `smh` column holds a value from another series on one end of this period</title></rect>
+<rect class="mark" x="688.3" y="87.9" width="12.0" height="28.2" fill="url(#hatch)" rx="2"><title>2026-08-25 to 2026-08-26 - EXCLUDED, implausible benchmark move (-46.4%, outside ±25%) -- the `smh` column holds a value from another series on one end of this period</title></rect>
+<line x1="46" y1="102.0" x2="704" y2="102.0" stroke="var(--axis)" stroke-width="1.5"/>
+<text x="55.7" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-13</text>
+<text x="152.4" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-16</text>
+<text x="249.2" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-23</text>
+<text x="346.0" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">07-30</text>
+<text x="442.7" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">08-10</text>
+<text x="539.5" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">08-17</text>
+<text x="636.3" y="206" text-anchor="middle" font-size="10" fill="var(--ink-3)">08-24</text>
+<text x="46" y="222" font-size="10" fill="var(--ink-3)">above 0 = beat SMH that period</text>
+</svg><div class="viz-note">14 of 24 scored periods beat SMH. Each bar is that period's OWN gap (book return minus SMH return), not a running total -- a cumulative line isn't shown because deposits aren't yet separated from returns in the ledger. A further 10 period(s) are hatched and EXCLUDED from that tally: 5 for an implausible benchmark move (beyond ±25%, so the `smh` cell holds a value from another series); 5 for a corrupt price feed.</div></div></section><section class="panel viz"><div class="phead"><h2>Position weights<span class="sub">against the 12% cap</span></h2></div><div class="pbody"><svg class="viz-svg" viewBox="0 0 720 202" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Position weights against the single-position cap">
+<rect x="544.4" y="6" width="121.6" height="174" fill="var(--critical)" fill-opacity="0.06"/>
+<text x="50" y="22.0" text-anchor="end" font-size="11" font-weight="400" fill="var(--ink-1)">GEV</text>
+<rect class="mark" x="58" y="13.0" width="420.5" height="9" rx="3" fill="var(--equity)"><title>GEV 10.37% of equity</title></rect>
+<text x="485.5" y="22.0" font-size="10.5" fill="var(--ink-2)" font-weight="400">10.4%</text>
+<text x="50" y="39.0" text-anchor="end" font-size="11" font-weight="400" fill="var(--ink-1)">MRVL</text>
+<rect class="mark" x="58" y="30.0" width="219.3" height="9" rx="3" fill="var(--equity)"><title>MRVL 5.41% of equity</title></rect>
+<text x="284.3" y="39.0" font-size="10.5" fill="var(--ink-2)" font-weight="400">5.4%</text>
+<text x="50" y="56.0" text-anchor="end" font-size="11" font-weight="400" fill="var(--ink-1)">VRT</text>
+<rect class="mark" x="58" y="47.0" width="208.5" height="9" rx="3" fill="var(--equity)"><title>VRT 5.14% of equity</title></rect>
+<text x="273.5" y="56.0" font-size="10.5" fill="var(--ink-2)" font-weight="400">5.1%</text>
+<text x="50" y="73.0" text-anchor="end" font-size="11" font-weight="400" fill="var(--ink-1)">STM</text>
+<rect class="mark" x="58" y="64.0" width="202.0" height="9" rx="3" fill="var(--equity)"><title>STM 4.98% of equity</title></rect>
+<text x="267.0" y="73.0" font-size="10.5" fill="var(--ink-2)" font-weight="400">5.0%</text>
+<text x="50" y="90.0" text-anchor="end" font-size="11" font-weight="400" fill="var(--ink-1)">TER</text>
+<rect class="mark" x="58" y="81.0" width="201.5" height="9" rx="3" fill="var(--equity)"><title>TER 4.97% of equity</title></rect>
+<text x="266.5" y="90.0" font-size="10.5" fill="var(--ink-2)" font-weight="400">5.0%</text>
+<text x="50" y="107.0" text-anchor="end" font-size="11" font-weight="400" fill="var(--ink-1)">ASML</text>
+<rect class="mark" x="58" y="98.0" width="195.3" height="9" rx="3" fill="var(--equity)"><title>ASML 4.82% of equity</title></rect>
+<text x="260.3" y="107.0" font-size="10.5" fill="var(--ink-2)" font-weight="400">4.8%</text>
+<text x="50" y="124.0" text-anchor="end" font-size="11" font-weight="400" fill="var(--ink-1)">BE</text>
+<rect class="mark" x="58" y="115.0" width="190.0" height="9" rx="3" fill="var(--equity)"><title>BE 4.69% of equity</title></rect>
+<text x="255.0" y="124.0" font-size="10.5" fill="var(--ink-2)" font-weight="400">4.7%</text>
+<text x="50" y="141.0" text-anchor="end" font-size="11" font-weight="400" fill="var(--ink-1)">ALAB</text>
+<rect class="mark" x="58" y="132.0" width="170.9" height="9" rx="3" fill="var(--equity)"><title>ALAB 4.22% of equity</title></rect>
+<text x="235.9" y="141.0" font-size="10.5" fill="var(--ink-2)" font-weight="400">4.2%</text>
+<text x="50" y="158.0" text-anchor="end" font-size="11" font-weight="400" fill="var(--ink-1)">MU</text>
+<rect class="mark" x="58" y="149.0" width="165.6" height="9" rx="3" fill="var(--equity)"><title>MU 4.09% of equity</title></rect>
+<text x="230.6" y="158.0" font-size="10.5" fill="var(--ink-2)" font-weight="400">4.1%</text>
+<text x="50" y="175.0" text-anchor="end" font-size="11" font-weight="400" fill="var(--ink-1)">AMAT</text>
+<rect class="mark" x="58" y="166.0" width="158.7" height="9" rx="3" fill="var(--equity)"><title>AMAT 3.92% of equity</title></rect>
+<text x="223.7" y="175.0" font-size="10.5" fill="var(--ink-2)" font-weight="400">3.9%</text>
+<line x1="544.4" y1="6" x2="544.4" y2="180" stroke="var(--critical)" stroke-width="1.5" stroke-dasharray="3 3"/>
+<text x="544.4" y="196" text-anchor="middle" font-size="10" class="lbl" fill="var(--critical)">12% cap</text>
+</svg><div class="viz-note">No position breaches the cap.</div></div></section></div></details></div></details>
+<footer>
+<p class="note"><b>Everything here is a proposal for your review.</b> No trade has been or will be placed by this desk, and none of it is licensed investment advice.</p>
+<p class="note">Needs confirmation: <b>HOOD</b> <span title="NEW POSITION WITH NO POLICY CLUSTER. Robinhood is a retail brokerage/fintech with no AI-capex link -- nothing in policy.json cluster_targets honestly fits. Left UNCLASSIFIED rather than forced, same treatment as IONQ on 2026-08-17. Consequence: it sits OUTSIDE drift tracking until the user names a target band. 1.14% of book. NOTE the IONQ precedent ended badly -- that flag was never resolved and the position was exited before anyone decided; do not let this one sit.">NEW POSITION WITH NO POLICY CLUSTER. Robinhood is a retail brokerage/f…</span>; <b>__BOOK__</b> <span title="CASH 29.09% vs a [5,15]% band after the 2026-08-18 stop cascade -- $12,282.25 of $42,218.85. Deployable-above-band $5,949.42; this run&#39;s proposals commit ~$1,710 of it (AMZN 700 / GLW 539 / QCOM 360 / IREN 111) against ~$1,088 of trims, so the band stays breached deliberately while the ESCALATING gate stands. Revisit at the next run: if cash is still above 15% with the gate downgraded, the reason for holding it has expired.">CASH 29.09% vs a [5,15]% band after the 2026-08-18 stop cascade -- $12…</span>; <b>TER</b> <span title="DUST POSITION -- 0.00273sh / ~$1.10 after the 2026-08-18 stop sold 3 of 3.0027sh. Excluded from all signal buckets and weight math. Needs a user decision: sell the residue to zero, or hold it as an inert rounding artifact. P-117 (STOP_RAISE TER) is open against it and is meaningless at this size (see G80).">DUST POSITION -- 0.00273sh / ~$1.10 after the 2026-08-18 stop sold 3 o…</span></p>
+<p class="note">Mandate: aggressive single factor conviction bet &middot; horizon 2-5y &middot; benchmark SMH &middot; risk budget 25%.</p>
+</footer>
+<script>
+(function(){
+  var PRISTINE = document.documentElement.outerHTML;
+
+  function decisionsFrom(html){
+    var m = html.match(/<script type="application\/json" id="smith-decisions">([\s\S]*?)<\/script>/);
+    if (!m) return [];
+    try { return JSON.parse(m[1]); } catch(e){ return []; }
+  }
+
+  function setReadOnly(msg){
+    document.querySelectorAll('.decide').forEach(function(el){ el.classList.add('readonly'); });
+    var note = document.createElement('p');
+    note.className = 'note';
+    note.textContent = msg || 'This view is read-only -- decisions cannot be recorded from here.';
+    var wrap = document.querySelector('.wrap');
+    if (wrap) wrap.insertBefore(note, wrap.firstChild);
+  }
+
+  if (!window.claude || !window.claude.self){
+    setReadOnly();
+    return;
+  }
+
+  document.body.addEventListener('click', function(ev){
+    var btn = ev.target.closest('.decide button');
+    if (!btn) return;
+    var group = btn.closest('.decide');
+    var surface = group.getAttribute('data-surface');
+    var elementId = group.getAttribute('data-element-id');
+    var decision = btn.getAttribute('data-decision');
+    var reasonInput = group.querySelector('input.reason');
+    var reason = (reasonInput && reasonInput.value.trim()) ? reasonInput.value.trim() : null;
+    var payload = {surface: surface, element_id: elementId, decision: decision, reason: reason,
+                   decided_on: new Date().toISOString().slice(0,10)};
+
+    if (surface === 'thesis' && decision === 'override'){
+      var sel = group.querySelector('select.new-status');
+      payload.new_status = sel ? sel.value : null;
+      if (!reason){ alert('Override needs a reason -- your own read of the company is the point.'); return; }
+    }
+    if (surface === 'catalyst'){
+      payload.headline = group.getAttribute('data-headline');
+      payload.date = group.getAttribute('data-date');
+    }
+
+    var controls = group.querySelectorAll('button, input, select');
+    controls.forEach(function(x){ x.disabled = true; });
+
+    var decisions = decisionsFrom(PRISTINE);
+    decisions.push(payload);
+    var blobJson = JSON.stringify(decisions);
+
+    var anchor = 'data-surface="' + surface + '" data-element-id="' + elementId + '"';
+    var startIdx = PRISTINE.indexOf(anchor);
+    var newHtml = PRISTINE;
+    if (startIdx !== -1){
+      var divStart = PRISTINE.lastIndexOf('<div class="decide"', startIdx);
+      var divEnd = PRISTINE.indexOf('</div>', startIdx) + '</div>'.length;
+      if (divStart !== -1 && divEnd > divStart){
+        var recordedText = 'Recorded: ' + decision + (reason ? ' — ' + reason : '') +
+          ' (syncs on the next Agent Smith run)';
+        var recorded = '<div class="decide recorded-block"><span class="recorded">' +
+          recordedText.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span></div>';
+        newHtml = PRISTINE.slice(0, divStart) + recorded + PRISTINE.slice(divEnd);
+      }
+    }
+    newHtml = newHtml.replace(
+      /<script type="application\/json" id="smith-decisions">[\s\S]*?<\/script>/,
+      '<script type="application/json" id="smith-decisions">' + blobJson + '<\/script>'
+    );
+
+    window.claude.self.publish('<!doctype html>' + newHtml).catch(function(err){
+      var code = err && err.code;
+      if (code === 'conflict') return;  // view is already reloading to the winning version
+      if (code === 'not_writer' || code === 'not_granted' || code === 'consent_required'){
+        setReadOnly();
+        return;
+      }
+      alert('Could not record that decision (' + (code || 'unknown error') +
+            '). It was not saved -- try again.');
+      controls.forEach(function(x){ x.disabled = false; });
+    });
+  });
+})();
+</script>
+<script>
+(function(){
+  document.querySelectorAll('svg.donut-svg').forEach(function(svg){
+    var pctEl = svg.querySelector('text[id$="-pct"]');
+    var subEl = svg.querySelector('text[id$="-sub"]');
+    if (!pctEl || !subEl) return;
+    var defaultPct = pctEl.textContent, defaultSub = subEl.textContent;
+    svg.querySelectorAll('path.mark').forEach(function(p){
+      p.addEventListener('mouseenter', function(){
+        pctEl.textContent = p.getAttribute('data-pct') + '%';
+        subEl.textContent = p.getAttribute('data-label');
+      });
+      p.addEventListener('mouseleave', function(){
+        pctEl.textContent = defaultPct;
+        subEl.textContent = defaultSub;
+      });
+    });
+  });
+})();
+</script>
+</div></body></html>

@@ -2678,6 +2678,21 @@ def freshness_root(base_dir, state=None):
     return root
 
 
+def _fresh_held_tickers(state):
+    """The set of tickers currently in the book, for FRESHNESS `scope: held`.
+
+    state["holdings"] is the authoritative live snapshot ([{ticker, qty, weight_pct}, ...]).
+    Returns None -- meaning "do not scope" -- when it is absent or empty, so a state file
+    without holdings fails OPEN to the old whole-map behaviour rather than silently ageing
+    an artefact against an empty held set and calling everything out of scope.
+    """
+    rows = state.get("holdings")
+    if not isinstance(rows, list) or not rows:
+        return None
+    held = {r.get("ticker") for r in rows if isinstance(r, dict) and r.get("ticker")}
+    return held or None
+
+
 def _fresh_lookup(state, dotted):
     node = state
     for part in dotted.split("."):
@@ -2687,8 +2702,13 @@ def _fresh_lookup(state, dotted):
     return node
 
 
-def _fresh_stamp(state, artefact, spec):
-    """Resolve an artefact's as_of date per its `stamp` rule. Returns (date_str, detail)."""
+def _fresh_stamp(state, artefact, spec, scope=None):
+    """Resolve an artefact's as_of date per its `stamp` rule. Returns (date_str, detail).
+
+    `scope="held"` restricts per-entry ageing to tickers still in the book -- see the `scope`
+    field note in smith_core.FRESHNESS for why (2026-09-09: three exited names were driving
+    signal_history dark while every held name was stamped that morning).
+    """
     kind, _, name = spec.partition(":")
     if kind == "field":
         return (artefact.get(name) if isinstance(artefact, dict) else None), None
@@ -2711,14 +2731,32 @@ def _fresh_stamp(state, artefact, spec):
                       if isinstance(v, dict) and isinstance(v.get(name), str)}
         if not stamps:
             return None, None
+        keys = set(artefact or {})
+        out_of_scope = set()
+        if scope == "held":
+            held = _fresh_held_tickers(state)
+            if held is not None:
+                out_of_scope = keys - held
+                stamps = {k: v for k, v in stamps.items() if k in held}
+                keys = keys & held
+        if not stamps:
+            # Every stamped entry is out of scope -- the artefact holds only exited names.
+            # Unknowable age, not a fresh one.
+            return None, ({"entries_out_of_scope": len(out_of_scope)} if out_of_scope else None)
         oldest = min(stamps.values())
-        # The age of the OLDEST entry is the artefact's age -- a map-level date would hide
-        # precisely the names nobody has looked at, which is the whole reason for per-entry.
-        unstamped = [k for k in (artefact or {}) if k not in stamps]
+        # The age of the OLDEST IN-SCOPE entry is the artefact's age -- a map-level date would
+        # hide precisely the names nobody has looked at, which is the whole reason for
+        # per-entry. Entries outside the scope are counted and reported, never dropped
+        # silently: "3 exited names not aged" is information, an absence is not.
+        unstamped = [k for k in keys if k not in stamps]
         detail = {"entries_stamped": len(stamps), "entries_unstamped": len(unstamped),
                   "oldest_entries": sorted(k for k, v in stamps.items() if v == oldest)[:5]}
         if unstamped:
             detail["unstamped_sample"] = sorted(unstamped)[:5]
+        if out_of_scope:
+            detail["entries_out_of_scope"] = len(out_of_scope)
+            detail["out_of_scope_sample"] = sorted(out_of_scope)[:5]
+            detail["scope"] = scope
         return oldest, detail
     return None, None
 
@@ -2741,7 +2779,7 @@ def evaluate_freshness(state, today=None):
             rows.append(row)
             continue
 
-        as_of, detail = _fresh_stamp(state, artefact, cfg["stamp"])
+        as_of, detail = _fresh_stamp(state, artefact, cfg["stamp"], cfg.get("scope"))
         if detail:
             row.update(detail)
         if not as_of:
@@ -2900,6 +2938,26 @@ def validate_freshness(base_dir):
                 f"FRESHNESS MISSING: {key} does not exist in state.json, though {owner} is "
                 f"meant to produce it (ttl {row['ttl_days']}d). Either the agent has not run "
                 f"or its output is being discarded at PERSIST -- the G50 shape.")
+
+        # An IN-SCOPE entry with no stamp of its own is its own defect, named separately
+        # (2026-09-09). Before this, a single unstamped entry only ever showed up as the
+        # PARENT map reading `stale` -- so `thesis` escalated across a 34-name map because
+        # exactly one held name, META, had been revived from archive without a `reviewed_on`.
+        # The parent's status told you something was wrong; it could not tell you it was one
+        # field on one ticker, which is a two-second fix wearing the costume of a stale map.
+        # Reported for every class, not just escalate: an unstamped held entry is a bookkeeping
+        # error whatever the artefact's on_stale policy, and it is cheap to say which name.
+        if row.get("entries_unstamped"):
+            names = ", ".join(row.get("unstamped_sample") or []) or "unknown"
+            more = row["entries_unstamped"] - len(row.get("unstamped_sample") or [])
+            defects.append(
+                f"FRESHNESS ENTRY UNSTAMPED: {key} has {row['entries_unstamped']} in-scope "
+                f"entr{'y' if row['entries_unstamped'] == 1 else 'ies'} with no per-entry date "
+                f"({names}{f' +{more} more' if more > 0 else ''}, owner {owner}). The entry's "
+                f"age is unknowable, so the whole map cannot read fresh. Stamp the named "
+                f"entr{'y' if row['entries_unstamped'] == 1 else 'ies'} with the date they were "
+                f"genuinely last reviewed -- not today's date, which would assert a review "
+                f"that did not happen.")
     return defects
 
 

@@ -94,3 +94,101 @@ Deterministic candidate screens that exist because the proposal engine had becom
 
 Fix: a new `scripts/smith_conviction.py` scores every candidate 0–100 from thesis+evidence, catalysts, trend (now bidirectional — tailwind matters, not just headwind-as-veto), valuation gap, earnings, technical setup, and cross-agent corroboration; `size = conviction_tier_pct × policy_max_position_usd`, staged to a first tranche, then clamped to the tightest of ATR headroom / cluster room / deployable cash — with `clamped_by` always named, never silently substituted. Nine new trigger types (`trend_entry`, `trend_breakdown`, `profit_rotation`, `cluster_rotation`, `conviction_average`, `conviction_exit`, `entry_setup`, `reentry`, `bench_diversifier` — see §2.9d's trigger table above, now current) cover the five named behaviours; `profit_rotation`/`cluster_rotation` render and retire as ONE paired decision, direct fix for a 0-for-19 historical rotation-pair survival rate caused by independently-managed legs. The dashboard now splits proposals into an IDEAS panel (max 5, ranked by conviction, minimum-bar gated — shows fewer or zero rather than padding) and a RISK HOUSEKEEPING panel (cap breaches, stop-raises, band drift — sized and actionable, never ranked against an idea) via a new `proposal_class` field. Restatement auto-retirement lowered from 5 to 3 (0-for-17 historically beyond four restatements). Full design in `smith_conviction.py`'s module docstring.
 
+
+---
+
+## cluster_rotation: two ways to rank (added 2026-09-08)
+
+`cluster_rotation` pairs a sell and a buy INSIDE one cluster. It has always answered "which
+member is winning?" with `rel_pp` from `data_cache.rel_strength_1m` — a number that is **always
+SMH-relative for the whole book**. `data_cache.rel_strength_1m_peer` is null, so power and
+hyperscaler names were ranked against a semiconductor ETF. On the live 2026-09-07 book that put
+AVGO worst-in-optics on a -13.31pp reading while it was in fact **+5.19pp ahead of its own
+cluster**, and open proposal P-242 was selling it.
+
+From 2026-09-08 the trigger prefers `smith-cluster`'s fundamental ranking when one is available
+and has earned authority. `smith_risk.ladder_authority(entry, today)` returns one of:
+
+| authority | when | what it changes |
+|---|---|---|
+| `none` | no ladder · older than `LADDER_TTL_DAYS` (14) · confidence low/unset · track record below coin-flip over ≥`LADDER_MIN_SCORED_CALLS` (6) | nothing — the `rel_pp` rule runs exactly as before |
+| `rank` | fresh, `medium` confidence | ordering comes from the ladder; the sell leg **still** requires a `watch` thesis |
+| `full` | fresh, `high` confidence | ordering from the ladder **and** the sell leg relaxes to "not `strengthening`" |
+
+**The relaxation is the risky half and is priced accordingly.** The `watch` requirement is what
+has kept this trigger from ever selling a name the desk still believes in — which also means it
+can never rotate an *intact* laggard, the most common real case in a book with 16 strengthening,
+16 watch and 0 broken. Lifting it lets a ladder sell something no other agent has flagged, so it
+costs `high` confidence, which the agent must earn by defending every rank on a sourced
+fundamental axis.
+
+**The agent does not grade its own homework.** `confidence` is written verbatim from the tail,
+but `cmd_ladder` scores every ladder's previous call on the next refresh (did the named leader
+actually beat the named laggard?), `_merge_cluster` appends that score, and a cluster below
+coin-flip over a real sample is forced to `low` and loses all authority regardless of what it
+says about itself. This is the condition on which the layer was allowed near a live trigger.
+
+**Leg selection under a ladder.** Only HELD, non-over-cap members are eligible on either leg —
+a ladder ranks the bench too, and buying a bench name introduces a name the book has never owned
+on agent judgment alone, which must earn its own trigger and its own vote. The sell leg is taken
+from the **bottom third** of the ranking, not simply "last": with ten names in AI Semis/Fabs the
+difference between rank 9 and rank 10 is inside the agent's own resolution, and insisting on the
+exact last name makes the pair hostage to a distinction the ladder cannot actually make. Among
+the bottom third the **largest** position is sold, because that is where dead money costs
+something.
+
+**Provenance is on every pair**: `ladder_driven`, `ladder_as_of`, `ladder_confidence`,
+`ladder_authority`, `ladder_authority_reasons`. `retires_when` names what the pair was actually
+built on — a ladder-driven pair retires when the ladder reorders or goes stale, never against a
+price fact nobody used. `pair_id` is unchanged (`cluster_rotation-<SELL>-<BUY>`), so
+`_retire_orphaned_rotation_legs` keeps retiring both legs together.
+
+**Sizing.** `clamp_size` now receives real `cluster_room_usd` (from `cmd_drift`), via
+`_pair_cluster_room_usd`, which credits the sale's proceeds back when both legs share a cluster
+— a swap funds its own room, and clamping to the cluster's standing room would zero the buy leg
+inside a full cluster and silently convert the rotation into a naked sell.
+
+**Crosscheck.** `ladder_vs_thesis` fires when the ladder ranks a name last while smith-thesis
+calls it `strengthening`, or first while thesis calls it `watch`/`broken` — `high` severity when
+the ladder has trigger authority, `medium` when it is advisory. Two agents disagreeing about the
+same company is not noise to average away once one of them can size a trade on it.
+
+
+### The two shadow siblings (added 2026-09-08)
+
+Both are PAIRED and both start on a **shadow** vote — `price_at_flag` now, scored at 7/30d, a
+vote only once measured. The standing rule is that a new signal class earns its vote before it
+gets one, and each of these introduces a kind of claim the engine has never acted on before.
+
+**`cluster_bench_rotation`** — sell the ladder's laggard, buy a name the book has **never held**.
+Often the honest answer to "rotate the laggard into what?" is outside the book: a ladder that can
+only recommend from what is already held is choosing the best of a set nobody re-examined. But
+this is the one trigger that introduces a never-held name on a single agent's judgment, with no
+journal history, no thesis entry, no lot, and no record of this desk ever having been right about
+it. Its buy leg is deliberately **not sized**. Its SELL leg still clears every bar a live rotation's
+sell leg does — the shadow-ness is entirely about the buy. A bench entry naming a current holding
+is skipped: that is `cluster_rotation`'s job, and `cluster_rotation` is live.
+
+**`cluster_consolidation`** — two holdings that are ONE bet, collapsed into the better of them.
+The only rotation on this list that does not change factor exposure at all; it shortens the tail,
+because three expressions of one WFE trade carry three sets of idiosyncratic risk for one thesis.
+It sells the whole drop-side position (a partial sale leaves the redundancy in place) and acts
+**only** on pairs the agent explicitly marked `verdict: "redundant"` — a candidate it looked at
+and called `distinct` is a judgment already made, and `cmd_ladder`'s screen is a resemblance,
+never a cause. It will not add to a keep-side name already past its ATR cap.
+
+### PAIRED_TRIGGERS
+
+`smith_core.PAIRED_TRIGGERS` (and the derived `PAIRED_TRIGGER_PREFIXES`) is the **single** place
+a paired trigger's membership is declared. Before 2026-09-08 the pair of names was written out by
+hand at four separate sites in `smith_lifecycle.py` — the retirement pass, `trigger_pairs`'
+construction, the sell-leg carve-out, and `retires_when`. Adding a fifth paired trigger without
+updating all four silently reintroduces single-sided retirement, which is the exact bug behind
+"19 rotation pairs attempted all-time, 0 survived". Add to the set; do not add to a call site.
+
+### Where ladder calls are measured
+
+Two places, for two different questions. `state.cluster_ladders[<c>].track_record` is
+per-cluster and gates that cluster's own trigger authority. `learning.json`'s `ladder.hit_rate`
+observations are the fleet-wide view, on the same append-only spine the journal's hit-rate work
+uses, and answer the different question: is the cluster layer worth its token cost at all?

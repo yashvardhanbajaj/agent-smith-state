@@ -184,3 +184,42 @@ triggered]" — a cheap forcing function against silently dropping sub-agents mi
 - **smith-macro** (deep only): `market_inputs.json` inline (us10y, vix, dxy, spx, ndx — reuse,
   don't refetch), `fomc_cache` (reuse verbatim if today is before its `next_check_date` — a rate
   decision doesn't change intra-cycle, never re-search same-cycle)
+
+---
+
+## CLUSTER SPECIALISTS (added 2026-09-08)
+
+**Trigger:** DEEP runs and explicit on-demand requests only. Never on a quick sweep — a
+substitution ladder is a fundamental ranking that moves on quarters, and refreshing it at a
+quick sweep's cadence would spend three agents a day on an answer that changes four times a year.
+
+**On-demand phrasings that count:** "cluster check on memory", "who wins in optics", "which of
+my semis names is strongest", "should I consolidate AMAT and LRCX", "what should I own in
+power instead". Dispatch the single named cluster; skip the gate.
+
+**Which clusters:** read `compute_ladder.json` → `dispatch_selected` (agent keys) /
+`dispatch_selected_clusters` (display names). The gate has already applied eligibility
+(≥3 held names, ≥2 under their ATR cap), scored priority, applied the round-robin cursor and
+capped at 3. Dispatch exactly those. Adding one by hand defeats the cursor that guarantees every
+eligible cluster is refreshed within 2–3 deep runs.
+
+**Order of operations inside Wave 2:**
+1. `pipeline` has already produced `compute_ladder.json` (it is the LAST stage, after `triggers`,
+   so its gate can see which clusters already carry a live rotation pair).
+2. Wave 1 lands → `merge-tails --agents <wave 1>`.
+3. Re-render slices INCLUDING the cluster keys:
+   `slices --agents thesis,cycle,book,tax,rebound,<dispatch_selected...>`.
+4. Dispatch `smith-cluster` once per key, in parallel with the rest of Wave 2.
+5. Write each returned fenced tail to `runs/<ts>/out_<key>.json`, then
+   `merge-tails --agents <wave 2 incl. cluster keys>`.
+
+**Failure modes worth knowing:**
+- `slices` reports *"no cluster in compute_ladder.json has slug 'X'"* → `ladder` did not run, or a
+  `policy.cluster_playbooks` slug was renamed. Do not dispatch anyway; the agent would not know
+  which cluster it is.
+- `merge-tails` reports *"not a ladder; prior entry left intact"* → the agent returned a
+  leader/laggard with fewer than 2 ranked names. This is a REFUSAL, working as designed, and the
+  cluster keeps its previous ladder. Re-dispatch or leave it for the cursor.
+- A tail whose `cluster` string does not exactly match `sector_map`'s spelling misfiles the
+  ladder. The merge falls back to the slice's own `cluster_name` when the field is absent, but it
+  cannot detect a near-miss that is present and wrong.

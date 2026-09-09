@@ -300,6 +300,17 @@ HEADWIND_BUCKET_MAX_AGE_DAYS = 10
 #                                     the age of its OLDEST entry, because a 35-name map goes
 #                                     stale unevenly and a single map-level date hides exactly
 #                                     the names nobody has looked at
+#   scope     (per_entry only) "held" restricts ageing to currently-held tickers. Added
+#             2026-09-09 after signal_history read DARK at 11 days while all 33 held tickers
+#             were stamped THAT MORNING: the three oldest entries were HOOD, NOW and TXN, names
+#             exited from the book. An exited name can never be refreshed -- the agents that
+#             stamp these maps only scan what is held -- so without scoping, every exit
+#             permanently ratchets its artefact older until it goes dark. That mattered:
+#             signal_history is `on_stale: suppress`, so three dead tickers were suppressing
+#             signals computed hours earlier. The per-entry principle is still right (a map IS
+#             only as current as its least-examined entry); the defect was failing to
+#             distinguish an entry nobody looked at from one nobody CAN look at. Entries
+#             outside the scope are reported as `entries_out_of_scope`, never silently dropped.
 #   ttl_days  refresh cadence
 #   owner     the agent responsible -- so a stale artefact names who stopped contributing
 #   on_stale  what going past ttl means, and hence when the artefact counts as DARK:
@@ -373,7 +384,8 @@ FRESHNESS = {
     # the SMH default in cmd_buckets, same degrade-gracefully contract atr20 already uses.
     "data_cache.rel_strength_1m_peer": {"stamp": "field:as_of", "ttl_days": 7, "owner": "smith-signals", "on_stale": "flag"},
     "signal_history":              {"stamp": "per_entry:signal_history_as_of", "ttl_days": HEADWIND_BUCKET_MAX_AGE_DAYS,
-                                    "owner": "smith-signals", "on_stale": "suppress"},
+                                    "owner": "smith-signals", "on_stale": "suppress",
+                                    "scope": "held"},
     # --- technical caches: degrade gracefully (a stale ATR makes stops marginally wide) ---
     "data_cache.atr20":            {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "flag"},
     # Feeds the rebound screen, which only matters DURING a selloff -- a week-old 5-day return
@@ -402,7 +414,8 @@ FRESHNESS = {
     "data_cache.etf_constituents": {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-thesis",    "on_stale": "flag"},
     "data_cache.earnings_calendar":{"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-earnings",  "on_stale": "flag"},
     # --- sub-agent OUTPUTS: nothing checked any of these before this table existed ---
-    "thesis":                      {"stamp": "per_entry:reviewed_on", "ttl_days": 21, "owner": "smith-thesis",  "on_stale": "escalate"},
+    "thesis":                      {"stamp": "per_entry:reviewed_on", "ttl_days": 21, "owner": "smith-thesis",  "on_stale": "escalate",
+                                    "scope": "held"},
     "sector_map":                  {"stamp": "sibling:sector_map_as_of", "ttl_days": 30, "owner": "smith-thesis", "on_stale": "flag"},
     "peer_map":                    {"stamp": "sibling:peer_map_as_of",   "ttl_days": 30, "owner": "smith-signals","on_stale": "flag"},
     "factor_catalysts":            {"stamp": "max_date",   "ttl_days": 7,  "owner": "smith-catalyst",  "on_stale": "flag"},

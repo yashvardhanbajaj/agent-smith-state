@@ -1,7 +1,7 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**84 total gaps** -- 13 open, 71 archived (closed).
+**86 total gaps** -- 15 open, 71 archived (closed).
 
 ---
 
@@ -825,5 +825,23 @@ FMP plan tier blocks `statements` (key-metrics/financial-scores) for this book's
 compute_book.json's pnl_pct returned null on the 2026-09-07-0741 run -- root-caused: cmd_book NEVER derives pnl_pct itself (totals.get('pnl_pct') only, no fallback), and every normal orchestrator-built holdings.json (checked runs/2026-09-03-1845, 2026-08-31-1554) always precomputes and supplies it directly from networth_holdings' asset_summary (invested_usd vs total_value_usd) -- there is no 'invested' figure in totals at all for a fallback to use. This was MY OWN ad-hoc holdings.json build (the live tokenomics-demo run) omitting that precompute step, not a script defect. Corrected here rather than left mischaracterized. Closing.
 
 **Resolution:** Root-caused as an ad-hoc holdings.json build gap, not a script defect -- no code change needed. Corrected the mischaracterization in this entry rather than leaving it standing as a false product-bug report.
+
+---
+
+## G92 -- OPEN
+**Opened:** 2026-09-09  **Owner:** orchestrator  **Closed:** 2026-09-09  
+
+Dashboard v1's build() called only 12 of its ~35 _render_* functions -- thirteen panels were defined, never invoked, and silently absent from the published page
+
+**Resolution:** Found while auditing the dashboard against Smith's full analytical output. The published dashboard.html carried 20 headings; the builder defined 35 render functions. Missing from the live page: thesis map, signal history, execution log, data-quality caveats, self-learning, stop-loss efficacy, watchlist setups, factor themes, trade triggers, diversifier bench, rotation analysis, retired proposals and open gaps -- i.e. the entire Diagnostics tier, plus the desk's own track record (36.4% proposal accuracy, 36.1% stop win rate). Every one of those builders had a PASSING unit test, because each worked correctly in isolation; nothing tested that build() reached it. The 2026-07-28 REGRESSION GUARD anticipated exactly this failure and did not prevent it, because it was a written instruction to diff before publishing rather than a mechanism. FIXED by rewriting the builder (v2, scripts/smith_dashboard.py; v1 archived to archive/smith_dashboard_v1.py): one payload dict + a client-side renderer, with REQUIRED_KEYS and assert_payload_complete() failing the build when a key goes missing, tests/unit/test_smith_dashboard_payload.py pinning the floor, a regenerated golden master, and per-build panel counts printed to stdout. GENERALISE: when a component is assembled from N independent pieces wired by hand, unit-testing the pieces proves nothing about the assembly -- test that each piece is REACHED, or restructure so it cannot be omitted.
+
+---
+
+## G93 -- OPEN
+**Opened:** 2026-09-09  **Owner:** orchestrator  **Closed:** 2026-09-09  
+
+FRESHNESS per_entry ageing counted exited tickers, so every exit permanently aged its artefact toward dark -- signal_history read DARK/suppress at 11d while all 33 held names were stamped that morning
+
+**Resolution:** User asked why thesis and signal_history were reading stale/suppressed. Neither was. signal_history: all 33 HELD tickers stamped 2026-09-09, but per_entry takes the OLDEST entry's age and the three oldest were HOOD, NOW and TXN -- exited names that smith-signals can never refresh, because it only scans what is held. Three dead tickers pushed a zero-day-old artefact past its 10-day dark threshold, and on_stale=suppress then suppressed signals computed hours earlier. thesis: 29 entries reviewed 09-08 and 4 on 09-09, but exactly one held name (META) carried no reviewed_on at all -- revived unchanged from archive without a stamp -- and unstamped counts as infinitely old, escalating the whole 34-name map. The per_entry PRINCIPLE was right (a map is only as current as its least-examined entry); the defect was failing to distinguish an entry nobody looked at from one nobody CAN look at. FIXED: (1) smith_core.FRESHNESS gains a `scope` field, set to 'held' for signal_history and thesis; smith_memory._fresh_stamp restricts ageing to state.holdings tickers, reports the rest as entries_out_of_scope rather than dropping them, and fails OPEN to old behaviour when holdings is absent. signal_history now reads fresh/0d. (2) A new validate defect, FRESHNESS ENTRY UNSTAMPED, names the specific ticker rather than letting one missing field masquerade as a stale map. (3) META's reviewed_on backfilled from its own verified_on (2026-08-12) -- deliberately NOT today's date, which would assert a review that never happened. That honest stamp immediately surfaced a REAL finding the old flag was hiding: META's thesis is genuinely 28d unreviewed, past its 21d TTL, and now reads dark by name. GENERALISE: a staleness rule that ages entries its own producer cannot refresh will drift to permanently-dark and get ignored.
 
 ---

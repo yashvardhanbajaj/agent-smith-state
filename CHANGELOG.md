@@ -4,6 +4,66 @@ Dated record of fixes and decisions. See [ARCHITECTURE.md](ARCHITECTURE.md) for 
 currently exists, [POLICY-DECISIONS.md](POLICY-DECISIONS.md) for policy-specific
 rationale.
 
+## 2026-09-09 (dashboard v2; FRESHNESS stops ageing names it cannot refresh)
+
+Two findings from one audit — "does the dashboard show what Smith actually computes?"
+
+### The dashboard had silently lost thirteen panels (G92)
+
+`build()` called 12 of its ~35 `_render_*` functions. Defined and never invoked: thesis map,
+signal history, execution log, data-quality caveats, self-learning, stop-loss efficacy,
+watchlist setups, factor themes, trade triggers, diversifier bench, rotation analysis, retired
+proposals, open gaps. The whole Diagnostics tier was gone from the published page, along with
+the desk's own track record — 36.4% proposal accuracy, 14.3% on trims, 36.1% stop win rate.
+
+Every one of those builders had a **passing unit test**. Each worked in isolation; nothing
+tested that `build()` reached it. The 2026-07-28 REGRESSION GUARD anticipated this exact
+failure and did not prevent it, because it was an instruction to diff before publishing rather
+than a mechanism.
+
+**Rewritten as v2** (`scripts/smith_dashboard.py`; v1 → `archive/smith_dashboard_v1.py`). One
+payload dict + a client-side renderer, five tabs, sortable/filterable tables, a 254-row
+proposal-history browser, and a ticker sheet that pulls one name's thesis, evidence, cluster
+rank, live triggers, fills, stops and hit-rate grades into one place. The guard is now code:
+`REQUIRED_KEYS` + `assert_payload_complete()` fail the build on a missing key,
+`tests/unit/test_smith_dashboard_payload.py` pins the floor, the golden master covers the whole
+output, and every build prints panel counts.
+
+Generalise: **when a component is assembled from N independent pieces wired by hand,
+unit-testing the pieces proves nothing about the assembly.** Test that each piece is reached,
+or restructure so it cannot be omitted.
+
+### FRESHNESS was ageing tickers its own producer can never refresh (G93)
+
+`signal_history` read **DARK at 11 days** with `on_stale: suppress` — while all 33 held tickers
+had been stamped **that morning**. `per_entry` takes the oldest entry's age, and the three
+oldest were HOOD, NOW and TXN: exited names. smith-signals only scans what is held, so an
+exited name can never be restamped, and every exit ratchets its artefact permanently older.
+Three dead tickers were suppressing signals computed hours earlier.
+
+`thesis` escalated the same way off one held name — META, revived from archive without a
+`reviewed_on`, and unstamped counts as infinitely old.
+
+The per-entry *principle* is right: a map is only as current as its least-examined entry. The
+defect was failing to distinguish an entry nobody looked at from one nobody **can** look at.
+
+- `smith_core.FRESHNESS` gains `scope`; `signal_history` and `thesis` set it to `"held"`.
+- `smith_memory._fresh_stamp` ages only in-scope tickers, reports the rest as
+  `entries_out_of_scope` (counted, never silently dropped), and fails **open** to the previous
+  behaviour when `state.holdings` is absent. signal_history now reads fresh/0d.
+- New validate defect `FRESHNESS ENTRY UNSTAMPED` names the ticker, so one missing field stops
+  masquerading as a stale map.
+- META's `reviewed_on` backfilled from its own `verified_on` (2026-08-12), **not** today's
+  date, which would assert a review that never happened. The honest stamp immediately exposed a
+  real finding the old flag was hiding: META's thesis is genuinely **28 days unreviewed**, past
+  its 21-day TTL, and now says so by name.
+
+Generalise: **a staleness rule that ages entries its own producer cannot refresh will drift to
+permanently-dark and get ignored.**
+
+Suite: 396 passing (was 384 passing + 12 failing — those 12 targeted `_render_cluster_ladders`,
+a v1 function that never existed in the shipped builder).
+
 ## 2026-09-08 (factor-catalyst carry-forward: an empty scan is not a retirement)
 
 **Observed live on the 2026-09-08 deep run.** First session after a Labor Day long weekend,
