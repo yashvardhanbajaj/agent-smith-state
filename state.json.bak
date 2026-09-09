@@ -6416,13 +6416,432 @@
         "MSFT and NBIS thesis entries are both marked verified=unverified in state.thesis"
       ],
       "track_record": []
+    },
+    "AI Power/Cooling/DC Infra": {
+      "as_of": "2026-09-09",
+      "cluster_thesis": {
+        "status": "strengthening",
+        "innings": "mid",
+        "text": "The equipment/on-site layer of this cluster (GEV turbines+grid gear, BE behind-the-meter fuel cells, VRT liquid cooling) is genuinely strengthening with multi-year contracted backlog and pricing power. The grid-connected/merchant-IPP and policy-driven layers (VST, FSLR) are watch-status and mixed. Liquid cooling being called 'the default for new AI datacenter designs' and gas-turbine slots already >50% booked into 2031 both signal a maturing, not early-stage, infrastructure cycle.",
+        "falsifier": "GEV's 2026-10-21 print shows gas-turbine or electrification backlog conversion stalling, or a second hyperscaler after Vistra publicly backs a demand pause/interconnection moratorium."
+      },
+      "margin_pool": {
+        "moving_toward": "on-site/behind-the-meter generation (BE) and locked-in multi-year equipment contracts (GEV turbines, VRT liquid cooling) where suppliers hold pricing power",
+        "moving_away_from": "grid-connected merchant-IPP monetization (VST) where interconnection queues and local permitting/political friction (Texas pause) are becoming binding constraints",
+        "evidence": [
+          {
+            "claim": "Vistra executives publicly supported a Texas data-center pause",
+            "date": "2026-09",
+            "source": "Utility Dive"
+          },
+          {
+            "claim": "Bloom Energy delivered a hyperscale order in 55 days vs a 90-day commitment, speed-to-power as competitive moat, customer count 1->6 hyperscalers in a year",
+            "date": "2026-08/09",
+            "source": "24/7 Wall St / TradingKey"
+          },
+          {
+            "claim": "GEV contracting >50% of 2031 gas-turbine slot capacity already by YE2026",
+            "date": "2026 Q2 call",
+            "source": "TheValueist Q2'26 GEV earnings read-through"
+          }
+        ]
+      },
+      "ranking": [
+        {
+          "rank": 1,
+          "ticker": "GEV",
+          "held": true,
+          "verdict": "leader",
+          "differentiator_reads": [
+            {
+              "axis": "turbine and grid-equipment backlog/delivery window",
+              "read": "Gas turbine backlog 116GW (was 100GW Q1), targeting 125GW by YE26; Electrification (grid equipment) backlog $40.6B, +69% YoY; total backlog $176B; >50% of 2031 gas slots already contracted -- deepest, most dated multi-year evidence in the cluster",
+              "source": "Utility Dive / GEV Q2'26 8-K",
+              "date": "2026-Q2"
+            },
+            {
+              "axis": "read-through role",
+              "read": "cluster_ladder_row explicitly names GEV/VRT order books as the cluster's own demand read -- GEV's scale and rate of backlog growth make it the primary signal, not a lagging one",
+              "source": "cluster_ladder_row.read_throughs",
+              "date": "2026-09-09"
+            }
+          ],
+          "case_against": "9.20% weight is 1.542x its ATR cap -- concentration risk is real even though the fundamental case is the strongest in the cluster; a single guide-down would hit the book harder here than anywhere else in this cluster."
+        },
+        {
+          "rank": 2,
+          "ticker": "BE",
+          "held": true,
+          "verdict": "middle",
+          "differentiator_reads": [
+            {
+              "axis": "fuel cell/on-site generation as a distinct bet",
+              "read": "$20B total backlog / $6B product backlog (~2.5x YoY), FY26 guide +50%+ revenue and ~32% non-GAAP gross margin, hyperscale customer count 1->6 in a year, 55-day delivery vs 90-day commitment -- speed-to-power is a real, differentiated moat vs interconnection-bound peers",
+              "source": "24/7 Wall St / TradingKey (Oracle 2.8GW order)",
+              "date": "2026-08/09"
+            },
+            {
+              "axis": "behind-the-meter vs grid-connected regime",
+              "read": "BE sidesteps the interconnection queue entirely, the opposite regulatory exposure from VST -- this is why the two are not the same bet despite both being 'AI power' names",
+              "source": "differentiator axis analysis",
+              "date": "2026-09-09"
+            }
+          ],
+          "case_against": "3.93% weight is 1.219x cap and rotation_bucket already flags trim_risk_cap; no return figure in this run's cache (return_coverage gap) so the +9.6% pre-market pop cannot be independently sized against fundamentals today."
+        },
+        {
+          "rank": 3,
+          "ticker": "VRT",
+          "held": true,
+          "verdict": "middle",
+          "differentiator_reads": [
+            {
+              "axis": "liquid-cooling attach rate per rack",
+              "read": "$15B backlog, orders +252% YoY, >300kW/rack density structurally forcing the air-to-liquid switch, described as 'default for new AI DC designs' -- fundamentally leader-tier",
+              "source": "Data Center Frontier / Seeking Alpha",
+              "date": "2026 (Q4'25 print carried into 2026 guide)"
+            },
+            {
+              "axis": "thesis/insider signal (not a formal cluster axis, but load-bearing here)",
+              "read": "1 insider sold in the last 60 days, no insider buying during the drawdown -- added 2026-09-07 against an unchanged 'watch' status, and RSI14 67.2 suggests the move has already run",
+              "source": "SEC Form 4 via state.thesis",
+              "date": "2026-09-07"
+            }
+          ],
+          "case_against": "Zero live return_1m figure in this run's cache (one of the 3 missing-return members) -- the fundamental case for a higher rank cannot be corroborated against price this run."
+        },
+        {
+          "rank": 4,
+          "ticker": "VST",
+          "held": true,
+          "verdict": "middle",
+          "differentiator_reads": [
+            {
+              "axis": "interconnection-queue and permitting exposure",
+              "read": "Vistra executives publicly supported a Texas data-center pause -- a grid-connected IPP endorsing a brake on the demand it monetizes, a headwind unique to this business model in the cluster",
+              "source": "Utility Dive",
+              "date": "2026"
+            },
+            {
+              "axis": "behind-the-meter vs grid-connected regime",
+              "read": "grid-connected/PPA model (Meta PJM nuclear deal, Comanche Peak-Amazon PPA from 2027) carries multi-year siting/interconnection risk that BE's behind-the-meter model does not",
+              "source": "ANS Nuclear Newswire / enkiai coverage",
+              "date": "2026-01/2026"
+            }
+          ],
+          "case_against": "Genuine bull case exists too: Thiel's disclosed stake, Helix JV, Strong Buy consensus with +30.2% target upside -- not ranked last, because the bull case is real, just outweighed by the revenue miss, 31% drawdown, insider sale, and the pause-endorsement headwind."
+        },
+        {
+          "rank": 5,
+          "ticker": "FSLR",
+          "held": true,
+          "verdict": "laggard",
+          "differentiator_reads": [
+            {
+              "axis": "utility capex cycle independent of AI demand",
+              "read": "cluster's own read_throughs state solar (FSLR) is policy-driven and should NOT be read as an AI-capex signal -- the tailwind this cluster exists to measure is the wrong causal story for this name",
+              "source": "cluster_ladder_row.read_throughs",
+              "date": "2026-09-09"
+            },
+            {
+              "axis": "price/fundamental confirmation",
+              "read": "worst rel_intra_pp in the cluster (-4.77pp of the only 2 names with return data), Q2 revenue light vs consensus, open class-action suit on Series 6 underutilization",
+              "source": "stockanalysis.com/stocks/fslr + INDmoney news",
+              "date": "2026-07-30 / 2026-08-12"
+            }
+          ],
+          "case_against": "Section 232 tariffs did produce a real rally and 26-analyst 73%-Buy consensus with +37% upside -- the tariff/IRA tailwind is real, it is just a different tailwind than the one this cluster tracks."
+        }
+      ],
+      "leader": "GEV",
+      "laggard": "FSLR",
+      "confidence": "medium",
+      "redundant_pairs": [
+        {
+          "pair": [
+            "GEV",
+            "VRT"
+          ],
+          "same_bet_because": "screen returned no candidate; different value-chain steps (grid/turbine equipment vs in-DC thermal management)",
+          "keep": "both",
+          "drop": "none",
+          "verdict": "distinct"
+        },
+        {
+          "pair": [
+            "BE",
+            "VST"
+          ],
+          "same_bet_because": "screen returned no candidate; opposite ends of the behind-the-meter vs grid-connected regulatory axis by design",
+          "keep": "both",
+          "drop": "none",
+          "verdict": "distinct"
+        }
+      ],
+      "bench": [
+        {
+          "ticker": "ETN",
+          "price_usd": 410.85,
+          "why_better_than": "beats VST -- direct data-center power-distribution/electrical-equipment exposure without the merchant-IPP interconnection-pause overhang; near its 52-wk range (ATH $459.96) on its own strength, not a single-customer PPA",
+          "entry_condition": "pullback toward $380-390 (prior consolidation zone) or a confirmed AI-datacenter order disclosure"
+        },
+        {
+          "ticker": "CEG",
+          "price_usd": 305.77,
+          "why_better_than": "beats VST on the same grid-connected-nuclear axis -- firmer long-dated contracted volume (Meta 1.1GW PPA, Microsoft/Three Mile Island) and no public executive ambivalence about hyperscaler demand, currently -47.2% off its 52-wk high of $412.70",
+          "entry_condition": "stabilization above $300 with a fresh hyperscaler PPA announcement, or a re-test of the low-$280s"
+        }
+      ],
+      "reorder_when": [
+        "GEV's 2026-10-21 print shows electrification or gas-turbine backlog conversion decelerating (would drop GEV from leader)",
+        "VRT's insider-sale flag either resolves (buying resumes) or extends to a second insider (would confirm or reverse the current thesis_tension)",
+        "A second hyperscaler joins Vistra in publicly backing an interconnection/demand pause (would confirm VST as a structural laggard, not just a mixed name)",
+        "FSLR reports a quarter where hyperscaler-cited backlog demand (not tariff/IRA) is the stated driver (would force reclassifying it out of laggard)"
+      ],
+      "catalysts": [
+        {
+          "date": "2026-10-21",
+          "event": "GEV Q3 earnings",
+          "reorders": [
+            "GEV"
+          ],
+          "read_through_to": [
+            "VRT",
+            "BE",
+            "VST"
+          ]
+        },
+        {
+          "date": "TBD",
+          "event": "next Vistra data-center-pause development in Texas (regulatory/legislative)",
+          "reorders": [
+            "VST"
+          ],
+          "read_through_to": [
+            "GEV",
+            "BE"
+          ]
+        }
+      ],
+      "thesis_tensions": [
+        {
+          "ticker": "VRT",
+          "ladder_rank": 3,
+          "thesis_status": "watch",
+          "tension": "Fundamental backlog/order-growth evidence ($15B backlog, +252% orders, liquid cooling now default design) reads leader-tier, but thesis remains watch on a 2026-09-07 insider-sale flag with no offsetting insider buying during the drawdown -- ladder did not resolve this gap, it is flagged as a genuine cross-agent disagreement."
+        }
+      ],
+      "unranked": [],
+      "confidence_reasons": [
+        "return_coverage only 2/5 members (GEV, FSLR) \u2014 dispersion/mean-return figures are partial, not full-cluster",
+        "fundamental axes for GEV, BE, VRT are sourced to dated press/investor releases citing company filings, but not independently re-verified against primary 8-Ks this run",
+        "VST's Texas data-center-pause claim and VRT's insider-sale flag are single-source and not cross-checked"
+      ],
+      "track_record": []
+    },
+    "AI Memory/Storage": {
+      "as_of": "2026-09-09",
+      "cluster_thesis": {
+        "status": "watch",
+        "innings": "mid",
+        "text": "The memory supercycle itself is intact and arguably accelerating structurally (HBM wafer share of DRAM projected 18%->30% by end-2027, TrendForce 2027 HBM contract hikes guided +80-150%), but CXMT reaching HBM3E risk production ~1yr ahead of the 2027 consensus timeline (qualification-stage, shipping samples to Alibaba T-Head/Cambricon) introduces a genuine, dated competitive threat specifically to the HBM3-tier segment SK Hynix (SKHY) has near-monopolized and to MU's commodity-DRAM crowd-out thesis. Not yet in supplier pricing -- this is a WATCH on timing and magnitude, not a deteriorating call.",
+        "falsifier": "CXMT HBM3E product actually enters a hyperscaler or ASIC-maker's qualified supplier list (beyond sampling to Alibaba T-Head/Cambricon), or a tier-1 source reports a first CXMT-linked HBM3E contract price -- either would move this from qualification-stage risk to realized ASP risk."
+      },
+      "margin_pool": {
+        "moving_toward": "HBM (and within HBM, the newest qualified generation -- HBM4 Vera Rubin) as wafer allocation shifts from conventional DRAM into HBM (18%->30% of DRAM wafer input by end-2027)",
+        "moving_away_from": "commodity DRAM margins get squeezed by the same crowd-out mechanism that is enriching HBM suppliers; WDC's HDD/nearline-storage margin pool is adjacent but structurally separate from both -- it is not migrating from or to the DRAM/HBM pool at all",
+        "evidence": [
+          {
+            "claim": "HBM wafer input rising from ~18% of total DRAM wafer input (end-2025) to ~30% (end-2027), the structural mechanism crowding out conventional DRAM",
+            "date": "2026-06-02",
+            "source": "TrendForce via hbm_tracker forecasts"
+          },
+          {
+            "claim": "2027 HBM contract prices guided to 'surge multiples higher' (+80-150%)",
+            "date": "2026-06-02",
+            "source": "TrendForce via hbm_tracker forecasts"
+          },
+          {
+            "claim": "~70% of Samsung's memory capacity locked under LTAs through 2031, meaning HBM3E spot spikes (4-5x LTA) accrue mainly to residual free capacity, not the pre-sold supplier base",
+            "date": "2026-09-01",
+            "source": "TrendForce via hbm_tracker supply_structure"
+          }
+        ]
+      },
+      "ranking": [
+        {
+          "rank": 1,
+          "ticker": "SKHY",
+          "held": true,
+          "verdict": "leader",
+          "differentiator_reads": [
+            {
+              "axis": "HBM4 sampling timing and committed capacity vs announced capacity",
+              "read": "SK Hynix holds 60-70% of the HBM4 Vera Rubin supplier allocation, the largest and most concentrated share of the current ramp",
+              "source": "hbm_tracker supply_structure (techtimes.com/investing.com)",
+              "date": "2026-06-05"
+            },
+            {
+              "axis": "contract-price pass-through",
+              "read": "strengthening thesis, rotation_bucket=accumulate, up +4.8% today despite carrying the same CXMT catalyst_threat trim as MU -- market pricing the threat as immaterial to the near-term HBM4 ramp",
+              "source": "ladder_memory row + thesis.c2059655.json",
+              "date": "2026-09-09"
+            }
+          ],
+          "case_against": "Highest beta in the entire 33-name book (2.442) and thinnest analyst coverage of the three (10 vs MU's 32); SK Hynix's HBM3E near-monopoly is precisely the generation CXMT is targeting, so a Chinese qualification success would first erode share at SK Hynix's stronghold tier, not at HBM4."
+        },
+        {
+          "rank": 2,
+          "ticker": "MU",
+          "held": true,
+          "verdict": "middle",
+          "differentiator_reads": [
+            {
+              "axis": "DRAM vs NAND revenue mix, direction of each cycle independently",
+              "read": "diversified DRAM (commodity+HBM) and NAND base gives MU exposure to two independent cycles, unlike SKHY's HBM-heavy concentration",
+              "source": "cluster_ladder_row.differentiators + thesis.c2059655.json",
+              "date": "2026-09-09"
+            },
+            {
+              "axis": "HBM4 sampling timing and committed capacity vs announced capacity",
+              "read": "qualified for HBM4 Vera Rubin but allocation share is 'the remainder... realistically single digits to low teens' -- structurally thin on the fastest-inflecting tier",
+              "source": "hbm_tracker supply_structure",
+              "date": "2026-06-05"
+            },
+            {
+              "axis": "conventional-DRAM crowd-out",
+              "read": "WATCH status is explicitly CXMT structural/capacity risk, not ASP -- CXMT reached HBM3E risk production ~1yr ahead of 2027 consensus, qualification-stage only",
+              "source": "smith-catalyst scan / smith-thesis",
+              "date": "2026-09-01 / 2026-09-09"
+            }
+          ],
+          "case_against": "Largest analyst-target gap in the cluster (+51.3%, $1513.11 vs $1000.26) and today's PEER LEADER + TARGET GAP signal fires are real bullish evidence that argues for ranking MU above SKHY on pure upside, even while thesis stays at WATCH."
+        },
+        {
+          "rank": 3,
+          "ticker": "WDC",
+          "held": true,
+          "verdict": "laggard",
+          "differentiator_reads": [
+            {
+              "axis": "enterprise SSD exposure as a separate AI-adjacent driver from DRAM",
+              "read": "WDC completed its SanDisk (NAND/flash) spinoff in 2024 and is now a pure enterprise/nearline HDD maker -- it has no DRAM, HBM, or NAND revenue line at all, so this axis and the DRAM/NAND-mix axis both read as non-participant rather than exposed",
+              "source": "corporate structure (SanDisk spinoff, 2024)",
+              "date": "2024 (spinoff); reconfirmed by 2026-09-09 catalyst pattern"
+            },
+            {
+              "axis": "conventional-DRAM crowd-out",
+              "read": "WDC was not named in today's CXMT catalyst_threat trim alongside MU and SKHY -- consistent with WDC having no DRAM/HBM3-tier exposure for a domestic Chinese DRAM competitor to threaten",
+              "source": "smith-catalyst scan / trim record",
+              "date": "2026-09-09"
+            }
+          ],
+          "case_against": "Best price mover in the cluster today (+2.1%), strengthening thesis, and the largest analyst-target gap in dollar terms among the three (+39.3%, $664.92 vs $477.30) -- on its own AI-storage-demand merits (nearline HDD capacity for AI training data) WDC's thesis is not weak, it is simply not the same trade as the DRAM/HBM tailwind this cluster question is about."
+        }
+      ],
+      "leader": "SKHY",
+      "laggard": "WDC",
+      "confidence": "medium",
+      "redundant_pairs": [
+        {
+          "pair": [
+            "MU",
+            "SKHY"
+          ],
+          "same_bet_because": "both are DRAM/HBM merchant memory suppliers riding the same HBM pricing tailwind",
+          "keep": "both",
+          "drop": "none",
+          "verdict": "distinct"
+        }
+      ],
+      "bench": [
+        {
+          "ticker": "SNDK",
+          "price_usd": null,
+          "why_better_than": "offers pure-NAND exposure that none of the three held names provide cleanly (MU is mixed DRAM+NAND, WDC is HDD-only post-spinoff, SKHY is HBM-DRAM) -- was +11.9% on the 2026-09-04 memory-spike session, the largest single-day move of any name in that basket, and carries the highest ATR20 (15.6%) in the book's entire cache",
+          "entry_condition": "a pullback that confirms a base after its extreme volatility, or independent corroboration of the still-uncorroborated (hbm_tracker G8) DRAM +50%/NAND +60% QoQ Susquehanna report that drove the 09-04 spike"
+        },
+        {
+          "ticker": "EWY",
+          "price_usd": null,
+          "why_better_than": "captures Samsung + SK Hynix combined (>50% of the ETF's weight per hbm_tracker), the two largest HBM4 Vera Rubin allocation holders (25-30% + 60-70%), diversifying away SKHY's single-name beta (2.442, highest in the book) while keeping the same HBM4 tailwind",
+          "entry_condition": "no specific trigger identified this run -- a standing structural alternative for reducing single-name concentration risk within the HBM4 leadership bet"
+        }
+      ],
+      "reorder_when": [
+        "A tier-1 source reports a CXMT HBM3E product entering a real qualified-supplier list beyond Alibaba T-Head/Cambricon sampling, or a first CXMT-linked contract price appears -- would demote SKHY given SK Hynix's HBM3E concentration",
+        "SK Hynix's next quarterly print (expected late Oct 2026, exact date TBD) confirms or disappoints on HBM4 Vera Rubin allocation share -- direct read-through to both SKHY and MU",
+        "A tier-1, non-ratio-derived HBM3E contract-basis quote newer than 2026-01-15 appears (hbm_tracker G5), which would let ASP pass-through be judged directly rather than via the flat-within-basis proxy"
+      ],
+      "catalysts": [
+        {
+          "date": "~late Oct 2026 (TBD)",
+          "event": "SK Hynix Q3 earnings/guidance",
+          "reorders": [
+            "SKHY",
+            "MU"
+          ],
+          "read_through_to": [
+            "MU",
+            "SKHY"
+          ]
+        },
+        {
+          "date": "ongoing, no fixed date",
+          "event": "TrendForce quarterly contract-price guide",
+          "reorders": [
+            "MU",
+            "SKHY",
+            "WDC"
+          ],
+          "read_through_to": [
+            "MU",
+            "SKHY"
+          ]
+        },
+        {
+          "date": "ongoing, tracked as hbm_tracker G1",
+          "event": "CXMT HBM3/HBM3E mass-production yield updates",
+          "reorders": [
+            "SKHY",
+            "MU"
+          ],
+          "read_through_to": [
+            "MU",
+            "SKHY"
+          ]
+        }
+      ],
+      "thesis_tensions": [
+        {
+          "ticker": "WDC",
+          "ladder_rank": 3,
+          "thesis_status": "strengthening",
+          "tension": "Ranked laggard on the cluster's shared-tailwind question despite a strengthening per-name thesis and the best price move in the cluster today (+2.1%) -- the disagreement is structural (WDC is HDD-only post-SanDisk-spinoff, not a DRAM/HBM participant), not a quality judgment on WDC itself."
+        },
+        {
+          "ticker": "MU",
+          "ladder_rank": 2,
+          "thesis_status": "watch",
+          "tension": "MU carries the cluster's single largest analyst-target upside (+51.3%) and fired PEER LEADER + TARGET GAP signals today, yet its thesis sits at WATCH (CXMT structural risk) and it is ranked below SKHY rather than above it -- upside on paper is not the same as capturing the fastest-inflecting part of the tailwind (HBM4 Vera Rubin), where MU is structurally thin."
+        }
+      ],
+      "unranked": [],
+      "confidence_reasons": [
+        "return_coverage 1/3 -- only MU has a cached 1m return, so rel_intra_pp agreement/disagreement cannot be fully cross-checked against price for SKHY/WDC",
+        "every rank is justified on a sourced, dated fundamental axis (HBM4 allocation share, CXMT ticker-specific targeting, WDC's post-spinoff business model), not on price alone",
+        "redundancy_candidates screen came back empty due to the same missing-return gap, not because the pair was evaluated and cleared"
+      ],
+      "track_record": []
     }
   },
-  "cluster_ladders_as_of": "2026-09-08",
+  "cluster_ladders_as_of": "2026-09-09",
   "cluster_scan_cursor": {
     "AI Semis/Fabs": "2026-09-08",
     "AI Networking/Optics": "2026-09-08",
-    "Compute/Hyperscaler": "2026-09-08"
+    "Compute/Hyperscaler": "2026-09-08",
+    "AI Power/Cooling/DC Infra": "2026-09-09",
+    "AI Memory/Storage": "2026-09-09"
   },
   "factor_catalysts_as_of": "2026-09-07"
 }

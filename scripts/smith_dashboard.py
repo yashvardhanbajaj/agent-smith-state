@@ -1607,116 +1607,19 @@ def _render_rotation_analysis(rotation):
     return out
 
 
-def _render_cluster_ladders(state, ladder, thesis_reader):
-    """The intra-cluster substitution ladder (added 2026-09-08).
-
-    The Clusters panel above answers "how much of each?" against policy bands. This one answers
-    the question the bands cannot: WITHIN a cluster whose members all share one tailwind, which
-    name is capturing it and which is dead money. Renders smith-cluster's ranking with the
-    deterministic rel_intra_pp beside each rank -- each member against its OWN cluster's mean
-    return, not against SMH -- so a ranking that merely restates price is visible as such at a
-    glance, which is the failure mode this whole layer exists to avoid.
-
-    Shows nothing at all when no ladder has been built. A ladder panel rendered from an empty
-    map would read as "no cluster has a winner", which is a finding; absence is not.
+def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map, ladder=None, ch=None):
+    """Clusters panel -- allocation-vs-band PLUS the intra-cluster substitution ladder, ONE
+    table per cluster (merged 2026-09-09, user: "why dont merge both the cluster and cluster
+    ladder table. that will be more neater. add p/e ratios too"). These used to be two separate
+    panels -- "Clusters" (weight vs. policy band, one member table per cluster) and "Cluster
+    ladders" (smith-cluster's ranked substitution call, its own member table per cluster with a
+    ladder) -- and a reader had to cross-reference GEV's row in one against GEV's row in the
+    other to get the full picture. Now each cluster's `<details>` carries the band bar, the
+    ranked member table (rank, weight, P/E, price, vs-cluster return, thesis, signals, the
+    ladder's own rationale) and, when a ladder exists, its bench candidates and cluster-level
+    thesis/margin-pool read in one place. A cluster with no ladder yet just shows the same
+    table sorted by weight instead of rank, with a note saying so -- never a fabricated rank.
     """
-    ladders = (state or {}).get("cluster_ladders") or {}
-    if not ladders:
-        return []
-    # `thesis_reader` is smith_risk.thesis_status -- the canonical reader for BOTH entry shapes
-    # (the legacy "text|status" string and the dict), never a {ticker: status} map. Reading the
-    # raw entry here instead would silently show a legacy row's whole text where a status belongs.
-    thesis = (state or {}).get("thesis") or {}
-    intra = {}
-    for cname, crow in ((ladder or {}).get("clusters") or {}).items():
-        for m in crow.get("members") or []:
-            intra[(cname, m.get("ticker"))] = m.get("rel_intra_pp")
-
-    rows = []
-    for cname in sorted(ladders):
-        L = ladders[cname] or {}
-        ranking = L.get("ranking") or []
-        if not ranking:
-            continue
-        conf = (L.get("confidence") or "").lower()
-        conf_cls = {"high": "g", "medium": "w", "low": "b"}.get(conf, "")
-        ct = L.get("cluster_thesis") or {}
-        tr = [t for t in (L.get("track_record") or []) if t.get("scored")]
-        hits = sum(1 for t in tr if t.get("correct"))
-        # Only ever shown with its denominator. A hit rate without a sample size is the shape
-        # that makes 1-of-1 look like a track record.
-        record = (" &middot; ladder calls %d/%d" % (hits, len(tr))) if tr else ""
-
-        lines = []
-        for m in ranking:
-            t = m.get("ticker") or ""
-            pp = intra.get((cname, t))
-            pp_html = ('<span class="mono%s">%+.1f pp</span>' % (" neg" if pp < 0 else "", pp)
-                       if isinstance(pp, (int, float)) else '<span class="mono">&mdash;</span>')
-            reads = m.get("differentiator_reads") or []
-            why = esc((reads[0].get("read") or "")[:110]) if reads else ""
-            axis = esc((reads[0].get("axis") or "")[:40]) if reads else ""
-            ts = thesis_reader(thesis.get(t)) if t in thesis else None
-            # A rank that contradicts the per-name thesis is the most informative cell on this
-            # panel -- a laggard the desk still calls strengthening, or a leader on a watch
-            # thesis. smith-cluster reports it as thesis_tensions and crosscheck picks it up;
-            # flag it visually too rather than leaving it to be noticed.
-            tension = ((m.get("verdict") == "laggard" and ts == "strengthening")
-                       or (m.get("verdict") == "leader" and ts in ("watch", "broken")))
-            lines.append(
-                '<tr><td class="mono">%s</td><td><b>%s</b>%s%s</td><td>%s</td><td>%s</td>'
-                '<td>%s</td></tr>' % (
-                    m.get("rank", ""), esc(t),
-                    "" if m.get("held", True) else " <i>bench</i>",
-                    ' <span class="pill w">vs thesis</span>' if tension else "",
-                    pp_html, esc(ts or "-"),
-                    ("<b>%s</b> &mdash; " % axis if axis else "") + why))
-        for b in (L.get("bench") or [])[:3]:
-            lines.append(
-                '<tr><td class="mono">&mdash;</td><td><b>%s</b> <i>bench</i></td>'
-                '<td><span class="mono">&mdash;</span></td><td>&mdash;</td>'
-                '<td>better than %s &mdash; %s</td></tr>' % (
-                    esc(b.get("ticker") or ""), esc(b.get("why_better_than") or "?"),
-                    esc((b.get("entry_condition") or "")[:80])))
-
-        mp = L.get("margin_pool") or {}
-        sub = []
-        if ct.get("status") or ct.get("innings"):
-            sub.append("cluster thesis %s &middot; %s innings"
-                       % (esc(ct.get("status") or "?"), esc(ct.get("innings") or "?")))
-        if mp.get("moving_toward"):
-            sub.append("margin pool &rarr; %s" % esc(mp["moving_toward"]))
-        for rp in (L.get("redundant_pairs") or [])[:2]:
-            if rp.get("verdict") == "redundant":
-                sub.append("%s are one bet &mdash; keep %s"
-                           % (esc(" + ".join(rp.get("pair") or [])), esc(rp.get("keep") or "?")))
-
-        rows.append(
-            '<details class="clus-row"><summary><div class="clus-top">'
-            '<span class="clus-name">%s<i>%s over %s</i></span>'
-            '<span class="pill %s">%s</span></div>'
-            '<div class="clus-sub">as of %s%s%s</div>'
-            '</summary><div class="body"><div class="tw"><table>'
-            '<thead><tr><th>#</th><th>Name</th><th>vs cluster</th><th>Thesis</th>'
-            '<th>Why this rank</th></tr></thead><tbody>%s</tbody>'
-            '</table></div></div></details>' % (
-                esc(cname), esc(L.get("leader") or "?"), esc(L.get("laggard") or "?"),
-                conf_cls, esc(conf or "no confidence"),
-                esc(L.get("as_of") or "?"), record,
-                (" &middot; " + " &middot; ".join(sub)) if sub else "",
-                "".join(lines)))
-
-    if not rows:
-        return []
-    return ['<section class="panel"><div class="phead"><h2>Cluster ladders</h2>'
-            '<span class="pill">who wins inside each cluster &middot; '
-            '&ldquo;vs cluster&rdquo; is measured against the cluster&rsquo;s own mean, '
-            'not SMH</span></div><div class="pbody">'
-            '<div style="display:flex;flex-direction:column;gap:0">%s</div></div>'
-            '</section>' % "".join(rows)]
-
-
-def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map, ch=None):
     out = []
     # -- clusters (moved 2026-08-07: swapped position with de-risk queue, per user request --
     # user wanted Clusters surfaced as a decision-relevant section, not buried after the
@@ -1741,22 +1644,38 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
         signal_history = state.get("signal_history") or {}
         thesis = state.get("thesis") or {}
         thesis_dot = {"strengthening": "dot-g", "watch": "dot-w", "broken": "dot-b"}
-
         cluster_ladders_all = (state or {}).get("cluster_ladders") or {}
+        pe_ratios = ((state or {}).get("data_cache") or {}).get("pe_ratios") or {}
+
+        # rel_intra_pp per (cluster, ticker) -- each member against its OWN cluster's mean
+        # return, not SMH -- computed by smith_math.py ladder, never re-derived here.
+        intra = {}
+        for cname_l, crow in ((ladder or {}).get("clusters") or {}).items():
+            for m in crow.get("members") or []:
+                intra[(cname_l, m.get("ticker"))] = m.get("rel_intra_pp")
+
+        def pe_cell(tk):
+            pe = pe_ratios.get(tk) or {}
+            tpe, fpe = pe.get("trailing_pe"), pe.get("forward_pe")
+            if tpe is None and fpe is None:
+                return '<span style="color:var(--ink-3)">&mdash;</span>'
+            t_s = f'{tpe:.1f}' if isinstance(tpe, (int, float)) else '&mdash;'
+            f_s = f'{fpe:.1f}' if isinstance(fpe, (int, float)) else '&mdash;'
+            return f'<span title="trailing / forward P/E, as of {esc(pe.get("as_of") or "?")}">{t_s}/{f_s}</span>'
 
         # SORT BY THE CLUSTER'S OWN LADDER RANK, WHEN ONE EXISTS (added on user request: "show
         # and sort according to the cluster specific ladder ranking, add a small remark/reason
-        # along with the rankings"). The ladder (smith-cluster's ranked substitution call, see
-        # _render_cluster_ladders above) is the fleet's actual answer to "which of these names
-        # captures the shared tailwind" -- weight-order was never that, only a proxy. Held
-        # members with no ladder entry (a name added after the ladder was last built) sort to
-        # the bottom of the ranked group, still by weight, so a stale gap never masquerades as
-        # rank 1. Clusters with no ladder at all fall back to the prior weight-only order.
+        # along with the rankings"). The ladder (smith-cluster's ranked substitution call) is
+        # the fleet's actual answer to "which of these names captures the shared tailwind" --
+        # weight-order was never that, only a proxy. Held members with no ladder entry (a name
+        # added after the ladder was last built) sort to the bottom of the ranked group, still
+        # by weight, so a stale gap never masquerades as rank 1. Clusters with no ladder at all
+        # fall back to the prior weight-only order.
         def member_rows(cluster_name):
             members = cluster_members.get(cluster_name, [])
-            ladder = cluster_ladders_all.get(cluster_name) or {}
+            cladder = cluster_ladders_all.get(cluster_name) or {}
             rank_by_ticker, why_by_ticker = {}, {}
-            for m in ladder.get("ranking") or []:
+            for m in cladder.get("ranking") or []:
                 t = m.get("ticker")
                 if not t:
                     continue
@@ -1772,7 +1691,7 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
             else:
                 members = sorted(members, key=lambda tk: -(holdings_by_ticker.get(tk, {}).get("weight_pct") or 0))
 
-            out = []
+            out_rows = []
             for tk in members:
                 h = holdings_by_ticker.get(tk, {})
                 rpos = risk_by_ticker.get(tk, {})
@@ -1796,21 +1715,44 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
                         if rpos.get("over_cap") else "")
                 rank = rank_by_ticker.get(tk)
                 rank_s = (f'<b>{rank}</b>' if rank else '<span style="color:var(--ink-3)">&mdash;</span>')
+                pp = intra.get((cluster_name, tk))
+                pp_html = ('<span class="mono%s">%+.1f pp</span>' % (" neg" if pp < 0 else "", pp)
+                           if isinstance(pp, (int, float)) else '<span class="mono">&mdash;</span>')
                 why_full = why_by_ticker.get(tk) or ""
                 why_short = esc(why_full[:70]) + ("&hellip;" if len(why_full) > 70 else "")
                 why_s = (f'<span title="{esc(why_full)}">{why_short}</span>' if why_full
                          else '<span style="color:var(--ink-3)">&mdash;</span>')
-                out.append(
+                out_rows.append(
                     f'<tr><td class="mono">{rank_s}</td>'
                     f'<td class="name" style="text-align:left;padding-left:0">{esc(tk)}</td>'
                     f'<td>{h.get("weight_pct",0):.2f}%</td>'
+                    f'<td>{pe_cell(tk)}</td>'
                     f'<td>{f"${price:,.2f}" if price is not None else "&mdash;"}</td>'
+                    f'<td>{pp_html}</td>'
                     f'<td class="txt">{st_s}</td>'
                     f'<td class="txt">{peer_s}{other_tags}</td>'
                     f'<td class="txt">{why_s}</td>'
                     f'<td>{cap_s}</td></tr>')
+            # bench candidates (non-held names smith-cluster ranks better than the laggard) --
+            # part of the same substitution-ladder answer, so they belong in the same table,
+            # not a separate one a reader has to go find.
+            for b in (cladder.get("bench") or [])[:3]:
+                bt = b.get("ticker") or ""
+                # `why_better_than` varies in shape across sub-agent tails -- sometimes a short
+                # comparator ("APH"), sometimes a full clause. Render it as-is (never assume
+                # short) and join with entry_condition rather than hardcoding a "better than X"
+                # sentence that reads broken when the field is already a full sentence.
+                why_bt = (b.get("why_better_than") or "").strip()
+                entry = (b.get("entry_condition") or "").strip()
+                remark = " &mdash; ".join(esc(t[:150]) for t in (why_bt, entry) if t) or "&mdash;"
+                out_rows.append(
+                    '<tr><td class="mono">&mdash;</td>'
+                    f'<td class="name" style="text-align:left;padding-left:0"><b>{esc(bt)}</b> <i>bench</i></td>'
+                    f'<td>&mdash;</td><td>{pe_cell(bt)}</td><td>&mdash;</td><td class="mono">&mdash;</td>'
+                    '<td>&mdash;</td><td>&mdash;</td>'
+                    f'<td class="txt">{remark}</td><td></td></tr>')
             has_ladder = bool(rank_by_ticker)
-            return "".join(out), has_ladder
+            return "".join(out_rows), has_ladder, cladder
 
         rows = []
         for c in sorted(cluster_table, key=lambda r: -r.get("actual_pct_of_equity", r.get("actual_pct", 0))):
@@ -1823,7 +1765,7 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
             pc = lambda v: max(0, min(100, v / scale * 100))
             breach = c.get("breach")
             n_members = len(cluster_members.get(cname, []))
-            body_rows, has_ladder = member_rows(cname)
+            body_rows, has_ladder, cladder = member_rows(cname)
             ghosts = sorted(cluster_ghosts.get(cname, []))
             ghost_html = (
                 '<p class="note" style="margin-top:8px">No longer held / tracked only: '
@@ -1831,10 +1773,43 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
                 + '</p>') if ghosts else ""
             no_ladder_note = ('<p class="note" style="margin-top:8px">No cluster ladder built yet for '
                                f'{esc(cname)} &mdash; sorted by weight.</p>') if body_rows and not has_ladder else ""
-            body = ((f'<div class="scroll"><table><thead><tr><th>#</th><th>Name</th><th>Wt</th><th>Price</th>'
-                    f'<th>Thesis</th><th>Signals</th><th>Ladder note</th><th></th></tr></thead>'
-                    f'<tbody>{body_rows}</tbody></table></div>' if body_rows else
-                    '<p class="note">No held ticker maps to this cluster.</p>') + no_ladder_note + ghost_html)
+
+            # Cluster-level ladder context -- confidence, track record, cluster thesis, margin
+            # pool, redundant pairs -- the part of the old separate "Cluster ladders" panel that
+            # applies to the whole cluster rather than one row. Shown only when a ladder exists.
+            ladder_sub = ""
+            if has_ladder:
+                conf = (cladder.get("confidence") or "").lower()
+                conf_cls = {"high": "g", "medium": "w", "low": "b"}.get(conf, "")
+                ct = cladder.get("cluster_thesis") or {}
+                tr = [t for t in (cladder.get("track_record") or []) if t.get("scored")]
+                hits = sum(1 for t in tr if t.get("correct"))
+                # Only ever shown with its denominator -- a hit rate without a sample size is
+                # the shape that makes 1-of-1 look like a track record.
+                record = (" &middot; ladder calls %d/%d" % (hits, len(tr))) if tr else ""
+                mp = cladder.get("margin_pool") or {}
+                subs = []
+                if ct.get("status") or ct.get("innings"):
+                    subs.append("cluster thesis %s &middot; %s innings"
+                                % (esc(ct.get("status") or "?"), esc(ct.get("innings") or "?")))
+                if mp.get("moving_toward"):
+                    subs.append("margin pool &rarr; %s" % esc(mp["moving_toward"]))
+                for rp in (cladder.get("redundant_pairs") or [])[:2]:
+                    if rp.get("verdict") == "redundant":
+                        subs.append("%s are one bet &mdash; keep %s"
+                                    % (esc(" + ".join(rp.get("pair") or [])), esc(rp.get("keep") or "?")))
+                ladder_sub = (
+                    '<p class="note" style="margin-top:8px">Ladder as of %s &middot; '
+                    '<span class="pill %s">%s confidence%s</span>%s</p>' % (
+                        esc(cladder.get("as_of") or "?"), conf_cls, esc(conf or "no"), record,
+                        (" &middot; " + " &middot; ".join(subs)) if subs else ""))
+
+            body = ((f'<div class="scroll"><table><thead><tr><th>#</th><th>Name</th><th>Wt</th>'
+                    f'<th>P/E<span class="sub"> trail/fwd</span></th><th>Price</th>'
+                    f'<th>vs cluster</th><th>Thesis</th><th>Signals</th><th>Ladder note</th>'
+                    f'<th></th></tr></thead><tbody>{body_rows}</tbody></table></div>' if body_rows else
+                    '<p class="note">No held ticker maps to this cluster.</p>')
+                    + ladder_sub + no_ladder_note + ghost_html)
             # BAR, not a meter squeezed into a 150px grid column (2026-09-07 component pass):
             # one full-width track per cluster, the filled portion reads as a real magnitude at
             # a glance (dataviz's own form heuristic -- this IS a magnitude comparison, so it
@@ -1855,7 +1830,7 @@ def _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, 
         donut_html = donut_fig((ch or {}).get("clusters_donut"))
         out.append(
             '<section class="panel"><div class="phead"><h2>Clusters</h2>'
-            '<span class="pill">ceiling on book &middot; floor on equity &middot; click a cluster to see its holdings</span></div>'
+            '<span class="pill">ceiling on book &middot; floor on equity &middot; ranked by cluster ladder where one exists</span></div>'
             f'<div class="pbody">{donut_html}'
             f'<div style="display:flex;flex-direction:column;gap:0">{"".join(rows)}</div></div></section>')
 
@@ -2973,9 +2948,8 @@ def build(base, out):
                  "size = weight · color = cluster · red outline = over risk cap"), True))
 
     H.extend(_collapsible(h) for h in
-             _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map, ch))
-    H.extend(_collapsible(h) for h in
-             _render_cluster_ladders(state, run_file("compute_ladder.json"), thesis_status))
+             _render_clusters(drift, state, held_tickers, risk_by_ticker, thesis_status, sector_map,
+                               run_file("compute_ladder.json"), ch))
 
     # -- de-risk queue (moved 2026-08-07: swapped position with clusters, per user request) --
     H.extend(_collapsible(h) for h in _render_derisk_queue(derisk, state))
