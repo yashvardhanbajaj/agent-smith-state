@@ -1,0 +1,204 @@
+{
+ "policy_draft": null,
+ "stress_table": null,
+ "proposals": [
+  {
+   "direction": "TRIM",
+   "ticker": "TER",
+   "size_usd": 381.25,
+   "price_at_proposal": 381.04,
+   "rationale": "CXMT HBM3E structural threat catalyst, cap-independent trigger; precedent check run, no contradiction found (closest: G30, closed).",
+   "trigger_type": "catalyst_threat",
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 3,
+    "unverified": 1
+   },
+   "benchmark_price_at_proposal": 575.62
+  },
+  {
+   "direction": "TRIM",
+   "ticker": "ASML",
+   "size_usd": 435.19,
+   "price_at_proposal": 1740.7731,
+   "rationale": "Same CXMT catalyst landing on an already-watch thesis -- strongest of the new catalyst_threat entries.",
+   "trigger_type": "catalyst_threat",
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 3,
+    "unverified": 1
+   },
+   "benchmark_price_at_proposal": 575.62
+  },
+  {
+   "direction": "TRIM",
+   "ticker": "AMAT",
+   "size_usd": 282.74,
+   "price_at_proposal": 469.9494,
+   "rationale": "CXMT catalyst_threat sized despite a live conflicting oversold_reversion+conviction_average BUY read on the same name (both currently unfunded); flagged as a genuine three-way tension, not resolved as a formula.",
+   "trigger_type": "catalyst_threat",
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 4,
+    "unverified": 1
+   },
+   "benchmark_price_at_proposal": 575.62
+  },
+  {
+   "direction": "SELL",
+   "ticker": "MSFT",
+   "size_usd": 147.88,
+   "price_at_proposal": null,
+   "rationale": "Stretched cohort, watch thesis -- profit_rotation sell leg funding the KLAC buy leg.",
+   "trigger_type": "profit_rotation",
+   "trigger_bucket": null,
+   "pair_id": "profit_rotation-MSFT-KLAC",
+   "pair_role": "sell",
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 3,
+    "unverified": 0
+   },
+   "benchmark_price_at_proposal": 575.62
+  },
+  {
+   "direction": "BUY",
+   "ticker": "KLAC",
+   "size_usd": 147.88,
+   "price_at_proposal": 184.4394,
+   "rationale": "Laggard (-5.7pp) with strengthening thesis, funded by MSFT profit_rotation sell leg -- the one BUY idea actually fundable given the cash breach.",
+   "trigger_type": "profit_rotation",
+   "trigger_bucket": null,
+   "pair_id": "profit_rotation-MSFT-KLAC",
+   "pair_role": "buy",
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": 167.6185,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 4,
+    "unverified": 0
+   },
+   "benchmark_price_at_proposal": 575.62
+  },
+  {
+   "direction": "TRIM",
+   "ticker": "LRCX",
+   "size_usd": 190.21,
+   "price_at_proposal": 317.0133,
+   "rationale": "CXMT catalyst_threat sized small despite LRCX sitting in rotation's accumulate bucket on the same strengthening thesis -- weakest of the five ideas, drop first if the 5-slot cap binds.",
+   "trigger_type": "catalyst_threat",
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 4,
+    "unverified": 1
+   },
+   "benchmark_price_at_proposal": 575.62
+  },
+  {
+   "direction": "HOLD",
+   "ticker": "GOOG",
+   "size_usd": 0,
+   "price_at_proposal": 327.3644,
+   "rationale": "oversold_reversion setup still valid (RSI 28.9, thesis strengthening) but unfunded -- cash 2.71% is below the 5% floor as of this refresh, down from whatever supported P-235 this morning. Matches P-235, not re-proposed as new money.",
+   "trigger_type": "oversold_reversion",
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "size_wanted_usd": 0,
+   "clamped_by": "deployable cash",
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 3,
+    "unverified": 0
+   }
+  },
+  {
+   "direction": "HOLD",
+   "ticker": "VRT",
+   "size_usd": 0,
+   "price_at_proposal": null,
+   "rationale": "-5.3% intraday move with no live trigger; thesis is watch/unverified, reviewed 2026-09-08, thin against today's move. No action -- flag for next thesis pass.",
+   "trigger_type": null,
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 1,
+    "unverified": 1
+   }
+  },
+  {
+   "direction": "HOLD",
+   "ticker": "META",
+   "size_usd": 0,
+   "price_at_proposal": null,
+   "rationale": "+4.95% intraday move; thesis intact but evidence dated 2026-08-12 (~4 weeks stale), unresolved FCF-vs-capex tension. No live trigger, no lots.json entry. No action -- flag for next thesis pass.",
+   "trigger_type": null,
+   "trigger_bucket": null,
+   "pair_id": null,
+   "pair_role": null,
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 1,
+    "unverified": 1
+   }
+  }
+ ],
+ "scorecard_read": "Stored scorecard (proposals.json, as_of 2026-09-09, not recomputed -- DRAM's unresolvable quote blocked a full rescoring pass): overall 36.4% (n=33); BUY 62.5% (n=16, avg +2.89%) vs TRIM/SELL 14.3% (n=14, avg -14.47%) vs HOLD 0.0% (n=3); 4 rows quarantined for anchor review. Today's IDEA panel is TRIM-heavy (4 catalyst_threat trims) sitting in the desk's historically weakest bucket -- sized small (20% trim_fraction) accordingly, and the one fundable BUY (KLAC via MSFT rotation) should carry at least equal weight in the user's own read.",
+ "deemphasize_buckets": [
+  "TARGET GAP",
+  "MOMENTUM+VOLUME"
+ ],
+ "data_quality": [
+  "cash 2.71% below 5% policy floor as of 14:36Z -- all standalone BUY ideas (GOOG/AMAT oversold_reversion, KLAC/NVDA/APH trend_entry, CIEN/APH/AMAT/GOOG conviction_average) price at $0 suggested size, clamped_by deployable cash",
+  "AMAT carries three simultaneous, contradictory live triggers (catalyst_threat TRIM, oversold_reversion BUY, conviction_average BUY) -- flagged, not resolved as a formula",
+  "LRCX and SKHY catalyst_threat trims both fight their own rotation accumulate-bucket status on a strengthening thesis -- both sized small and flagged",
+  "VST has no live RSI/ATR/beta this run -- excluded from trigger screens by data quality, not by judgment",
+  "hit-rate table and scorecard both carried forward from the 07:51Z run / proposals.json as-of stamp, not recomputed this refresh per dispatch instructions"
+ ]
+}
