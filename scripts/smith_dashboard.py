@@ -2137,50 +2137,46 @@ def _render_the_read_and_macro(narr, market_inputs, state, book_compute, base=No
                  f'<span class="pill">top {len(reads)}, this session</span></div>'
                  f'<div class="pbody">{gate_eyebrow}<div class="read-list">{read_items}</div>')
 
-        # PORTFOLIO PERFORMANCE, 7d/21d (added 2026-09-09, user request) -- computed straight
-        # from ledger.csv by _trailing_performance, never estimated in prose. Rendered as its
-        # own stat row, ahead of the macro row below, since "how has the book actually done"
-        # outranks index-level context in a section whose whole job is the top-of-page read.
-        perf_cells = []
+        # PORTFOLIO PERFORMANCE (7d/21d) + MACRO, ONE ROW (added 2026-09-09, then merged same
+        # day per user follow-up: "the read can fit all the bottom details in a single row. 2
+        # seperate rows are not required"). Performance cells computed straight from ledger.csv
+        # by _trailing_performance, never estimated in prose; they lead the row since "how has
+        # the book actually done" outranks index-level context here, but both live in one strip.
+        stat_cells = []
         for days, label in ((7, "7d"), (21, "21d")):
             perf = _trailing_performance(base, days) if base else None
             if not perf:
                 continue
             sub = f'vs SMH {perf["vs_smh_pp"]:+.1f}pp' if "vs_smh_pp" in perf else f'{perf["span_days"]}d span'
-            perf_cells.append((f'Book {label}', f'{perf["pct"]:+.2f}%', sub))
-        if perf_cells:
-            out.append('<div class="hero-stats" style="padding-top:14px;border-top:1px solid var(--line-soft)">'
-                       + "".join(
-                f'<div class="hstat"><span class="k">{esc(k)}</span>'
-                f'<span class="v num{" flag" if v.startswith("-") else ""}">{esc(v)}</span>'
-                f'<span class="s">{esc(s)}</span></div>' for k, v, s in perf_cells) + '</div>')
+            stat_cells.append((f'Book {label}', f'{perf["pct"]:+.2f}%', sub, perf["pct"] < 0))
 
-        macro_cells = []
         if market_inputs:
             us10y = market_inputs.get("us10y")
             if us10y is not None:
-                macro_cells.append(("10-yr", f'{us10y:.3f}%', ""))
+                stat_cells.append(("10-yr", f'{us10y:.3f}%', "", False))
             vix = market_inputs.get("vix")
             if vix is not None:
-                macro_cells.append(("VIX", f'{vix:.2f}', f'{market_inputs.get("vix_chg_pct",0):+.1f}% today'))
+                stat_cells.append(("VIX", f'{vix:.2f}', f'{market_inputs.get("vix_chg_pct",0):+.1f}% today', False))
             smh_chg = market_inputs.get("smh_chg_pct")
             if smh_chg is not None:
-                macro_cells.append(("SMH", f'{smh_chg:+.2f}%', "the benchmark"))
+                stat_cells.append(("SMH", f'{smh_chg:+.2f}%', "the benchmark", False))
             asia = market_inputs.get("asia_block") or {}
             if asia:
                 worst_name, worst = min(asia.items(), key=lambda kv: kv[1].get("chg_pct", 0))
-                macro_cells.append((worst_name.upper(), f'{worst.get("chg_pct",0):+.2f}%', "worst Asia index"))
+                stat_cells.append((worst_name.upper(), f'{worst.get("chg_pct",0):+.2f}%', "worst Asia index", False))
         fomc = state.get("fomc_cache", {})
         if fomc.get("rate_pct") is not None:
-            macro_cells.append(("Fed", f'{fomc["rate_pct"]:.2f}%', esc(fomc.get("stance", "")).lower()))
+            stat_cells.append(("Fed", f'{fomc["rate_pct"]:.2f}%', esc(fomc.get("stance", "")).lower(), False))
         beta = book_compute.get("primary_benchmark", {}).get("primary_beta")
         if beta is not None:
-            macro_cells.append(("Beta vs SMH", f'{beta:.3f}', ""))
-        if macro_cells:
+            stat_cells.append(("Beta vs SMH", f'{beta:.3f}', "", False))
+
+        if stat_cells:
             out.append('<div class="hero-stats" style="padding-top:14px;border-top:1px solid var(--line-soft)">'
                        + "".join(
-                f'<div class="hstat"><span class="k">{esc(k)}</span><span class="v num">{esc(v)}</span>'
-                f'<span class="s">{esc(s)}</span></div>' for k, v, s in macro_cells) + '</div>')
+                f'<div class="hstat"><span class="k">{esc(k)}</span>'
+                f'<span class="v num{" flag" if flag else ""}">{esc(v)}</span>'
+                f'<span class="s">{esc(s)}</span></div>' for k, v, s, flag in stat_cells) + '</div>')
         out.append('</div></section>')
 
     return out
