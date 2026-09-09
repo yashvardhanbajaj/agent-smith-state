@@ -1,0 +1,212 @@
+{
+  "tickers": 32,
+  "total_lots": 72,
+  "corporate_actions_applied": [
+    {
+      "date": "2025-12-25",
+      "ca_type": "adjustment",
+      "ticker": "SMCI",
+      "qty": 0.005202,
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "notes": "G71 phantom-short reconciliation. fractional shortfall on 2025-12-26. Basis unknown -- null, not invented.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    },
+    {
+      "date": "2026-02-02",
+      "ca_type": "adjustment",
+      "ticker": "GOOG",
+      "qty": 1.009384,
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "notes": "G71 phantom-short reconciliation. position went flat 2025-09-18, then a 1.013541sh sell on 2026-02-03. Basis unknown -- null, not invented.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    },
+    {
+      "date": "2026-02-02",
+      "ca_type": "adjustment",
+      "ticker": "NVDA",
+      "qty": 3.0,
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "notes": "G71 phantom-short reconciliation. sell of 10sh on 2026-02-03 against 7sh ever recorded. Basis unknown -- null, not invented.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    },
+    {
+      "date": "2026-02-10",
+      "ca_type": "adjustment",
+      "ticker": "GOOG",
+      "qty": 2.0,
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "notes": "G71 phantom-short reconciliation. further 2sh sell on 2026-02-11 with no intervening buy. Basis unknown -- null, not invented.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    },
+    {
+      "date": "2026-02-25",
+      "ca_type": "adjustment",
+      "ticker": "TSM",
+      "qty": 1.0,
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "notes": "G71 phantom-short reconciliation. sell on 2026-02-26 with no shares available. Basis unknown -- null, not invented.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    },
+    {
+      "date": "2026-03-02",
+      "ca_type": "adjustment",
+      "ticker": "TSM",
+      "qty": 1.0,
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "notes": "G71 phantom-short reconciliation. sell on 2026-03-03 with no shares available. Basis unknown -- null, not invented.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    },
+    {
+      "date": "2026-05-11",
+      "ca_type": "adjustment",
+      "ticker": "AMD",
+      "qty": 0.998336,
+      "source": "Reconstructed-ledger reconciliation 2026-08-15. FIFO ran NEGATIVE here: the record shows more shares sold than it ever shows acquired, so a BUY-side record is missing. A complete pull of INDmoney confirmations for these tickers contains no such buy, so the shares entered through a channel that does not email. Recorded as an opening-balance adjustment with a NULL basis -- the quantity is derived from the shortfall FIFO measured, the acquisition price is genuinely unknown and is NOT invented.",
+      "notes": "G71 phantom-short reconciliation. sell on 2026-05-12 exceeding available. Basis unknown -- null, not invented.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    },
+    {
+      "date": "2026-05-28",
+      "ca_type": "adjustment",
+      "ticker": "LLY",
+      "qty": -4e-06,
+      "source": "Ledger reconciliation 2026-08-17. LLY bought 0.106681sh 2026-04-02 and sold 0.106677sh 2026-05-27; the SELL was reconstructed with the FORBIDDEN Amount/Price method (G80 residue), which is arithmetically wrong because Amount includes SEC/FINRA fees. That under-consumed the position by 0.000004sh, leaving a dust orphan for a name the broker does not hold. Broker truth: LLY fully exited.",
+      "notes": "Zeroes a 4-microshare G80 residue. Surfaced 2026-08-17 by the new two-tier orphan detector; the old single >1e-4 bar hid it.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    },
+    {
+      "date": "2026-08-15",
+      "ca_type": "adjustment",
+      "ticker": "META",
+      "qty": -0.995985,
+      "source": "INDmoney networth_holdings broker snapshot 2026-08-15 (US_STOCK). Recorded as an adjustment, NOT a reconstructed sell: a complete pull of every transactions.indmoney.com confirmation for this ticker shows no disposal, so the shares left the account through a channel that does not email. The broker's current position is authoritative for WHAT is held; the cause of the delta is genuinely unknown and is not guessed.",
+      "notes": "G68/G79 reconciliation. ledger 0.995985 vs broker 0 (position fully closed 2026-08-12); the Aug email fills net to zero, this residue predates them and traces to an Oct-2025 fractional pair never sold.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    },
+    {
+      "date": "2026-08-15",
+      "ca_type": "adjustment",
+      "ticker": "MSFT",
+      "qty": -1.5,
+      "source": "INDmoney networth_holdings broker snapshot 2026-08-15 (US_STOCK). Recorded as an adjustment, NOT a reconstructed sell: a complete pull of every transactions.indmoney.com confirmation for this ticker shows no disposal, so the shares left the account through a channel that does not email. The broker's current position is authoritative for WHAT is held; the cause of the delta is genuinely unknown and is not guessed.",
+      "notes": "G68/G79 reconciliation. ledger 4.5 vs broker 3.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    },
+    {
+      "date": "2026-08-15",
+      "ca_type": "adjustment",
+      "ticker": "PLTR",
+      "qty": -5.000975,
+      "source": "INDmoney networth_holdings broker snapshot 2026-08-15 (US_STOCK). Recorded as an adjustment, NOT a reconstructed sell: a complete pull of every transactions.indmoney.com confirmation for this ticker shows no disposal, so the shares left the account through a channel that does not email. The broker's current position is authoritative for WHAT is held; the cause of the delta is genuinely unknown and is not guessed.",
+      "notes": "G68/G79 reconciliation. ledger 5.000975 vs broker 0 (position fully closed); email history complete, 20 txns, no disposal found.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    },
+    {
+      "date": "2026-08-15",
+      "ca_type": "adjustment",
+      "ticker": "QCOM",
+      "qty": -3.0,
+      "source": "INDmoney networth_holdings broker snapshot 2026-08-15 (US_STOCK). Recorded as an adjustment, NOT a reconstructed sell: a complete pull of every transactions.indmoney.com confirmation for this ticker shows no disposal, so the shares left the account through a channel that does not email. The broker's current position is authoritative for WHAT is held; the cause of the delta is genuinely unknown and is not guessed.",
+      "notes": "G68/G79 reconciliation. ledger 13.000762 vs broker 10.000761904.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    },
+    {
+      "date": "2026-08-26",
+      "ca_type": "adjustment",
+      "ticker": "SNDK",
+      "qty": -2e-06,
+      "source": "SMITH-LEDGER 2026-08-26 dust cleanup -- runs/2026-08-26-1315/holdings.json shows SNDK fully absent (0 of 37 rows), while lots.json carried a 1e-06sh residue dated 2026-08-07 @ $1212.38. compute_book.json flagged this exactly (prior_qty 1e-06 -> current_qty 0.0, ratio 0.0). No confirmation email exists or could exist for a fill this small -- this is floating-point summation noise, not an unrecorded trade.",
+      "notes": "Sourced adjustment row per smith_ledger.py's own orphan-dust guidance (severity='dust' case): clear sub-epsilon residue with an explicit, sourced adjustment row rather than silently dropping it or fabricating a sell confirmation. Zeroes the SNDK lot exactly (qty_change -1e-06 against a 1e-06 lot). CORRECTED same-run: initial qty_change of exactly -1e-06 was a silent no-op -- smith_ledger.py's _consume_fifo guards on `remaining > SHARE_EPS` (SHARE_EPS=1e-6), so a consume amount exactly AT epsilon never entered the loop and the lot was untouched (engine logged it as 'applied' regardless -- the log reflects the row was processed, not that it took effect). Changed to -2e-06 (double the true ~1.0e-06 residual) so the FIFO consumption loop actually executes; the resulting ~1e-06 shortfall stays below SHARE_EPS and is correctly not reported as a phantom short.",
+      "note": "EXPLICIT reconciliation to broker truth -- recorded, not force-matched"
+    }
+  ],
+  "phantom_shorts": [],
+  "reconciliation": {
+    "tickers_checked": 33,
+    "reconciled": 22,
+    "mismatches": [
+      {
+        "ticker": "APH",
+        "lots_sum": 10,
+        "broker_qty": 15,
+        "delta": -5
+      },
+      {
+        "ticker": "VST",
+        "lots_sum": 0,
+        "broker_qty": 5,
+        "delta": -5
+      },
+      {
+        "ticker": "INTC",
+        "lots_sum": 15,
+        "broker_qty": 11,
+        "delta": 4
+      },
+      {
+        "ticker": "QCOM",
+        "lots_sum": 0.000762,
+        "broker_qty": 3.0007619,
+        "delta": -3.0
+      },
+      {
+        "ticker": "BE",
+        "lots_sum": 8.0,
+        "broker_qty": 6,
+        "delta": 2.0
+      },
+      {
+        "ticker": "NBIS",
+        "lots_sum": 7,
+        "broker_qty": 5,
+        "delta": 2
+      },
+      {
+        "ticker": "TSM",
+        "lots_sum": 3,
+        "broker_qty": 4,
+        "delta": -1
+      },
+      {
+        "ticker": "GOOG",
+        "lots_sum": 4,
+        "broker_qty": 5,
+        "delta": -1
+      },
+      {
+        "ticker": "CLS",
+        "lots_sum": 3.003266,
+        "broker_qty": 4.0032663,
+        "delta": -1.0
+      },
+      {
+        "ticker": "META",
+        "lots_sum": 0,
+        "broker_qty": 1,
+        "delta": -1
+      },
+      {
+        "ticker": "MU",
+        "lots_sum": 1.500366,
+        "broker_qty": 2.0003653,
+        "delta": -0.499999
+      }
+    ],
+    "orphaned_positions": [
+      {
+        "ticker": "IREN",
+        "lots_sum": 20,
+        "broker_qty": 0,
+        "lots": 2,
+        "severity": "material",
+        "note": "ledger shows an open position the broker does not report -- a sell is missing from the trade record entirely"
+      }
+    ]
+  },
+  "warnings": [
+    "G80 accepted residue: 24 pre-2026-08-15 row(s) still carry the old Amount/Price derivation (AMD x6, GOOG x5, VRT x3, SMCI x2, PLTR x2, WDC x2, META x2, LLY x1, EWY x1). Quantified at ~$29 of cost-basis error in total, ~$12 of it on live positions (0.027% of book) -- knowingly left, not overlooked. Informational."
+  ],
+  "written": null,
+  "write_blocked": "reconciliation not clean -- 11 mismatch(es), 1 orphan(s), 0 phantom short(s). lots.json left exactly as it was; fix trades.json first.",
+  "note": "phantom_shorts are sells/conversions that consumed more than the record shows arriving -- surfaced rather than clamped to zero. A non-empty list means the trade record is missing share-creating events (see G68/G71)."
+}

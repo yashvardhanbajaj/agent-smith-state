@@ -195,7 +195,7 @@
       "weight_pct": 0.0067
     }
   ],
-  "news_watermark": "2026-09-08",
+  "news_watermark": "2026-09-09",
   "thesis": {
     "NVDA": {
       "status": "strengthening",
@@ -484,7 +484,7 @@
       "verified_against": "",
       "verified_on": "",
       "note": "reinforces existing structural WATCH, no verdict conflict with flat-within-basis ASP",
-      "reviewed_on": "2026-09-08"
+      "reviewed_on": "2026-09-09"
     },
     "AMAT": {
       "status": "strengthening",
@@ -618,7 +618,7 @@
     },
     "INTC": {
       "status": "watch",
-      "thesis": "IDM/foundry pivot aiming to capture AI-driven CPU pricing power; thin track record, brand-new position (5sh, 2026-08-07).",
+      "thesis": "IDM/foundry pivot aiming to capture AI-driven CPU pricing power; thin track record, position trimmed 15->11sh (2026-09-08)",
       "evidence_for": [
         {
           "claim": "Q2 revenue +25% YoY; server/laptop CPU price hikes on AI demand",
@@ -651,13 +651,18 @@
           "claim": "buy rationale UNCAPTURED -- position entered 2026-08-07 with no recorded reason (G55)",
           "date": "2026-08-07",
           "source": "trades.json"
+        },
+        {
+          "claim": "trimmed -4sh (15->11sh), consistent with (not contradicting) standing loss-making/valuation concerns",
+          "date": "2026-09-08",
+          "source": "holdings.json qty_changes"
         }
       ],
       "verified": "secondary",
       "verified_against": "yfinance get_key_stats 2026-08-10 (loss-making + valuation confirmed independently)",
       "verified_on": "2026-08-10",
-      "note": "RESTORED 2026-08-10 (G58 audit). smith-thesis's prose flagged 'Mixed: -4.9% trailing annual sales decline / negative cash-flow concern' but its JSON tail kept only the bull case, so the permanent record on a 3-day-old position read one-sided. The negative half is real and was verified independently.",
-      "reviewed_on": "2026-09-08"
+      "note": "trim noted, status unchanged",
+      "reviewed_on": "2026-09-09"
     },
     "STM": {
       "status": "watch",
@@ -734,7 +739,7 @@
     },
     "NBIS": {
       "status": "watch",
-      "thesis": "Neocloud AI-GPU infra provider; sized up 5->7sh while dilution/data-center concerns remain unresolved",
+      "thesis": "Neocloud AI-GPU infra provider; sized up 5->7sh then trimmed 7->5sh while dilution/data-center concerns remain unresolved",
       "evidence_for": [
         {
           "claim": "Q2 revenue +454% YoY to $582M, 2026 guidance reaffirmed",
@@ -762,13 +767,18 @@
           "claim": "position sized up 40% (5->7sh) same run while WATCH concerns remain unresolved -- conviction outrunning thesis resolution",
           "date": "2026-09-03",
           "source": "holdings.json qty_changes + smith-thesis analysis"
+        },
+        {
+          "claim": "position trimmed -2sh (7->5sh), partially resolving the 09-03 sizing/conviction tension; structural concerns still unresolved",
+          "date": "2026-09-08",
+          "source": "holdings.json qty_changes"
         }
       ],
       "verified": "secondary",
       "verified_against": "INDmoney news aggregation",
       "verified_on": "2026-08-24",
-      "note": "no fresh news past the 09-01 watermark; qty-add reconciled as a sizing tension, not a status change.",
-      "reviewed_on": "2026-09-08"
+      "note": "trim noted, status unchanged",
+      "reviewed_on": "2026-09-09"
     },
     "SKHY": {
       "status": "strengthening",
@@ -1042,6 +1052,76 @@
       "verified_on": "",
       "note": "NEW HOLDING, first appearance this run. Full thesis and cluster assignment written; no discrete corporate event yet to trigger G58 verification.",
       "reviewed_on": "2026-09-08"
+    },
+    "META": {
+      "status": "intact",
+      "thesis": "Ad-funded hyperscaler AI-capex spender; oversold RSI resolved as technical not fundamental",
+      "evidence_for": [
+        {
+          "claim": "no new negative catalyst since 07-29 Q2 (-11%, priced in); Strong Buy PT $756.95",
+          "date": "2026-08-12",
+          "source": "stockanalysis.com/stocks/META"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "FCF-down-vs-capex-up tension structural, untested until next print",
+          "date": "2026-08-12",
+          "source": "prior run"
+        }
+      ],
+      "verified": "secondary",
+      "verified_against": "stockanalysis.com/stocks/META",
+      "verified_on": "2026-08-12",
+      "note": "revived unchanged from archive, prior exit was user raise-cash not a stop"
+    },
+    "VST": {
+      "status": "watch",
+      "thesis": "AI-power/IPP: nuclear+gas generation capacity monetizing hyperscaler datacenter electricity demand; new position 5sh @$153.25 (2026-09-08)",
+      "evidence_for": [
+        {
+          "claim": "Peter Thiel disclosed $59M stake, framed as AI power market position",
+          "date": "2026-09-03",
+          "source": "INDmoney news"
+        },
+        {
+          "claim": "Analyst consensus Strong Buy, 16 analysts, mean target $217.42 (+30.2% upside)",
+          "date": "2026-09-09",
+          "source": "INDmoney analyst consensus"
+        },
+        {
+          "claim": "Q2 2026 JV with Helix announced, strengthening market position",
+          "date": "2026-08-16",
+          "source": "INDmoney news"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "Q2 2026 revenue ~$4B came in below expectations (reported-quarter signal, kept separate from guide)",
+          "date": "2026-08-24",
+          "source": "INDmoney news"
+        },
+        {
+          "claim": "Stock down ~31% from 52-week high $219.82 to $151.72",
+          "date": "2026-09-09",
+          "source": "INDmoney live quote"
+        },
+        {
+          "claim": "Officer disclosed plan for $6.7M stock sale",
+          "date": "2026-09-08",
+          "source": "INDmoney news"
+        },
+        {
+          "claim": "Trades at premium P/E; valuation concerns persist despite strong Q2",
+          "date": "2026-08-16",
+          "source": "INDmoney news"
+        }
+      ],
+      "verified": "secondary",
+      "verified_against": "INDmoney news aggregation + analyst consensus",
+      "verified_on": "2026-09-09",
+      "note": "First-ever thesis, brand-new position. Genuinely mixed (bullish AI-power narrative + analyst consensus vs revenue miss, insider sale, 31% drawdown) -- not upgraded past WATCH.",
+      "reviewed_on": "2026-09-09"
     }
   },
   "sector_map": {
@@ -1076,7 +1156,9 @@
     "SMCI": "Compute/Hyperscaler OEM",
     "ALAB": "AI Networking/Optics",
     "FSLR": "AI Power/Cooling/DC Infra",
-    "APH": "AI Networking/Optics"
+    "APH": "AI Networking/Optics",
+    "META": "Compute/Hyperscaler",
+    "VST": "AI Power/Cooling/DC Infra"
   },
   "signal_history": {
     "ASML": [
@@ -1086,7 +1168,9 @@
       "TARGET GAP"
     ],
     "MU": [
-      "NEW TAILWINDS"
+      "NEW TAILWINDS",
+      "PEER LEADER",
+      "TARGET GAP"
     ],
     "MRVL": [
       "PEER LEADER",
@@ -1097,7 +1181,8 @@
       "TARGET GAP"
     ],
     "AMD": [
-      "NEW TAILWINDS"
+      "NEW TAILWINDS",
+      "TARGET GAP"
     ],
     "STM": [
       "TARGET GAP"
@@ -1111,7 +1196,8 @@
       "TARGET GAP"
     ],
     "GEV": [
-      "NEW TAILWINDS"
+      "NEW TAILWINDS",
+      "TARGET GAP"
     ],
     "QCOM": [
       "PEER LAGGARD"
@@ -1131,9 +1217,7 @@
     "TER": [
       "TARGET GAP"
     ],
-    "VRT": [
-      "TARGET GAP"
-    ],
+    "VRT": [],
     "COHR": [
       "TARGET GAP"
     ],
@@ -1150,7 +1234,7 @@
       "NEW HEADWINDS"
     ],
     "INTC": [
-      "TARGET GAP",
+      "MOMENTUM+VOLUME",
       "POLICY IMPACT"
     ],
     "TXN": [
@@ -1184,7 +1268,8 @@
       "TARGET GAP"
     ],
     "LRCX": [
-      "NEW TAILWINDS"
+      "NEW TAILWINDS",
+      "PEER LEADER"
     ],
     "SKHY": [
       "PEER LEADER",
@@ -1194,11 +1279,11 @@
       "PEER LEADER"
     ],
     "LITE": [
-      "NEW TAILWINDS"
+      "NEW TAILWINDS",
+      "PEER LEADER"
     ],
     "NBIS": [
-      "PEER_LEADER_OVERRIDDEN_FALSE_vs_XLK",
-      "TARGET GAP"
+      "PEER_LEADER_OVERRIDDEN_FALSE_vs_XLK"
     ],
     "AMKR": [],
     "ALAB": [
@@ -1206,12 +1291,14 @@
     ],
     "FSLR": [
       "OVERSOLD BOUNCE",
-      "STRONG DOWNTREND",
       "PEER LAGGARD",
       "TARGET GAP"
     ],
     "APH": [
       "STRONG UPTREND"
+    ],
+    "VST": [
+      "TARGET GAP"
     ]
   },
   "open_flags": [
@@ -1384,7 +1471,8 @@
       "Western Digital Corporation Common Stock": "WDC",
       "KLA Corporation Common Stock": "KLAC",
       "Super Micro Computer, Inc. Common Stock": "SMCI",
-      "Amkor Technology, Inc. Common Stock": "AMKR"
+      "Amkor Technology, Inc. Common Stock": "AMKR",
+      "Vistra Corp.": "VST"
     },
     "betas": {
       "AMAT": {
@@ -2134,12 +2222,12 @@
       "ASML": {
         "mean_target_usd": 2145.06,
         "n_analysts": 6,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "BE": {
         "mean_target_usd": 275.08,
         "n_analysts": 17,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "BX": {
         "mean_target_usd": 142.57,
@@ -2149,78 +2237,78 @@
       "GEV": {
         "mean_target_usd": 1236.43,
         "n_analysts": 21,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "GOOG": {
         "mean_target_usd": 422.34,
         "n_analysts": 12,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "MRVL": {
         "mean_target_usd": 285.0,
         "n_analysts": 26,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "MU": {
         "mean_target_usd": 1513.11,
         "n_analysts": 32,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "STM": {
         "mean_target_usd": 75.04,
         "n_analysts": 9,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "VRT": {
         "mean_target_usd": 338.15,
         "n_analysts": 17,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "COHR": {
         "mean_target_usd": 415.36,
         "n_analysts": 17,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "GLW": {
         "mean_target_usd": 191.4,
         "n_analysts": 10,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "INTC": {
         "mean_target_usd": 115.78,
         "n_analysts": 31,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "LRCX": {
         "mean_target_usd": 370.87,
         "n_analysts": 23,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "MSFT": {
         "mean_target_usd": 572.92,
         "n_analysts": 33,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "NVDA": {
         "mean_target_usd": 327.13,
         "n_analysts": 29,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "QCOM": {
         "mean_target_usd": 193.1,
         "n_analysts": 24,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "TSM": {
         "mean_target_usd": 552.38,
         "n_analysts": 8,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
-      "as_of": "2026-09-08",
+      "as_of": "2026-09-09",
       "AMAT": {
         "mean_target_usd": 640.89,
         "n_analysts": 28,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "CEG": {
         "mean_target_usd": 348.3,
@@ -2230,7 +2318,7 @@
       "WDC": {
         "mean_target_usd": 664.92,
         "n_analysts": 20,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "BABA": {
         "mean_target_usd": 186.84,
@@ -2245,52 +2333,52 @@
       "AMD": {
         "mean_target_usd": 613.84,
         "n_analysts": 34,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "TER": {
         "mean_target_usd": 446.47,
         "n_analysts": 12,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "LITE": {
         "mean_target_usd": 1148.43,
         "n_analysts": 18,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "NBIS": {
         "mean_target_usd": 280.0,
         "n_analysts": 9,
-        "as_of": "2026-09-06"
+        "as_of": "2026-09-09"
       },
       "SKHY": {
         "mean_target_usd": 248.0,
         "n_analysts": 10,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "KLAC": {
         "mean_target_usd": 233.77,
         "n_analysts": 21,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "AVGO": {
         "mean_target_usd": 533.41,
         "n_analysts": 28,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "SMCI": {
         "mean_target_usd": 42.38,
         "n_analysts": 15,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "CLS": {
         "mean_target_usd": 477.22,
         "n_analysts": 12,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "CIEN": {
         "mean_target_usd": 504.13,
         "n_analysts": 14,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "IREN": {
         "mean_target_usd": 77.84,
@@ -2300,17 +2388,27 @@
       "ALAB": {
         "mean_target_usd": 389.95,
         "n_analysts": 16,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "FSLR": {
         "mean_target_usd": 275.3,
         "n_analysts": 26,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
       },
       "APH": {
         "mean_target_usd": 96.06,
         "n_analysts": 11,
-        "as_of": "2026-09-08"
+        "as_of": "2026-09-09"
+      },
+      "META": {
+        "mean_target_usd": 754.77,
+        "n_analysts": 42,
+        "as_of": "2026-09-09"
+      },
+      "VST": {
+        "mean_target_usd": 217.42,
+        "n_analysts": 16,
+        "as_of": "2026-09-09"
       }
     },
     "atr20": {
@@ -3414,7 +3512,8 @@
         "IREN": 14.15,
         "MSFT": 1.77,
         "NBIS": 2.64,
-        "SMCI": 29.84
+        "SMCI": 29.84,
+        "META": 2.29
       },
       "peer_etf": {
         "BE": "XLU",
@@ -3425,9 +3524,10 @@
         "IREN": "XLK",
         "MSFT": "XLK",
         "NBIS": "XLK",
-        "SMCI": "XLK"
+        "SMCI": "XLK",
+        "META": "XLK"
       },
-      "as_of": "2026-09-08"
+      "as_of": "2026-09-09"
     }
   },
   "fomc_cache": {
@@ -3724,7 +3824,7 @@
       "as_of": "2026-09-06"
     }
   },
-  "watchlist_scan_cursor": 45,
+  "watchlist_scan_cursor": 60,
   "data_quality": [
     "Third consecutive deep run on the Friday 2026-09-04 closes -- 2026-09-07 was Labor Day. Prices byte-identical to the 09-06 and 09-07 runs; the entire -$112.61 book move is FX (+$400.23) net of an unchanged-price residual (-$512.83).",
     "BE snapshot price $265.49 vs yfinance regular-session close $252.87 (+4.99%). NOT overridden: this is the third occurrence of the documented post-market-print pattern on this exact name (2026-09-06 correction lesson) -- INDmoney carries the extended-hours print and is the fresher source after the close.",
@@ -4156,48 +4256,49 @@
     "note": "First complete realised P&L on fully-exited names, computable only after the 116-row recovery. Best: GOOG +$334.46, WDC +$204.77, BE +$142.81. Worst: GLW -$249.02, SMCI -$197.09, META -$107.67, EWY -$96.48. GOOG's figure is partly pre-history basis and is distorted by the unrecorded GOOG->GOOGL conversion (G71) -- treat it as indicative."
   },
   "signal_history_as_of": {
-    "ASML": "2026-09-08",
-    "TSM": "2026-09-08",
-    "MU": "2026-09-08",
-    "MRVL": "2026-09-08",
-    "CIEN": "2026-09-08",
-    "AMD": "2026-09-08",
-    "STM": "2026-09-08",
-    "NVDA": "2026-09-08",
-    "AVGO": "2026-09-08",
-    "GEV": "2026-09-08",
-    "QCOM": "2026-09-08",
-    "CLS": "2026-09-08",
+    "ASML": "2026-09-09",
+    "TSM": "2026-09-09",
+    "MU": "2026-09-09",
+    "MRVL": "2026-09-09",
+    "CIEN": "2026-09-09",
+    "AMD": "2026-09-09",
+    "STM": "2026-09-09",
+    "NVDA": "2026-09-09",
+    "AVGO": "2026-09-09",
+    "GEV": "2026-09-09",
+    "QCOM": "2026-09-09",
+    "CLS": "2026-09-09",
     "BABA": "2026-09-01",
     "CEG": "2026-09-01",
     "AMZN": "2026-09-01",
     "NOW": "2026-08-29",
-    "MSFT": "2026-09-08",
+    "MSFT": "2026-09-09",
     "FLTW": "2026-09-01",
-    "TER": "2026-09-08",
-    "VRT": "2026-09-08",
-    "COHR": "2026-09-08",
-    "AMAT": "2026-09-08",
-    "BE": "2026-09-08",
+    "TER": "2026-09-09",
+    "VRT": "2026-09-09",
+    "COHR": "2026-09-09",
+    "AMAT": "2026-09-09",
+    "BE": "2026-09-09",
     "IREN": "2026-09-08",
-    "LRCX": "2026-09-08",
-    "GLW": "2026-09-08",
-    "INTC": "2026-09-08",
+    "LRCX": "2026-09-09",
+    "GLW": "2026-09-09",
+    "INTC": "2026-09-09",
     "TXN": "2026-08-29",
-    "NBIS": "2026-09-08",
-    "META": "2026-08-29",
-    "GOOG": "2026-09-08",
-    "WDC": "2026-09-08",
-    "SKHY": "2026-09-08",
+    "NBIS": "2026-09-09",
+    "META": "2026-09-09",
+    "GOOG": "2026-09-09",
+    "WDC": "2026-09-09",
+    "SKHY": "2026-09-09",
     "HOOD": "2026-08-29",
     "BX": "2026-09-01",
-    "KLAC": "2026-09-08",
-    "LITE": "2026-09-08",
-    "SMCI": "2026-09-08",
+    "KLAC": "2026-09-09",
+    "LITE": "2026-09-09",
+    "SMCI": "2026-09-09",
     "AMKR": "2026-09-01",
-    "FSLR": "2026-09-08",
-    "ALAB": "2026-09-08",
-    "APH": "2026-09-08"
+    "FSLR": "2026-09-09",
+    "ALAB": "2026-09-09",
+    "APH": "2026-09-09",
+    "VST": "2026-09-09"
   },
   "macro_read": {
     "fed_funds_pct": 3.63,
@@ -4439,41 +4540,89 @@
     {
       "ticker": "BWXT",
       "type": "oversold_bounce+target_gap",
-      "upside_pct": 31.2,
-      "pos": 0.11
+      "upside_pct": 29.92,
+      "pos": 0.13
     },
     {
       "ticker": "CRDO",
       "type": "target_gap",
-      "upside_pct": 39.4,
-      "pos": 0.38
+      "upside_pct": 40.39,
+      "pos": 0.37
     },
     {
       "ticker": "CMI",
       "type": "target_gap",
-      "upside_pct": 25.9,
+      "upside_pct": 25.82,
       "pos": 0.49
     },
     {
       "ticker": "GLNG",
       "type": "target_gap",
-      "upside_pct": 18.5,
-      "pos": 0.75
+      "upside_pct": 19.52,
+      "pos": 0.72
     },
     {
       "ticker": "EVER",
       "type": "target_gap",
-      "upside_pct": 15.6,
+      "upside_pct": 15.46,
       "pos": 0.74
     },
     {
       "ticker": "DELL",
       "type": "nearing_breakout",
-      "upside_pct": -2.7,
+      "upside_pct": -4.63,
       "pos": 1.0
+    },
+    {
+      "ticker": "MCHP",
+      "type": "target_gap",
+      "upside_pct": 32.46,
+      "pos": 0.43
+    },
+    {
+      "ticker": "SNDK",
+      "type": "target_gap",
+      "upside_pct": 26.67,
+      "pos": 0.73
+    },
+    {
+      "ticker": "APLD",
+      "type": "target_gap",
+      "upside_pct": 61.86,
+      "pos": 0.4
+    },
+    {
+      "ticker": "AMZN",
+      "type": "target_gap",
+      "upside_pct": 21.7,
+      "pos": 0.67
+    },
+    {
+      "ticker": "CRWV",
+      "type": "target_gap",
+      "upside_pct": 39.05,
+      "pos": 0.42
+    },
+    {
+      "ticker": "CORZ",
+      "type": "target_gap",
+      "upside_pct": 49.54,
+      "pos": 0.31
+    },
+    {
+      "ticker": "SHOP",
+      "type": "target_gap",
+      "upside_pct": 21.65,
+      "pos": 0.45
+    },
+    {
+      "ticker": "PENG",
+      "type": "target_gap",
+      "upside_pct": 38.4,
+      "pos": 0.48
     }
   ],
-  "watchlist_setups_as_of": "2026-09-08",
+  "watchlist_setups_as_of": "2026-09-09",
   "watchlist_priority": {
     "SMR": {
       "date": "2026-08-25",
@@ -4492,9 +4641,9 @@
       "reason": null
     }
   },
-  "sector_map_as_of": "2026-09-08",
+  "sector_map_as_of": "2026-09-09",
   "factor_themes_as_of": "2026-09-08",
-  "peer_map_as_of": "2026-09-08",
+  "peer_map_as_of": "2026-09-09",
   "cycle_position": {
     "position": "late",
     "confidence": "medium",
@@ -4989,7 +5138,7 @@
       }
     }
   },
-  "latest_run_dir": "runs/2026-09-08-0752/",
+  "latest_run_dir": "runs/2026-09-09-0751",
   "rebound_candidates": {
     "as_of": "2026-08-31",
     "correction_state": "correction",
