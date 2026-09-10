@@ -1803,6 +1803,43 @@ def cmd_sentiment(args):
 
 
 
+def cmd_merge_prices(args):
+    """Merge one or more fetched price JSON files into the single flat {"TICKER":price_usd}
+    map `score`/`stops` (and `build-holdings`' --live-quotes-json) expect.
+
+    ADDED 2026-09-10, alongside `build-holdings` (G95) and its follow-up lesson: the prices-json
+    fed to `score`/`stops` cannot be fetched BY the script (no network, by design), but the
+    MERGING of several fetch rounds into one file was still being hand-written in inline Python
+    every run -- three separate `python3 << EOF ... json.dump(...)` blocks in a single sweep on
+    2026-09-10, each one a fresh chance to fat-finger a key or silently drop a ticker. This
+    command removes that specific manual step; it does not and cannot remove the FETCH itself.
+
+    Each --input file may be in EITHER shape and both are handled without the caller pre-flattening:
+      - a flat map already: {"TICKER": 123.45, ...}
+      - raw yfinance get_stock_price(format=json) output: {"TICKER": {"price": 123.45,
+        "changePct": ..., ...other fields...}, ...} -- only `.price` is extracted.
+    Later --input files win on a key collision (last one wins, so pass the freshest fetch last).
+    A value that is neither a number nor a dict-with-price is skipped and named in `skipped`,
+    never silently coerced.
+    """
+    merged, skipped, sources = {}, [], {}
+    for path in args.inputs:
+        data = load_json(path, default=None)
+        if not isinstance(data, dict):
+            fail(f"--input {path} is not a JSON object")
+        for ticker, v in data.items():
+            price = v.get("price") if isinstance(v, dict) else v
+            if isinstance(price, (int, float)):
+                merged[ticker] = price
+                sources[ticker] = os.path.basename(path)
+            else:
+                skipped.append({"ticker": ticker, "file": os.path.basename(path), "value": v})
+    with open(args.out, "w") as f:
+        json.dump(merged, f, indent=2)
+    emit({"written": args.out, "tickers": len(merged), "skipped": skipped,
+          "inputs": [os.path.basename(p) for p in args.inputs]})
+
+
 def cmd_maxpain(args):
     """Max-pain and put/call OI ratio from an options chain (G18).
 
@@ -4451,6 +4488,14 @@ def main():
     sp.add_argument("--chain", required=True, help="JSON chain file: {underlyingPrice, data:{expiry:{calls,puts}}}")
     sp.add_argument("--symbol", default=None)
 
+    sp = sub.add_parser("merge-prices",
+                        help="merge several fetched price JSON files (flat or raw yfinance "
+                             "shape) into the one flat {TICKER:price} map score/stops/"
+                             "build-holdings expect -- replaces hand-written merge Python")
+    sp.add_argument("--inputs", required=True, nargs="+",
+                    help="one or more JSON file paths, space-separated; last wins on a key collision")
+    sp.add_argument("--out", required=True)
+
     sp = sub.add_parser("slices", help="render per-agent data embeds from the declared table")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--run-dir", required=True)
@@ -4637,7 +4682,7 @@ def main():
 
     args = p.parse_args()
     try:
-        {"build-holdings": cmd_build_holdings,
+        {"build-holdings": cmd_build_holdings, "merge-prices": cmd_merge_prices,
          "book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
          "triggers": cmd_triggers, "buckets": cmd_buckets, "ladder": cmd_ladder,
