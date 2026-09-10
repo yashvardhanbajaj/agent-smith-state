@@ -88,6 +88,165 @@ from smith_lifecycle import _proposal_parse_date
 
 
 # ---------------------------------------------------------------------------
+# build-holdings
+# ---------------------------------------------------------------------------
+def cmd_build_holdings(args):
+    """Build holdings.json mechanically from a raw networth_holdings(US_STOCK) dump, instead of
+    the orchestrator hand-writing it in an inline Python snippet every run.
+
+    ADDED 2026-09-10 after a run where hand-construction cost most of a sweep's wall-clock and
+    produced two real defects in a row: (1) day_chg_pct was left null on all 31 rows because the
+    inline script never wired up the field, silently starving compute_buckets.json's STRONG
+    DOWNTREND/UPTREND classification of real data until a user-flagged anomaly (VRT -9.6% with
+    no bucket fired) forced a second full pipeline run to find it; (2) two tickers absent from
+    the live pull (FSLR, VST) were guessed to be a snapshot pagination glitch and silently
+    carried forward at last-known qty -- WRONG, both had been legitimately stopped out days
+    earlier, and the guess was only caught because it happened to also break persist-safety
+    checks downstream. Both defects share one root cause: there was no deterministic builder, so
+    every run re-derived the transformation by hand and both mistakes were free to recur (the
+    2026-09-09 run made the identical "carried forward" guess for the identical tickers).
+
+    THE RULE THIS ENFORCES: the row set in holdings.json is EXACTLY the row set the snapshot
+    returned. A ticker present in state.json's prior holdings but absent from this run's
+    snapshot is NEVER carried forward and NEVER silently dropped -- it is named in
+    `dropped_since_last_run` and the caller MUST resolve it via the ledger pipeline (SKILL.md's
+    LEDGER trigger: search transaction-confirmation emails, `ledger-parse` / `ledger-apply`) or
+    an explicit user confirmation, never a guess about API flakiness.
+
+    Input:
+      --snapshot-json   raw networth_holdings(US_STOCK) `result` payload (parsed JSON): expects
+                        top-level `holdings` (list of {investment_code, investment, total_units,
+                        invested_value_usd, current_value_usd, one_day_change_usd,
+                        holding_percent}) and `asset_summary.total_value_usd`.
+      --live-quotes-json  optional flat {"TICKER": price} or {"TICKER": {"price":..,
+                        "changePct":..}} map (e.g. yfinance get_stock_price, format=json). When a
+                        ticker has a live quote, its price and day_chg_pct are taken from THIS,
+                        not from the snapshot's own (measured unreliable -- see G94's sibling
+                        finding that INDmoney's one_day_change_percentage read -0.11% for a name
+                        that had actually moved -9.6% intraday) one_day_change fields. A ticker
+                        with no live quote keeps the snapshot's own day-change as a fallback,
+                        degraded rather than dropped, and is named in `no_live_quote`.
+      --usdinr          required.
+      --wallet-usd       US_STOCK_WALLET current_value in USD (from networth_snapshot).
+      --aggregate-usd    optional: the snapshot's own asset_summary.total_value_usd, kept
+                        SEPARATE from the row-level sum so cmd_book's G3 divergence check still
+                        has real teeth. Defaults to the row-level sum (no distinct check) if
+                        omitted.
+      --market-session, --gate-classification, --gate-reason  strings, written through as-is.
+      --macro-json      optional path to market_inputs.json; merged into macro_strip verbatim.
+      --benchmarks-json  optional flat {"smh": 574.29, ...}.
+      --run-dir         required; writes <run-dir>/holdings.json.
+      --base-dir        required; reads state.json for prior-holdings drop detection only.
+    """
+    snap = load_json(args.snapshot_json)
+    if not snap or "holdings" not in snap:
+        fail(f"--snapshot-json does not look like a networth_holdings result (no 'holdings' key): {args.snapshot_json}")
+    live_quotes_raw = load_json(args.live_quotes_json, default={}) if args.live_quotes_json else {}
+    usdinr = args.usdinr
+    state = load_json(os.path.join(args.base_dir, "state.json"), default={}) or {}
+
+    def _live_for(ticker):
+        v = live_quotes_raw.get(ticker)
+        if v is None:
+            return None, None
+        if isinstance(v, dict):
+            return v.get("price"), v.get("changePct")
+        return v, None  # bare price, no change% available
+
+    rows, no_live_quote = [], []
+    for h in snap["holdings"]:
+        ticker = h.get("investment_code")
+        if not ticker:
+            continue
+        qty = h.get("total_units") or 0.0
+        invested_usd = h.get("invested_value_usd") or 0.0
+        current_usd = h.get("current_value_usd") or 0.0
+        live_price, live_chg_pct = _live_for(ticker)
+        if live_price is not None and qty:
+            current_usd = qty * live_price
+        if live_chg_pct is not None:
+            day_chg_pct = round(live_chg_pct * 100, 4)
+        else:
+            no_live_quote.append(ticker)
+            # degrade to the snapshot's own day-change, not to null -- a partial live-quote
+            # fetch should not silently blank out every OTHER row's bucket classification too
+            one_day_change_usd = h.get("one_day_change_usd")
+            day_chg_pct = (round(100.0 * one_day_change_usd / (current_usd - one_day_change_usd), 4)
+                          if one_day_change_usd is not None and current_usd != one_day_change_usd
+                          else None)
+        rows.append({
+            "ticker": ticker, "name": h.get("investment") or ticker, "qty": qty,
+            "market_value_inr": round(current_usd * usdinr, 4),
+            "invested_inr": round(invested_usd * usdinr, 4),
+            "weight_pct": None,  # filled below, after the full row set is known
+            "pnl_pct": (round(100.0 * (current_usd - invested_usd) / invested_usd, 4)
+                       if invested_usd else None),
+            "price_usd": round(current_usd / qty, 4) if qty else None,
+            "day_chg_pct": day_chg_pct,
+            "market_cap": h.get("market_cap", "large"),
+            "live_price_usd": round(live_price, 4) if live_price is not None else (
+                round(current_usd / qty, 4) if qty else None),
+        })
+
+    total_val_usd = sum(r["market_value_inr"] for r in rows) / usdinr
+    for r in rows:
+        r["weight_pct"] = round(100.0 * (r["market_value_inr"] / usdinr) / total_val_usd, 4) if total_val_usd else 0.0
+
+    live_quotes_out = {t: (v.get("price") if isinstance(v, dict) else v)
+                       for t, v in live_quotes_raw.items()}
+    for r in rows:
+        live_quotes_out.setdefault(r["ticker"], r["live_price_usd"])
+
+    # DROP DETECTION -- the whole point of this rewrite. Never guess; always name.
+    prior_tickers = {h.get("ticker") for h in (state.get("holdings") or []) if h.get("ticker")}
+    current_tickers = {r["ticker"] for r in rows}
+    dropped = sorted(prior_tickers - current_tickers)
+
+    wallet_usd = args.wallet_usd or 0.0
+    invested_total_usd = sum(h.get("invested_value_usd") or 0.0 for h in snap["holdings"])
+    aggregate_usd = args.aggregate_usd if args.aggregate_usd is not None else (
+        snap.get("asset_summary", {}).get("total_value_usd", total_val_usd))
+
+    holdings_doc = {
+        "ts": args.ts or datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "usdinr": usdinr,
+        "market_session": args.market_session,
+        "gate_classification": args.gate_classification,
+        "gate_reason": args.gate_reason,
+        "holdings_inr": rows,
+        "live_quotes": live_quotes_out,
+        "totals": {
+            "current_value_inr_from_snapshot": round(total_val_usd * usdinr, 4),
+            "invested_inr": round(invested_total_usd * usdinr, 4),
+            "wallet_inr": round(wallet_usd * usdinr, 4),
+            "aggregate_value_inr": round(aggregate_usd * usdinr, 4),
+            "rows_sum_inr": round(sum(r["market_value_inr"] for r in rows), 4),
+            "pnl_pct": (round(100.0 * (total_val_usd * usdinr - invested_total_usd * usdinr) / (invested_total_usd * usdinr), 4)
+                       if invested_total_usd else None),
+            "count": len(rows),
+        },
+        "macro_strip": load_json(args.macro_json, default={}) if args.macro_json else {},
+        "benchmarks": load_json(args.benchmarks_json, default={}) if args.benchmarks_json else {},
+        "dropped_since_last_run": dropped,
+        "no_live_quote": sorted(set(no_live_quote)),
+    }
+    if dropped:
+        holdings_doc["price_overlay_note"] = (
+            f"dropped_since_last_run={dropped}: present in the prior run's holdings, absent from "
+            f"this snapshot. NOT carried forward, NOT assumed sold -- resolve via the LEDGER "
+            f"trigger (search transaction-confirmation emails / ledger-parse) before writing a "
+            f"briefing that treats these as exits.")
+
+    out_path = os.path.join(args.run_dir, "holdings.json")
+    with open(out_path, "w") as f:
+        json.dump(holdings_doc, f, indent=2)
+
+    emit({"written": out_path, "rows": len(rows), "total_value_usd": round(total_val_usd, 2),
+          "dropped_since_last_run": dropped, "no_live_quote": sorted(set(no_live_quote)),
+          "weights_sum_check": round(sum(r["weight_pct"] for r in rows), 4)})
+
+
+# ---------------------------------------------------------------------------
 # book
 # ---------------------------------------------------------------------------
 def cmd_book(args):
@@ -4172,6 +4331,28 @@ def main():
                                  'normal pipeline call; supply on a separate pass once tickers '
                                  'needing a price are known (same probe-with-{} idiom as score/stops).')
 
+    sp = sub.add_parser("build-holdings",
+                        help="build holdings.json mechanically from a raw networth_holdings dump "
+                             "-- see cmd_build_holdings' own docstring for why this replaced "
+                             "hand-written per-run Python")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--snapshot-json", required=True,
+                    help="raw networth_holdings(US_STOCK) result, parsed JSON")
+    sp.add_argument("--live-quotes-json", default=None,
+                    help='optional {"TICKER":price} or {"TICKER":{"price":..,"changePct":..}}')
+    sp.add_argument("--usdinr", type=float, required=True)
+    sp.add_argument("--wallet-usd", type=float, default=0.0)
+    sp.add_argument("--aggregate-usd", type=float, default=None,
+                    help="the snapshot's own asset_summary.total_value_usd, kept separate from "
+                         "the row sum so cmd_book's G3 divergence check has real teeth")
+    sp.add_argument("--market-session", required=True)
+    sp.add_argument("--gate-classification", default=None)
+    sp.add_argument("--gate-reason", default=None)
+    sp.add_argument("--macro-json", default=None)
+    sp.add_argument("--benchmarks-json", default=None)
+    sp.add_argument("--ts", default=None)
+
     sp = sub.add_parser("sentiment")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--market-inputs", required=True)
@@ -4456,7 +4637,8 @@ def main():
 
     args = p.parse_args()
     try:
-        {"book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
+        {"build-holdings": cmd_build_holdings,
+         "book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
          "triggers": cmd_triggers, "buckets": cmd_buckets, "ladder": cmd_ladder,
          "score": cmd_score,

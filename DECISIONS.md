@@ -1,7 +1,7 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**87 total gaps** -- 16 open, 71 archived (closed).
+**88 total gaps** -- 14 open, 74 archived (closed).
 
 ---
 
@@ -95,7 +95,7 @@ spx_125dma/ndx_rsi14/vix_52w_range computed from weekly-aggregated (not daily) y
 
 ---
 
-## G18 -- OPEN
+## G18 -- closed
 **Opened:** 2026-07-20  **Owner:** smith-macro  **Closed:** 2026-09-07  
 
 SPY/QQQ max-pain unavailable -- single-expiry options pull returned near-zero/null open interest across nearly all strikes (yfinance data gap)
@@ -606,7 +606,7 @@ Four tickers over-count against the broker after a from-scratch FIFO over the co
 
 ---
 
-## G69 -- OPEN
+## G69 -- closed
 **Opened:** 2026-08-13  **Owner:** orchestrator (schema design)  **Closed:** 2026-09-07  
 
 116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so they logged that the trades existed and discarded the numbers -- unrecoverable without a re-pull. Entirely an orchestrator design error, not an agent fault. All 24 securities involved are exited/never-held, so the 31/31 invariant, current cost basis and LTCG are unaffected; the loss is historical realised P&L on closed positions. FIX for any future fan-out: the quarantine schema MUST carry the full extracted payload (qty, price, amount, order_type) so a later map entry alone recovers the row.
@@ -756,7 +756,7 @@ BX's re-entry lot is dated 2026-08-21 in trades.json/lots.json, but state/G82 an
 
 ---
 
-## G84 -- OPEN
+## G84 -- closed
 **Opened:** 2026-08-29  **Owner:** orchestrator  **Closed:** 2026-08-29  
 
 2026-08-29 deep review: strategist and orchestrator both asserted a nonexistent '8% drawdown warn line' (policy.json's real drawdown_warn_pct is 15) across the ledger narrative and the chat briefing. Root cause: a number lived only in free-text narrative with nothing checking it against policy.json, so it could be typed once and copied forward. Fixed same-day: smith_memory.py's validate command now has validate_policy_narrative_drift(), which flags the MOST RECENT ledger row if it quotes a drawdown warn/risk-off percentage that disagrees with policy.json.
@@ -852,6 +852,17 @@ FRESHNESS per_entry ageing counted exited tickers, so every exit permanently age
 cmd_ledger_apply wrote rows in a side/action/unsigned-qty shape but cmd_lots' FIFO consumer only ever reads the legacy signed qty_change field -- every row written since the 2026-09-06 script-first ledger rewrite was silently invisible to FIFO, `.get('qty_change') or 0` defaulting a missing field to 0 rather than erroring.
 
 **Resolution:** Surfaced 2026-09-10 when `lots --write` reported 11 reconciliation mismatches (APH/QCOM/INTC/GOOG/BE/KLAC/NBIS/TSM/CLS/META/MU) + 2 orphaned positions (FSLR, IREN) -- every single delta traced exactly to one of 16 unconsumed rows written 2026-09-08/09. FIXED: cmd_ledger_apply now writes qty_change (signed off side) on every new row at write time; the 16 pre-existing rows were backfilled the same way. Reconciliation went from 20/31 clean + 2 orphaned to 30/31 clean + 0 orphaned. The 1 remaining GOOG mismatch is a separate, unrelated gap: its 2026-09-09 buy confirmation email body still won't parse (template variance), so it never entered trades.json at all -- flagged for a future smith-ledger dispatch. Had direct LTCG/tax-lot consequences (smith-tax reads lots.json) and was live for a full weekend of trading before this run caught it. GENERALISE: when a pipeline is rewritten to a new row shape, grep every OTHER consumer of the old shape's fields before trusting the new writer -- a shared field name is an implicit contract, and 'or 0' defaults make a missing field silently wrong rather than loudly broken.
+
+**Closed by:** same run that found it, 2026-09-10 daily sweep
+
+---
+
+## G95 -- OPEN
+**Opened:** 2026-09-10  **Owner:** orchestrator  **Closed:** 2026-09-10  
+
+holdings.json was hand-constructed by the orchestrator in an inline Python snippet every run, with no deterministic builder -- the exact class of gap COMPUTE-FIRST exists to close, just never applied to this one file.
+
+**Resolution:** User flagged that the pre-Stage-1 phase ('Wave 0') was taking too much time and compute. Root cause: hand-writing holdings.json produced two real defects the same run -- (1) day_chg_pct left null on all 31 rows, silently starving compute_buckets.json's STRONG DOWNTREND/UPTREND classification (only caught because a user-visible anomaly, VRT -9.6% with no bucket fired, forced investigation); (2) FSLR/VST, absent from the live networth_holdings pull, were guessed to be a snapshot pagination glitch and carried forward at last-known qty -- the SAME wrong guess an earlier run (2026-09-09) had already made for the same tickers, because nothing forced a check against reality. Both were only caught by chance (a downstream anomaly, then a user challenge), not by any structural control. FIXED: added `smith_math.py build-holdings`, which builds holdings.json mechanically from a raw networth_holdings dump + a live-quotes map -- day_chg_pct is always computed from the live quote's changePct when one was fetched (never from INDmoney's own unreliable one_day_change_percentage field), and any ticker present in the prior run's holdings but absent from the fresh snapshot is named in `dropped_since_last_run` rather than silently carried forward or dropped, forcing a ledger-trigger check instead of a guess. GENERALISE: COMPUTE-FIRST's own principle -- deterministic transformation belongs in the script layer, not re-derived by hand every run -- applies to input CONSTRUCTION (building holdings.json from a raw API response) exactly as much as it applies to the arithmetic performed on it afterward. A file assembled by hand once per run is a file that can silently drop a field forever and nothing will notice until a downstream symptom forces a hunt.
 
 **Closed by:** same run that found it, 2026-09-10 daily sweep
 
