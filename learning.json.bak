@@ -1008,6 +1008,14 @@
       "evidence": "trades.json 16 backfilled rows (2026-09-08, 2026-09-09); scripts/smith_ledger.py cmd_ledger_apply qty_change fix; lots reconciliation before/after in runs/2026-09-10-0331",
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-09-10",
+      "kind": "correction",
+      "text": "HOLDINGS.JSON WAS HAND-WRITTEN EVERY RUN, WHICH IS WHERE THIS RUN'S SLOWDOWN AND TWO REAL BUGS CAME FROM. User flagged post-run that the pre-Stage-1 phase was taking too much time and compute. Investigating: holdings.json had no deterministic builder despite COMPUTE-FIRST's stated principle that deterministic transformation belongs in the script layer -- every run, the orchestrator hand-wrote it in an inline Python snippet from the raw networth_holdings API response. This run alone that produced two real defects: day_chg_pct left null on all 31 rows (silently starved compute_buckets.json's trend classification until a user-visible anomaly forced a hunt), and FSLR/VST were guessed to be a snapshot glitch and carried forward at stale qty when they had actually been stopped out -- the SAME wrong guess a PRIOR run (2026-09-09) had already made for the same two tickers, because nothing forced a check against reality either time. FIX APPLIED: added smith_math.py build-holdings (G95), which builds holdings.json mechanically -- day_chg_pct always sourced from a live quote's changePct when fetched, and any ticker dropped since the prior run is named in dropped_since_last_run rather than guessed at. GENERALISE: when COMPUTE-FIRST is stated as a principle, audit whether it is actually applied to EVERY hand-assembled input file, not just to the arithmetic performed on outputs -- an input-construction file assembled by hand once per run is exactly as much a COMPUTE-FIRST violation as an agent re-deriving a number the script already computed, and it is easier to miss because nothing calls it 'compute'.",
+      "evidence": "scripts/smith_math.py cmd_build_holdings (new), G95, G94; user message flagging Wave-0 time/compute cost 2026-09-10",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }
