@@ -703,6 +703,41 @@
       "resolution": "Both candidate fixes implemented; they are complementary, not alternatives. (b) A thesis entry that is explicitly source-verified AND re-checked within THESIS_OVERRIDES_STALE_BUCKET_DAYS (7) outranks a stale bucket -- deliberately narrow, since `verified: unverified` (the normal state) overrides nothing. (a) The general decay rule: new `state.signal_history_as_of[ticker]`, stamped ONLY when smith-signals returns successfully. Because that agent rewrites a ticker's bucket list wholesale on every successful run, the stamp advances when signals ran and FREEZES when it failed -- which is exactly the META 2026-08-12 case -- so it measures staleness precisely. Past HEADWIND_BUCKET_MAX_AGE_DAYS (10), or with no stamp at all, a NEW HEADWINDS bucket stops being decisive; it is still REPORTED, since decay removes the veto, not the information. Unknown age fails OPEN because the veto is the dangerous default. Tested three ways against the live run with the bucket injected: fresh stamp -> veto holds (0 notes); 46d stale -> decay fires; stamp absent -> decay fires. SKILL.md PERSIST carries the stamping rule and forbids backfilling it.",
       "status": "closed",
       "resolved_on": "2026-08-16"
+    },
+    {
+      "id": "G84",
+      "description": "2026-08-29 deep review: strategist and orchestrator both asserted a nonexistent '8% drawdown warn line' (policy.json's real drawdown_warn_pct is 15) across the ledger narrative and the chat briefing. Root cause: a number lived only in free-text narrative with nothing checking it against policy.json, so it could be typed once and copied forward. Fixed same-day: smith_memory.py's validate command now has validate_policy_narrative_drift(), which flags the MOST RECENT ledger row if it quotes a drawdown warn/risk-off percentage that disagrees with policy.json.",
+      "opened": "2026-08-29",
+      "owner": "orchestrator",
+      "status": "closed",
+      "closed": "2026-08-29",
+      "resolution": "Corrected the 2026-08-29 ledger row's narrative text in place (a factual error, not a historical value); added validate_policy_narrative_drift() as a standing guard against recurrence."
+    },
+    {
+      "id": "G69",
+      "opened": "2026-08-13",
+      "owner": "orchestrator (schema design)",
+      "description": "116 correctly-extracted historical confirmations were LOST because the `unresolved` schema the orchestrator specified for the parallel window agents was {ticker, ts_utc, missing} with NO qty or price fields. The agents complied exactly, so they logged that the trades existed and discarded the numbers -- unrecoverable without a re-pull. Entirely an orchestrator design error, not an agent fault. All 24 securities involved are exited/never-held, so the 31/31 invariant, current cost basis and LTCG are unaffected; the loss is historical realised P&L on closed positions. FIX for any future fan-out: the quarantine schema MUST carry the full extracted payload (qty, price, amount, order_type) so a later map entry alone recovers the row.",
+      "closed": "2026-09-07",
+      "closed_by": "gap-audit 2026-09-07",
+      "resolution": "Upgraded from partially_closed 2026-09-07: the only actionable half of this gap was the PREVENTION fix, and it is verified live in SKILL.md's own HARD RULES as 'A QUARANTINE SCHEMA CARRIES THE FULL PAYLOAD, NEVER JUST A POINTER' (full incident: DECISIONS.md#G69) -- a durable, citable rule, not a one-off patch. The 116 lost historical confirmations remain permanently unrecoverable, as this gap's text always said; that is an accepted, written-off loss with no further action pending, not an open item. Nothing here is waiting on anything.",
+      "status": "closed",
+      "resolved_on": "2026-08-16"
+    },
+    {
+      "id": "G18",
+      "description": "SPY/QQQ max-pain unavailable -- single-expiry options pull returned near-zero/null open interest across nearly all strikes (yfinance data gap)",
+      "opened": "2026-07-20",
+      "owner": "smith-macro",
+      "status": "closed",
+      "closed": "2026-09-07",
+      "resolution": "Already fixed in code 2026-08-16 (cmd_maxpain's own docstring: 're-probed 2026-08-16: OI is now populated across the full chain, so the blocker is gone') but the gap registry was never updated to match -- a real case of the fix landing without the tracker catching up, found while auditing open gaps for closure. Independently re-verified live 2026-09-07: SPY and QQQ September/October expiries both return full open-interest tables (SPY strikes near-the-money showing OI in the hundreds to tens of thousands; QQQ the same) with plausible IVs -- nothing near-zero or null. smith_math.py maxpain is usable as documented; no further action needed.",
+      "revalidated": "2026-08-07 (second pass: FMP connector explicitly evaluated)",
+      "user_decision": "2026-08-07: user confirmed LEAVE AS wont_fix after the FMP evaluation and the PCR-vs-max-pain split were presented. Do not re-open, do not re-evaluate sources, and do not raise it as an outstanding item in future briefings or audits. Reopen only if the user explicitly asks for index-expiry pinning levels.",
+      "resolved_on": "2026-08-16",
+      "reopened": "2026-08-24",
+      "reopen_reason": "Independently reconfirmed broken by both smith-macro and smith-earnings on 2026-08-24 -- yfinance returns openInterest=0/bid=0/ask=0 across both SPY and QQQ chains and all expirations; was incorrectly marked wont_fix/closed.",
+      "closed_by": "gap-audit 2026-09-07"
     }
   ]
 }

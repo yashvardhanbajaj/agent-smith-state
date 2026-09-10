@@ -842,6 +842,15 @@ def cmd_ledger_apply(args):
             dupes.append({"message_id": mid, "ticker": r.get("ticker"), "date": r.get("date")})
             continue
         row = {k: v for k, v in r.items() if k not in ("name", "extracted_from")}
+        # ONE FIELD, ONE READER (G58/G60 discipline): cmd_lots' FIFO consumer only ever reads
+        # the legacy signed `qty_change` field (line ~159 etc). This pipeline's own `parsed`
+        # rows carry `side`+unsigned `qty` instead, and until this line qty_change was never
+        # populated -- every row written by this path was silently invisible to lots.json's
+        # FIFO rebuild (`.get("qty_change") or 0` defaults a missing field to 0, not an error).
+        # Found 2026-09-10: 16 rows since 2026-09-08 (the day this pipeline shipped) went
+        # unconsumed, producing reconciliation mismatches on APH/QCOM/INTC/GOOG/BE/KLAC/NBIS/
+        # TSM/CLS/META/MU and orphaned FSLR/IREN positions -- all fully explained by this gap.
+        row["qty_change"] = r.get("qty") if r.get("side") == "BUY" else -(r.get("qty") or 0)
         row["notes"] = (f"auto-parsed from INDmoney confirmation {mid or '(no id)'}; "
                         f"Amount ${r.get('amount_usd')} reconciles to qty x price within a "
                         f"{r.get('implied_fee_pct')}% fee; ticker resolved by "

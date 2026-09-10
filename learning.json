@@ -1000,6 +1000,14 @@
       "evidence": null,
       "source_run": "manual-fix-2026-09-06",
       "supersedes": null
+    },
+    {
+      "date": "2026-09-10",
+      "kind": "correction",
+      "text": "LEDGER-APPLY WROTE ROWS INVISIBLE TO LOTS FIFO FOR 2 DAYS. The 2026-09-06 script-first ledger rewrite (b3ca4fa) introduced cmd_ledger_apply, which writes parsed confirmation rows in a side/action/unsigned-qty shape. cmd_lots FIFO consumer only ever reads the legacy signed qty_change field (.get('qty_change') or 0 -- silently defaults a missing field to 0 rather than erroring). Every row ledger-apply wrote since 2026-09-08 (16 rows: APH/BE/CLS/GOOG/INTC/IREN/META/MU/NBIS/QCOM/TSM/VST on 09-08, FSLR/KLAC/QCOM/VST on 09-09) was silently invisible to FIFO. Surfaced 2026-09-10 when lots --write reported 11 reconciliation mismatches + 2 orphaned positions (FSLR, IREN) that traced exactly to these 16 unconsumed rows -- every single mismatch delta matched a missing row's qty. FIX APPLIED: cmd_ledger_apply now writes qty_change (signed off side) on every new row at write time; the 16 pre-existing rows were backfilled the same way. Reconciliation went from 20/31 clean + 2 orphaned to 30/31 clean + 0 orphaned (the 1 remaining GOOG mismatch is a separate, genuine gap -- its confirmation email body failed to parse due to template variance, never entered trades.json at all). GENERALISE: when a pipeline is rewritten to a new row shape, grep every OTHER consumer of the old shape's fields before trusting the new writer -- a shared field name is an implicit contract, and 'or 0' defaults make a missing field silently wrong rather than loudly broken. This bug had direct LTCG/tax-lot consequences (smith-tax reads lots.json) and was live for a full weekend of trading before this run caught it.",
+      "evidence": "trades.json 16 backfilled rows (2026-09-08, 2026-09-09); scripts/smith_ledger.py cmd_ledger_apply qty_change fix; lots reconciliation before/after in runs/2026-09-10-0331",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

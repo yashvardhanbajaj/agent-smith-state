@@ -151,7 +151,8 @@
       "verified": "secondary",
       "verified_against": "stockanalysis.com/stocks/iren",
       "verified_on": "2026-08-29",
-      "note": "re-entry, not first thesis; net-loss driver unresolved"
+      "note": "re-entry, not first thesis; net-loss driver unresolved",
+      "reviewed_on": "2026-09-08"
     },
     "EWY": {
       "status": "watch",
@@ -567,6 +568,87 @@
       "exited": true,
       "held": false,
       "exited_as_of": "2026-09-01"
+    },
+    "FSLR": {
+      "status": "watch",
+      "thesis": "Domestic thin-film solar manufacturer, screened as a diversifier but NOT clean: Q2 earnings call cited hyperscaler demand as a backlog driver alongside tariff/IRA tailwinds -- reclassified AI Power/Cooling/DC Infra rather than treated as a genuine non-AI-capex diversifier.",
+      "evidence_for": [
+        {
+          "claim": "Record 45.1GW backlog; company cited 'strong demand from hyperscalers' on the Q2 call",
+          "date": "2026-07-30",
+          "source": "stockanalysis.com/stocks/fslr + INDmoney news"
+        },
+        {
+          "claim": "Section 232 tariffs on solar/polysilicon imports announced ~2026-08-06/07 triggered rally + analyst PT raises; consensus target $275.30 (+37% upside), 26 analysts 73% Buy",
+          "date": "2026-08-07",
+          "source": "stockanalysis.com/stocks/fslr"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "Q2 2026 revenue $1.06B came in light vs consensus (EPS $3.92 was the strong leg, not blended with the revenue side)",
+          "date": "2026-07-30",
+          "source": "INDmoney news"
+        },
+        {
+          "claim": "Class-action suit filed alleging Series 6 module production underutilization and costly South Carolina onshoring challenges -- open legal/execution overhang on a brand-new position",
+          "date": "2026-08-12",
+          "source": "stockanalysis.com/stocks/fslr"
+        }
+      ],
+      "verified": "secondary",
+      "verified_against": "stockanalysis.com/stocks/fslr",
+      "verified_on": "2026-09-01",
+      "note": "First-ever thesis, brand-new position (3sh, 1.72% wt). No dedicated solar/clean-energy diversifier cluster exists in policy.json cluster_targets; used the closest exact existing string (AI Power/Cooling/DC Infra) per this run's no-invent-taxonomy instruction. Flag for user: if the intent buying FSLR was a genuine non-AI-capex diversifier, evidence this run says it isn't one.",
+      "reviewed_on": "2026-09-08"
+    },
+    "VST": {
+      "status": "watch",
+      "thesis": "AI-power/IPP: nuclear+gas generation capacity monetizing hyperscaler datacenter electricity demand; new position 5sh @$153.25 (2026-09-08)",
+      "evidence_for": [
+        {
+          "claim": "Peter Thiel disclosed $59M stake, framed as AI power market position",
+          "date": "2026-09-03",
+          "source": "INDmoney news"
+        },
+        {
+          "claim": "Analyst consensus Strong Buy, 16 analysts, mean target $217.42 (+30.2% upside)",
+          "date": "2026-09-09",
+          "source": "INDmoney analyst consensus"
+        },
+        {
+          "claim": "Q2 2026 JV with Helix announced, strengthening market position",
+          "date": "2026-08-16",
+          "source": "INDmoney news"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "Q2 2026 revenue ~$4B came in below expectations (reported-quarter signal, kept separate from guide)",
+          "date": "2026-08-24",
+          "source": "INDmoney news"
+        },
+        {
+          "claim": "Stock down ~31% from 52-week high $219.82 to $151.72",
+          "date": "2026-09-09",
+          "source": "INDmoney live quote"
+        },
+        {
+          "claim": "Officer disclosed plan for $6.7M stock sale",
+          "date": "2026-09-08",
+          "source": "INDmoney news"
+        },
+        {
+          "claim": "Trades at premium P/E; valuation concerns persist despite strong Q2",
+          "date": "2026-08-16",
+          "source": "INDmoney news"
+        }
+      ],
+      "verified": "secondary",
+      "verified_against": "INDmoney news aggregation + analyst consensus",
+      "verified_on": "2026-09-09",
+      "note": "First-ever thesis, brand-new position. Genuinely mixed (bullish AI-power narrative + analyst consensus vs revenue miss, insider sale, 31% drawdown) -- not upgraded past WATCH.",
+      "reviewed_on": "2026-09-09"
     }
   },
   "sector_map": {
@@ -605,6 +687,8 @@
     "AMKR": "AI Semis/Fabs",
     "AMZN": "Compute/Hyperscaler",
     "CEG": "AI Power/Cooling/DC Infra",
-    "FLTW": "Diversified/Regional ETF"
+    "FLTW": "Diversified/Regional ETF",
+    "FSLR": "AI Power/Cooling/DC Infra",
+    "VST": "AI Power/Cooling/DC Infra"
   }
 }

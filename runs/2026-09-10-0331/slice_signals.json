@@ -1,0 +1,335 @@
+{
+  "mode": "quick",
+  "today": "2026-09-10",
+  "market_session": "post-close",
+  "gate_classification": "AMBIGUOUS",
+  "macro": {
+    "us10y": 4.837,
+    "vix": 16.46,
+    "dxy": 98.752,
+    "spx": 7636.36,
+    "ndx": 26253.34,
+    "smh": 574.29,
+    "es_chg": 0.0014063776,
+    "nq_chg": -0.0012394415,
+    "smh_chg": 0.000976065,
+    "vix_chg": 0.04707371
+  },
+  "usdinr": 95.25,
+  "known_gaps": [
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    },
+    {
+      "id": "G86",
+      "status": "partially_closed",
+      "gap": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are there"
+    },
+    {
+      "id": "G85",
+      "status": "partially_closed",
+      "gap": "SHADOW-SCORED TRIGGER PROPOSALS ARE STRUCTURALLY EXEMPT FROM CONDITION-BASED AUTO-RETIREMENT. Any proposal whose trigger_type is a shadow trigger (profit_ratchet, scale_out_ladder) is written with retires_when = 'n/a -- shadow-scored, track"
+    },
+    {
+      "id": "G82",
+      "status": "open",
+      "gap": "BX (Blackstone) was re-entered 2026-08-21 (date corrected 2026-09-07 via the actual INDmoney confirmation email, see G83 -- this entry originally said 08-24, which was wrong) (10sh, 3.67% weight) after a full exit on 2026-08-17. smith-thesi"
+    },
+    {
+      "id": "G90",
+      "status": "open",
+      "gap": "FMP plan tier blocks `statements` (key-metrics/financial-scores) for this book's actual holdings by a per-symbol coverage limit, not a blanket endpoint permission as previously assumed -- NVDA worked in isolated testing, but all 5 of this r"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "agent": "smith-signals",
+  "agent_key": "signals",
+  "output_file": "runs/2026-09-10-0331/smith-signals-output.md",
+  "holdings_path": "runs/2026-09-10-0331/holdings.json",
+  "read_these_files": {
+    "open_flags": "/Users/yb/Claude/AgentSmith/runs/2026-09-10-0331/shared/open_flags.7460550d.json",
+    "peer_map": "/Users/yb/Claude/AgentSmith/runs/2026-09-10-0331/shared/peer_map.eb396c76.json",
+    "journal": "/Users/yb/Claude/AgentSmith/runs/2026-09-10-0331/compute_journal.json",
+    "buckets": "/Users/yb/Claude/AgentSmith/runs/2026-09-10-0331/compute_buckets.json",
+    "holdings": "/Users/yb/Claude/AgentSmith/runs/2026-09-10-0331/shared/holdings_trim.97659c03.json"
+  },
+  "news_watermark": "2026-09-09",
+  "signal_history": {
+    "ASML": [
+      "TARGET GAP"
+    ],
+    "TSM": [
+      "TARGET GAP"
+    ],
+    "MU": [
+      "NEW TAILWINDS",
+      "PEER LEADER",
+      "TARGET GAP"
+    ],
+    "MRVL": [
+      "PEER LEADER",
+      "TARGET GAP",
+      "INSIDER ACTIVITY"
+    ],
+    "CIEN": [
+      "TARGET GAP"
+    ],
+    "AMD": [
+      "NEW TAILWINDS",
+      "TARGET GAP"
+    ],
+    "STM": [
+      "TARGET GAP"
+    ],
+    "NVDA": [
+      "STRONG UPTREND",
+      "TARGET GAP"
+    ],
+    "AVGO": [
+      "PEER LAGGARD",
+      "TARGET GAP"
+    ],
+    "GEV": [
+      "NEW TAILWINDS",
+      "TARGET GAP"
+    ],
+    "QCOM": [
+      "PEER LAGGARD"
+    ],
+    "CLS": [
+      "PEER LAGGARD",
+      "TARGET GAP"
+    ],
+    "BABA": [],
+    "CEG": [],
+    "AMZN": [],
+    "NOW": [],
+    "MSFT": [
+      "PEER_LEADER_OVERRIDDEN_FALSE_vs_XLK"
+    ],
+    "FLTW": [],
+    "TER": [
+      "TARGET GAP"
+    ],
+    "VRT": [],
+    "COHR": [
+      "TARGET GAP"
+    ],
+    "AMAT": [
+      "TARGET GAP"
+    ],
+    "BE": [
+      "TARGET_GAP_NOT_FIRED",
+      "PEER_LEADER_OVERRIDDEN_FALSE_vs_XLU"
+    ],
+    "IREN": [
+      "PEER_LEADER_OVERRIDDEN_FALSE_vs_XLK",
+      "TARGET GAP",
+      "NEW HEADWINDS"
+    ],
+    "INTC": [
+      "MOMENTUM+VOLUME",
+      "POLICY IMPACT"
+    ],
+    "TXN": [
+      "PEER LAGGARD"
+    ],
+    "META": [
+      "OVERSOLD BOUNCE",
+      "TARGET GAP",
+      "STRONG DOWNTREND",
+      "PEER LAGGARD",
+      "NEW HEADWINDS"
+    ],
+    "GOOG": [
+      "PEER LAGGARD",
+      "TARGET GAP"
+    ],
+    "WDC": [
+      "TARGET GAP",
+      "INSIDER ACTIVITY"
+    ],
+    "HOOD": [
+      "PEER LEADER"
+    ],
+    "GLW": [
+      "NEW TAILWINDS"
+    ],
+    "BX": [],
+    "KLAC": [
+      "STRONG UPTREND",
+      "MOMENTUM+VOLUME",
+      "TARGET GAP"
+    ],
+    "LRCX": [
+      "NEW TAILWINDS",
+      "PEER LEADER"
+    ],
+    "SKHY": [
+      "PEER LEADER",
+      "TARGET GAP"
+    ],
+    "SMCI": [
+      "PEER LEADER"
+    ],
+    "LITE": [
+      "NEW TAILWINDS",
+      "PEER LEADER"
+    ],
+    "NBIS": [
+      "PEER_LEADER_OVERRIDDEN_FALSE_vs_XLK"
+    ],
+    "AMKR": [],
+    "ALAB": [
+      "TARGET GAP"
+    ],
+    "FSLR": [
+      "OVERSOLD BOUNCE",
+      "PEER LAGGARD",
+      "TARGET GAP"
+    ],
+    "APH": [
+      "STRONG UPTREND"
+    ],
+    "VST": [
+      "TARGET GAP"
+    ]
+  },
+  "signal_history_as_of": {
+    "ASML": "2026-09-09",
+    "TSM": "2026-09-09",
+    "MU": "2026-09-09",
+    "MRVL": "2026-09-09",
+    "CIEN": "2026-09-09",
+    "AMD": "2026-09-09",
+    "STM": "2026-09-09",
+    "NVDA": "2026-09-09",
+    "AVGO": "2026-09-09",
+    "GEV": "2026-09-09",
+    "QCOM": "2026-09-09",
+    "CLS": "2026-09-09",
+    "BABA": "2026-09-01",
+    "CEG": "2026-09-01",
+    "AMZN": "2026-09-01",
+    "NOW": "2026-08-29",
+    "MSFT": "2026-09-09",
+    "FLTW": "2026-09-01",
+    "TER": "2026-09-09",
+    "VRT": "2026-09-09",
+    "COHR": "2026-09-09",
+    "AMAT": "2026-09-09",
+    "BE": "2026-09-09",
+    "IREN": "2026-09-08",
+    "LRCX": "2026-09-09",
+    "GLW": "2026-09-09",
+    "INTC": "2026-09-09",
+    "TXN": "2026-08-29",
+    "NBIS": "2026-09-09",
+    "META": "2026-09-09",
+    "GOOG": "2026-09-09",
+    "WDC": "2026-09-09",
+    "SKHY": "2026-09-09",
+    "HOOD": "2026-08-29",
+    "BX": "2026-09-01",
+    "KLAC": "2026-09-09",
+    "LITE": "2026-09-09",
+    "SMCI": "2026-09-09",
+    "AMKR": "2026-09-01",
+    "FSLR": "2026-09-09",
+    "ALAB": "2026-09-09",
+    "APH": "2026-09-09",
+    "VST": "2026-09-09"
+  },
+  "data_cache.atr20": {
+    "as_of": "2026-09-06",
+    "window": "22 daily bars, 30 Jun - 30 Jul 2026 (includes full 07-28 crash + 07-29/30 relief rally)",
+    "source": "yfinance daily OHLC, true-range method",
+    "values_pct": {
+      "ASML": 2.89,
+      "NVDA": 4.36,
+      "SNDK": 15.6,
+      "MU": 5.5,
+      "GOOGL": 3.34,
+      "DRAM": 9.72,
+      "MRVL": 5.86,
+      "COHR": 9.48,
+      "AMD": 4.02,
+      "VRT": 4.37,
+      "TER": 6.28,
+      "EWY": 6.44,
+      "CLS": 5.57,
+      "LRCX": 4.77,
+      "AMAT": 4.96,
+      "ARM": 10.45,
+      "CIEN": 7.1,
+      "TSM": 2.42,
+      "ORCL": 5.47,
+      "QCOM": 2.91,
+      "GEV": 4.31,
+      "NBIS": 9.88,
+      "IREN": 8.05,
+      "CEG": 2.86,
+      "GLW": 5.67,
+      "BE": 7.97,
+      "MKSI": 9.41,
+      "AVGO": 3.57,
+      "META": 4.74,
+      "AMZN": 2.13,
+      "BABA": 3.79,
+      "QBTS": 8.01,
+      "MP": 6.1,
+      "NOW": 5.65,
+      "MSFT": 1.95,
+      "SKHY": 5.66,
+      "INTC": 5.15,
+      "STM": 3.63,
+      "TXN": 3.35,
+      "FLTW": 1.73,
+      "BX": 2.9,
+      "IONQ": 6.04,
+      "GOOG": 1.75,
+      "WDC": 6.95,
+      "HOOD": 5.62,
+      "SMCI": 6.93,
+      "AMKR": 6.16,
+      "LITE": 8.28,
+      "KLAC": 4.56,
+      "ALAB": 6.59,
+      "APH": 3.2,
+      "FSLR": 4.06
+    },
+    "note": "Refreshed 2026-07-31 deep run -- prior cache (as_of 07-28) window predated the violent 07-28 crash and 07-29/30 rally entirely. Basis of stop_loss_framework (stop = 2x ATR20, floored at 3%). | 2026-08-12: added the 6 names that had no entry, incl. 2 brand-new positions (STM, TXN) and 2 that had been silently uncapped for weeks (FLTW, BX). ATR computed over 20 of 23 available bars via the policy's own (high-low)/close rule. | IONQ 6.04% added 2026-08-17 by smith-book on first appearance (21 daily obs, batched with SMH); shorter window than the rest of this table, treat as directional.",
+    "ttl_days": 7,
+    "refresh_after": "2026-08-19"
+  },
+  "data_cache.rel_strength_1m_peer": {
+    "values_pp": {
+      "BE": 9.24,
+      "FSLR": -12.33,
+      "GEV": -6.14,
+      "VRT": 2.26,
+      "GOOG": -7.63,
+      "IREN": 14.15,
+      "MSFT": 1.77,
+      "NBIS": 2.64,
+      "SMCI": 29.84,
+      "META": 2.29
+    },
+    "peer_etf": {
+      "BE": "XLU",
+      "FSLR": "XLU",
+      "GEV": "XLU",
+      "VRT": "XLU",
+      "GOOG": "XLK",
+      "IREN": "XLK",
+      "MSFT": "XLK",
+      "NBIS": "XLK",
+      "SMCI": "XLK",
+      "META": "XLK"
+    },
+    "as_of": "2026-09-09"
+  },
+  "inputs_digest": "15ff988d8b1d"
+}

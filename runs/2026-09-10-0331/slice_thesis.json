@@ -1,0 +1,134 @@
+{
+  "mode": "quick",
+  "today": "2026-09-10",
+  "market_session": "post-close",
+  "gate_classification": "AMBIGUOUS",
+  "macro": {
+    "us10y": 4.837,
+    "vix": 16.46,
+    "dxy": 98.752,
+    "spx": 7636.36,
+    "ndx": 26253.34,
+    "smh": 574.29,
+    "es_chg": 0.0014063776,
+    "nq_chg": -0.0012394415,
+    "smh_chg": 0.000976065,
+    "vix_chg": 0.04707371
+  },
+  "usdinr": 95.25,
+  "known_gaps": [
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    },
+    {
+      "id": "G86",
+      "status": "partially_closed",
+      "gap": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are there"
+    },
+    {
+      "id": "G85",
+      "status": "partially_closed",
+      "gap": "SHADOW-SCORED TRIGGER PROPOSALS ARE STRUCTURALLY EXEMPT FROM CONDITION-BASED AUTO-RETIREMENT. Any proposal whose trigger_type is a shadow trigger (profit_ratchet, scale_out_ladder) is written with retires_when = 'n/a -- shadow-scored, track"
+    },
+    {
+      "id": "G82",
+      "status": "open",
+      "gap": "BX (Blackstone) was re-entered 2026-08-21 (date corrected 2026-09-07 via the actual INDmoney confirmation email, see G83 -- this entry originally said 08-24, which was wrong) (10sh, 3.67% weight) after a full exit on 2026-08-17. smith-thesi"
+    },
+    {
+      "id": "G90",
+      "status": "open",
+      "gap": "FMP plan tier blocks `statements` (key-metrics/financial-scores) for this book's actual holdings by a per-symbol coverage limit, not a blanket endpoint permission as previously assumed -- NVDA worked in isolated testing, but all 5 of this r"
+    }
+  ],
+  "known_gaps_truncated": 0,
+  "agent": "smith-thesis",
+  "agent_key": "thesis",
+  "output_file": "runs/2026-09-10-0331/smith-thesis-output.md",
+  "holdings_path": "runs/2026-09-10-0331/holdings.json",
+  "read_these_files": {
+    "thesis": "/Users/yb/Claude/AgentSmith/runs/2026-09-10-0331/shared/thesis.7fc8c799.json",
+    "open_flags": "/Users/yb/Claude/AgentSmith/runs/2026-09-10-0331/shared/open_flags.7460550d.json",
+    "data_cache.etf_constituents": "/Users/yb/Claude/AgentSmith/runs/2026-09-10-0331/shared/data_cache_etf_constituents.0c7b818b.json",
+    "data_cache.earnings_facts": "/Users/yb/Claude/AgentSmith/runs/2026-09-10-0331/shared/data_cache_earnings_facts.c9c9eba0.json",
+    "signals_tail": "/Users/yb/Claude/AgentSmith/runs/2026-09-10-0331/out_signals.json",
+    "hbm_tracker": "/Users/yb/Claude/AgentSmith/runs/2026-09-10-0331/shared/hbm_tracker.json",
+    "holdings": "/Users/yb/Claude/AgentSmith/runs/2026-09-10-0331/shared/holdings_trim.0b993821.json"
+  },
+  "thesis_tiering": {
+    "full_text": [
+      "AMAT",
+      "AMD",
+      "APH",
+      "ASML",
+      "AVGO",
+      "CIEN",
+      "CLS",
+      "GOOG",
+      "INTC",
+      "KLAC",
+      "LITE",
+      "LRCX",
+      "MSFT",
+      "MU",
+      "NBIS",
+      "NVDA",
+      "QCOM",
+      "SKHY",
+      "SMCI",
+      "STM",
+      "TER",
+      "VRT"
+    ],
+    "status_only": [
+      "ALAB",
+      "BE",
+      "COHR",
+      "GEV",
+      "GLW",
+      "META",
+      "MRVL",
+      "TSM",
+      "WDC"
+    ],
+    "reason_full": "watch/broken status, a BEARISH signal bucket, or an open proposal",
+    "note": "22 of 31 entries carry full text and both evidence arrays; the remaining 9 are quiet names reduced to status. This is a TRIM, not an absence of evidence -- if you need to revise a status-only verdict, say so and ask for it."
+  },
+  "sector_map": {
+    "NVDA": "AI Semis/Fabs",
+    "ASML": "AI Semis/Fabs",
+    "AMAT": "AI Semis/Fabs",
+    "TER": "AI Semis/Fabs",
+    "QCOM": "AI Semis/Fabs",
+    "TSM": "AI Semis/Fabs",
+    "MU": "AI Memory/Storage",
+    "MRVL": "AI Networking/Optics",
+    "AVGO": "AI Networking/Optics",
+    "CIEN": "AI Networking/Optics",
+    "CLS": "Compute/Hyperscaler OEM",
+    "GEV": "AI Power/Cooling/DC Infra",
+    "VRT": "AI Power/Cooling/DC Infra",
+    "AMD": "AI Semis/Fabs",
+    "BE": "AI Power/Cooling/DC Infra",
+    "GLW": "AI Networking/Optics",
+    "LRCX": "AI Semis/Fabs",
+    "MSFT": "Compute/Hyperscaler",
+    "INTC": "AI Semis/Fabs",
+    "STM": "Analog/Industrial Semis",
+    "GOOG": "Compute/Hyperscaler",
+    "WDC": "AI Memory/Storage",
+    "NBIS": "Compute/Hyperscaler",
+    "SKHY": "AI Memory/Storage",
+    "KLAC": "AI Semis/Fabs",
+    "COHR": "AI Networking/Optics",
+    "LITE": "AI Networking/Optics",
+    "SMCI": "Compute/Hyperscaler OEM",
+    "ALAB": "AI Networking/Optics",
+    "APH": "AI Networking/Optics",
+    "META": "Compute/Hyperscaler"
+  },
+  "news_watermark": "2026-09-10",
+  "inputs_digest": "dc361b3bd6df"
+}

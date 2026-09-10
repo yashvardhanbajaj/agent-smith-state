@@ -1,7 +1,7 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**86 total gaps** -- 15 open, 71 archived (closed).
+**87 total gaps** -- 16 open, 71 archived (closed).
 
 ---
 
@@ -843,5 +843,16 @@ Dashboard v1's build() called only 12 of its ~35 _render_* functions -- thirteen
 FRESHNESS per_entry ageing counted exited tickers, so every exit permanently aged its artefact toward dark -- signal_history read DARK/suppress at 11d while all 33 held names were stamped that morning
 
 **Resolution:** User asked why thesis and signal_history were reading stale/suppressed. Neither was. signal_history: all 33 HELD tickers stamped 2026-09-09, but per_entry takes the OLDEST entry's age and the three oldest were HOOD, NOW and TXN -- exited names that smith-signals can never refresh, because it only scans what is held. Three dead tickers pushed a zero-day-old artefact past its 10-day dark threshold, and on_stale=suppress then suppressed signals computed hours earlier. thesis: 29 entries reviewed 09-08 and 4 on 09-09, but exactly one held name (META) carried no reviewed_on at all -- revived unchanged from archive without a stamp -- and unstamped counts as infinitely old, escalating the whole 34-name map. The per_entry PRINCIPLE was right (a map is only as current as its least-examined entry); the defect was failing to distinguish an entry nobody looked at from one nobody CAN look at. FIXED: (1) smith_core.FRESHNESS gains a `scope` field, set to 'held' for signal_history and thesis; smith_memory._fresh_stamp restricts ageing to state.holdings tickers, reports the rest as entries_out_of_scope rather than dropping them, and fails OPEN to old behaviour when holdings is absent. signal_history now reads fresh/0d. (2) A new validate defect, FRESHNESS ENTRY UNSTAMPED, names the specific ticker rather than letting one missing field masquerade as a stale map. (3) META's reviewed_on backfilled from its own verified_on (2026-08-12) -- deliberately NOT today's date, which would assert a review that never happened. That honest stamp immediately surfaced a REAL finding the old flag was hiding: META's thesis is genuinely 28d unreviewed, past its 21d TTL, and now reads dark by name. GENERALISE: a staleness rule that ages entries its own producer cannot refresh will drift to permanently-dark and get ignored.
+
+---
+
+## G94 -- OPEN
+**Opened:** 2026-09-10  **Owner:** orchestrator  **Closed:** 2026-09-10  
+
+cmd_ledger_apply wrote rows in a side/action/unsigned-qty shape but cmd_lots' FIFO consumer only ever reads the legacy signed qty_change field -- every row written since the 2026-09-06 script-first ledger rewrite was silently invisible to FIFO, `.get('qty_change') or 0` defaulting a missing field to 0 rather than erroring.
+
+**Resolution:** Surfaced 2026-09-10 when `lots --write` reported 11 reconciliation mismatches (APH/QCOM/INTC/GOOG/BE/KLAC/NBIS/TSM/CLS/META/MU) + 2 orphaned positions (FSLR, IREN) -- every single delta traced exactly to one of 16 unconsumed rows written 2026-09-08/09. FIXED: cmd_ledger_apply now writes qty_change (signed off side) on every new row at write time; the 16 pre-existing rows were backfilled the same way. Reconciliation went from 20/31 clean + 2 orphaned to 30/31 clean + 0 orphaned. The 1 remaining GOOG mismatch is a separate, unrelated gap: its 2026-09-09 buy confirmation email body still won't parse (template variance), so it never entered trades.json at all -- flagged for a future smith-ledger dispatch. Had direct LTCG/tax-lot consequences (smith-tax reads lots.json) and was live for a full weekend of trading before this run caught it. GENERALISE: when a pipeline is rewritten to a new row shape, grep every OTHER consumer of the old shape's fields before trusting the new writer -- a shared field name is an implicit contract, and 'or 0' defaults make a missing field silently wrong rather than loudly broken.
+
+**Closed by:** same run that found it, 2026-09-10 daily sweep
 
 ---
