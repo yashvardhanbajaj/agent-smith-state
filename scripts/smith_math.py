@@ -4335,6 +4335,12 @@ def cmd_sync_decisions(args):
     if proposals_dirty:
         proposals_store["proposals"] = props
         safe_write(p_path, proposals_store)
+    # Stamp every sync attempt, decisions or not -- this is what lets the orchestrator gate
+    # §1.7's expensive WebFetch to at most once/day on quick runs (added 2026-09-14) instead of
+    # fetching the full live dashboard page on every single sweep to check for a click that,
+    # historically, is present on roughly 1 run in 25.
+    state["dashboard_last_synced_ts"] = args.today or str(date.today())
+    state_dirty = True
     if state_dirty:
         safe_write(s_path, state)
     # learning.json observations and the learning_param approve write themselves individually
