@@ -111,6 +111,74 @@ class TestDedupeExpireVoidProposals:
             parse_datetime=sl._proposal_parse_datetime)
         assert to_supersede == set()
 
+    # -- Consolidation vs repeat (fixed 2026-09-14, live incident: P-285/P-286/P-287). Two
+    # independent rotation legs -- profit_rotation-NBIS-KLAC ($134.73) and cluster_rotation-
+    # AMD-KLAC ($309.68) -- both wanted to buy KLAC on 2026-09-14. The old code folded the
+    # second into the first as a plain repeat, keeping only one size_usd and dropping the
+    # other's pair_id entirely, which orphaned cluster_rotation-AMD-KLAC's sell leg (P-286
+    # "Sell AMD") the same run its buy leg was created.
+
+    def test_two_independent_rotation_legs_consolidate_instead_of_repeat(self):
+        props = [
+            make_proposal(id="P-285", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T00:00:00Z", pair_id="profit_rotation-NBIS-KLAC",
+                          size_usd=134.73, rationale="profit_rotation leg"),
+            make_proposal(id="P-287", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T00:00:01Z", pair_id="cluster_rotation-AMD-KLAC",
+                          size_usd=309.68, rationale="cluster_rotation leg"),
+        ]
+        to_supersede = sl._dedupe_expire_void_proposals(
+            props, today_date=date(2026, 9, 14), current_tickers={"KLAC"},
+            direction=sl._proposal_direction, parse_date=sl._proposal_parse_date,
+            parse_datetime=sl._proposal_parse_datetime)
+        assert to_supersede == {0}  # P-285 (one second older) folds into P-287, the fresher one
+        survivor = props[1]
+        assert survivor["size_usd"] == 444.41  # summed, not just the fresher leg's own size
+        assert survivor["also_funds_pair_ids"] == ["profit_rotation-NBIS-KLAC"]
+        assert "consolidated" in survivor["note"]
+        assert survivor["history"][0]["pair_id"] == "profit_rotation-NBIS-KLAC"
+        assert "folded into" in props[0]["note"]
+
+    def test_same_pair_id_restatement_still_merges_as_a_plain_repeat(self):
+        """A rotation's ladder-rank refresh keeps the SAME pair_id across runs (P-269 ->
+        P-287 in the live incident) -- that is still one idea restated, not two trades, and
+        must fold the old way: freshest size wins outright, nothing gets summed."""
+        props = [
+            make_proposal(id="P-269", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-07T00:00:00Z", pair_id="cluster_rotation-AMD-KLAC",
+                          size_usd=468.99),
+            make_proposal(id="P-287", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T00:00:00Z", pair_id="cluster_rotation-AMD-KLAC",
+                          size_usd=309.68),
+        ]
+        sl._dedupe_expire_void_proposals(
+            props, today_date=date(2026, 9, 14), current_tickers={"KLAC"},
+            direction=sl._proposal_direction, parse_date=sl._proposal_parse_date,
+            parse_datetime=sl._proposal_parse_datetime)
+        survivor = props[1]
+        assert survivor["size_usd"] == 309.68
+        assert "also_funds_pair_ids" not in survivor
+        assert "recommended 2x" in survivor["note"]
+
+    def test_collision_with_pair_id_on_only_one_side_still_merges_as_a_repeat(self):
+        """Only two DIFFERENT, non-empty pair_ids is a consolidation signal -- one side
+        missing a pair_id (e.g. a manually-added proposal colliding with an automated
+        rotation leg) isn't enough evidence these are two independently-funded trades."""
+        props = [
+            make_proposal(id="P-001", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T00:00:00Z", size_usd=100.0),
+            make_proposal(id="P-002", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T01:00:00Z", pair_id="cluster_rotation-AMD-KLAC",
+                          size_usd=309.68),
+        ]
+        sl._dedupe_expire_void_proposals(
+            props, today_date=date(2026, 9, 14), current_tickers={"KLAC"},
+            direction=sl._proposal_direction, parse_date=sl._proposal_parse_date,
+            parse_datetime=sl._proposal_parse_datetime)
+        survivor = props[1]
+        assert survivor["size_usd"] == 309.68
+        assert "also_funds_pair_ids" not in survivor
+
 
 # ---------------------------------------------------------------------------
 # _classify_voided_proposals
@@ -441,6 +509,46 @@ class TestRetireOrphanedRotationLegs:
         sl._retire_orphaned_rotation_legs(props, trigger_pairs=None, today_date=date(2026, 8, 20),
                                           retired=retired)
         assert props[0]["status"] == "open"
+
+    # -- also_funds_pair_ids (added 2026-09-14 alongside the dedup consolidation fix). A
+    # consolidated survivor (P-285-shaped) belongs to two pairings at once; this pass must not
+    # recreate the orphaning bug one level up by only checking the survivor's primary pair_id.
+
+    def test_consolidated_survivor_flags_instead_of_retiring_when_one_pairing_goes_stale(self):
+        """P-285 funds BOTH profit_rotation-NBIS-KLAC (still live) and, via consolidation,
+        cluster_rotation-AMD-KLAC (gone stale). Its sell-side partner P-286 must not be
+        silently retired -- nor should P-285 be, since a live pairing still needs it."""
+        props = [
+            make_proposal(id="P-285", ticker="KLAC", direction_bucket="BUY",
+                          pair_id="profit_rotation-NBIS-KLAC",
+                          also_funds_pair_ids=["cluster_rotation-AMD-KLAC"]),
+            make_proposal(id="P-286", ticker="AMD", direction_bucket="SELL",
+                          pair_id="cluster_rotation-AMD-KLAC"),
+        ]
+        retired = []
+        sl._retire_orphaned_rotation_legs(
+            props, trigger_pairs={"profit_rotation-NBIS-KLAC": {}}, today_date=date(2026, 9, 14),
+            retired=retired)
+        assert retired == []
+        assert props[0]["status"] == "open" and props[1]["status"] == "open"
+        assert "consolidated_pairing_partially_stale" in props[0]["review_flags"]
+        assert "consolidated_pairing_partially_stale" in props[1]["review_flags"]
+
+    def test_consolidated_survivor_retires_when_every_pairing_it_funds_is_stale(self):
+        props = [
+            make_proposal(id="P-285", ticker="KLAC", direction_bucket="BUY",
+                          pair_id="profit_rotation-NBIS-KLAC",
+                          also_funds_pair_ids=["cluster_rotation-AMD-KLAC"]),
+            make_proposal(id="P-284", ticker="NBIS", direction_bucket="SELL",
+                          pair_id="profit_rotation-NBIS-KLAC"),
+            make_proposal(id="P-286", ticker="AMD", direction_bucket="SELL",
+                          pair_id="cluster_rotation-AMD-KLAC"),
+        ]
+        retired = []
+        sl._retire_orphaned_rotation_legs(
+            props, trigger_pairs={}, today_date=date(2026, 9, 14), retired=retired)
+        assert {r["id"] for r in retired} == {"P-285", "P-284", "P-286"}
+        assert all(p["status"] == "auto_retired" for p in props)
 
 
 # ---------------------------------------------------------------------------

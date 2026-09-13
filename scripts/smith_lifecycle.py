@@ -131,7 +131,27 @@ def _dedupe_expire_void_proposals(props, today_date, current_tickers, direction,
     """Cross-run dedup (same (ticker, direction) merges into one running survivor, folding
     repeats into a `history` list), 7-calendar-day auto-expiry, and auto-void when the
     presupposed position has since been exited. Mutates `props` in place (notes, history,
-    repeat_count) and returns the set of proposal indices to supersede."""
+    repeat_count) and returns the set of proposal indices to supersede.
+
+    CONSOLIDATION vs REPEAT (fixed 2026-09-14, live incident: P-285/P-286/P-287). A (ticker,
+    direction) collision has always been treated as ONE idea restated -- keep the fresher/
+    longer occurrence's size_usd and rationale, fold the other into `history`. That is correct
+    when the two rows really are the same idea (identical pair_id, or neither carries one), but
+    on 2026-09-14 two INDEPENDENT rotation legs both wanted to buy KLAC the same day --
+    profit_rotation-NBIS-KLAC ($134.73) and cluster_rotation-AMD-KLAC ($309.68), different
+    pair_ids, different funding sources. Treating the second as a "repeat" of the first kept
+    only the smaller size and discarded the AMD-KLAC pair_id entirely, which orphaned that
+    pairing's sell leg (P-286 "Sell AMD") the same run its buy leg was created -- its funding
+    destination vanished with no trace of where it had gone.
+    A restatement of the same idea NEVER changes pair_id (a rotation's ladder-rank refresh keeps
+    proposing the same pairing, see P-269 -> P-287 above); two DIFFERENT, non-empty pair_ids is
+    exactly the signal that these are two real, independently-funded trades that happen to share
+    a ticker and direction, not one idea said twice. That case sums size_usd into the survivor
+    instead of discarding the loser's, and records the loser's pair_id on the survivor's
+    `also_funds_pair_ids` list so the pairing stays traceable (and so
+    _retire_orphaned_rotation_legs can see it -- see that function's docstring). A collision
+    where either side lacks a pair_id, or both share one, still merges the old way: that is
+    exactly the "same idea, restated" case this function was built for."""
     seen = {}  # (ticker, direction) -> index of the current running survivor
     to_supersede = set()
 
@@ -160,6 +180,10 @@ def _dedupe_expire_void_proposals(props, today_date, current_tickers, direction,
                 len_j = len(props[j].get("rationale", "") or "")
                 survivor, loser = (i, j) if len_i >= len_j else (j, i)
 
+            pid_survivor = props[survivor].get("pair_id")
+            pid_loser = props[loser].get("pair_id")
+            is_consolidation = bool(pid_survivor) and bool(pid_loser) and pid_survivor != pid_loser
+
             history = props[survivor].setdefault("history", [])
             # fold the loser's own history (if it was itself already a merged survivor once) in first,
             # oldest-first, then the loser's own top-level occurrence.
@@ -169,18 +193,47 @@ def _dedupe_expire_void_proposals(props, today_date, current_tickers, direction,
                 "size_usd": props[loser].get("size_usd"),
                 "price_at_proposal": props[loser].get("price_at_proposal"),
                 "rationale": props[loser].get("rationale"),
+                **({"pair_id": pid_loser} if is_consolidation else {}),
             })
             history.sort(key=lambda h: parse_date(h.get("date", "")) or date.min)
             props[survivor]["repeat_count"] = len(history) + 1
             first_date = history[0].get("date") if history else props[survivor].get("date")
-            props[survivor]["note"] = (
-                props[survivor].get("note", "").replace(" | auto-superseded 2026-07-29 -- duplicate of another open", "")
-                + f" | recommended {len(history) + 1}x since {first_date}, still open"
-            ).strip(" |")
+
+            if is_consolidation:
+                # Two real, independently-funded trades -- sum the sizes rather than letting
+                # the fresher/longer occurrence's size_usd win outright and silently drop the
+                # other's dollars.
+                combined_size = round((props[survivor].get("size_usd") or 0)
+                                       + (props[loser].get("size_usd") or 0), 2)
+                props[survivor]["size_usd"] = combined_size
+                also_funds = list(props[survivor].get("also_funds_pair_ids") or [])
+                # carry forward anything the loser had itself already absorbed from an earlier
+                # 3-way same-day collision on this (ticker, direction), not just its own pair_id.
+                for extra in [pid_loser] + list(props[loser].get("also_funds_pair_ids") or []):
+                    if extra and extra != pid_survivor and extra not in also_funds:
+                        also_funds.append(extra)
+                props[survivor]["also_funds_pair_ids"] = also_funds
+                props[survivor]["note"] = (
+                    props[survivor].get("note", "").replace(" | auto-superseded 2026-07-29 -- duplicate of another open", "")
+                    + f" | consolidated {today_date}: two independently-funded {key[1]} proposals for "
+                      f"{key[0]} landed the same day ({pid_survivor} + {pid_loser}) -- sizes combined to "
+                      f"${combined_size:,.2f}, both pair_ids preserved"
+                ).strip(" |")
+            else:
+                props[survivor]["note"] = (
+                    props[survivor].get("note", "").replace(" | auto-superseded 2026-07-29 -- duplicate of another open", "")
+                    + f" | recommended {len(history) + 1}x since {first_date}, still open"
+                ).strip(" |")
 
             seen[key] = survivor
             to_supersede.add(loser)
-            if "duplicate" not in props[loser].get("note", ""):
+            if is_consolidation:
+                if "consolidated" not in props[loser].get("note", "") and "duplicate" not in props[loser].get("note", ""):
+                    props[loser]["note"] = (props[loser].get("note", "")
+                                            + f" | auto-superseded {today_date} -- its {pid_loser} leg's size "
+                                              f"folded into {props[survivor]['id']}, which now also funds this "
+                                              "pairing (see also_funds_pair_ids on the survivor)").strip(" |")
+            elif "duplicate" not in props[loser].get("note", ""):
                 props[loser]["note"] = (props[loser].get("note", "")
                                         + f" | auto-superseded 2026-08-03 -- folded into {props[survivor]['id']}"
                                         " as a repeat of the same open proposal").strip(" |")
@@ -773,6 +826,16 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
     return None
 
 
+def _proposal_pair_ids(pr):
+    """Every PAIRED_TRIGGERS pair_id a proposal participates in: its own `pair_id`, plus any it
+    absorbed via same-day consolidation (`also_funds_pair_ids`, see
+    _dedupe_expire_void_proposals). A consolidated survivor belongs to more than one pairing at
+    once, which is exactly what the retirement pass below needs to know to avoid recreating the
+    same orphaning bug the consolidation fix closed one level up."""
+    ids = [pr.get("pair_id")] + list(pr.get("also_funds_pair_ids") or [])
+    return [pid for pid in ids if pid and pid.startswith(PAIRED_TRIGGER_PREFIXES)]
+
+
 def _retire_orphaned_rotation_legs(props, trigger_pairs, today_date, retired):
     """profit_rotation/cluster_rotation legs must retire TOGETHER, never independently -- the
     direct fix for "19 rotation pairs attempted all-time, 0 survived" (single-sided retirement
@@ -783,18 +846,42 @@ def _retire_orphaned_rotation_legs(props, trigger_pairs, today_date, retired):
     Covers `accepted_by_user` legs too (2026-09-09) -- a pair can go stale exactly as easily
     after one leg is accepted as before, and there is no reason a pair should stay half-real
     (one leg auto-retired, its accepted twin still standing) just because acceptance happened
-    to land on the surviving side."""
+    to land on the surviving side.
+
+    CONSOLIDATED SURVIVORS (added 2026-09-14, alongside the dedup consolidation fix -- see
+    _dedupe_expire_void_proposals and _proposal_pair_ids). A proposal that absorbed another
+    rotation's leg via `also_funds_pair_ids` now belongs to MULTIPLE pairings, indexed here
+    under each of them, not just its own top-level pair_id -- otherwise the exact bug this
+    function exists to prevent recurs one level up: pairing A goes stale, this pass retires
+    pairing A's far leg on the strength of A alone, while the survivor it was funding stays
+    open because it also funds a still-live pairing B. If ANY leg in a stale pairing's group is
+    entangled with another pairing that IS still live, this pass does not retire anything in
+    that group -- it flags every leg in it for manual review instead. Silently retiring only
+    the untangled leg would leave the position half-unwound with no record of why; silently
+    retiring the survivor too would kill a leg a still-live pairing needs. Both are the kind of
+    judgement call the disabled breach-cleared auto-void comment above already says this file
+    should not make from typed data alone -- surface it, don't guess."""
     if trigger_pairs is None:
         return
     by_pair_id = {}
     for pr in props:
-        pid = pr.get("pair_id")
-        if pr.get("status") in ("open", "accepted_by_user") and pid and pid.startswith(PAIRED_TRIGGER_PREFIXES):
+        if pr.get("status") not in ("open", "accepted_by_user"):
+            continue
+        for pid in _proposal_pair_ids(pr):
             by_pair_id.setdefault(pid, []).append(pr)
     for pid, legs in by_pair_id.items():
         if pid in trigger_pairs:
             continue  # still live this run -- both legs stay open
+        entangled = any(other in trigger_pairs
+                        for leg in legs for other in _proposal_pair_ids(leg) if other != pid)
+        if entangled:
+            for leg in legs:
+                leg["review_flags"] = sorted(set((leg.get("review_flags") or [])
+                                                  + ["consolidated_pairing_partially_stale"]))
+            continue
         for pr in legs:
+            if pr.get("status") not in ("open", "accepted_by_user"):
+                continue  # already retired via another one of its pairings this same pass
             was_accepted = pr.get("status") == "accepted_by_user"
             why = (f"the {pid.split('-')[0]} pairing this leg belongs to is no longer live "
                    "this run -- both legs of a rotation retire together, never one alone")
@@ -1028,6 +1115,15 @@ def cmd_proposals(args):
     is one compact row instead of four, while the repeat count itself stays visible and the
     7-day expiry clock resets off the latest restatement (a proposal the strategist keeps
     reiterating should stay alive; one it stops mentioning should lapse).
+    FIXED 2026-09-14 (live incident: P-285/P-286/P-287, see _dedupe_expire_void_proposals and
+    _retire_orphaned_rotation_legs docstrings for the full mechanics): the merge above treated
+    EVERY same-ticker/same-direction/same-day collision as one idea restated, even when the two
+    rows were actually two independently-funded rotation legs (different pair_ids) that happened
+    to target the same buy ticker. That silently dropped the loser's size_usd and its pair_id,
+    which orphaned the loser's own rotation partner. Two different, non-empty pair_ids now
+    triggers a CONSOLIDATION instead of a repeat-fold: sizes sum, both pair_ids are kept
+    (`also_funds_pair_ids` on the survivor), and the retirement pass now checks all of a
+    proposal's pair_ids, not just its primary one, before deciding a leg is safe to retire.
     """
     p_path = os.path.join(args.base_dir, "proposals.json")
     proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
