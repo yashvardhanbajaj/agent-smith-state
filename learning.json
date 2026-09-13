@@ -1024,6 +1024,14 @@
       "evidence": "scripts/smith_lifecycle.py cmd_add_proposal (accepts size_usd=0 and extra fields with no rejection); runs/2026-09-10-0331/proposal_specs.json (over-filtered, 13 of 16 strategist proposals passed through); GOOG confirmation 1a0868062b598cc9 still unparsed after a hand-retyped body attempt",
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-09-14",
+      "kind": "correction",
+      "text": "LEDGER-PARSE'S REGEX NEVER HANDLED get_thread's FULL BODY FORMAT. search_threads snippets arrive as flattened single-line text ('Ticker: X Amount: $Y Price: $Z Shares: N'), but get_thread's plaintextBody renders each field as its own markdown-table row ('| Ticker: | X |\\n| Amount: | $Y |...'). '|' is not \\s, so every _LED_FIELDS regex in smith_ledger.py silently failed on ANY full-body fetch -- 12/12 bodies unparseable on the 2026-09-14 run, and this is very likely the same root cause behind the GOOG 2026-09-09 buy that G94's resolution flagged as unparseable 'template variance' and left out of trades.json for 5 days (lots undercounted GOOG by 1 share the whole time). FIX: _led_extract now strips '|' before matching. Verified: re-parsed the stuck GOOG confirmation (thread 1a0868062b598cc9) after the fix -- it parsed cleanly, applied, and lots reconciliation went from 27/28 to 28/28 with the GOOG mismatch gone. GENERALISE: when a parser is fed by two different fetch paths (a summary/snippet vs a full-fetch), test it against BOTH real payload shapes, not just the one seen during development -- a regex that only works on the flattened form is a latent 100%-failure-rate bug on the other form, and it will look like 'needs a smith-ledger dispatch' every single time rather than announcing itself as a parser bug.",
+      "evidence": "scripts/smith_ledger.py _led_extract fix (strip pipe chars); runs/2026-09-14-0104 ledger_parse before/after; GOOG lots reconciliation 27/28 -> 28/28",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

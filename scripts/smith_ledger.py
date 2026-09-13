@@ -615,9 +615,16 @@ def _led_num(s):
 
 def _led_extract(text):
     import re
+    # get_thread's full plaintextBody renders each field as its own markdown-table row
+    # ("| Ticker: | Meta Platforms Inc. Class A |"), unlike the flattened single-line
+    # snippet the same fields arrive as from search_threads. "|" is not \s, so every
+    # _LED_FIELDS pattern silently failed on a real body fetch (found live 2026-09-14,
+    # 12/12 bodies unparseable). Strip table pipes before matching; the labels/values
+    # themselves are unaffected either way.
+    text = (text or "").replace("|", " ")
     out = {}
     for k, pat in _LED_FIELDS.items():
-        m = re.search(pat, text or "")
+        m = re.search(pat, text)
         out[k] = m.group(1).strip() if m else None
     return out
 

@@ -1,7 +1,7 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**88 total gaps** -- 14 open, 74 archived (closed).
+**88 total gaps** -- 13 open, 75 archived (closed).
 
 ---
 
@@ -792,7 +792,7 @@ Proposal dedup keyed on (ticker, direction, date), so the SAME idea restated on 
 
 ---
 
-## G88 -- OPEN
+## G88 -- closed
 **Opened:** 2026-09-06  **Owner:** orchestrator  **Closed:** 2026-09-06  
 
 cmd_proposals' sell-side stack guard does not fire across (a) the accepted_by_user + open status pair or (b) the Trim/Sell verb synonym set. Live on 2026-09-06: MSFT 207.7% of position across P-164(accepted)+P-224(open), AVGO 89.8% across P-212+P-226, FSLR 78.7% across P-214+P-228, all with zero review_flags. Also CIEN holds an accepted sell (P-186, $341.56) against a $2.74 residual position while the same run proposed a $200 buy.

@@ -1016,6 +1016,14 @@
       "evidence": "scripts/smith_math.py cmd_build_holdings (new), G95, G94; user message flagging Wave-0 time/compute cost 2026-09-10",
       "source_run": null,
       "supersedes": null
+    },
+    {
+      "date": "2026-09-10",
+      "kind": "correction",
+      "text": "TWO MORE INSTANCES OF THE SAME ANTI-PATTERN AS G95 (holdings.json hand-construction), FOUND WHILE AUDITING WHETHER OTHER WAVES NEED THE SAME FIX. (1) add-proposal specs over-filtered by hand: before calling add-proposal, I manually excluded the strategist's $0-sized BUY legs (KLAC, GOOG) and CORZ/VRT HOLD entries out of caution that a zero size or a ticker-less-looking HOLD would be rejected or would create noise. Re-reading cmd_add_proposal's actual code: it already cherry-picks only the fields it needs (ignoring extras like evidence_quality/size_wanted_usd/clamped_by without complaint), accepts size_usd=0 with no special case, and builds action from ticker+direction for HOLD exactly like any other direction when a ticker is present. The downstream cmd_proposals dedup/collapse pass is BUILT to merge duplicates by (ticker,direction) regardless of size -- it is not optional plumbing I need to pre-empt by hand. The filtering added zero safety and one more manual judgment call per run that could silently drop a legitimate $0-clamped idea (a real trigger worth recording even while unfunded) if the excluded ticker happened to be genuinely new rather than a refresh. FIX: none needed in code -- the fix is behavioral. Pass the strategist's tail through to add-proposal with only trivial field renaming, trust cmd_proposals to dedup, and reserve manual exclusion for cases the strategist ITSELF flagged as not-yet-proposable (e.g. CORZ this run: 'no live price, not sizing on a stale anchor' -- that is the strategist's own judgment call surfacing, not the orchestrator's). (2) A confirmation email body was hand-retyped into a heredoc (reformatting the pipe-table layout) instead of saved verbatim from get_thread's own output, and the reformatting broke the parser (GOOG's 09-09 buy still won't parse as a result, a live unresolved gap). GENERALISE: any time a tool's own output is retyped instead of piped/saved as-is before being handed to a script, the retyping is a fresh chance to introduce a bug the original data never had -- prefer Write-ing a tool result's exact JSON/text over reconstructing it by hand, even for something as small-looking as one email body.",
+      "evidence": "scripts/smith_lifecycle.py cmd_add_proposal (accepts size_usd=0 and extra fields with no rejection); runs/2026-09-10-0331/proposal_specs.json (over-filtered, 13 of 16 strategist proposals passed through); GOOG confirmation 1a0868062b598cc9 still unparsed after a hand-retyped body attempt",
+      "source_run": null,
+      "supersedes": null
     }
   ]
 }

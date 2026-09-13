@@ -1,0 +1,969 @@
+{
+  "as_of": "2026-09-14",
+  "rsi_as_of": "2026-09-06",
+  "rsi_age_days": 8,
+  "rsi_usable": true,
+  "rsi_coverage_pct": 100.0,
+  "rsi_missing": [],
+  "rel_as_of": "2026-09-06",
+  "rel_age_days": 8,
+  "rel_usable": true,
+  "rel_coverage_pct": 100.0,
+  "rel_missing": [],
+  "deployable_cash_usd": 3239.37,
+  "max_single_deploy_usd": 809.84,
+  "thresholds": {
+    "rsi_oversold": 35.0,
+    "rsi_overbought": 70.0,
+    "laggard_pctile": 25.0,
+    "ratchet_min_gain_pct": 15.0,
+    "ladder_tiers_pct": [
+      25.0,
+      50.0
+    ]
+  },
+  "deployable_cash_for_ideas_usd": 7542.1,
+  "live_counts": {
+    "oversold_reversion": 2,
+    "overbought_distribution": 0,
+    "catalyst_threat": 4,
+    "thesis_break": 0,
+    "trend_entry": 1,
+    "trend_breakdown": 0,
+    "conviction_average": 3,
+    "conviction_exit": 0,
+    "entry_setup": 1,
+    "reentry": 3,
+    "bench_diversifier": 0,
+    "profit_rotation": 2,
+    "cluster_rotation": 3
+  },
+  "shadow_counts": {
+    "laggard_rotation": 5,
+    "profit_ratchet": 0,
+    "scale_out_ladder": 1,
+    "cluster_bench_rotation": 2,
+    "cluster_consolidation": 0
+  },
+  "oversold_reversion": [
+    {
+      "ticker": "GOOG",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "strengthening",
+      "rsi14": 28.9,
+      "rel_strength_1m_pp": -13.06,
+      "abs_return_1m_pct": null,
+      "price_usd": 335.45,
+      "market_value_usd": 2012.7,
+      "trigger_type": "oversold_reversion",
+      "direction": "BUY",
+      "vote": "live",
+      "headroom_usd": 4134.06,
+      "suggested_size_usd": 809.84,
+      "retires_when": "GOOG RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening",
+      "reasons": [
+        "RSI14 28.9 < 35 (oversold)",
+        "thesis strengthening -- technical dip, not a fundamental break",
+        "within ATR risk cap with $4,134 headroom"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "AMAT",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 33.3,
+      "rel_strength_1m_pp": -3.12,
+      "abs_return_1m_pct": -3.37,
+      "price_usd": 456.49,
+      "market_value_usd": 1373.2,
+      "trigger_type": "oversold_reversion",
+      "direction": "BUY",
+      "vote": "live",
+      "headroom_usd": 795.51,
+      "suggested_size_usd": 795.51,
+      "retires_when": "AMAT RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening",
+      "reasons": [
+        "RSI14 33.3 < 35 (oversold)",
+        "thesis strengthening -- technical dip, not a fundamental break",
+        "within ATR risk cap with $796 headroom"
+      ],
+      "blockers": []
+    }
+  ],
+  "overbought_distribution": [],
+  "catalyst_threat": [
+    {
+      "ticker": "ASML",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "watch",
+      "rsi14": 49.1,
+      "rel_strength_1m_pp": -1.76,
+      "abs_return_1m_pct": 0.79,
+      "price_usd": 1698.3,
+      "market_value_usd": 2122.88,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 424.58,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm"
+      ],
+      "retires_when": "ASML no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "TER",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 48.1,
+      "rel_strength_1m_pp": 2.84,
+      "abs_return_1m_pct": 8.28,
+      "price_usd": 379.72,
+      "market_value_usd": 1899.64,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 379.93,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm"
+      ],
+      "retires_when": "TER no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "AMAT",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 33.3,
+      "rel_strength_1m_pp": -3.12,
+      "abs_return_1m_pct": -3.37,
+      "price_usd": 456.49,
+      "market_value_usd": 1373.2,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 274.64,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm"
+      ],
+      "retires_when": "AMAT no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]"
+      ],
+      "blockers": [
+        "AMAT is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula"
+      ]
+    },
+    {
+      "ticker": "MU",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "watch",
+      "rsi14": 57.7,
+      "rel_strength_1m_pp": 12.93,
+      "abs_return_1m_pct": -4.73,
+      "price_usd": 975.26,
+      "market_value_usd": 975.62,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 195.12,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm"
+      ],
+      "retires_when": "MU no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]"
+      ],
+      "blockers": []
+    }
+  ],
+  "thesis_break": [],
+  "trend_entry": [
+    {
+      "ticker": "TSM",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 54.9,
+      "rel_strength_1m_pp": 0.41,
+      "abs_return_1m_pct": 1.42,
+      "price_usd": 433.24,
+      "market_value_usd": 1732.96,
+      "trigger_type": "trend_entry",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 37.1,
+      "conviction_tier": "low",
+      "size_wanted_usd": 1121.88,
+      "suggested_size_usd": 1121.88,
+      "clamped_by": null,
+      "stop_price_usd": 412.2712,
+      "retires_when": "TSM no longer carries BREAKOUT/STRONG UPTREND or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (unverified, 2 for / 0 against)",
+        "signal polarity net +2 (STRONG UPTREND, NEW TAILWINDS)",
+        "+0.4pp vs benchmark",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": []
+    }
+  ],
+  "trend_breakdown": [],
+  "conviction_average": [
+    {
+      "ticker": "CIEN",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 47.2,
+      "rel_strength_1m_pp": 7.39,
+      "abs_return_1m_pct": 4.01,
+      "price_usd": 349.54,
+      "market_value_usd": 2.98,
+      "trigger_type": "conviction_average",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 39.2,
+      "conviction_tier": "low",
+      "support_usd": 324.7227,
+      "size_wanted_usd": 401.63,
+      "suggested_size_usd": 401.63,
+      "clamped_by": null,
+      "blended_entry_usd": 349.7394,
+      "current_stop_usd": 299.9053,
+      "retires_when": "CIEN recovers above its support level or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (secondary, 3 for / 2 against)",
+        "reported: beat",
+        "+7.4pp vs benchmark"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "WDC",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "strengthening",
+      "rsi14": 55.4,
+      "rel_strength_1m_pp": -13.65,
+      "abs_return_1m_pct": null,
+      "price_usd": 447.18,
+      "market_value_usd": 894.36,
+      "trigger_type": "conviction_average",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 32.0,
+      "conviction_tier": "low",
+      "support_usd": 416.101,
+      "size_wanted_usd": 343.75,
+      "suggested_size_usd": 343.75,
+      "clamped_by": null,
+      "blended_entry_usd": 457.7698,
+      "current_stop_usd": 385.022,
+      "retires_when": "WDC recovers above its support level or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (primary, 1 for / 1 against)",
+        "-13.7pp vs benchmark",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "AMAT",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 33.3,
+      "rel_strength_1m_pp": -3.12,
+      "abs_return_1m_pct": -3.37,
+      "price_usd": 456.49,
+      "market_value_usd": 1373.2,
+      "trigger_type": "conviction_average",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 28.3,
+      "conviction_tier": "low",
+      "support_usd": 433.8481,
+      "size_wanted_usd": 433.32,
+      "suggested_size_usd": 433.32,
+      "clamped_by": null,
+      "blended_entry_usd": 471.6233,
+      "current_stop_usd": 411.2062,
+      "retires_when": "AMAT recovers above its support level or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (secondary, 0 for / 0 against)",
+        "threat/structural: CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-",
+        "signal polarity net +1 (NEW TAILWINDS)",
+        "RSI14 33 oversold; -3.1pp vs benchmark",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": []
+    }
+  ],
+  "conviction_exit": [],
+  "entry_setup": [
+    {
+      "ticker": "RMBS",
+      "cluster": null,
+      "thesis_status": null,
+      "watchlist_type": "oversold_bounce",
+      "upside_pct": 40.7,
+      "trigger_type": "entry_setup",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 20.8,
+      "conviction_tier": "low",
+      "suggested_size_usd": null,
+      "retires_when": "RMBS drops off the watchlist setups list or conviction falls to 'none'",
+      "reasons": [
+        "+40.7% vs analyst target",
+        "RSI14 15 oversold",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": [
+        "no live price/ATR for RMBS this run -- setup valid, sizing needs a fetch"
+      ]
+    }
+  ],
+  "reentry": [
+    {
+      "ticker": "NVDA",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "exited_on": "2026-09-10",
+      "price_usd": 210.23,
+      "trigger_type": "reentry",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 48.2,
+      "conviction_tier": "medium",
+      "size_wanted_usd": 803.59,
+      "suggested_size_usd": 803.59,
+      "clamped_by": null,
+      "stop_price_usd": 191.8979,
+      "retires_when": "NVDA's thesis leaves intact/strengthening",
+      "reasons": [
+        "exited 2026-09-10 at $210.23",
+        "thesis strengthening (secondary, 1 for / 0 against)",
+        "signal polarity net +1 (STRONG UPTREND)",
+        "reported: beat",
+        "RSI14 70 overbought; +6.3pp vs benchmark"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "META",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "strengthening",
+      "exited_on": "2026-09-10",
+      "price_usd": 574.97,
+      "trigger_type": "reentry",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 31.3,
+      "conviction_tier": "low",
+      "size_wanted_usd": 493.89,
+      "suggested_size_usd": 493.89,
+      "clamped_by": null,
+      "stop_price_usd": 520.4628,
+      "retires_when": "META's thesis leaves intact/strengthening",
+      "reasons": [
+        "exited 2026-09-10 at $574.97",
+        "thesis strengthening (secondary, 1 for / 1 against)",
+        "RSI14 34 oversold; -9.6pp vs benchmark"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "SKHY",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "strengthening",
+      "exited_on": "2026-09-10",
+      "price_usd": 156.61,
+      "trigger_type": "reentry",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 21.8,
+      "conviction_tier": "low",
+      "size_wanted_usd": 306.16,
+      "suggested_size_usd": 306.16,
+      "clamped_by": null,
+      "stop_price_usd": 138.8817,
+      "retires_when": "SKHY's thesis leaves intact/strengthening",
+      "reasons": [
+        "exited 2026-09-10 at $156.61",
+        "thesis strengthening (unverified, 1 for / 1 against)",
+        "threat/structural: CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-; ambiguous/structural: CXMT DRAM share reaches ~10% domestically as Samsung's HBM capacity pivot vacate",
+        "signal polarity net +4 (BREAKOUT, STRONG UPTREND, PEER LEADER, NEW TAILWINDS)",
+        "+13.8pp vs benchmark",
+        "named by 2 independent source(s) this run",
+        "track record 67% (n=9) via hit rate 67% applies a +3.0% tilt (45% authority at this sample size)"
+      ],
+      "blockers": []
+    }
+  ],
+  "bench_diversifier": [],
+  "rebound": {
+    "correction_state": "none",
+    "reasons": [],
+    "inputs_usable": true,
+    "rel_cache_age_days": 8,
+    "stale_warning": null,
+    "book_drawdown_pct": -1.339,
+    "benchmark_1m_pct": 0.73,
+    "breadth_fallen_share": 0.071,
+    "policy_warn_pct": -15,
+    "candidates": [],
+    "considered": 0,
+    "excluded": {
+      "thesis_blocked": [],
+      "too_quiet": [],
+      "not_fallen_enough": [],
+      "no_data": []
+    },
+    "note": "No broad correction by any of the three routes -- no rebound screen run."
+  },
+  "correction_state": "none",
+  "profit_rotation": [
+    {
+      "pair_id": "profit_rotation-MSFT-ALAB",
+      "trigger_type": "profit_rotation",
+      "vote": "live",
+      "sell_leg": {
+        "ticker": "MSFT",
+        "direction": "SELL",
+        "suggested_size_usd": 148.69,
+        "market_value_usd": 495.63,
+        "reasons": [
+          "stretched (in names_stretched) with a watch thesis -- real profit to book"
+        ]
+      },
+      "buy_leg": {
+        "ticker": "ALAB",
+        "direction": "BUY",
+        "suggested_size_usd": 52.06,
+        "clamped_by": "cluster ceiling room",
+        "conviction_score": 37.7,
+        "reasons": [
+          "laggard (-2.0pp) with a strengthening thesis -- yet to rally"
+        ]
+      },
+      "retires_when": "EITHER MSFT drops out of the stretched cohort OR ALAB's thesis leaves intact/strengthening"
+    },
+    {
+      "pair_id": "profit_rotation-NBIS-KLAC",
+      "trigger_type": "profit_rotation",
+      "vote": "live",
+      "sell_leg": {
+        "ticker": "NBIS",
+        "direction": "SELL",
+        "suggested_size_usd": 134.73,
+        "market_value_usd": 449.1,
+        "reasons": [
+          "stretched (in names_stretched) with a watch thesis -- real profit to book"
+        ]
+      },
+      "buy_leg": {
+        "ticker": "KLAC",
+        "direction": "BUY",
+        "suggested_size_usd": 134.73,
+        "clamped_by": null,
+        "conviction_score": 37.1,
+        "reasons": [
+          "laggard (-5.7pp) with a strengthening thesis -- yet to rally"
+        ]
+      },
+      "retires_when": "EITHER NBIS drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening"
+    }
+  ],
+  "cluster_rotation": [
+    {
+      "pair_id": "cluster_rotation-VRT-GEV",
+      "trigger_type": "cluster_rotation",
+      "vote": "live",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "ladder_driven": true,
+      "ladder_as_of": "2026-09-09",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "ladder_authority_reasons": [
+        "ladder is 5d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+      ],
+      "sell_leg": {
+        "ticker": "VRT",
+        "direction": "SELL",
+        "suggested_size_usd": 694.06,
+        "reasons": [
+          "cluster ladder ranks VRT #3 of 5 (laggard). Case against: Zero live return_1m figure in this run's cache (one of the 3 missing-return members) -- the fundamental case for a higher rank cannot be corroborated against price this run."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "GEV",
+        "direction": "BUY",
+        "suggested_size_usd": 576.51,
+        "clamped_by": "ATR headroom",
+        "conviction_score": 31.0,
+        "reasons": [
+          "cluster ladder ranks GEV #1 of 5 (leader): turbine and grid-equipment backlog/delivery window -- Gas turbine backlog 116GW (was 100GW Q1), targeting 125GW by YE26; Electrification (grid equipment) backlog $40.6B, +69% YoY; total backlog $176B; >50% of 2031 gas slots already contracted -- deepest, most dated multi-year evidence in the cluster"
+        ]
+      },
+      "retires_when": "EITHER AI Power/Cooling/DC Infra's ladder no longer ranks GEV above VRT OR that ladder goes stale (>14d)"
+    },
+    {
+      "pair_id": "cluster_rotation-AVGO-CIEN",
+      "trigger_type": "cluster_rotation",
+      "vote": "live",
+      "cluster": "AI Networking/Optics",
+      "ladder_driven": false,
+      "ladder_as_of": null,
+      "ladder_confidence": null,
+      "ladder_authority": "rank",
+      "ladder_authority_reasons": [
+        "ladder is 6d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+      ],
+      "sell_leg": {
+        "ticker": "AVGO",
+        "direction": "SELL",
+        "suggested_size_usd": 217.19,
+        "reasons": [
+          "laggard within AI Networking/Optics (-13.3pp), watch thesis -- dead money in this cluster"
+        ]
+      },
+      "buy_leg": {
+        "ticker": "CIEN",
+        "direction": "BUY",
+        "suggested_size_usd": 217.19,
+        "clamped_by": null,
+        "conviction_score": 39.2,
+        "reasons": [
+          "performer within AI Networking/Optics (+7.4pp), strengthening thesis"
+        ]
+      },
+      "retires_when": "EITHER AVGO's thesis strengthens OR CIEN is no longer the cluster's relative-strength leader"
+    },
+    {
+      "pair_id": "cluster_rotation-AMD-KLAC",
+      "trigger_type": "cluster_rotation",
+      "vote": "live",
+      "cluster": "AI Semis/Fabs",
+      "ladder_driven": true,
+      "ladder_as_of": "2026-09-08",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "ladder_authority_reasons": [
+        "ladder is 6d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+      ],
+      "sell_leg": {
+        "ticker": "AMD",
+        "direction": "SELL",
+        "suggested_size_usd": 309.68,
+        "reasons": [
+          "cluster ladder ranks AMD #8 of 10 (laggard). Case against: Q3 guidance read as below consensus (2026-08-11) and the ~$5bn investment-grade debt raise (2026-08-14) levers the balance sheet to fund capex it does not own. The one-month price is the worst in the cluster by a wide margin and I am explicitly overriding it -- if the guide-down is the start of a share-loss trend rather than a one-quarter reset, price is right and I am wrong."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "KLAC",
+        "direction": "BUY",
+        "suggested_size_usd": 309.68,
+        "clamped_by": null,
+        "conviction_score": 37.1,
+        "reasons": [
+          "cluster ladder ranks KLAC #2 of 10 (leader): process-step mix -- which steps gain intensity as GAA and advanced packaging ramp -- Process control and metrology intensity rises fastest at gate-all-around and in advanced packaging: more layers and more inspection steps per wafer, so KLA's dollars-per-wafer rise faster than wafer starts. This is the rank most at odds with the cache, which has no return for KLAC at all."
+        ]
+      },
+      "retires_when": "EITHER AI Semis/Fabs's ladder no longer ranks KLAC above AMD OR that ladder goes stale (>14d)"
+    }
+  ],
+  "cluster_bench_rotation": [
+    {
+      "pair_id": "cluster_bench_rotation-AMD-AMKR",
+      "trigger_type": "cluster_bench_rotation",
+      "vote": "shadow",
+      "cluster": "AI Semis/Fabs",
+      "ladder_as_of": "2026-09-08",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "sell_leg": {
+        "ticker": "AMD",
+        "direction": "SELL",
+        "suggested_size_usd": 309.68,
+        "reasons": [
+          "cluster ladder ranks AMD #8 of 10 (laggard). Case against: Q3 guidance read as below consensus (2026-08-11) and the ~$5bn investment-grade debt raise (2026-08-14) levers the balance sheet to fund capex it does not own. The one-month price is the worst in the cluster by a wide margin and I am explicitly overriding it -- if the guide-down is the start of a share-loss trend rather than a one-quarter reset, price is right and I am wrong."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "AMKR",
+        "direction": "BUY",
+        "suggested_size_usd": null,
+        "price_usd": 47.77,
+        "reasons": [
+          "cluster bench: better than INTC",
+          "entry condition: On confirmation that OSAT CoWoS capacity is ramping to the 40-45k wpm end-2027 path, or on a pullback below $44. AMKR is a pure OSAT advanced-packaging play -- the exact axis the margin pool is migrating toward and the one axis this book has no direct expression of."
+        ],
+        "blockers": [
+          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized."
+        ]
+      },
+      "retires_when": "EITHER AI Semis/Fabs's ladder drops AMKR from its bench OR AMD leaves the bottom of that ladder"
+    },
+    {
+      "pair_id": "cluster_bench_rotation-VRT-ETN",
+      "trigger_type": "cluster_bench_rotation",
+      "vote": "shadow",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "ladder_as_of": "2026-09-09",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "sell_leg": {
+        "ticker": "VRT",
+        "direction": "SELL",
+        "suggested_size_usd": 694.06,
+        "reasons": [
+          "cluster ladder ranks VRT #3 of 5 (laggard). Case against: Zero live return_1m figure in this run's cache (one of the 3 missing-return members) -- the fundamental case for a higher rank cannot be corroborated against price this run."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "ETN",
+        "direction": "BUY",
+        "suggested_size_usd": null,
+        "price_usd": 410.85,
+        "reasons": [
+          "cluster bench: better than beats VST -- direct data-center power-distribution/electrical-equipment exposure without the merchant-IPP interconnection-pause overhang; near its 52-wk range (ATH $459.96) on its own strength, not a single-customer PPA",
+          "entry condition: pullback toward $380-390 (prior consolidation zone) or a confirmed AI-datacenter order disclosure"
+        ],
+        "blockers": [
+          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized."
+        ]
+      },
+      "retires_when": "EITHER AI Power/Cooling/DC Infra's ladder drops ETN from its bench OR VRT leaves the bottom of that ladder"
+    }
+  ],
+  "cluster_consolidation": [],
+  "laggard_rotation": [
+    {
+      "ticker": "CLS",
+      "cluster": "Compute/Hyperscaler OEM",
+      "thesis_status": "strengthening",
+      "rsi14": 49.8,
+      "rel_strength_1m_pp": -17.0,
+      "abs_return_1m_pct": -2.95,
+      "price_usd": 346.55,
+      "market_value_usd": 1387.33,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 543.88,
+      "suggested_size_usd": 543.88,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-17.0pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "WDC",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "strengthening",
+      "rsi14": 55.4,
+      "rel_strength_1m_pp": -13.65,
+      "abs_return_1m_pct": null,
+      "price_usd": 447.18,
+      "market_value_usd": 894.36,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 653.39,
+      "suggested_size_usd": 653.39,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-13.7pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "GOOG",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "strengthening",
+      "rsi14": 28.9,
+      "rel_strength_1m_pp": -13.06,
+      "abs_return_1m_pct": null,
+      "price_usd": 335.45,
+      "market_value_usd": 2012.7,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 4134.06,
+      "suggested_size_usd": 809.84,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-13.1pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "QCOM",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 44.1,
+      "rel_strength_1m_pp": -7.8,
+      "abs_return_1m_pct": -5.96,
+      "price_usd": 181.97,
+      "market_value_usd": 909.99,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 2786.52,
+      "suggested_size_usd": 809.84,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-7.8pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "GEV",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "strengthening",
+      "rsi14": 43.2,
+      "rel_strength_1m_pp": -7.69,
+      "abs_return_1m_pct": -4.12,
+      "price_usd": 957.27,
+      "market_value_usd": 1919.28,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 576.51,
+      "suggested_size_usd": 576.51,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-7.7pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": []
+    }
+  ],
+  "profit_ratchet": [],
+  "scale_out_ladder": [
+    {
+      "ticker": "BE",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "strengthening",
+      "rsi14": 49.2,
+      "rel_strength_1m_pp": 19.39,
+      "abs_return_1m_pct": null,
+      "price_usd": 275.75,
+      "market_value_usd": 551.5,
+      "trigger_type": "scale_out_ladder",
+      "direction": "TRIM",
+      "vote": "shadow",
+      "avg_cost_usd": 200.31,
+      "gain_pct": 37.66,
+      "tiers": [
+        {
+          "gain_pct": 25.0,
+          "triggered": true,
+          "slice_usd": 183.83
+        },
+        {
+          "gain_pct": 50.0,
+          "triggered": false,
+          "slice_usd": 183.83
+        }
+      ],
+      "suggested_size_usd": 183.83,
+      "reasons": [
+        "up +37.7% vs basis -- 1 of 2 scale-out rung(s) reached (+25%)"
+      ],
+      "blockers": []
+    }
+  ],
+  "shadow_new": [
+    {
+      "date": "2026-09-14",
+      "ticker": "CLS",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 346.55,
+      "rsi14": 49.8,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -17.0,
+      "scored": false
+    },
+    {
+      "date": "2026-09-14",
+      "ticker": "WDC",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 447.18,
+      "rsi14": 55.4,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -13.65,
+      "scored": false
+    },
+    {
+      "date": "2026-09-14",
+      "ticker": "GOOG",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 335.45,
+      "rsi14": 28.9,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -13.06,
+      "scored": false
+    },
+    {
+      "date": "2026-09-14",
+      "ticker": "QCOM",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 181.97,
+      "rsi14": 44.1,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -7.8,
+      "scored": false
+    },
+    {
+      "date": "2026-09-14",
+      "ticker": "GEV",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 957.27,
+      "rsi14": 43.2,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -7.69,
+      "scored": false
+    },
+    {
+      "date": "2026-09-14",
+      "ticker": "BE",
+      "trigger_type": "scale_out_ladder",
+      "price_at_flag": 275.75,
+      "rsi14": 49.2,
+      "gain_pct": 37.66,
+      "rel_strength_1m_pp": 19.39,
+      "scored": false
+    },
+    {
+      "date": "2026-09-14",
+      "ticker": "AMKR",
+      "trigger_type": "cluster_bench_rotation",
+      "price_at_flag": 47.77,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "pair_id": "cluster_bench_rotation-AMD-AMKR",
+      "scored": false
+    },
+    {
+      "date": "2026-09-14",
+      "ticker": "ETN",
+      "trigger_type": "cluster_bench_rotation",
+      "price_at_flag": 410.85,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "pair_id": "cluster_bench_rotation-VRT-ETN",
+      "scored": false
+    }
+  ],
+  "rsi_values": {
+    "NVDA": 70.4,
+    "MU": 57.7,
+    "DRAM": 53.9,
+    "MRVL": 58.1,
+    "AMAT": 33.3,
+    "AMZN": 29.8,
+    "ARM": 43.7,
+    "ASML": 49.1,
+    "AVGO": 22.9,
+    "BABA": 34.6,
+    "BX": 59.6,
+    "CEG": 63.5,
+    "CIEN": 47.2,
+    "CLS": 49.8,
+    "FLTW": 63.9,
+    "GEV": 43.2,
+    "INTC": 36.5,
+    "LRCX": 53.3,
+    "META": 34.1,
+    "MSFT": 53.5,
+    "NBIS": 57.8,
+    "NOW": 66.2,
+    "ORCL": 66.6,
+    "QCOM": 44.1,
+    "SNDK": 43.7,
+    "TER": 48.1,
+    "TSM": 54.9,
+    "STM": 34.3,
+    "TXN": 42.4,
+    "AMD": 47.9,
+    "COHR": 32.6,
+    "IREN": 48.5,
+    "GOOG": 28.9,
+    "BE": 49.2,
+    "SKHY": 64.9,
+    "SMCI": 68.1,
+    "AMKR": 43.8,
+    "GLW": 41.5,
+    "LITE": 54.7,
+    "KLAC": 37.2,
+    "WDC": 55.4,
+    "VRT": 67.2,
+    "ALAB": 52.2,
+    "APH": 48.0,
+    "FSLR": 35.3
+  },
+  "abs_return_1m_pct_values": {
+    "NVDA": 8.13,
+    "MU": -4.73,
+    "DRAM": -7.27,
+    "MRVL": 6.09,
+    "AMAT": -3.37,
+    "AMZN": 9.01,
+    "ARM": -7.63,
+    "ASML": 0.79,
+    "AVGO": 9.03,
+    "BABA": 5.96,
+    "BX": 16.54,
+    "CEG": 7.71,
+    "CIEN": 4.01,
+    "CLS": -2.95,
+    "FLTW": 6.25,
+    "GEV": -4.12,
+    "INTC": -4.27,
+    "LRCX": 0.84,
+    "META": -8.82,
+    "MSFT": 24.73,
+    "NBIS": 6.87,
+    "NOW": 20.91,
+    "ORCL": 17.47,
+    "QCOM": -5.96,
+    "SNDK": -13.55,
+    "TER": 8.28,
+    "TSM": 1.42,
+    "STM": -14.75,
+    "TXN": -4.15,
+    "AMD": -10.55,
+    "COHR": 10.31,
+    "ALAB": -2.52,
+    "APH": -3.88,
+    "FSLR": -13.66
+  },
+  "data_quality": [
+    "STM is oversold (RSI 34.3) but thesis is 'watch' -- deliberately not a bounce candidate (falling knife, not a dip)",
+    "AMZN is oversold (RSI 29.8) but thesis is 'None' -- deliberately not a bounce candidate (falling knife, not a dip)",
+    "AVGO is oversold (RSI 22.9) but thesis is 'watch' -- deliberately not a bounce candidate (falling knife, not a dip)",
+    "reentry: 39 alumni could not be JUDGED at all -- no state.thesis entry exists for them (AAPL, AIA, AMKR, ANET, ARM, BABA, BX, CEG, CORZ, CQQQ...). state.thesis is seeded from CURRENT holdings, so an exited name is absent by construction and fails the conviction gate for lack of evidence, not on the evidence. These are not rejected candidates; they are unexamined ones.",
+    "reentry: 2 alumni judged and rejected on a real thesis/conviction read (INTC, LRCX)."
+  ]
+}
