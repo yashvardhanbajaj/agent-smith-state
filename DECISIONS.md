@@ -1,7 +1,7 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**89 total gaps** -- 14 open, 75 archived (closed).
+**90 total gaps** -- 15 open, 75 archived (closed).
 
 ---
 
@@ -872,5 +872,14 @@ holdings.json was hand-constructed by the orchestrator in an inline Python snipp
 **Opened:** 2026-09-15  **Owner:** orchestrator  
 
 narrative.json (dashboard READ section) has no owner, TTL, or freshness check, so it silently serves stale prose from a prior day as if it were this run's judgment. Found 2026-09-15: the published dashboard's READ panel was verbatim 2026-09-09T14:36Z priced-refresh text (cash breach 2.71%, SELL MSFT/BUY KLAC pair, VRT/META intraday moves) rendered under a 2026-09-14 18:23Z run's meta/positions -- the two had been silently diverging for 5 days because no run in between wrote a fresh narrative.json (it is optional per SKILL.md S6 and nothing enforces it). User caught the mismatch by inspection, not any system check.
+
+---
+
+## G97 -- OPEN
+**Opened:** 2026-09-15  **Owner:** orchestrator  **Closed:** 2026-09-15  
+
+state.sentiment and state.risk_off_status were never in _stage_run_block's staged keys, so postflight commit (the only path that writes state.json since the 2026-09-14 overhaul) never refreshed them -- both sat frozen at whatever a pre-postflight run last hand-staged. Found live 2026-09-15: the dashboard Sentiment panel showed score 65.7 with three components stuck at exactly 50.0, while this run's own compute_sentiment.json already had the real read (71.2, no defaulted components). risk_off_status shared the identical bug but happened to already read "normal", matching this run's real compute_drift.json value by coincidence -- a materially more dangerous latent failure mode (a stale "normal" during a real risk-off session would silently mask it) that was never actually wrong yet, so nothing would have caught it without this investigation.
+
+**Resolution:** _stage_run_block (smith_orchestrate.py) now stages both fields every run: sentiment from compute_sentiment.json (score/band/components), risk_off_status from compute_drift.json. Also backfilled this run's state.json sentiment by hand (risk_off_status needed no backfill, value was already correct). Dashboard payload additionally now reads sent_note/sent_action_hint/sent_prior_band fresh from the run dir's compute_sentiment.json each build (display-only, no persisted schema slot, so no reason to round-trip through state).
 
 ---

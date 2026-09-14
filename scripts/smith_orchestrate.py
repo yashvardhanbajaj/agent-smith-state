@@ -329,6 +329,8 @@ def _append_shadow_triggers(base_dir, run_dir, today):
 def _stage_run_block(base_dir, run_dir, mode, today):
     book = _j(os.path.join(run_dir, "compute_book.json"), {}) or {}
     holdings = _j(os.path.join(run_dir, "holdings.json"), {}) or {}
+    drift = _j(os.path.join(run_dir, "compute_drift.json"), {}) or {}
+    sentiment = _j(os.path.join(run_dir, "compute_sentiment.json"), {}) or {}
     st = ss.load_state(base_dir, run_dir)
     if book.get("value_usd") is not None:
         us = dict(st.get("us") or {})
@@ -344,6 +346,21 @@ def _stage_run_block(base_dir, run_dir, mode, today):
         seen = st.setdefault("data_cache", {}).setdefault("last_seen", {})
         for r in rows:
             seen[r.get("ticker")] = str(today)
+    # Both added 2026-09-15, found live by the user reading the dashboard's Sentiment panel:
+    # it showed a frozen score (65.7, three components stuck at exactly 50.0) while this run's
+    # own compute_sentiment.json already had the real, fresh read (71.2, no defaulted
+    # components). Neither `sentiment` nor `risk_off_status` was ever in this function's staged
+    # keys, so postflight's commit -- the ONLY path that writes state.json now -- never touched
+    # them; state.json's copies were last written by whatever pre-postflight run happened to
+    # hand-stage them, then sat frozen. risk_off_status is the more serious of the two: it is
+    # read from state.json elsewhere to decide whether to flag defensive posture, so a stale
+    # "normal" during an actual risk-off session would silently mask it. compute_drift.json
+    # computes it fresh every run already; it was just never being carried into state.json.
+    if sentiment.get("score") is not None:
+        st["sentiment"] = {"score": sentiment.get("score"), "band": sentiment.get("band"),
+                            "components": sentiment.get("components") or {}}
+    if drift.get("risk_off_status") is not None:
+        st["risk_off_status"] = drift["risk_off_status"]
     st["mode"] = mode
     st["last_run_dir"] = os.path.relpath(os.path.realpath(run_dir), os.path.realpath(base_dir))
     return ss.stage_state(base_dir, run_dir, st, by="postflight")

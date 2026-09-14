@@ -151,6 +151,7 @@ def build_payload(base, built_at=None):
     buckets = rf("compute_buckets.json")
     mkt = rf("market_inputs.json")
     holdings = rf("holdings.json")
+    sent_run = rf("compute_sentiment.json")
 
     sector_map = st.get("sector_map", {}) or {}
     thesis = st.get("thesis", {}) or {}
@@ -553,6 +554,13 @@ def build_payload(base, built_at=None):
         "sent_score": num(sent.get("score")),
         "sent_band": sent.get("band"),
         "sent_components": sent.get("components") or {},
+        # Read fresh from the run dir, not state.json: these three are display-only enrichment
+        # with no persisted schema slot (state.sentiment is score/band/components only), so
+        # there is nothing to gain from round-tripping them through state and a real staleness
+        # risk in doing so. Added 2026-09-15 alongside filling this panel's empty right half.
+        "sent_note": clip(sent_run.get("note"), 200),
+        "sent_action_hint": clip(sent_run.get("action_hint"), 240),
+        "sent_prior_band": sent_run.get("prior_band"),
         "risk_off": st.get("risk_off_status"),
         "correction_state": trig.get("correction_state"),
         "queue_state": derisk.get("queue_state"),
@@ -1387,13 +1395,29 @@ function tabCommand(){
     (asia?'<dl class="kv" style="margin-top:12px;max-width:340px">'+asia+"</dl>":"")+
     "</div>",{span:true}));
 
+  // Sentiment used to render alone (no {span:true}) with only a small gauge + a component list
+  // beside it -- on any panel wider than that pair's natural width, everything to the right sat
+  // empty. Found live 2026-09-15 by the user. Now spans the row like its neighbors, and a third
+  // block actually uses that width instead of just stretching the same two elements further
+  // apart: trend vs the prior run, the methodology note (this is a proxy composite, not CNN's
+  // real Fear & Greed Index -- worth saying next to the number, not burying it), and the
+  // action_hint when the score is extreme enough to carry one.
   var sc=k.sent_components||{};
+  var sentTrend = (k.sent_prior_band && k.sent_prior_band !== k.sent_band)
+    ? "Shifted from <b>"+esc(k.sent_prior_band)+"</b> to <b>"+esc(k.sent_band||"")+"</b> since the last run."
+    : (k.sent_prior_band ? "Unchanged from the last run ("+esc(k.sent_band||"")+")." : "");
   H.push(panel("Sentiment","composite · "+esc(k.sent_band||""),
-    '<div class="pad" style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">'+
+    '<div class="pad" style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">'+
     gauge(k.sent_score,k.sent_band)+
-    '<dl class="kv" style="flex:1;min-width:190px">'+
+    '<dl class="kv" style="min-width:190px">'+
     Object.keys(sc).map(function(key){ return "<dt>"+esc(human(key))+"</dt><dd>"+
-      n(sc[key],1)+"</dd>"; }).join("")+"</dl></div>"));
+      n(sc[key],1)+"</dd>"; }).join("")+"</dl>"+
+    '<div style="flex:1;min-width:240px">'+
+    (k.sent_action_hint?'<p class="note" style="color:var(--warn);margin:0 0 8px">'+
+      esc(k.sent_action_hint)+"</p>":"")+
+    (sentTrend?'<p class="note" style="margin:0 0 8px">'+sentTrend+"</p>":"")+
+    (k.sent_note?'<p class="note muted" style="margin:0">'+esc(k.sent_note)+"</p>":"")+
+    "</div></div>",{span:true}));
 
   /* open proposals */
   var props=D.proposals.open||[];
