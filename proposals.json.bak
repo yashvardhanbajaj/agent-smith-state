@@ -4896,8 +4896,8 @@
           "BUY"
         ],
         "combined_usd": 493.75,
-        "position_usd": 852.1,
-        "combined_pct_of_position": 57.9,
+        "position_usd": 868.17,
+        "combined_pct_of_position": 56.9,
         "side": "ADD",
         "severity": "note"
       }
@@ -6149,7 +6149,7 @@
       "rationale": "Highest conviction_score in the book at 34.3 and the only name firing conviction_average and oversold_reversion together: RSI14 33.3, strengthening thesis, -3.12pp vs SMH, +18.7pct to mean target, cap_multiple 0.45 so it is well inside its own risk cap. The cycle logic is the reason this is the buy rather than a levered supplier: smith-cycle calls the position LATE-BY-COST -- margins peaking on memory input cost while physical demand still accelerates -- and its single strongest evidence_AGAINST a late read is upstream semicap, where lead times are EXTENDING (etch and deposition doubled to 12 months, packaging/test beyond 18) and ASML and KLA are both raising capacity plans. AMAT is upstream equipment: it is paid by the capex being committed, it is not the name absorbing the memory cost inflation, and it carries none of the debt-funded-growth flags smith-quality raised against AMZN, BE or INTC. If the late call is right, this is the part of the chain that is late last.",
       "trigger_type": "conviction_average",
       "date": "2026-08-31",
-      "status": "accepted_by_user",
+      "status": "auto_retired",
       "pair_id": "monday-cien-amat",
       "pair_role": "buy",
       "cluster": "AI Semis/Fabs",
@@ -6169,28 +6169,9 @@
       "accepted_on": "2026-08-31",
       "accepted_reason": null,
       "date_raw": "2026-08-31T00:00:00Z",
-      "stacks_on": {
-        "accepted_id": "P-187",
-        "accepted_size_usd": 341.56,
-        "member_ids": [
-          "P-187",
-          "P-275"
-        ],
-        "open_ids": [
-          "P-275"
-        ],
-        "accepted_ids": [
-          "P-187"
-        ],
-        "sides_merged": [
-          "BUY"
-        ],
-        "combined_usd": 1137.07,
-        "position_usd": 1291.44,
-        "combined_pct_of_position": 88.0,
-        "side": "ADD",
-        "severity": "note"
-      }
+      "retired_on": "2026-09-14",
+      "retired_reason": "(accepted, never executed) AMAT no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared",
+      "note": "auto-retired 2026-09-14: (accepted, never executed) AMAT no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared"
     },
     {
       "action": "Sell FLTW",
@@ -8345,8 +8326,8 @@
       ],
       "proposal_class": "idea",
       "cluster": "AI Semis/Fabs",
-      "price_now": 1609.74,
-      "price_drift_pct": -6.93,
+      "price_now": 1593.62,
+      "price_drift_pct": -7.86,
       "still_valid_because": [
         "catalyst_threat: CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
@@ -8430,24 +8411,28 @@
       ],
       "repeat_count": 2,
       "note": "recommended 2x since 2026-09-09T00:00:00Z, still open",
-      "priority_score": 4,
+      "priority_score": 6,
       "priority": "HIGH",
       "priority_reasons": [
+        "TER at 1.05x its ATR risk cap",
         "catalyst_threat: CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "proposal_class": "idea",
       "cluster": "AI Semis/Fabs",
-      "full_cure_usd": 187.0,
+      "full_cure_usd": 82.0,
       "cure_basis": "risk cap",
-      "cure_pct": 206.0,
-      "price_now": 356.0,
-      "price_drift_pct": -7.22,
+      "cure_pct": 466.0,
+      "price_now": 334.21,
+      "price_drift_pct": -12.9,
       "still_valid_because": [
+        "TER at 1.05x its ATR risk cap",
         "catalyst_threat: CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
-      "review_flags": [],
+      "review_flags": [
+        "price has moved -12.9% since proposed ($383.69 -> $334.21) -- re-size before acting"
+      ],
       "revalidated_on": "2026-09-14",
       "retires_when": "TER no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
       "date_raw": "2026-09-10T00:00:00Z"
@@ -8479,16 +8464,14 @@
       "priority": "HIGH",
       "priority_reasons": [
         "catalyst_threat: CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]",
-        "caveat -- AMAT is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "proposal_class": "idea",
       "cluster": "AI Semis/Fabs",
-      "price_now": 429.31,
-      "price_drift_pct": -8.43,
+      "price_now": 427.86,
+      "price_drift_pct": -8.74,
       "still_valid_because": [
         "catalyst_threat: CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]",
-        "caveat -- AMAT is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
       "review_flags": [],
@@ -8932,7 +8915,7 @@
       "rationale": "oversold_reversion (live): RSI14 28.9 (<35), thesis strengthening (unverified, 1/0) -- technical dip on an intact thesis, not a fundamental break. -13.1pp vs SMH is the PEER LAGGARD signal, but that is priced into the dip already. Within ATR cap with $4,134 headroom; sized to max_single_deploy_usd. Supersedes P-235 (same idea, stale $287.95 sizing from 09-06, before the further RSI decline).",
       "trigger_type": "oversold_reversion",
       "date": "2026-09-14",
-      "status": "open",
+      "status": "auto_retired",
       "benchmark_price_at_proposal": 568.53,
       "benchmark_ticker": "SMH",
       "id": "P-274",
@@ -8945,11 +8928,11 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-06T00:00:00Z, still open",
+      "note": "recommended 2x since 2026-09-06T00:00:00Z, still open | auto-retired 2026-09-14: GOOG RSI14 has recovered to 53.3 (above the 50 exit) -- the oversold setup this buy was timed against has been consumed",
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "cash in excess at 23.5% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "cash in excess at 19.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
         "oversold_reversion was the stated trigger but GOOG is not in this run's oversold_reversion candidate list -- condition is no longer live",
         "recommended 2x, still unactioned -- one more restatement auto-retires it"
       ],
@@ -8965,7 +8948,9 @@
       "review_flags": [],
       "revalidated_on": "2026-09-14",
       "retires_when": "GOOG RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening",
-      "date_raw": "2026-09-14T00:00:00Z"
+      "date_raw": "2026-09-14T00:00:00Z",
+      "retired_on": "2026-09-14",
+      "retired_reason": "GOOG RSI14 has recovered to 53.3 (above the 50 exit) -- the oversold setup this buy was timed against has been consumed"
     },
     {
       "action": "Buy AMAT",
@@ -8983,43 +8968,21 @@
       "priority_score": 2,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "cash in excess at 23.5% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "cash in excess at 19.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
         "oversold_reversion was the stated trigger but AMAT is not in this run's oversold_reversion candidate list -- condition is no longer live"
       ],
       "proposal_class": "housekeeping",
       "cluster": "AI Semis/Fabs",
-      "price_now": 429.31,
-      "price_drift_pct": -5.95,
+      "price_now": 427.86,
+      "price_drift_pct": -6.27,
       "still_valid_because": [
-        "cash in excess at 23.5% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "cash in excess at 19.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
         "oversold_reversion was the stated trigger but AMAT is not in this run's oversold_reversion candidate list -- condition is no longer live"
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-14",
       "retires_when": "AMAT RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening",
-      "date_raw": "2026-09-14T00:00:00Z",
-      "stacks_on": {
-        "accepted_id": "P-187",
-        "accepted_size_usd": 341.56,
-        "member_ids": [
-          "P-187",
-          "P-275"
-        ],
-        "open_ids": [
-          "P-275"
-        ],
-        "accepted_ids": [
-          "P-187"
-        ],
-        "sides_merged": [
-          "BUY"
-        ],
-        "combined_usd": 1137.07,
-        "position_usd": 1291.44,
-        "combined_pct_of_position": 88.0,
-        "side": "ADD",
-        "severity": "note"
-      }
+      "date_raw": "2026-09-14T00:00:00Z"
     },
     {
       "action": "Buy NVDA",
@@ -9173,18 +9136,18 @@
       "priority_score": 9,
       "priority": "HIGH",
       "priority_reasons": [
-        "AI Memory/Storage under band (-4.4pt)",
-        "cash in excess at 23.5% vs a [5,15]% band -- deploying is the live problem, not raising more",
-        "conviction_average: conviction 46.4 (medium) -- thesis strengthening (primary, 1 for / 1 against); tailwind/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC,; +1.3pp vs benchmark; named by 2 independent source(s) this run"
+        "AI Memory/Storage under band (-4.6pt)",
+        "cash in excess at 19.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "conviction_average: conviction 45.6 (medium) -- thesis strengthening (primary, 1 for / 1 against); tailwind/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC,; -3.5pp vs benchmark; named by 2 independent source(s) this run"
       ],
       "proposal_class": "idea",
       "cluster": "AI Memory/Storage",
-      "price_now": 426.05,
-      "price_drift_pct": -4.73,
+      "price_now": 434.08,
+      "price_drift_pct": -2.93,
       "still_valid_because": [
-        "AI Memory/Storage under band (-4.4pt)",
-        "cash in excess at 23.5% vs a [5,15]% band -- deploying is the live problem, not raising more",
-        "conviction_average: conviction 46.4 (medium) -- thesis strengthening (primary, 1 for / 1 against); tailwind/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC,; +1.3pp vs benchmark; named by 2 independent source(s) this run"
+        "AI Memory/Storage under band (-4.6pt)",
+        "cash in excess at 19.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "conviction_average: conviction 45.6 (medium) -- thesis strengthening (primary, 1 for / 1 against); tailwind/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC,; -3.5pp vs benchmark; named by 2 independent source(s) this run"
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-14",
@@ -9207,8 +9170,8 @@
           "BUY"
         ],
         "combined_usd": 493.75,
-        "position_usd": 852.1,
-        "combined_pct_of_position": 57.9,
+        "position_usd": 868.17,
+        "combined_pct_of_position": 56.9,
         "side": "ADD",
         "severity": "note"
       }
@@ -9333,7 +9296,7 @@
       "rationale": "profit_rotation (live): NBIS is in names_stretched (beats SMH and up on the month) AND carries a watch thesis with real countervailing evidence (2 for / 4 against -- majority against, a contested-but-leaning-negative verdict that reinforces rather than merely supports the sell). Supersedes the standing P-273 'Hold NBIS' (profit_ratchet, shadow), which the live engine has now overtaken with this stronger, hit-rate-eligible signal.",
       "trigger_type": "profit_rotation",
       "date": "2026-09-14",
-      "status": "open",
+      "status": "auto_retired",
       "benchmark_price_at_proposal": 568.53,
       "benchmark_ticker": "SMH",
       "pair_id": "profit_rotation-NBIS-KLAC",
@@ -9354,7 +9317,10 @@
       "review_flags": [],
       "revalidated_on": "2026-09-14",
       "retires_when": "the profit_rotation pairing profit_rotation-NBIS-KLAC is no longer live this run -- both legs retire together, never one alone",
-      "date_raw": "2026-09-14T00:00:00Z"
+      "date_raw": "2026-09-14T00:00:00Z",
+      "retired_on": "2026-09-14",
+      "retired_reason": "the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-09-14: the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "action": "Buy KLAC",
@@ -9417,7 +9383,7 @@
       "rationale": "cluster_rotation refresh (ladder-driven, medium confidence, 6d old): AMD ranks #8 of 10 in AI Semis/Fabs (laggard) -- guide-down read below consensus (08-11) plus a $5bn debt raise (08-14) levering the balance sheet to fund capex it doesn't own; explicitly overriding the ladder's own qualifier that this is the rank most at odds with fresh price action. Refreshes P-268 ($468.99): AMD received a partial stop-trim in the 09-10 cascade, so today's recompute on the now-smaller position sizes correctly at $309.68. Supersedes P-268. [Desk note 2026-09-14: this sell leg's buy-leg partner was P-287, which the lifecycle dedup logic auto-superseded into P-285 (profit_rotation-NBIS-KLAC) the same run it was created -- a same-ticker/same-direction/same-day merge that dropped the pair_id link. P-285 has been manually resized to $444.41 to fund both rotations combined; treat P-285 as this sell leg's buy-leg partner going forward, not P-287.]",
       "trigger_type": "cluster_rotation",
       "date": "2026-09-14",
-      "status": "open",
+      "status": "auto_retired",
       "benchmark_price_at_proposal": 568.53,
       "benchmark_ticker": "SMH",
       "pair_id": "cluster_rotation-AMD-KLAC",
@@ -9426,7 +9392,7 @@
       "priority_score": 3,
       "priority": "MEDIUM",
       "priority_reasons": [
-        "AMD genuinely stretched: +6.9% 1m, +9.7pp vs SMH -- real profit to take, not just a smaller loss",
+        "AMD genuinely stretched: +3.1% 1m, +10.6pp vs SMH -- real profit to take, not just a smaller loss",
         "cluster_rotation was the stated trigger but AMD is not in this run's cluster_rotation candidate list -- condition is no longer live"
       ],
       "proposal_class": "idea",
@@ -9440,7 +9406,10 @@
       "review_flags": [],
       "revalidated_on": "2026-09-14",
       "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-KLAC is no longer live this run -- both legs retire together, never one alone",
-      "date_raw": "2026-09-14T00:00:00Z"
+      "date_raw": "2026-09-14T00:00:00Z",
+      "retired_on": "2026-09-14",
+      "retired_reason": "the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-09-14: the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "action": "Buy KLAC",
@@ -9545,7 +9514,7 @@
       "rationale": "cluster_rotation (live): AVGO is the laggard within AI Networking/Optics at -13.3pp vs SMH with a watch thesis and a PEER LAGGARD bearish bucket -- dead money in this cluster. Supersedes P-270 ($218.63): the ladder now ranks CIEN, not LITE, as this cluster's performer, so the buy-leg target changes even though the sell leg (AVGO) is unchanged. Supersedes P-270.",
       "trigger_type": "cluster_rotation",
       "date": "2026-09-14",
-      "status": "open",
+      "status": "auto_retired",
       "benchmark_price_at_proposal": 568.53,
       "benchmark_ticker": "SMH",
       "pair_id": "cluster_rotation-AVGO-CIEN",
@@ -9566,7 +9535,10 @@
       "review_flags": [],
       "revalidated_on": "2026-09-14",
       "retires_when": "the cluster_rotation pairing cluster_rotation-AVGO-CIEN is no longer live this run -- both legs retire together, never one alone",
-      "date_raw": "2026-09-14T00:00:00Z"
+      "date_raw": "2026-09-14T00:00:00Z",
+      "retired_on": "2026-09-14",
+      "retired_reason": "the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-09-14: the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "action": "Buy CIEN",
@@ -9613,7 +9585,7 @@
       "trigger_type": "trend_entry",
       "date": "2026-09-14T19:03:51+05:30",
       "created_utc": "2026-09-14T13:33:51Z",
-      "status": "open",
+      "status": "superseded",
       "benchmark_price_at_proposal": 568.53,
       "benchmark_ticker": "SMH",
       "id": "P-292",
@@ -9626,7 +9598,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-14, still open",
+      "note": "recommended 2x since 2026-09-14, still open | auto-superseded 2026-08-03 -- folded into P-302 as a repeat of the same open proposal",
       "priority_score": 8,
       "priority": "HIGH",
       "priority_reasons": [
@@ -9657,7 +9629,7 @@
       "trigger_type": "trend_entry",
       "date": "2026-09-14T19:03:51+05:30",
       "created_utc": "2026-09-14T13:33:51Z",
-      "status": "open",
+      "status": "superseded",
       "benchmark_price_at_proposal": 568.53,
       "benchmark_ticker": "SMH",
       "id": "P-293",
@@ -9677,7 +9649,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-14",
-      "retires_when": "APH no longer appears in this run's live trend_entry list"
+      "retires_when": "APH no longer appears in this run's live trend_entry list",
+      "note": "auto-superseded 2026-08-03 -- folded into P-298 as a repeat of the same open proposal"
     },
     {
       "action": "Sell MU",
@@ -9689,17 +9662,16 @@
       "trigger_type": "profit_rotation",
       "date": "2026-09-14T19:03:51+05:30",
       "created_utc": "2026-09-14T13:33:51Z",
-      "status": "open",
+      "status": "auto_retired",
       "benchmark_price_at_proposal": 568.53,
       "benchmark_ticker": "SMH",
       "pair_id": "profit_rotation-MU-KLAC",
       "pair_role": "sell_leg",
       "id": "P-294",
-      "priority_score": 4,
-      "priority": "HIGH",
+      "priority_score": 1,
+      "priority": "LOW",
       "priority_reasons": [
-        "MU genuinely stretched: +7.0% 1m, +9.8pp vs SMH -- real profit to take, not just a smaller loss",
-        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+        "profit_rotation was the stated trigger but MU is not in this run's profit_rotation candidate list -- condition is no longer live"
       ],
       "proposal_class": "idea",
       "cluster": "AI Memory/Storage",
@@ -9711,7 +9683,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-14",
-      "retires_when": "the profit_rotation pairing profit_rotation-MU-KLAC is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the profit_rotation pairing profit_rotation-MU-KLAC is no longer live this run -- both legs retire together, never one alone",
+      "retired_on": "2026-09-14",
+      "retired_reason": "the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-09-14: the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
     },
     {
       "action": "Buy KLAC",
@@ -9723,7 +9698,7 @@
       "trigger_type": "profit_rotation",
       "date": "2026-09-14T19:03:51+05:30",
       "created_utc": "2026-09-14T13:33:51Z",
-      "status": "open",
+      "status": "superseded",
       "benchmark_price_at_proposal": 568.53,
       "benchmark_ticker": "SMH",
       "pair_id": "profit_rotation-MU-KLAC",
@@ -9749,7 +9724,7 @@
         "profit_rotation-NBIS-KLAC",
         "cluster_rotation-AMD-KLAC"
       ],
-      "note": "consolidated 2026-09-14: two independently-funded BUY proposals for KLAC landed the same day (profit_rotation-MU-KLAC + profit_rotation-NBIS-KLAC) -- sizes combined to $721.97, both pair_ids preserved",
+      "note": "consolidated 2026-09-14: two independently-funded BUY proposals for KLAC landed the same day (profit_rotation-MU-KLAC + profit_rotation-NBIS-KLAC) -- sizes combined to $721.97, both pair_ids preserved | auto-superseded 2026-08-03 -- folded into P-299 as a repeat of the same open proposal",
       "priority_score": 7,
       "priority": "HIGH",
       "priority_reasons": [
@@ -9815,7 +9790,7 @@
       "trigger_type": "profit_rotation",
       "date": "2026-09-14T19:03:51+05:30",
       "created_utc": "2026-09-14T13:33:51Z",
-      "status": "open",
+      "status": "superseded",
       "benchmark_price_at_proposal": 568.53,
       "benchmark_ticker": "SMH",
       "pair_id": "profit_rotation-SMCI-CIEN",
@@ -9834,7 +9809,7 @@
       "also_funds_pair_ids": [
         "cluster_rotation-AVGO-CIEN"
       ],
-      "note": "consolidated 2026-09-14: two independently-funded BUY proposals for CIEN landed the same day (profit_rotation-SMCI-CIEN + cluster_rotation-AVGO-CIEN) -- sizes combined to $330.56, both pair_ids preserved",
+      "note": "consolidated 2026-09-14: two independently-funded BUY proposals for CIEN landed the same day (profit_rotation-SMCI-CIEN + cluster_rotation-AVGO-CIEN) -- sizes combined to $330.56, both pair_ids preserved | auto-superseded 2026-08-03 -- folded into P-300 as a repeat of the same open proposal",
       "priority_score": 8,
       "priority": "HIGH",
       "priority_reasons": [
@@ -9867,7 +9842,37 @@
       "created_utc": "2026-09-14T18:56:07Z",
       "status": "open",
       "benchmark_price_at_proposal": 545.38,
-      "benchmark_ticker": "SMH"
+      "benchmark_ticker": "SMH",
+      "id": "P-298",
+      "history": [
+        {
+          "date": "2026-09-14T19:03:51+05:30",
+          "size_usd": 1088.19,
+          "price_at_proposal": 80.5,
+          "rationale": "Optics-cluster laggard (dispatch: leader LITE/laggard APH) with strengthening thesis -- organising rule treats this as opportunity not dead money. RSI14 57.4 not overbought, STRONG UPTREND, rotation bucket accumulate, +1.5pp vs SMH. Not clamped."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-09-14T19:03:51+05:30, still open",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash in excess at 19.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "conviction_average: conviction 27.5 (low) -- thesis strengthening (unverified, 2 for / 1 against); threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI; tailwind/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC,; +2.8pp vs benchmark; named by 3 independent source(s) this run",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Networking/Optics",
+      "price_now": 79.05,
+      "price_drift_pct": 0.0,
+      "still_valid_because": [
+        "cash in excess at 19.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "conviction_average: conviction 27.5 (low) -- thesis strengthening (unverified, 2 for / 1 against); threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI; tailwind/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC,; +2.8pp vs benchmark; named by 3 independent source(s) this run",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-14",
+      "retires_when": "APH no longer appears in this run's live conviction_average list"
     },
     {
       "action": "Buy KLAC",
@@ -9879,9 +9884,43 @@
       "trigger_type": "conviction_average",
       "date": "2026-09-14",
       "created_utc": "2026-09-14T18:56:07Z",
-      "status": "open",
+      "status": "auto_retired",
       "benchmark_price_at_proposal": 545.38,
-      "benchmark_ticker": "SMH"
+      "benchmark_ticker": "SMH",
+      "id": "P-299",
+      "history": [
+        {
+          "date": "2026-09-14T00:00:00Z",
+          "size_usd": 309.68,
+          "price_at_proposal": 180.64,
+          "rationale": "cluster_rotation buy leg refresh (ladder rank #2 of 10 in AI Semis/Fabs): process-control/metrology dollars-per-wafer rise faster than wafer starts as GAA and advanced packaging ramp. Funded from the AMD sale. Refreshes P-269 ($468.99, stale AMD-position-size basis). Supersedes P-269."
+        },
+        {
+          "date": "2026-09-14",
+          "size_usd": 444.41,
+          "price_at_proposal": 180.64,
+          "rationale": "CONSOLIDATED KLAC buy (desk-merged 2026-09-14): the lifecycle dedup logic collapsed two same-day \"Buy KLAC\" proposals -- this one (profit_rotation-NBIS-KLAC, $134.73) and P-287 (cluster_rotation-AMD-KLAC, $309.68) -- into a single open row, keeping only the smaller $134.73 size in history and silently dropping the AMD-KLAC pair_id link, which orphaned P-286 (Sell AMD)'s buy leg. Manually corrected: size restored to the combined $444.41 ($134.73 NBIS proceeds + $309.68 AMD proceeds), funding BOTH rotations into one KLAC position add. Original reasons stand: KLAC is this run's preferred AI Semis/Fabs performer (cluster ladder rank #2 of 10) and the laggard buy leg of profit_rotation-NBIS-KLAC (-5.7pp vs SMH, strengthening thesis). Also funds cluster_rotation-AMD-KLAC (see P-286).",
+          "pair_id": "profit_rotation-NBIS-KLAC"
+        },
+        {
+          "date": "2026-09-14T19:03:51+05:30",
+          "size_usd": 721.97,
+          "price_at_proposal": 170.0,
+          "rationale": "Laggard (-10.5pp) with strengthening thesis -- yet to rally. Funded by MU sell proceeds (self-funding pair). Not clamped."
+        }
+      ],
+      "repeat_count": 4,
+      "note": "recommended 4x since 2026-09-14T00:00:00Z, still open | auto-retired 2026-09-14: recommended 4x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash in excess at 19.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "conviction_average: conviction 28.2 (low) -- thesis strengthening (secondary, 2 for / 2 against); threat/immediate: KOSPI -3.26% (Samsung/SK Hynix -5 to -6.4%) on Fed-hawkish repricing (Warsh Jack; tailwind/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC,; signal polarity net -1 (PEER LAGGARD); reported: beat; -11.6pp vs benchmark; named by 3 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "retired_on": "2026-09-14",
+      "retired_reason": "recommended 4x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "action": "Buy CIEN",
@@ -9893,9 +9932,37 @@
       "trigger_type": "conviction_average",
       "date": "2026-09-14",
       "created_utc": "2026-09-14T18:56:07Z",
-      "status": "open",
+      "status": "auto_retired",
       "benchmark_price_at_proposal": 545.38,
-      "benchmark_ticker": "SMH"
+      "benchmark_ticker": "SMH",
+      "id": "P-300",
+      "history": [
+        {
+          "date": "2026-09-14",
+          "size_usd": 217.19,
+          "price_at_proposal": 349.54,
+          "rationale": "cluster_rotation buy leg (live, conviction 39.2): performer within AI Networking/Optics at +7.4pp vs SMH, thesis strengthening (secondary-verified, but contested 3 for/2 against -- supporting, not lead; the computed rel-strength lead stands on its own). Reported beat. Funded from the AVGO sale -- self-funded, doesn't draw cash. CIEN's position is currently a $2.98 dust remnant (friction flag) so this is effectively a fresh entry. NOTE: a standalone conviction_average signal also fires on CIEN today (score 39.2, size_wanted $401.63) -- deliberately not stacked as a second cash-funded buy; this rotation is the sole CIEN action this run, superseding the old standalone P-232 ($200).",
+          "pair_id": "cluster_rotation-AVGO-CIEN"
+        },
+        {
+          "date": "2026-09-14T19:03:51+05:30",
+          "size_usd": 330.56,
+          "price_at_proposal": 329.0,
+          "rationale": "Strengthening thesis, comfortably inside cap (cap_multiple 0.002 -- essentially a fresh position). Funded by SMCI sell proceeds (self-funding pair). Not clamped."
+        }
+      ],
+      "repeat_count": 3,
+      "note": "recommended 3x since 2026-09-14, still open | auto-retired 2026-09-14: recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash in excess at 19.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "conviction_average: conviction 27.0 (low) -- thesis strengthening (secondary, 3 for / 2 against); threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI; tailwind/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC,; signal polarity net -1 (PEER LAGGARD); reported: beat; -19.0pp vs benchmark; named by 3 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Networking/Optics",
+      "retired_on": "2026-09-14",
+      "retired_reason": "recommended 3x and never actioned -- 0-for-17 historically beyond four restatements, so 3+ now auto-retires rather than losing only its priority bonus; re-propose fresh if the condition still holds"
     },
     {
       "action": "Buy MSFT",
@@ -9909,7 +9976,25 @@
       "created_utc": "2026-09-14T18:56:07Z",
       "status": "open",
       "benchmark_price_at_proposal": 545.38,
-      "benchmark_ticker": "SMH"
+      "benchmark_ticker": "SMH",
+      "id": "P-301",
+      "priority_score": 8,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash in excess at 19.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "conviction_average: conviction 59.5 (medium) -- thesis strengthening (secondary, 2 for / 2 against); tailwind/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC,; signal polarity net +1 (NEW TAILWINDS); +9.6pp vs benchmark; named by 3 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "cluster": "Compute/Hyperscaler",
+      "price_now": 507.65,
+      "price_drift_pct": 0.0,
+      "still_valid_because": [
+        "cash in excess at 19.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "conviction_average: conviction 59.5 (medium) -- thesis strengthening (secondary, 2 for / 2 against); tailwind/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC,; signal polarity net +1 (NEW TAILWINDS); +9.6pp vs benchmark; named by 3 independent source(s) this run"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-14",
+      "retires_when": "MSFT no longer appears in this run's live conviction_average list"
     },
     {
       "action": "Buy TSM",
@@ -9921,8 +10006,49 @@
       "trigger_type": "trend_entry",
       "date": "2026-09-14",
       "created_utc": "2026-09-14T18:56:07Z",
-      "status": "open",
+      "status": "auto_retired",
       "benchmark_price_at_proposal": 545.38,
+      "benchmark_ticker": "SMH",
+      "id": "P-302",
+      "history": [
+        {
+          "date": "2026-09-14",
+          "size_usd": 809.84,
+          "price_at_proposal": 433.24,
+          "rationale": "trend_entry (live, low conviction 37.1): signal polarity net +2 (STRONG UPTREND, NEW TAILWINDS), +0.4pp vs SMH, thesis strengthening (unverified, 2/0). Engine's own size_wanted was $1,121.88 (clamped_by null there) -- I clamped to $809.84 (max_single_deploy_usd) because today's aggregate cash-funded new-idea total was running past the strict deployable_cash_usd figure; this is the desk's own cash-budget clamp, not an ATR/cluster clamp."
+        },
+        {
+          "date": "2026-09-14T19:03:51+05:30",
+          "size_usd": 1461.62,
+          "price_at_proposal": 418.71,
+          "rationale": "Semis-cluster leader (dispatch: leader TSM/laggard AMAT); RSI14 56.9, STRONG UPTREND + PEER LEADER, rotation bucket accumulate, +3.74pp vs SMH, thesis strengthening (unverified). Not clamped."
+        }
+      ],
+      "repeat_count": 3,
+      "note": "recommended 3x since 2026-09-14, still open | auto-retired 2026-09-14: TSM no longer appears in this run's live trend_entry list -- the condition this buy was sized against has cleared",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cash in excess at 19.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "trend_entry was the stated trigger but TSM is not in this run's trend_entry candidate list -- condition is no longer live"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "retired_on": "2026-09-14",
+      "retired_reason": "TSM no longer appears in this run's live trend_entry list -- the condition this buy was sized against has cleared"
+    },
+    {
+      "action": "Buy MRVL",
+      "ticker": "MRVL",
+      "direction_bucket": "BUY",
+      "size_usd": 340.61,
+      "price_at_proposal": 222.32,
+      "rationale": "User-prompted re-entry-after-stop review. MRVL was stopped out this morning (4sh @ $216.65, real stop-loss fill) then named by smith-catalyst as one of the two names hit hardest by today's Amodei AI-pacing sentiment shock (-7% same-day, alongside AVGO) -- a multiple-compression read, not a fundamental one (no guidance cut, no company-specific bad news found). Thesis remains strengthening (secondary-verified: Q2 FY26 beat, G44 interest-coverage scare resolved; against: rising SBC/dilution trend, 3 insiders sold in 60d). compute_triggers.json already carries a live conviction_average BUY (score 59.3, medium tier) with support $207.46 and stop $191.70 -- size clamped to $340.61 by ATR headroom (wanted $603.26), meaning the position is already large relative to its risk cap even after this morning's partial stop-out (was the #1 risk-share holding in the book pre-stop). Re-buying the full 4 shares now ($889) would be buying back above the $216.65 exit price (a whipsaw cost) and re-concentrating into an already-large, beta-1.405 position during an ESCALATING gate with FOMC 2 days out. Recommend the smaller, system-clamped size now (or on a dip toward the $207-212 support band), holding the rest until after the 2026-09-16 FOMC outcome -- same staging logic already applied to MSFT/TSM today.",
+      "trigger_type": "conviction_average",
+      "date": "2026-09-14",
+      "created_utc": "2026-09-14T19:09:20Z",
+      "status": "open",
+      "benchmark_price_at_proposal": 545.64,
       "benchmark_ticker": "SMH"
     }
   ],
