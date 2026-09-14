@@ -14,12 +14,12 @@ cp tests/fixtures/proposals_case1/base/proposals.json \
 python3 scripts/smith_math.py proposals \
   --base-dir "$SCRATCH" \
   --run-dir tests/fixtures/proposals_case1/rundir \
-  --today 2026-09-01 > /tmp/proposals_check_stdout.json 2>&1
+  --today 2026-09-01 > $SCRATCH/proposals_check_stdout.json 2>&1
 
 ok=1
-if ! diff -q tests/golden/proposals_case1_stdout.json /tmp/proposals_check_stdout.json > /dev/null; then
+if ! diff -q tests/golden/proposals_case1_stdout.json $SCRATCH/proposals_check_stdout.json > /dev/null; then
   echo "FAIL: cmd_proposals stdout CHANGED -- diff below"
-  diff tests/golden/proposals_case1_stdout.json /tmp/proposals_check_stdout.json || true
+  diff tests/golden/proposals_case1_stdout.json $SCRATCH/proposals_check_stdout.json || true
   ok=0
 fi
 if ! diff -q tests/golden/proposals_case1_result.json "$SCRATCH/proposals.json" > /dev/null; then

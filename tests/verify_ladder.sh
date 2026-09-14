@@ -13,15 +13,17 @@
 #   Compute/Hyperscaler OEM -- 2 names, below LADDER_MIN_MEMBERS, must be ineligible.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+SCRATCH=$(mktemp -d)
+trap 'rm -rf "$SCRATCH"' EXIT
 python3 scripts/smith_math.py ladder \
   --base-dir tests/fixtures/ladder_case1/base \
   --run-dir tests/fixtures/ladder_case1/rundir \
-  --today 2026-09-08 > /tmp/ladder_check.json
+  --today 2026-09-08 > $SCRATCH/ladder_check.json
 
-if diff -q tests/golden/ladder_case1.json /tmp/ladder_check.json > /dev/null; then
+if diff -q tests/golden/ladder_case1.json $SCRATCH/ladder_check.json > /dev/null; then
   echo "PASS: cmd_ladder output byte-identical to golden master"
 else
   echo "FAIL: cmd_ladder output CHANGED -- diff below"
-  diff tests/golden/ladder_case1.json /tmp/ladder_check.json || true
+  diff tests/golden/ladder_case1.json $SCRATCH/ladder_check.json || true
   exit 1
 fi

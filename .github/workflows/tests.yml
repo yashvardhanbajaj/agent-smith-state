@@ -1,8 +1,17 @@
 name: tests
 
+# Per-run state commits (runs/, state.json, proposals.json ...) carry no code change; running CI
+# on them only produced noise and trained everyone to ignore a red badge.
 on:
   push:
     branches: [main]
+    paths:
+      - "scripts/**"
+      - "tests/**"
+      - "skill/**"
+      - ".github/**"
+      - "requirements*.txt"
+      - "pytest.ini"
   pull_request:
     branches: [main]
 
@@ -25,5 +34,7 @@ jobs:
       - name: Run golden-master regression checks
         run: |
           ./tests/verify_triggers.sh
+          ./tests/verify_triggers_ladder.sh
+          ./tests/verify_ladder.sh
           ./tests/verify_proposals.sh
           ./tests/verify_dashboard.sh

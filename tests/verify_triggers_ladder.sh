@@ -11,15 +11,17 @@
 #   AI Semis/Fabs -- MEDIUM confidence, so the ordering is used but the `watch` requirement stands.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+SCRATCH=$(mktemp -d)
+trap 'rm -rf "$SCRATCH"' EXIT
 python3 scripts/smith_math.py triggers \
   --base-dir tests/fixtures/triggers_case2_ladder/base \
   --run-dir tests/fixtures/triggers_case2_ladder/rundir \
-  --today 2026-09-01 > /tmp/triggers_ladder_check.json
+  --today 2026-09-01 > $SCRATCH/triggers_ladder_check.json
 
-if diff -q tests/golden/triggers_case2_ladder.json /tmp/triggers_ladder_check.json > /dev/null; then
+if diff -q tests/golden/triggers_case2_ladder.json $SCRATCH/triggers_ladder_check.json > /dev/null; then
   echo "PASS: ladder-driven cluster_rotation byte-identical to golden master"
 else
   echo "FAIL: ladder-driven cluster_rotation CHANGED -- diff below"
-  diff tests/golden/triggers_case2_ladder.json /tmp/triggers_ladder_check.json || true
+  diff tests/golden/triggers_case2_ladder.json $SCRATCH/triggers_ladder_check.json || true
   exit 1
 fi

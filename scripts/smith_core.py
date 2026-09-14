@@ -51,7 +51,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 """Shared primitives: constants and IO helpers used by every Smith module."""
 
-DEFAULT_BASE = "/Users/yb/Claude/AgentSmith"
+# Overridable so a replay/dry run can never fall through to the live memory of record.
+DEFAULT_BASE = os.environ.get("SMITH_BASE_DIR", "/Users/yb/Claude/AgentSmith")
 
 # Clusters counted toward the combined "AI-capex chain" factor exposure.
 # Overridable via policy.json's optional "ai_capex_clusters" list.

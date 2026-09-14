@@ -1821,6 +1821,34 @@ def validate_ticker_map_coverage(base_dir):
             f"and require a smith-ledger dispatch to sort out by hand."]
 
 
+def validate_cluster_playbooks(policy, state):
+    """smith-cluster's ranking axes live in policy.cluster_playbooks, so every cluster a HELD name
+    maps to needs an entry, slugs must be unique (a slug is an agent key and a filename), and each
+    playbook needs >= 3 differentiators. Reports only -- adding a playbook is a policy decision.
+    (Moved 2026-09-14 from a unit test that read live state and kept CI red for a week.)"""
+    if not isinstance(policy, dict):
+        return []
+    state = state or {}
+    pbs = policy.get("cluster_playbooks") or {}
+    smap = state.get("sector_map") or {}
+    held = {h.get("ticker") for h in (state.get("holdings") or []) if isinstance(h, dict)}
+    clusters = ({smap[t] for t in held if t in smap} if held else set(smap.values()))
+    defects = []
+    missing = sorted(c for c in clusters if c and c not in pbs)
+    if missing:
+        defects.append(f"CLUSTER PLAYBOOKS: held cluster(s) with no policy.cluster_playbooks entry: "
+                       f"{', '.join(missing)} -- smith-cluster cannot build a ladder for them")
+    slugs = [v.get("slug") for v in pbs.values() if isinstance(v, dict)]
+    dupes = sorted({x for x in slugs if x and slugs.count(x) > 1})
+    if dupes:
+        defects.append(f"CLUSTER PLAYBOOKS: duplicate slug(s) {', '.join(dupes)}")
+    thin = sorted(k for k, v in pbs.items()
+                  if isinstance(v, dict) and len(v.get("differentiators") or []) < 3)
+    if thin:
+        defects.append(f"CLUSTER PLAYBOOKS: fewer than 3 differentiators: {', '.join(thin)}")
+    return defects
+
+
 def cmd_validate(args):
     policy = load_json(os.path.join(args.base_dir, "policy.json"), default=None)
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
@@ -1842,10 +1870,11 @@ def cmd_validate(args):
     ledger_defects = validate_ledger_schema(args.base_dir)
     aggrisk_defects = validate_aggregate_risk(args.base_dir, state)
     ticker_map_defects = validate_ticker_map_coverage(args.base_dir)
+    playbook_defects = validate_cluster_playbooks(policy, state)
     all_defects = (policy_defects + cache_defects + thesis_defects + learning_defects
                    + proposals_defects + narrative_defects
                    + earnings_pending_defects + freshness_defects + ledger_defects + run_defects
-                   + aggrisk_defects + ticker_map_defects)
+                   + aggrisk_defects + ticker_map_defects + playbook_defects)
 
     emit({
         "policy_present": policy is not None,
@@ -2248,7 +2277,8 @@ def _max_relative_delta(a, b):
 # Everything else (book, ledger, tax, rebound) reasons purely over files this run already
 # produced. If every one is byte-identical to the previous run, the agent has, by construction,
 # nothing new to say.
-SHARED_SOURCES = {"hbm_tracker": "/Users/yb/Claude/HBMTracker/consumer_view.json"}
+SHARED_SOURCES = {"hbm_tracker": os.environ.get("SMITH_HBM_TRACKER",
+                                                "/Users/yb/Claude/HBMTracker/consumer_view.json")}
 GAPS_CAP, FLAGS_CAP = 8, 5
 
 # Any single payload at or above this size is materialised ONCE into runs/<ts>/shared/ and

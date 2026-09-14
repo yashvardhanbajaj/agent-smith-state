@@ -12,19 +12,21 @@
 #     --built-at GOLDEN --out tests/golden/dashboard_case1.html
 set -euo pipefail
 cd "$(dirname "$0")/.."
+SCRATCH=$(mktemp -d)
+trap 'rm -rf "$SCRATCH"' EXIT
 # --built-at is pinned: the masthead carries a build timestamp, and a stamp that moves every
 # second would make this diff fail on every run and train everyone to ignore it.
 python3 scripts/smith_dashboard.py \
   --base-dir tests/fixtures/dashboard_case1/base \
   --built-at "GOLDEN" \
-  --out /tmp/dashboard_check.html > /tmp/dashboard_check_stdout.txt 2>&1
+  --out $SCRATCH/dashboard_check.html > $SCRATCH/dashboard_check_stdout.txt 2>&1
 
-if diff -q tests/golden/dashboard_case1.html /tmp/dashboard_check.html > /dev/null; then
+if diff -q tests/golden/dashboard_case1.html $SCRATCH/dashboard_check.html > /dev/null; then
   echo "PASS: dashboard output byte-identical to golden master"
-  cat /tmp/dashboard_check_stdout.txt
+  cat $SCRATCH/dashboard_check_stdout.txt
 else
   echo "FAIL: dashboard output CHANGED -- panel counts below, then the diff"
-  cat /tmp/dashboard_check_stdout.txt || true
-  diff tests/golden/dashboard_case1.html /tmp/dashboard_check.html | head -40 || true
+  cat $SCRATCH/dashboard_check_stdout.txt || true
+  diff tests/golden/dashboard_case1.html $SCRATCH/dashboard_check.html | head -40 || true
   exit 1
 fi

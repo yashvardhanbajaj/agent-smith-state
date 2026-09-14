@@ -30,7 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import smith_risk
 from smith_core import BENCHMARK_WEEKLY_PLAUSIBLE_PCT
 
-DEFAULT_BASE = "/Users/yb/Claude/AgentSmith"
+DEFAULT_BASE = os.environ.get("SMITH_BASE_DIR", "/Users/yb/Claude/AgentSmith")
 
 # Cluster name (policy.json's cluster_targets keys) -> CSS custom property.
 # Colors for the 6 clusters with historical nonzero weight are carried from the

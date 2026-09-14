@@ -174,8 +174,14 @@ class TestSliceSubject:
         class A:
             base_dir, run_dir, mode, today, agents = str(base), str(rd), "deep", "2026-09-08", slug
         import io, contextlib
+        from unittest import mock
+        # Hermetic: the real HBM tracker file exists only on the author's Mac, so CI saw a
+        # "shared source unavailable" problem this test was never about.
+        hbm = tmp_path / "hbm_consumer_view.json"
+        hbm.write_text("{}")
         buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
+        with contextlib.redirect_stdout(buf), \
+                mock.patch.dict(sm.SHARED_SOURCES, {"hbm_tracker": str(hbm)}):
             sm.cmd_slices(A())
         return json.loads(buf.getvalue()), rd
 
@@ -206,12 +212,31 @@ class TestPlaybooks:
     """policy.cluster_playbooks is the cluster-specific knowledge that keeps one agent file
     from becoming seven. A slug is an agent key and a filename, so it must be unique."""
 
+    # A frozen fixture, not the live memory of record: a unit test that reads live state fails
+    # (or passes) on whatever the portfolio did today. The live check is validate_cluster_playbooks.
     @pytest.fixture(scope="class")
     @classmethod
     def live(cls):
-        root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        return (json.load(open(os.path.join(root, "policy.json"))),
-                json.load(open(os.path.join(root, "state.json"))))
+        fx = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                          "fixtures", "cluster_playbooks")
+        return (json.load(open(os.path.join(fx, "policy.json"))),
+                json.load(open(os.path.join(fx, "state.json"))))
+
+    def test_validate_reports_a_held_cluster_without_a_playbook(self, live):
+        policy, state = live
+        state = dict(state, sector_map=dict(state["sector_map"], CRM="Enterprise Software"),
+                     holdings=list(state["holdings"]) + [{"ticker": "CRM"}])
+        defects = sm.validate_cluster_playbooks(policy, state)
+        assert len(defects) == 1 and "Enterprise Software" in defects[0]
+
+    def test_validate_is_clean_on_the_fixture(self, live):
+        policy, state = live
+        assert sm.validate_cluster_playbooks(policy, state) == []
+
+    def test_validate_ignores_exited_names_still_in_the_map(self, live):
+        policy, state = live
+        state = dict(state, sector_map=dict(state["sector_map"], OLD="Defunct Cluster"))
+        assert sm.validate_cluster_playbooks(policy, state) == []
 
     def test_every_held_cluster_has_a_playbook(self, live):
         policy, state = live
