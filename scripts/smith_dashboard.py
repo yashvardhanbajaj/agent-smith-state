@@ -376,6 +376,7 @@ def build_payload(base, built_at=None):
             "size_wanted": num(r.get("size_wanted_usd")),
             "clamped_by": r.get("clamped_by"),
             "conviction_tier": r.get("conviction_tier"),
+            "conviction_score": num(r.get("conviction_score")),
             "reasons": [clip(x, 400) for x in (r.get("reasons") or [])],
             "blockers": [clip(x, 300) for x in (r.get("blockers") or [])],
             "sources": (r.get("catalyst_sources") or [])[:3],
@@ -2136,11 +2137,49 @@ function openTicker(t){
     (D.ladders[name].ranking||[]).forEach(function(r){
       if(r.t===t) lad.push([name,r]); }); });
 
+  var w = (D.watchlist||[]).find(function(x){ return x.ticker===t; });
+  var dv = (D.diversifiers||{})[t];
+
   var H='<div class="sheet-head"><h2>'+esc(t)+"</h2>"+
     (p?'<span class="pill">'+esc(p.cluster)+"</span>":
        '<span class="pill">not held</span>')+
     (th?thDot(th.status)+'<span class="muted">'+esc(th.status||"")+"</span>":"")+
     '<button class="sheet-close" aria-label="Close">✕</button></div>';
+
+  // A NOT-HELD name has no position, and usually no thesis/cluster/live price either -- the
+  // ticker sheet used to just render whichever sections had data and stay silent about the
+  // rest, so "more detail" meant nothing to click into for a watchlist name (found live
+  // 2026-09-15: NRG's sheet showed only "Triggers firing now", the exact card content already
+  // visible on the Conviction tab, nothing new). This section surfaces what watchlist_setups
+  // and the diversifier bench actually know, and says plainly what's missing rather than
+  // omitting those fields with no explanation.
+  if(!p){
+    var trigSelf = trig.length ? trig[0][1] : null;
+    H+='<div class="sheet-sec"><h3>Watchlist candidate</h3>';
+    if(w){
+      H+='<dl class="kv">'+
+        "<dt>Setup</dt><dd>"+esc(w.type||"—")+"</dd>"+
+        '<dt>Vs analyst target</dt><dd class="'+cls(w.upside_pct)+'">'+
+          signed(w.upside_pct,1)+"</dd>"+
+        "<dt>52w range position</dt><dd>"+
+          (w.pos!=null?n(w.pos*100,0)+"% (0%=52w low, 100%=52w high)":"—")+"</dd>"+
+        (trigSelf&&trigSelf.conviction_score!=null?
+          "<dt>Conviction</dt><dd>"+n(trigSelf.conviction_score,0)+
+            " ("+esc(trigSelf.conviction_tier||"")+")</dd>":"")+
+        "</dl>"+
+        (w.pos!=null?'<div style="margin-top:8px">'+meter(w.pos*100,100)+"</div>":"");
+    } else {
+      H+='<p class="note">Not on the current watchlist scan.</p>';
+    }
+    if(dv) H+='<p class="note" style="margin-top:9px">Also on the diversifier bench: '+
+      (dv.clean_diversifier?"clean diversifier":"AI-adjacent, not a clean hedge")+
+      ", target "+usd(dv.target_usd,2)+" ("+signed(dv.upside_pct,1)+"), as of "+
+      esc(dv.as_of||"—")+".</p>";
+    H+='<p class="note" style="margin-top:9px">No thesis on file, no cluster/sector '+
+      "assignment, and no live price fetched this run — watchlist names are priced only when "+
+      "a setup fires, not every sweep. This is everything the desk currently knows about "+
+      esc(t)+", not a truncated view.</p></div>";
+  }
 
   if(p){
     H+='<div class="sheet-sec"><h3>Position</h3><dl class="kv">'+
@@ -2197,13 +2236,23 @@ function openTicker(t){
     trig.map(function(x){
       var r=x[1];
       var leg = r.paired ? ((r.sell||{}).t===t?r.sell:r.buy) : r;
+      var sizeBit = leg.size ? usd(leg.size)
+        : (leg.clamped_by ? '<span class="muted">no room</span>' : "");
       return '<p style="margin:0 0 8px"><span class="pill info">'+esc(human(x[0]))+
-        "</span> "+dirPill(leg.dir)+" "+(leg.size?usd(leg.size):"")+
+        "</span> "+dirPill(leg.dir)+" "+sizeBit+
+        (leg.conviction_score!=null?' <span class="muted">conviction '+
+          n(leg.conviction_score,0)+" ("+esc(leg.conviction_tier||"")+")</span>":"")+
         (r.vote?' <span class="pill '+(r.vote==="live"?"live":"shadow")+'">'+esc(r.vote)+
         "</span>":"")+"</p>"+
-        "<ul style=\"margin:0 0 10px;padding-left:18px\">"+(leg.reasons||r.reasons||[])
+        (leg.clamped_by?'<p class="note warnc" style="margin:0 0 6px">Wanted '+
+          usd(leg.size_wanted)+", clamped by "+esc(leg.clamped_by)+"</p>":"")+
+        "<ul style=\"margin:0 0 6px;padding-left:18px\">"+(leg.reasons||r.reasons||[])
           .map(function(s){ return '<li style="font-size:12.5px">'+esc(s)+"</li>"; })
-          .join("")+"</ul>"; }).join("")+"</div>";
+          .join("")+"</ul>"+
+        ((leg.blockers||r.blockers||[]).length?'<ul style="margin:0 0 10px;padding-left:18px">'+
+          (leg.blockers||r.blockers||[]).map(function(s){
+            return '<li style="font-size:12.5px;color:var(--warn)">⚠ '+esc(s)+"</li>"; })
+          .join("")+"</ul>":""); }).join("")+"</div>";
 
   if(props.length) H+='<div class="sheet-sec"><h3>Proposal history · '+props.length+
     "</h3>"+table([{h:"Date"},{h:"Action"},{h:"Size",n:1},{h:"Status"}],
