@@ -974,16 +974,24 @@ details[open] > summary .caret{color:var(--acc)}
 .kv dd{margin:0;font-family:var(--mono);text-align:right}
 
 /* the read ------------------------------------------------------------------
-   Tightened 2026-09-15 -- user flagged too much blank space. Halved the
-   lead-to-body gap, the inter-sentence gap, and the panel's own padding;
-   line-heights trimmed enough to read denser without feeling cramped. */
+   Tightened 2026-09-15 -- user flagged too much blank space, twice. First pass
+   shrank the vertical gaps/padding; that fixed density but not the real cause
+   of "blank space on the right": this panel spans the full ~1450px width
+   (span2) while the text sat in a single column capped at 62-68ch (~500px),
+   leaving roughly two-thirds of the panel empty. A single column that wide
+   would make lines too long to track (150+ chars), so the fix is CSS
+   multi-column, not a wider cap: `column-width` lets the browser lay the
+   short, already-fragmented sentences into as many ~420px columns as fit,
+   filling the panel while keeping each line a readable length -- and it
+   degrades to one column on its own when the panel is narrow (mobile),
+   unlike a fixed `column-count`. */
 .read{padding:11px 18px 13px}
-.rd-lead{margin:0;font-size:16px;line-height:1.35;max-width:62ch;letter-spacing:-.005em;
+.rd-lead{margin:0;font-size:16px;line-height:1.35;max-width:90ch;letter-spacing:-.005em;
   font-weight:500;text-wrap:pretty}
-.rd-body{margin-top:6px;display:flex;flex-direction:column;gap:3px;
+.rd-body{margin-top:8px;column-width:420px;column-gap:28px;
   border-left:2px solid var(--line);padding-left:12px}
-.rd-body p{margin:0;font-size:13px;line-height:1.42;max-width:68ch;color:var(--ink-2);
-  text-wrap:pretty}
+.rd-body p{margin:0 0 7px;font-size:13px;line-height:1.42;color:var(--ink-2);
+  text-wrap:pretty;break-inside:avoid}
 .rd-fig{font-family:var(--mono);font-size:.94em;color:var(--ink);
   font-variant-numeric:tabular-nums}
 .rd-fwd{margin-top:10px;padding:8px 12px;background:var(--acc-soft);border-radius:5px;
@@ -1412,12 +1420,16 @@ function tabCommand(){
     body||null,{span:true, sev: props.some(function(p){ return p.priority==="HIGH"; })?
       "warn":null}));
 
-  /* accepted awaiting execution */
-  if((D.proposals.accepted||[]).length){
-    H.push(panel("Accepted — awaiting execution",
-      "stated intent, not a confirmed fill",
-      D.proposals.accepted.map(propCard).join(""),{span:true,sev:"ok"}));
-  }
+  // "Accepted -- awaiting execution" panel REMOVED from Command 2026-09-15 (user correction).
+  // It kept re-showing every accepted/deferred/watch proposal on the "what to do today" tab,
+  // frozen exactly as it looked the run it was accepted, forever. The user's own words: "when i
+  // accepted those proposal i just wanted to give the feedback that i like the proposal and i
+  // also agree to that analysis... still showing those accepted proposals as it was accepted in
+  // one run doesn't make sense." Accept is feedback, not a standing to-do -- none of
+  // accepted_by_user/deferred/watch need today's decision, which is what this tab is for. The
+  // full record (status, date, size, outcome once scored) is still there, just not nagging:
+  // Track record's "Proposal history" table already lists every proposal ever made, searchable.
+  // D.proposals.accepted itself is untouched -- if another panel needs it later, the data's here.
 
   /* live triggers */
   H.push(panel("Live triggers",
