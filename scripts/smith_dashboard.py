@@ -2012,7 +2012,7 @@ function tabTrack(){
   H.push(panel("Self-learning",
     L.obs_n+" observations · phase 4 readiness "+L.readiness_current+"/"+L.readiness_gate,
     '<div class="pad">'+
-    meter(L.readiness_current||0, L.readiness_gate||100)+
+    '<div class="srow">'+meter(L.readiness_current||0, L.readiness_gate||100)+"</div>"+
     '<p class="note" style="margin-top:9px;max-width:72ch">'+esc(L.readiness_note||"")+"</p>"+
     "</div>"+
     ((L.lessons||[]).length? detailsRow('<b>Lessons learned</b><span class="muted">'+
@@ -2167,7 +2167,12 @@ function openTicker(t){
           "<dt>Conviction</dt><dd>"+n(trigSelf.conviction_score,0)+
             " ("+esc(trigSelf.conviction_tier||"")+")</dd>":"")+
         "</dl>"+
-        (w.pos!=null?'<div style="margin-top:8px">'+meter(w.pos*100,100)+"</div>":"");
+        // .meter is a <span>; CSS flex blockifies it into something with real width, a plain
+        // block div does not (min-width is spec-ignored on display:inline boxes) -- confirmed
+        // live 2026-09-15 against every OTHER meter() call site, which all sit inside a
+        // .srow/.g3 flex ancestor and render fine, vs this one alone measuring 0x0 until wrapped
+        // the same way. Reuse .srow rather than inventing a one-off fix.
+        (w.pos!=null?'<div class="srow" style="margin-top:8px">'+meter(w.pos*100,100)+"</div>":"");
     } else {
       H+='<p class="note">Not on the current watchlist scan.</p>';
     }
