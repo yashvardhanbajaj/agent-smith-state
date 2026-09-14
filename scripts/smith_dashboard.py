@@ -1701,8 +1701,14 @@ function positionsTable(){
   var K=posSort.key, dir=posSort.dir;
   rows.sort(function(a,b){
     var x=a[K],y=b[K];
+    // dir<0 must mean the same thing for every column type: Z->A / biggest-first, matching
+    // the numeric branch below and the "v" arrow table() renders from sortDir alone. The extra
+    // *-1 here used to flip that for text columns only -- clicking Ticker showed a down arrow
+    // for what was actually an ascending A->Z sort (and vice versa on the second click). Found
+    // live 2026-09-15 testing the sort interaction, not caught by the golden-master diff since
+    // that only compares markup, never click behavior.
     if(typeof x==="string"||typeof y==="string")
-      return String(x||"").localeCompare(String(y||""))*dir*-1;
+      return String(x||"").localeCompare(String(y||""))*dir;
     return (((y==null?-1e18:y)-(x==null?-1e18:x))*(dir<0?1:-1));
   });
   var cols=[{h:"Ticker",k:"t"},{h:"Cluster",k:"cluster"},{h:"Qty",k:"qty",n:1},
