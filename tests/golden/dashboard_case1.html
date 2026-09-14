@@ -663,25 +663,39 @@ function tabCommand(){
 
   // Sentiment used to render alone (no {span:true}) with only a small gauge + a component list
   // beside it -- on any panel wider than that pair's natural width, everything to the right sat
-  // empty. Found live 2026-09-15 by the user. Now spans the row like its neighbors, and a third
-  // block actually uses that width instead of just stretching the same two elements further
-  // apart: trend vs the prior run, the methodology note (this is a proxy composite, not CNN's
-  // real Fear & Greed Index -- worth saying next to the number, not burying it), and the
-  // action_hint when the score is extreme enough to carry one.
+  // empty (found live 2026-09-15 by the user). FIRST attempt at a fix added {span:true} without
+  // capping the gauge's own width -- `.chart{width:100%}` had only ever been asked to fill a
+  // ~450px narrow panel before, so on the now-full-width (~1450px+) panel it rendered the gauge
+  // itself enormous, wrapped everything else onto rows below it, and looked exactly like
+  // "covering the blank space with a giant meter" because that is precisely what happened.
+  // SECOND attempt (this one): the gauge gets a fixed-width wrapper so it renders at its
+  // original, normal size regardless of panel width, and the reclaimed space carries a real
+  // NEW fact tied to THIS book, not just reflowed prose -- the de-risk queue's sentiment-driven
+  // urgency multiplier (policy.json's stated mechanism: extreme_greed x1.25 .. extreme_fear
+  // x0.5, "never sell into panic"), which nothing on the dashboard surfaced before. Trend vs
+  // the prior run and the methodology note (proxy composite, not CNN's real Fear & Greed Index)
+  // sit under it, in a labeled sub-section instead of loose floating paragraphs.
   var sc=k.sent_components||{};
   var sentTrend = (k.sent_prior_band && k.sent_prior_band !== k.sent_band)
     ? "Shifted from <b>"+esc(k.sent_prior_band)+"</b> to <b>"+esc(k.sent_band||"")+"</b> since the last run."
     : (k.sent_prior_band ? "Unchanged from the last run ("+esc(k.sent_band||"")+")." : "");
+  var urg = D.derisk ? D.derisk.urgency : null;
+  var urgLine = (urg!=null) ? ("De-risk queue urgency: <b>&times;"+n(urg,2)+"</b> — "+
+    (urg>1 ? "sentiment argues for acting on the queue faster than usual."
+     : urg<1 ? "sentiment argues against reflexive tightening — don't sell into this."
+     : "neutral, no sentiment-driven adjustment to the queue.")) : "";
   H.push(panel("Sentiment","composite · "+esc(k.sent_band||""),
-    '<div class="pad" style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">'+
-    gauge(k.sent_score,k.sent_band)+
-    '<dl class="kv" style="min-width:190px">'+
+    '<div class="pad" style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap">'+
+    '<div style="flex:0 0 220px;max-width:220px">'+gauge(k.sent_score,k.sent_band)+"</div>"+
+    '<dl class="kv" style="min-width:170px">'+
     Object.keys(sc).map(function(key){ return "<dt>"+esc(human(key))+"</dt><dd>"+
       n(sc[key],1)+"</dd>"; }).join("")+"</dl>"+
-    '<div style="flex:1;min-width:240px">'+
-    (k.sent_action_hint?'<p class="note" style="color:var(--warn);margin:0 0 8px">'+
+    '<div style="flex:1;min-width:260px">'+
+    '<p class="meta" style="color:var(--ink-3);margin:0 0 7px">What this means for the book</p>'+
+    (urgLine?'<p class="note" style="margin:0 0 7px">'+urgLine+"</p>":"")+
+    (k.sent_action_hint?'<p class="note" style="color:var(--warn);margin:0 0 7px">'+
       esc(k.sent_action_hint)+"</p>":"")+
-    (sentTrend?'<p class="note" style="margin:0 0 8px">'+sentTrend+"</p>":"")+
+    (sentTrend?'<p class="note" style="margin:0 0 7px">'+sentTrend+"</p>":"")+
     (k.sent_note?'<p class="note muted" style="margin:0">'+esc(k.sent_note)+"</p>":"")+
     "</div></div>",{span:true}));
 
