@@ -380,8 +380,15 @@ def run_all(args, source):
 
     def do_quotes():
         need_history()
-        minute = source.minute(held)
+        minute = source.minute(sorted(set(held) | {"SMH"}))
         q = quotes_from(hist, minute)
+        smh_live = q.pop("SMH", None) if "SMH" not in held else q.get("SMH")
+        if smh_live:
+            # The benchmark anchor must be priced at the same moment as the proposal it grades.
+            mpath = os.path.join(rd, "market_inputs.json")
+            merged = _load_json(mpath, {}) or {}
+            merged["smh_live"] = smh_live
+            _write_json(mpath, merged)
         absent = sorted(set(held) - set(q))
         _write_json(os.path.join(rd, "live_quotes.json"), q)
         report["written"].append("live_quotes.json")

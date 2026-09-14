@@ -1606,7 +1606,7 @@ function tabBook(){
         title:human(key)+" "+signed(val,2)+"pp vs benchmark"};
     }).filter(function(r){ return r.v!=null && !isNaN(r.v); });
   H.push(panel("Beat or lag "+esc(q.benchmark||"SMH"),
-    "per period, never cumulative — a cumulative line would mix deposits with returns",
+    roll.basis_label||"per period, never cumulative — a cumulative line would mix deposits with returns",
     rollRows.length? '<div class="pad">'+divergingBars(rollRows,
       {label:"relative performance per period"})+"</div>"
     : '<p class="empty">'+esc(roll.note||

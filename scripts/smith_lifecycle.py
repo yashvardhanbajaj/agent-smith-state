@@ -2201,6 +2201,48 @@ def _size_support_anchored(spec, base_dir):
     return {"fields": fields, "rejected": None}
 
 
+PRICE_ANCHOR_TOLERANCE_PCT = 3.0   # same threshold as the G3 staleness gate
+
+
+def _run_reference_prices(run_dir):
+    """Per-ticker reference prices for this run, best source first, plus the SMH anchor."""
+    refs = {}
+
+    def put(t, px, src):
+        if t and isinstance(px, (int, float)) and px > 0:
+            refs.setdefault(str(t).upper(), (float(px), src))
+
+    for t, v in (load_json(os.path.join(run_dir, "live_quotes.json"), default={}) or {}).items():
+        put(t, v.get("price") if isinstance(v, dict) else v, "live_quotes")
+    hold = load_json(os.path.join(run_dir, "holdings.json"), default={}) or {}
+    for r in hold.get("holdings_inr") or []:
+        put(r.get("ticker"), r.get("live_price_usd") or r.get("price_usd"), "holdings")
+    bars = load_json(os.path.join(run_dir, "bars.json"), default={}) or {}
+    for t, rows in bars.items():
+        if isinstance(rows, list) and rows and isinstance(rows[-1], dict):
+            put(t, rows[-1].get("c"), "bars_last_close")
+    mi = load_json(os.path.join(run_dir, "market_inputs.json"), default={}) or {}
+    live = (mi.get("smh_live") or {}).get("price") if isinstance(mi.get("smh_live"), dict) else None
+    bench = ((float(live), "smh_live") if isinstance(live, (int, float)) and live > 0 else
+             (float(mi["smh"]), "market_inputs_prior_close") if isinstance(mi.get("smh"), (int, float)) else None)
+    return refs, bench
+
+
+def _check_anchor(pr, field, ref, ticker, checks):
+    """Replace a missing or >tolerance-off anchor with the run's reference; record either way."""
+    px, src = ref
+    supplied = pr.get(field)
+    dev = (round(abs(supplied / px - 1) * 100, 2)
+           if isinstance(supplied, (int, float)) and supplied > 0 else None)
+    corrected = dev is None or dev > PRICE_ANCHOR_TOLERANCE_PCT
+    rec = {"supplied": supplied, "reference": round(px, 4), "source": src,
+           "deviation_pct": dev, "corrected": corrected}
+    if corrected:
+        pr[field] = round(px, 4)
+        checks.append({"ticker": ticker, "field": field, **rec})
+    return rec
+
+
 def cmd_add_proposal(args):
     """The ONLY sanctioned way to append new proposals to proposals.json (added 2026-08-29,
     same-day incident). Before this command existed, a new batch of proposals was appended by
@@ -2249,6 +2291,11 @@ def cmd_add_proposal(args):
     ts = (_now.astimezone(IST).isoformat(timespec="seconds")
           if resolve_today(args.today) == desk_today(_now) else today)
     created_utc = iso_utc(_now)
+    # PRICE CHECK (2026-09-14): the strategist wrote MU at 185.04 against a live 924.86. A price
+    # anchor is script data, so the script checks it against this run's own quotes.
+    run_dir = getattr(args, "run_dir", None)
+    refs, bench_ref = _run_reference_prices(run_dir) if run_dir else ({}, None)
+    price_checks, unchecked = [], []
 
     built = []
     rejected = []
@@ -2292,6 +2339,15 @@ def cmd_add_proposal(args):
         for optional in ("pair_id", "pair_role", "cluster"):
             if spec.get(optional) is not None:
                 pr[optional] = spec[optional]
+        if run_dir and ticker and direction in ("BUY", "SELL", "TRIM"):
+            ref = refs.get(str(ticker).upper())
+            if ref:
+                pr["price_check"] = _check_anchor(pr, "price_at_proposal", ref, ticker, price_checks)
+            else:
+                unchecked.append(ticker)
+            if bench_ref:
+                _check_anchor(pr, "benchmark_price_at_proposal", bench_ref, ticker, price_checks)
+                pr.setdefault("benchmark_ticker", "SMH")
 
         # --- SUPPORT-ANCHORED SIZING (added 2026-08-30) -------------------------------
         # A rebound entry is bought AT a level, so its stop belongs just under that level
@@ -2327,5 +2383,10 @@ def cmd_add_proposal(args):
     props.extend(built)
     proposals["proposals"] = props
     safe_write(p_path, proposals)
+    dq_prices = ([] if run_dir else
+                 ["prices not checked: pass --run-dir so price_at_proposal is checked against this run's quotes"])
+    if unchecked:
+        dq_prices.append(f"no reference price in the run for {sorted(set(unchecked))} -- price_at_proposal kept as supplied")
     emit({"added": len(built), "tickers": [p["ticker"] for p in built], "written": True,
+          "price_checks": price_checks, "unchecked": sorted(set(unchecked)), "data_quality": dq_prices,
           "next_step": "run smith_math.py proposals to assign ids, dedup and prioritize"})

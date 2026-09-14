@@ -142,6 +142,96 @@ def pct_return(closes, k):
             if len(closes) > k and closes[-1 - k] else None)
 
 
+ROLLING_WINDOWS = (("1m", 21), ("3m", 63), ("6m", 126), ("12m", 250))
+ROLLING_MIN_COVERAGE_PCT = 80.0
+
+
+def rolling_constant_mix(bars, weights, bench=BENCHMARK, windows=ROLLING_WINDOWS):
+    """Trailing-window return of TODAY's holdings at TODAY's weights vs the benchmark.
+
+    Flow-free by construction: it prices the book you hold now through each window, so deposits,
+    wallet cash and trades cannot leak in (the ledger's `external_flow_usd` has never been
+    recorded, so a realized return would mix deposits with returns). It is NOT your realized
+    return, and callers must label it so. A window is refused, not guessed, when fewer than
+    ROLLING_MIN_COVERAGE_PCT of the weight has a close on both end dates."""
+    b = [x for x in (bars.get(bench) or []) if _num(x.get("c"))]
+    if len(b) < 2:
+        return {key: {"excess_pp": None, "sessions": k, "reason": f"no {bench} bars"} for key, k in windows}
+    dates = [str(x["d"])[:10] for x in b]
+    bc = {str(x["d"])[:10]: float(x["c"]) for x in b}
+    closes = {t: {str(x["d"])[:10]: float(x["c"]) for x in rows if _num(x.get("c"))}
+              for t, rows in bars.items()}
+    live = {t: float(w) for t, w in weights.items() if _num(w) and w > 0}
+    total = sum(live.values())
+    out = {}
+    for key, k in windows:
+        if len(dates) <= k:
+            out[key] = {"excess_pp": None, "sessions": k,
+                        "reason": f"only {len(dates)} {bench} sessions, need {k + 1}"}
+            continue
+        d0, d1 = dates[-1 - k], dates[-1]
+        acc = cov = 0.0
+        missing = []
+        for t, w in live.items():
+            c = closes.get(t) or {}
+            if c.get(d0) and c.get(d1):
+                acc += w * (c[d1] / c[d0] - 1)
+                cov += w
+            else:
+                missing.append(t)
+        cov_pct = round(100.0 * cov / total, 1) if total else 0.0
+        smh = round((bc[d1] / bc[d0] - 1) * 100, 2)
+        row = {"from": d0, "to": d1, "sessions": k, "coverage_pct": cov_pct,
+               "uncovered": sorted(missing), "smh_pct": smh}
+        if not cov or cov_pct < ROLLING_MIN_COVERAGE_PCT:
+            row.update({"excess_pp": None, "book_pct": None,
+                        "reason": f"coverage {cov_pct}% of weight is below {ROLLING_MIN_COVERAGE_PCT:.0f}%"})
+        else:
+            book = round(100.0 * acc / cov, 2)
+            row.update({"book_pct": book, "excess_pp": round(book - smh, 2)})
+        out[key] = row
+    return out
+
+
+def realized_twr(rows, d0, d1, bench_closes):
+    """Time-weighted realized return from ledger rows dated d0..d1 (value + wallet, net of
+    `external_flow_usd`), against the benchmark over the same dates. Refused unless every row after
+    the first records its external flow and every row is trusted: an unrecorded deposit would
+    read as performance."""
+    sel = [r for r in rows if d0 <= str(r.get("ts") or "")[:10] <= d1]
+    if len(sel) < 2:
+        return {"realized_excess_pp": None, "realized_reason": "fewer than 2 ledger rows in the window"}
+    if any((r.get("value_trust") or "ok") != "ok" for r in sel):
+        return {"realized_excess_pp": None, "realized_reason": "a ledger row in the window is not value_trust=ok"}
+    if any(str(r.get("external_flow_usd") or "").strip() == "" for r in sel[1:]):
+        return {"realized_excess_pp": None,
+                "realized_reason": "external_flow_usd is not recorded on every ledger row in the window, "
+                                   "so a deposit would read as return"}
+
+    def total(r):
+        return float(r.get("value_usd") or 0) + float(r.get("wallet_usd") or 0)
+
+    growth = 1.0
+    for prev, cur in zip(sel, sel[1:]):
+        if total(prev) <= 0:
+            return {"realized_excess_pp": None, "realized_reason": "zero book value in the window"}
+        growth *= (total(cur) - float(cur.get("external_flow_usd"))) / total(prev)
+    bdates = sorted(bench_closes)
+
+    def close_on(d):
+        prior = [x for x in bdates if x <= d]
+        return bench_closes[prior[-1]] if prior else None
+
+    s0, s1 = close_on(str(sel[0]["ts"])[:10]), close_on(str(sel[-1]["ts"])[:10])
+    book = round((growth - 1) * 100, 2)
+    if not (s0 and s1):
+        return {"realized_book_pct": book, "realized_excess_pp": None,
+                "realized_reason": "no benchmark close at the window's ledger dates"}
+    smh = round((s1 / s0 - 1) * 100, 2)
+    return {"realized_book_pct": book, "realized_smh_pct": smh,
+            "realized_excess_pp": round(book - smh, 2), "realized_rows": len(sel)}
+
+
 def beta_vs(bars, bench):
     b_close = {x["d"]: x["c"] for x in bench if _num(x.get("c"))}
     s = [(x["d"], x["c"]) for x in bars if _num(x.get("c")) and x["d"] in b_close]

@@ -111,7 +111,7 @@ Returns: sized proposals, risk-off status, macro-anchored stress table (deep), h
 
 **COMMIT STATE as soon as the strategist's tail is merged** (`merge-tails --agents strategist`): `python3 scripts/smith_math.py commit-state --base-dir . --run-dir runs/<run_id>`. SYNTHESIZE, the report and the dashboard all read committed state. It withholds price-derived keys (`us`, `holdings`, `changes`) by itself when `compute_book.json` says `persist_safe: false`, and reports what it withheld.
 
-Then append the strategist's proposals: `python3 scripts/smith_math.py add-proposal --base-dir . --proposals-json <its specs file> --today <date>` (the only way to append a proposal), and `python3 scripts/smith_math.py proposals --base-dir . --run-dir runs/<run_id> --today <date>` (auto-retirement, dedup, priority). Write trade reasons captured this run with `trade-rationale` (`reference/trade-rationale.md`).
+Then append the strategist's proposals: `python3 scripts/smith_math.py add-proposal --base-dir . --proposals-json <its specs file> --run-dir runs/<run_id> --today <date>` (the only way to append a proposal; it replaces any `price_at_proposal` or SMH anchor more than 3% off this run's quotes and lists each correction in `price_checks` — mention them), and `python3 scripts/smith_math.py proposals --base-dir . --run-dir runs/<run_id> --today <date>` (auto-retirement, dedup, priority). Write trade reasons captured this run with `trade-rationale` (`reference/trade-rationale.md`).
 
 ### 5. SYNTHESIZE — one briefing, deltas first
 Header: **Agent Smith — US** (quick) or **Agent Smith — US Deep Review** (deep).

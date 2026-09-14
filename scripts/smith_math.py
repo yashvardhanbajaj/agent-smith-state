@@ -1015,6 +1015,37 @@ def cmd_journal(args):
 # ---------------------------------------------------------------------------
 # attribution
 # ---------------------------------------------------------------------------
+def _rolling_windows(run_dir, holdings, ledger_path):
+    """attribution.rolling (was a stub that always returned null windows until 2026-09-14).
+    Primary basis: today's holdings at today's equity weights vs SMH over trailing sessions, from
+    the run's bars.json (flow-free). A realized time-weighted return is added per window only
+    where the ledger records external flows for every row -- never inferred."""
+    import csv
+    import smith_marketdata as md
+    bars = load_json(os.path.join(run_dir, "bars.json"), default=None)
+    rows_ledger = []
+    if os.path.exists(ledger_path):
+        with open(ledger_path, newline="") as fh:
+            rows_ledger = list(csv.DictReader(fh))
+    if not isinstance(bars, dict) or not bars.get(md.BENCHMARK):
+        return {"note": "no SMH bars in this run (smith_fetch bars section) -- rolling windows not computed",
+                "_ledger_rows": len(rows_ledger)}
+    weights = {r.get("ticker"): r.get("market_value_inr") for r in (holdings.get("holdings_inr") or [])
+               if r.get("ticker") and isinstance(r.get("market_value_inr"), (int, float))}
+    out = md.rolling_constant_mix(bars, weights)
+    bench = {str(x["d"])[:10]: float(x["c"]) for x in bars[md.BENCHMARK] if isinstance(x.get("c"), (int, float))}
+    for key, w in out.items():
+        if w.get("from"):
+            w.update(md.realized_twr(rows_ledger, w["from"], w["to"], bench))
+    as_of = next((w.get("to") for w in out.values() if w.get("to")), None)
+    out.update({"basis": "current_holdings_constant_mix", "benchmark": md.BENCHMARK, "as_of": as_of,
+                "basis_label": ("trailing windows: current holdings at current weights vs SMH. Not a "
+                                "realized return (trades, wallet cash and deposits excluded) and "
+                                "flattered by hindsight: it prices the names you kept"),
+                "_ledger_rows": len(rows_ledger)})
+    return out
+
+
 def cmd_attribution(args):
     holdings = load_json(os.path.join(args.run_dir, "holdings.json"))
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
@@ -1120,19 +1151,8 @@ def cmd_attribution(args):
         "flow_components": flow_components,
     })
 
-    if os.path.exists(ledger_path):
-        with open(ledger_path) as f:
-            lines = [l.strip() for l in f if l.strip()]
-        if len(lines) > 1:
-            header = lines[0].split(",")
-            rows_ledger = [dict(zip(header, l.split(","))) for l in lines[1:]]
-            result["ledger_rows_available"] = len(rows_ledger)
-            result["rolling"] = {"1m": None, "3m": None, "6m": None, "12m": None,
-                                  "note": f"only {len(rows_ledger)} ledger row(s) -- rolling windows need more history"}
-        else:
-            result["rolling"] = {"note": "ledger has no rows yet"}
-    else:
-        result["rolling"] = {"note": "ledger.csv not found"}
+    result["rolling"] = _rolling_windows(args.run_dir, holdings, ledger_path)
+    result["ledger_rows_available"] = result["rolling"].pop("_ledger_rows", 0)
 
     emit(result)
 
@@ -4588,6 +4608,7 @@ def main():
     sp = sub.add_parser("add-proposal", help="the only sanctioned way to append new proposals -- builds `action` from ticker+direction so it can't be a bare direction word")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--proposals-json", required=True, help="path to a JSON array of proposal specs (see cmd_add_proposal docstring)")
+    sp.add_argument("--run-dir", default=None, help="check price_at_proposal / SMH anchor against this run's quotes (replaced when >3%% off)")
     sp.add_argument("--today", default=None)
 
     sp = sub.add_parser("append-ledger", help="the only sanctioned way to append a ledger.csv row -- short summary in the CSV, full narrative in a separate briefing file")
