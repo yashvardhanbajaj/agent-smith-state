@@ -160,3 +160,12 @@ class TestTaxcalcHarvest:
         setup(tmp_path, H, lots={"AAA": [{"qty": 10, "date": "2026-01-01", "price_usd": 50.0}]})
         out = _run(sl.cmd_taxcalc, tmp_path)
         assert out["harvest_candidates"] == []
+
+
+def test_bookcalc_weights_use_inr_rows_from_build_holdings():
+    """build-holdings rows carry market_value_inr, not market_value_usd (2026-09-14 regression)."""
+    rows = [{"ticker": "AAA", "qty": 2, "price_usd": 50.0, "market_value_inr": 9554.0},
+            {"ticker": "BBB", "qty": 1, "price_usd": 300.0, "market_value_inr": 28662.0}]
+    assert round(sl._row_value_usd(rows[0], 95.54), 2) == 100.0
+    assert round(sl._row_value_usd(rows[1], None), 2) == 300.0
+    assert sl._row_value_usd({"market_value_usd": 7.5}, 95.54) == 7.5

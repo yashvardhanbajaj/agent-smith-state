@@ -910,6 +910,20 @@ def cmd_ledger_apply(args):
           "uncaptured_reasons": [a["ticker"] for a in added if a.get("reason") == "UNCAPTURED"]})
 
 
+def _row_value_usd(row, usdinr):
+    """USD market value of one holdings.json row. build-holdings writes `market_value_inr` and
+    `price_usd`, never `market_value_usd`; reading only the USD key zeroed every bookcalc weight
+    from 9c39593 until 2026-09-14. ONE FIELD, ONE READER."""
+    v = row.get("market_value_usd")
+    if isinstance(v, (int, float)):
+        return v
+    inr = row.get("market_value_inr")
+    if isinstance(inr, (int, float)) and isinstance(usdinr, (int, float)) and usdinr > 0:
+        return inr / usdinr
+    qty, px = row.get("qty"), row.get("live_price_usd") or row.get("price_usd")
+    return qty * px if isinstance(qty, (int, float)) and isinstance(px, (int, float)) else 0
+
+
 def cmd_bookcalc(args):
     """Dividends, ex-dates, LTCG narrative and risk-weighted concentration -- the arithmetic
     half of smith-book.
@@ -936,7 +950,8 @@ def cmd_bookcalc(args):
     today = resolve_today(args.today)
 
     rows = holdings.get("holdings_inr") or []
-    total_usd = sum((r.get("market_value_usd") or 0) for r in rows) or 1.0
+    fx = holdings.get("usdinr")
+    total_usd = sum(_row_value_usd(r, fx) for r in rows) or 1.0
 
     # --- dividends + ex-dates -------------------------------------------------------------
     ex, income, dq = [], 0.0, []
@@ -995,7 +1010,7 @@ def cmd_bookcalc(args):
     contrib, unbeta = [], []
     for r in rows:
         t = r.get("ticker")
-        mv = r.get("market_value_usd") or 0
+        mv = _row_value_usd(r, fx)
         # data_cache.betas entries are {"value","as_of","benchmark"}; tolerate a bare number
         # for legacy rows. Read the value via one place, never an isinstance branch per call
         # site (ONE FIELD, ONE READER).
