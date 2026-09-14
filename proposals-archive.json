@@ -512,6 +512,1005 @@
       "status": "superseded",
       "rationale": "Four earnings prints in the next week on held names (GLW/TER 07-28, QCOM 07-29, LRCX 07-29); drawdown 0.122pt from warn threshold; no clean candidate for the remaining Compute/Hyperscaler floor breach this run.",
       "note": "Overtaken by events -- actual cash is $18,131.51 (45.8% of book), not the $5,057 this proposal describes. See the 2026-07-25 ad-hoc correction for the current cash picture; a fresh strategist pass is needed, not a reuse of this number."
+    },
+    {
+      "date": "2026-07-27T10:09:00+05:30",
+      "action": "Trim MRVL",
+      "size_usd": 300,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "AI Semis/Fabs cluster +8.7pt over band; MRVL STRONG DOWNTREND, named worst-laggard, no earnings-proximity buffer unlike LRCX/TER/QCOM.",
+      "ticker": "MRVL",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | SUPERSEDED 2026-07-29 (manual, not a mechanical rule): today's deep run re-derived MRVL's risk-cap excess independently and produced TRIM MRVL $650 -- a different size from this $300 figure, computed against the current book rather than 07-27's. The newer proposal is the one to act on.",
+      "id": "P-012",
+      "direction_bucket": "TRIM"
+    },
+    {
+      "date": "2026-07-27T10:09:00+05:30",
+      "action": "Deploy into GOOG",
+      "size_usd": 700,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "Cash 46.09% vs 15% ceiling; Compute/Hyperscaler cluster -7.6pt underweight; GOOG target-gap 24.35%; sized small ahead of 07-29 FOMC+earnings convergence.",
+      "ticker": "GOOG",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | SUPERSEDED 2026-07-29 (manual): GOOG (Class C) was swapped to GOOGL (Class A) on 2026-07-28 -- a different security under a different investment_code. This proposal targets a ticker that is no longer the book's hyperscaler vehicle; see ADD GOOGL instead.",
+      "id": "P-013",
+      "direction_bucket": "BUY"
+    },
+    {
+      "date": "2026-07-27T10:09:00+05:30",
+      "action": "Exit ORCL (full remaining stake)",
+      "size_usd": 480,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "Thesis BROKEN -- 7/24 oversold bounce off $7B DoD contract failed, stock continued lower 7/25; standing debt-headwind/breakdown thesis confirmed, not reversed. NOTE: two prior open proposals (07-22, 07-23) already recommended this exact exit and were never actioned -- ORCL still held at 4sh. [PRICE CORRECTED 2026-07-29: originally sized at $571.93 assuming $142.98/sh, a stale feed read proven wrong against yfinance the same day (verified $114.99). ORCL trades ~$118-121 as of 07-28, so 4sh is closer to ~$480 -- re-quote before acting.] Today's Rotation Analysis independently reads ORCL as ROTATE OUT (mild, net signal -1), a softer call than a full exit -- the two reads disagree on magnitude.",
+      "ticker": "ORCL",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | FLAGGED 2026-07-29: today's Rotation Analysis independently reads ORCL as ROTATE OUT (mild, net signal -1) -- a softer call than a full exit. Two live reads of the same name disagree on magnitude; kept open rather than silently picking one. | PRICE CORRECTED 2026-07-29: rationale cites $142.98, which was a stale/bad feed read from a concurrent session on 07-27, verified wrong against yfinance at the time ($114.99). ORCL trades in the $118-121 range as of 07-28. Sizing ($571.93 for 4sh implying ~$142.98/sh) is therefore also wrong -- at a live price near $120, 4sh is closer to $480. Not re-priced live for this note; re-quote before acting. | auto-superseded 2026-08-03 -- folded into P-044 as a repeat of the same open proposal",
+      "id": "P-014",
+      "direction_bucket": "SELL"
+    },
+    {
+      "date": "2026-07-27T10:09:00+05:30",
+      "action": "Deploy into NEM",
+      "size_usd": 400,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "Clean diversifier, beta 0.48, zero AI-capex overlap, 42.72% upside; addresses 100%-AI-capex single-factor risk independent of FOMC timing; sentiment greed (not extreme) so partial not full redeployment.",
+      "ticker": "NEM",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | SUPERSEDED 2026-07-29 (manual): NEM was proposed as a clean non-AI-capex diversifier when the book had just taken a severe cash-heavy stop-out. Since then the diversification approach shifted to adding Compute/Hyperscaler exposure (GOOGL/AMZN) within the existing mandate rather than an outside sector name -- no smith-scout re-screen has refreshed NEM's case since 07-20.",
+      "id": "P-015",
+      "direction_bucket": "BUY"
+    },
+    {
+      "date": "2026-07-27T10:09:00+05:30",
+      "action": "Hold MU, no add",
+      "size_usd": 0,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "Thesis WATCH not broken -- HBM3E ASP margin-mix headwind unresolved until Aug 5 earnings; 38.9% target gap real but WATCH names not added to regardless of upside gap.",
+      "ticker": "MU",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | SUPERSEDED 2026-07-29 (manual): this was a 'no action' read from an older, coarser pass. Today's Rotation Analysis (thesis x signal history x risk headroom) independently classifies MU as ROTATE OUT (watch thesis, net signal -1) -- a materially different read from a flat hold. Superseding rather than leaving two contradictory MU verdicts open at once; the newer, more granular read should govern.",
+      "id": "P-016",
+      "direction_bucket": "BUY"
+    },
+    {
+      "date": "2026-07-28",
+      "action": "TRIM DRAM",
+      "ticker": "DRAM",
+      "size_usd": 1200,
+      "status": "superseded",
+      "rationale": "2.24x its ATR risk cap ($2,398 held vs $1,069). Risk-sizing trim, not a thesis exit \u2014 Memory remains WATCH not BROKEN.",
+      "id": "P-019",
+      "direction_bucket": "TRIM",
+      "note": "auto-superseded 2026-08-03 -- folded into P-031 as a repeat of the same open proposal"
+    },
+    {
+      "date": "2026-07-28",
+      "action": "TRIM MRVL",
+      "ticker": "MRVL",
+      "size_usd": 650,
+      "status": "superseded",
+      "rationale": "1.75x risk cap. No broken thesis; frees room in Optics which sits near its band top.",
+      "id": "P-020",
+      "direction_bucket": "TRIM",
+      "note": "auto-superseded 2026-08-03 -- folded into P-039 as a repeat of the same open proposal"
+    },
+    {
+      "date": "2026-07-28",
+      "action": "TRIM SNDK",
+      "ticker": "SNDK",
+      "size_usd": 450,
+      "status": "superseded",
+      "rationale": "1.55x risk cap, but catalyst 1 (CXMT priced 2.2% above incumbents) supports the thesis \u2014 partial trim only.",
+      "id": "P-021",
+      "direction_bucket": "TRIM",
+      "note": "auto-superseded 2026-08-03 -- folded into P-030 as a repeat of the same open proposal"
+    },
+    {
+      "date": "2026-07-28",
+      "action": "ADD GOOGL",
+      "ticker": "GOOGL",
+      "size_usd": 700,
+      "status": "superseded",
+      "rationale": "Hyperscaler fell under-band (9.12% of book vs 15% floor) on the GOOG->GOOGL swap sizing. Thesis intact, no risk-cap issue.",
+      "id": "P-023",
+      "direction_bucket": "BUY",
+      "note": "auto-superseded 2026-08-03 -- folded into P-032 as a repeat of the same open proposal"
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Trim SNDK",
+      "size_usd": 1300,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "4.13x risk cap (largest excess $2,061.54), ATR20 15.6% highest-vol name in book, WATCH thesis, peer laggard -25.9pp vs SMH, zero resolving fact per catalyst, cures part of Memory/Storage cluster +9.2pt breach.",
+      "ticker": "SNDK",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 3x since 2026-07-28, still open | auto-superseded 2026-08-03 -- folded into P-048 as a repeat of the same open proposal",
+      "id": "P-034",
+      "direction_bucket": "TRIM",
+      "history": [
+        {
+          "date": "2026-07-28",
+          "size_usd": 450,
+          "price_at_proposal": null,
+          "rationale": "1.55x risk cap, but catalyst 1 (CXMT priced 2.2% above incumbents) supports the thesis \u2014 partial trim only."
+        },
+        {
+          "date": "2026-07-30",
+          "size_usd": 500,
+          "price_at_proposal": 1244.64,
+          "rationale": "Same cluster breach; SNDK +22.5% today, largest single-day move in book; signal shows no TARGET GAP (less runway than MU); partial trim only given sell-side turning constructive on CXMT (Jefferies/Bernstein/UBS)."
+        }
+      ],
+      "repeat_count": 3
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Trim MU",
+      "size_usd": 900,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "2.47x risk cap, WATCH thesis, peer laggard, HBM3E ASP still -51% from peak with no fresher print.",
+      "ticker": "MU",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 2x since 2026-07-30, still open | auto-superseded 2026-08-03 -- folded into P-049 as a repeat of the same open proposal",
+      "id": "P-035",
+      "direction_bucket": "TRIM",
+      "history": [
+        {
+          "date": "2026-07-30",
+          "size_usd": 700,
+          "price_at_proposal": 846.41,
+          "rationale": "AI Memory/Storage cluster 4.9pt over band top (24.901% vs 20% cap); MU +14.5% today on SMH relief rally but signal tail still PEER LAGGARD (1m) and smith-thesis flags today's rally as beta bounce not thesis-confirming, MU stays WATCH; book already had two stop-outs this cycle in this complex, argues for trimming into today's strength."
+        }
+      ],
+      "repeat_count": 2
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Trim DRAM",
+      "size_usd": 900,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "2.53x risk cap, WATCH thesis, peer laggard, same Memory/Storage cluster breach as SNDK/MU.",
+      "ticker": "DRAM",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 3x since 2026-07-28, still open | auto-superseded 2026-08-03 -- folded into P-054 as a repeat of the same open proposal",
+      "id": "P-036",
+      "direction_bucket": "TRIM",
+      "history": [
+        {
+          "date": "2026-07-28",
+          "size_usd": 1200,
+          "price_at_proposal": null,
+          "rationale": "2.24x its ATR risk cap ($2,398 held vs $1,069). Risk-sizing trim, not a thesis exit \u2014 Memory remains WATCH not BROKEN."
+        },
+        {
+          "date": "2026-07-30",
+          "size_usd": 300,
+          "price_at_proposal": 50.55,
+          "rationale": "Completes ~$1,500 of the cluster's ~$1,947 band-overage close, deliberately leaving it mildly over band given constructive CXMT walk-back; ETF/basket exposure, smallest tranche."
+        }
+      ],
+      "repeat_count": 3,
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "DRAM at 1.51x its ATR risk cap",
+        "AI Memory/Storage over band (+5.5pt)",
+        "recommended 3x, still unactioned"
+      ],
+      "cluster": "AI Memory/Storage"
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Trim ASML",
+      "size_usd": 700,
+      "price_at_proposal": null,
+      "status": "auto_retired",
+      "rationale": "1.67x risk cap, WATCH thesis, peer laggard, cluster in-band so pure name-level risk discipline.",
+      "ticker": "ASML",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-retired 2026-08-06: neither trigger is live: ASML is within its ATR risk cap and AI Semis/Fabs is inside its policy band -- the structural reason for this trim has cleared",
+      "id": "P-037",
+      "direction_bucket": "TRIM",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [],
+      "cluster": "AI Semis/Fabs",
+      "retired_on": "2026-08-06",
+      "retired_reason": "neither trigger is live: ASML is within its ATR risk cap and AI Semis/Fabs is inside its policy band -- the structural reason for this trim has cleared"
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Trim COHR",
+      "size_usd": 340,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "1.35x risk cap, peer laggard, Optics cluster in-band, name-level risk-cap cure.",
+      "ticker": "COHR",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-superseded 2026-08-03 -- folded into P-056 as a repeat of the same open proposal",
+      "id": "P-038",
+      "direction_bucket": "TRIM",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "COHR at 1.68x its ATR risk cap"
+      ],
+      "cluster": "AI Networking/Optics"
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Light trim MRVL",
+      "size_usd": 400,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "2.25x risk cap but thesis upgraded to STRENGTHENING today (Nvidia/Trainium, record revenue) -- sized lighter than mechanical-bounce group.",
+      "ticker": "MRVL",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 2x since 2026-07-28, still open | auto-superseded 2026-08-03 -- folded into P-051 as a repeat of the same open proposal",
+      "id": "P-039",
+      "direction_bucket": "TRIM",
+      "history": [
+        {
+          "date": "2026-07-28",
+          "size_usd": 650,
+          "price_at_proposal": null,
+          "rationale": "1.75x risk cap. No broken thesis; frees room in Optics which sits near its band top."
+        }
+      ],
+      "repeat_count": 2
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Light trim VRT",
+      "size_usd": 150,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "1.43x risk cap, STRENGTHENING thesis but peer laggard signal, fresh 39.5% target-gap upside.",
+      "ticker": "VRT",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-expired after 7 calendar days",
+      "id": "P-040",
+      "direction_bucket": "TRIM",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "VRT at 1.18x its ATR risk cap"
+      ],
+      "cluster": "AI Power/Cooling/DC Infra",
+      "still_valid_because": [
+        "VRT at 1.18x its ATR risk cap"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-07",
+      "retires_when": "VRT drops under its ATR risk cap",
+      "full_cure_usd": 210.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 71.0,
+      "tranche_note": "cures 71% of the risk cap excess ($210) -- roughly 2 tranches this size to fully clear it"
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Light trim NVDA",
+      "size_usd": 150,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "1.11x risk cap, peer leader +15.3pp vs SMH -- trim is cap-cure only, not a signal on the name.",
+      "ticker": "NVDA",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-expired after 7 calendar days | auto-superseded 2026-08-03 -- folded into P-066 as a repeat of the same open proposal",
+      "id": "P-041",
+      "direction_bucket": "TRIM",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "NVDA at 1.21x its ATR risk cap"
+      ],
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "NVDA at 1.21x its ATR risk cap"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-07",
+      "retires_when": "NVDA drops under its ATR risk cap",
+      "full_cure_usd": 575.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 26.0,
+      "tranche_note": "cures 26% of the risk cap excess ($575) -- roughly 4 tranches this size to fully clear it"
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Light trim AMD",
+      "size_usd": 100,
+      "price_at_proposal": null,
+      "status": "auto_retired",
+      "rationale": "1.22x risk cap, STRENGTHENING thesis but 08-04 binary earnings in 4 trading days -- reduce single-name risk into a known catalyst.",
+      "ticker": "AMD",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-retired 2026-08-06: neither trigger is live: AMD is within its ATR risk cap and AI Semis/Fabs is inside its policy band -- the structural reason for this trim has cleared",
+      "id": "P-042",
+      "direction_bucket": "TRIM",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [],
+      "cluster": "AI Semis/Fabs",
+      "retired_on": "2026-08-06",
+      "retired_reason": "neither trigger is live: AMD is within its ATR risk cap and AI Semis/Fabs is inside its policy band -- the structural reason for this trim has cleared"
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Light trim NBIS",
+      "size_usd": 100,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "1.24x risk cap, just upgraded to STRENGTHENING (Nvidia 9.3% stake, contract-backed debt raise) -- token trim only.",
+      "ticker": "NBIS",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-voided -- position exited",
+      "id": "P-043",
+      "direction_bucket": "TRIM",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "NBIS at 1.31x its ATR risk cap"
+      ],
+      "cluster": "Compute/Hyperscaler OEM"
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Exit ORCL (full remaining stake)",
+      "size_usd": 480,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "Thesis BROKEN, third consecutive deep review recommending this exit (07-22, 07-23, 07-27), tiny 1.33% weight.",
+      "ticker": "ORCL",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 2x since 2026-07-27T10:09:00+05:30, still open | auto-superseded 2026-08-03 -- folded into P-050 as a repeat of the same open proposal",
+      "id": "P-044",
+      "direction_bucket": "SELL",
+      "history": [
+        {
+          "date": "2026-07-27T10:09:00+05:30",
+          "size_usd": 480,
+          "price_at_proposal": null,
+          "rationale": "Thesis BROKEN -- 7/24 oversold bounce off $7B DoD contract failed, stock continued lower 7/25; standing debt-headwind/breakdown thesis confirmed, not reversed. NOTE: two prior open proposals (07-22, 07-23) already recommended this exact exit and were never actioned -- ORCL still held at 4sh. [PRICE CORRECTED 2026-07-29: originally sized at $571.93 assuming $142.98/sh, a stale feed read proven wrong against yfinance the same day (verified $114.99). ORCL trades ~$118-121 as of 07-28, so 4sh is closer to ~$480 -- re-quote before acting.] Today's Rotation Analysis independently reads ORCL as ROTATE OUT (mild, net signal -1), a softer call than a full exit -- the two reads disagree on magnitude."
+        }
+      ],
+      "repeat_count": 2
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Top up GOOGL",
+      "size_usd": 1200,
+      "price_at_proposal": null,
+      "status": "superseded",
+      "rationale": "Compute/Hyperscaler cluster -10.76pt under floor, only Hyperscaler name in book, funded by trims above.",
+      "ticker": "GOOGL",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | recommended 3x since 2026-07-28, still open | auto-superseded 2026-08-03 -- folded into P-055 as a repeat of the same open proposal",
+      "id": "P-045",
+      "direction_bucket": "BUY",
+      "history": [
+        {
+          "date": "2026-07-28",
+          "size_usd": 700,
+          "price_at_proposal": null,
+          "rationale": "Hyperscaler fell under-band (9.12% of book vs 15% floor) on the GOOG->GOOGL swap sizing. Thesis intact, no risk-cap issue."
+        },
+        {
+          "date": "2026-07-30",
+          "size_usd": 700,
+          "price_at_proposal": 332.39,
+          "rationale": "Compute/Hyperscaler cluster 5.0pt under band floor, largest underweight in book; catalyst tail frames today's GOOGL -1.3% as rotation/catch-down not a fresh miss (unlike QCOM); MSFT peer already ran hard today making GOOGL the less-chased fill; sized as tranche 1 only pending NEW HEADWINDS signal clearing."
+        }
+      ],
+      "repeat_count": 3,
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "Compute/Hyperscaler under band (-7.8pt)",
+        "recommended 3x, still unactioned"
+      ],
+      "cluster": "Compute/Hyperscaler"
+    },
+    {
+      "date": "2026-07-31T13:02:00+05:30",
+      "action": "Rebuild cash buffer",
+      "size_usd": 4380,
+      "price_at_proposal": null,
+      "status": "auto_retired",
+      "rationale": "Cash 5.4% at low end of [5,15]% band, AMD 08-04 binary earnings is the live catalyst risk with thin dry powder.",
+      "id": "P-046",
+      "direction_bucket": "HOLD",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [],
+      "retired_on": "2026-08-06",
+      "retired_reason": "cash is 25.33% vs a normal band of [5,15]% -- the buffer this proposed to rebuild is already rebuilt",
+      "note": "auto-retired 2026-08-06: cash is 25.33% vs a normal band of [5,15]% -- the buffer this proposed to rebuild is already rebuilt"
+    },
+    {
+      "date": "2026-08-03T11:14:00+05:30",
+      "action": "Hold fire on smith-rebound average-ins (CLS/BE/NBIS/MRVL, $3,601 total)",
+      "size_usd": 0,
+      "price_at_proposal": null,
+      "status": "auto_retired",
+      "rationale": "Wallet is $38.02; none of the four are fundable as sized. MRVL specifically vetoed: smith-quality found interest coverage collapsed 8.1x->1.4x on a fresh ~$2.0B debt draw, overriding the STRENGTHENING technical thesis for sizing purposes. CLS/BE/NBIS remain timing-eligible per rebound's gate, deferred on funding only.",
+      "id": "P-047",
+      "direction_bucket": "HOLD",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [],
+      "retired_on": "2026-08-06",
+      "retired_reason": "tactical HOLD is 3 days old -- hold-fire advice is time-bound by nature and is not carried forward as standing guidance",
+      "note": "auto-retired 2026-08-06: tactical HOLD is 3 days old -- hold-fire advice is time-bound by nature and is not carried forward as standing guidance"
+    },
+    {
+      "id": "P-076",
+      "date": "2026-08-12T20:25:00+05:30",
+      "status": "auto_retired",
+      "action": "Buy GEV",
+      "ticker": "GEV",
+      "direction": "BUY",
+      "size_usd": 180.51,
+      "price_at_proposal": null,
+      "rationale": "Deepest cluster underweight in book (AI Power/Cooling -10.27pt), -4.85pp vs SMH (hasn't run), thesis strengthening, $537.75 headroom -- funded entirely by BX sell leg, ask (2)",
+      "trigger_type": null,
+      "price_source": "yfinance get_stock_price, intraday 2026-08-12 10:55 ET",
+      "pair_id": "R1-BX-GEV",
+      "pair_role": "buy_leg",
+      "direction_bucket": "BUY",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "AI Power/Cooling/DC Infra under band (-10.2pt)"
+      ],
+      "cluster": "AI Power/Cooling/DC Infra",
+      "still_valid_because": [
+        "AI Power/Cooling/DC Infra under band (-10.2pt)"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-13",
+      "retires_when": "AI Power/Cooling/DC Infra re-enters its policy band",
+      "retired_on": "2026-08-15",
+      "retired_reason": "GEV is itself over its own ATR cap (1.314x, -$502.83 headroom) -- buying more deepens an existing risk-cap breach. Retired by strategist 2026-08-15."
+    },
+    {
+      "date": "2026-08-24",
+      "action": "SELL MSFT",
+      "ticker": "MSFT",
+      "direction_bucket": "SELL",
+      "size_usd": 434.9,
+      "price_at_proposal": null,
+      "rationale": "Profit rotation sell leg \u2014 stretched (names_stretched) with only a watch thesis; real profit to book, paired with CLS buy.",
+      "status": "superseded",
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "live",
+      "pair_id": "profit_rotation-MSFT-CLS",
+      "pair_role": "sell",
+      "size_wanted_usd": null,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "cluster": "Compute/Hyperscaler",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 1,
+        "unverified": 2
+      },
+      "id": "P-155",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-CLS is no longer live this run -- both legs retire together, never one alone",
+      "note": "auto-superseded 2026-08-03 -- folded into P-164 as a repeat of the same open proposal"
+    },
+    {
+      "date": "2026-08-24",
+      "action": "SELL AMD",
+      "ticker": "AMD",
+      "direction_bucket": "SELL",
+      "size_usd": 283.94,
+      "price_at_proposal": null,
+      "rationale": "Cluster rotation sell leg \u2014 cluster laggard (-11.3pp), watch thesis with secondary-verified evidence (guide below consensus, leveraged debt raise, strategist's own 08-15 no-further-adds ruling); dead money in AI Semis/Fabs, rotate to the cluster's performer.",
+      "status": "superseded",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "live",
+      "pair_id": "cluster_rotation-AMD-TER",
+      "pair_role": "sell",
+      "size_wanted_usd": null,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "cluster": "AI Semis/Fabs",
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 1,
+        "unverified": 0
+      },
+      "id": "P-157",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-11.3pp), watch thesis -- dead money in this cluster"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-11.3pp), watch thesis -- dead money in this cluster"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-24",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone",
+      "note": "auto-superseded 2026-08-03 -- folded into P-160 as a repeat of the same open proposal"
+    },
+    {
+      "date": "2026-08-25",
+      "action": "SELL AMD",
+      "ticker": "AMD",
+      "direction_bucket": "SELL",
+      "size_usd": 279.8,
+      "price_at_proposal": null,
+      "rationale": "Cluster laggard in AI Semis/Fabs (-11.3pp rel. strength), thesis watch; re-entry itself flagged as contradicting the strategist's 2026-08-12 no-re-add ruling. Rotate to cluster's relative-strength leader.",
+      "status": "superseded",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "live",
+      "pair_id": "cluster_rotation-AMD-NVDA",
+      "pair_role": "sell",
+      "size_wanted_usd": 279.8,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "cluster": "AI Semis/Fabs",
+      "evidence_quality": {
+        "verified": 2,
+        "computed": 2,
+        "unverified": 0
+      },
+      "id": "P-160",
+      "history": [
+        {
+          "date": "2026-08-24",
+          "size_usd": 283.94,
+          "price_at_proposal": null,
+          "rationale": "Cluster rotation sell leg \u2014 cluster laggard (-11.3pp), watch thesis with secondary-verified evidence (guide below consensus, leveraged debt raise, strategist's own 08-15 no-further-adds ruling); dead money in AI Semis/Fabs, rotate to the cluster's performer."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-24, still open | auto-superseded 2026-08-03 -- folded into P-172 as a repeat of the same open proposal",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-11.3pp), watch thesis -- dead money in this cluster",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-11.3pp), watch thesis -- dead money in this cluster",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-25",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-NVDA is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "date": "2026-08-25",
+      "action": "BUY NVDA",
+      "ticker": "NVDA",
+      "direction_bucket": "BUY",
+      "size_usd": 279.8,
+      "price_at_proposal": null,
+      "rationale": "Cluster's relative-strength leader (+7.4pp), thesis strengthening (secondary verified). Small deliberate size into NVDA's 8/26 earnings (6.06% implied move) -- trigger fired on relative strength, not timed to the print.",
+      "status": "superseded",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "live",
+      "pair_id": "cluster_rotation-AMD-NVDA",
+      "pair_role": "buy",
+      "size_wanted_usd": 279.8,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "cluster": "AI Semis/Fabs",
+      "evidence_quality": {
+        "verified": 2,
+        "computed": 2,
+        "unverified": 0
+      },
+      "id": "P-161",
+      "history": [
+        {
+          "date": "2026-08-24",
+          "size_usd": 937.98,
+          "price_at_proposal": 210.18,
+          "rationale": "Reentry \u2014 cleared bar same-day as exit (2026-08-24); thesis strengthening (unverified); +44.1% vs analyst target; sized off target weight per reentry mechanics, no clamp."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-24, still open | auto-superseded 2026-08-03 -- folded into P-173 as a repeat of the same open proposal",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cluster_rotation: conviction 49.5 (unscored) -- performer within AI Semis/Fabs (+7.4pp), strengthening thesis",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "cluster_rotation: conviction 49.5 (unscored) -- performer within AI Semis/Fabs (+7.4pp), strengthening thesis",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-25",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-NVDA is no longer live this run -- both legs retire together, never one alone"
+    },
+    {
+      "date": "2026-08-25",
+      "action": "SELL MSFT",
+      "ticker": "MSFT",
+      "direction_bucket": "SELL",
+      "size_usd": 437.92,
+      "price_at_proposal": null,
+      "rationale": "Stretched (ahead of SMH, up on month), thesis watch/unverified; recently dropped out of TARGET GAP while remaining PEER LEADER. Self-funds the CLS buy leg.",
+      "status": "auto_retired",
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "live",
+      "pair_id": "profit_rotation-MSFT-CLS",
+      "pair_role": "sell",
+      "size_wanted_usd": 437.92,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "cluster": "Compute/Hyperscaler",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 1
+      },
+      "id": "P-164",
+      "history": [
+        {
+          "date": "2026-08-24",
+          "size_usd": 434.9,
+          "price_at_proposal": null,
+          "rationale": "Profit rotation sell leg \u2014 stretched (names_stretched) with only a watch thesis; real profit to book, paired with CLS buy."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-08-24, still open | auto-retired 2026-09-09: (accepted, never executed) the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "MSFT genuinely stretched: +24.7% 1m, +24.0pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-25",
+      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-CLS is no longer live this run -- both legs retire together, never one alone",
+      "accepted_on": "2026-08-25",
+      "accepted_reason": null,
+      "retired_on": "2026-09-09",
+      "retired_reason": "(accepted, never executed) the profit_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
+    },
+    {
+      "action": "Sell AMD",
+      "ticker": "AMD",
+      "size_usd": 279.6,
+      "price_at_proposal": null,
+      "rationale": "Laggard within AI Semis/Fabs (-11.3pp rel. strength), WATCH thesis -- dead money vs. cluster's own performer.",
+      "trigger_type": "cluster_rotation",
+      "pair_id": "cluster_rotation-AMD-TSM",
+      "pair_role": "sell",
+      "date": "2026-08-29T08:16:00Z",
+      "status": "auto_retired",
+      "id": "P-176",
+      "direction_bucket": "SELL",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- "
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-11.3pp), watch thesis -- dead money in this cluster"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-29",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TSM is no longer live this run -- both legs retire together, never one alone",
+      "retired_on": "2026-08-31",
+      "retired_reason": "the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-08-31: the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
+    },
+    {
+      "action": "Sell AMD",
+      "ticker": "AMD",
+      "direction_bucket": "SELL",
+      "size_usd": 279.35,
+      "price_at_proposal": null,
+      "rationale": "Laggard within AI Semis/Fabs (-2.7pp, computed), thesis watch (secondary: guide-below-consensus, debt-funded capex, strategist's own 08-15 no-further-adds ruling) -- weak-thesis laggard, dead money in this cluster; fund TER add.",
+      "trigger_type": "cluster_rotation",
+      "date": "2026-08-31",
+      "status": "superseded",
+      "pair_id": "cluster_rotation-AMD-TER",
+      "pair_role": "sell_leg",
+      "id": "P-190",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cash short at 3.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-08-31",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-TER is no longer live this run -- both legs retire together, never one alone",
+      "note": "auto-superseded 2026-08-03 -- folded into P-203 as a repeat of the same open proposal",
+      "date_raw": "2026-08-31T00:00:00Z"
+    },
+    {
+      "action": "Trim MRVL",
+      "ticker": "MRVL",
+      "direction_bucket": "TRIM",
+      "size_usd": 220.0,
+      "price_at_proposal": null,
+      "rationale": "Over ATR cap (computed, cap_multiple 1.118, headroom -$206.54), derisk queue rank #2 (fragility 72.2 computed). Thesis strengthening (secondary) but evidence_against flags CEO insider selling ahead of the 08-27 print -- partial trim into strength, not a thesis reversal; fund AMAT add.",
+      "trigger_type": null,
+      "date": "2026-08-31",
+      "status": "auto_retired",
+      "pair_id": "cap_rotation-MRVL-AMAT",
+      "pair_role": "sell_leg",
+      "id": "P-192",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "MRVL at 1.11x its ATR risk cap, but strengthening thesis + net-bullish signal, not yet overbought -- no cap-breach bonus (see rotation_bucket)",
+        "MRVL genuinely stretched: +6.1% 1m, +34.1pp vs SMH -- real profit to take, not just a smaller loss"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Networking/Optics",
+      "full_cure_usd": 202.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 109.0,
+      "still_valid_because": [
+        "MRVL at 1.11x its ATR risk cap, but strengthening thesis + net-bullish signal, not yet overbought -- no cap-breach bonus (see rotation_bucket)",
+        "MRVL genuinely stretched: +6.1% 1m, +34.1pp vs SMH -- real profit to take, not just a smaller loss"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "MRVL drops under its ATR risk cap",
+      "retired_on": "2026-09-06",
+      "retired_reason": "neither trigger is live: MRVL is within its ATR risk cap and AI Networking/Optics is inside its policy band -- the structural reason for this trim has cleared",
+      "note": "auto-retired 2026-09-06: neither trigger is live: MRVL is within its ATR risk cap and AI Networking/Optics is inside its policy band -- the structural reason for this trim has cleared",
+      "date_raw": "2026-08-31T00:00:00Z"
+    },
+    {
+      "action": "Trim NVDA",
+      "ticker": "NVDA",
+      "direction_bucket": "TRIM",
+      "size_usd": 287.95,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "overbought_distribution",
+      "date": "2026-09-06",
+      "status": "superseded",
+      "id": "P-234",
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 0.0% vs a [5,15]% band -- this also rebuilds it",
+        "NVDA genuinely stretched: +8.1% 1m, +6.3pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 70.4 > 70 (overbought); up +8.1% on the month -- real gain to protect"
+      ],
+      "proposal_class": "housekeeping",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cash short at 0.0% vs a [5,15]% band -- this also rebuilds it",
+        "NVDA genuinely stretched: +8.1% 1m, +6.3pp vs SMH -- real profit to take, not just a smaller loss",
+        "overbought_distribution: RSI14 70.4 > 70 (overbought); up +8.1% on the month -- real gain to protect"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-07",
+      "retires_when": "NVDA RSI14 falls below 60 or it is no longer up on the month (cap-independent -- staying inside the ATR cap does NOT retire this)",
+      "note": "auto-superseded 2026-08-03 -- folded into P-243 as a repeat of the same open proposal",
+      "date_raw": "2026-09-06T00:00:00Z"
+    },
+    {
+      "action": "Buy GOOG",
+      "ticker": "GOOG",
+      "direction_bucket": "BUY",
+      "size_usd": 287.95,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "oversold_reversion",
+      "date": "2026-09-06",
+      "status": "superseded",
+      "id": "P-235",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "oversold_reversion: RSI14 28.9 < 35 (oversold); thesis strengthening -- technical dip, not a fundamental break; within ATR risk cap with $4,260 headroom",
+        "caveat -- no deployable cash above the band ceiling -- setup valid, funding is not"
+      ],
+      "proposal_class": "housekeeping",
+      "cluster": "Compute/Hyperscaler",
+      "still_valid_because": [
+        "oversold_reversion: RSI14 28.9 < 35 (oversold); thesis strengthening -- technical dip, not a fundamental break; within ATR risk cap with $4,260 headroom",
+        "caveat -- no deployable cash above the band ceiling -- setup valid, funding is not"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-10",
+      "retires_when": "GOOG RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening",
+      "note": "auto-expired after 7 calendar days | auto-superseded 2026-08-03 -- folded into P-274 as a repeat of the same open proposal",
+      "date_raw": "2026-09-06T00:00:00Z"
+    },
+    {
+      "action": "Buy KLAC",
+      "ticker": "KLAC",
+      "direction_bucket": "BUY",
+      "size_usd": 589.33,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "trend_entry",
+      "date": "2026-09-06",
+      "status": "superseded",
+      "id": "P-236",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "trend_entry: conviction 62.2 (medium) -- thesis strengthening (secondary, 2 for / 1 against); tailwind/mechanical: Nvidia agrees to pay $12.9bn for Hugging Face, driving AI-silicon complex-wide s; signal polarity net +1 (STRONG UPTREND); +25.9% vs analyst target; reported: beat; -5.7pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "trend_entry: conviction 62.2 (medium) -- thesis strengthening (secondary, 2 for / 1 against); tailwind/mechanical: Nvidia agrees to pay $12.9bn for Hugging Face, driving AI-silicon complex-wide s; signal polarity net +1 (STRONG UPTREND); +25.9% vs analyst target; reported: beat; -5.7pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-07",
+      "retires_when": "KLAC no longer appears in this run's live trend_entry list",
+      "note": "auto-superseded 2026-08-03 -- folded into P-246 as a repeat of the same open proposal",
+      "date_raw": "2026-09-06T00:00:00Z"
+    },
+    {
+      "action": "Sell AMD",
+      "ticker": "AMD",
+      "direction_bucket": "SELL",
+      "size_usd": 429.81,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "cluster_rotation",
+      "date": "2026-09-06",
+      "status": "auto_retired",
+      "pair_id": "cluster_rotation-AMD-NVDA",
+      "pair_role": "sell_leg",
+      "id": "P-237",
+      "priority_score": 1,
+      "priority": "LOW",
+      "priority_reasons": [
+        "cluster_rotation was the stated trigger but AMD is not in this run's cluster_rotation candidate list -- condition is no longer live"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cash short at 0.0% vs a [5,15]% band -- this also rebuilds it",
+        "cluster_rotation: conviction 0 (unscored) -- laggard within AI Semis/Fabs (-2.7pp), watch thesis -- dead money in this cluster"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-07",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-NVDA is no longer live this run -- both legs retire together, never one alone",
+      "retired_on": "2026-09-08",
+      "retired_reason": "the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-09-08: the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "date_raw": "2026-09-06T00:00:00Z"
+    },
+    {
+      "action": "Buy NVDA",
+      "ticker": "NVDA",
+      "direction_bucket": "BUY",
+      "size_usd": 429.81,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "cluster_rotation",
+      "date": "2026-09-06",
+      "status": "auto_retired",
+      "pair_id": "cluster_rotation-AMD-NVDA",
+      "pair_role": "buy_leg",
+      "id": "P-238",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cluster_rotation: conviction 52.2 (unscored) -- performer within AI Semis/Fabs (+6.3pp), strengthening thesis"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "cluster_rotation: conviction 52.2 (unscored) -- performer within AI Semis/Fabs (+6.3pp), strengthening thesis"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-06",
+      "retires_when": "the cluster_rotation pairing cluster_rotation-AMD-NVDA is no longer live this run -- both legs retire together, never one alone",
+      "accepted_on": "2026-09-06",
+      "accepted_reason": null,
+      "retired_on": "2026-09-09",
+      "retired_reason": "(accepted, never executed) the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "note": "auto-retired 2026-09-09: (accepted, never executed) the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "date_raw": "2026-09-06T00:00:00Z"
+    },
+    {
+      "action": "Buy LRCX",
+      "ticker": "LRCX",
+      "direction_bucket": "BUY",
+      "size_usd": 589.33,
+      "price_at_proposal": null,
+      "rationale": "",
+      "trigger_type": "conviction_average",
+      "date": "2026-09-06",
+      "status": "auto_retired",
+      "id": "P-240",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [
+        "conviction_average was the stated trigger but LRCX is not in this run's conviction_average candidate list -- condition is no longer live"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "still_valid_because": [
+        "conviction_average: conviction 46.4 (medium) -- thesis strengthening (unverified, 0 for / 0 against); signal polarity net +1 (NEW TAILWINDS); +21.1% vs analyst target; +12.6pp vs benchmark; named by 1 independent source(s) this run"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-08",
+      "retires_when": "LRCX no longer appears in this run's live conviction_average list",
+      "retired_on": "2026-09-09",
+      "retired_reason": "LRCX no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared",
+      "note": "auto-retired 2026-09-09: LRCX no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared",
+      "date_raw": "2026-09-06T00:00:00Z"
+    },
+    {
+      "action": "Sell MSFT",
+      "ticker": "MSFT",
+      "direction_bucket": "SELL",
+      "size_usd": 147.88,
+      "price_at_proposal": null,
+      "rationale": "Stretched cohort, watch thesis -- profit_rotation sell leg funding the KLAC buy leg.",
+      "trigger_type": "profit_rotation",
+      "date": "2026-09-09",
+      "status": "superseded",
+      "benchmark_price_at_proposal": 575.62,
+      "benchmark_ticker": "SMH",
+      "pair_id": "profit_rotation-MSFT-KLAC",
+      "pair_role": "sell",
+      "id": "P-258",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash short at 2.7% vs a [5,15]% band -- this also rebuilds it",
+        "MSFT genuinely stretched: +24.7% 1m, +15.7pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "proposal_class": "idea",
+      "cluster": "Compute/Hyperscaler",
+      "still_valid_because": [
+        "cash short at 2.7% vs a [5,15]% band -- this also rebuilds it",
+        "MSFT genuinely stretched: +24.7% 1m, +15.7pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-09",
+      "retires_when": "the profit_rotation pairing profit_rotation-MSFT-KLAC is no longer live this run -- both legs retire together, never one alone",
+      "note": "auto-superseded 2026-08-03 -- folded into P-272 as a repeat of the same open proposal",
+      "date_raw": "2026-09-09T00:00:00Z"
     }
   ]
 }

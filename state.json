@@ -1140,94 +1140,10 @@
   },
   "open_flags": [
     {
-      "ticker": "HOOD",
-      "opened": "2026-08-20",
-      "flag": "NEW POSITION WITH NO POLICY CLUSTER. Robinhood is a retail brokerage/fintech with no AI-capex link -- nothing in policy.json cluster_targets honestly fits. Left UNCLASSIFIED rather than forced, same treatment as IONQ on 2026-08-17. Consequence: it sits OUTSIDE drift tracking until the user names a target band. 1.14% of book. NOTE the IONQ precedent ended badly -- that flag was never resolved and the position was exited before anyone decided; do not let this one sit."
-    },
-    {
-      "ticker": "__BOOK__",
-      "opened": "2026-08-19",
-      "flag": "CASH 29.09% vs a [5,15]% band after the 2026-08-18 stop cascade -- $12,282.25 of $42,218.85. Deployable-above-band $5,949.42; this run's proposals commit ~$1,710 of it (AMZN 700 / GLW 539 / QCOM 360 / IREN 111) against ~$1,088 of trims, so the band stays breached deliberately while the ESCALATING gate stands. Revisit at the next run: if cash is still above 15% with the gate downgraded, the reason for holding it has expired."
-    },
-    {
       "ticker": "TER",
       "opened": "2026-08-19",
-      "flag": "DUST POSITION -- 0.00273sh / ~$1.10 after the 2026-08-18 stop sold 3 of 3.0027sh. Excluded from all signal buckets and weight math. Needs a user decision: sell the residue to zero, or hold it as an inert rounding artifact. P-117 (STOP_RAISE TER) is open against it and is meaningless at this size (see G80)."
-    },
-    {
-      "ticker": "MU",
-      "flag": "THESIS TEXT CORRECTED 2026-08-05 -- the false '-51% from peak' figure has been replaced in state.json's thesis map with the corrected, provenance-tagged reading (see thesis['MU'] above). STILL PENDING: a full both-directions reconciliation on the corrected inputs is smith-thesis's job (its 2026-08-05 update added exactly this capability) -- this text fix only removes the false number, it does not re-run the analysis that would decide whether 'watch' should change. Also still pending: NVIDIA certified all three suppliers for Vera Rubin HBM4, but allocation is SK Hynix ~60-70% / Samsung ~25-30% / Micron the remainder (src: HBMTracker supply_structure.json, as_of 2026-06-05) -- MU is qualified but thin on this specific ramp; worth folding into the next reconciliation.",
-      "opened": "2026-08-05"
-    },
-    {
-      "ticker": "SNDK",
-      "flag": "THESIS TEXT CORRECTED 2026-08-05 -- the false shared-CXMT-threat framing has been removed from state.json's thesis map (see thesis['SNDK']). Watch status is now stated as resting on beta/risk-cap grounds alone, which were always independently true -- this was a reasoning-quality fix, not a verdict change. No further action pending on this ticker beyond confirming NAND/SSD-specific news continues to support 'watch' on its next review.",
-      "opened": "2026-08-05"
-    },
-    {
-      "ticker": "IREN",
-      "flag": "Second full stop-out (07-24, then 07-31, both confirmed order type 'stop'). USER DECISION 2026-08-03: keep IREN on the watchlist for re-entry rather than dropping it -- already present on INDmoney Watchlist 1. Future smith-watchlist/smith-rebound runs should treat IREN as an active re-entry candidate, not a closed chapter, when scanning for setups.",
-      "opened": "2026-08-03"
-    },
-    {
-      "ticker": "META/AMZN/BABA/QBTS",
-      "flag": "4 new positions entered over the weekend, all self-funded, all UNCAPTURED trade rationale (scheduled run, no interactive capture possible). Combined ~4.2% of book. sector_map/thesis assigned this run by smith-thesis; betas/ATR20 computed fresh by smith-book. Confirm rationale with user at next interactive run.",
-      "opened": "2026-08-03"
-    },
-    {
-      "ticker": "MRVL",
-      "flag": "CORRECTED 2026-08-03: smith-quality's '8.1x->1.4x interest coverage collapse, $256M interest expense' claim does NOT match MRVL's own Q1 FY2027 10-Q ($52.8M actual quarterly interest expense, +8.4% YoY -- not a quintupling). A real new $1B 2036 notes issuance occurred, but the collapse framing looks like a data error, likely a misread TTM/annualized figure. The strategist's veto-on-averaging-in and light-trim proposal were built on this now-doubtful premise -- treat with caution pending re-verification at the next quality audit. See G44.",
-      "opened": "2026-08-03"
-    },
-    {
-      "ticker": "MEMORY-CLUSTER",
-      "flag": "User doubled Memory into the CXMT crash (SNDK, DRAM, EWY). Catalyst 1 partially vindicates it \u2014 CXMT's DDR5 modules price 2.2% ABOVE Samsung/SK Hynix, so the feared price war has not appeared in the only hard data point. But the cluster is now 23.5% of equity and two of its names are the worst risk-cap breaches in the book.",
-      "opened": "2026-07-28"
-    },
-    {
-      "ticker": "MU",
-      "flag": "Qty 1.000365376 -> 2.000365376 (+1 share) flagged 'likely_corporate_action' by the script's 2x-ratio heuristic, but price evidence contradicts a split (MU flat day-over-day ~$820, no proportional price adjustment). Reads as a genuine small purchase. Also: MU CEO insider share sale flagged fresh 29-Jul by smith-signals -- unrelated, coincidental timing.",
-      "opened": "2026-07-29"
-    },
-    {
-      "ticker": "ORCL",
-      "flag": "Thesis BROKEN. Third consecutive deep review (07-22, 07-23, 07-27, now 07-31) recommending full exit (~$480, 4sh); position still held. Strategist explicitly flagged the repeated-but-unactioned pattern.",
-      "opened": "2026-07-17"
-    },
-    {
-      "ticker": "CEG",
-      "flag": "New 3sh position entered 07-31 (\"new entry as per the proposal\", ties to 07-28 Power/DC diversification proposal). Landed near 52wk low (pos 0.19), REVERSAL-BUY-WATCH signal, thesis just written at WATCH given fresh leverage concerns. Strategist: no action, revisit after 08-06 earnings.",
-      "opened": "2026-07-31"
-    },
-    {
-      "ticker": "SNDK/TER/ARM/NBIS/INTC",
-      "flag": "5 more trades from 2026-08-07 (exact fills confirmed via scoped Gmail search this run, added to trades.json/lots.json) remain reason=UNCAPTURED: SNDK add (0.5sh@$1212.38, Market), TER add (3sh@$378.94, Market), ARM new position (3sh@$282.65, Market), NBIS re-entry (3sh@$188.27, Limit), INTC new position (5sh@$101.56, Limit). Combined with the prior 11 from G55, the scheduled-run UNCAPTURED backlog now stands at 16 trades awaiting the user's rationale at the next interactive run.",
-      "opened": "2026-08-10"
-    },
-    {
-      "ticker": "STOP-CASCADE-08-10/11",
-      "flag": "6 stop-losses fired in 2 sessions (AMD/VRT/GOOGL/MP full exits, SNDK/AVGO trims) -- signals read all 6 as idiosyncratic not macro (VIX calm throughout). VRT, MP, AMD, SNDK all recovered above their stop price within 1-2 sessions (whipsaws); GOOGL is the one genuine breakdown, still falling ($343.80 vs $351.95 stop as of 08-12). Strategist proposed VRT re-entry (P-073, cluster under-floor) and AVGO re-accumulation (P-074, rotation-bucket accumulate) but explicitly DECLINED an AMD re-entry despite a matching watchlist setup, citing G58 (unverified beat/miss characterization) and no under-floor cluster support. Cash spiked to 22.5% (post_stop_event regime, not yet back in normal band) -- this is fresh stop proceeds sitting idle, not accumulated excess.",
-      "opened": "2026-08-12"
-    },
-    {
-      "ticker": "STM/TXN",
-      "opened": "2026-08-12",
-      "flag": "PROVISIONAL cluster assignment made by the ORCHESTRATOR, not smith-thesis, which failed twice on API 529 this run. STM (20sh) and TXN (3sh) were left Unclassified by the entry, which made ~$1,955 of the book invisible to the drift table and inflated every other cluster's share. Assigned to a NEW 'Analog/Industrial Semis' cluster following the Enterprise Software / Critical Minerals precedent for non-AI-capex satellites. NO POLICY BAND CREATED -- per the Critical Minerals rationale, the band is a user decision, not an inferred one. Two things still owed: (1) smith-thesis must write first theses for both and confirm or correct this cluster; (2) the user must set a band (suggest 0%/[0,5] mirroring the other satellites, but that is their call). Until banded, this cluster shows in drift as unbanded and cannot breach."
-    },
-    {
-      "ticker": "IREN",
-      "opened": "2026-08-12",
-      "flag": "smith-watchlist call 2026-08-12: CHASE, NOT ENTRY. $42.33-43.37 (+6.5 to +9.1% on the session), mean target $81.73 (13 analysts, 92% Buy) = +48.21% upside, down ~3pt from +51.36% purely on price, not target cuts. NO news since the 08-12 watermark explains the pop -- last sourced catalysts are the $2.8B AI-cloud contract (20 Jul) and the Anthropic rally (06 Jul), both stale; move attributed to sector beta (SMH +2.32%), INFERRED not confirmed. Standing re-entry interest REMAINS OPEN -- the better trigger is a pullback or a confirmed new catalyst, not today's candle. Cash at 7.33% is inside its band, i.e. operating buffer, not dry powder."
-    },
-    {
-      "ticker": "STM",
-      "opened": "2026-08-13",
-      "flag": "STM PEER LAGGARD -1.61 sigma (provisional Analog/Industrial Semis cluster)"
-    },
-    {
-      "ticker": "BX",
-      "opened": "2026-08-17",
-      "flag": "BX FULLY EXITED after a 7-day hold (bought 2026-08-10 $139.38, exited ~$140.06 -- essentially flat). It was the book's only sizeable genuine non-AI-capex diversifier; that cluster is now EMPTY and AI-capex mechanically rose 89.17% -> 89.658%. AVGO now carries the XPV financing catalyst_threat alone."
+      "flag": "DUST POSITION -- 0.00273sh / ~$1.10 after the 2026-08-18 stop sold 3 of 3.0027sh. Excluded from all signal buckets and weight math. Needs a user decision: sell the residue to zero, or hold it as an inert rounding artifact. P-117 (STOP_RAISE TER) is open against it and is meaningless at this size (see G80).",
+      "kind": "user_decision"
     }
   ],
   "data_cache": {
@@ -3740,6 +3656,33 @@
         "forward_pe": null,
         "as_of": "2026-09-09"
       }
+    },
+    "unheld_since": {
+      "AAPL": "2026-09-14",
+      "AMKR": "2026-09-14",
+      "ANET": "2026-09-14",
+      "ARM": "2026-09-14",
+      "BABA": "2026-09-14",
+      "BX": "2026-09-14",
+      "CAMT": "2026-09-14",
+      "CEG": "2026-09-14",
+      "CRDO": "2026-09-14",
+      "DRAM": "2026-09-14",
+      "ETN": "2026-09-14",
+      "EWY": "2026-09-14",
+      "FLTW": "2026-09-14",
+      "FSLR": "2026-09-14",
+      "GOOGL": "2026-09-14",
+      "HOOD": "2026-09-14",
+      "INTC": "2026-09-14",
+      "IONQ": "2026-09-14",
+      "IREN": "2026-09-14",
+      "MKSI": "2026-09-14",
+      "MP": "2026-09-14",
+      "ONTO": "2026-09-14",
+      "ORCL": "2026-09-14",
+      "QBTS": "2026-09-14",
+      "TXN": "2026-09-14"
     }
   },
   "fomc_cache": {
@@ -3824,7 +3767,15 @@
       "description": "Do NOT ask for confirmation before dismissing, retiring, or otherwise editing proposals when the user has named them. Act directly, then report what was done.",
       "scope": "proposals.json lifecycle actions (dismiss/retire/supersede) named by the user. Does NOT extend to trades, money movement, or confirming policy.json -- those still require explicit instruction."
     },
-    "dashboard_the_read_style": "The read (narrative.json session_read) should stay forward-looking and judgment-level: no cash-position mentions, no yesterday-trade-reconciliation recap (those live in Changes since last run / Book & Risk instead). Include upcoming catalysts/earnings/FOMC dates and what would change the current read. 7d/21d portfolio performance is computed and shown automatically from ledger.csv, not narrated in prose. Confirmed 2026-09-09."
+    "dashboard_the_read_style": "The read (narrative.json session_read) should stay forward-looking and judgment-level: no cash-position mentions, no yesterday-trade-reconciliation recap (those live in Changes since last run / Book & Risk instead). Include upcoming catalysts/earnings/FOMC dates and what would change the current read. 7d/21d portfolio performance is computed and shown automatically from ledger.csv, not narrated in prose. Confirmed 2026-09-09.",
+    "standing_decisions": [
+      {
+        "ticker": "IREN",
+        "decision": "Second full stop-out (07-24, then 07-31, both confirmed order type 'stop'). USER DECISION 2026-08-03: keep IREN on the watchlist for re-entry rather than dropping it -- already present on INDmoney Watchlist 1. Future smith-watchlist/smith-rebound runs should treat IREN as an active re-entry candidate, not a closed chapter, when scanning for setups.",
+        "since": "2026-08-03",
+        "source": "open_flags (migrated 2026-09-14)"
+      }
+    ]
   },
   "known_gaps": [
     {
@@ -4032,19 +3983,7 @@
     }
   },
   "watchlist_scan_cursor": 90,
-  "data_quality": [
-    "PRICED REFRESH 2026-09-09T14:36Z: session/gate recomputed (intraday/AMBIGUOUS, was stale pre-open/STABILIZING), full compute pipeline rerun on live prices, strategist redispatched against fresh triggers (6 new proposals: TER/ASML/AMAT/LRCX catalyst_threat trims, MSFT->KLAC profit_rotation). Thesis/signals/watchlist carried forward from 07:51Z full sweep, not re-derived. Cash breach (2.71%) means most standalone BUY setups price at $0.",
-    "DRAM legacy ticker (3 old closed proposal rows) has no resolvable live quote -- score() left prior scorecard intact rather than corrupt it. Known gap, not new.",
-    "Third consecutive deep run on the Friday 2026-09-04 closes -- 2026-09-07 was Labor Day. Prices byte-identical to the 09-06 and 09-07 runs; the entire -$112.61 book move is FX (+$400.23) net of an unchanged-price residual (-$512.83).",
-    "BE snapshot price $265.49 vs yfinance regular-session close $252.87 (+4.99%). NOT overridden: this is the third occurrence of the documented post-market-print pattern on this exact name (2026-09-06 correction lesson) -- INDmoney carries the extended-hours print and is the fresher source after the close.",
-    "First cluster ladders ever built (AI Semis/Fabs, AI Networking/Optics, Compute/Hyperscaler). All three at confidence=medium -> `rank` authority: ordering drives cluster_rotation, sell leg still requires a watch thesis. No ladder reached `high`, so the not-strengthening relaxation is NOT unlocked.",
-    "smith-signals withdrew 4 false PEER LEADER flags (BE/NBIS/IREN/MSFT) that existed only because data_cache.rel_strength_1m_peer was empty and the script fell back to SMH; the peer cache is now seeded for 9 tickers.",
-    "smith-catalyst returned ZERO events; REPLACE semantics wiped state.factor_catalysts, taking live catalyst_threat triggers 6 -> 0 and removing the Factor Catalysts dashboard panel entirely. Absence of NEW evidence, not an all-clear -- flagged as a design issue, not a data error.",
-    "Proposal scorecard: overall 27.6% (n=29), TRIM/SELL 18.2% (n=11, avg benefit -12.19%), HOLD 0/3. alpha_scored_count=0 -- all graded on absolute move, not vs SMH. Every proposal written today carries benchmark_price_at_proposal for the first time.",
-    "13 of 23 TTL-expired betas not refreshed (budget). COHR is now the book's highest beta (2.580), NBIS second (2.317) -- the two load-bearing names on a 9.894%-vs-10% aggregate risk cap.",
-    "Options PCR/max-pain unavailable this run -- null, not estimated.",
-    "sentiment components ma125 / rsi14 / 52w-high derived from a 23-week window, not a full 52 weeks (yfinance row-budget truncation); still the first run where all five components carry real values rather than neutral-50 placeholders."
-  ],
+  "data_quality": [],
   "market_closed_run": false,
   "peer_map": {
     "CEG": {
