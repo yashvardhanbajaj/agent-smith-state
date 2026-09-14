@@ -49,7 +49,7 @@ it monthly. All four can ALSO be run standalone at any time, any ticker, on an e
      see smith_valuation.py's `BENEISH_FIELDS` for the exact 13 field names each of `cur`/
      `prior` needs (receivables, revenue, cogs, current_assets, ppe_gross, securities,
      total_assets, sga, depreciation, long_term_debt, current_liabilities, net_income, cfo).
-   - Risk-free rate: reuse smith-macro's `fed_funds_pct`/10-yr read if a deep run has one
+   - Risk-free rate: reuse smith-scout's `fed_funds_pct`/10-yr read if a deep run has one
      fresh this month; otherwise a single current 10-yr Treasury yield fetch.
    - Beta: `data_cache.betas` (already cached, SMH-benchmarked — do not mix in a raw market
      beta from FMP, same rule as everywhere else in this book).

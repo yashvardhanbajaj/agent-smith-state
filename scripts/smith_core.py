@@ -367,8 +367,8 @@ STACK_WARN_PCT = 50.0
 
 FRESHNESS = {
     # --- technical caches: feed LIVE proposal triggers, suppressed by cmd_triggers ---
-    "data_cache.rsi14":            {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "suppress"},
-    "data_cache.rel_strength_1m":  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "suppress"},
+    "data_cache.rsi14":            {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith_math.py indicators",   "on_stale": "suppress"},
+    "data_cache.rel_strength_1m":  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith_math.py indicators",   "on_stale": "suppress"},
     # Peer-map-aware companion to rel_strength_1m, added 2026-09-07. rel_strength_1m above is
     # ALWAYS SMH-relative for the whole book -- correct for the semis majority, wrong for the
     # utility/hyperscaler names (BE/GEV/VRT vs XLU, MSFT/NBIS/GOOG vs XLK). Before this cache
@@ -377,23 +377,23 @@ FRESHNESS = {
     # gives that recompute a home so it only happens once per 7-day window per affected ticker,
     # not once per run. "flag", not "suppress": a stale/missing entry here just falls back to
     # the SMH default in cmd_buckets, same degrade-gracefully contract atr20 already uses.
-    "data_cache.rel_strength_1m_peer": {"stamp": "field:as_of", "ttl_days": 7, "owner": "smith-signals", "on_stale": "flag"},
+    "data_cache.rel_strength_1m_peer": {"stamp": "field:as_of", "ttl_days": 7, "owner": "smith_math.py indicators", "on_stale": "flag"},
     "signal_history":              {"stamp": "per_entry:signal_history_as_of", "ttl_days": HEADWIND_BUCKET_MAX_AGE_DAYS,
                                     "owner": "smith-signals", "on_stale": "suppress",
                                     "scope": "held"},
     # --- technical caches: degrade gracefully (a stale ATR makes stops marginally wide) ---
-    "data_cache.atr20":            {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "flag"},
+    "data_cache.atr20":            {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith_math.py indicators",   "on_stale": "flag"},
     # Feeds the rebound screen, which only matters DURING a selloff -- a week-old 5-day return
     # describes last week's selloff, so this is the tightest TTL in the table.
-    "data_cache.ret_5d":           {"stamp": "field:as_of", "ttl_days": 3,  "owner": "smith-signals",   "on_stale": "suppress"},
-    "data_cache.betas":            {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-book",      "on_stale": "flag"},
+    "data_cache.ret_5d":           {"stamp": "field:as_of", "ttl_days": 3,  "owner": "smith_math.py indicators",   "on_stale": "suppress"},
+    "data_cache.betas":            {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith_math.py indicators",      "on_stale": "flag"},
     "data_cache.analyst_targets":  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "flag"},
     # 52-week high/low, added 2026-09-06 to unblock the pos-based buckets in cmd_buckets.
     # Nothing cached this before: smith-signals fetched it per run and it died with the run, so
     # BREAKOUT/BREAKDOWN/OVERSOLD BOUNCE/OVERBOUGHT PULLBACK could not be computed deterministically.
     # `suppress`, matching the other trigger-feeding caches: a stale 52-week range silently
     # mis-places every pos-based bucket, and a wrong bucket is worse than an absent one.
-    "data_cache.wk52":             {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-signals",   "on_stale": "suppress"},
+    "data_cache.wk52":             {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith_math.py indicators",   "on_stale": "suppress"},
     # Lives in proposals.json, not state.json -- reachable via freshness_root()'s `proposals.`
     # prefix. Added 2026-08-31: this is the artefact that measures whether the desk's own
     # proposals WORK, and it was the only decision-bearing one with no freshness coverage. It
@@ -418,8 +418,8 @@ FRESHNESS = {
     "diversifier_candidates":      {"stamp": "per_entry:as_of", "ttl_days": 7, "owner": "smith-scout", "on_stale": "flag"},
     "watchlist_setups":            {"stamp": "sibling:watchlist_setups_as_of", "ttl_days": 7,
                                     "owner": "smith-watchlist", "on_stale": "escalate"},
-    "macro_read":                  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-macro",     "on_stale": "flag"},
-    "tax_read":                    {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith-tax",       "on_stale": "flag"},
+    "macro_read":                  {"stamp": "field:as_of", "ttl_days": 7,  "owner": "smith-scout",     "on_stale": "flag"},
+    "tax_read":                    {"stamp": "field:as_of", "ttl_days": 30, "owner": "smith_math.py taxcalc",       "on_stale": "flag"},
     # --- monthly agents: a missed month must be a defect, not a silence (G50 shape) ---
     # Only meaningful during a correction, so a short TTL: a rebound list from a fortnight ago
     # describes a selloff that has already resolved one way or the other.

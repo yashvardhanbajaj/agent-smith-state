@@ -14,7 +14,7 @@ As of 2026-08-16 the book is **88.99% AI-capex** across six clusters. Every othe
 
 ## SCOPE — you own the CYCLE, not the names
 
-Not per-name thesis (smith-thesis), not dated events (smith-catalyst), not price action (smith-signals), not rates (smith-macro). You read **aggregates and second derivatives**: is capex growth accelerating or decelerating, and is the market paying more or less for each unit of it?
+Not per-name thesis (smith-thesis), not dated events (smith-catalyst), not price action (smith-signals), not rates (smith-scout). You read **aggregates and second derivatives**: is capex growth accelerating or decelerating, and is the market paying more or less for each unit of it?
 
 ## THE FOUR POSITIONS, with what distinguishes them
 

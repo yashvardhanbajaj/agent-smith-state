@@ -6,16 +6,8 @@ of runs. SKILL.md §3 keeps a one-line pointer to this file for each; load this 
 mode is DEEP, or when the orchestrator needs to check one of these specific dispatch conditions
 on demand (e.g. an explicit "quality check" request on an otherwise-quick run).
 
-## TAX trigger
-(built out 2026-08-16, unblocked by the lots engine): dispatch `smith-tax` on a DEEP run whenever
-there is at least one open TRIM/SELL proposal. It sequences WHICH LOTS a trim should sell (FIFO vs
-HIFO) and sizes the tax delta; it never decides whether to trim. It was blocked for months for a
-real reason — sequencing against the old hand-built lots.json, where 15 of 27 tickers carried
-synthetic null-date lots, would have produced confident wrong answers. That cleared 2026-08-15:
-35/35 reconcile, 71/71 lots dated. **Note the honest limit before dispatching: the earliest open
-lot is 2026-07-15, so the 24-month LTCG boundary is mid-2028 and there are currently NO live
-LTCG-deferral decisions** — the agent's value right now is lot selection and loss harvesting, not
-LTCG timing. Skip it on quick runs.
+## TAX LOTS — script-owned (smith-tax retired 2026-09-14)
+`taxcalc` (Wave 0) computes trim lot sequencing, the FIFO-vs-HIFO delta and harvest candidates, and stages `tax_read`. The strategist quotes it for any TRIM/SELL. No agent dispatch.
 
 ## EARNINGS trigger
 (built out 2026-08-16): dispatch `smith-earnings` on a DEEP run when any held name reports within
@@ -156,7 +148,7 @@ magnitude from the sub-agent-stacking case, and User-confirmed 2026-09-07 as wor
 Procedure, per ticker (see `reference/valuation-forensics.md` for the exact FMP fields):
 1. Fetch `key-metrics` (enterpriseValue, freeCashFlowToFirm history, returnOnInvestedCapital),
    `financial-scores` (altmanZScore), and 2 years of `as-reported-*-statements` (Beneish inputs).
-2. Reuse smith-macro's risk-free rate if a deep run has one fresh this month; reuse
+2. Reuse smith-scout's risk-free rate if a deep run has one fresh this month; reuse
    `data_cache.betas` (SMH-benchmarked, already cached) for beta -- no extra fetch for either.
 3. Build `--statements-json`, run `smith_math.py valuation --run-dir <run> --statements-json
    <path> --today <date>`. Writes `compute_valuation.json`, already ref'd by
@@ -171,19 +163,15 @@ source — do not attempt it, say so.
 
 ## DEEP roster confirmation
 Before moving to Stage 2 on a DEEP run, confirm out loud in this exact checklist form: "Deep run
-dispatched: signals ✓ thesis ✓ watchlist ✓ book ✓ scout ✓ macro ✓ [rebound ✓ if hot] [quality ✓ if
-triggered]" — a cheap forcing function against silently dropping sub-agents mid-orchestration.
+dispatched: signals ✓ thesis ✓ watchlist ✓ scout ✓ catalyst ✓ [rebound ✓ if correction]
+[earnings ✓ if a print is due] [quality ✓ / cycle ✓ if monthly] [cluster × N]" — a cheap forcing
+function against silently dropping sub-agents mid-orchestration.
 
 ## Deep-only embeds
-- **smith-book** (deep only): `compute_book.json` inline (value/weights/concentration/beta/
-  drawdown/cash already computed — this agent now only adds dividends, ex-dates, LTCG narrative
-  from lots.json, and refreshes any beta whose cache entry has expired)
-- **smith-scout** (deep only): `compute_sentiment.json` inline (score/band already computed —
-  this agent adds the diversifier bench and a pre-market/international-session narrative),
-  diversifier_candidates map, market_inputs.json
-- **smith-macro** (deep only): `market_inputs.json` inline (us10y, vix, dxy, spx, ndx — reuse,
-  don't refetch), `fomc_cache` (reuse verbatim if today is before its `next_check_date` — a rate
-  decision doesn't change intra-cycle, never re-search same-cycle)
+- **smith-scout** (mode `full`): `slice_scout.json` — `compute_sentiment.json` (score/band already
+  computed), `market_inputs.json`, `compute_options.json`, `fomc_cache` (reuse verbatim before its
+  `next_check_date`), `diversifier_candidates`. It adds the session read, the Fed/options/regime
+  read and the diversifier bench.
 
 ---
 

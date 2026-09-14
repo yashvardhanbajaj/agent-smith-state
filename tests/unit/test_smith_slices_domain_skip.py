@@ -72,8 +72,8 @@ class TestSkipEligibility:
         assert "strategist" in sm.NEVER_SKIP
         assert sm.AGENT_DOMAIN["strategist"] == "always"
 
-    def test_tax_domain_is_lots_trims_not_holdings(self):
-        assert sm.AGENT_DOMAIN["tax"] == "lots_trims"
+    def test_retired_agents_have_no_domain(self):
+        assert not {"book", "macro", "tax"} & set(sm.AGENT_DOMAIN)
 
 
 class TestOpenTrimsSignature:

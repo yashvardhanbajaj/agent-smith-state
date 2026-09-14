@@ -1179,13 +1179,26 @@ def cmd_taxcalc(args):
                              "future downside cushion -- an economic trade-off, not a legal bar."),
           "note": ("Sequencing and harvest SIZING are arithmetic and are settled here. Whether a "
                    "harvest CONFLICTS with a thesis or an open buy proposal is judgment and "
-                   "belongs to smith-tax -- `thesis_status` and `has_open_trim` are supplied so "
+                   "belongs to the strategist -- `thesis_status` and `has_open_trim` are supplied so "
                    "it can weigh that without re-deriving anything.")}
     # Written to disk (added 2026-09-07) -- same fix as cmd_bookcalc above: REF_FILES/
     # AGENT_SLICES have pointed at compute_taxcalc.json since the previous fix, but this
     # function never wrote the file, only emit()'d it, so smith-tax's slice always reported
     # it MISSING.
     safe_write(os.path.join(rd, "compute_taxcalc.json"), result)
+    # smith-tax is retired (2026-09-14): the script's sequencing IS the tax read. Stage it, so it
+    # lands with the rest of this run's state at commit-state.
+    try:
+        from smith_state import load_state, stage_state
+        st = load_state(args.base_dir, rd)
+        st["tax_read"] = {"ltcg_window": result.get("ltcg_window"),
+                          "trim_sequencing": result.get("trim_sequencing", []),
+                          "harvest_candidates": result.get("harvest_candidates", []),
+                          "as_of": str(resolve_today(getattr(args, "today", None))),
+                          "source": "smith_math.py taxcalc"}
+        stage_state(args.base_dir, rd, st, by="taxcalc")
+    except Exception as e:  # noqa: BLE001 -- persistence must never fail the computation
+        result.setdefault("data_quality", []).append(f"tax_read not staged: {type(e).__name__}: {e}")
     emit(result)
 
 

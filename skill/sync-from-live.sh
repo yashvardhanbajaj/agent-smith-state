@@ -12,6 +12,7 @@ cd "$(dirname "$0")"
 cp /Users/yb/.claude/skills/agent-smith/SKILL.md ./SKILL.md
 
 mkdir -p agents
+rm -f agents/smith-*.md   # exact mirror: an agent retired live must disappear here too
 for f in /Users/yb/.claude/agents/smith-*.md; do
   cp "$f" "agents/$(basename "$f")"
 done

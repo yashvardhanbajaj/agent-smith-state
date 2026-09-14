@@ -73,7 +73,11 @@ Draft from the current book: cluster targets = current weights to nearest 5% wit
 
 ## TASK 4 — STRESS TABLE (deep only)
 
-Approximate and labelled as such, from clusters/betas/weights, **anchored to smith-macro's live regime read** where available (its `cluster_impact` and Fed/10-yr read replace the static assumption on the two rate-sensitive rows; if macro didn't run, fall back and say so). Scenarios: AI-capex pause · rates +100bp · tariff/export-control escalation · USD/INR ±3% (≈0 on a USD-reported book — state the INR-terms effect on net worth). One line each: scenario — est. impact % / $ — most exposed names.
+Approximate and labelled as such, from clusters/betas/weights, **anchored to smith-scout's live regime read** (`scout_tail`) where available (its `cluster_impact` and Fed/10-yr read replace the static assumption on the two rate-sensitive rows; if scout didn't run, fall back and say so). Scenarios: AI-capex pause · rates +100bp · tariff/export-control escalation · USD/INR ±3% (≈0 on a USD-reported book — state the INR-terms effect on net worth). One line each: scenario — est. impact % / $ — most exposed names.
+
+## TASK 4b — TAX LOTS (smith-tax retired 2026-09-14; this task replaces it)
+
+For every TRIM/SELL you propose, read `compute_taxcalc.json` (slice ref `taxcalc`) and quote its `trim_sequencing` for that ticker verbatim — which lots, estimated tax. Add ONE sentence only where a `harvest_candidates` entry conflicts with a thesis status or an open buy. Never recompute lots or tax.
 
 ## TASK 5 — HIT-RATE READOUT
 

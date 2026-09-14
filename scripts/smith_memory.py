@@ -1277,37 +1277,6 @@ def _merge_earnings(out, state, today):
     return {"earnings_facts_updated": list(updates)}
 
 
-def _merge_book(out, state, today):
-    """Merge refreshed betas -- and REFUSE to relabel a foreign benchmark as SMH.
-
-    This hardcoded `"benchmark": "SMH"` on every write regardless of what the agent actually
-    computed. Found live 2026-08-30: smith-book returned 21 betas and said plainly in its own
-    data_quality that they were "yfinance NATIVE (SPX-benchmarked), not SMH". Merging them would
-    have stamped SPX betas as SMH ones -- and SKILL.md 2.7 is explicit that the SPX beta is
-    "actively misleading" for this book (it predicted +0.075% for a session that delivered
-    -5.06%), which is the entire reason the desk moved to SMH.
-
-    The agent was honest; the merge rule was not listening. A label written by the consumer
-    rather than the producer is not provenance, it is an assumption wearing provenance's clothes.
-    """
-    betas = out.get("refreshed_betas", {})
-    bench = (out.get("beta_benchmark") or "").upper()
-    if betas and bench and bench != "SMH":
-        return {"betas_refreshed": [], "betas_rejected": len(betas),
-                "reason": f"agent returned {bench}-benchmarked betas; this book's betas are "
-                          f"SMH-benchmarked and an SPX beta is documented as actively "
-                          f"misleading here. Not merged, cache left intact."}
-    if betas and not bench:
-        return {"betas_refreshed": [], "betas_rejected": len(betas),
-                "reason": "agent did not state `beta_benchmark`; refusing to assume SMH. "
-                          "Return beta_benchmark:'SMH' explicitly to merge."}
-    for tk, v in betas.items():
-        state["data_cache"].setdefault("betas", {})[tk] = {"value": v, "as_of": today, "benchmark": "SMH"}
-    if betas:
-        state["data_cache"]["betas"]["as_of"] = today
-    return {"betas_refreshed": list(betas)}
-
-
 def _merge_scout(out, state, today):
     dc = out.get("diversifier_candidates")
     if dc is not None:
@@ -1317,6 +1286,15 @@ def _merge_scout(out, state, today):
         state["scout_narrative"] = {"text": narrative, "as_of": today}
     return {"diversifier_candidates_replaced": dc is not None,
             "scout_narrative_updated": bool(narrative)}
+
+
+def _merge_scout_macro(out, state, today):
+    """smith-scout absorbed smith-macro (2026-09-14). One tail, two state writes: the session/bench
+    half (omitted in `macro_only` mode, so the bench is carried forward, never wiped) and the
+    Fed/options/regime half into macro_read + fomc_cache."""
+    res = _merge_scout(out, state, today)
+    res.update(_merge_macro(out, state, today))
+    return res
 
 
 def _merge_watchlist(out, state, today):
@@ -1556,21 +1534,6 @@ def _merge_strategist(out, state, today):
             "kept_prior_for_diff": bool(prior)}
 
 
-def _merge_tax(out, state, today):
-    # smith-tax's whole tail IS the read -- there is no single `tax_read` key to lift. Store the
-    # decision-bearing fields and stamp them; the full tail stays in the run dir as always.
-    if not any(k in out for k in ("lot_file_state", "ltcg_window", "trim_sequencing")):
-        return {"tax_read_updated": False, "note": "tail carried no tax fields"}
-    state["tax_read"] = {"lot_file_state": out.get("lot_file_state"),
-                         "ltcg_window": out.get("ltcg_window"),
-                         "trim_sequencing": out.get("trim_sequencing", []),
-                         "harvest_candidates": out.get("harvest_candidates", []),
-                         "fy_window": out.get("fy_window"),
-                         "as_of": today}
-    return {"tax_read_updated": True,
-            "trim_sequencing": len(out.get("trim_sequencing", []) or [])}
-
-
 def _merge_rebound(out, state, today):
     """smith-rebound had NO merge rule and NO state key, so every candidate list it ever
     produced was discarded at the end of the run -- the 2026-08-24 run named four rebuy
@@ -1619,15 +1582,12 @@ MERGE_RULES = {
     "signals": _merge_signals,
     "catalyst": _merge_catalyst,
     "earnings": _merge_earnings,
-    "book": _merge_book,
-    "scout": _merge_scout,
+    "scout": _merge_scout_macro,     # absorbed smith-macro 2026-09-14
     "watchlist": _merge_watchlist,
-    "macro": _merge_macro,
     "rebound": _merge_rebound,
     "cycle": _merge_cycle,
     "quality": _merge_quality,
     "strategist": _merge_strategist,
-    "tax": _merge_tax,
     # Reached through the cluster_<slug> prefix, never by that literal key -- see the merge loop.
     "cluster": _merge_cluster,
 }
@@ -2021,19 +1981,9 @@ AGENT_SLICES = {
     "watchlist":  {"state": ["news_watermark", "watchlist_scan_cursor"],
                    "cache": ["earnings_calendar", "analyst_targets"], "refs": ["attribution"],
                    "holdings": "trim"},
-    "book":       {"state": [], "cache": ["betas"],
-                   # "bookcalc" added 2026-09-07 -- REF_FILES had no entry for
-                   # compute_bookcalc.json before this, so this WAVE-0 script output (which
-                   # smith-book.md's own CONSUME addendum says the agent now reads instead of
-                   # computing dividends/ex-dates/LTCG itself) was unreachable through the
-                   # normal ref mechanism.
-                   "refs": ["book", "lots", "bookcalc"], "holdings": None},
-    "scout":      {"state": ["diversifier_candidates"], "cache": [],
-                   "refs": ["sentiment", "market_inputs"], "holdings": "trim"},
-    "macro":      {"state": ["fomc_cache"], "cache": [],
-                   # "options" (2026-09-14): SPY/QQQ max-pain + put/call from smith_fetch -> maxpain.
-                   # Nothing delivered it before, so every macro read said PCR was unavailable.
-                   "refs": ["sentiment", "market_inputs", "options"], "holdings": None},
+    # scout absorbed smith-macro 2026-09-14: fomc_cache + compute_options.json (deep runs) added.
+    "scout":      {"state": ["diversifier_candidates", "fomc_cache"], "cache": [],
+                   "refs": ["sentiment", "market_inputs", "options"], "holdings": "trim"},
     # "market_inputs" added 2026-09-07 -- catalyst's own task 6 ("Asia session leadership")
     # independently WebSearched KOSPI/TAIEX/Nikkei moves every run, genuinely redundant with the
     # orchestrator's own step 1.5 ASIA BLOCK (fetched once, into market_inputs.json, and already
@@ -2052,13 +2002,6 @@ AGENT_SLICES = {
                    "refs": ["drift", "catalyst_tail"], "holdings": "trim", "shared": ["hbm_tracker"]},
     "earnings":   {"state": [], "cache": ["earnings_calendar", "earnings_facts"],
                    "refs": [], "holdings": "trim"},
-    "tax":        {"state": ["thesis"], "cache": [],
-                   # "taxcalc" added 2026-09-07 -- same fix as "book" above: compute_taxcalc.json
-                   # was unreachable through REF_FILES, even though smith-tax.md's own CONSUME
-                   # addendum says taxcalc now computes the FIFO-vs-HIFO comparison this agent
-                   # was still being told (in a since-corrected HARD RULES line) to derive itself.
-                   "refs": ["book", "lots", "taxcalc"],
-                   "holdings": "trim"},
     # "quality_read" added 2026-09-07 -- smith-quality.md line 13 promises the agent its own
     # prior audit ("state.quality_read -- your FINDINGS from last time, for trend comparison")
     # but this slice never actually carried it, so every audit ran blind on trend comparison
@@ -2101,7 +2044,10 @@ AGENT_SLICES = {
                    # BUY on that name (SKILL.md's valuation section); on-demand/monthly,
                    # MISSING on most runs by design.
                    "refs": ["drift", "sentiment", "risk", "book", "derisk", "triggers",
-                            "rotation", "crosscheck", "macro_tail", "valuation"],
+                            "rotation", "crosscheck", "valuation",
+                            # Stage-1 tails by reference, not pasted into the prompt (2026-09-14);
+                            # scout_tail replaced macro_tail; taxcalc replaced smith-tax.
+                            "scout_tail", "thesis_tail", "signals_tail", "catalyst_tail", "taxcalc"],
                    "holdings": "trim"},
 }
 
@@ -2132,7 +2078,7 @@ REF_FILES = {
     # "anchored to smith-macro's live regime read" but AGENT_SLICES["strategist"] had no ref for
     # it -- the orchestrator had to hand-paste smith-macro's tail into the strategist dispatch
     # prompt, the same hand-assembly gap already fixed for thesis/cycle/crosscheck.
-    "macro_tail": "out_macro.json",
+    "scout_tail": "out_scout.json", "thesis_tail": "out_thesis.json",
     "options": "compute_options.json",
     # crosscheck.json (added 2026-09-07, see cmd_crosscheck's docstring for the invocation-
     # order fix that makes this file exist before WAVE 3 dispatches).
@@ -2197,13 +2143,13 @@ def resolve_agent(agent):
 # A cluster slice refs all three deliberately (they are the judgment it reasons on top of) and
 # would otherwise report MISSING on most runs -- the same false-alarm class as `valuation`.
 OPTIONAL_REFS = {"valuation", "catalyst_tail", "quality_tail", "earnings_tail", "signals_tail",
-                 "options"}  # options: deep-run fetch only
+                 "options", "scout_tail", "thesis_tail", "taxcalc"}  # options: deep-run fetch only
 
 # Agents whose REAL input is the outside world, not a file. Their slice can be byte-identical to
 # last run's and they still have work to do, because news, prices and filings moved even when
 # state did not. NEVER skip these on an unchanged digest -- that is the difference between a
 # genuine saving and silently going blind.
-EXTERNAL_READERS = {"signals", "thesis", "watchlist", "catalyst", "scout", "macro",
+EXTERNAL_READERS = {"signals", "thesis", "watchlist", "catalyst", "scout",
                     "earnings", "cycle", "quality", "cluster"}
 # NEVER_SKIP covers a second, subtler case: agents whose true inputs are NOT VISIBLE in their
 # slice, so the digest cannot speak for them. smith-strategist is the example -- it reasons over
@@ -2237,8 +2183,8 @@ MATERIALITY_PCT = 0.25   # below this, a numeric delta is noise, not news
 AGENT_DOMAIN = {
     "signals": "news", "thesis": "news", "catalyst": "news", "cycle": "news",
     "quality": "fundamentals", "earnings": "calendar", "watchlist": "calendar",
-    "macro": "macro", "scout": "session",
-    "book": "holdings", "ledger": "holdings", "tax": "lots_trims", "rebound": "session",
+    "scout": "session",
+    "ledger": "holdings", "rebound": "session",
     "strategist": "always",
     # "cluster" (added 2026-09-08) is the TEMPLATE key every cluster_<slug> dispatch resolves
     # to via _skip_key. Its domain is `news`: a substitution ladder is reordered by
@@ -2496,9 +2442,9 @@ def cmd_slices(args):
     prior_holdings = (load_json(os.path.join(runs_root, prior_run, "holdings.json"), default={})
                       if prior_run else {})
     lots_now = load_json(os.path.join(base, "lots.json"), default={})
-    prior_lots_digest = (prior_slices.get("book", {}) or {}).get("_lots_digest")
+    prior_lots_digest = (prior_slices.get("strategist", {}) or {}).get("_lots_digest")
     lots_digest = hashlib.md5(json.dumps(lots_now, sort_keys=True).encode()).hexdigest()[:12]
-    prior_open_trims_sig = (prior_slices.get("tax", {}) or {}).get("_open_trims_sig")
+    prior_open_trims_sig = (prior_slices.get("strategist", {}) or {}).get("_open_trims_sig")
     open_trims_sig = _open_trims_sig(base)
     ctx = {
         "qty_changes": book_now.get("qty_changes") or [],
@@ -2541,9 +2487,8 @@ def cmd_slices(args):
         # had been permanently False since it was added -- the lots half of the `holdings`
         # domain check never once fired. Underscore-prefixed so they read as bookkeeping, and
         # excluded from the materiality comparison below like every other non-payload key.
-        if agent == "book":
+        if agent == "strategist":           # always rendered; book/tax slices retired 2026-09-14
             sl["_lots_digest"] = lots_digest
-        if agent == "tax":
             sl["_open_trims_sig"] = open_trims_sig
         if is_cluster_agent(agent):
             # WHICH cluster this dispatch is for. Without this the agent has a template and a
