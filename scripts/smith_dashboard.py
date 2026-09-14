@@ -367,6 +367,15 @@ def build_payload(base, built_at=None):
             "gain": num(r.get("gain_pct")), "stop_now": num(r.get("current_stop_usd")),
             "stop_new": num(r.get("suggested_stop_usd")),
             "gain_at_risk": num(r.get("gain_at_risk_usd")),
+            # A conviction_average row can fire "live" with suggested_size_usd clamped to $0 by
+            # the ATR risk cap -- the engine's full candidate list, not its recommended action
+            # list (the strategist filters LOW-tier and zero-room rows before proposing anything).
+            # Surfacing size_wanted/clamped_by is what turns "BUY GEV, no amount" from a mystery
+            # into "wanted $548, room for $0" -- found live 2026-09-15 when a $0 row read as a
+            # bug rather than the risk cap doing its job.
+            "size_wanted": num(r.get("size_wanted_usd")),
+            "clamped_by": r.get("clamped_by"),
+            "conviction_tier": r.get("conviction_tier"),
             "reasons": [clip(x, 400) for x in (r.get("reasons") or [])],
             "blockers": [clip(x, 300) for x in (r.get("blockers") or [])],
             "sources": (r.get("catalyst_sources") or [])[:3],
@@ -1484,13 +1493,19 @@ function triggerBody(){
           ((r.blockers||[]).length?'<p class="meta" style="padding:0 12px 10px">'+
             "⚠ "+r.blockers.map(esc).join(" · ")+"</p>":"")+"</div>";
       }
+      var sizeHtml = r.size ? '<span class="amt">'+usd(r.size)+"</span>"
+        : (r.clamped_by ? '<span class="amt muted">no room</span>' : "");
       return '<div class="card"><div class="lhs">'+tk(r.t)+dirPill(r.dir)+
         '<span class="pill '+(r.vote==="live"?"live":"shadow")+'">'+esc(r.vote||"")+
-        "</span>"+(r.size?'<span class="amt">'+usd(r.size)+"</span>":"")+"</div><div>"+
+        "</span>"+sizeHtml+"</div><div>"+
         '<div class="meta">'+esc(r.cluster||"")+" · thesis "+esc(r.thesis||"n/a")+
+        (r.conviction_tier?" · "+esc(r.conviction_tier)+" conviction":"")+
         (r.rsi!=null?" · RSI "+n(r.rsi,0):"")+
         (r.rel!=null?" · rel "+signed(r.rel,1)+"pp":"")+
         (r.ret1m!=null?" · 1m "+signed(r.ret1m,1):"")+"</div>"+
+        (r.clamped_by?'<p class="meta warnc">Wanted '+usd(r.size_wanted)+", clamped to "+
+          usd(r.size)+" by "+esc(r.clamped_by)+
+          (r.size===0?" -- no risk headroom left, not an actionable size":"")+"</p>":"")+
         "<ul>"+(r.reasons||[]).map(function(s){ return "<li>"+esc(s)+"</li>"; }).join("")+
         "</ul>"+
         (r.stop_new!=null?'<p class="meta">Stop '+usd(r.stop_now,2)+" → "+
