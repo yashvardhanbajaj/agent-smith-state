@@ -96,11 +96,13 @@ def _proposal_parse_datetime(raw):
         return None
     try:
         dt = datetime.fromisoformat(raw)
-        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+        # Zone-less = IST, the desk convention (smith_clock). Reading it as UTC put a zone-less
+        # proposal 5.5 hours away from an offset-stamped one written the same morning.
+        return dt if dt.tzinfo else dt.replace(tzinfo=IST)
     except ValueError:
         pass
     d = _proposal_parse_date(raw)
-    return datetime(d.year, d.month, d.day, tzinfo=timezone.utc) if d else None
+    return datetime(d.year, d.month, d.day, tzinfo=IST) if d else None
 
 def _assign_stable_proposal_ids(props):
     """Assign each proposal a stable id (P-###), once, never reassigned or reused."""
@@ -166,7 +168,10 @@ def _dedupe_expire_void_proposals(props, today_date, current_tickers, direction,
             # several sweeps a day now, so two same-day proposals are the normal case, and
             # comparing at date-only granularity made them look tied and fall through to the
             # rationale-length coin-flip below even when one was genuinely hours fresher.
-            date_i, date_j = parse_datetime(pr.get("date", "")), parse_datetime(props[j].get("date", ""))
+            # created_utc (2026-09-14) is the exact write instant; `date` is the fallback for rows
+            # written before it existed.
+            date_i = parse_datetime(pr.get("created_utc") or pr.get("date", ""))
+            date_j = parse_datetime(props[j].get("created_utc") or props[j].get("date", ""))
             # keep whichever occurrence is chronologically LATEST (freshest price/rationale);
             # on an exact timestamp tie, keep the longer rationale as the original heuristic did.
             if date_i and date_j and date_i != date_j:
@@ -1615,6 +1620,13 @@ def cmd_score(args):
 
     if not args.dry_run:
         safe_write(p_path, proposals)
+        # The Phase-4 readiness counter was written once (8) and never again while scored
+        # proposals reached 59 -- the user's "build Phase 4 at 100" gate could never trip.
+        try:
+            import smith_learning
+            smith_learning.update_phase4_readiness(args.base_dir)
+        except Exception as e:  # noqa: BLE001 -- a counter must never fail scoring
+            dq.append(f"phase4.readiness not updated: {type(e).__name__}: {e}")
 
     emit({"scored_count": len(rows), "scorecard": scorecard, "rows": rows,
           "written": (not args.dry_run) and p_path or None, "data_quality": dq})
@@ -2230,7 +2242,13 @@ def cmd_add_proposal(args):
     props = proposals.get("proposals", [])
 
     today = resolve_today(args.today).isoformat()
-    ts = f"{today}T00:00:00Z" if "T" not in today else today
+    # The IST calendar date used to be written as `<date>T00:00:00Z` -- a fake UTC midnight that
+    # parsed as 05:30 IST. Now: the real IST instant when writing for today, a bare date when
+    # backfilling another day, and the exact UTC write time in `created_utc` either way.
+    _now = now_utc()
+    ts = (_now.astimezone(IST).isoformat(timespec="seconds")
+          if resolve_today(args.today) == desk_today(_now) else today)
+    created_utc = iso_utc(_now)
 
     built = []
     rejected = []
@@ -2259,7 +2277,7 @@ def cmd_add_proposal(args):
             "price_at_proposal": spec.get("price_at_proposal"),
             "rationale": spec.get("rationale", ""),
             "trigger_type": spec.get("trigger_type"),
-            "date": ts,
+            "date": ts, "created_utc": created_utc,
             "status": "open",
         }
         # Benchmark anchor for alpha-relative scoring (added 2026-09-07). holdings.json's

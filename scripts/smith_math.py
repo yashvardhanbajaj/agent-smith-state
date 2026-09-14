@@ -67,7 +67,7 @@ from smith_learning import (load_store as learn_load_store, write_store as learn
                             cmd_usage_report)
 # explicit: `from x import *` does NOT export underscore-prefixed names
 from smith_core import _prior_run_prices
-from smith_ledger import _avg_cost_from_lots, _months_between
+from smith_ledger import _avg_cost_from_lots, _months_between, policy_ltcg_months, months_until_ltcg
 from smith_lifecycle import _proposal_parse_date
 from smith_ledger import cmd_trade_rationale  # noqa: E402
 from smith_runlife import (cmd_lock, cmd_commit_state, cmd_health,  # noqa: E402
@@ -493,7 +493,7 @@ def cmd_book(args):
         market_cap_alloc[mc] = round(market_cap_alloc.get(mc, 0) + p["weight_pct"], 3)
 
     ltcg_flags = []
-    ltcg_boundary_months = load_json(os.path.join(args.base_dir, "policy.json"), default={}).get("ltcg_boundary_months", 24)
+    ltcg_boundary_months = policy_ltcg_months(load_json(os.path.join(args.base_dir, "policy.json"), default={}))
     today = desk_today()
     lots = dict(smith_risk.data_entries(lots, value_type=list))   # one canonical filter (2026-08-16)
     if lots:
@@ -503,8 +503,7 @@ def cmd_book(args):
                     lot_date = datetime.strptime(lot["date"], "%Y-%m-%d").date()
                 except (KeyError, ValueError, TypeError):
                     continue
-                months_held = (today.year - lot_date.year) * 12 + (today.month - lot_date.month)
-                months_to_ltcg = ltcg_boundary_months - months_held
+                months_to_ltcg = months_until_ltcg(lot_date, today, ltcg_boundary_months)
                 if months_to_ltcg <= 6:
                     ltcg_flags.append({
                         "ticker": ticker, "qty": lot.get("qty"),
@@ -2192,7 +2191,7 @@ def cmd_derisk(args):
     lots = load_json(os.path.join(args.base_dir, "lots.json"), default={})
 
     today = resolve_today(args.today)
-    ltcg_months = (policy.get("mandate") or {}).get("ltcg_months", LTCG_MONTHS_DEFAULT)
+    ltcg_months = policy_ltcg_months(policy)
     dust_usd = (policy.get("mandate") or {}).get("dust_position_usd", DUST_USD_DEFAULT)
 
     rel_cache = state.get("data_cache", {}).get("rel_strength_1m", {}) or {}
@@ -4755,7 +4754,7 @@ def main():
     sp.add_argument("--text", required=True)
     sp.add_argument("--evidence", default=None)
     sp.add_argument("--source-run", default=None)
-    sp.add_argument("--supersedes", default=None, type=int)
+    sp.add_argument("--supersedes", default=None, help="lesson id (L-###) this one corrects")
     sp.add_argument("--today", default=None)
 
     sp = sub.add_parser("usage-log", help="record one dispatched agent's this-run token/call/time usage")

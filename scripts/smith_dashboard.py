@@ -59,6 +59,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from smith_clock import desk_today  # noqa: E402
+import smith_risk  # noqa: E402
 
 # --------------------------------------------------------------------------------------
 # loading
@@ -184,7 +185,7 @@ def build_payload(base, built_at=None):
             "rsi": num(rsi.get(t)),
             "rel": num(relv),
             "ret1m": num(ret1m.get(t)),
-            "thesis": th.get("status"),
+            "thesis": smith_risk.thesis_status(th) or th.get("status"),
             "signals": sighist.get(t) or [],
             "frag": num(d.get("fragility_score")),
             "stretch": num(d.get("stretch_score")),

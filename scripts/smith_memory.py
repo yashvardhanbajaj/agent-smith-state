@@ -19,7 +19,10 @@ import smith_risk
 from smith_core import *  # noqa: F401,F403 -- shared constants and IO helpers
 from smith_state import load_state, stage_state  # noqa: E402
 from smith_core import load_json, emit, fail
-from smith_lifecycle import _proposal_parse_date  # `import *` skips underscore names
+from smith_lifecycle import _proposal_parse_date, _proposal_parse_datetime  # `import *` skips underscore names
+
+# Raw date strings in four formats do not sort chronologically; parsed datetimes do.
+_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 # ---------------------------------------------------------------------------
@@ -165,8 +168,10 @@ def cmd_compact(args):
     # --- known_gaps: keep open + N most recent closed -----------------------
     cfg = RETENTION["known_gaps"]
     gaps = state.get("known_gaps") or []
-    live = [g for g in gaps if (g.get("status") or "open") not in ("closed",)]
-    closed = [g for g in gaps if (g.get("status") or "open") == "closed"]
+    # ONE FIELD, ONE READER: `resolved`/`fixed`/`done` are closed too. The raw comparison against
+    # the literal "closed" meant gaps in those states were never archived.
+    closed = [g for g in gaps if smith_risk.gap_status(g) == "closed"]
+    live = [g for g in gaps if smith_risk.gap_status(g) != "closed"]
     closed.sort(key=lambda g: g.get("resolved_on") or g.get("closed") or "", reverse=True)
     keep_closed, evict = closed[:cfg["keep_recent"]], closed[cfg["keep_recent"]:]
     if evict:
@@ -238,7 +243,7 @@ def cmd_compact(args):
     terminal = [r for r in p_rows
                 if r.get("status") in TERMINAL_PROPOSAL_STATUSES
                 and (_age(r) or 0) > cfg["terminal_after_days"]]
-    terminal.sort(key=lambda r: r.get("date") or "", reverse=True)
+    terminal.sort(key=lambda r: _proposal_parse_datetime(r.get("date") or "") or _EPOCH, reverse=True)
     p_evict = terminal[cfg["keep_recent"]:]
     if p_evict:
         ev_ids = {id(r) for r in p_evict}
@@ -279,7 +284,7 @@ def cmd_compact(args):
             return (today - d).days if d else None
         scored_rows = [r for r in rows if r.get("scored")]
         eligible = [r for r in scored_rows if (_row_age(r) or 0) > cfg["terminal_after_days"]]
-        eligible.sort(key=lambda r: r.get("date") or "", reverse=True)
+        eligible.sort(key=lambda r: _proposal_parse_datetime(r.get("date") or "") or _EPOCH, reverse=True)
         evict = eligible[cfg["keep_recent"]:]
         if not evict:
             continue
@@ -436,7 +441,7 @@ def cmd_gaps(args):
 
     out_gaps = []
     for score, g in ordered:
-        row = {"id": g.get("id"), "status": g.get("status") or "open",
+        row = {"id": g.get("id"), "status": smith_risk.gap_status(g) or g.get("status") or "open",
                "where": g["_where"], "opened": g.get("opened"),
                "resolved_on": g.get("resolved_on"),
                "gap": (g.get("gap") or g.get("description") or "")[:400],
@@ -684,6 +689,16 @@ def validate_learning_schema(base_dir):
             defects.append("LEARNING SCHEMA: a lesson has an unrecognised or missing 'kind' -- "
                            "must be correction|calibration|dead_end.")
             break
+    try:
+        import smith_learning
+        n = smith_learning.scored_proposal_counts(base_dir)["scored"]
+        cur = (((store.get("parameters") or {}).get("phase4.readiness") or {}).get("current"))
+        if cur is not None and cur != n:
+            defects.append(f"LEARNING COUNTER: phase4.readiness.current is {cur} but {n} proposals "
+                           f"carry an outcome_verdict -- run `score` (it recounts) before trusting "
+                           f"the Phase-4 gate.")
+    except Exception:  # noqa: BLE001 -- a validator must not crash on an unreadable store
+        pass
     return defects
 
 def validate_proposals_schema(base_dir):
@@ -1903,6 +1918,11 @@ def cmd_validate(args):
     ticker_map_defects = validate_ticker_map_coverage(args.base_dir)
     playbook_defects = validate_cluster_playbooks(policy, state)
     provenance_defects = validate_trade_provenance(args.base_dir)
+    pol = policy or {}
+    _m, _t = (pol.get("mandate") or {}).get("ltcg_months"), pol.get("ltcg_boundary_months")
+    if _m is not None and _t is not None and _m != _t:
+        provenance_defects.append(f"POLICY LTCG: mandate.ltcg_months={_m} and ltcg_boundary_months="
+                                  f"{_t} disagree -- mandate.ltcg_months wins everywhere; delete one")
     all_defects = (policy_defects + cache_defects + thesis_defects + learning_defects
                    + proposals_defects + narrative_defects
                    + earnings_pending_defects + freshness_defects + ledger_defects + run_defects
@@ -3330,17 +3350,28 @@ def _report_daily(base_dir, run_dir, today, state, freshness_rows):
     # supplies `val` while the ledger supplies `pval`, and nothing forced them into order.
     cur_date = _ledger_date(cur)
     stale_run = bool(run_dir and cur_date and cur_date > today)
+    # TOTAL BOOK, net of recorded external flows (2026-09-14). Comparing equity alone reported a
+    # sell-down into cash as a loss: the 09-14 report said -$8,749 (-20.8%) while the money had
+    # only moved into the wallet.
+    wallet = book.get("wallet_usd") if book.get("wallet_usd") is not None else _f(cur.get("wallet_usd"))
     pval = _f(prev.get("value_usd"))
-    delta = (val - pval) if (val is not None and pval and not stale_run) else None
-    delta_pct = (100.0 * delta / pval) if (delta is not None and pval) else None
+    ptotal = (pval + (_f(prev.get("wallet_usd")) or 0.0)) if pval else None
+    total = (val + (wallet or 0.0)) if val is not None else None
+    flow = _f(cur.get("external_flow_usd"))
+    delta = ((total - ptotal - (flow or 0.0)) if (total is not None and ptotal and not stale_run)
+             else None)
+    delta_pct = (100.0 * delta / ptotal) if (delta is not None and ptotal) else None
     L.append("## The number")
     L.append("")
     L.append(f"| metric | value |\n|---|---|")
-    L.append(f"| Book value | {_r_money(val)} |")
-    L.append(f"| Change vs last run | " + (
+    L.append(f"| Book value (equity) | {_r_money(val)} |")
+    L.append(f"| Cash (wallet) | {_r_money(wallet)} |")
+    L.append(f"| Change vs last run (equity + cash"
+             f"{', net of recorded flows' if flow is not None else ''}) | " + (
         f"not shown — the newest ledger row ({cur_date}) is later than this report's date "
         f"({today}), so a delta would compare across the wrong direction"
-        if stale_run else f"{_r_money(delta)} ({_r_pct(delta_pct)})") + " |")
+        if stale_run else f"{_r_money(delta)} ({_r_pct(delta_pct)})"
+        + ("" if flow is not None or delta is None else " — external flows not recorded")) + " |")
     L.append(f"| P&L | {_r_pct(book.get('pnl_pct') if book.get('pnl_pct') is not None else us.get('pnl_pct'))} |")
     L.append(f"| Drawdown | {_r_pct(book.get('drawdown_pct') if book.get('drawdown_pct') is not None else us.get('drawdown_pct'))} |")
     cash_pct = drift.get("cash_pct")
@@ -3862,7 +3893,7 @@ def cmd_crosscheck(args):
     # --- 2. thesis vs a live catalyst_threat / trigger ------------------------------------
     threats = {c.get("ticker") for c in (triggers.get("catalyst_threat") or []) if isinstance(c, dict)}
     for tk, entry in changed.items():
-        if isinstance(entry, dict) and entry.get("status") in ("strengthening", "intact") and tk in threats:
+        if isinstance(entry, dict) and smith_risk.thesis_status(entry) in ("strengthening", "intact") and tk in threats:
             findings.append({
                 "kind": "thesis_vs_catalyst_threat", "ticker": tk, "severity": "medium",
                 "detail": (f"thesis says `{entry.get('status')}` while a live catalyst_threat "
@@ -3904,7 +3935,7 @@ def cmd_crosscheck(args):
     hist = (signals.get("signal_history") or {}).get("changed") or {}
     for tk, entry in changed.items():
         buckets = hist.get(tk) or []
-        if isinstance(entry, dict) and entry.get("status") == "strengthening" and "PEER LAGGARD" in buckets:
+        if isinstance(entry, dict) and smith_risk.thesis_status(entry) == "strengthening" and "PEER LAGGARD" in buckets:
             findings.append({
                 "kind": "thesis_vs_price", "ticker": tk, "severity": "low",
                 "detail": (f"thesis `strengthening` on {tk} while signals has it a PEER LAGGARD. "

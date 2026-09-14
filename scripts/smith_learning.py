@@ -68,6 +68,40 @@ def _today(args_today=None):
     return desk_today()
 
 
+def canonical_agent(agent):
+    """`smith-thesis` and `thesis` are one agent. Two spellings split its usage history in two."""
+    agent = str(agent or "")
+    return agent[len("smith-"):] if agent.startswith("smith-") else agent
+
+
+def scored_proposal_counts(base_dir):
+    """Distinct proposals carrying an outcome verdict, across the hot file and the archive."""
+    seen = {}
+    for name in ("proposals.json", "proposals-archive.json"):
+        store = load_json(os.path.join(base_dir, name), default={}) or {}
+        for p in store.get("proposals") or []:
+            if isinstance(p, dict) and p.get("outcome_verdict") and p.get("id"):
+                seen.setdefault(p["id"], p["outcome_verdict"])
+    verdicts = list(seen.values())
+    return {"scored": len(verdicts), "worked": verdicts.count("worked"),
+            "missed": verdicts.count("missed"),
+            "decided": verdicts.count("worked") + verdicts.count("missed")}
+
+
+def update_phase4_readiness(base_dir):
+    """Recount `phase4.readiness` from the proposals themselves. Recomputed, never incremented."""
+    counts = scored_proposal_counts(base_dir)
+    store = load_store(base_dir)
+    param = store.setdefault("parameters", {}).setdefault("phase4.readiness", {
+        "default": 0, "current": 0, "band_pct": None, "n_gate": 100, "state": "default",
+        "history": []})
+    param["current"] = counts["scored"]
+    param["decided"] = counts["decided"]
+    param["counted_on"] = str(desk_today())
+    write_store(base_dir, store)
+    return counts
+
+
 def load_store(base_dir):
     # `default={}` here is deliberate and outlives the 2026-09-08 load_json fix: an EXISTING
     # but empty/`null` store must take the same first-run path as an absent one, which `{}` +
@@ -125,7 +159,20 @@ def add_lesson(base_dir, kind, text, evidence=None, source_run=None, supersedes=
     if kind not in ("correction", "calibration", "dead_end"):
         fail(f"lesson kind must be correction|calibration|dead_end, got {kind!r}")
     store = load_store(base_dir)
+    lessons = store["lessons"]
+    # Stable ids (2026-09-14): `supersedes` used to store a LIST POSITION, which any archive or
+    # eviction would silently re-point. An int is still accepted and resolved to its id.
+    nums = [int(l["id"][2:]) for l in lessons if str(l.get("id", "")).startswith("L-")
+            and str(l["id"])[2:].isdigit()]
+    new_id = f"L-{(max(nums) if nums else len(lessons)) + 1:03d}"
+    if isinstance(supersedes, str) and supersedes.isdigit():
+        supersedes = int(supersedes)
+    if isinstance(supersedes, int) and not isinstance(supersedes, bool):
+        supersedes = lessons[supersedes].get("id") if 0 <= supersedes < len(lessons) else None
+    if supersedes and not any(l.get("id") == supersedes for l in lessons):
+        fail(f"--supersedes {supersedes!r} names no existing lesson")
     lesson = {
+        "id": new_id,
         "date": str(today or desk_today()),
         "kind": kind,
         "text": text,
@@ -359,7 +406,7 @@ def cmd_usage_log(args):
     written, so usage tracking piggybacks on a step the orchestrator already performs."""
     value = {"tokens": args.tokens, "tool_calls": args.tool_calls,
              "duration_s": args.duration_s, "mode": args.mode}
-    obs = record_observation(args.base_dir, f"usage:{args.agent}", value,
+    obs = record_observation(args.base_dir, f"usage:{canonical_agent(args.agent)}", value,
                               today=args.today, run_dir=args.run_id,
                               note=f"mode={args.mode}")
     emit({"logged": obs})
@@ -368,7 +415,7 @@ def cmd_usage_log(args):
 def _usage_history(base_dir, agent, exclude_run_id=None):
     store = load_store(base_dir)
     obs = [o for o in store.get("observations", [])
-           if o.get("param_id") == f"usage:{agent}"
+           if o.get("param_id") == f"usage:{canonical_agent(agent)}"
            and (exclude_run_id is None or o.get("run_dir") != exclude_run_id)]
     obs = sorted(obs, key=lambda o: o.get("date") or "", reverse=True)[:USAGE_TRAILING_WINDOW]
     return obs
@@ -417,7 +464,7 @@ def cmd_usage_report(args):
         agent = r["agent"]
         value = {"tokens": int(r["tokens"]), "tool_calls": r.get("tool_calls"),
                  "duration_s": r.get("duration_s"), "mode": args.mode}
-        record_observation(args.base_dir, f"usage:{agent}", value, today=args.today,
+        record_observation(args.base_dir, f"usage:{canonical_agent(agent)}", value, today=args.today,
                            run_dir=args.run_id, note=f"mode={args.mode}")
         logged.append(agent)
         a = _audit_one(args.base_dir, agent, args.run_id, int(r["tokens"]),

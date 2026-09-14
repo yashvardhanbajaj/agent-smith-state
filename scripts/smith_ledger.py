@@ -65,6 +65,29 @@ def _avg_cost_from_lots(tlots):
     avg = (cost / priced_qty) if priced_qty else None
     return avg, priced_qty, unpriced_qty
 
+def policy_ltcg_months(policy):
+    """THE LTCG holding period. One reader for the two policy keys that used to feed two different
+    computations (cmd_book read top-level `ltcg_boundary_months`, cmd_derisk read
+    `mandate.ltcg_months`, bookcalc/taxcalc hard-coded two years)."""
+    policy = policy or {}
+    return ((policy.get("mandate") or {}).get("ltcg_months")
+            or policy.get("ltcg_boundary_months") or LTCG_MONTHS_DEFAULT)
+
+
+def ltcg_eligible_on(lot_date, months):
+    """The calendar date a lot becomes long-term: acquisition date + `months`, day clamped to the
+    end of the target month (2024-02-29 + 24 months -> 2026-02-28)."""
+    import calendar
+    y, m = divmod(lot_date.month - 1 + int(months), 12)
+    y, m = lot_date.year + y, m + 1
+    return date(y, m, min(lot_date.day, calendar.monthrange(y, m)[1]))
+
+
+def months_until_ltcg(lot_date, today, months):
+    """Signed months (2dp) from `today` to the lot's LTCG date; <= 0 means already long-term."""
+    return round((ltcg_eligible_on(lot_date, months) - today).days / 30.44, 2)
+
+
 def _months_between(d_iso, today):
     try:
         d = datetime.strptime(d_iso, "%Y-%m-%d").date()
@@ -953,7 +976,9 @@ def cmd_bookcalc(args):
             "lots_dated": len(dated), "live_decisions": False, "first_crossing": None}
     if earliest:
         y, m, d = (int(x) for x in earliest.split("-"))
-        ltcg["first_crossing"] = f"{y + 2}-{m:02d}-{d:02d}"
+        ltcg["first_crossing"] = str(ltcg_eligible_on(
+            date(y, m, d), policy_ltcg_months(load_json(os.path.join(args.base_dir, "policy.json"),
+                                                        default={}))))
         ltcg["live_decisions"] = bool(book.get("ltcg_flags"))
         ltcg["note"] = (
             f"All {len(all_lots)} open lots are short-term; the 24-month Indian boundary first "
@@ -1122,7 +1147,9 @@ def cmd_taxcalc(args):
     ltcg = {"earliest_open_lot": earliest, "live_decisions": False}
     if earliest:
         y, m, d = (int(x) for x in earliest.split("-"))
-        ltcg["first_crossing"] = f"{y + 2}-{m:02d}-{d:02d}"
+        ltcg["first_crossing"] = str(ltcg_eligible_on(
+            date(y, m, d), policy_ltcg_months(load_json(os.path.join(args.base_dir, "policy.json"),
+                                                        default={}))))
         ltcg["note"] = (f"All {len(all_lots)} open lots are short-term; the 24-month Indian "
                         f"boundary first bites {ltcg['first_crossing']}. No trim this run can be "
                         f"deferred into long-term treatment. One line, not a section.")
