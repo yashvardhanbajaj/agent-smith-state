@@ -89,3 +89,18 @@ def test_retired_code_stays_retired():
     assert '"usage-log"' not in src and "cmd_usage_log" not in src
     import smith_learning
     assert not hasattr(smith_learning, "_today") and not hasattr(smith_learning, "cmd_usage_log")
+
+
+def test_monday_without_a_deep_row_is_flagged_the_same_day_after_the_watchdog_hour(tmp_path, monkeypatch):
+    monkeypatch.setattr(rl, "_mirror_status", lambda base: {"checked": False})
+    base = str(tmp_path)
+    os.makedirs(os.path.join(base, "runs", "2026-09-14-0907Z"))
+    _ledger(base, ["2026-09-11T09:07:00Z", "2026-09-14T09:07:00Z"])   # Monday: a quick row only
+    early = rl.health(base, now=datetime(2026, 9, 14, 8, 0, tzinfo=timezone.utc))
+    late = rl.health(base, now=datetime(2026, 9, 14, 10, 45, tzinfo=timezone.utc))
+    assert not any("weekly" in p for p in early["problems"])
+    assert any("weekly deep run" in p for p in late["problems"])
+    with open(os.path.join(base, "ledger.csv"), "a") as fh:
+        fh.write("2026-09-14T09:40:00Z,deep,1\n")
+    done = rl.health(base, now=datetime(2026, 9, 14, 10, 45, tzinfo=timezone.utc))
+    assert not any("weekly" in p for p in done["problems"])

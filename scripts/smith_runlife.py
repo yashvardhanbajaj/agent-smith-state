@@ -104,6 +104,13 @@ def health(base_dir, now=None):
             and ist_now.hour >= WATCHDOG_HOUR_IST):
         problems.append(f"today's scheduled run ({', '.join(today_row['expected'])}) has left no run "
                         f"directory and no ledger row by {WATCHDOG_HOUR_IST}:00 IST")
+    # The Monday weekly is judged on its own deep-mode ledger row, and evaluate_runs only does that
+    # for past days. On 2026-09-14 the weekly hung at 03:37Z while the day still had other rows, so
+    # "pending" never applied; past the watchdog hour a Monday with no deep row is a problem today.
+    elif (today_row and "agent-smith-weekly-us" in today_row["expected"]
+          and "deep" not in today_row["modes"] and ist_now.hour >= WATCHDOG_HOUR_IST):
+        problems.append(f"today's weekly deep run has left no deep-mode ledger row by "
+                        f"{WATCHDOG_HOUR_IST}:00 IST (the weekly fired and died, or never fired)")
     if missed:
         problems.append(f"{len(missed)} scheduled run(s) in the last 10 days left no or partial "
                         f"artefacts: " + ", ".join(f"{m['date']} {m['verdict']}" for m in missed[:5]))
