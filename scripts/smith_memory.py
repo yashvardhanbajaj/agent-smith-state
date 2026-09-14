@@ -109,6 +109,26 @@ STANDALONE_JOURNAL_RETENTION = {
     },
 }
 
+# --- hygiene retention (added 2026-09-14, Phase 5) -------------------------------------------
+# open_flags / data_quality were append-only prose that no rule ever retired: 18 flags 25-59 days
+# old, several on exited names, and smith-rebound sends any flagged ticker to stay-out -- stale
+# flags were silently blocking rebound candidates. data_cache kept values for ~half its tickers
+# long after they left the book.
+FLAG_TTL_DAYS = 30            # an old flag on names that are ALL exited auto-closes
+DATA_QUALITY_TTL_DAYS = 7     # a dated data_quality note older than this archives
+CACHE_UNHELD_TTL_DAYS = 30    # a ticker unheld and unreferenced this long leaves data_cache
+TEXT_CLIP_CHARS = 700         # the dashboard already clips proposal rationale here
+LIST_TEXT_MAX_BYTES = 1500
+NOTES_CLIP_CHARS = 240        # the dashboard already clips trade notes here
+FLAGS_ARCHIVE = "flags-archive.json"
+TICKER_MAPS = ("betas", "pe_ratios", "analyst_targets", "earnings_calendar", "earnings_facts",
+               "quality_financials", "wk52")
+NESTED_TICKER_MAPS = (("atr20", "values_pct"), ("rsi14", "values"), ("rel_strength_1m", "values_pp"),
+                      ("rel_strength_1m", "values_abs_pct"), ("rel_strength_1m_peer", "values_pp"),
+                      ("rel_strength_1m_peer", "peer_etf"), ("ret_5d", "values_pct"))
+_TICKER_RE = re.compile(r"^[A-Z][A-Z0-9.\-]{0,9}$")
+_DATE_RE = re.compile(r"20\d\d-\d\d-\d\d")
+
 TERMINAL_PROPOSAL_STATUSES = ("superseded", "auto_retired", "dismissed_by_user",
                               "dismissed_by_desk",
                               "executed", "fulfilled", "filled")
@@ -233,6 +253,12 @@ def cmd_compact(args):
                 _archive_merge(writes[cfg["archive"]], cfg["payload"], gone)
 
     # --- proposals: evict terminal rows past the scoring window --------------
+    mode = getattr(args, "mode", None) or "full"
+    _compact_flags_and_notes(state, held, today, base, moves, writes)
+    _compact_data_cache(state, held, today, base, moves, writes)
+    if mode == "cheap":
+        return _compact_finish(args, state, before, moves, writes, {}, restored)
+
     cfg = RETENTION["proposals"]
     p_path = os.path.join(base, "proposals.json")
     praw = load_json(p_path, default=None)
@@ -243,8 +269,21 @@ def cmd_compact(args):
     terminal = [r for r in p_rows
                 if r.get("status") in TERMINAL_PROPOSAL_STATUSES
                 and (_age(r) or 0) > cfg["terminal_after_days"]]
+    # Superseded/auto-retired rows with no price anchor can never be scored (cmd_score needs
+    # ticker + price_at_proposal), so the 90-day window buys them nothing: archive immediately.
+    unscorable = [r for r in p_rows if r.get("status") in ("superseded", "auto_retired")
+                  and not (r.get("ticker") and r.get("price_at_proposal"))]
     terminal.sort(key=lambda r: _proposal_parse_datetime(r.get("date") or "") or _EPOCH, reverse=True)
     p_evict = terminal[cfg["keep_recent"]:]
+    _ids = {id(r) for r in p_evict}
+    p_evict += [r for r in unscorable if id(r) not in _ids]
+    text_moves = _clip_proposal_text(p_rows, {id(r) for r in p_evict}, base, writes)
+    if text_moves:
+        moves.append({"file": "proposals.json", "text_clipped_rows": text_moves,
+                      "to": "proposals-text-archive.json",
+                      "why": "terminal rows keep a dashboard-length excerpt; full text is archived"})
+        if not p_evict:
+            writes["__proposals__"] = praw
     if p_evict:
         ev_ids = {id(r) for r in p_evict}
         moves.append({"file": "proposals.json", "moved": len(p_evict), "to": cfg["archive"],
@@ -301,8 +340,15 @@ def cmd_compact(args):
         merged = dict(raw); merged[cfg["payload"]] = kept_rows
         journal_writes[fname] = merged
 
+    _clip_trade_notes(base, moves, writes)
+    return _compact_finish(args, state, before, moves, writes, journal_writes, restored)
+
+
+def _compact_finish(args, state, before, moves, writes, journal_writes, restored):
+    base = args.base_dir
     after = len(json.dumps(state))
-    out = {"dry_run": not args.write, "moves": moves, "restored": restored,
+    out = {"dry_run": not args.write, "mode": getattr(args, "mode", None) or "full",
+           "moves": moves, "restored": restored,
            "state_bytes_before": before, "state_bytes_after": after,
            "state_bytes_freed": before - after,
            "state_pct_freed": round((before - after) / before * 100, 1) if before else 0,
@@ -312,16 +358,178 @@ def cmd_compact(args):
     if not moves:
         out["note"] = "already compact -- nothing met an eviction rule (this command is idempotent)"
     if args.write and moves:
-        for path, payload in writes.items():
-            if path == "__proposals__":
-                _safe_write(os.path.join(base, "proposals.json"), payload)
-            else:
+        hot = {k: v for k, v in writes.items() if k in ("__proposals__", "__trades__")}
+        for path, payload in writes.items():         # archives first, hot files last
+            if path not in hot:
                 _safe_write(os.path.join(base, path), payload)
         for path, payload in journal_writes.items():
             _safe_write(os.path.join(base, path), payload)
+        if "__proposals__" in hot:
+            _safe_write(os.path.join(base, "proposals.json"), hot["__proposals__"])
+        if "__trades__" in hot:
+            _safe_write(os.path.join(base, "trades.json"), hot["__trades__"])
         _safe_write(os.path.join(base, "state.json"), state)
         out["written"] = True
     emit(out)
+
+
+def _archive_for(writes, base, name):
+    return writes.setdefault(name, _archive_load(os.path.join(base, name)))
+
+
+def _flag_tickers(flag):
+    return [t for t in re.split(r"[/,\s]+", str(flag.get("ticker") or "")) if _TICKER_RE.match(t)]
+
+
+def _as_day(value):
+    try:
+        return date.fromisoformat(str(value)[:10])
+    except ValueError:
+        return None
+
+
+def _compact_flags_and_notes(state, held, today, base, moves, writes):
+    """Close stale open_flags and expire dated data_quality notes (archive, never delete)."""
+    flags = state.get("open_flags")
+    if isinstance(flags, list) and flags:
+        keep, gone = [], []
+        for f in flags:
+            if not isinstance(f, dict):
+                keep.append(f)
+                continue
+            if not f.get("closed_on") and f.get("kind") != "user_decision":
+                opened = _as_day(f.get("opened"))
+                tickers = _flag_tickers(f)
+                if (opened and (today - opened).days > FLAG_TTL_DAYS and held and tickers
+                        and all(t not in held for t in tickers)):
+                    f["closed_on"] = str(today)
+                    f["closed_reason"] = (f"auto: opened {opened}, older than {FLAG_TTL_DAYS}d, and "
+                                          f"every named ticker has left the book")
+            (gone if f.get("closed_on") else keep).append(f)
+        if gone:
+            state["open_flags"] = keep
+            _archive_merge(_archive_for(writes, base, FLAGS_ARCHIVE), "open_flags", gone)
+            moves.append({"file": "state.open_flags", "moved": len(gone), "kept": len(keep),
+                          "to": FLAGS_ARCHIVE, "tickers": [g.get("ticker") for g in gone][:12],
+                          "why": "closed flags are history; a stale one sends a live rebound candidate to stay-out"})
+    dq = state.get("data_quality")
+    if isinstance(dq, list) and dq:
+        keep, gone = [], []
+        for d in dq:
+            day = (_as_day(d.get("as_of")) if isinstance(d, dict) else
+                   max((_as_day(x) for x in _DATE_RE.findall(str(d))), default=None, key=lambda x: x or date.min))
+            (gone if day and (today - day).days > DATA_QUALITY_TTL_DAYS else keep).append(d)
+        if gone:
+            state["data_quality"] = keep
+            _archive_merge(_archive_for(writes, base, FLAGS_ARCHIVE), "data_quality", gone)
+            moves.append({"file": "state.data_quality", "moved": len(gone), "kept": len(keep),
+                          "to": FLAGS_ARCHIVE,
+                          "why": f"dated notes older than {DATA_QUALITY_TTL_DAYS}d; a still-true issue is re-raised by the run that sees it"})
+
+
+def _protected_tickers(state, held, base):
+    prot = set(held) | {"SMH"}
+    props = (load_json(os.path.join(base, "proposals.json"), default={}) or {}).get("proposals") or []
+    prot |= {p.get("ticker") for p in props if isinstance(p, dict)
+             and p.get("status") in ("open", "accepted_by_user", "deferred", "watch")}
+    for w in state.get("watchlist_setups") or []:
+        if isinstance(w, dict):
+            prot.add(w.get("ticker"))
+    prot |= set((state.get("diversifier_candidates") or {}).keys())
+    for c in ((state.get("rebound_candidates") or {}).get("candidates") or []):
+        if isinstance(c, dict):
+            prot.add(c.get("ticker"))
+    prot |= {v.get("peer_etf") for v in (state.get("peer_map") or {}).values() if isinstance(v, dict)}
+    return {t for t in prot if t}
+
+
+def _compact_data_cache(state, held, today, base, moves, writes):
+    """Unheld, unreferenced tickers get an `unheld_since` date; after CACHE_UNHELD_TTL_DAYS their
+    cache values move to exited-holdings-archive.json. A ticker that comes back is un-stamped."""
+    dc = state.get("data_cache")
+    if not isinstance(dc, dict) or not held:
+        return
+    maps = [(name, None, dc.get(name)) for name in TICKER_MAPS] + \
+           [(outer, inner, (dc.get(outer) or {}).get(inner)) for outer, inner in NESTED_TICKER_MAPS]
+    tickers = {t for _, _, m in maps if isinstance(m, dict) for t in m if _TICKER_RE.match(str(t))}
+    prot = _protected_tickers(state, held, base)
+    since = dc.setdefault("unheld_since", {})
+    returned = sorted(t for t in list(since) if t in prot)
+    for t in returned:
+        since.pop(t)
+    doomed, started_now = set(), []
+    for t in sorted(tickers - prot):
+        if t not in since:
+            since[t] = str(today)
+            started_now.append(t)
+        started = _as_day(since[t])
+        if started and (today - started).days > CACHE_UNHELD_TTL_DAYS:
+            doomed.add(t)
+    if started_now or returned:
+        # A clock change is a real state change: record it, or a stamp-only pass is never saved.
+        moves.append({"file": "state.data_cache.unheld_since", "clock_started": started_now[:20],
+                      "clock_cleared": returned[:20],
+                      "why": f"a ticker leaves data_cache after {CACHE_UNHELD_TTL_DAYS} days unheld and unreferenced"})
+    if not doomed:
+        return
+    arc = _archive_for(writes, base, RETENTION["thesis"]["archive"])
+    for name, inner, m in maps:
+        if not isinstance(m, dict):
+            continue
+        gone = {t: m.pop(t) for t in list(m) if t in doomed}
+        if gone:
+            _archive_merge(arc, f"data_cache.{name}" + (f".{inner}" if inner else ""), gone)
+    for t in doomed:
+        since.pop(t, None)
+    moves.append({"file": "state.data_cache", "tickers_pruned": sorted(doomed)[:20],
+                  "count": len(doomed), "to": RETENTION["thesis"]["archive"],
+                  "why": f"unheld and unreferenced for more than {CACHE_UNHELD_TTL_DAYS} days"})
+
+
+def _clip_proposal_text(rows, evicting, base, writes):
+    """Terminal rows keep a dashboard-length excerpt; the full text goes to a sidecar by id."""
+    side = {}
+    for r in rows:
+        if (not isinstance(r, dict) or id(r) in evicting or r.get("text_archived")
+                or r.get("status") not in TERMINAL_PROPOSAL_STATUSES or not r.get("id")):
+            continue
+        full = {}
+        for f in ("rationale", "note", "dismiss_reason", "retired_reason"):
+            v = r.get(f)
+            if isinstance(v, str) and len(v) > TEXT_CLIP_CHARS:
+                full[f], r[f] = v, v[:TEXT_CLIP_CHARS] + "…"
+        for f in ("history", "priority_reasons", "still_valid_because"):
+            v = r.get(f)
+            if isinstance(v, list) and len(json.dumps(v)) > LIST_TEXT_MAX_BYTES:
+                full[f], r[f] = v, (v[-3:] if f == "history" else v[:3])
+        if full:
+            r["text_archived"] = "proposals-text-archive.json"
+            side[r["id"]] = full
+    if side:
+        _archive_merge(_archive_for(writes, base, "proposals-text-archive.json"), "texts", side)
+    return len(side)
+
+
+def _clip_trade_notes(base, moves, writes):
+    path = os.path.join(base, "trades.json")
+    store = load_json(path, default=None)
+    if not isinstance(store, dict):
+        return
+    side = {}
+    for t in store.get("trades") or []:
+        n = t.get("notes") if isinstance(t, dict) else None
+        if isinstance(n, str) and len(n) > NOTES_CLIP_CHARS and not t.get("notes_archived"):
+            key = t.get("message_id") or hashlib.sha1(json.dumps(
+                [t.get("date"), t.get("ticker"), t.get("qty"), t.get("price_usd"), t.get("ts_utc")],
+                sort_keys=True).encode()).hexdigest()[:16]
+            side[key] = n
+            t["notes"], t["notes_archived"] = n[:NOTES_CLIP_CHARS] + "…", key
+    if side:
+        _archive_merge(_archive_for(writes, base, "trades-notes-archive.json"), "notes", side)
+        writes["__trades__"] = store
+        moves.append({"file": "trades.json", "notes_clipped": len(side), "to": "trades-notes-archive.json",
+                      "why": "facts stay in trades.json; long free-text notes are read by nothing that needs more than the dashboard's 240 chars"})
+
 
 _GAPS_STOPWORDS = {
     "the", "a", "an", "of", "to", "in", "on", "for", "and", "or", "is", "was", "were",

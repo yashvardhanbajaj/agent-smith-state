@@ -393,9 +393,8 @@ def postflight_close(args):
     base, rd = args.base_dir, args.run_dir
     today = resolve_today(args.today)
     out = {"phase": "close", "mode": args.mode}
-    if args.mode == "deep":
-        out["compact"] = _capture(cmd_compact, base_dir=base, holdings=os.path.join(rd, "holdings.json"),
-                                  today=str(today), write=True)
+    out["compact"] = _capture(cmd_compact, base_dir=base, holdings=os.path.join(rd, "holdings.json"),
+                              today=str(today), write=True, mode="full" if args.mode == "deep" else "cheap")
     runs = os.path.join(base, "runs")
     keep = max(1, args.keep_runs)
     dirs = []

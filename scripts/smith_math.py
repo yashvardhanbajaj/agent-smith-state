@@ -4757,6 +4757,8 @@ def main():
     sp.add_argument("--holdings", default=None, help="a run's holdings.json, to know which tickers are live")
     sp.add_argument("--today", default=None)
     sp.add_argument("--write", action="store_true", help="apply (default: dry run)")
+    sp.add_argument("--mode", choices=("cheap", "full"), default="full",
+                    help="cheap: gaps, flags, data_quality, data_cache (every run); full: + proposals, journals, trade notes (deep runs)")
 
     sp = sub.add_parser("universe",
                         help="the candidate set: held + ever-held + peers + watchlist + discovery")
