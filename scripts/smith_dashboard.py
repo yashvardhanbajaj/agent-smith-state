@@ -582,14 +582,32 @@ def build_payload(base, built_at=None):
         # never the run's build ts -- the run ts is what let a 2026-09-09 read sit under a
         # 2026-09-14 header looking current. Absent means "no date recorded", not "today".
         "read_as_of": narrative.get("as_of"),
+        # Four real bugs fixed here 2026-09-15, found live by the user reading the Market
+        # context panel (Asia showing -193%/-176%/-161%/-102%, impossible for a single session):
+        # (1) vix_chg/smh_chg/es_chg/nq_chg/asia[*] are read from smith_fetch.py's own
+        #     "*_change_pct"/"*_chg_pct" fields, which are ALREADY percent (-1.93 means -1.93%,
+        #     same convention as book.positions[*].day_chg_pct) -- there is no "*100" anywhere
+        #     else in this file that scales a _pct field before signed(), and there must not be
+        #     one here either. (2) smh_chg/es_chg/nq_chg were also reading field names that do
+        #     not exist in market_inputs.json (smh_chg_pct/es_f_chg_pct/nq_f_chg_pct vs the
+        #     actual smh_change_pct/es_f_change_pct/nq_f_change_pct) -- silently null, rendered
+        #     as a false "0.00%" via JS's `||0`, not caught by the golden-master diff because a
+        #     missing macro field doesn't fail the build. (3) vix_prev is not a field
+        #     smith_fetch.py writes at all -- market_inputs.json already computes
+        #     vix_change_pct directly, so read that instead of trying to derive a change from a
+        #     "previous" value that was never wired up. (4) session/gate/gate_reason were read
+        #     from `mkt` (market_inputs.json) but are actually written by session-gate into
+        #     `holdings.json` -- always null from the wrong file, which silently dropped the
+        #     ESCALATING gate pill (headline information all session) from this panel entirely.
         "macro": {
             "us10y": num(mkt.get("us10y")), "vix": num(mkt.get("vix")),
-            "vix_prev": num(mkt.get("vix_prev")), "dxy": num(mkt.get("dxy")),
+            "vix_chg": num(mkt.get("vix_change_pct")), "dxy": num(mkt.get("dxy")),
             "spx": num(mkt.get("spx")), "ndx": num(mkt.get("ndx")),
-            "smh": num(mkt.get("smh")), "smh_chg": num(mkt.get("smh_chg_pct")),
-            "es_chg": num(mkt.get("es_f_chg_pct")), "nq_chg": num(mkt.get("nq_f_chg_pct")),
-            "asia": mkt.get("asia") or {}, "session": mkt.get("market_session"),
-            "gate": mkt.get("gate_classification"), "gate_reason": clip(mkt.get("gate_reason"), 420),
+            "smh": num(mkt.get("smh")), "smh_chg": num(mkt.get("smh_change_pct")),
+            "es_chg": num(mkt.get("es_f_change_pct")), "nq_chg": num(mkt.get("nq_f_change_pct")),
+            "asia": mkt.get("asia") or {}, "session": holdings.get("market_session"),
+            "gate": holdings.get("gate_classification"),
+            "gate_reason": clip(holdings.get("gate_reason"), 420),
             "fed": num((st.get("macro_read") or {}).get("fed_funds_pct")),
             "fomc": (st.get("macro_read") or {}).get("fomc_stance"),
             "regime": (st.get("macro_read") or {}).get("regime"),
@@ -1335,18 +1353,17 @@ function tabCommand(){
   var m=D.macro;
   var macroCells=[
     ["10-yr", pct(m.us10y,3)], ["VIX", n(m.vix,2)+
-      (m.vix_prev? ' <span class="'+cls(m.vix-m.vix_prev)+'">'+
-        signed(((m.vix-m.vix_prev)/m.vix_prev)*100,2)+"</span>":"")],
+      (m.vix_chg!=null? ' <span class="'+cls(m.vix_chg)+'">'+signed(m.vix_chg,2)+"</span>":"")],
     ["DXY", n(m.dxy,2)], ["SMH", n(m.smh,2)+' <span class="'+cls(m.smh_chg)+'">'+
-      signed((m.smh_chg||0)*100,2)+"</span>"],
-    ["ES fut", '<span class="'+cls(m.es_chg)+'">'+signed((m.es_chg||0)*100,2)+"</span>"],
-    ["NQ fut", '<span class="'+cls(m.nq_chg)+'">'+signed((m.nq_chg||0)*100,2)+"</span>"],
+      signed(m.smh_chg,2)+"</span>"],
+    ["ES fut", '<span class="'+cls(m.es_chg)+'">'+signed(m.es_chg,2)+"</span>"],
+    ["NQ fut", '<span class="'+cls(m.nq_chg)+'">'+signed(m.nq_chg,2)+"</span>"],
     ["Fed funds", pct(m.fed,2)+' <span class="muted">'+esc(m.fomc||"")+"</span>"],
     ["Beta vs "+esc(k.beta_bm||"SMH"), n(k.beta,2)]
   ];
   var asia=Object.keys(m.asia||{}).map(function(key){
-    return "<dt>"+esc(human(key.replace(/_chg_pct$/,"")))+"</dt><dd class=\""+
-      cls(m.asia[key])+"\">"+signed((m.asia[key]||0)*100,2)+"</dd>"; }).join("");
+    return "<dt>"+esc(human(key.replace(/_change_pct$/,"")))+"</dt><dd class=\""+
+      cls(m.asia[key])+"\">"+signed(m.asia[key],2)+"</dd>"; }).join("");
   H.push(panel("Market context", m.session||"", '<div class="pad">'+
     '<div class="grid g3" style="gap:10px 18px">'+
     macroCells.map(function(c){
