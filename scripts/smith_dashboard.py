@@ -567,6 +567,11 @@ def build_payload(base, built_at=None):
         },
         "kpi": kpi,
         "read": clip(narrative.get("session_read"), 2400),
+        # G96: narrative.json has no enforced TTL (it's free orchestrator prose, not a
+        # sub-agent artefact FRESHNESS tracks) so the panel must show ITS OWN write date,
+        # never the run's build ts -- the run ts is what let a 2026-09-09 read sit under a
+        # 2026-09-14 header looking current. Absent means "no date recorded", not "today".
+        "read_as_of": narrative.get("as_of"),
         "macro": {
             "us10y": num(mkt.get("us10y")), "vix": num(mkt.get("vix")),
             "vix_prev": num(mkt.get("vix_prev")), "dxy": num(mkt.get("dxy")),
@@ -579,6 +584,7 @@ def build_payload(base, built_at=None):
             "fomc": (st.get("macro_read") or {}).get("fomc_stance"),
             "regime": (st.get("macro_read") or {}).get("regime"),
             "regime_note": clip((st.get("macro_read") or {}).get("regime_note"), 700),
+            "regime_as_of": (st.get("macro_read") or {}).get("as_of"),
             "cluster_impact": (st.get("macro_read") or {}).get("cluster_impact") or {},
             "calendar": cal, "week": week,
         },
@@ -1308,7 +1314,8 @@ function tabCommand(){
   var H=[], k=D.kpi;
 
   /* the read */
-  if(D.read) H.push(panel("The read", D.meta.mode+" run · "+D.meta.ts.slice(0,16),
+  if(D.read) H.push(panel("The read",
+    "written "+(D.read_as_of||"date unknown")+" · "+D.meta.mode+" run built "+D.meta.ts.slice(0,16),
     renderRead(D.read),{span:true}));
 
   /* macro strip + sentiment */
@@ -1338,7 +1345,7 @@ function tabCommand(){
       (m.gate==="STABILIZING"?"buy":m.gate==="AMBIGUOUS"?"hold":"sell")+'">gate '+
       esc(m.gate)+"</span> "+esc(m.gate_reason||"")+"</p>":"")+
     (m.regime_note?'<p class="note" style="margin-top:8px"><b>Regime '+esc(m.regime||"")+
-      ".</b> "+esc(m.regime_note)+"</p>":"")+
+      " ("+esc(m.regime_as_of||"date unknown")+").</b> "+esc(m.regime_note)+"</p>":"")+
     (asia?'<dl class="kv" style="margin-top:12px;max-width:340px">'+asia+"</dl>":"")+
     "</div>",{span:true}));
 

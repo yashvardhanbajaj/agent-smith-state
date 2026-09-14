@@ -160,7 +160,11 @@ def dispatch_plan(base_dir, run_dir, mode, asks=(), today=None):
             add("catalyst", "user asked why something moved")
 
     cs = trig.get("correction_state")
-    if cs in ("correction", "deep_correction"):
+    # User decision 2026-09-15: rebound_candidates exists FOR pullbacks -- the mildest of the
+    # three non-"none" tiers -- so gating dispatch on "correction"/"deep_correction" only meant
+    # the screen never refreshed while the book sat in pullback territory (measured: dark 15
+    # days straight through several pullback-tier sweeps). All three non-"none" states now fire.
+    if cs in ("pullback", "correction", "deep_correction"):
         add("rebound", f"correction_state={cs}")
     if pending:
         add("earnings", f"VERIFY-ONLY: stuck PENDING {', '.join(pending)}", mode="verify_only",
