@@ -1160,3 +1160,44 @@ def cmd_taxcalc(args):
     # it MISSING.
     safe_write(os.path.join(rd, "compute_taxcalc.json"), result)
     emit(result)
+
+
+def cmd_trade_rationale(args):
+    """Attach a REASON to trades ledger-apply already recorded (added 2026-09-14).
+
+    trades.json has exactly one writer for FACTS (`ledger-apply`, from broker confirmation emails)
+    and this command for MOTIVE. The orchestrator used to append or edit rows by hand, which is how
+    reconstructed fills and phantom lots got in. Matches by --message-id, or by --ticker + --date
+    (+ --side); updates only rows still UNCAPTURED unless --overwrite."""
+    if not args.message_id and not (args.ticker and args.date):
+        fail("give --message-id, or --ticker and --date")
+    path = os.path.join(args.base_dir, "trades.json")
+
+    def side_of(t):
+        q = t.get("qty_change", t.get("qty"))
+        try:
+            return "buy" if float(q) > 0 else "sell"
+        except (TypeError, ValueError):
+            return (t.get("side") or "").lower() or None
+
+    with locked_json(path, default={"trades": []}) as box:
+        trades = box["obj"].get("trades") or []
+        hits = [t for t in trades if isinstance(t, dict) and (
+            (args.message_id and t.get("message_id") == args.message_id) or
+            (not args.message_id and t.get("ticker") == args.ticker.upper()
+             and str(t.get("date"))[:10] == args.date
+             and (not args.side or side_of(t) == args.side)))]
+        open_hits = [t for t in hits if args.overwrite or t.get("reason") in (None, "", "UNCAPTURED")]
+        if not open_hits:
+            # fail() raises SystemExit inside the lock, so locked_json writes nothing.
+            fail(f"no {'matching' if not hits else 'still-UNCAPTURED'} trade for "
+                 f"{args.message_id or (args.ticker, args.date, args.side)} -- fills are recorded "
+                 f"by ledger-apply first; this command only attaches their reason")
+        for t in open_hits:
+            t["reason"] = args.reason
+            t["reason_captured_on"] = str(desk_today())
+            if args.notes:
+                t["notes"] = (f"{t['notes']} | " if t.get("notes") else "") + args.notes
+    emit({"updated": len(open_hits), "reason": args.reason,
+          "trades": [{"ticker": t.get("ticker"), "date": str(t.get("date"))[:10],
+                      "message_id": t.get("message_id")} for t in open_hits]})

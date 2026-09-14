@@ -69,6 +69,7 @@ from smith_learning import (load_store as learn_load_store, write_store as learn
 from smith_core import _prior_run_prices
 from smith_ledger import _avg_cost_from_lots, _months_between
 from smith_lifecycle import _proposal_parse_date
+from smith_ledger import cmd_trade_rationale  # noqa: E402
 from smith_runlife import (cmd_lock, cmd_commit_state, cmd_health,  # noqa: E402
                            cmd_memory_summary, cmd_preflight, cmd_abort)
 
@@ -204,10 +205,30 @@ def cmd_build_holdings(args):
     current_tickers = {r["ticker"] for r in rows}
     dropped = sorted(prior_tickers - current_tickers)
 
+    # QTY CHANGES, emitted HERE (added 2026-09-14) so the ledger pipeline can record this run's
+    # fills BEFORE `pipeline` runs. Until now the only qty diff came out of `book`, i.e. after
+    # the lots/book/triggers stages had already been computed from the previous trades.json.
+    prior_qty = {h.get("ticker"): float(h.get("qty") or 0) for h in (state.get("holdings") or [])
+                 if h.get("ticker")}
+    qty_changes = []
+    for t in sorted(current_tickers | prior_tickers):
+        now_q = next((float(r["qty"] or 0) for r in rows if r["ticker"] == t), 0.0)
+        was_q = prior_qty.get(t, 0.0)
+        if abs(now_q - was_q) > 1e-6:
+            qty_changes.append({"ticker": t, "prior_qty": was_q, "qty": now_q,
+                                "qty_diff": round(now_q - was_q, 6)})
+
     wallet_usd = args.wallet_usd or 0.0
     invested_total_usd = sum(h.get("invested_value_usd") or 0.0 for h in snap["holdings"])
-    aggregate_usd = args.aggregate_usd if args.aggregate_usd is not None else (
-        snap.get("asset_summary", {}).get("total_value_usd", total_val_usd))
+    snap_agg = (snap.get("asset_summary") or {}).get("total_value_usd")
+    if args.aggregate_usd is not None:
+        aggregate_usd, aggregate_source = args.aggregate_usd, "cli"
+    elif snap_agg is not None:
+        aggregate_usd, aggregate_source = snap_agg, "snapshot"
+    else:
+        # No independent aggregate: cmd_book's G3 divergence check would compare the rows with
+        # themselves. Say so instead of letting a toothless check read as a passed one.
+        aggregate_usd, aggregate_source = total_val_usd, "rows (no independent aggregate)"
 
     holdings_doc = {
         "ts": args.ts or iso_utc(),
@@ -230,6 +251,8 @@ def cmd_build_holdings(args):
         "macro_strip": load_json(args.macro_json, default={}) if args.macro_json else {},
         "benchmarks": load_json(args.benchmarks_json, default={}) if args.benchmarks_json else {},
         "dropped_since_last_run": dropped,
+        "qty_changes": qty_changes,
+        "aggregate_source": aggregate_source,
         "no_live_quote": sorted(set(no_live_quote)),
     }
     if dropped:
@@ -240,17 +263,34 @@ def cmd_build_holdings(args):
             f"briefing that treats these as exits.")
 
     out_path = os.path.join(args.run_dir, "holdings.json")
-    with open(out_path, "w") as f:
-        json.dump(holdings_doc, f, indent=2)
+    atomic_write_json(out_path, holdings_doc)
 
     emit({"written": out_path, "rows": len(rows), "total_value_usd": round(total_val_usd, 2),
           "dropped_since_last_run": dropped, "no_live_quote": sorted(set(no_live_quote)),
+          "qty_changes": qty_changes, "aggregate_source": aggregate_source,
+          "next_step": ("qty_changes non-empty: run the LEDGER pipeline (ledger-parse -> "
+                        "ledger-apply) BEFORE `pipeline`" if qty_changes else None),
           "weights_sum_check": round(sum(r["weight_pct"] for r in rows), 4)})
 
 
 # ---------------------------------------------------------------------------
 # book
 # ---------------------------------------------------------------------------
+USDINR_PLAUSIBLE = (70.0, 120.0)
+WEIGHTS_SUM_TOLERANCE_PCT = 0.5
+BOOK_MOVE_TOLERANCE_PCT = 15.0
+
+
+def _last_ledger_row(base_dir):
+    import csv
+    try:
+        with open(os.path.join(base_dir, "ledger.csv"), newline="") as fh:
+            rows = list(csv.DictReader(fh))
+    except OSError:
+        return None
+    return rows[-1] if rows else None
+
+
 def cmd_book(args):
     holdings = load_json(os.path.join(args.run_dir, "holdings.json"))
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
@@ -610,6 +650,36 @@ def cmd_book(args):
         qc["trade_reason"] = (best.get("reason", "UNCAPTURED") if best else "UNMATCHED")
         if best_d:
             qc["trade_reason_date"] = str(best_d)
+
+    # SANITY GATE, in code (moved from SKILL.md prose 2026-09-14 -- it was placed before the data
+    # it checks existed and was applied by eye). Each failure is a named breach.
+    rows_weighted = [r.get("weight_pct") for r in rows]
+    if rows and all(isinstance(w, (int, float)) for w in rows_weighted):
+        wsum = sum(rows_weighted)
+        recon["weights_sum_pct"] = round(wsum, 3)
+        if abs(wsum - 100.0) > WEIGHTS_SUM_TOLERANCE_PCT:
+            persist_safe = False
+            recon.setdefault("breaches", []).append(
+                f"row weights sum to {wsum:.2f}% (tolerance 100 +/- {WEIGHTS_SUM_TOLERANCE_PCT})")
+    if not (USDINR_PLAUSIBLE[0] <= usdinr <= USDINR_PLAUSIBLE[1]):
+        persist_safe = False
+        recon.setdefault("breaches", []).append(
+            f"USD/INR {usdinr} outside the plausible band {USDINR_PLAUSIBLE[0]}-{USDINR_PLAUSIBLE[1]}")
+    prev_row = _last_ledger_row(args.base_dir)
+    try:
+        prev_total = (float(prev_row["value_usd"]) + float(prev_row.get("wallet_usd") or 0)
+                      if prev_row and prev_row.get("value_trust", "ok") == "ok" else None)
+    except (TypeError, ValueError, KeyError):
+        prev_total = None
+    if prev_total:
+        move = 100.0 * (total_book_usd - prev_total) / prev_total
+        recon["total_book_move_vs_last_row_pct"] = round(move, 3)
+        if abs(move) > BOOK_MOVE_TOLERANCE_PCT and not qty_changes:
+            persist_safe = False
+            recon.setdefault("breaches", []).append(
+                f"total book moved {move:+.1f}% since the last ledger row with no qty change to "
+                f"explain it (tolerance {BOOK_MOVE_TOLERANCE_PCT}%) -- a stale or partial snapshot")
+    recon["persist_safe"] = persist_safe
 
     data_quality = []
     if not recon["persist_safe"]:
@@ -1961,14 +2031,14 @@ def cmd_pipeline(args):
         ("universe",    ["holdings.json"],                          lambda d: d.get("total")),
         ("risk",        ["compute_book.json"],                      lambda d: d.get("positions")),
         ("drift",       ["compute_book.json", "holdings.json"],     lambda d: d.get("cluster_table")),
-        ("journal",     ["holdings.json"],                          lambda d: True),
-        ("attribution", ["holdings.json"],                          lambda d: True),
+        ("journal",     ["holdings.json"],                          lambda d: "journal_updates" in d),
+        ("attribution", ["holdings.json"],                          lambda d: "value_delta_usd" in d),
         ("rotation",    ["compute_risk.json"],                      lambda d: d.get("tickers")),
         ("buckets",     ["holdings.json"],                          lambda d: d.get("tickers") is not None),
         ("sentiment",   ["market_inputs.json"],                     lambda d: d.get("score") is not None),
         ("derisk",      ["compute_risk.json", "compute_sentiment.json", "compute_book.json"],
                                                                     lambda d: d.get("queue")),
-        ("triggers",    ["compute_risk.json", "compute_book.json"], lambda d: True),
+        ("triggers",    ["compute_risk.json", "compute_book.json"], lambda d: "correction_state" in d),
         # `ladder` runs LAST, after triggers, deliberately: its dispatch gate reads
         # compute_triggers.json to score a cluster higher when a rotation pair is already
         # proposed there. It is a GATE, not a data dependency -- a missing triggers file
@@ -1976,14 +2046,44 @@ def cmd_pipeline(args):
         ("ladder",      ["compute_risk.json"],                      lambda d: d.get("clusters") is not None),
     ]
 
-    results, failed = [], None
+    stage_names = [st[0] for st in STAGES]
+    wanted = set(stage_names)
+    if getattr(args, "stages", None):
+        wanted = {x.strip() for x in args.stages.split(",") if x.strip()}
+        unknown = sorted(wanted - set(stage_names))
+        if unknown:
+            fail(f"--stages names unknown stage(s): {', '.join(unknown)}")
+    if getattr(args, "from_stage", None):
+        if args.from_stage not in stage_names:
+            fail(f"--from {args.from_stage!r} is not a stage; stages: {', '.join(stage_names)}")
+        wanted &= set(stage_names[stage_names.index(args.from_stage):])
+
+    # A stage in DEGRADABLE never stops the run: `sentiment` only sets proposal urgency, and a
+    # yfinance outage (no or partial market_inputs.json) used to abort the pipeline before
+    # derisk/triggers/ladder -- a whole run with no proposals because one mood gauge was missing.
+    # It writes an explicit degraded payload instead, which derisk reads as the neutral band.
+    DEGRADABLE = {"sentiment"}
+
+    def degrade(name, reason):
+        atomic_write_json(out(name), {"degraded": True, "reason": reason,
+                                      "score": None, "band": None, "components": {}})
+        results.append({"stage": name, "status": "DEGRADED", "note": reason})
+        degraded.append(name)
+
+    results, failed, degraded = [], None, []
     for name, needs, probe in STAGES:
-        missing = [n for n in needs
-                   if not os.path.exists(os.path.join(run_dir, n))
-                   and not os.path.exists(os.path.join(base, n))]
+        if name not in wanted:
+            continue
+        # Run-scoped inputs are read from the run dir only -- accepting a same-named file in the
+        # base dir let this check pass on a file no stage would ever read.
+        missing = [n for n in needs if not os.path.exists(os.path.join(run_dir, n))]
         if missing:
+            reason = f"required input(s) absent: {', '.join(missing)}"
+            if name in DEGRADABLE:
+                degrade(name, reason)
+                continue
             results.append({"stage": name, "status": "BLOCKED", "missing_inputs": missing})
-            failed = failed or (name, f"required input(s) absent: {', '.join(missing)}")
+            failed = (name, reason)
             break
 
         cmd = [sys.executable, here, name, "--base-dir", base]
@@ -2001,31 +2101,45 @@ def cmd_pipeline(args):
             cmd += ["--holdings", os.path.join(run_dir, "holdings.json"), "--write-if-clean"]
 
         proc = subprocess.run(cmd, capture_output=True, text=True)
-        if proc.returncode != 0:
+        payload, parse_error = None, None
+        if (proc.stdout or "").strip():
+            try:
+                payload = json.loads(proc.stdout)
+            except ValueError:
+                parse_error = "stdout was not valid JSON"
+        # fail() prints {"error": ...} to STDOUT and exits 1 -- read the reason from there, not
+        # from stderr, or every failure reads "exited 1" with nothing to act on.
+        err = payload.get("error") if isinstance(payload, dict) else None
+        if proc.returncode != 0 or err or parse_error or payload is None:
+            reason = err or parse_error or (f"exited {proc.returncode}" if proc.returncode
+                                            else "emitted nothing")
+            if name in DEGRADABLE:
+                degrade(name, reason)
+                continue
             results.append({"stage": name, "status": "FAILED", "exit": proc.returncode,
-                            "stderr": (proc.stderr or "")[-400:]})
-            failed = (name, f"exited {proc.returncode}")
+                            "error": reason, "stderr": (proc.stderr or "")[-400:]})
+            failed = (name, reason)
             break
-        try:
-            payload = json.loads(proc.stdout)
-        except ValueError:
-            results.append({"stage": name, "status": "FAILED", "note": "stdout was not valid JSON"})
-            failed = (name, "emitted non-JSON stdout")
-            break
-        if isinstance(payload, dict) and payload.get("error"):
-            results.append({"stage": name, "status": "FAILED", "note": payload["error"]})
-            failed = (name, payload["error"])
-            break
-        with open(out(name), "w") as fh:
-            json.dump(payload, fh, indent=2)
-        # THE CHECK THAT WOULD HAVE CAUGHT 2026-08-15: exit 0 is not success if the payload
-        # is hollow. A stage that ran but produced nothing is a failure wearing a green light.
+        # THE CHECK THAT WOULD HAVE CAUGHT 2026-08-15: exit 0 is not success if the payload is
+        # hollow. Probe BEFORE writing, so a hollow result never lands where later stages, slices
+        # or the dashboard would read it as real; keep it beside the run for inspection instead.
         if not probe(payload):
+            if os.path.exists(out(name)):
+                os.remove(out(name))
+            atomic_write_json(os.path.join(run_dir, f"compute_{name}.rejected.json"), payload)
             results.append({"stage": name, "status": "EMPTY",
                             "note": "ran cleanly but produced an empty result -- treated as a "
-                                    "failure, not as 'nothing to report'"})
+                                    "failure, not as 'nothing to report'; kept as "
+                                    f"compute_{name}.rejected.json"})
             failed = (name, "produced an empty result despite exiting 0")
             break
+        atomic_write_json(out(name), payload)
+        if name == "lots" and payload.get("write_blocked"):
+            results.append({"stage": name, "status": "DEGRADED",
+                            "note": "lots.json NOT rebuilt (book/derisk/triggers read the "
+                                    "previous one): " + str(payload["write_blocked"])})
+            degraded.append(name)
+            continue
         results.append({"stage": name, "status": "ok"})
 
     # latest_run_dir: stamped HERE, by the only code that always knows which run dir it just
@@ -2058,6 +2172,7 @@ def cmd_pipeline(args):
           "failed_at": failed[0] if failed else None,
           "reason": failed[1] if failed else None,
           "ok": failed is None,
+          "degraded": degraded,
           "not_run_here": ["score", "stops", "proposals", "validate"],
           "note": ("score and stops need prices the orchestrator must fetch first; proposals "
                    "runs after the strategist has appended this run's proposals; validate is a "
@@ -4089,6 +4204,9 @@ def cmd_sync_decisions(args):
     decisions = _extract_decisions(html)
     today = str(resolve_today(args.today))
 
+    import copy
+    _lock = file_lock(args.base_dir)
+    _lock.__enter__()                  # held from load to write: no concurrent writer lands between
     p_path = os.path.join(args.base_dir, "proposals.json")
     s_path = os.path.join(args.base_dir, "state.json")
     proposals_store = load_json(p_path, default={"proposals": [], "scorecard": {}})
@@ -4107,6 +4225,9 @@ def cmd_sync_decisions(args):
         element_id = d.get("element_id")
         decision = d.get("decision")
         reason = d.get("reason") or None
+        # A decision that raises halfway must not leave half its edits behind (2026-09-14):
+        # snapshot, and restore on failure. Decision volume per sync is tiny.
+        _snap = (copy.deepcopy(props), copy.deepcopy(state), proposals_dirty, state_dirty)
         try:
             if surface == "proposal":
                 pr = prop_by_id(element_id)
@@ -4332,26 +4453,38 @@ def cmd_sync_decisions(args):
             else:
                 skipped.append({"surface": surface, "element_id": element_id, "why": f"unknown surface {surface!r}"})
         except Exception as e:
-            errors.append({"surface": surface, "element_id": element_id, "error": str(e)})
+            props[:] = _snap[0]
+            state.clear()
+            state.update(_snap[1])
+            proposals_dirty, state_dirty = _snap[2], _snap[3]
+            errors.append({"surface": surface, "element_id": element_id, "error": str(e),
+                           "rolled_back": True})
 
-    if proposals_dirty:
-        proposals_store["proposals"] = props
-        safe_write(p_path, proposals_store)
+    try:
+        if proposals_dirty:
+            proposals_store["proposals"] = props
+            safe_write(p_path, proposals_store)
     # Stamp every sync attempt, decisions or not -- this is what lets the orchestrator gate
     # §1.7's expensive WebFetch to at most once/day on quick runs (added 2026-09-14) instead of
     # fetching the full live dashboard page on every single sweep to check for a click that,
     # historically, is present on roughly 1 run in 25.
-    state["dashboard_last_synced_ts"] = str(resolve_today(args.today))
-    state_dirty = True
-    if state_dirty:
-        safe_write(s_path, state)
+        # Only a CLEAN sync is stamped: a decision that errored stays in the live page, and an
+        # unstamped sync is what makes the next run fetch and retry it.
+        if not errors:
+            state["dashboard_last_synced_ts"] = str(resolve_today(args.today))
+            state_dirty = True
+        if state_dirty:
+            safe_write(s_path, state)
+    finally:
+        _lock.__exit__(None, None, None)
     # learning.json observations and the learning_param approve write themselves individually
     # above (record_observation/user_force_approve both write=True) -- each is a single small
     # append, and decision volume per run is small enough that per-decision writes cost nothing
     # worth batching for.
 
     emit({"decisions_found": len(decisions), "reconciled": reconciled, "skipped": skipped,
-          "errors": errors, "proposals_written": proposals_dirty, "state_written": state_dirty})
+          "errors": errors, "ok": not errors,
+          "proposals_written": proposals_dirty, "state_written": state_dirty})
 
 
 def main():
@@ -4452,7 +4585,7 @@ def main():
 
     sp = sub.add_parser("append-ledger", help="the only sanctioned way to append a ledger.csv row -- short summary in the CSV, full narrative in a separate briefing file")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
-    sp.add_argument("--ts", required=True)
+    sp.add_argument("--ts", default=None, help="default: now, from the script clock (never hand-type it)")
     sp.add_argument("--mode", required=True, choices=["quick", "deep"])
     sp.add_argument("--value-usd", required=True, type=float)
     sp.add_argument("--usdinr", required=True, type=float)
@@ -4466,6 +4599,16 @@ def main():
     sp.add_argument("--value-trust", default="ok")
     sp.add_argument("--summary", required=True, help=f"short one-liner, max {300} chars -- full narrative goes in --briefing-file")
     sp.add_argument("--briefing-file", default=None, help="path to the full run narrative (e.g. runs/<ts>/briefing.md); the ledger notes cell stores a pointer to it, not the text itself")
+
+    sp = sub.add_parser("trade-rationale", help="attach a reason to trades ledger-apply already recorded -- the only way a reason reaches trades.json")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--ticker", default=None)
+    sp.add_argument("--date", default=None, help="trade date YYYY-MM-DD")
+    sp.add_argument("--side", default=None, choices=["buy", "sell"])
+    sp.add_argument("--message-id", default=None)
+    sp.add_argument("--reason", required=True)
+    sp.add_argument("--notes", default=None)
+    sp.add_argument("--overwrite", action="store_true", help="replace a reason that is already captured")
 
     sp = sub.add_parser("lock", help="script-owned run lock: acquire|heartbeat|release|status")
     sp.add_argument("action", choices=("acquire", "heartbeat", "release", "status"))
@@ -4572,6 +4715,9 @@ def main():
     sp.add_argument("--ticker", required=True, help="one ticker, or a comma-separated list")
 
     sp = sub.add_parser("pipeline", help="run all per-run computes in dependency order, failing loudly")
+    sp.add_argument("--stages", default=None, help="comma-separated subset of stages to run")
+    sp.add_argument("--from", dest="from_stage", default=None,
+                    help="resume from this stage (e.g. after ledger-apply: --from lots)")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--run-dir", required=True)
     sp.add_argument("--today", default=None)
@@ -4755,7 +4901,7 @@ def main():
          "crosscheck": cmd_crosscheck, "bookcalc": cmd_bookcalc, "taxcalc": cmd_taxcalc,
          "valuation": cmd_valuation,
          "sync-decisions": cmd_sync_decisions,
-         "lock": cmd_lock, "commit-state": cmd_commit_state, "health": cmd_health,
+         "trade-rationale": cmd_trade_rationale, "lock": cmd_lock, "commit-state": cmd_commit_state, "health": cmd_health,
          "memory-summary": cmd_memory_summary, "preflight": cmd_preflight, "abort": cmd_abort}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")

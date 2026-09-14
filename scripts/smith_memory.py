@@ -822,6 +822,9 @@ LEDGER_HEADER = ["ts", "mode", "value_usd", "usdinr", "wallet_usd", "spx", "ndx"
 LEDGER_SUMMARY_MAX_CHARS = 300
 
 
+LEDGER_FUTURE_SKEW_MIN = 5
+
+
 def cmd_append_ledger(args):
     """The only sanctioned way to append a ledger.csv row (added 2026-08-29, same-day
     incident). Before this command existed, a run's whole narrative -- often 3,000-4,000
@@ -869,6 +872,8 @@ def cmd_append_ledger(args):
     # spine; a column that is 97% one format and silently 3% another is a trap for the next
     # reader who does arithmetic on it. Recoverable shapes are NORMALISED (with the correction
     # reported, never silent); anything unparseable is refused outright.
+    if not args.ts:
+        args.ts = now_utc().isoformat(timespec="seconds")
     ts_in = args.ts
     if not LEDGER_TS_RE.match(str(ts_in).strip()):
         parsed = parse_ts(ts_in)
@@ -881,6 +886,12 @@ def cmd_append_ledger(args):
                          "not ISO-8601 with offset; normalised rather than written verbatim"}
     else:
         ts_normalised = None
+    # A hand-typed ts landed in the future on 2026-09-14 (19:07Z, written at 19:51Z the day
+    # before). A ledger row describes a run that has already happened; refuse a future one.
+    _dt = parse_ts(args.ts)
+    if _dt and _dt > now_utc() + timedelta(minutes=LEDGER_FUTURE_SKEW_MIN):
+        fail(f"--ts {args.ts} is in the future (now {iso_utc()}). Omit --ts to stamp from the "
+             f"script clock.")
 
     # BENCHMARK GUARD (added 2026-09-08, user-reported). The chart's plausibility gate keeps a
     # corrupt cell out of the tally, but the real defect is upstream: --smh was taken verbatim,
@@ -922,11 +933,13 @@ def cmd_append_ledger(args):
     row = [args.ts, args.mode, args.value_usd, args.usdinr, args.wallet_usd, args.spx,
            args.ndx, args.smh or "", args.smh_asof or "", args.est_net_flows_usd or "",
            args.external_flow_usd or "", args.value_trust, notes]
-    with open(ledger_path, "a", newline="") as f:
-        w = csv.writer(f)
-        if is_new:
-            w.writerow(LEDGER_HEADER)
-        w.writerow(row)
+    import io
+    buf = io.StringIO()
+    w = csv.writer(buf)                  # default \r\n terminator, identical to the old writer
+    if is_new:
+        w.writerow(LEDGER_HEADER)
+    w.writerow(row)
+    atomic_append_line(ledger_path, buf.getvalue())
     emit({"ts_normalised": ts_normalised, "appended": True, "ts": args.ts, "notes_chars": len(notes),
           "briefing_file": briefing_path})
 
@@ -1826,6 +1839,19 @@ def validate_ticker_map_coverage(base_dir):
             f"and require a smith-ledger dispatch to sort out by hand."]
 
 
+def validate_trade_provenance(base_dir):
+    """Every trades.json row must say where its price came from: `stops` quarantines
+    `reconstructed` rows, and a row with no `price_source` at all cannot be quarantined."""
+    trades = (load_json(os.path.join(base_dir, "trades.json"), default={}) or {}).get("trades") or []
+    bare = [t for t in trades if isinstance(t, dict) and t.get("type") != "corporate_action"
+            and not t.get("price_source")]
+    if not bare:
+        return []
+    sample = ", ".join(f"{t.get('ticker')}@{str(t.get('date'))[:10]}" for t in bare[:5])
+    return [f"TRADE PROVENANCE: {len(bare)} trades.json row(s) carry no price_source ({sample}) -- "
+            f"record fills only through ledger-apply"]
+
+
 def validate_cluster_playbooks(policy, state):
     """smith-cluster's ranking axes live in policy.cluster_playbooks, so every cluster a HELD name
     maps to needs an entry, slugs must be unique (a slug is an agent key and a filename), and each
@@ -1876,10 +1902,11 @@ def cmd_validate(args):
     aggrisk_defects = validate_aggregate_risk(args.base_dir, state)
     ticker_map_defects = validate_ticker_map_coverage(args.base_dir)
     playbook_defects = validate_cluster_playbooks(policy, state)
+    provenance_defects = validate_trade_provenance(args.base_dir)
     all_defects = (policy_defects + cache_defects + thesis_defects + learning_defects
                    + proposals_defects + narrative_defects
                    + earnings_pending_defects + freshness_defects + ledger_defects + run_defects
-                   + aggrisk_defects + ticker_map_defects + playbook_defects)
+                   + aggrisk_defects + ticker_map_defects + playbook_defects + provenance_defects)
 
     emit({
         "policy_present": policy is not None,
