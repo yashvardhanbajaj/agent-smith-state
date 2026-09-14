@@ -71,6 +71,7 @@ from smith_ledger import _avg_cost_from_lots, _months_between, policy_ltcg_month
 from smith_lifecycle import _proposal_parse_date
 from smith_ledger import cmd_trade_rationale  # noqa: E402
 from smith_marketdata import cmd_indicators, cmd_normalize_bars, cmd_session_gate  # noqa: E402
+from smith_orchestrate import cmd_dispatch_plan, cmd_triggers_diff, cmd_postflight  # noqa: E402
 from smith_runlife import (cmd_lock, cmd_commit_state, cmd_health,  # noqa: E402
                            cmd_memory_summary, cmd_preflight, cmd_abort)
 
@@ -4616,6 +4617,35 @@ def main():
     sp.add_argument("--notes", default=None)
     sp.add_argument("--overwrite", action="store_true", help="replace a reason that is already captured")
 
+    sp = sub.add_parser("dispatch-plan", help="which sub-agents run this sweep, in which wave, and why")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--mode", choices=("quick", "deep"), required=True)
+    sp.add_argument("--ask", action="append", default=[],
+                    choices=("thesis", "watchlist", "why", "quality", "cycle"),
+                    help="an explicit user ask that forces an agent (repeatable)")
+    sp.add_argument("--today", default=None)
+
+    sp = sub.add_parser("triggers-diff", help="priced-refresh materiality gate vs the previous run")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--prev", default=None, help="default: newest other run dir with compute_triggers.json")
+
+    sp = sub.add_parser("postflight", help="PERSIST as code: --phase commit (state/journals/ledger/reports) then --phase close (compact/prune/git/lock)")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--phase", choices=("commit", "close"), required=True)
+    sp.add_argument("--mode", choices=("quick", "deep", "priced", "refresher", "holiday"), required=True)
+    sp.add_argument("--today", default=None)
+    sp.add_argument("--run-id", default=None)
+    sp.add_argument("--summary", default="", help="<=300-char ledger one-liner")
+    sp.add_argument("--briefing-file", default=None)
+    sp.add_argument("--external-flow-usd", default=None)
+    sp.add_argument("--no-ledger", action="store_true")
+    sp.add_argument("--no-decisions", action="store_true")
+    sp.add_argument("--no-git", action="store_true")
+    sp.add_argument("--keep-runs", type=int, default=10)
+
     sp = sub.add_parser("indicators", help="ATR20/RSI14/ret_5d/rel strength/52w/beta caches from bars.json (script-owned)")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--run-dir", required=True)
@@ -4897,7 +4927,7 @@ def main():
     args = p.parse_args()
     # Every run-scoped command refreshes the heartbeat of the lock its run holds. Best effort:
     # a heartbeat failure must never fail the command it rides on.
-    if getattr(args, "run_dir", None) and args.cmd not in ("lock", "preflight", "abort"):
+    if getattr(args, "run_dir", None) and args.cmd not in ("lock", "preflight", "abort", "postflight"):
         try:
             import smith_state
             smith_state.lock_heartbeat(getattr(args, "base_dir", DEFAULT_BASE), run_dir=args.run_dir)
@@ -4926,6 +4956,7 @@ def main():
          "valuation": cmd_valuation,
          "sync-decisions": cmd_sync_decisions,
          "trade-rationale": cmd_trade_rationale, "indicators": cmd_indicators,
+         "dispatch-plan": cmd_dispatch_plan, "triggers-diff": cmd_triggers_diff, "postflight": cmd_postflight,
          "normalize-bars": cmd_normalize_bars, "session-gate": cmd_session_gate, "lock": cmd_lock, "commit-state": cmd_commit_state, "health": cmd_health,
          "memory-summary": cmd_memory_summary, "preflight": cmd_preflight, "abort": cmd_abort}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully

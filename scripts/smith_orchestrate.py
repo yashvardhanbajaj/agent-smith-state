@@ -1,0 +1,437 @@
+"""Orchestration decisions and end-of-run persistence, as code (added 2026-09-14).
+
+Three things SKILL.md used to ask the orchestrator LLM to do by reading prose every run:
+  dispatch-plan   which sub-agents run this sweep, in which wave, and why. Every threshold here
+                  is the one SKILL.md/deep-mode-dispatch.md already stated -- copied, not retuned.
+  triggers-diff   the priced-refresh materiality gate: did the trigger set, the cash-band status or
+                  the gate category change since the previous run?
+  postflight      PERSIST as two script calls: `commit` (state block, commit-state, journal merge,
+                  trigger_journal append, ledger row, reports, DECISIONS.md) and `close` (compact,
+                  run-dir pruning, git snapshot, lock release).
+"""
+import contextlib
+import csv
+import io
+import json
+import os
+import shutil
+import subprocess
+import sys
+from argparse import Namespace
+from datetime import date, timedelta
+
+from smith_core import *  # noqa: F401,F403
+import smith_state as ss
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+WAVE = {"catalyst": 1, "signals": 1, "watchlist": 1, "scout": 1, "earnings": 1, "quality": 1,
+        "thesis": 2, "cycle": 2, "rebound": 2, "strategist": 3}
+# THESIS trigger (a): a live price trigger on a held name.
+THESIS_LIVE_FAMILIES = ("oversold_reversion", "overbought_distribution", "catalyst_threat", "thesis_break")
+MACRO_US10Y_PTS, MACRO_VIX = 0.12, 22.0
+CATALYST_SMH_PCT, CATALYST_ASIA_PCT, CATALYST_CLUSTER_PCT = 3.0, 3.0, 4.0
+EARNINGS_WINDOW_TRADING_DAYS = 5
+CLUSTER_MAX = 3
+# Priced-refresh materiality gate, part (a).
+MATERIAL_FAMILIES = ("oversold_reversion", "overbought_distribution", "catalyst_threat", "thesis_break", "stretch")
+RUNS_KEEP = 10
+
+
+def _j(path, default=None):
+    return load_json(path, default=default)
+
+
+def _capture(fn, **kw):
+    buf = io.StringIO()
+    code = 0
+    try:
+        with contextlib.redirect_stdout(buf):
+            fn(Namespace(**kw))
+    except SystemExit as e:
+        code = e.code or 0
+    lines = [l for l in buf.getvalue().strip().splitlines() if l.strip()]
+    try:
+        out = json.loads(lines[-1]) if lines else {}
+    except ValueError:
+        out = {"raw": buf.getvalue()[-300:]}
+    if code:
+        out.setdefault("error", out.get("error") or f"exited {code}")
+    return out
+
+
+def _ledger_rows(base_dir):
+    try:
+        with open(os.path.join(base_dir, "ledger.csv"), newline="") as fh:
+            return list(csv.DictReader(fh))
+    except OSError:
+        return []
+
+
+def _held(run_dir):
+    h = _j(os.path.join(run_dir, "holdings.json"), {}) or {}
+    return {r.get("ticker") for r in (h.get("holdings_inr") or []) if r.get("ticker")}
+
+
+def _trading_days_until(today, target):
+    if target < today:
+        return None
+    n, d = 0, today
+    while d < target:
+        d += timedelta(days=1)
+        if d.weekday() < 5:
+            n += 1
+    return n
+
+
+# ---------------------------------------------------------------------------------------------
+# dispatch-plan
+# ---------------------------------------------------------------------------------------------
+def dispatch_plan(base_dir, run_dir, mode, asks=(), today=None):
+    today = resolve_today(today)
+    asks = set(asks or ())
+    mi = _j(os.path.join(run_dir, "market_inputs.json"), {}) or {}
+    trig = _j(os.path.join(run_dir, "compute_triggers.json"), {}) or {}
+    ladder = _j(os.path.join(run_dir, "compute_ladder.json"), {}) or {}
+    fresh = _j(os.path.join(run_dir, "compute_freshness.json"), {}) or {}
+    session = _j(os.path.join(run_dir, "compute_session.json"), {}) or {}
+    holdings = _j(os.path.join(run_dir, "holdings.json"), {}) or {}
+    state = _j(os.path.join(base_dir, "state.json"), {}) or {}
+    held = _held(run_dir)
+    dc = state.get("data_cache") or {}
+    agents, skipped, scripts = {}, {}, []
+
+    def add(key, reason, agent=None, wave=None, **extra):
+        a = agents.setdefault(key, {"agent": agent or f"smith-{key}",
+                                    "wave": wave or WAVE.get(key, 2), "reasons": []})
+        a["reasons"].append(reason)
+        a.update(extra)
+
+    pending = sorted(t for t, f in (dc.get("earnings_facts") or {}).items()
+                     if isinstance(f, dict) and f.get("status") == "PENDING"
+                     and str(f.get("reported_date") or "9999")[:10] <= today.isoformat())
+
+    add("signals", "every run")
+    if mode == "deep":
+        for k in ("thesis", "watchlist", "catalyst"):
+            add(k, "deep roster (mandatory)")
+        add("scout", "deep roster (mandatory)", mode="full")
+    else:
+        live = sorted({r.get("ticker") for fam in THESIS_LIVE_FAMILIES for r in (trig.get(fam) or [])
+                       if isinstance(r, dict) and r.get("ticker") in held})
+        if live:
+            add("thesis", f"live price trigger on held {', '.join(live)}")
+        stale = [a.get("key") for a in (fresh.get("artefacts") or [])
+                 if isinstance(a, dict) and str(a.get("key", "")).split(".")[-1] == "thesis"
+                 and a.get("state") in ("stale", "dark")]
+        if stale:
+            add("thesis", "thesis artefact stale or dark")
+        if pending:
+            add("thesis", f"post-print status pending adjudication: {', '.join(pending)}")
+        if "thesis" in asks:
+            add("thesis", "user asked about a holding's story")
+        if "thesis" not in agents:
+            skipped["thesis"] = "no live trigger on a held name, no staleness, no pending print, no ask"
+        if "watchlist" in asks:
+            add("watchlist", "user asked about the watchlist")
+        else:
+            skipped["watchlist"] = "quick mode, no explicit ask"
+        us10y, vix = mi.get("us10y_change_pts"), mi.get("vix")
+        macro = []
+        if isinstance(us10y, (int, float)) and abs(us10y) >= MACRO_US10Y_PTS:
+            macro.append(f"|us10y_change_pts| {abs(us10y):.3f} >= {MACRO_US10Y_PTS}")
+        if isinstance(vix, (int, float)) and vix >= MACRO_VIX:
+            macro.append(f"VIX {vix} >= {MACRO_VIX}")
+        if macro:
+            add("scout", "MACRO trigger: " + "; ".join(macro), mode="macro_only")
+        gate = session.get("gate_classification") or holdings.get("gate_classification")
+        if gate == "ESCALATING":
+            add("catalyst", "gate ESCALATING")
+        smh = mi.get("smh_change_pct")
+        if isinstance(smh, (int, float)) and abs(smh) >= CATALYST_SMH_PCT:
+            add("catalyst", f"SMH {smh:+.2f}%")
+        for k, v in (mi.get("asia") or {}).items():
+            if isinstance(v, (int, float)) and abs(v) >= CATALYST_ASIA_PCT:
+                add("catalyst", f"{k.replace('_change_pct', '')} {v:+.2f}%")
+        for c, v in (session.get("cluster_moves_pct") or {}).items():
+            if isinstance(v, (int, float)) and abs(v) >= CATALYST_CLUSTER_PCT:
+                add("catalyst", f"cluster {c} {v:+.2f}%")
+        if "why" in asks:
+            add("catalyst", "user asked why something moved")
+
+    cs = trig.get("correction_state")
+    if cs in ("correction", "deep_correction"):
+        add("rebound", f"correction_state={cs}")
+    if pending:
+        add("earnings", f"VERIFY-ONLY: stuck PENDING {', '.join(pending)}", mode="verify_only",
+            tickers=pending, model="sonnet")
+
+    if mode == "deep":
+        soon = []
+        for t in sorted(held):
+            e = (dc.get("earnings_calendar") or {}).get(t)
+            try:
+                d = date.fromisoformat(str((e or {}).get("date"))[:10])
+            except ValueError:
+                continue
+            n = _trading_days_until(today, d)
+            if n is not None and n <= EARNINGS_WINDOW_TRADING_DAYS:
+                soon.append(f"{t} {d}")
+        if soon:
+            add("earnings", f"held name(s) report within {EARNINGS_WINDOW_TRADING_DAYS} trading days: "
+                            f"{', '.join(soon)}", mode="full")
+            agents["earnings"].pop("model", None)
+        month = today.strftime("%Y-%m")
+        deep_rows = sum(1 for r in _ledger_rows(base_dir) if r.get("mode") == "deep"
+                        and (parse_ts(r.get("ts")) and parse_ts(r.get("ts")).astimezone(IST).strftime("%Y-%m") == month)
+                        and parse_ts(r.get("ts")).astimezone(IST).date() < today)
+        if deep_rows == 0:
+            add("cycle", "first deep review of the month")
+        elif deep_rows == 1:
+            add("quality", "second deep review of the month")
+            scripts.append("smith_edgar.py insider-cluster for the top 5 holdings by weight")
+        for key in (ladder.get("dispatch_selected") or [])[:CLUSTER_MAX]:
+            add(key, "cluster ladder dispatch gate (compute_ladder.json)", agent="smith-cluster", wave=2)
+        for a in fresh.get("artefacts") or []:
+            if isinstance(a, dict) and "hbm" in str(a.get("key", "")) and a.get("state") in ("stale", "dark"):
+                scripts.append("hbm-tracker narrow refresh BEFORE slices (hbm_tracker past TTL)")
+                break
+    if "quality" in asks:
+        add("quality", "user asked for a quality check")
+    if "cycle" in asks:
+        add("cycle", "user asked for a cycle read")
+    add("strategist", "every run")
+
+    waves = {"1": [], "2": [], "3": []}
+    for k, a in agents.items():
+        waves[str(a["wave"])].append(k)
+    for w in waves.values():
+        w.sort()
+    return {"mode": mode, "today": today.isoformat(), "waves": waves, "agents": agents,
+            "skipped": skipped, "scripts": scripts,
+            "merge_after_wave1": ",".join(waves["1"]),
+            "reslice_wave2": ",".join(waves["2"]),
+            "ledger": ("dispatch smith-ledger only if ledger-parse reports dispatch_agent, or lots "
+                       "reports a mismatch or phantom short")}
+
+
+def cmd_dispatch_plan(args):
+    emit(dispatch_plan(args.base_dir, args.run_dir, args.mode, args.ask, args.today))
+
+
+# ---------------------------------------------------------------------------------------------
+# triggers-diff
+# ---------------------------------------------------------------------------------------------
+def material_signature(run_dir):
+    trig = _j(os.path.join(run_dir, "compute_triggers.json"), {}) or {}
+    pairs = sorted({(fam, r.get("ticker")) for fam in MATERIAL_FAMILIES for r in (trig.get(fam) or [])
+                    if isinstance(r, dict) and r.get("ticker")})
+    drift = _j(os.path.join(run_dir, "compute_drift.json"), {}) or {}
+    cash, band = drift.get("cash_pct"), drift.get("cash_band_pct") or []
+    cash_state = (None if cash is None or len(band) != 2 else
+                  "below" if cash < band[0] else "above" if cash > band[1] else "inside")
+    gate = ((_j(os.path.join(run_dir, "compute_session.json"), {}) or {}).get("gate_classification")
+            or (_j(os.path.join(run_dir, "holdings.json"), {}) or {}).get("gate_classification"))
+    return {"trigger_pairs": [list(p) for p in pairs], "cash_band": cash_state, "gate": gate}
+
+
+def previous_run_dir(base_dir, current):
+    runs = os.path.join(base_dir, "runs")
+    cur = os.path.realpath(current)
+    cands = []
+    for name in os.listdir(runs) if os.path.isdir(runs) else []:
+        p = os.path.join(runs, name)
+        if os.path.realpath(p) == cur or not os.path.exists(os.path.join(p, "compute_triggers.json")):
+            continue
+        dt = parse_any(name)
+        cands.append((dt.isoformat() if dt else "", name, p))
+    return sorted(cands)[-1][2] if cands else None
+
+
+def cmd_triggers_diff(args):
+    prev = args.prev or previous_run_dir(args.base_dir, args.run_dir)
+    cur_sig = material_signature(args.run_dir)
+    if not prev:
+        emit({"changed": True, "prev": None, "reason": "no previous run with compute_triggers.json",
+              "current": cur_sig})
+        return
+    prev_sig = material_signature(prev)
+    a, b = {tuple(p) for p in prev_sig["trigger_pairs"]}, {tuple(p) for p in cur_sig["trigger_pairs"]}
+    reasons = []
+    if a != b:
+        reasons.append("trigger set changed")
+    if prev_sig["cash_band"] != cur_sig["cash_band"]:
+        reasons.append(f"cash band {prev_sig['cash_band']} -> {cur_sig['cash_band']}")
+    if prev_sig["gate"] != cur_sig["gate"]:
+        reasons.append(f"gate {prev_sig['gate']} -> {cur_sig['gate']}")
+    emit({"changed": bool(reasons), "prev": os.path.relpath(prev, args.base_dir), "reasons": reasons,
+          "added": sorted(b - a), "removed": sorted(a - b),
+          "cash_band": [prev_sig["cash_band"], cur_sig["cash_band"]],
+          "gate": [prev_sig["gate"], cur_sig["gate"]],
+          "instruction": ("proceed: score, re-slice and dispatch the strategist" if reasons else
+                          "unchanged: skip the strategist; refresh prices, dashboard and ledger only")})
+
+
+# ---------------------------------------------------------------------------------------------
+# postflight
+# ---------------------------------------------------------------------------------------------
+def _merge_journal(base_dir, run_dir, today):
+    cj = _j(os.path.join(run_dir, "compute_journal.json"), None)
+    if not isinstance(cj, dict):
+        return {"journal": "no compute_journal.json"}
+    path = os.path.join(base_dir, "journal.json")
+    updated = 0
+    with locked_json(path, default={"schema_version": 1, "entries": []}) as box:
+        j = box["obj"]
+        index = {(e.get("date"), e.get("ticker"), e.get("bucket")): e for e in j.get("entries", [])}
+        for u in cj.get("journal_updates") or []:
+            e = index.get((u.get("date"), u.get("ticker"), u.get("bucket")))
+            if e is None:
+                continue
+            for k, v in u.items():
+                if k not in ("date", "ticker", "bucket") and not k.startswith("_"):
+                    if e.get(k) != v:
+                        e[k] = v
+                        updated += 1
+        for k in ("bucket_hit_rates", "bucket_hit_rates_7d", "name_bucket_grades"):
+            if k in cj:
+                j[k] = cj[k]
+        j["last_updated"] = str(today)
+    return {"journal_fields_updated": updated}
+
+
+def _append_shadow_triggers(base_dir, run_dir, today):
+    trig = _j(os.path.join(run_dir, "compute_triggers.json"), {}) or {}
+    new = [r for r in (trig.get("shadow_new") or []) if isinstance(r, dict)]
+    if not new:
+        return {"trigger_journal_added": 0}
+    path = os.path.join(base_dir, "trigger_journal.json")
+    with locked_json(path, default={"schema_version": 1, "entries": []}) as box:
+        entries = box["obj"].setdefault("entries", [])
+        seen = {(e.get("date"), e.get("ticker"), e.get("trigger_type")) for e in entries}
+        added = 0
+        for r in new:
+            row = dict(r)
+            row.setdefault("date", str(today))
+            row.setdefault("scored", False)
+            key = (row.get("date"), row.get("ticker"), row.get("trigger_type"))
+            if key not in seen:
+                entries.append(row)
+                seen.add(key)
+                added += 1
+    return {"trigger_journal_added": added}
+
+
+def _stage_run_block(base_dir, run_dir, mode, today):
+    book = _j(os.path.join(run_dir, "compute_book.json"), {}) or {}
+    holdings = _j(os.path.join(run_dir, "holdings.json"), {}) or {}
+    st = ss.load_state(base_dir, run_dir)
+    if book.get("value_usd") is not None:
+        us = dict(st.get("us") or {})
+        for k in ("value_usd", "wallet_usd", "pnl_pct", "count", "top3", "beta",
+                  "peak_value_usd", "peak_total_book_usd", "total_book_usd", "drawdown_pct"):
+            if book.get(k) is not None:
+                us[k] = book[k]
+        st["us"] = us
+    rows = holdings.get("holdings_inr") or []
+    if rows:
+        st["holdings"] = [{"ticker": r.get("ticker"), "qty": r.get("qty"), "weight_pct": r.get("weight_pct")}
+                          for r in rows]
+        seen = st.setdefault("data_cache", {}).setdefault("last_seen", {})
+        for r in rows:
+            seen[r.get("ticker")] = str(today)
+    st["mode"] = mode
+    st["last_run_dir"] = os.path.relpath(os.path.realpath(run_dir), os.path.realpath(base_dir))
+    return ss.stage_state(base_dir, run_dir, st, by="postflight")
+
+
+def postflight_commit(args):
+    from smith_memory import cmd_append_ledger, cmd_report
+    base, rd = args.base_dir, args.run_dir
+    today = resolve_today(args.today)
+    out = {"phase": "commit", "mode": args.mode}
+    out["staged"] = _stage_run_block(base, rd, args.mode, today)
+    out["commit"] = ss.commit_state(base, rd, persist_safe=None)
+    out.update(_merge_journal(base, rd, today))
+    out.update(_append_shadow_triggers(base, rd, today))
+
+    book = _j(os.path.join(rd, "compute_book.json"), {}) or {}
+    mi = _j(os.path.join(rd, "market_inputs.json"), {}) or {}
+    holdings = _j(os.path.join(rd, "holdings.json"), {}) or {}
+    if args.no_ledger or args.mode in ("refresher", "holiday"):
+        out["ledger"] = "skipped (mode or --no-ledger)"
+    elif out["commit"]["persist_safe"] is False:
+        out["ledger"] = "skipped: persist_safe false"
+    elif None in (book.get("value_usd"), holdings.get("usdinr"), mi.get("spx"), mi.get("ndx")):
+        out["ledger"] = "skipped: value_usd/usdinr/spx/ndx missing"
+    else:
+        label = os.path.basename(os.path.normpath(rd))
+        out["ledger"] = _capture(
+            cmd_append_ledger, base_dir=base, ts=None, mode="deep" if args.mode == "deep" else "quick",
+            value_usd=book["value_usd"], usdinr=holdings["usdinr"], wallet_usd=book.get("wallet_usd") or 0.0,
+            spx=mi["spx"], ndx=mi["ndx"], smh=mi.get("smh"), smh_asof=None,
+            est_net_flows_usd=book.get("est_net_flows_usd"), external_flow_usd=args.external_flow_usd,
+            value_trust="ok", summary=(args.summary or f"{args.mode} run {label}")[:300],
+            briefing_file=args.briefing_file)
+    out["report_daily"] = _capture(cmd_report, kind="daily", base_dir=base, run_dir=rd, today=str(today))
+    if args.mode == "deep":
+        wk = today.isocalendar()[:2]
+        deep_this_week = [r for r in _ledger_rows(base) if r.get("mode") == "deep" and parse_ts(r.get("ts"))
+                          and parse_ts(r.get("ts")).astimezone(IST).date().isocalendar()[:2] == wk]
+        if len(deep_this_week) <= 1:
+            out["report_weekly"] = _capture(cmd_report, kind="weekly", base_dir=base, run_dir=rd,
+                                            today=str(today))
+    if not args.no_decisions:
+        p = subprocess.run([sys.executable, os.path.join(HERE, "gen_decisions_md.py")], cwd=base,
+                           capture_output=True, text=True, timeout=120)
+        out["decisions_md"] = "ok" if p.returncode == 0 else f"failed: {(p.stderr or p.stdout)[-200:]}"
+    return out
+
+
+def postflight_close(args):
+    from smith_memory import cmd_compact
+    base, rd = args.base_dir, args.run_dir
+    today = resolve_today(args.today)
+    out = {"phase": "close", "mode": args.mode}
+    if args.mode == "deep":
+        out["compact"] = _capture(cmd_compact, base_dir=base, holdings=os.path.join(rd, "holdings.json"),
+                                  today=str(today), write=True)
+    runs = os.path.join(base, "runs")
+    keep = max(1, args.keep_runs)
+    dirs = []
+    for name in (os.listdir(runs) if os.path.isdir(runs) else []):
+        p = os.path.join(runs, name)
+        if os.path.isdir(p):
+            dt = parse_any(name)
+            dirs.append((dt.isoformat() if dt else "", name, p))
+    dirs.sort()
+    cur = os.path.realpath(rd)
+    doomed = [p for _, _, p in dirs[:-keep] if os.path.realpath(p) != cur]
+    for p in doomed:
+        shutil.rmtree(p, ignore_errors=True)
+    out["runs_pruned"] = [os.path.basename(p) for p in doomed]
+    if not args.no_git and os.path.isdir(os.path.join(base, ".git")):
+        label = os.path.basename(os.path.normpath(rd))
+        steps = [["git", "add", "-A"], ["git", "commit", "-q", "-m", f"run {label} {args.mode} [skip ci]"],
+                 ["git", "push", "-q"]]
+        res = []
+        for cmd in steps:
+            try:
+                p = subprocess.run(cmd, cwd=base, capture_output=True, text=True, timeout=90)
+                res.append(p.returncode)
+            except (OSError, subprocess.SubprocessError):
+                res.append("error")
+        out["git"] = dict(zip(("add", "commit", "push"), res))
+    lock = ss.lock_status(base)
+    holder = lock.get("holder") or {}
+    run_id = args.run_id or holder.get("run_id")
+    if lock["held"] and lock.get("kind") == "smith" and (
+            holder.get("run_id") == args.run_id or holder.get("run_dir") == os.path.basename(os.path.normpath(rd))):
+        out["lock"] = ss.lock_release(base, run_id)
+    else:
+        out["lock"] = {"released": False, "reason": "no lock held by this run"}
+    return out
+
+
+def cmd_postflight(args):
+    emit(postflight_commit(args) if args.phase == "commit" else postflight_close(args))
