@@ -955,22 +955,25 @@ details[open] > summary .caret{color:var(--acc)}
 .kv dt{color:var(--ink-3)}
 .kv dd{margin:0;font-family:var(--mono);text-align:right}
 
-/* the read ---------------------------------------------------------------- */
-.read{padding:16px 18px 18px}
-.rd-lead{margin:0;font-size:17px;line-height:1.5;max-width:60ch;letter-spacing:-.005em;
+/* the read ------------------------------------------------------------------
+   Tightened 2026-09-15 -- user flagged too much blank space. Halved the
+   lead-to-body gap, the inter-sentence gap, and the panel's own padding;
+   line-heights trimmed enough to read denser without feeling cramped. */
+.read{padding:11px 18px 13px}
+.rd-lead{margin:0;font-size:16px;line-height:1.35;max-width:62ch;letter-spacing:-.005em;
   font-weight:500;text-wrap:pretty}
-.rd-body{margin-top:12px;display:flex;flex-direction:column;gap:9px;
-  border-left:2px solid var(--line);padding-left:15px}
-.rd-body p{margin:0;font-size:13.5px;line-height:1.62;max-width:66ch;color:var(--ink-2);
+.rd-body{margin-top:6px;display:flex;flex-direction:column;gap:3px;
+  border-left:2px solid var(--line);padding-left:12px}
+.rd-body p{margin:0;font-size:13px;line-height:1.42;max-width:68ch;color:var(--ink-2);
   text-wrap:pretty}
 .rd-fig{font-family:var(--mono);font-size:.94em;color:var(--ink);
   font-variant-numeric:tabular-nums}
-.rd-fwd{margin-top:16px;padding:11px 14px;background:var(--acc-soft);border-radius:5px;
+.rd-fwd{margin-top:10px;padding:8px 12px;background:var(--acc-soft);border-radius:5px;
   max-width:70ch}
 .rd-fwd-k{display:block;font-family:var(--cond);font-size:10.5px;font-weight:600;
-  letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin-bottom:5px}
-.rd-fwd p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink);text-wrap:pretty}
-.rd-fwd p+p{margin-top:6px}
+  letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.rd-fwd p{margin:0;font-size:13px;line-height:1.42;color:var(--ink);text-wrap:pretty}
+.rd-fwd p+p{margin-top:4px}
 .read .tk{font-size:.95em}
 
 /* charts ------------------------------------------------------------------ */

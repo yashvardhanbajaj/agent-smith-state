@@ -451,17 +451,18 @@ class TestCheckConditionBasedRetirement:
         assert result is not None
         assert "time-bound" in pr["retired_reason"]
 
-    def test_restatement_backstop_fires_at_three_repeats(self, no_breach):
-        pr = make_proposal(ticker="AAA", direction_bucket="TRIM", repeat_count=3)
+    def test_restatement_alone_no_longer_retires(self, no_breach):
+        # User decision 2026-09-15: repeat_count is no longer a retirement signal on its own --
+        # only a proposal whose underlying condition has genuinely stopped making sense should
+        # retire. A high repeat_count with a live condition (over_cap here) must stay open.
+        pr = make_proposal(ticker="AAA", direction_bucket="TRIM", repeat_count=9)
         result = sl._check_condition_based_retirement(
             pr, today_date=date(2026, 8, 20), risk_by_ticker={"AAA": {"over_cap": True}},
             directional_breach=no_breach, current_tickers={"AAA"}, drift={}, trig_rsi={},
             trig_abs={}, trigger_live_sets={}, state_thesis={}, derisk={}, cluster_breach={},
             rotation_by_ticker={}, hit_rates_7d={}, parse_date=sl._proposal_parse_date,
             hold_max_age_days=2)
-        # over_cap alone would keep it open, but the 3x-restatement backstop overrides that.
-        assert result is not None
-        assert "0-for-17" in pr["retired_reason"]
+        assert result is None
 
     def test_paired_rotation_leg_is_never_retired_here(self, no_breach):
         pr = make_proposal(ticker="AAA", direction_bucket="SELL", trigger_type="profit_rotation",
