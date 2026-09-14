@@ -39,14 +39,23 @@ Stages the pipeline deliberately does NOT run (each needs something it cannot su
   dismiss     --base-dir DIR --id P-### [--reason "..."]        user-invoked, terminal
   validate    --base-dir DIR                                    policy sanity check, not per-run
 """
+import fcntl
 import json
 import math
 import os
 import re
+import shutil
 import sys
+import tempfile
+from contextlib import contextmanager
 from datetime import date, datetime, timezone, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# Re-exported: every module does `from smith_core import *`, so this puts the one clock in reach
+# of all of them without a new import line each.
+from smith_clock import (IST, ET, now_utc, desk_today, session_date, resolve_today,  # noqa: E402
+                         parse_any, iso_utc, run_label)
 
 
 """Shared primitives: constants and IO helpers used by every Smith module."""
@@ -334,28 +343,13 @@ HEADWIND_BUCKET_MAX_AGE_DAYS = 10
 #       IST clock time put a run 5.5 hours from where it happened and sent a filesystem search
 #       to the wrong window, which produced a confidently wrong "the run wrote nothing" read.
 # So: one parser, one renderer, and both always show BOTH zones.
-IST = timezone(timedelta(hours=5, minutes=30))
 LEDGER_TS_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$")
 
 
 def parse_ts(value):
     """Parse a ledger/artefact timestamp. Returns an aware datetime, or None if unparseable.
-
-    Deliberately strict about what it ACCEPTS as a real timestamp but lenient about what it can
-    read, so a validator can tell "malformed but recoverable" from "not a timestamp at all"."""
-    t = str(value or "").strip()
-    try:
-        dt = datetime.fromisoformat(t)
-        return dt if dt.tzinfo else dt.replace(tzinfo=IST)
-    except ValueError:
-        pass
-    m = re.match(r"^(\d{4}-\d{2}-\d{2})-(\d{2})(\d{2})$", t)   # run-dir label, e.g. 2026-08-31-1554
-    if m:
-        return datetime.fromisoformat(f"{m.group(1)}T{m.group(2)}:{m.group(3)}:00").replace(tzinfo=IST)
-    try:
-        return datetime.fromisoformat(t[:10]).replace(tzinfo=IST)
-    except ValueError:
-        return None
+    Zone-less values are IST. Delegates to smith_clock.parse_any -- one parser for the desk."""
+    return parse_any(value, naive_tz=IST)
 
 
 def fmt_ts(value):
@@ -657,21 +651,98 @@ def clamp(x, lo=0.0, hi=100.0):
     return max(lo, min(hi, x))
 
 
+def _fsync_dir(dirpath):
+    try:
+        fd = os.open(dirpath, os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(fd)
+    except OSError:
+        pass
+    finally:
+        os.close(fd)
+
+
+def atomic_write_text(path, text):
+    """tmp-in-the-same-directory -> fsync -> os.replace -> fsync(dir). A crash leaves the old file
+    or the new one, never a truncated one. The tmp name is unique (two writers can no longer
+    clobber each other's `.tmp`) and the destination keeps its previous permission bits."""
+    path = os.path.abspath(path)
+    d = os.path.dirname(path)
+    try:
+        mode = os.stat(path).st_mode & 0o7777
+    except FileNotFoundError:
+        mode = 0o644
+    fd, tmp = tempfile.mkstemp(dir=d, prefix=os.path.basename(path) + ".", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w") as f:
+            f.write(text)
+            f.flush()
+            os.fsync(f.fileno())
+        os.chmod(tmp, mode)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+    _fsync_dir(d)
+
+
+def atomic_write_json(path, obj, indent=2):
+    """Atomic JSON write with no .bak -- for regenerable run-dir outputs. Serialises BEFORE
+    touching the filesystem, so an unserialisable object never produces a partial file."""
+    atomic_write_text(path, json.dumps(obj, indent=indent))
+
+
 def safe_write(path, obj):
-    """WRITE SAFETY contract for any memory-of-record file: .bak (one rolling generation) then
-    tmp-then-mv. An interrupted run leaves either the old file intact or a stray .tmp, never a
-    truncated file. Promoted here 2026-08-25 from smith_memory._safe_write (added 2026-08-16) --
-    that copy was the only one three places actually used; five other call sites
-    (smith_ledger.py, four in smith_lifecycle.py) had each hand-rolled a WEAKER version that
-    skips the .bak half entirely (tmp-then-mv only). Every module already does
-    `from smith_core import *`, so this is reachable everywhere without a new import -- the
-    prior home in smith_memory required a manual cross-module import that nobody added."""
+    """WRITE SAFETY contract for any memory-of-record file: one rolling .bak generation, then an
+    atomic replace (see atomic_write_text). Output bytes are identical to the historical
+    json.dump(obj, f, indent=2) contract."""
+    text = json.dumps(obj, indent=2)          # fail before the .bak is rotated, not after
     if os.path.exists(path):
-        with open(path) as f_in, open(path + ".bak", "w") as f_out:
-            f_out.write(f_in.read())
-    with open(path + ".tmp", "w") as f:
-        json.dump(obj, f, indent=2)
-    os.replace(path + ".tmp", path)
+        shutil.copy2(path, path + ".bak")
+    atomic_write_text(path, text)
+
+
+def atomic_append_line(path, line):
+    """Append one line under an exclusive flock, then fsync. For append-only records (ledger.csv)."""
+    if not line.endswith("\n"):
+        line += "\n"
+    with open(path, "a") as f:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        try:
+            f.write(line)
+            f.flush()
+            os.fsync(f.fileno())
+        finally:
+            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+
+
+@contextmanager
+def file_lock(dirpath, name=".smith.writelock"):
+    """Advisory exclusive lock shared by every read-modify-write on files in `dirpath`."""
+    fd = os.open(os.path.join(dirpath, name), os.O_CREAT | os.O_RDWR, 0o644)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        yield
+    finally:
+        try:
+            fcntl.flock(fd, fcntl.LOCK_UN)
+        finally:
+            os.close(fd)
+
+
+@contextmanager
+def locked_json(path, default=None):
+    """Load -> caller mutates box["obj"] -> safe_write, all under file_lock. If the body raises,
+    nothing is written."""
+    with file_lock(os.path.dirname(os.path.abspath(path))):
+        box = {"obj": load_json(path, default=default)}
+        yield box
+        safe_write(path, box["obj"])
 
 # Metadata keys that live ALONGSIDE ticker entries inside a stamped cache map. `as_of` is
 # written as a sibling of the tickers in earnings_calendar and analyst_targets (see

@@ -334,7 +334,7 @@ def cmd_lots(args):
                              "Do NOT hand-edit: re-running the engine overwrites it. Record "
                              "share-moving events that generate no buy/sell confirmation as "
                              "corporate_action rows in trades.json instead."),
-                   "_rebuilt": str(date.today())}
+                   "_rebuilt": str(desk_today())}
         payload.update(out)
         safe_write(path, payload)
         written = path
@@ -400,7 +400,7 @@ def cmd_history(args):
                        f"{rows[0].get('date')} and {rows[-1].get('date')} "
                        f"({len(buys)} buys, {len(sells)} sells), peak {round(peak, 4)} shares."),
         }
-    emit({"generated": str(date.today()), "source": "trades.json + lots.json",
+    emit({"generated": str(desk_today()), "source": "trades.json + lots.json",
           "tickers": out,
           "note": ("G72 fix. state.thesis and state.signal_history are seeded from CURRENT "
                    "holdings, so an exited name is silent in both by construction. Answer "
@@ -544,7 +544,7 @@ def cmd_universe(args):
         dq.append("T5_MARKET is empty -- no screener_candidates persisted. Expected on any run "
                   "that is not the weekly discovery sweep; not a defect on a daily run.")
 
-    emit({"as_of": (args.today or str(date.today())),
+    emit({"as_of": (str(resolve_today(args.today))),
           "counts": counts,
           "total": len(rows),
           "suppressed_count": sum(1 for r in rows if r["suppressed"]),
@@ -910,7 +910,7 @@ def cmd_bookcalc(args):
     summ = load_json(args.summary_file, default={}) if args.summary_file else {}
     state = load_json(os.path.join(base, "state.json"), default={}) or {}
     betas = ((state.get("data_cache") or {}).get("betas") or {})
-    today = date.fromisoformat(args.today) if args.today else date.today()
+    today = resolve_today(args.today)
 
     rows = holdings.get("holdings_inr") or []
     total_usd = sum((r.get("market_value_usd") or 0) for r in rows) or 1.0

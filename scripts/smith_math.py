@@ -208,7 +208,7 @@ def cmd_build_holdings(args):
         snap.get("asset_summary", {}).get("total_value_usd", total_val_usd))
 
     holdings_doc = {
-        "ts": args.ts or datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "ts": args.ts or iso_utc(),
         "usdinr": usdinr,
         "market_session": args.market_session,
         "gate_classification": args.gate_classification,
@@ -452,7 +452,7 @@ def cmd_book(args):
 
     ltcg_flags = []
     ltcg_boundary_months = load_json(os.path.join(args.base_dir, "policy.json"), default={}).get("ltcg_boundary_months", 24)
-    today = date.today()
+    today = desk_today()
     lots = dict(smith_risk.data_entries(lots, value_type=list))   # one canonical filter (2026-08-16)
     if lots:
         for ticker, lot_list in lots.items():
@@ -736,7 +736,7 @@ def cmd_journal(args):
         injected = load_json(args.prices_json, default={})
     price_by_ticker = {**price_by_ticker, **injected}
 
-    today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    today = resolve_today(args.today)
 
     prior_by_key = {}
     for e in journal.get("entries", []):
@@ -1241,7 +1241,7 @@ def cmd_drift(args):
         if last_stop:
             try:
                 d0 = datetime.strptime(last_stop, "%Y-%m-%d").date()
-                today_d = datetime.strptime(args.today, "%Y-%m-%d").date() if getattr(args, "today", None) else date.today()
+                today_d = resolve_today(getattr(args, "today", None))
                 sessions_since = int((today_d - d0).days * 5 / 7)  # calendar->trading-day approximation
             except ValueError:
                 sessions_since = None
@@ -1489,7 +1489,7 @@ def cmd_ladder(args):
               "data_quality": ["compute_risk.json not found in run-dir -- run `risk` before `ladder`"]})
         return
 
-    today = date.fromisoformat(args.today) if args.today else date.today()
+    today = resolve_today(args.today)
     dq = []
     dc = state.get("data_cache", {}) or {}
     thesis = state.get("thesis", {}) or {}
@@ -2074,7 +2074,7 @@ def cmd_derisk(args):
     policy = load_json(os.path.join(args.base_dir, "policy.json"), default={})
     lots = load_json(os.path.join(args.base_dir, "lots.json"), default={})
 
-    today = date.fromisoformat(args.today) if args.today else date.today()
+    today = resolve_today(args.today)
     ltcg_months = (policy.get("mandate") or {}).get("ltcg_months", LTCG_MONTHS_DEFAULT)
     dust_usd = (policy.get("mandate") or {}).get("dust_position_usd", DUST_USD_DEFAULT)
 
@@ -3264,7 +3264,7 @@ def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cl
             continue
         entry = (cluster_ladders or {}).get(cluster)
         authority, eff_conf, auth_reasons = smith_risk.ladder_authority(
-            entry, today or date.today(), ttl_days=LADDER_TTL_DAYS,
+            entry, today or desk_today(), ttl_days=LADDER_TTL_DAYS,
             min_scored=LADDER_MIN_SCORED_CALLS) if entry else ("none", None, [])
         picked = (_cluster_rotation_legs_from_ladder(
             entry, tickers_here, conviction_by_ticker, thesis, authority)
@@ -3570,7 +3570,7 @@ def cmd_triggers(args):
     cluster_rows = {c.get("cluster"): c for c in (drift.get("cluster_table") or [])}
     sector_map = state.get("sector_map", {}) or {}
 
-    today = date.fromisoformat(args.today) if args.today else date.today()
+    today = resolve_today(args.today)
     dc = state.get("data_cache", {}) or {}
     thesis = state.get("thesis", {}) or {}
     rotation_by_ticker = rotation.get("tickers", {}) or {}
@@ -4085,7 +4085,7 @@ def cmd_sync_decisions(args):
     with open(args.html_file) as f:
         html = f.read()
     decisions = _extract_decisions(html)
-    today = args.today or str(date.today())
+    today = str(resolve_today(args.today))
 
     p_path = os.path.join(args.base_dir, "proposals.json")
     s_path = os.path.join(args.base_dir, "state.json")
@@ -4339,7 +4339,7 @@ def cmd_sync_decisions(args):
     # §1.7's expensive WebFetch to at most once/day on quick runs (added 2026-09-14) instead of
     # fetching the full live dashboard page on every single sweep to check for a click that,
     # historically, is present on roughly 1 run in 25.
-    state["dashboard_last_synced_ts"] = args.today or str(date.today())
+    state["dashboard_last_synced_ts"] = str(resolve_today(args.today))
     state_dirty = True
     if state_dirty:
         safe_write(s_path, state)

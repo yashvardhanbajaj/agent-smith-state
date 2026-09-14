@@ -35,7 +35,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from smith_core import emit, load_json, safe_write  # noqa: E402
+from smith_core import emit, load_json, safe_write, desk_today  # noqa: E402
 
 REVERSE_DCF_STRETCH_GAP_PP_DEFAULT = 15.0   # implied growth vs 5y FCF CAGR, percentage points
 BENEISH_MANIPULATION_THRESHOLD = -1.78      # M-score above this => flagged
@@ -372,5 +372,5 @@ if __name__ == "__main__":
     a = p.parse_args()
     if not a.today:
         from datetime import date
-        a.today = date.today().isoformat()
+        a.today = desk_today().isoformat()
     a.fn(a)

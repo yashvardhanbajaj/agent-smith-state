@@ -1131,7 +1131,7 @@ def cmd_proposals(args):
     holdings = load_json(os.path.join(args.run_dir, "holdings.json"), default={"holdings_inr": []})
 
     props = proposals.get("proposals", [])
-    today_date = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    today_date = resolve_today(args.today)
     current_tickers = {h["ticker"] for h in holdings.get("holdings_inr", [])}
     direction = _proposal_direction
     infer_ticker = _proposal_infer_ticker
@@ -1416,7 +1416,7 @@ def cmd_score(args):
     proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
     props = proposals.get("proposals", [])
     prices = load_json(args.prices_json, default={}) if args.prices_json else {}
-    today = (datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today())
+    today = (resolve_today(args.today))
 
     # statuses that represent a real, closed recommendation worth grading
     SCOREABLE = {"executed", "fulfilled", "filled", "auto_retired", "superseded", "deferred", "watch"}
@@ -1660,7 +1660,7 @@ def cmd_score_shadow_journal(args):
         fail(f"{fname} not found or empty at {path}")
     entries = store.get("entries", [])
     prices = load_json(args.prices_json, default={}) if args.prices_json else {}
-    today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    today = resolve_today(args.today)
 
     def direction_for(e):
         if fname == "trigger_journal.json":
@@ -1774,7 +1774,7 @@ def cmd_stops(args):
     """
     trades = load_json(os.path.join(args.base_dir, "trades.json"), default={"trades": []})
     prices = load_json(args.prices_json, default={}) if args.prices_json else {}
-    today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    today = resolve_today(args.today)
 
     all_stops = [t for t in trades.get("trades", []) if t.get("reason") == "stop-loss"]
     no_fill_price = [t for t in all_stops if not t.get("price_at_trade")]
@@ -2076,7 +2076,7 @@ def dismiss_proposal_core(props, proposal_id, reason, actor="user"):
             # misses inside the scorecard's user-override exclusion.
             pr["status"] = "dismissed_by_desk" if str(actor).startswith("desk") else "dismissed_by_user"
             pr["dismissed_by"] = actor
-            stamp = f" | dismissed by {actor} {datetime.now().isoformat(timespec='minutes')}"
+            stamp = f" | dismissed by {actor} {datetime.now(IST).isoformat(timespec='minutes')}"
             pr["dismiss_reason"] = reason or None
             if reason:
                 stamp += f": {reason}"
@@ -2229,7 +2229,7 @@ def cmd_add_proposal(args):
     proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
     props = proposals.get("proposals", [])
 
-    today = args.today or date.today().isoformat()
+    today = resolve_today(args.today).isoformat()
     ts = f"{today}T00:00:00Z" if "T" not in today else today
 
     built = []

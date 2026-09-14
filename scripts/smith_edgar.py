@@ -32,6 +32,9 @@ Usage:
 import argparse, json, os, subprocess, sys, time
 from datetime import date, datetime, timedelta
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from smith_clock import desk_today  # noqa: E402
+
 UA = "AgentSmith-PortfolioResearch yashvardhanbajaj@gmail.com"
 TICKER_URL = "https://www.sec.gov/files/company_tickers.json"
 CONCEPT_URL = "https://data.sec.gov/api/xbrl/companyconcept/CIK{cik}/us-gaap/{tag}.json"
@@ -102,7 +105,7 @@ def _days_since(iso_date_str):
     if not iso_date_str:
         return None
     try:
-        return (date.today() - datetime.strptime(iso_date_str, "%Y-%m-%d").date()).days
+        return (desk_today() - datetime.strptime(iso_date_str, "%Y-%m-%d").date()).days
     except ValueError:
         return None
 
@@ -240,7 +243,7 @@ def cik_for(ticker):
     data = _get(TICKER_URL) or {}
     fresh = {row["ticker"].upper(): str(row["cik_str"]).zfill(10) for row in data.values()}
     cache["ticker_cik"] = fresh
-    cache["ticker_cik_fetched_at"] = str(date.today())
+    cache["ticker_cik_fetched_at"] = str(desk_today())
     _save_disk_cache()
     cik = fresh.get(ticker)
     if not cik:
@@ -285,7 +288,7 @@ def _units_for(cik, tag):
         body = _facts(cik).get(tag)
         if body and any((body.get("units") or {}).values()):
             units, via = body["units"], "companyfacts"
-    cache["concepts"][key] = {"units": units, "via": via, "fetched_at": str(date.today())}
+    cache["concepts"][key] = {"units": units, "via": via, "fetched_at": str(desk_today())}
     _save_disk_cache()
     return units, via
 
@@ -456,7 +459,7 @@ def _parse_form4(xml_text):
 def _recent_form4_filings(cik, lookback_days, max_filings):
     doc = _get(SUBMISSIONS_URL.format(cik=cik)) or {}
     rec = (doc.get("filings") or {}).get("recent") or {}
-    cutoff = (date.today() - timedelta(days=lookback_days)).isoformat()
+    cutoff = (desk_today() - timedelta(days=lookback_days)).isoformat()
     hits = []
     for i, form in enumerate(rec.get("form", [])):
         if form != "4":

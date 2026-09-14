@@ -149,7 +149,7 @@ _safe_write = safe_write
 def cmd_compact(args):
     """Enforce RETENTION across every memory-of-record file. Dry run unless --write."""
     base = args.base_dir
-    today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    today = resolve_today(args.today)
     state = load_json(os.path.join(base, "state.json"), default={})
     before = len(json.dumps(state))
     moves, writes = [], {}
@@ -567,7 +567,7 @@ def validate_cache_events(state):
     Returns list of defects.
     """
     defects = []
-    today = date.today()
+    today = desk_today()
     fomc_cache = state.get("fomc_cache", {})
     if fomc_cache:
         # fomc_cache should have a next_date or similar field; if it's a future date, flag if it's past
@@ -1640,7 +1640,7 @@ def cmd_merge_tails(args):
     state.setdefault("data_cache", {})
     state.setdefault("thesis", {})
 
-    today = args.today or date.today().isoformat()
+    today = resolve_today(args.today).isoformat()
     # The bare "cluster" key is a TEMPLATE, not a dispatchable agent -- there is never an
     # out_cluster.json. When --agents is omitted, discover the real cluster tails on disk.
     requested = args.agents.split(",") if args.agents else (
@@ -1769,7 +1769,7 @@ def validate_pending_earnings_staleness(base_dir):
     defects = []
     state = load_json(os.path.join(base_dir, "state.json"), default={})
     facts = state.get("data_cache", {}).get("earnings_facts", {}) or {}
-    today = date.today()
+    today = desk_today()
     stale = []
     for tk, f in facts.items():
         if not isinstance(f, dict) or f.get("status") != "PENDING":
@@ -2389,7 +2389,7 @@ def cmd_slices(args):
     dc = state.get("data_cache") or {}
     live_gaps = [g for g in (state.get("known_gaps") or []) if smith_risk.gap_is_live(g)]
     common = {
-        "mode": args.mode, "today": args.today or str(date.today()),
+        "mode": args.mode, "today": str(resolve_today(args.today)),
         "market_session": holdings.get("market_session"),
         "gate_classification": holdings.get("gate_classification"),
         "macro": holdings.get("macro_strip") or {}, "usdinr": holdings.get("usdinr"),
@@ -2793,7 +2793,7 @@ def _fresh_stamp(state, artefact, spec, scope=None):
 
 def evaluate_freshness(state, today=None):
     """Return one row per FRESHNESS artefact: age, ttl, owner, and fresh|stale|dark|unstamped|missing."""
-    today = today or date.today()
+    today = today or desk_today()
     rows = []
     for key, cfg in FRESHNESS.items():
         artefact = _fresh_lookup(state, key)
@@ -3010,7 +3010,7 @@ def evaluate_runs(base_dir, today=None, days=10):
     artefacts catches a task that fired and produced nothing, which is exactly the case that a
     scheduler-reported "it ran" would hide.
     """
-    today = today or date.today()
+    today = today or desk_today()
     # Declared outages: days the desk COULD NOT have run for a reason outside it -- the host was
     # unavailable, the account was blocked, the machine was off. Declared 2026-09-01 after `runs`
     # flagged 2026-08-27/28 as MISSING and the cause turned out to be a Claude membership issue:
@@ -3101,7 +3101,7 @@ def validate_runs(base_dir):
     carries, and a validator that fails forever on a month-old miss stops being read."""
     defects, checked = [], 0
     for row in evaluate_runs(base_dir):
-        if row["date"] == str(date.today()):
+        if row["date"] == str(desk_today()):
             continue
         if checked >= 3:
             break
@@ -3137,7 +3137,7 @@ def cmd_runs(args):
     for the same reason `add-proposal` and `append-ledger` exist: every hand-assembled write in
     this codebase's history eventually produced a malformed record.
     """
-    today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    today = resolve_today(args.today)
     if getattr(args, "declare_outage", None):
         raw = args.declare_outage
         sep = ":" if ":" in raw else (".." if ".." in raw else None)
@@ -3184,7 +3184,7 @@ def cmd_runs(args):
 def cmd_freshness(args):
     """Report every FRESHNESS artefact's age and state; write compute_freshness.json if asked."""
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
-    today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    today = resolve_today(args.today)
     rows = evaluate_freshness(freshness_root(args.base_dir, state), today)
     by_state = {}
     for r in rows:
@@ -3701,7 +3701,7 @@ def _report_weekly(base_dir, run_dir, today, state, freshness_rows):
 
 def cmd_report(args):
     """Write the dated daily or weekly report. Generated from state and the compute files."""
-    today = datetime.strptime(args.today, "%Y-%m-%d").date() if args.today else date.today()
+    today = resolve_today(args.today)
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
     # freshness_root, not bare state -- the report's staleness ledger reported
     # `proposals.scorecard` as MISSING on the first W36 run while the scorecard was present and
@@ -3899,7 +3899,7 @@ def cmd_crosscheck(args):
         if not isinstance(_L, dict):
             continue
         _auth, _, _ = smith_risk.ladder_authority(
-            _L, date.fromisoformat(args.today) if args.today else date.today(),
+            _L, resolve_today(args.today),
             ttl_days=LADDER_TTL_DAYS, min_scored=LADDER_MIN_SCORED_CALLS)
         _ranking = _L.get("ranking") or []
         _self_reported = {r.get("ticker") for r in (_L.get("thesis_tensions") or [])

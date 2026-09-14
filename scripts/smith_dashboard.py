@@ -55,6 +55,10 @@ import json
 import os
 import re
 from datetime import date, datetime, timedelta, timezone
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from smith_clock import desk_today  # noqa: E402
 
 # --------------------------------------------------------------------------------------
 # loading
@@ -440,7 +444,7 @@ def build_payload(base, built_at=None):
     try:
         today = datetime.fromisoformat(ts.replace("Z", "+00:00")).date()
     except ValueError:
-        today = date.today()
+        today = desk_today()
     horizon = today + timedelta(days=10)
     earn_cache = dcache.get("earnings_calendar") or {}
     week = []

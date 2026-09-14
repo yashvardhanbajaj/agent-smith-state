@@ -35,7 +35,7 @@ overwritten, only shadowed by `current` in the parameter record.
 import os
 from datetime import date, datetime
 
-from smith_core import load_json, emit, fail, safe_write
+from smith_core import load_json, emit, fail, safe_write, desk_today
 from smith_lifecycle import _proposal_parse_date  # `import *` skips underscore names
 
 STORE_FILENAME = "learning.json"
@@ -65,7 +65,7 @@ DEFAULT_N_GATE = 30
 def _today(args_today=None):
     if args_today:
         return datetime.strptime(args_today, "%Y-%m-%d").date()
-    return date.today()
+    return desk_today()
 
 
 def load_store(base_dir):
@@ -102,7 +102,7 @@ def record_observation(base_dir, param_id, value, today=None, run_dir=None, note
     Never mutates or removes a prior observation -- corrections are new lessons, not edits."""
     store = load_store(base_dir)
     obs = {
-        "date": str(today or date.today()),
+        "date": str(today or desk_today()),
         "param_id": param_id,
         "value": value,
         "run_dir": run_dir,
@@ -126,7 +126,7 @@ def add_lesson(base_dir, kind, text, evidence=None, source_run=None, supersedes=
         fail(f"lesson kind must be correction|calibration|dead_end, got {kind!r}")
     store = load_store(base_dir)
     lesson = {
-        "date": str(today or date.today()),
+        "date": str(today or desk_today()),
         "kind": kind,
         "text": text,
         "evidence": evidence,
@@ -213,7 +213,7 @@ def promote(base_dir, param_id, default, aggregator, band_pct=DEFAULT_BAND_PCT,
     moved = prior.get("state") != result["state"]
     if moved:
         prior["history"].append({
-            "date": str(today or date.today()),
+            "date": str(today or desk_today()),
             "from": prior.get("state"), "to": result["state"],
             "n": result["n"], "why": why or f"n reached {result['n']} (gate {n_gate})",
             "run_dir": run_dir,
@@ -259,7 +259,7 @@ def user_force_approve(base_dir, param_id, today=None, run_dir=None, why=None, w
     stored["state"] = "active"
     stored["current"] = stored.get("measured", stored["current"])
     stored.setdefault("history", []).append({
-        "date": str(today or date.today()), "from": from_state, "to": "active",
+        "date": str(today or desk_today()), "from": from_state, "to": "active",
         "n": stored.get("n"), "why": why or "user-approved via dashboard", "run_dir": run_dir,
     })
     store.setdefault("parameters", {})[param_id] = stored
