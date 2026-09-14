@@ -1007,7 +1007,18 @@ def _merge_thesis(out, state, today):
     return {"thesis_changed": list(changed), "sector_map_changed": list(sm_changed)}
 
 
-def _merge_signals(out, state, today, scanned_tickers=None, base_dir="."):
+# Caches `smith_math.py indicators` owns once it has run this run. An agent value for the same
+# field is ignored rather than merged -- one writer per number (2026-09-14).
+SCRIPT_OWNED_SIGNAL_UPDATES = ("atr20_updates", "rsi14_updates", "rel_strength_1m_updates",
+                               "rel_strength_1m_peer_updates", "ret_5d_updates", "wk52_updates")
+
+
+def _merge_signals(out, state, today, scanned_tickers=None, base_dir=".",
+                   script_owned_indicators=False):
+    ignored_script_owned = []
+    if script_owned_indicators:
+        out = dict(out)
+        ignored_script_owned = [k for k in SCRIPT_OWNED_SIGNAL_UPDATES if out.pop(k, None)]
     changed = out.get("signal_history", {}).get("changed", {})
     state.setdefault("signal_history", {}).update(changed)
     stamp_tickers = set(changed) | set(scanned_tickers or [])
@@ -1161,7 +1172,8 @@ def _merge_signals(out, state, today, scanned_tickers=None, base_dir="."):
             "rel_strength_1m_rejected": rel_rejected,
             "rel_strength_1m_peer_updated": len(rel_peer_upd),
             "rel_strength_1m_peer_rejected": sorted(rel_peer_rejected),
-            "journal_new_added": added if jn else []}
+            "journal_new_added": added if jn else [],
+            "ignored_script_owned": ignored_script_owned}
 
 
 def _as_date(today):
@@ -1698,6 +1710,8 @@ def cmd_merge_tails(args):
             holdings = load_json(os.path.join(args.run_dir, "holdings.json"), default={})
             extra["scanned_tickers"] = [h["ticker"] for h in holdings.get("holdings_inr", [])]
             extra["base_dir"] = args.base_dir
+            ind = load_json(os.path.join(args.run_dir, "compute_indicators.json"), default={}) or {}
+            extra["script_owned_indicators"] = bool(ind.get("tickers"))
         if is_cluster_agent(agent):
             # Fall back to the slice's own cluster_name when the tail omits it -- the slice is
             # what TOLD the agent which cluster it was working on, so it is authoritative, and
@@ -2017,7 +2031,9 @@ AGENT_SLICES = {
     "scout":      {"state": ["diversifier_candidates"], "cache": [],
                    "refs": ["sentiment", "market_inputs"], "holdings": "trim"},
     "macro":      {"state": ["fomc_cache"], "cache": [],
-                   "refs": ["sentiment", "market_inputs"], "holdings": None},
+                   # "options" (2026-09-14): SPY/QQQ max-pain + put/call from smith_fetch -> maxpain.
+                   # Nothing delivered it before, so every macro read said PCR was unavailable.
+                   "refs": ["sentiment", "market_inputs", "options"], "holdings": None},
     # "market_inputs" added 2026-09-07 -- catalyst's own task 6 ("Asia session leadership")
     # independently WebSearched KOSPI/TAIEX/Nikkei moves every run, genuinely redundant with the
     # orchestrator's own step 1.5 ASIA BLOCK (fetched once, into market_inputs.json, and already
@@ -2117,6 +2133,7 @@ REF_FILES = {
     # it -- the orchestrator had to hand-paste smith-macro's tail into the strategist dispatch
     # prompt, the same hand-assembly gap already fixed for thesis/cycle/crosscheck.
     "macro_tail": "out_macro.json",
+    "options": "compute_options.json",
     # crosscheck.json (added 2026-09-07, see cmd_crosscheck's docstring for the invocation-
     # order fix that makes this file exist before WAVE 3 dispatches).
     "crosscheck": "crosscheck.json",
@@ -2179,7 +2196,8 @@ def resolve_agent(agent):
 # is monthly, earnings is dispatched only near a print, and signals does not run on every mode.
 # A cluster slice refs all three deliberately (they are the judgment it reasons on top of) and
 # would otherwise report MISSING on most runs -- the same false-alarm class as `valuation`.
-OPTIONAL_REFS = {"valuation", "catalyst_tail", "quality_tail", "earnings_tail", "signals_tail"}
+OPTIONAL_REFS = {"valuation", "catalyst_tail", "quality_tail", "earnings_tail", "signals_tail",
+                 "options"}  # options: deep-run fetch only
 
 # Agents whose REAL input is the outside world, not a file. Their slice can be byte-identical to
 # last run's and they still have work to do, because news, prices and filings moved even when

@@ -7,7 +7,7 @@ from argparse import Namespace
 
 import smith_math as smm
 
-OK = {"freshness": {"artefacts": [1]}, "lots": {"total_lots": 3}, "book": {"value_usd": 1},
+OK = {"indicators": {"skipped": True, "tickers": None}, "freshness": {"artefacts": [1]}, "lots": {"total_lots": 3}, "book": {"value_usd": 1},
       "universe": {"total": 1}, "risk": {"positions": [1]}, "drift": {"cluster_table": [1]},
       "journal": {"journal_updates": []}, "attribution": {"value_delta_usd": 0},
       "rotation": {"tickers": [1]}, "buckets": {"tickers": []}, "sentiment": {"score": 50},
@@ -47,7 +47,7 @@ def _run(tmp_path, monkeypatch, overrides=None, market_inputs=True, pre=(), **kw
 def test_clean_run(tmp_path, monkeypatch):
     out, rd, calls, code = _run(tmp_path, monkeypatch)
     assert code == 0 and out["ok"] and out["degraded"] == []
-    assert calls[0] == "freshness" and calls[-1] == "ladder"
+    assert calls[0] == "indicators" and calls[-1] == "ladder"
     assert json.loads((rd / "compute_triggers.json").read_text()) == {"correction_state": "none"}
 
 
@@ -92,7 +92,7 @@ def test_sentiment_crash_degrades(tmp_path, monkeypatch):
 def test_from_resumes_mid_pipeline(tmp_path, monkeypatch):
     out, rd, calls, code = _run(tmp_path, monkeypatch, from_stage="risk", pre=("compute_book.json",))
     assert code == 0 and calls[0] == "risk"
-    assert not {"freshness", "lots", "book", "universe"} & set(calls)
+    assert not {"indicators", "freshness", "lots", "book", "universe"} & set(calls)
 
 
 def test_inputs_must_be_in_the_run_dir(tmp_path, monkeypatch):

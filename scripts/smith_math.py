@@ -70,6 +70,7 @@ from smith_core import _prior_run_prices
 from smith_ledger import _avg_cost_from_lots, _months_between, policy_ltcg_months, months_until_ltcg
 from smith_lifecycle import _proposal_parse_date
 from smith_ledger import cmd_trade_rationale  # noqa: E402
+from smith_marketdata import cmd_indicators, cmd_normalize_bars, cmd_session_gate  # noqa: E402
 from smith_runlife import (cmd_lock, cmd_commit_state, cmd_health,  # noqa: E402
                            cmd_memory_summary, cmd_preflight, cmd_abort)
 
@@ -2020,6 +2021,11 @@ def cmd_pipeline(args):
 
     # (stage, required input files, "emptiness" probe on its own output)
     STAGES = [
+        # `indicators` runs FIRST (added 2026-09-14): it turns smith_fetch's bars.json into the
+        # ATR20/RSI14/rel-strength/ret_5d/52w/beta caches that book, risk, buckets, derisk,
+        # triggers and ladder read. No bars.json -> it reports skipped and every cache stays as
+        # it was (freshness then says how old).
+        ("indicators",  [],                                          lambda d: d.get("skipped") or d.get("tickers") is not None),
         ("freshness",   [],                                          lambda d: d.get("artefacts")),
         # `lots` runs BEFORE book, which consumes lots.json for its LTCG/basis work. Added to
         # the pipeline 2026-08-31: the engine was trusted and adopted, but nothing re-ran it,
@@ -2090,7 +2096,7 @@ def cmd_pipeline(args):
             cmd += ["--market-inputs", os.path.join(run_dir, "market_inputs.json")]
         else:
             cmd += ["--run-dir", run_dir]
-        if name in ("journal", "derisk", "triggers", "buckets", "ladder") and args.today:
+        if name in ("journal", "derisk", "triggers", "buckets", "ladder", "indicators") and args.today:
             cmd += ["--today", args.today]
         if name == "book" and args.lots:
             cmd += ["--lots", args.lots]
@@ -4523,7 +4529,8 @@ def main():
     sp.add_argument("--aggregate-usd", type=float, default=None,
                     help="the snapshot's own asset_summary.total_value_usd, kept separate from "
                          "the row sum so cmd_book's G3 divergence check has real teeth")
-    sp.add_argument("--market-session", required=True)
+    sp.add_argument("--market-session", default=None,
+                    help="optional: `session-gate --write-holdings` fills market_session and the gate afterwards")
     sp.add_argument("--gate-classification", default=None)
     sp.add_argument("--gate-reason", default=None)
     sp.add_argument("--macro-json", default=None)
@@ -4608,6 +4615,24 @@ def main():
     sp.add_argument("--reason", required=True)
     sp.add_argument("--notes", default=None)
     sp.add_argument("--overwrite", action="store_true", help="replace a reason that is already captured")
+
+    sp = sub.add_parser("indicators", help="ATR20/RSI14/ret_5d/rel strength/52w/beta caches from bars.json (script-owned)")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--bars", default=None, help="default: <run-dir>/bars.json")
+    sp.add_argument("--today", default=None)
+
+    sp = sub.add_parser("normalize-bars", help="MCP fallback: convert saved get_stock_history output into bars.json")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--mcp-files", nargs="+", required=True)
+    sp.add_argument("--out", default=None)
+
+    sp = sub.add_parser("session-gate", help="market_session (DST/holidays/early close) + GATE v2, computed")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--now", default=None, help="ISO timestamp override (tests/replays)")
+    sp.add_argument("--write-holdings", action="store_true")
 
     sp = sub.add_parser("lock", help="script-owned run lock: acquire|heartbeat|release|status")
     sp.add_argument("action", choices=("acquire", "heartbeat", "release", "status"))
@@ -4900,7 +4925,8 @@ def main():
          "crosscheck": cmd_crosscheck, "bookcalc": cmd_bookcalc, "taxcalc": cmd_taxcalc,
          "valuation": cmd_valuation,
          "sync-decisions": cmd_sync_decisions,
-         "trade-rationale": cmd_trade_rationale, "lock": cmd_lock, "commit-state": cmd_commit_state, "health": cmd_health,
+         "trade-rationale": cmd_trade_rationale, "indicators": cmd_indicators,
+         "normalize-bars": cmd_normalize_bars, "session-gate": cmd_session_gate, "lock": cmd_lock, "commit-state": cmd_commit_state, "health": cmd_health,
          "memory-summary": cmd_memory_summary, "preflight": cmd_preflight, "abort": cmd_abort}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")

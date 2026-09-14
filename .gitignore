@@ -19,3 +19,9 @@ standalone/**/__pycache__/
 # archived intermediate backups -- kept on disk, out of the repo (ARCHIVE, NEVER DELETE)
 archive/backups-pre-*/
 .smith.writelock
+
+# smith_fetch (2026-09-14): repo-local venv and bulky raw fetch outputs (inputs, re-fetchable)
+.venv/
+runs/*/bars.json
+runs/*/chain_*.json
+runs/*/dashboard_fetched.html
