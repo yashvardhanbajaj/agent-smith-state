@@ -62,12 +62,6 @@ DEFAULT_BAND_PCT = 20
 DEFAULT_N_GATE = 30
 
 
-def _today(args_today=None):
-    if args_today:
-        return datetime.strptime(args_today, "%Y-%m-%d").date()
-    return desk_today()
-
-
 def canonical_agent(agent):
     """`smith-thesis` and `thesis` are one agent. Two spellings split its usage history in two."""
     agent = str(agent or "")
@@ -398,18 +392,6 @@ AGENT_BUDGETS = {
 USAGE_TOKEN_OUTLIER_MULT = 1.5   # this run's tokens > 1.5x trailing median -> flag
 USAGE_TRAILING_WINDOW = 10       # look back at most this many prior observations
 USAGE_MIN_N_FOR_MEDIAN_CHECK = 3  # need at least this many prior runs before trusting a median
-
-
-def cmd_usage_log(args):
-    """Append one agent's this-run usage as an observation. Call once per dispatched agent,
-    right after its completion notification arrives -- same moment `out_<agent>.json` gets
-    written, so usage tracking piggybacks on a step the orchestrator already performs."""
-    value = {"tokens": args.tokens, "tool_calls": args.tool_calls,
-             "duration_s": args.duration_s, "mode": args.mode}
-    obs = record_observation(args.base_dir, f"usage:{canonical_agent(args.agent)}", value,
-                              today=args.today, run_dir=args.run_id,
-                              note=f"mode={args.mode}")
-    emit({"logged": obs})
 
 
 def _usage_history(base_dir, agent, exclude_run_id=None):

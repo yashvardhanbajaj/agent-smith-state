@@ -3748,6 +3748,20 @@ def _report_weekly(base_dir, run_dir, today, state, freshness_rows):
              + ("  **Fewer runs than weekdays — check the scheduled tasks are firing.**"
                 if len(wk) < weekdays_so_far else ""))
     L.append("")
+    # Named, not just counted (Phase 6): which scheduled task left nothing, on which day.
+    missed = [r for r in evaluate_runs(base_dir, today, days=(today - monday).days + 1)
+              if r["verdict"] in ("MISSING", "FIRED_BUT_NO_LEDGER_ROW", "LEDGER_ROW_WITHOUT_RUN_DIR",
+                                  "WEEKLY_NO_DEEP_RUN", "outage")]
+    L.append("## Missed runs")
+    L.append("")
+    if missed:
+        for r in sorted(missed, key=lambda r: r["date"]):
+            why = f" -- {r['outage_reason']}" if r.get("outage_reason") else ""
+            L.append(f"- {r['date']} ({r['weekday']}): {r['verdict']}{why} "
+                     f"(expected: {', '.join(r['expected']) or 'none'})")
+    else:
+        L.append("None: every scheduled run this week left a run directory and a ledger row.")
+    L.append("")
 
     # --- proposals: made vs acted on ----------------------------------------
     props = load_json(os.path.join(base_dir, "proposals.json"), default={})

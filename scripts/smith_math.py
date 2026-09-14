@@ -63,7 +63,7 @@ from smith_learning import (load_store as learn_load_store, write_store as learn
                             record_observation, user_force_approve,
                             cmd_learn_status, cmd_learn_lessons, cmd_learn_add_lesson,
                             cmd_learn_revealed_preference, cmd_learn_priority_params,
-                            cmd_learn_stop_calibration, cmd_usage_log, cmd_usage_audit,
+                            cmd_learn_stop_calibration, cmd_usage_audit,
                             cmd_usage_report)
 # explicit: `from x import *` does NOT export underscore-prefixed names
 from smith_core import _prior_run_prices
@@ -4814,16 +4814,6 @@ def main():
     sp.add_argument("--supersedes", default=None, help="lesson id (L-###) this one corrects")
     sp.add_argument("--today", default=None)
 
-    sp = sub.add_parser("usage-log", help="record one dispatched agent's this-run token/call/time usage")
-    sp.add_argument("--base-dir", default=DEFAULT_BASE)
-    sp.add_argument("--agent", required=True, help="e.g. smith-signals")
-    sp.add_argument("--run-id", required=True, help="this run's ts, e.g. 2026-09-01-2205")
-    sp.add_argument("--mode", required=True, choices=["quick", "deep"])
-    sp.add_argument("--tokens", required=True, type=int)
-    sp.add_argument("--tool-calls", required=True, type=int)
-    sp.add_argument("--duration-s", required=True, type=float)
-    sp.add_argument("--today", default=None)
-
     sp = sub.add_parser("ledger-parse",
                         help="deterministically parse INDmoney BUY/SELL confirmations from "
                              "search_threads output; fetch bodies ONLY for what it lists")
@@ -4952,7 +4942,7 @@ def main():
          "learn-revealed-preference": cmd_learn_revealed_preference,
          "learn-priority-params": cmd_learn_priority_params,
          "learn-stop-calibration": cmd_learn_stop_calibration,
-         "usage-log": cmd_usage_log, "usage-audit": cmd_usage_audit,
+         "usage-audit": cmd_usage_audit,
          "usage-report": cmd_usage_report, "ledger-parse": cmd_ledger_parse, "ledger-apply": cmd_ledger_apply,
          "crosscheck": cmd_crosscheck, "bookcalc": cmd_bookcalc, "taxcalc": cmd_taxcalc,
          "valuation": cmd_valuation,

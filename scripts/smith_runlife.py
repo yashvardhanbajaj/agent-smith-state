@@ -9,6 +9,7 @@ import contextlib
 import io
 import json
 import os
+from datetime import timedelta, timezone
 import subprocess
 from argparse import Namespace
 
@@ -19,6 +20,7 @@ import smith_state as ss
 BAD_RUN_VERDICTS = ("MISSING", "FIRED_BUT_NO_LEDGER_ROW", "LEDGER_ROW_WITHOUT_RUN_DIR",
                     "WEEKLY_NO_DEEP_RUN")
 LEDGER_SILENCE_H = 96          # Friday evening -> Monday pre-market is ~70h; 96h is a real gap
+WATCHDOG_HOUR_IST = 16   # launchd com.agentsmith.health fires weekdays 16:00 local (IST)
 OPEN_PROPOSAL_STATUSES = ("open", "accepted_by_user", "deferred", "watch")
 
 
@@ -92,8 +94,16 @@ def health(base_dir, now=None):
     ledger_age_h = round((now - last_dt).total_seconds() / 3600.0, 1) if last_dt else None
     pending = ss.uncommitted_runs(base_dir)
     mirror = _mirror_status(base_dir)
+    today_row = next((r for r in rows if r["date"] == today.isoformat()), None)
+    ist_now = now.astimezone(timezone(timedelta(hours=5, minutes=30)))
 
     problems = []
+    # evaluate_runs calls today "pending" all day. The 16:00 IST watchdog exists precisely to
+    # catch TODAY's run never firing, so past the watchdog hour a pending weekday is a problem.
+    if (today_row and today_row["verdict"] == "pending" and today_row["expected"]
+            and ist_now.hour >= WATCHDOG_HOUR_IST):
+        problems.append(f"today's scheduled run ({', '.join(today_row['expected'])}) has left no run "
+                        f"directory and no ledger row by {WATCHDOG_HOUR_IST}:00 IST")
     if missed:
         problems.append(f"{len(missed)} scheduled run(s) in the last 10 days left no or partial "
                         f"artefacts: " + ", ".join(f"{m['date']} {m['verdict']}" for m in missed[:5]))
@@ -118,8 +128,18 @@ def health(base_dir, now=None):
             "uncommitted_runs": pending, "mirror": mirror}
 
 
+def write_health_snapshot(base_dir, h):
+    """The dashboard reads the newest health result from here (never recomputes it: a build must
+    not depend on the wall clock or on ~/.claude)."""
+    try:
+        atomic_write_json(os.path.join(base_dir, "health.json"), h)
+    except OSError:
+        pass
+
+
 def cmd_health(args):
     h = health(args.base_dir)
+    write_health_snapshot(args.base_dir, h)
     if getattr(args, "notify", False) and not h["ok"]:
         msg = h["headline"].replace('"', "'")[:230]
         try:
@@ -213,6 +233,12 @@ def cmd_commit_state(args):
 # ---------------------------------------------------------------------------------------------
 # preflight / abort
 # ---------------------------------------------------------------------------------------------
+def _health_snap(base):
+    h = health(base)
+    write_health_snapshot(base, h)
+    return h
+
+
 def cmd_preflight(args):
     from smith_memory import cmd_validate, cmd_freshness
     import smith_learning
@@ -234,7 +260,7 @@ def cmd_preflight(args):
     emit({
         "proceed": True, "run_id": run_id,
         "lock": {k: lock.get(k) for k in ("acquired", "stolen", "reentrant")},
-        "health": health(base),
+        "health": _health_snap(base),
         "validate": {"defect_count": val.get("defect_count"),
                      "defects": [str(d)[:220] for d in (val.get("defects") or [])[:12]]},
         "freshness": {"headline": fr.get("headline"),

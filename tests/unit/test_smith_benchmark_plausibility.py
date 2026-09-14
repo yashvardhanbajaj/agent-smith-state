@@ -16,7 +16,6 @@ import sys
 
 import pytest
 
-import smith_charts
 from smith_core import BENCHMARK_WEEKLY_PLAUSIBLE_PCT
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -37,49 +36,9 @@ def _write_ledger(base, rows):
             w.writerow(r)
 
 
-def test_out_of_band_benchmark_period_is_excluded_not_plotted(tmp_path):
-    base = str(tmp_path)
-    _write_ledger(base, [
-        _row("2026-08-10T09:00:00+05:30", 40000.0, 582.70),
-        _row("2026-08-11T09:00:00+05:30", 40400.0, 572.93),   # real, in band
-        _row("2026-08-12T09:00:00+05:30", 40500.0, 4896.61),  # a net flow, not a price
-        _row("2026-08-13T09:00:00+05:30", 40550.0, 584.83),   # back to a real level
-    ])
-    out = smith_charts.chart_relative(base)
-
-    # Two of the three periods straddle the corrupt cell and must be hatched, not drawn.
-    assert out["svg"].count("url(#hatch)") == 2
-    assert "implausible benchmark move" in out["svg"]
-    # ...and no real bar is allowed to carry an impossible SMH figure in its tooltip.
-    assert "SMH +754" not in out["svg"]
-    assert "+746" not in out["svg"] or "EXCLUDED" in out["svg"]
-
-
-def test_beat_lag_tally_ignores_excluded_periods(tmp_path):
-    base = str(tmp_path)
-    # 4 rows -> 3 periods. Period 1 is a clean beat; periods 2 and 3 straddle the corrupt cell.
-    _write_ledger(base, [
-        _row("2026-08-10T09:00:00+05:30", 40000.0, 582.70),
-        _row("2026-08-11T09:00:00+05:30", 41000.0, 572.93),   # book +2.5%, SMH -1.7% -> beat
-        _row("2026-08-12T09:00:00+05:30", 41100.0, 4896.61),
-        _row("2026-08-13T09:00:00+05:30", 41200.0, 584.83),
-    ])
-    note = smith_charts.chart_relative(base)["note"]
-    assert note.startswith("1 of 1 scored periods beat SMH")
-    assert "A further 2 period(s) are hatched and EXCLUDED" in note
-    assert "implausible benchmark move" in note
-
-
-def test_in_band_benchmark_period_still_counts(tmp_path):
-    base = str(tmp_path)
-    _write_ledger(base, [
-        _row("2026-08-10T09:00:00+05:30", 40000.0, 582.70),
-        _row("2026-08-11T09:00:00+05:30", 41000.0, 572.93),
-    ])
-    out = smith_charts.chart_relative(base)
-    assert out["note"].startswith("1 of 1 scored periods beat SMH")
-    assert "EXCLUDED" not in out["note"]
-    assert "url(#hatch)" not in out["svg"]
+# The three chart_relative tests retired with scripts/smith_charts.py (archived 2026-09-14).
+# Dashboard v2 plots no per-period SMH figure, so the guarantee that matters is the write
+# path below: an implausible benchmark level never reaches ledger.csv.
 
 
 def _append(base, **kw):

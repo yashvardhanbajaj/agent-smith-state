@@ -4,6 +4,40 @@ Dated record of fixes and decisions. See [ARCHITECTURE.md](ARCHITECTURE.md) for 
 currently exists, [POLICY-DECISIONS.md](POLICY-DECISIONS.md) for policy-specific
 rationale.
 
+## 2026-09-14 (robustness and efficiency overhaul, phases 0–6)
+
+Audit finding: the analytics were sophisticated but the plumbing had broken quietly. CI had been red since 09-08, and the weekly run had hung three Mondays running. The ledger held future timestamps, and the daily report's delta ignored wallet cash. LTCG was computed three different ways. State was written mid-run, and the LLM was computing indicators by hand. SKILL.md had grown to 147KB.
+
+- **Phase 0 — safety net.** CI made hermetic (cluster playbooks fixture), with a paths filter and all five golden masters. Added `SMITH_BASE_DIR` and a replay harness.
+- **Phase 1A — primitives.** One desk clock (`smith_clock.py`; 43 `date.today()` call sites converted). Crash-safe IO (mkstemp + fsync + replace, locked append).
+- **Phase 1B — run lifecycle.**
+  - The run lock became script-owned, with a heartbeat.
+  - State became a transaction: `merge-tails` stages and `commit-state` applies.
+  - Added `preflight`, `health`, `abort` and `memory-summary`.
+- **Phase 1C — ingest correctness.**
+  - Pipeline errors are captured, and a hollow result is rejected before it is written.
+  - The ledger is ingested before compute.
+  - A sanity gate feeds `persist_safe`, and future ledger timestamps are refused.
+  - `sync-decisions` became atomic, and `trade-rationale` was added.
+- **Phase 1D — data correctness.** One LTCG rule. Proposal dates are IST with `created_utc`. The report delta includes wallet cash. The readiness counter works again (8 → 59). Lesson ids are `L-###`.
+- **Phase 2 — fetch layer.**
+  - Scripts now fetch market data (`smith_fetch.py`).
+  - `indicators`, the options feed and `session-gate` are computed rather than typed.
+  - Sentiment uses real inputs.
+- **Phase 3 — fleet 15 → 12.** smith-book, smith-macro and smith-tax retired (macro folded into scout, tax into `taxcalc`). The strategist reads Stage-1 tails by reference.
+- **Phase 4 — orchestration in code.** `dispatch-plan`, `triggers-diff` and `postflight` were added. SKILL.md went from 147KB to 38KB, with the rare branches moved to reference files.
+- **Phase 5 — retention in code.** `compact --mode cheap|full`: 30-day flag TTL, 7-day data-quality TTL, and a 30-day clock for unheld tickers in the data cache. Proposal text and trade notes go to sidecar archives. The approved `open_flags` migration closed 16 flags.
+- **Phase 6 — reliability.**
+  - A launchd watchdog (`scripts/launchd/`, weekdays 16:00 IST, `health --notify`), plus a today's-run check in `health`.
+  - A `health.json` snapshot drives the dashboard `health` payload key (golden regenerated: that key only), and the weekly report gained a "Missed runs" section.
+  - Archived: `smith_charts.py`, `smith_evidence_audit.py`, the `usage-log` command, the unused `_today`, and the legacy `~/Claude/Scheduled/agent-smith-*` prompts. The three `chart_relative` tests retired with `smith_charts.py`; the append-ledger plausibility tests remain.
+  - ARCHITECTURE.md rewritten.
+
+Found and fixed during the live Phase-2 deep sweep:
+- `bookcalc` weights were all 0.0: it read `market_value_usd`, which the holdings rows never carry.
+- `.smith.lock` was swept into git.
+- `health` flagged pruned run directories as missing.
+
 ## 2026-09-09 (dashboard v2; FRESHNESS stops ageing names it cannot refresh)
 
 Two findings from one audit — "does the dashboard show what Smith actually computes?"

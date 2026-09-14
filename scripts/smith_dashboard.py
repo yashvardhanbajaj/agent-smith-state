@@ -96,8 +96,19 @@ REQUIRED_KEYS = [
     "meta", "kpi", "read", "macro", "positions", "clusters", "ladders", "proposals",
     "triggers", "derisk", "thesis", "signals", "catalysts", "themes", "diversifiers",
     "watchlist", "track", "stress", "quality", "tax", "rebound", "freshness", "dq",
-    "gaps", "outages", "trades", "ledger", "earnings", "learning", "attribution",
+    "gaps", "outages", "trades", "ledger", "earnings", "learning", "attribution", "health",
 ]
+
+
+def health_payload(base):
+    """Newest `health` snapshot (written by preflight and the 16:00 IST watchdog). Read, never
+    recomputed here: the build must not depend on the wall clock (golden master)."""
+    h = load(os.path.join(base, "health.json"), None)
+    if not isinstance(h, dict):
+        return {"available": False}
+    return {"available": True, "ok": bool(h.get("ok")), "as_of": h.get("as_of"),
+            "headline": clip(h.get("headline"), 300), "problems": (h.get("problems") or [])[:8],
+            "missed_runs": (h.get("missed_runs") or [])[:8]}
 
 
 def assert_payload_complete(p):
@@ -647,6 +658,7 @@ def build_payload(base, built_at=None):
                 [{"text": clip(g if isinstance(g, str) else json.dumps(g), 400)}
                  for g in (st.get("open_flags") or [])],
         "outages": st.get("run_outages") or [],
+        "health": health_payload(base),
         "trades": trades,
         "ledger": ledger,
         "earnings": earn_cache,

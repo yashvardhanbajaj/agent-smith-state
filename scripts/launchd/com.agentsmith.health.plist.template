@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Agent Smith health watchdog (Phase 6, 2026-09-14). Independent of Claude and of the scheduled
+     tasks it watches: a run that never fires cannot report its own absence. Weekdays 16:00 local
+     (this Mac runs IST), 90 minutes after the 14:30 IST daily. Installed by install.sh, which
+     fills __BASE__ and __PY__. Posts a macOS notification only when health is not ok. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.agentsmith.health</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>-c</string>
+    <string>cd "__BASE__" &amp;&amp; mkdir -p logs &amp;&amp; "__PY__" scripts/smith_math.py health --base-dir . --notify &gt;&gt; logs/health-watchdog.log 2&gt;&amp;1</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>16</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Weekday</key><integer>2</integer><key>Hour</key><integer>16</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>16</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Weekday</key><integer>4</integer><key>Hour</key><integer>16</integer><key>Minute</key><integer>0</integer></dict>
+    <dict><key>Weekday</key><integer>5</integer><key>Hour</key><integer>16</integer><key>Minute</key><integer>0</integer></dict>
+  </array>
+  <key>RunAtLoad</key><false/>
+</dict>
+</plist>
