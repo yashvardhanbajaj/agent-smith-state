@@ -3299,6 +3299,8 @@ def evaluate_runs(base_dir, today=None, days=10):
             verdict = "MISSING" if d != today else "pending"
         elif expected and rd and not led:
             verdict = "FIRED_BUT_NO_LEDGER_ROW"
+        elif led and not rd and dirs_by_day and d < min(dirs_by_day):
+            verdict = "ok_pruned"            # run dir removed by postflight's keep-10 prune (still in git)
         elif led and not rd:
             verdict = "LEDGER_ROW_WITHOUT_RUN_DIR"
         elif weekly_missing:
