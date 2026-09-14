@@ -69,6 +69,8 @@ from smith_learning import (load_store as learn_load_store, write_store as learn
 from smith_core import _prior_run_prices
 from smith_ledger import _avg_cost_from_lots, _months_between
 from smith_lifecycle import _proposal_parse_date
+from smith_runlife import (cmd_lock, cmd_commit_state, cmd_health,  # noqa: E402
+                           cmd_memory_summary, cmd_preflight, cmd_abort)
 
 
 
@@ -4465,6 +4467,42 @@ def main():
     sp.add_argument("--summary", required=True, help=f"short one-liner, max {300} chars -- full narrative goes in --briefing-file")
     sp.add_argument("--briefing-file", default=None, help="path to the full run narrative (e.g. runs/<ts>/briefing.md); the ledger notes cell stores a pointer to it, not the text itself")
 
+    sp = sub.add_parser("lock", help="script-owned run lock: acquire|heartbeat|release|status")
+    sp.add_argument("action", choices=("acquire", "heartbeat", "release", "status"))
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-id", default=None)
+    sp.add_argument("--run-dir", default=None)
+    sp.add_argument("--mode", default=None)
+    sp.add_argument("--force", action="store_true")
+
+    sp = sub.add_parser("commit-state", help="apply this run's staged state patch to state.json")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--persist-safe", choices=("auto", "true", "false"), default="auto",
+                    help="auto = read compute_book.json's persist_safe")
+
+    sp = sub.add_parser("health", help="missed runs, stale lock, uncommitted state, mirror drift")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--notify", action="store_true", help="macOS notification when not ok")
+
+    sp = sub.add_parser("memory-summary", help="~5KB digest of the memory of record")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+
+    sp = sub.add_parser("preflight", help="lock + health + validate + freshness + lessons + memory summary")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--mode", required=True)
+    sp.add_argument("--run-id", default=None)
+    sp.add_argument("--run-dir", default=None)
+    sp.add_argument("--today", default=None)
+
+    sp = sub.add_parser("abort", help="end a run that cannot proceed: discard staged state, stub report, release lock")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", default=None)
+    sp.add_argument("--run-id", default=None)
+    sp.add_argument("--reason", required=True)
+    sp.add_argument("--kind", choices=("connector", "host", "data", "other"), default="other")
+    sp.add_argument("--today", default=None)
+
     sp = sub.add_parser("merge-tails", help="fold Stage-1 sub-agent out_<agent>.json files into state.json per the declarative MERGE_RULES table")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--run-dir", required=True)
@@ -4687,6 +4725,14 @@ def main():
     sp.add_argument("--today", default=None)
 
     args = p.parse_args()
+    # Every run-scoped command refreshes the heartbeat of the lock its run holds. Best effort:
+    # a heartbeat failure must never fail the command it rides on.
+    if getattr(args, "run_dir", None) and args.cmd not in ("lock", "preflight", "abort"):
+        try:
+            import smith_state
+            smith_state.lock_heartbeat(getattr(args, "base_dir", DEFAULT_BASE), run_dir=args.run_dir)
+        except Exception:  # noqa: BLE001
+            pass
     try:
         {"build-holdings": cmd_build_holdings, "merge-prices": cmd_merge_prices,
          "book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
@@ -4708,7 +4754,9 @@ def main():
          "usage-report": cmd_usage_report, "ledger-parse": cmd_ledger_parse, "ledger-apply": cmd_ledger_apply,
          "crosscheck": cmd_crosscheck, "bookcalc": cmd_bookcalc, "taxcalc": cmd_taxcalc,
          "valuation": cmd_valuation,
-         "sync-decisions": cmd_sync_decisions}[args.cmd](args)
+         "sync-decisions": cmd_sync_decisions,
+         "lock": cmd_lock, "commit-state": cmd_commit_state, "health": cmd_health,
+         "memory-summary": cmd_memory_summary, "preflight": cmd_preflight, "abort": cmd_abort}[args.cmd](args)
     except Exception as e:  # noqa: BLE001 -- deliberate: any failure degrades gracefully
         fail(f"{type(e).__name__}: {e}")
 

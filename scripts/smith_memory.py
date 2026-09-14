@@ -17,6 +17,7 @@ from datetime import date, datetime, timedelta
 
 import smith_risk
 from smith_core import *  # noqa: F401,F403 -- shared constants and IO helpers
+from smith_state import load_state, stage_state  # noqa: E402
 from smith_core import load_json, emit, fail
 from smith_lifecycle import _proposal_parse_date  # `import *` skips underscore names
 
@@ -1619,7 +1620,7 @@ def cmd_merge_tails(args):
     OLDER fact silently overwrite Wave-2 thesis' NEWER, sibling-informed one. Calling this
     once per wave, in wave order, makes the later wave's write land later by construction.
 
-    Writes state.json with WRITE SAFETY (.bak then tmp-then-mv). Does NOT run `validate` or
+    STAGES into runs/<ts>/state.pending.json (see smith_state); `commit-state` applies it. Does NOT run `validate` or
     `compact` -- run those as separate, explicit steps after, same as every other PERSIST
     sub-step.
 
@@ -1635,8 +1636,10 @@ def cmd_merge_tails(args):
     not a guarantee. This command trusts whatever is in the file; making that file trustworthy
     is a separate, one-line discipline at dispatch time.
     """
-    state_path = os.path.join(args.base_dir, "state.json")
-    state = load_json(state_path, default={})
+    # STAGED, not written (2026-09-14): reads state.json + this run's pending patch, and writes
+    # the result back to runs/<ts>/state.pending.json. Nothing lands in state.json until
+    # `commit-state`, so a run that dies between waves leaves the memory of record untouched.
+    state = load_state(args.base_dir, args.run_dir)
     state.setdefault("data_cache", {})
     state.setdefault("thesis", {})
 
@@ -1708,11 +1711,13 @@ def cmd_merge_tails(args):
     if any(a in results for a in NEWS_WATERMARK_AGENTS):
         state["news_watermark"] = today
 
-    safe_write(state_path, state)
+    staged = stage_state(args.base_dir, args.run_dir, state,
+                         by="merge-tails:" + ",".join(results))
     emit({"merged": list(results), "results": results,
           "skipped_no_output_file": skipped_no_file, "skipped_no_merge_rule": skipped_no_rule,
-          "written": True,
-          "next_step": "run smith_math.py validate before trusting this state"})
+          "written": False, "staged": staged,
+          "next_step": "staged only -- later waves read it through load_state; nothing reaches "
+                       "state.json until `smith_math.py commit-state --run-dir <run>`"})
 
 
 # NOTE (2026-08-30): TECHNICAL_CACHE_HARD_STALE_DAYS and validate_technical_cache_staleness
@@ -2364,7 +2369,7 @@ def _thesis_tiers(thesis, state, base_dir):
 def cmd_slices(args):
     """Render each agent's embed: small state inline, everything file-backed by reference."""
     base, rd = args.base_dir, args.run_dir
-    state = load_json(os.path.join(base, "state.json"), default={})
+    state = load_state(base, args.run_dir)
     holdings = load_json(os.path.join(rd, "holdings.json"), default={})
     rows = holdings.get("holdings_inr") or []
     held = {r.get("ticker") for r in rows if r.get("ticker")}
@@ -3702,7 +3707,7 @@ def _report_weekly(base_dir, run_dir, today, state, freshness_rows):
 def cmd_report(args):
     """Write the dated daily or weekly report. Generated from state and the compute files."""
     today = resolve_today(args.today)
-    state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    state = load_state(args.base_dir, args.run_dir)
     # freshness_root, not bare state -- the report's staleness ledger reported
     # `proposals.scorecard` as MISSING on the first W36 run while the scorecard was present and
     # stamped today, because that artefact lives in proposals.json and only resolves through the
@@ -3892,7 +3897,7 @@ def cmd_crosscheck(args):
     # Reads state, not a tail: only up to LADDER_MAX_DISPATCH clusters refresh per run, and a
     # ladder from two runs ago that still contradicts today's thesis is exactly as consequential
     # as one written this morning -- it has the same trigger authority.
-    _cc_state = load_json(os.path.join(args.base_dir, "state.json"), default={}) or {}
+    _cc_state = load_state(args.base_dir, args.run_dir) or {}
     _ladders = _cc_state.get("cluster_ladders") or {}
     _thesis_map = _cc_state.get("thesis") or {}
     for _cname, _L in _ladders.items():
