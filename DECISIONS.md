@@ -1,7 +1,7 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**88 total gaps** -- 13 open, 75 archived (closed).
+**89 total gaps** -- 14 open, 75 archived (closed).
 
 ---
 
@@ -865,5 +865,12 @@ holdings.json was hand-constructed by the orchestrator in an inline Python snipp
 **Resolution:** User flagged that the pre-Stage-1 phase ('Wave 0') was taking too much time and compute. Root cause: hand-writing holdings.json produced two real defects the same run -- (1) day_chg_pct left null on all 31 rows, silently starving compute_buckets.json's STRONG DOWNTREND/UPTREND classification (only caught because a user-visible anomaly, VRT -9.6% with no bucket fired, forced investigation); (2) FSLR/VST, absent from the live networth_holdings pull, were guessed to be a snapshot pagination glitch and carried forward at last-known qty -- the SAME wrong guess an earlier run (2026-09-09) had already made for the same tickers, because nothing forced a check against reality. Both were only caught by chance (a downstream anomaly, then a user challenge), not by any structural control. FIXED: added `smith_math.py build-holdings`, which builds holdings.json mechanically from a raw networth_holdings dump + a live-quotes map -- day_chg_pct is always computed from the live quote's changePct when one was fetched (never from INDmoney's own unreliable one_day_change_percentage field), and any ticker present in the prior run's holdings but absent from the fresh snapshot is named in `dropped_since_last_run` rather than silently carried forward or dropped, forcing a ledger-trigger check instead of a guess. GENERALISE: COMPUTE-FIRST's own principle -- deterministic transformation belongs in the script layer, not re-derived by hand every run -- applies to input CONSTRUCTION (building holdings.json from a raw API response) exactly as much as it applies to the arithmetic performed on it afterward. A file assembled by hand once per run is a file that can silently drop a field forever and nothing will notice until a downstream symptom forces a hunt.
 
 **Closed by:** same run that found it, 2026-09-10 daily sweep
+
+---
+
+## G96 -- OPEN
+**Opened:** 2026-09-15  **Owner:** orchestrator  
+
+narrative.json (dashboard READ section) has no owner, TTL, or freshness check, so it silently serves stale prose from a prior day as if it were this run's judgment. Found 2026-09-15: the published dashboard's READ panel was verbatim 2026-09-09T14:36Z priced-refresh text (cash breach 2.71%, SELL MSFT/BUY KLAC pair, VRT/META intraday moves) rendered under a 2026-09-14 18:23Z run's meta/positions -- the two had been silently diverging for 5 days because no run in between wrote a fresh narrative.json (it is optional per SKILL.md S6 and nothing enforces it). User caught the mismatch by inspection, not any system check.
 
 ---
