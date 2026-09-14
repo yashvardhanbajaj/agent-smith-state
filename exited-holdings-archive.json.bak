@@ -43,26 +43,27 @@
       "legacy_source": "Hyperscaler that BUYS AI capex rather than selling it -- the chain's only internal hedge; blowout 2Q26 print, no earnings until ~late Oct | strengthening [POSITION CLOSED 2026-07-28, swapped to GOOGL Class A]"
     },
     "META": {
-      "status": "intact",
-      "thesis": "Ad-funded hyperscaler AI-capex spender; oversold RSI resolved as technical not fundamental",
+      "status": "strengthening",
+      "thesis": "Compute/Hyperscaler; AI-capex demand-linked buyer, own Muse AI-agent platform launched 09-09",
       "evidence_for": [
         {
-          "claim": "no new negative catalyst since 07-29 Q2 (-11%, priced in); Strong Buy PT $756.95",
-          "date": "2026-08-12",
-          "source": "stockanalysis.com/stocks/META"
+          "claim": "Muse AI-agent launch + favorable lawsuit settlement cleared 4 standing negative buckets (STRONG DOWNTREND/PEER LAGGARD/NEW HEADWINDS/OVERSOLD BOUNCE) in one +6.55% session",
+          "date": "2026-09-09",
+          "source": "smith-signals 2026-09-10 sweep, INDmoney news"
         }
       ],
       "evidence_against": [
         {
-          "claim": "FCF-down-vs-capex-up tension structural, untested until next print",
-          "date": "2026-08-12",
-          "source": "prior run"
+          "claim": "TARGET GAP persists post-pop, target $754.77 (+13.4% upside) -- move real but hasn't closed the valuation gap; 1.55% position, small book impact",
+          "date": "2026-09-10",
+          "source": "smith-signals 2026-09-10"
         }
       ],
       "verified": "secondary",
-      "verified_against": "stockanalysis.com/stocks/META",
-      "verified_on": "2026-08-12",
-      "note": "revived unchanged from archive, prior exit was user raise-cash not a stop"
+      "verified_against": "smith-signals 2026-09-10 sweep (INDmoney news feed)",
+      "verified_on": "2026-09-10",
+      "note": "Upgraded from intact. Prior full thesis text unavailable in this run's slice (status-only tier) -- effectively a fresh write. Precedent check (smith_math.py gaps, query 'reversal on positive catalyst') found no exact match; closest is G75 (price move != fundamental verdict) -- upgrade defensible here because two named events drove it, not bare price action.",
+      "reviewed_on": "2026-09-10"
     },
     "BABA": {
       "status": "watch",
@@ -272,14 +273,27 @@
       "note": "archive -- no longer held as of 2026-08-19; exited in the 2026-08-18 stop-loss cascade (SNDK was a deliberate 08-17 market sell)"
     },
     "SKHY": {
-      "status": "exited",
-      "thesis": "position exited",
-      "evidence_for": [],
-      "evidence_against": [],
+      "status": "strengthening",
+      "thesis": "SK Hynix direct position; leads HBM4 Vera Rubin allocation (60-70% share) vs Samsung 25-30% and Micron low-single-to-teens",
+      "evidence_for": [
+        {
+          "claim": "SK Hynix holds 60-70% of HBM4 Vera Rubin supplier allocation, largest share of current ramp",
+          "date": "2026-06-05",
+          "source": "HBMTracker consumer_view.json supply_structure"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "CXMT HBM3E risk-production catalyst applies to SKHY per affected-tickers list; qualification-stage only, not yet in pricing",
+          "date": "2026-09-07",
+          "source": "smith-catalyst scan"
+        }
+      ],
       "verified": "unverified",
       "verified_against": "",
       "verified_on": "",
-      "note": "archive -- no longer held as of 2026-08-19; exited in the 2026-08-18 stop-loss cascade (SNDK was a deliberate 08-17 market sell)"
+      "note": "first full write-up this run; status unchanged",
+      "reviewed_on": "2026-09-10"
     },
     "BX": {
       "status": "watch",
@@ -649,6 +663,83 @@
       "verified_on": "2026-09-09",
       "note": "First-ever thesis, brand-new position. Genuinely mixed (bullish AI-power narrative + analyst consensus vs revenue miss, insider sale, 31% drawdown) -- not upgraded past WATCH.",
       "reviewed_on": "2026-09-09"
+    },
+    "NVDA": {
+      "status": "strengthening",
+      "thesis": "Core AI GPU/accelerator platform leadership; OpenAI/SB Energy Ohio financing guarantee narrowed $250bn->~$100bn first phase, de-risking, NVDA weighing ~$3bn stake (unsigned)",
+      "evidence_for": [
+        {
+          "claim": "NVDA-OpenAI/SB Energy Ohio financing guarantee narrowed $250bn to ~$100bn first phase; NVDA weighing ~$3bn direct stake, unsigned",
+          "date": "2026-08-16",
+          "source": "smith-catalyst 2026-08-16 scan"
+        }
+      ],
+      "evidence_against": [],
+      "verified": "secondary",
+      "verified_against": "SEC 8-K filed 2026-08-17 (existence confirmed) + CNBC/Axios news",
+      "verified_on": "2026-08-24",
+      "note": "Confirms Nvidia guaranteeing up to $105B financing for OpenAI Ohio (Pike County/SB Energy) data center, plus $1.5B direct SB Energy investment; guarantee amount narrowed from an earlier $250B figure reported in prior weeks.",
+      "reviewed_on": "2026-09-10"
+    },
+    "LRCX": {
+      "status": "strengthening",
+      "thesis": "Semicap AI/DRAM capex beneficiary, re-entered post 2026-07-28 stop-out on record Q4 ($6.72bn rev) and raised guidance",
+      "evidence_for": [],
+      "evidence_against": [],
+      "verified": "unverified",
+      "verified_against": "",
+      "verified_on": "",
+      "note": "migrated from legacy bare-string schema 2026-08-16; the original string carried no evidence, so both arrays are explicitly empty rather than invented -- next smith-thesis touch should populate them",
+      "legacy_source": "Semicap AI/DRAM capex beneficiary, re-entered post 2026-07-28 stop-out on record Q4 ($6.72bn rev) and raised guidance | strengthening",
+      "reviewed_on": "2026-09-10"
+    },
+    "INTC": {
+      "status": "watch",
+      "thesis": "IDM/foundry pivot aiming to capture AI-driven CPU pricing power; thin track record, position trimmed 15->11sh (2026-09-08)",
+      "evidence_for": [
+        {
+          "claim": "Q2 revenue +25% YoY; server/laptop CPU price hikes on AI demand",
+          "date": "2026-08-09",
+          "source": "smith-thesis news scan 2026-08-10"
+        },
+        {
+          "claim": "IFS foundry client wins (Fortinet), $5.7B Leixlip AI-capacity expansion, SoftBank stake",
+          "date": "2026-08-09",
+          "source": "smith-thesis news scan 2026-08-10"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "currently LOSS-MAKING: trailing EPS -$2.09, profit margin -19.8%",
+          "date": "2026-08-10",
+          "source": "yfinance get_key_stats, verified 2026-08-10"
+        },
+        {
+          "claim": "-4.9% trailing annual sales decline and negative cash-flow concern flagged in the same 08-09 coverage that carried the bull points above",
+          "date": "2026-08-09",
+          "source": "smith-thesis news scan 2026-08-10"
+        },
+        {
+          "claim": "expensive on forward numbers: forward P/E 49.4, price/book 5.86, beta 2.24",
+          "date": "2026-08-10",
+          "source": "yfinance get_key_stats, verified 2026-08-10"
+        },
+        {
+          "claim": "buy rationale UNCAPTURED -- position entered 2026-08-07 with no recorded reason (G55)",
+          "date": "2026-08-07",
+          "source": "trades.json"
+        },
+        {
+          "claim": "trimmed -4sh (15->11sh), consistent with (not contradicting) standing loss-making/valuation concerns",
+          "date": "2026-09-08",
+          "source": "holdings.json qty_changes"
+        }
+      ],
+      "verified": "secondary",
+      "verified_against": "yfinance get_key_stats 2026-08-10 (loss-making + valuation confirmed independently)",
+      "verified_on": "2026-08-10",
+      "note": "trim noted, status unchanged",
+      "reviewed_on": "2026-09-10"
     }
   },
   "sector_map": {
@@ -689,6 +780,9 @@
     "CEG": "AI Power/Cooling/DC Infra",
     "FLTW": "Diversified/Regional ETF",
     "FSLR": "AI Power/Cooling/DC Infra",
-    "VST": "AI Power/Cooling/DC Infra"
+    "VST": "AI Power/Cooling/DC Infra",
+    "NVDA": "AI Semis/Fabs",
+    "LRCX": "AI Semis/Fabs",
+    "INTC": "AI Semis/Fabs"
   }
 }
