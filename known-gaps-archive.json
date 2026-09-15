@@ -747,6 +747,15 @@
       "status": "closed",
       "closed": "2026-09-06",
       "resolution": "Rebuilt _compute_stacking_warnings as a per-(ticker, SIDE_GROUP) aggregation instead of accepted-x-open pairing. Two independent v1 defects fixed: (1) it only compared an accepted row against an open one, so open+open stacks were never examined; (2) TRIM and SELL were distinct direction buckets, so the same act under two verbs was treated as unrelated sides. Added SIDE_GROUP to smith_core (TRIM/SELL->REDUCE, BUY->ADD, HOLD->None). Guard now writes stacks_on to every member and reports one warning per group with the full combined total. smith_dashboard.stacks_badge rewritten to render all-open stacks and Trim+Sell merges correctly. 7 regression tests added reconstructing the three live incidents; golden master regenerated (same warnings/totals/severities, additive fields plus SELL->REDUCE, BUY->ADD rename). Verified against the live book: all 3 stacks now fire HIGH, plus a 4th (AMAT buy-side) at note."
+    },
+    {
+      "id": "G91",
+      "description": "compute_book.json's pnl_pct returned null on the 2026-09-07-0741 run -- root-caused: cmd_book NEVER derives pnl_pct itself (totals.get('pnl_pct') only, no fallback), and every normal orchestrator-built holdings.json (checked runs/2026-09-03-1845, 2026-08-31-1554) always precomputes and supplies it directly from networth_holdings' asset_summary (invested_usd vs total_value_usd) -- there is no 'invested' figure in totals at all for a fallback to use. This was MY OWN ad-hoc holdings.json build (the live tokenomics-demo run) omitting that precompute step, not a script defect. Corrected here rather than left mischaracterized. Closing.",
+      "opened": "2026-09-07",
+      "owner": "orchestrator",
+      "status": "closed",
+      "closed": "2026-09-07",
+      "resolution": "Root-caused as an ad-hoc holdings.json build gap, not a script defect -- no code change needed. Corrected the mischaracterization in this entry rather than leaving it standing as a false product-bug report."
     }
   ]
 }

@@ -1,0 +1,1751 @@
+{
+  "as_of": "2026-09-15",
+  "rsi_as_of": "2026-09-14",
+  "rsi_age_days": 1,
+  "rsi_usable": true,
+  "rsi_coverage_pct": 100.0,
+  "rsi_missing": [],
+  "rel_as_of": "2026-09-14",
+  "rel_age_days": 1,
+  "rel_usable": true,
+  "rel_coverage_pct": 100.0,
+  "rel_missing": [],
+  "deployable_cash_usd": 1648.73,
+  "max_single_deploy_usd": 412.18,
+  "thresholds": {
+    "rsi_oversold": 35.0,
+    "rsi_overbought": 70.0,
+    "laggard_pctile": 25.0,
+    "ratchet_min_gain_pct": 15.0,
+    "ladder_tiers_pct": [
+      25.0,
+      50.0
+    ]
+  },
+  "deployable_cash_for_ideas_usd": 5748.34,
+  "live_counts": {
+    "oversold_reversion": 1,
+    "overbought_distribution": 0,
+    "catalyst_threat": 27,
+    "thesis_break": 0,
+    "trend_entry": 1,
+    "trend_breakdown": 4,
+    "conviction_average": 2,
+    "conviction_exit": 4,
+    "entry_setup": 1,
+    "reentry": 0,
+    "bench_diversifier": 0,
+    "profit_rotation": 0,
+    "cluster_rotation": 4
+  },
+  "shadow_counts": {
+    "laggard_rotation": 3,
+    "profit_ratchet": 0,
+    "scale_out_ladder": 1,
+    "cluster_bench_rotation": 2,
+    "cluster_consolidation": 1
+  },
+  "oversold_reversion": [
+    {
+      "ticker": "AMAT",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 34.7,
+      "rel_strength_1m_pp": -12.56,
+      "abs_return_1m_pct": -20.64,
+      "price_usd": 427.2,
+      "market_value_usd": 1285.09,
+      "trigger_type": "oversold_reversion",
+      "direction": "BUY",
+      "vote": "live",
+      "headroom_usd": 992.47,
+      "suggested_size_usd": 412.18,
+      "retires_when": "AMAT RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening",
+      "reasons": [
+        "RSI14 34.7 < 35 (oversold)",
+        "thesis strengthening -- technical dip, not a fundamental break",
+        "within ATR risk cap with $992 headroom"
+      ],
+      "blockers": []
+    }
+  ],
+  "overbought_distribution": [],
+  "catalyst_threat": [
+    {
+      "ticker": "VRT",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "watch",
+      "rsi14": 39.0,
+      "rel_strength_1m_pp": -9.23,
+      "abs_return_1m_pct": -17.31,
+      "price_usd": 238.96,
+      "market_value_usd": 2867.52,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 573.5,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "VRT no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "ASML",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "watch",
+      "rsi14": 36.1,
+      "rel_strength_1m_pp": -6.68,
+      "abs_return_1m_pct": -14.76,
+      "price_usd": 1589.9275,
+      "market_value_usd": 2782.37,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 556.47,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/",
+        "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm"
+      ],
+      "retires_when": "ASML no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut.",
+        "CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "GEV",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "watch",
+      "rsi14": 37.7,
+      "rel_strength_1m_pp": -8.56,
+      "abs_return_1m_pct": -16.64,
+      "price_usd": 877.77,
+      "market_value_usd": 2198.77,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 439.75,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "GEV no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "GOOG",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "strengthening",
+      "rsi14": 54.7,
+      "rel_strength_1m_pp": 8.59,
+      "abs_return_1m_pct": 0.51,
+      "price_usd": 344.15,
+      "market_value_usd": 2064.9,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 412.98,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "GOOG no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "ALAB",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 39.5,
+      "rel_strength_1m_pp": -12.29,
+      "abs_return_1m_pct": -20.37,
+      "price_usd": 258.75,
+      "market_value_usd": 1811.25,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 362.25,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "ALAB no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "KLAC",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 37.9,
+      "rel_strength_1m_pp": -11.16,
+      "abs_return_1m_pct": -19.24,
+      "price_usd": 170.99,
+      "market_value_usd": 1709.9,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 341.98,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "KLAC no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "TSM",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 47.7,
+      "rel_strength_1m_pp": 5.18,
+      "abs_return_1m_pct": -2.9,
+      "price_usd": 419.4803,
+      "market_value_usd": 1677.92,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 335.58,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "TSM no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "TER",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 40.5,
+      "rel_strength_1m_pp": -11.73,
+      "abs_return_1m_pct": -19.81,
+      "price_usd": 333.08,
+      "market_value_usd": 1666.31,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 333.26,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/",
+        "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm"
+      ],
+      "retires_when": "TER no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut.",
+        "CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "COHR",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 42.5,
+      "rel_strength_1m_pp": -10.48,
+      "abs_return_1m_pct": -18.56,
+      "price_usd": 270.6,
+      "market_value_usd": 1353.0,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 270.6,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "COHR no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "AMAT",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 34.7,
+      "rel_strength_1m_pp": -12.56,
+      "abs_return_1m_pct": -20.64,
+      "price_usd": 427.2,
+      "market_value_usd": 1285.09,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 257.02,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/",
+        "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm"
+      ],
+      "retires_when": "AMAT no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut.",
+        "CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "CLS",
+      "cluster": "Compute/Hyperscaler OEM",
+      "thesis_status": "strengthening",
+      "rsi14": 49.1,
+      "rel_strength_1m_pp": -1.0,
+      "abs_return_1m_pct": -9.08,
+      "price_usd": 317.4,
+      "market_value_usd": 1270.64,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 254.13,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "CLS no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "LITE",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 45.8,
+      "rel_strength_1m_pp": 2.93,
+      "abs_return_1m_pct": -5.15,
+      "price_usd": 846.0741,
+      "market_value_usd": 1269.11,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 253.82,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "LITE no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "APH",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 45.4,
+      "rel_strength_1m_pp": 2.86,
+      "abs_return_1m_pct": -5.22,
+      "price_usd": 78.85,
+      "market_value_usd": 1182.75,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 236.55,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "APH no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "MRVL",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 48.2,
+      "rel_strength_1m_pp": 6.57,
+      "abs_return_1m_pct": -1.51,
+      "price_usd": 220.8432,
+      "market_value_usd": 1104.22,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 220.84,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "MRVL no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": [
+        "MRVL is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula"
+      ]
+    },
+    {
+      "ticker": "NBIS",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "watch",
+      "rsi14": 47.2,
+      "rel_strength_1m_pp": -8.72,
+      "abs_return_1m_pct": -16.8,
+      "price_usd": 213.94,
+      "market_value_usd": 1069.7,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 213.94,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "NBIS no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "AMD",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "watch",
+      "rsi14": 51.5,
+      "rel_strength_1m_pp": 10.23,
+      "abs_return_1m_pct": 2.15,
+      "price_usd": 493.78,
+      "market_value_usd": 987.56,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 197.51,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "AMD no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "MU",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "watch",
+      "rsi14": 46.4,
+      "rel_strength_1m_pp": 5.36,
+      "abs_return_1m_pct": -2.72,
+      "price_usd": 931.94,
+      "market_value_usd": 932.28,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 186.46,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/",
+        "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm"
+      ],
+      "retires_when": "MU no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut.",
+        "CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline (2026-09-01) -- risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json) [carried forward, last confirmed 2026-09-07]"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "QCOM",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 63.3,
+      "rel_strength_1m_pp": 17.4,
+      "abs_return_1m_pct": 9.32,
+      "price_usd": 180.45,
+      "market_value_usd": 902.39,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 180.48,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "QCOM no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": [
+        "QCOM is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula"
+      ]
+    },
+    {
+      "ticker": "WDC",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "strengthening",
+      "rsi14": 40.0,
+      "rel_strength_1m_pp": -4.3,
+      "abs_return_1m_pct": -12.38,
+      "price_usd": 431.68,
+      "market_value_usd": 863.36,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 172.67,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "WDC no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "AMZN",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "watch",
+      "rsi14": 45.8,
+      "rel_strength_1m_pp": 3.71,
+      "abs_return_1m_pct": -4.37,
+      "price_usd": 253.6378,
+      "market_value_usd": 760.91,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 152.18,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "AMZN no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "STM",
+      "cluster": "Analog/Industrial Semis",
+      "thesis_status": "watch",
+      "rsi14": 37.1,
+      "rel_strength_1m_pp": -3.31,
+      "abs_return_1m_pct": -11.39,
+      "price_usd": 47.99,
+      "market_value_usd": 719.85,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 143.97,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "STM no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "AVGO",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "watch",
+      "rsi14": 34.3,
+      "rel_strength_1m_pp": -9.42,
+      "abs_return_1m_pct": -17.5,
+      "price_usd": 346.2241,
+      "market_value_usd": 692.45,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 138.49,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "NOW",
+      "cluster": "Enterprise Software",
+      "thesis_status": "strengthening",
+      "rsi14": 60.4,
+      "rel_strength_1m_pp": 19.95,
+      "abs_return_1m_pct": 11.87,
+      "price_usd": 141.7,
+      "market_value_usd": 566.8,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 113.36,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "NOW no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": [
+        "NOW is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula"
+      ]
+    },
+    {
+      "ticker": "BE",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "strengthening",
+      "rsi14": 57.3,
+      "rel_strength_1m_pp": 16.9,
+      "abs_return_1m_pct": 8.82,
+      "price_usd": 258.3,
+      "market_value_usd": 516.6,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 103.32,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "BE no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": [
+        "BE is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula"
+      ]
+    },
+    {
+      "ticker": "MSFT",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "strengthening",
+      "rsi14": 61.4,
+      "rel_strength_1m_pp": 9.8,
+      "abs_return_1m_pct": 1.72,
+      "price_usd": 504.0,
+      "market_value_usd": 504.0,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 100.8,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "MSFT no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": [
+        "MSFT is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula"
+      ]
+    },
+    {
+      "ticker": "GLW",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "watch",
+      "rsi14": 42.3,
+      "rel_strength_1m_pp": -1.34,
+      "abs_return_1m_pct": -9.42,
+      "price_usd": 145.186,
+      "market_value_usd": 435.56,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 87.11,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "GLW no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "CIEN",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 37.2,
+      "rel_strength_1m_pp": -19.73,
+      "abs_return_1m_pct": -27.81,
+      "price_usd": 321.4874,
+      "market_value_usd": 2.74,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "suggested_size_usd": 0.55,
+      "trim_fraction": 0.2,
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/"
+      ],
+      "retires_when": "CIEN no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut."
+      ],
+      "blockers": []
+    }
+  ],
+  "thesis_break": [],
+  "trend_entry": [
+    {
+      "ticker": "NOW",
+      "cluster": "Enterprise Software",
+      "thesis_status": "strengthening",
+      "rsi14": 60.4,
+      "rel_strength_1m_pp": 19.95,
+      "abs_return_1m_pct": 11.87,
+      "price_usd": 141.7,
+      "market_value_usd": 566.8,
+      "trigger_type": "trend_entry",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 28.0,
+      "conviction_tier": "low",
+      "size_wanted_usd": 438.42,
+      "suggested_size_usd": 438.42,
+      "clamped_by": null,
+      "stop_price_usd": 128.5786,
+      "retires_when": "NOW no longer carries BREAKOUT/STRONG UPTREND or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (secondary, 2 for / 1 against)",
+        "threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-",
+        "signal polarity net +2 (PEER LEADER, STRONG UPTREND)",
+        "+19.9pp vs benchmark",
+        "named by 1 independent source(s) this run",
+        "track record 67% (n=9) via hit rate 67% applies a +3.0% tilt (45% authority at this sample size)"
+      ],
+      "blockers": []
+    }
+  ],
+  "trend_breakdown": [
+    {
+      "ticker": "GEV",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "watch",
+      "rsi14": 37.7,
+      "rel_strength_1m_pp": -8.56,
+      "abs_return_1m_pct": -16.64,
+      "price_usd": 877.77,
+      "market_value_usd": 2198.77,
+      "trigger_type": "trend_breakdown",
+      "direction": "TRIM",
+      "vote": "live",
+      "conviction_score": -12.6,
+      "conviction_tier": "none",
+      "suggested_size_usd": 659.63,
+      "over_cap_independent": true,
+      "retires_when": "GEV no longer carries BREAKDOWN/STRONG DOWNTREND or thesis recovers",
+      "reasons": [
+        "thesis watch (secondary, 2 for / 3 against)",
+        "threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, ; threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI",
+        "signal polarity net -2 (PEER LAGGARD, STRONG DOWNTREND)",
+        "+40.9% vs analyst target",
+        "-8.6pp vs benchmark",
+        "named by 3 independent source(s) this run"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "ASML",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "watch",
+      "rsi14": 36.1,
+      "rel_strength_1m_pp": -6.68,
+      "abs_return_1m_pct": -14.76,
+      "price_usd": 1589.9275,
+      "market_value_usd": 2782.37,
+      "trigger_type": "trend_breakdown",
+      "direction": "TRIM",
+      "vote": "live",
+      "conviction_score": -14.3,
+      "conviction_tier": "none",
+      "suggested_size_usd": 834.71,
+      "over_cap_independent": true,
+      "retires_when": "ASML no longer carries BREAKDOWN/STRONG DOWNTREND or thesis recovers",
+      "reasons": [
+        "thesis watch (unverified, 4 for / 3 against)",
+        "threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, ; threat/immediate: KOSPI -3.26% (Samsung/SK Hynix -5 to -6.4%) on Fed-hawkish repricing (Warsh Jack; threat/structural: CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-",
+        "signal polarity net -1 (STRONG DOWNTREND)",
+        "+36.2% vs analyst target",
+        "-6.7pp vs benchmark",
+        "named by 4 independent source(s) this run"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "GLW",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "watch",
+      "rsi14": 42.3,
+      "rel_strength_1m_pp": -1.34,
+      "abs_return_1m_pct": -9.42,
+      "price_usd": 145.186,
+      "market_value_usd": 435.56,
+      "trigger_type": "trend_breakdown",
+      "direction": "TRIM",
+      "vote": "live",
+      "conviction_score": -14.3,
+      "conviction_tier": "none",
+      "suggested_size_usd": 130.67,
+      "over_cap_independent": true,
+      "retires_when": "GLW no longer carries BREAKDOWN/STRONG DOWNTREND or thesis recovers",
+      "reasons": [
+        "thesis watch (secondary, 1 for / 2 against)",
+        "threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, ; threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI",
+        "signal polarity net -1 (STRONG DOWNTREND)",
+        "+31.8% vs analyst target",
+        "-1.3pp vs benchmark",
+        "named by 3 independent source(s) this run"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "STM",
+      "cluster": "Analog/Industrial Semis",
+      "thesis_status": "watch",
+      "rsi14": 37.1,
+      "rel_strength_1m_pp": -3.31,
+      "abs_return_1m_pct": -11.39,
+      "price_usd": 47.99,
+      "market_value_usd": 719.85,
+      "trigger_type": "trend_breakdown",
+      "direction": "TRIM",
+      "vote": "live",
+      "conviction_score": -15.3,
+      "conviction_tier": "none",
+      "suggested_size_usd": 215.96,
+      "over_cap_independent": true,
+      "retires_when": "STM no longer carries BREAKDOWN/STRONG DOWNTREND or thesis recovers",
+      "reasons": [
+        "thesis watch (primary, 2 for / 1 against)",
+        "threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-",
+        "signal polarity net -1 (STRONG DOWNTREND)",
+        "+56.4% vs analyst target",
+        "-3.3pp vs benchmark",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": []
+    }
+  ],
+  "conviction_average": [
+    {
+      "ticker": "MRVL",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 48.2,
+      "rel_strength_1m_pp": 6.57,
+      "abs_return_1m_pct": -1.51,
+      "price_usd": 220.8432,
+      "market_value_usd": 1104.22,
+      "trigger_type": "conviction_average",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 39.1,
+      "conviction_tier": "low",
+      "support_usd": 204.9425,
+      "size_wanted_usd": 376.24,
+      "suggested_size_usd": 319.26,
+      "clamped_by": "ATR headroom",
+      "blended_entry_usd": 224.5859,
+      "current_stop_usd": 189.0418,
+      "retires_when": "MRVL recovers above its support level or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (secondary, 2 for / 2 against)",
+        "threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, ; threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI",
+        "signal polarity net +1 (NEW TAILWINDS)",
+        "reported: beat",
+        "+6.6pp vs benchmark",
+        "named by 3 independent source(s) this run"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "MSFT",
+      "cluster": "Compute/Hyperscaler",
+      "thesis_status": "strengthening",
+      "rsi14": 61.4,
+      "rel_strength_1m_pp": 9.8,
+      "abs_return_1m_pct": 1.72,
+      "price_usd": 504.0,
+      "market_value_usd": 504.0,
+      "trigger_type": "conviction_average",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 26.3,
+      "conviction_tier": "low",
+      "support_usd": 493.92,
+      "size_wanted_usd": 963.51,
+      "suggested_size_usd": 963.51,
+      "clamped_by": null,
+      "blended_entry_usd": 506.0126,
+      "current_stop_usd": 483.84,
+      "retires_when": "MSFT recovers above its support level or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (secondary, 2 for / 2 against)",
+        "threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-",
+        "signal polarity net +1 (PEER LEADER)",
+        "+9.8pp vs benchmark",
+        "named by 1 independent source(s) this run",
+        "track record 67% (n=9) via hit rate 67% applies a +3.0% tilt (45% authority at this sample size)"
+      ],
+      "blockers": []
+    }
+  ],
+  "conviction_exit": [
+    {
+      "ticker": "ASML",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "watch",
+      "rsi14": 36.1,
+      "rel_strength_1m_pp": -6.68,
+      "abs_return_1m_pct": -14.76,
+      "price_usd": 1589.9275,
+      "market_value_usd": 2782.37,
+      "trigger_type": "conviction_exit",
+      "direction": "SELL",
+      "vote": "live",
+      "conviction_score": -14.3,
+      "negative_signal_count": 3,
+      "suggested_size_usd": 1391.18,
+      "over_cap_independent": true,
+      "retires_when": "fewer than 3 of ASML's independent negative signals remain",
+      "reasons": [
+        "3 independent negative signals converged (thesis/catalyst/trend/technical)",
+        "thesis watch (unverified, 4 for / 3 against)",
+        "threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, ; threat/immediate: KOSPI -3.26% (Samsung/SK Hynix -5 to -6.4%) on Fed-hawkish repricing (Warsh Jack; threat/structural: CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-",
+        "signal polarity net -1 (STRONG DOWNTREND)",
+        "+36.2% vs analyst target",
+        "-6.7pp vs benchmark",
+        "named by 4 independent source(s) this run"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "GEV",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "watch",
+      "rsi14": 37.7,
+      "rel_strength_1m_pp": -8.56,
+      "abs_return_1m_pct": -16.64,
+      "price_usd": 877.77,
+      "market_value_usd": 2198.77,
+      "trigger_type": "conviction_exit",
+      "direction": "SELL",
+      "vote": "live",
+      "conviction_score": -12.6,
+      "negative_signal_count": 3,
+      "suggested_size_usd": 1099.38,
+      "over_cap_independent": true,
+      "retires_when": "fewer than 3 of GEV's independent negative signals remain",
+      "reasons": [
+        "3 independent negative signals converged (thesis/catalyst/trend/technical)",
+        "thesis watch (secondary, 2 for / 3 against)",
+        "threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, ; threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI",
+        "signal polarity net -2 (PEER LAGGARD, STRONG DOWNTREND)",
+        "+40.9% vs analyst target",
+        "-8.6pp vs benchmark",
+        "named by 3 independent source(s) this run"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "STM",
+      "cluster": "Analog/Industrial Semis",
+      "thesis_status": "watch",
+      "rsi14": 37.1,
+      "rel_strength_1m_pp": -3.31,
+      "abs_return_1m_pct": -11.39,
+      "price_usd": 47.99,
+      "market_value_usd": 719.85,
+      "trigger_type": "conviction_exit",
+      "direction": "SELL",
+      "vote": "live",
+      "conviction_score": -15.3,
+      "negative_signal_count": 3,
+      "suggested_size_usd": 359.93,
+      "over_cap_independent": true,
+      "retires_when": "fewer than 3 of STM's independent negative signals remain",
+      "reasons": [
+        "3 independent negative signals converged (thesis/catalyst/trend/technical)",
+        "thesis watch (primary, 2 for / 1 against)",
+        "threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-",
+        "signal polarity net -1 (STRONG DOWNTREND)",
+        "+56.4% vs analyst target",
+        "-3.3pp vs benchmark",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "GLW",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "watch",
+      "rsi14": 42.3,
+      "rel_strength_1m_pp": -1.34,
+      "abs_return_1m_pct": -9.42,
+      "price_usd": 145.186,
+      "market_value_usd": 435.56,
+      "trigger_type": "conviction_exit",
+      "direction": "SELL",
+      "vote": "live",
+      "conviction_score": -14.3,
+      "negative_signal_count": 3,
+      "suggested_size_usd": 217.78,
+      "over_cap_independent": true,
+      "retires_when": "fewer than 3 of GLW's independent negative signals remain",
+      "reasons": [
+        "3 independent negative signals converged (thesis/catalyst/trend/technical)",
+        "thesis watch (secondary, 1 for / 2 against)",
+        "threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, ; threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI",
+        "signal polarity net -1 (STRONG DOWNTREND)",
+        "+31.8% vs analyst target",
+        "-1.3pp vs benchmark",
+        "named by 3 independent source(s) this run"
+      ],
+      "blockers": []
+    }
+  ],
+  "entry_setup": [
+    {
+      "ticker": "NRG",
+      "cluster": null,
+      "thesis_status": null,
+      "watchlist_type": "target_gap",
+      "upside_pct": 39.89,
+      "trigger_type": "entry_setup",
+      "direction": "BUY",
+      "vote": "live",
+      "conviction_score": 20.8,
+      "conviction_tier": "low",
+      "suggested_size_usd": null,
+      "retires_when": "NRG drops off the watchlist setups list or conviction falls to 'none'",
+      "reasons": [
+        "+39.9% vs analyst target",
+        "RSI14 6 oversold",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": [
+        "no live price/ATR for NRG this run -- setup valid, sizing needs a fetch"
+      ]
+    }
+  ],
+  "reentry": [],
+  "bench_diversifier": [],
+  "rebound": {
+    "correction_state": "pullback",
+    "reasons": [
+      "book drawdown -4.72% past a quarter of the policy warn line (-3.8%)",
+      "benchmark 5d -4.50% at or past -3.0%"
+    ],
+    "inputs_usable": true,
+    "rel_cache_age_days": 1,
+    "stale_warning": null,
+    "book_drawdown_pct": -4.721,
+    "benchmark_1m_pct": -8.08,
+    "breadth_fallen_share": 0.074,
+    "policy_warn_pct": -15,
+    "candidates": [
+      {
+        "ticker": "SNDK",
+        "tier": "T2_ALUMNI",
+        "cluster": null,
+        "fall_pct": -13.55,
+        "fall_window": "1m_fallback",
+        "atr20_pct": 15.6,
+        "thesis_status": null,
+        "thesis_known": false,
+        "fall_atr_mult": 0.19,
+        "rebound_score": 21.1,
+        "window": "1m_fallback",
+        "last_held_date": "2026-08-26"
+      },
+      {
+        "ticker": "ALAB",
+        "tier": "T1_HELD",
+        "cluster": "AI Networking/Optics",
+        "fall_pct": -17.19,
+        "fall_window": "5d",
+        "atr20_pct": 8.15,
+        "thesis_status": "strengthening",
+        "thesis_known": true,
+        "fall_atr_mult": 0.94,
+        "rebound_score": 14.0,
+        "window": "5d",
+        "last_held_date": null
+      },
+      {
+        "ticker": "WDC",
+        "tier": "T1_HELD",
+        "cluster": "AI Memory/Storage",
+        "fall_pct": -8.67,
+        "fall_window": "5d",
+        "atr20_pct": 6.52,
+        "thesis_status": "strengthening",
+        "thesis_known": true,
+        "fall_atr_mult": 0.59,
+        "rebound_score": 5.7,
+        "window": "5d",
+        "last_held_date": null
+      }
+    ],
+    "considered": 45,
+    "excluded": {
+      "thesis_blocked": [
+        "VRT (watch)"
+      ],
+      "too_quiet": [
+        "ASML",
+        "KLAC",
+        "MU",
+        "STM",
+        "BABA"
+      ],
+      "not_fallen_enough": [
+        "AMAT",
+        "AMD",
+        "AMZN",
+        "APH",
+        "AVGO",
+        "BE",
+        "CIEN",
+        "CLS",
+        "COHR",
+        "GEV",
+        "GLW",
+        "GOOG",
+        "LITE",
+        "MRVL",
+        "MSFT",
+        "NBIS",
+        "NOW",
+        "QCOM",
+        "TER",
+        "TSM",
+        "AMKR",
+        "ARM",
+        "BX",
+        "CEG",
+        "DRAM",
+        "FLTW",
+        "FSLR",
+        "INTC",
+        "IREN",
+        "LRCX",
+        "META",
+        "NVDA",
+        "ORCL",
+        "SKHY",
+        "SMCI",
+        "TXN"
+      ],
+      "no_data": [
+        "AAPL",
+        "AIA",
+        "ANET",
+        "CORZ",
+        "CQQQ",
+        "CRDO",
+        "CRWV",
+        "DELL",
+        "DLR",
+        "ETN",
+        "EWT",
+        "EWY",
+        "FCG",
+        "FLNG",
+        "GOOGL",
+        "HOOD",
+        "IONQ",
+        "LLY",
+        "MKSI",
+        "MP",
+        "P",
+        "PENG",
+        "PLTR",
+        "QBTS",
+        "RMBS",
+        "SPCX",
+        "VST",
+        "BAM",
+        "DUK",
+        "JNJ",
+        "NEM",
+        "NRG",
+        "ONTO",
+        "PANW",
+        "PG",
+        "RTX",
+        "SNOW",
+        "SO",
+        "UNH"
+      ]
+    },
+    "note": "CONTEXT, not a veto: SNDK, ALAB, WDC fell less than 1.5x their own average daily range -- loud names being loud, not obvious dislocations. Ranked on the mandate (fall x volatility) regardless; weigh this when sizing.",
+    "thesis_gap": "1 candidate(s) have NO thesis entry and so passed the falling-knife gate unexamined rather than on the evidence (SNDK). state.thesis is seeded from current holdings, so alumni and watchlist names are absent by construction."
+  },
+  "correction_state": "pullback",
+  "profit_rotation": [],
+  "cluster_rotation": [
+    {
+      "pair_id": "cluster_rotation-GEV-BE",
+      "trigger_type": "cluster_rotation",
+      "vote": "live",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "ladder_driven": false,
+      "ladder_as_of": null,
+      "ladder_confidence": null,
+      "ladder_authority": "rank",
+      "ladder_authority_reasons": [
+        "ladder is 6d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+      ],
+      "sell_leg": {
+        "ticker": "GEV",
+        "direction": "SELL",
+        "suggested_size_usd": 659.63,
+        "reasons": [
+          "laggard within AI Power/Cooling/DC Infra (-8.6pp), watch thesis -- dead money in this cluster"
+        ]
+      },
+      "buy_leg": {
+        "ticker": "BE",
+        "direction": "BUY",
+        "suggested_size_usd": 659.63,
+        "clamped_by": null,
+        "conviction_score": 24.4,
+        "reasons": [
+          "performer within AI Power/Cooling/DC Infra (+16.9pp), strengthening thesis"
+        ]
+      },
+      "retires_when": "EITHER GEV's thesis strengthens OR BE is no longer the cluster's relative-strength leader"
+    },
+    {
+      "pair_id": "cluster_rotation-ASML-TSM",
+      "trigger_type": "cluster_rotation",
+      "vote": "live",
+      "cluster": "AI Semis/Fabs",
+      "ladder_driven": true,
+      "ladder_as_of": "2026-09-14",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "ladder_authority_reasons": [
+        "ladder track record 0/1 (below the sample bar, reported not acted on)",
+        "ladder is 1d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+      ],
+      "sell_leg": {
+        "ticker": "ASML",
+        "direction": "SELL",
+        "suggested_size_usd": 834.71,
+        "reasons": [
+          "cluster ladder ranks ASML #5 of 6 (laggard). Case against: (For it) the lowest ATR in the cluster (2.82%) and analyst mean target $2,168. Its rank would jump if Q3 bookings beat, so it may be mispriced low rather than a laggard."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "TSM",
+        "direction": "BUY",
+        "suggested_size_usd": 834.71,
+        "clamped_by": null,
+        "conviction_score": 7.8,
+        "reasons": [
+          "cluster ladder ranks TSM #1 of 6 (leader): advanced packaging (CoWoS-class) capacity as a distinct bottleneck -- Owns the bottleneck and prices it. August +53.3% YoY puts it well past the +25% falsifier, and price agrees (rel_intra +4.2pp) because revenue is accelerating, not on sentiment."
+        ]
+      },
+      "retires_when": "EITHER AI Semis/Fabs's ladder no longer ranks TSM above ASML OR that ladder goes stale (>14d)"
+    },
+    {
+      "pair_id": "cluster_rotation-NBIS-MSFT",
+      "trigger_type": "cluster_rotation",
+      "vote": "live",
+      "cluster": "Compute/Hyperscaler",
+      "ladder_driven": true,
+      "ladder_as_of": "2026-09-14",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "ladder_authority_reasons": [
+        "ladder track record 1/1 (below the sample bar, reported not acted on)",
+        "ladder is 1d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+      ],
+      "sell_leg": {
+        "ticker": "NBIS",
+        "direction": "SELL",
+        "suggested_size_usd": 320.91,
+        "reasons": [
+          "cluster ladder ranks NBIS #4 of 4 (laggard). Case against: Case FOR is real and improving: IG counterparties now named (MSFT, Meta), which was the 09-08 reorder condition for the counterparty axis; prepayments are the cheapest neocloud funding; Lone Pine made it its largest holding. Stays last because capex/revenue ~10x makes it the member most exposed to the rate channel into FOMC."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "MSFT",
+        "direction": "BUY",
+        "suggested_size_usd": 320.91,
+        "clamped_by": null,
+        "conviction_score": 26.3,
+        "reasons": [
+          "cluster ladder ranks MSFT #1 of 4 (leader): capex as a share of operating cash flow -- One of two majors with FY26 FCF positive after capex"
+        ]
+      },
+      "retires_when": "EITHER Compute/Hyperscaler's ladder no longer ranks MSFT above NBIS OR that ladder goes stale (>14d)"
+    },
+    {
+      "pair_id": "cluster_rotation-AVGO-MRVL",
+      "trigger_type": "cluster_rotation",
+      "vote": "live",
+      "cluster": "AI Networking/Optics",
+      "ladder_driven": false,
+      "ladder_as_of": null,
+      "ladder_confidence": null,
+      "ladder_authority": "rank",
+      "ladder_authority_reasons": [
+        "ladder track record 1/1 (below the sample bar, reported not acted on)",
+        "ladder is 1d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+      ],
+      "sell_leg": {
+        "ticker": "AVGO",
+        "direction": "SELL",
+        "suggested_size_usd": 207.74,
+        "reasons": [
+          "laggard within AI Networking/Optics (-9.4pp), watch thesis -- dead money in this cluster"
+        ]
+      },
+      "buy_leg": {
+        "ticker": "MRVL",
+        "direction": "BUY",
+        "suggested_size_usd": 207.74,
+        "clamped_by": null,
+        "conviction_score": 39.1,
+        "reasons": [
+          "performer within AI Networking/Optics (+6.6pp), strengthening thesis"
+        ]
+      },
+      "retires_when": "EITHER AVGO's thesis strengthens OR MRVL is no longer the cluster's relative-strength leader"
+    }
+  ],
+  "cluster_bench_rotation": [
+    {
+      "pair_id": "cluster_bench_rotation-ASML-AMKR",
+      "trigger_type": "cluster_bench_rotation",
+      "vote": "shadow",
+      "cluster": "AI Semis/Fabs",
+      "ladder_as_of": "2026-09-14",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "sell_leg": {
+        "ticker": "ASML",
+        "direction": "SELL",
+        "suggested_size_usd": 834.71,
+        "reasons": [
+          "cluster ladder ranks ASML #5 of 6 (laggard). Case against: (For it) the lowest ATR in the cluster (2.82%) and analyst mean target $2,168. Its rank would jump if Q3 bookings beat, so it may be mispriced low rather than a laggard."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "AMKR",
+        "direction": "BUY",
+        "suggested_size_usd": null,
+        "price_usd": 51.73,
+        "reasons": [
+          "cluster bench: better than ASML: a direct OSAT/advanced-packaging exposure to where the margin pool is moving, with no China-DUV policy overhang (analyst mean target $76.40)",
+          "entry condition: Holds above $50 through the macro selloff, and TSMC keeps the CoWoS path on 2026-10-15 (AMKR is the overflow/US packaging partner)"
+        ],
+        "blockers": [
+          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized."
+        ]
+      },
+      "retires_when": "EITHER AI Semis/Fabs's ladder drops AMKR from its bench OR ASML leaves the bottom of that ladder"
+    },
+    {
+      "pair_id": "cluster_bench_rotation-NBIS-META",
+      "trigger_type": "cluster_bench_rotation",
+      "vote": "shadow",
+      "cluster": "Compute/Hyperscaler",
+      "ladder_as_of": "2026-09-14",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "sell_leg": {
+        "ticker": "NBIS",
+        "direction": "SELL",
+        "suggested_size_usd": 320.91,
+        "reasons": [
+          "cluster ladder ranks NBIS #4 of 4 (laggard). Case against: Case FOR is real and improving: IG counterparties now named (MSFT, Meta), which was the 09-08 reorder condition for the counterparty axis; prepayments are the cheapest neocloud funding; Lone Pine made it its largest holding. Stays last because capex/revenue ~10x makes it the member most exposed to the rate channel into FOMC."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "META",
+        "direction": "BUY",
+        "suggested_size_usd": null,
+        "price_usd": null,
+        "reasons": [
+          "cluster bench: better than NBIS",
+          "entry condition: Late-Oct print with 2027 capex guide accompanied by FCF staying positive; price not re-fetched this run (09-08 ref $616.77, mean target $754.77)"
+        ],
+        "blockers": [
+          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized."
+        ]
+      },
+      "retires_when": "EITHER Compute/Hyperscaler's ladder drops META from its bench OR NBIS leaves the bottom of that ladder"
+    }
+  ],
+  "cluster_consolidation": [
+    {
+      "pair_id": "cluster_consolidation-COHR-LITE",
+      "trigger_type": "cluster_consolidation",
+      "vote": "shadow",
+      "cluster": "AI Networking/Optics",
+      "ladder_as_of": "2026-09-14",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "sell_leg": {
+        "ticker": "COHR",
+        "direction": "SELL",
+        "suggested_size_usd": 1353.0,
+        "market_value_usd": 1353.0,
+        "reasons": [
+          "same bet as LITE: Business grounds only, no correlation asserted: both are InP/EML laser suppliers to the same shortfall, both have $2B NVDA investments, and both make 1.6T pluggables and CPO light sources"
+        ]
+      },
+      "buy_leg": {
+        "ticker": "LITE",
+        "direction": "BUY",
+        "suggested_size_usd": 1353.0,
+        "reasons": [
+          "the better expression of the AI Networking/Optics bet LITE and COHR both make"
+        ],
+        "blockers": [
+          "SHADOW -- 'same bet' is a business judgment with no numeric proof available here; the script can only screen for resemblance, never for cause."
+        ]
+      },
+      "retires_when": "EITHER AI Networking/Optics's ladder stops calling LITE/COHR redundant OR that ladder goes stale"
+    }
+  ],
+  "laggard_rotation": [
+    {
+      "ticker": "CIEN",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 37.2,
+      "rel_strength_1m_pp": -19.73,
+      "abs_return_1m_pct": -27.81,
+      "price_usd": 321.4874,
+      "market_value_usd": 2.74,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 1358.35,
+      "suggested_size_usd": 412.18,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-19.7pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "AMAT",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 34.7,
+      "rel_strength_1m_pp": -12.56,
+      "abs_return_1m_pct": -20.64,
+      "price_usd": 427.2,
+      "market_value_usd": 1285.09,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 992.47,
+      "suggested_size_usd": 412.18,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-12.6pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "KLAC",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 37.9,
+      "rel_strength_1m_pp": -11.16,
+      "abs_return_1m_pct": -19.24,
+      "price_usd": 170.99,
+      "market_value_usd": 1709.9,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 503.71,
+      "suggested_size_usd": 412.18,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-11.2pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": []
+    }
+  ],
+  "profit_ratchet": [],
+  "scale_out_ladder": [
+    {
+      "ticker": "BE",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "strengthening",
+      "rsi14": 57.3,
+      "rel_strength_1m_pp": 16.9,
+      "abs_return_1m_pct": 8.82,
+      "price_usd": 258.3,
+      "market_value_usd": 516.6,
+      "trigger_type": "scale_out_ladder",
+      "direction": "TRIM",
+      "vote": "shadow",
+      "avg_cost_usd": 200.31,
+      "gain_pct": 28.95,
+      "tiers": [
+        {
+          "gain_pct": 25.0,
+          "triggered": true,
+          "slice_usd": 172.2
+        },
+        {
+          "gain_pct": 50.0,
+          "triggered": false,
+          "slice_usd": 172.2
+        }
+      ],
+      "suggested_size_usd": 172.2,
+      "reasons": [
+        "up +29.0% vs basis -- 1 of 2 scale-out rung(s) reached (+25%)"
+      ],
+      "blockers": []
+    }
+  ],
+  "shadow_new": [
+    {
+      "date": "2026-09-15",
+      "ticker": "CIEN",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 321.4874,
+      "rsi14": 37.2,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -19.73,
+      "scored": false
+    },
+    {
+      "date": "2026-09-15",
+      "ticker": "AMAT",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 427.2,
+      "rsi14": 34.7,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -12.56,
+      "scored": false
+    },
+    {
+      "date": "2026-09-15",
+      "ticker": "KLAC",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 170.99,
+      "rsi14": 37.9,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -11.16,
+      "scored": false
+    },
+    {
+      "date": "2026-09-15",
+      "ticker": "BE",
+      "trigger_type": "scale_out_ladder",
+      "price_at_flag": 258.3,
+      "rsi14": 57.3,
+      "gain_pct": 28.95,
+      "rel_strength_1m_pp": 16.9,
+      "scored": false
+    },
+    {
+      "date": "2026-09-15",
+      "ticker": "AMKR",
+      "trigger_type": "cluster_bench_rotation",
+      "price_at_flag": 51.73,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "pair_id": "cluster_bench_rotation-ASML-AMKR",
+      "scored": false
+    },
+    {
+      "date": "2026-09-15",
+      "ticker": "META",
+      "trigger_type": "cluster_bench_rotation",
+      "price_at_flag": null,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "pair_id": "cluster_bench_rotation-NBIS-META",
+      "scored": false
+    },
+    {
+      "date": "2026-09-15",
+      "ticker": "LITE",
+      "trigger_type": "cluster_consolidation",
+      "price_at_flag": 846.0741,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "pair_id": "cluster_consolidation-COHR-LITE",
+      "scored": false
+    }
+  ],
+  "rsi_values": {
+    "NVDA": 70.4,
+    "MU": 46.4,
+    "DRAM": 53.9,
+    "MRVL": 48.2,
+    "AMAT": 34.7,
+    "AMZN": 45.8,
+    "ARM": 43.7,
+    "ASML": 36.1,
+    "AVGO": 34.3,
+    "BABA": 34.6,
+    "BX": 59.6,
+    "CEG": 63.5,
+    "CIEN": 37.2,
+    "CLS": 49.1,
+    "FLTW": 63.9,
+    "GEV": 37.7,
+    "INTC": 36.5,
+    "LRCX": 53.3,
+    "META": 34.1,
+    "MSFT": 61.4,
+    "NBIS": 47.2,
+    "NOW": 60.4,
+    "ORCL": 66.6,
+    "QCOM": 63.3,
+    "SNDK": 43.7,
+    "TER": 40.5,
+    "TSM": 47.7,
+    "STM": 37.1,
+    "TXN": 42.4,
+    "AMD": 51.5,
+    "COHR": 42.5,
+    "IREN": 48.5,
+    "GOOG": 54.7,
+    "BE": 57.3,
+    "SKHY": 64.9,
+    "SMCI": 52.8,
+    "AMKR": 43.8,
+    "GLW": 42.3,
+    "LITE": 45.8,
+    "KLAC": 37.9,
+    "WDC": 40.0,
+    "VRT": 39.0,
+    "ALAB": 39.5,
+    "APH": 45.4,
+    "FSLR": 35.3,
+    "REMX": 32.1,
+    "SMH": 42.1,
+    "XLF": 46.3,
+    "XLK": 48.8,
+    "XLU": 33.5
+  },
+  "abs_return_1m_pct_values": {
+    "NVDA": 8.13,
+    "MU": -2.72,
+    "DRAM": -7.27,
+    "MRVL": -1.51,
+    "AMAT": -20.64,
+    "AMZN": -4.37,
+    "ARM": -7.63,
+    "ASML": -14.76,
+    "AVGO": -17.5,
+    "BABA": 5.96,
+    "BX": 16.54,
+    "CEG": 7.71,
+    "CIEN": -27.81,
+    "CLS": -9.08,
+    "FLTW": 6.25,
+    "GEV": -16.64,
+    "INTC": -4.27,
+    "LRCX": 0.84,
+    "META": -8.82,
+    "MSFT": 1.72,
+    "NBIS": -16.8,
+    "NOW": 11.87,
+    "ORCL": 17.47,
+    "QCOM": 9.32,
+    "SNDK": -13.55,
+    "TER": -19.81,
+    "TSM": -2.9,
+    "STM": -11.39,
+    "TXN": -4.15,
+    "AMD": 2.15,
+    "COHR": -18.56,
+    "ALAB": -20.37,
+    "APH": -5.22,
+    "FSLR": -13.66,
+    "BE": 8.82,
+    "GLW": -9.42,
+    "GOOG": 0.51,
+    "KLAC": -19.24,
+    "LITE": -5.15,
+    "REMX": -9.46,
+    "SMCI": -4.06,
+    "SMH": -8.08,
+    "VRT": -17.31,
+    "WDC": -12.38,
+    "XLF": -2.11,
+    "XLK": -3.4,
+    "XLU": -5.04
+  },
+  "data_quality": [
+    "AVGO is oversold (RSI 34.3) but thesis is 'watch' -- deliberately not a bounce candidate (falling knife, not a dip)",
+    "correction_state=pullback (book drawdown -4.72% past a quarter of the policy warn line (-3.8%); benchmark 5d -4.50% at or past -3.0%) -- dispatch smith-rebound this run.",
+    "reentry: 45 alumni could not be JUDGED at all -- no state.thesis entry exists for them (AAPL, AIA, AMKR, ANET, ARM, BABA, BX, CEG, CORZ, CQQQ...). state.thesis is seeded from CURRENT holdings, so an exited name is absent by construction and fails the conviction gate for lack of evidence, not on the evidence. These are not rejected candidates; they are unexamined ones."
+  ]
+}

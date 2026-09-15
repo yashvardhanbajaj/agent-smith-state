@@ -1,0 +1,58 @@
+{
+  "mode": "full",
+  "session_read": {
+    "futures": {"es_pct": 0.525, "nq_pct": 0.694},
+    "asia": {
+      "nikkei_pct": -0.014,
+      "kospi_pct": -0.854,
+      "taiex_pct": -0.765,
+      "stoxx50_pct": -0.517,
+      "note": "all moves <1%, below the flag threshold"
+    },
+    "gap_risk": ["GLW", "TER", "COHR", "ALAB", "STM", "GEV", "LITE", "CLS", "VRT", "ASML", "AMAT"],
+    "headline_scan": [
+      "NVDA ~-3%, MU ~-5%, SOXX ~-5% at 09-14 close on AI-buildout-pace uncertainty plus FOMC hike odds now 90%+ (Yahoo Finance/Stocktwits, ~2026-09-15)"
+    ]
+  },
+  "sentiment_narrative": "Composite sentiment score is 69.8 ('greed' band, unchanged from prior run), action_hint null -- no sizing override this run. The score is held up by trend/proximity components (89.9 off-52w-high, 68.7 on 125dma, 66.0 yield-trend) while RSI14 is neutral (46.7); it is a lagging proxy composite per its own disclosure and has not caught down to yesterday's -4.75% SMH / -8.86% optics drawdown or tomorrow's binary FOMC event risk. Treat as background context, not a green light.",
+  "fed_funds_pct": 3.63,
+  "fomc_stance": "hawkish",
+  "fomc_cache_update": {
+    "rate_pct": 3.63,
+    "stance": "hawkish",
+    "next_check_date": "2026-09-17",
+    "note": "cached -- no FOMC meeting has concluded since last check; decision lands 2026-09-16 2pm ET, real refresh due the run after 2026-09-17. Target range confirmed 3.50-3.75% going into the meeting (Kiplinger/FedRateCalc, 2026-09-15)."
+  },
+  "spy_pcr_oi": null, "spy_pcr_vol": null, "spy_max_pain": null,
+  "qqq_pcr_oi": null, "qqq_pcr_vol": null, "qqq_max_pain": null,
+  "calendar": {
+    "next_fomc": "2026-09-16",
+    "next_cpi": "2026-10-14",
+    "next_nfp": "2026-10-02",
+    "earnings_season_window": false
+  },
+  "regime": "risk_off",
+  "regime_note": "10yr +32bp over the trailing month (us10y_chg_1m_bps) despite a flat/-1.4bp print today; VIX +1.9% to 17.43 -- elevated, not panicked. Market has partially but not fully priced a hawkish outcome; ~90-92% hike probability is priced (CME FedWatch via 24/7 Wall St 2026-09-14 and Yahoo/Stocktwits ~2026-09-15) for what would be the first hike since 2023. Green ES/NQ futures this morning read as a pre-event pause, not an all-clear, after yesterday's SMH -4.75%/optics -8.86% air-pocket.",
+  "cluster_impact": {
+    "ai_capex_chain": "Hit first and hardest under a hawkish surprise (hike + hawkish dots) -- yesterday's -8.86% optics/networking move is the preview. As-priced (25bp hike, already ~90% priced) likely still confirms the regime shift with a sell-the-news or flat reaction; higher-beta capex names (ALAB, TER, COHR, LITE, GLW) stay more exposed than cash-generative franchise names (TSM, AVGO, ASML). A dovish surprise (hold, or dovish guidance) is the one scenario that unwinds yesterday's move -- highest snap-back beta in the book.",
+    "rate_sensitive": "GEV, VRT, ALAB, NBIS carry the most duration/multiple sensitivity -- most exposed to a hawkish-surprise tail; a surprise hold would trigger the sharpest relief given how consensus (90-92%) the hike has become.",
+    "defensives": "Bench names (UNH, SO, DUK, PG, LLY, NEM, JNJ) are relative outperformers under hawkish and as-priced scenarios by construction (beta 0.24-0.62). SO/DUK carry modest rate sensitivity of their own but far less multiple compression than growth names. NEM is the one bench name where a hawkish/higher-real-rate outcome is a mechanical headwind, partly offset by risk-off gold flows."
+  },
+  "diversifier_candidates": {
+    "VST": {"price_usd": 140.73, "target_usd": 223.17, "upside_pct": 58.6, "thesis": "Merchant power gen, beta 1.41 -- AI-load adjacent, NOT clean", "status": "active", "clean_diversifier": false, "as_of": "2026-09-06"},
+    "UNH": {"price_usd": 383.55, "target_usd": 471.65, "upside_pct": 23.0, "thesis": "Managed care rebound, beta 0.62", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "SO": {"price_usd": 87.00, "target_usd": 101.45, "upside_pct": 16.6, "thesis": "Regulated SE utility, beta 0.32", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "DUK": {"price_usd": 119.02, "target_usd": 138.61, "upside_pct": 16.5, "thesis": "Regulated utility, beta 0.36", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "PG": {"price_usd": 146.13, "target_usd": 163.35, "upside_pct": 11.8, "thesis": "Staples ballast, beta 0.38", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "LLY": {"price_usd": 1138.28, "target_usd": 1270.37, "upside_pct": 11.6, "thesis": "Pharma/GLP-1, beta 0.50", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "NEM": {"price_usd": 123.07, "target_usd": 133.00, "upside_pct": 8.1, "thesis": "Gold miner, beta 0.54", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "JNJ": {"price_usd": 266.32, "target_usd": 269.95, "upside_pct": 1.4, "thesis": "Diversified pharma/medtech, beta 0.24", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"}
+  },
+  "data_quality": [
+    "SPY/QQQ options unavailable pre-market (zero OI across all strikes, both listed expiries) -- legitimate for a 03:45 ET run, not an error.",
+    "FOMC hike-probability prints are dispersed across outlets (49%-92%); the two citations explicitly sourced to CME FedWatch itself (24/7 Wall St, 2026-09-14; Yahoo/Stocktwits, ~2026-09-15) cluster at 90.7% and 92.4%. The dispatch's specific 88.5% figure could not be pinned to a named tier-1 source at that exact value -- verified range is high-80s to low-90s percent, not the exact print.",
+    "No SMH-specific historical FOMC-day/hawkish-surprise statistic could be sourced to a named outlet. A general, loosely-attributed stat surfaced (S&P 500 down ~3.4% on average in the month following the first hike of a new tightening cycle, over 30+ years) without a precisely named originating source -- reported as unattributed/low-confidence, not used as a hard SMH forecast.",
+    "Direct fetch of the CME FedWatch tool page timed out; relied on secondary citations of it.",
+    "Diversifier bench: target_usd/thesis retained from 2026-09-06 (9 days stale, past the 7-day threshold) rather than refreshed -- tool budget was prioritized to the FOMC deep-dive this run; flag for refresh next full run."
+  ]
+}

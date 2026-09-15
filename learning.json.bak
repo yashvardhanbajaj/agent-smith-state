@@ -771,19 +771,160 @@
       },
       "run_dir": "2026-09-14-0929Z",
       "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "ladder.hit_rate",
+      "value": 1,
+      "run_dir": "runs/2026-09-15-0740Z",
+      "note": "MSFT over NBIS in Compute/Hyperscaler: spread 18.52pp (ladder of 2026-09-14, confidence medium)"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "ladder.hit_rate",
+      "value": 0,
+      "run_dir": "runs/2026-09-15-0740Z",
+      "note": "GEV over FSLR in AI Power/Cooling/DC Infra: spread -2.98pp (ladder of 2026-09-09, confidence medium)"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "ladder.hit_rate",
+      "value": 1,
+      "run_dir": "runs/2026-09-15-0740Z",
+      "note": "TSM over AMAT in AI Semis/Fabs: spread 17.74pp (ladder of 2026-09-14, confidence medium)"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "usage:watchlist",
+      "value": {
+        "tokens": 137950,
+        "tool_calls": 12,
+        "duration_s": 157,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-15-0740Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "usage:scout",
+      "value": {
+        "tokens": 124146,
+        "tool_calls": 20,
+        "duration_s": 364,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-15-0740Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "usage:signals",
+      "value": {
+        "tokens": 185185,
+        "tool_calls": 26,
+        "duration_s": 438,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-15-0740Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "usage:catalyst",
+      "value": {
+        "tokens": 129420,
+        "tool_calls": 17,
+        "duration_s": 259,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-15-0740Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "usage:cluster_semis",
+      "value": {
+        "tokens": 124140,
+        "tool_calls": 15,
+        "duration_s": 318,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-15-0740Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "usage:thesis",
+      "value": {
+        "tokens": 177816,
+        "tool_calls": 10,
+        "duration_s": 344,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-15-0740Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "usage:cluster_hyperscaler",
+      "value": {
+        "tokens": 119648,
+        "tool_calls": 13,
+        "duration_s": 325,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-15-0740Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "usage:cluster_power",
+      "value": {
+        "tokens": 125998,
+        "tool_calls": 14,
+        "duration_s": 348,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-15-0740Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "usage:rebound",
+      "value": {
+        "tokens": 159244,
+        "tool_calls": 26,
+        "duration_s": 460,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-15-0740Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-15",
+      "param_id": "usage:strategist",
+      "value": {
+        "tokens": 248513,
+        "tool_calls": 42,
+        "duration_s": 1933,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-15-0740Z",
+      "note": "mode=deep"
     }
   ],
   "parameters": {
     "phase4.readiness": {
       "default": 0,
-      "current": 60,
+      "current": 64,
       "band_pct": null,
       "n_gate": 100,
       "state": "default",
       "note": "Not a calibrated value -- a readiness counter. Phase 4 (conviction WEIGHTS calibration) stays deliberately unbuilt until this reaches 100 scored proposals, per explicit user decision 2026-08-25. See learn-lessons for the full context.",
       "history": [],
-      "decided": 48,
-      "counted_on": "2026-09-14"
+      "decided": 53,
+      "counted_on": "2026-09-15"
     }
   },
   "lessons": [
@@ -1238,6 +1379,15 @@
       "source_run": null,
       "supersedes": null,
       "id": "L-050"
+    },
+    {
+      "id": "L-051",
+      "date": "2026-09-15",
+      "kind": "correction",
+      "text": "USAGE AUDIT (auto-logged, 2026-09-15-0740Z): scout used 124,146 tokens this run vs a trailing median of 79,444 over its last 3 runs -- 1.6x, past the 1.5x flag threshold. Investigate whether this run's dispatch prompt asked scout to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
+      "evidence": "usage-audit run_id=2026-09-15-0740Z, agent=scout, tokens=124146, tool_calls=20, duration_s=364",
+      "source_run": "2026-09-15-0740Z",
+      "supersedes": null
     }
   ]
 }
