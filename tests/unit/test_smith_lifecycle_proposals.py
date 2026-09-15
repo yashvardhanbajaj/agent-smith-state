@@ -734,3 +734,123 @@ class TestComputeStackingWarnings:
                           size_usd=0.0),
         ]
         assert sl._compute_stacking_warnings(props, {"AAA": {"market_value_usd": 1000.0}}) == []
+
+
+# ---------------------------------------------------------------------------
+# _apply_declared_supersessions / _retire_weaker_conflicts (added 2026-09-15)
+# ---------------------------------------------------------------------------
+
+D = date(2026, 9, 15)
+
+
+class TestApplyDeclaredSupersessions:
+    def test_retires_the_declared_open_proposal(self):
+        props = [make_proposal(id="P-263", ticker="TER", direction_bucket="TRIM", action="Trim TER"),
+                 make_proposal(id="P-310", ticker="TER", direction_bucket="TRIM", action="Trim TER",
+                               supersedes=["P-263"])]
+        retired = []
+        sl._apply_declared_supersessions(props, D, retired)
+        assert props[0]["status"] == "auto_retired"
+        assert props[0]["superseded_by"] == "P-310"
+        assert props[1]["status"] == "open"
+        assert [r["id"] for r in retired] == ["P-263"]
+
+    def test_accepted_target_is_flagged_not_retired(self):
+        props = [make_proposal(id="P-100", status="accepted_by_user"),
+                 make_proposal(id="P-200", supersedes=["P-100"])]
+        retired = []
+        sl._apply_declared_supersessions(props, D, retired)
+        assert props[0]["status"] == "accepted_by_user"
+        assert "declared_superseded_by_P-200" in props[0]["review_flags"]
+        assert retired == []
+
+    def test_retires_the_declared_rows_rotation_partner_too(self):
+        props = [make_proposal(id="P-001", ticker="AAA", direction_bucket="SELL", action="Sell AAA",
+                               pair_id="cluster_rotation-AAA-BBB"),
+                 make_proposal(id="P-002", ticker="BBB", direction_bucket="BUY", action="Buy BBB",
+                               pair_id="cluster_rotation-AAA-BBB"),
+                 make_proposal(id="P-003", ticker="AAA", direction_bucket="SELL", action="Sell AAA",
+                               supersedes=["P-001"])]
+        retired = []
+        sl._apply_declared_supersessions(props, D, retired)
+        assert {r["id"] for r in retired} == {"P-001", "P-002"}
+        assert props[2]["status"] == "open"
+
+
+def _conflicts(props, retired=None):
+    retired = [] if retired is None else retired
+    sl._retire_weaker_conflicts(props, D, retired, sl._proposal_parse_datetime)
+    return retired
+
+
+class TestRetireWeakerConflicts:
+    def test_trim_vs_sell_same_ticker_retires_the_older(self):
+        """The P-261 (Trim ASML, 09-10) vs P-305 (Sell ASML, 09-15) live case."""
+        props = [make_proposal(id="P-261", ticker="ASML", direction_bucket="TRIM", action="Trim ASML",
+                               created_utc="2026-09-10T08:00:00Z", priority_score=4),
+                 make_proposal(id="P-305", ticker="ASML", direction_bucket="SELL", action="Sell ASML",
+                               created_utc="2026-09-15T08:36:00Z", priority_score=2,
+                               pair_id="cluster_rotation-ASML-TSM")]
+        retired = _conflicts(props)
+        assert props[0]["status"] == "auto_retired" and props[1]["status"] == "open"
+        assert "fresher" in props[0]["retired_reason"]
+        assert [r["id"] for r in retired] == ["P-261"]
+
+    def test_buy_vs_trim_same_ticker_retires_the_older(self):
+        """The P-264 (Trim AMAT) vs P-314 (Buy AMAT) live case."""
+        props = [make_proposal(id="P-264", ticker="AMAT", direction_bucket="TRIM", action="Trim AMAT",
+                               created_utc="2026-09-10T08:00:00Z", priority_score=4),
+                 make_proposal(id="P-314", ticker="AMAT", direction_bucket="BUY", action="Buy AMAT",
+                               created_utc="2026-09-15T08:36:00Z", priority_score=6)]
+        _conflicts(props)
+        assert props[0]["status"] == "auto_retired"
+        assert "opposite sides" in props[0]["retired_reason"]
+
+    def test_same_batch_conflict_keeps_the_higher_priority(self):
+        ts = "2026-09-15T08:36:00Z"
+        props = [make_proposal(id="P-001", ticker="AAA", direction_bucket="BUY", action="Buy AAA",
+                               created_utc=ts, priority_score=2),
+                 make_proposal(id="P-002", ticker="AAA", direction_bucket="TRIM", action="Trim AAA",
+                               created_utc=ts, priority_score=5)]
+        _conflicts(props)
+        assert props[0]["status"] == "auto_retired" and props[1]["status"] == "open"
+        assert "priority_score" in props[0]["retired_reason"]
+
+    def test_independent_rotation_legs_on_the_same_side_are_not_a_conflict(self):
+        props = [make_proposal(id="P-001", ticker="AAA", direction_bucket="TRIM", action="Trim AAA",
+                               pair_id="profit_rotation-AAA-BBB", created_utc="2026-09-14T08:00:00Z"),
+                 make_proposal(id="P-002", ticker="AAA", direction_bucket="SELL", action="Sell AAA",
+                               pair_id="cluster_rotation-AAA-CCC", created_utc="2026-09-15T08:00:00Z")]
+        assert _conflicts(props) == []
+        assert all(p["status"] == "open" for p in props)
+
+    def test_same_verb_is_left_to_dedup(self):
+        props = [make_proposal(id="P-001", ticker="AAA", direction_bucket="TRIM", created_utc="2026-09-14T08:00:00Z"),
+                 make_proposal(id="P-002", ticker="AAA", direction_bucket="TRIM", created_utc="2026-09-15T08:00:00Z")]
+        assert _conflicts(props) == []
+
+    def test_open_row_contradicting_an_accepted_row_is_flagged_not_retired(self):
+        props = [make_proposal(id="P-149", ticker="WDC", direction_bucket="BUY", action="Buy WDC",
+                               status="accepted_by_user", created_utc="2026-08-24T08:00:00Z"),
+                 make_proposal(id="P-400", ticker="WDC", direction_bucket="TRIM", action="Trim WDC",
+                               created_utc="2026-09-15T08:00:00Z")]
+        assert _conflicts(props) == []
+        assert props[0]["status"] == "accepted_by_user"
+        assert "contradicts_accepted_P-149" in props[1]["review_flags"]
+
+    def test_losers_rotation_partner_retires_with_it(self):
+        props = [make_proposal(id="P-001", ticker="AAA", direction_bucket="SELL", action="Sell AAA",
+                               pair_id="cluster_rotation-AAA-BBB", created_utc="2026-09-10T08:00:00Z"),
+                 make_proposal(id="P-002", ticker="BBB", direction_bucket="BUY", action="Buy BBB",
+                               pair_id="cluster_rotation-AAA-BBB", created_utc="2026-09-10T08:00:00Z"),
+                 make_proposal(id="P-003", ticker="AAA", direction_bucket="BUY", action="Buy AAA",
+                               created_utc="2026-09-15T08:00:00Z")]
+        retired = _conflicts(props)
+        assert {r["id"] for r in retired} == {"P-001", "P-002"}
+        assert props[1]["superseded_by"] == "P-003"
+        assert props[2]["status"] == "open"
+
+    def test_different_tickers_never_conflict(self):
+        props = [make_proposal(id="P-001", ticker="AAA", direction_bucket="BUY"),
+                 make_proposal(id="P-002", ticker="BBB", direction_bucket="TRIM")]
+        assert _conflicts(props) == []

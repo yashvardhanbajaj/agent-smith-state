@@ -1068,6 +1068,151 @@ def _compute_stacking_warnings(props, risk_by_ticker):
     return stack_warnings
 
 
+_PROPOSAL_ID_RE = re.compile(r"^P-\d{3,}$")
+
+
+def _strength_key(pr, parse_datetime):
+    """Ordering for "which of two conflicting proposals survives": FRESHER analysis first, then
+    higher priority_score, then larger size. Freshness leads because a later run's strategist
+    was handed the open queue and chose to write something different -- the same "latest
+    occurrence wins" rule _dedupe_expire_void_proposals already applies to a restated idea.
+    Rows written in one add-proposal batch share created_utc, so within a batch priority decides."""
+    ts = parse_datetime(pr.get("created_utc") or pr.get("date", ""))
+    stamp = float("-inf")
+    if isinstance(ts, datetime):
+        stamp = (ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)).timestamp()
+    elif isinstance(ts, date):
+        stamp = datetime(ts.year, ts.month, ts.day, tzinfo=timezone.utc).timestamp()
+    score = pr.get("priority_score")
+    return (stamp, score if isinstance(score, (int, float)) else float("-inf"),
+            pr.get("size_usd") or 0)
+
+
+def _proposals_conflict(a, b):
+    """True when two proposals on the SAME ticker cannot both be followed as written.
+      * opposite sides (BUY vs TRIM/SELL) -- a contradiction, always;
+      * same side but different verbs (TRIM vs SELL) -- the same reduce idea restated with a
+        different verb, which the (ticker, direction) dedup key cannot see -- UNLESS both carry
+        non-overlapping rotation pair_ids, i.e. two independently-funded rotations (the P-285
+        consolidation case), which is a legitimate stack for the stacking guard to flag;
+      * identical verbs are NOT a conflict here: that is dedup's job (repeat or consolidation)."""
+    ba, bb = a.get("direction_bucket"), b.get("direction_bucket")
+    sa, sb = SIDE_GROUP.get(ba), SIDE_GROUP.get(bb)
+    if sa is None or sb is None:
+        return False
+    if sa != sb:
+        return True
+    if ba == bb:
+        return False
+    pa, pb = set(_proposal_pair_ids(a)), set(_proposal_pair_ids(b))
+    if pa and pb and not (pa & pb):
+        return False
+    return True
+
+
+def _retire_with_partner_legs(props, loser, winner, why, today_date, retired):
+    """Retires `loser` and every other still-open leg of its rotation pairing(s) -- legs retire
+    together, never one alone (see _retire_orphaned_rotation_legs). The winner, and any leg that
+    shares one of the winner's own pairings, is never touched."""
+    winner_pairs = set(_proposal_pair_ids(winner))
+    victims = [loser]
+    for pid in _proposal_pair_ids(loser):
+        for pr in props:
+            if (pr is not loser and pr is not winner and pr.get("status") == "open"
+                    and pid in _proposal_pair_ids(pr) and not (winner_pairs & set(_proposal_pair_ids(pr)))):
+                victims.append(pr)
+    for pr in victims:
+        if pr.get("status") != "open":
+            continue
+        reason = why if pr is loser else f"rotation partner {loser.get('id')} was retired -- {why}"
+        pr["status"] = "auto_retired"
+        pr["retired_on"] = str(today_date)
+        pr["retired_reason"] = reason
+        pr["superseded_by"] = winner.get("id")
+        pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {reason}").strip(" |")
+        retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": reason,
+                        "was_accepted": False})
+
+
+def _apply_declared_supersessions(props, today_date, retired):
+    """A proposal that names older ids in its typed `supersedes` field retires them (added
+    2026-09-15, user: "automate this auto-retire of the weaker proposal"). The 2026-09-15
+    strategist wrote "AMENDS P-263" / "RETIRES P-264" in rationale PROSE, which this file
+    deliberately never parses (the 2026-07-29 false-positive class), so its explicit calls were
+    lost and the user had to dismiss P-261 and P-264 by hand. A typed field closes that without
+    reopening text parsing. Accepted rows are the user's decision: flagged, never retired."""
+    by_id = {pr.get("id"): pr for pr in props if pr.get("id")}
+    for pr in props:
+        if pr.get("status") != "open":
+            continue
+        for target_id in pr.get("supersedes") or []:
+            tgt = by_id.get(target_id)
+            if tgt is None or tgt is pr:
+                continue
+            if tgt.get("status") == "accepted_by_user":
+                tgt["review_flags"] = sorted(set((tgt.get("review_flags") or [])
+                                                  + [f"declared_superseded_by_{pr.get('id')}"]))
+                continue
+            if tgt.get("status") != "open":
+                continue
+            why = (f"superseded by {pr.get('id')} ({pr.get('action')}), declared in that "
+                   "proposal's `supersedes` field")
+            _retire_with_partner_legs(props, tgt, pr, why, today_date, retired)
+
+
+def _retire_weaker_conflicts(props, today_date, retired, parse_datetime):
+    """AUTO-RETIRE THE WEAKER OF TWO CONFLICTING OPEN PROPOSALS (added 2026-09-15, user request
+    after dismissing P-261 and P-264 by hand).
+
+    Two live incidents the existing passes could not see: P-261 "Trim ASML" (09-10) stayed open
+    beside P-305 "Sell ASML" (09-15) because the dedup key is (ticker, direction) and TRIM/SELL
+    are different buckets; P-264 "Trim AMAT" stayed open beside P-314 "Buy AMAT" because nothing
+    compared opposite sides at all. The stacking guard grouped the first pair but only FLAGS,
+    by design, because some same-side stacks are deliberate.
+
+    Groups live rows by ticker, walks OPEN rows strongest-first (_strength_key) and retires any
+    row that conflicts (_proposals_conflict) with one already kept, together with its rotation
+    partner legs. Accepted rows are never retired: an open row contradicting an accepted one gets
+    a `contradicts_accepted_<id>` review flag, and same-side accepted stacks stay the stacking
+    guard's job. Typed fields only -- direction_bucket, pair_id, priority_score, timestamps."""
+    groups = {}
+    for pr in props:
+        if (pr.get("status") in ("open", "accepted_by_user") and pr.get("ticker")
+                and SIDE_GROUP.get(pr.get("direction_bucket"))):
+            groups.setdefault(pr["ticker"], []).append(pr)
+    for ticker in sorted(groups, key=str):
+        rows = groups[ticker]
+        if len(rows) < 2:
+            continue
+        accepted = [r for r in rows if r.get("status") == "accepted_by_user"]
+        open_rows = sorted((r for r in rows if r.get("status") == "open"),
+                           key=lambda r: _strength_key(r, parse_datetime), reverse=True)
+        kept = []
+        for r in open_rows:
+            if r.get("status") != "open":
+                continue  # already retired this pass as another loser's rotation partner
+            winner = next((k for k in kept if _proposals_conflict(r, k)), None)
+            if winner is None:
+                kept.append(r)
+                continue
+            kind = ("opposite sides" if SIDE_GROUP[r["direction_bucket"]] != SIDE_GROUP[winner["direction_bucket"]]
+                    else "same side, different verb")
+            kw, kr = _strength_key(winner, parse_datetime), _strength_key(r, parse_datetime)
+            because = ("it is the fresher analysis" if kw[0] != kr[0]
+                       else f"higher priority_score ({kw[1]} vs {kr[1]})" if kw[1] != kr[1]
+                       else "larger size")
+            why = (f"weaker of two conflicting {ticker} proposals ({kind}): kept "
+                   f"{winner.get('id')} {winner.get('action')} because {because}")
+            _retire_with_partner_legs(props, r, winner, why, today_date, retired)
+        for r in kept:
+            if r.get("status") != "open":
+                continue
+            flags = [f"contradicts_accepted_{a.get('id')}" for a in accepted
+                     if SIDE_GROUP[a["direction_bucket"]] != SIDE_GROUP[r["direction_bucket"]]]
+            if flags:
+                r["review_flags"] = sorted(set((r.get("review_flags") or []) + flags))
+
+
 def cmd_proposals(args):
     """Apply lifecycle rules to proposals.json: cross-run supersede-on-repeat, auto-expire
     old, auto-void when position changes materially. Also assigns each proposal a stable
@@ -1292,6 +1437,13 @@ def cmd_proposals(args):
                                                     is_accepted=(pr.get("status") == "accepted_by_user"))
         if result:
             retired.append(result)
+
+    # -- CONFLICT RETIREMENT (added 2026-09-15). A spec's typed `supersedes` retires the ids it
+    # names; then the weaker of any two OPEN proposals on one ticker that cannot both be followed
+    # (buy vs trim/sell, trim vs sell) retires with its rotation partner legs. Runs after scoring
+    # so priority_score exists for same-batch ties. See _retire_weaker_conflicts.
+    _apply_declared_supersessions(props, today_date, retired)
+    _retire_weaker_conflicts(props, today_date, retired, parse_datetime)
 
     # -- PAIRED-ROTATION RETIREMENT (added 2026-08-24) -- profit_rotation/cluster_rotation legs
     # must retire TOGETHER, never independently. This is the direct fix for "19 rotation pairs
@@ -2247,7 +2399,8 @@ def cmd_add_proposal(args):
        "benchmark_price_at_proposal": 567.01 (or null -- holdings.json's benchmarks.smh,
        already fetched every run; pass it for BUY/TRIM/SELL so cmd_score can grade alpha vs
        SMH instead of the stock's raw move), "benchmark_ticker": "SMH" (optional, defaults to
-       SMH if benchmark_price_at_proposal is given)}
+       SMH if benchmark_price_at_proposal is given), "supersedes": ["P-263"] (optional -- open ids
+       this spec replaces; cmd_proposals retires them, see _apply_declared_supersessions)}
 
     Does NOT assign `id` -- that stays cmd_proposals' job (it already assigns ids to any
     freshly-appended proposal missing one, "once, never reused"), so ids stay allocated from
@@ -2318,6 +2471,14 @@ def cmd_add_proposal(args):
         for optional in ("pair_id", "pair_role", "cluster"):
             if spec.get(optional) is not None:
                 pr[optional] = spec[optional]
+        # `supersedes` (added 2026-09-15): ids this spec replaces, retired by cmd_proposals.
+        if spec.get("supersedes"):
+            sup = spec["supersedes"] if isinstance(spec["supersedes"], list) else [spec["supersedes"]]
+            bad = [x for x in sup if not (isinstance(x, str) and _PROPOSAL_ID_RE.match(x))]
+            if bad:
+                rejected.append({"index": i, "reason": f"supersedes must be P-### ids, got {bad!r}"})
+                continue
+            pr["supersedes"] = sorted(set(sup))
         if run_dir and ticker and direction in ("BUY", "SELL", "TRIM"):
             ref = refs.get(str(ticker).upper())
             if ref:

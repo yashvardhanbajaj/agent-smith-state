@@ -157,6 +157,18 @@ move relative to SMH, which conflates market beta with the desk's own judgment �
 strategist error, and that is exactly what happens when this field is omitted. HOLD specs
 don't need it; a HOLD's claim is "stayed still," which isn't graded relative to a benchmark.
 
+**Declare what a spec replaces in `supersedes`, never only in prose (added 2026-09-15).** When a
+spec amends, resizes, re-types or overrides an open proposal, list those ids in the spec:
+`"supersedes": ["P-263"]`. `smith_math.py proposals` retires every listed OPEN id (and its
+rotation partner legs) the moment it runs; an accepted id is flagged for the user, never
+retired. Writing "AMENDS P-263" / "RETIRES P-264" only in `rationale` does nothing — the
+lifecycle never parses rationale prose — and on 2026-09-15 that left P-261 and P-264 open beside
+their replacements until the user dismissed them by hand. Keep the prose too, for the reader.
+As a backstop the same pass also retires the weaker of any two OPEN proposals on one ticker that
+conflict (buy vs trim/sell, or trim vs sell): the fresher analysis wins, and within one batch
+the higher priority_score. So never emit a buy and a trim of the same name in one batch unless
+you mean the lower-priority one to be dropped.
+
 **Do not re-propose a decided row.** The same run re-proposed an identical NVDA trim the user had
 already HELD, and an IREN trim already ACCEPTED at a larger size. The dispatch names live
 accepted/held/dismissed proposals for this reason: a proposal is a recommendation about a

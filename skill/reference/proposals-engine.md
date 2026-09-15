@@ -99,6 +99,37 @@ Fix: a new `scripts/smith_conviction.py` scores every candidate 0–100 from the
 
 ---
 
+## Conflict retirement: the weaker of two proposals goes (added 2026-09-15)
+
+User request, after dismissing P-261 and P-264 by hand: *"automate this auto-retire of the weaker
+proposal."* Two gaps let contradictory rows sit side by side:
+
+- **Different verbs on one side.** P-261 "Trim ASML" (09-10) and P-305 "Sell ASML" (09-15).
+  Dedup keys on (ticker, direction), and TRIM and SELL are different buckets, so the rows never
+  met. The stacking guard grouped them but only flags, by design.
+- **Opposite sides.** P-264 "Trim AMAT" and P-314 "Buy AMAT". Nothing compared a buy with a trim
+  of the same name at all.
+
+Two passes in `cmd_proposals`, after condition-based retirement:
+
+1. **`_apply_declared_supersessions`.** A spec's typed `supersedes: ["P-###"]` retires those OPEN
+   ids and their rotation partner legs. The strategist had already written "AMENDS P-263 /
+   RETIRES P-264", but only in rationale prose, which the lifecycle deliberately never parses
+   (the 2026-07-29 false-positive class).
+2. **`_retire_weaker_conflicts`.** OPEN rows on one ticker conflict when they sit on opposite
+   sides, or on one side with different verbs. Exception: two non-overlapping rotation
+   pair_ids, i.e. independently funded rotations, stay a legitimate stack. The weaker row
+   retires with its partner legs. **Weaker means older first**: a later run's strategist saw the
+   queue and wrote something different, the same "latest occurrence wins" rule dedup uses.
+   Within one add-proposal batch the lower `priority_score` loses, then the smaller size.
+   Priority does not lead because P-261 outscored its replacement (4 vs 2) on a repeat bonus and
+   a stale catalyst basis.
+
+**Accepted rows are never retired by either pass.** They are the user's decision. A declared
+supersession flags them `declared_superseded_by_<id>`, and an open row contradicting one gets
+`contradicts_accepted_<id>`. Same-side accepted stacks stay the stacking guard's job. Status is
+`auto_retired` with `retired_reason` and `superseded_by`, so `score` still grades the retired row.
+
 ## cluster_rotation: two ways to rank (added 2026-09-08)
 
 `cluster_rotation` pairs a sell and a buy INSIDE one cluster. It has always answered "which
