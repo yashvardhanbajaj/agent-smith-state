@@ -199,3 +199,78 @@ def test_postflight_close_prunes_releases_and_keeps_current(tmp_path):
     left = sorted(os.listdir(base / "runs"))
     assert "2026-09-01-0900Z" in left and len(left) == 11
     assert out["lock"]["released"] and "git" not in out
+
+
+# --- 2026-09-15: rebound in Wave 1, deep-lite, HBM in parallel ------------------------------------
+from datetime import datetime, timezone
+
+NOW = datetime(2026, 9, 15, 8, 0, tzinfo=timezone.utc)
+LAST_DEEP = "2026-09-14T13:35:36+00:00,deep,1,95,1,1,1,,,,,ok,x"
+FRESH_ALL = {"artefacts": [{"key": "thesis", "state": "fresh"}, {"key": "watchlist_setups", "state": "fresh"},
+                           {"key": "diversifier_candidates", "state": "fresh"}]}
+
+
+def _lite(base, rd, asks=()):
+    return so.dispatch_plan(str(base), str(rd), "deep", asks, "2026-09-15", now=NOW)
+
+
+def test_rebound_dispatches_in_wave_1(tmp_path):
+    p = _plan(*_run(tmp_path, triggers={"correction_state": "pullback"}))
+    assert p["agents"]["rebound"]["wave"] == 1 and "rebound" in p["waves"]["1"]
+
+
+def test_deep_lite_skips_thesis_and_watchlist_within_48h(tmp_path):
+    base, rd = _run(tmp_path, ledger_rows=[LAST_DEEP], freshness=FRESH_ALL, name="2026-09-15-0740Z")
+    p = _lite(base, rd)
+    assert p["deep_lite"]["active"] is True
+    assert "thesis" not in p["agents"] and "watchlist" not in p["agents"]
+    assert p["agents"]["scout"]["mode"] == "macro_only"
+    assert {"signals", "catalyst", "strategist"} <= set(p["agents"])
+    assert p["recheck_after_wave1"] is True
+
+
+def test_full_ask_or_an_old_deep_run_restores_the_full_roster(tmp_path):
+    base, rd = _run(tmp_path, ledger_rows=[LAST_DEEP], freshness=FRESH_ALL, name="2026-09-15-0740Z")
+    p = _lite(base, rd, asks=("full",))
+    assert p["deep_lite"]["active"] is False and {"thesis", "watchlist"} <= set(p["agents"])
+    base, rd = _run(tmp_path / "old", ledger_rows=["2026-09-12T13:35:36+00:00,deep,1,95,1,1,1,,,,,ok,x"],
+                    freshness=FRESH_ALL, name="2026-09-15-0740Z")
+    assert "thesis" in _lite(base, rd)["agents"]
+
+
+def test_deep_lite_stale_bench_or_setups_still_dispatch(tmp_path):
+    stale = {"artefacts": [{"key": "watchlist_setups", "state": "stale"},
+                           {"key": "diversifier_candidates", "state": "dark"}]}
+    base, rd = _run(tmp_path, ledger_rows=[LAST_DEEP], freshness=stale, name="2026-09-15-0740Z")
+    p = _lite(base, rd)
+    assert "watchlist" in p["agents"] and p["agents"]["scout"]["mode"] == "full"
+
+
+def test_deep_lite_thesis_fires_only_on_a_new_live_trigger(tmp_path):
+    base, rd = _run(tmp_path, ledger_rows=[LAST_DEEP], freshness=FRESH_ALL, name="2026-09-15-0740Z",
+                    triggers={"correction_state": "none", "catalyst_threat": [{"ticker": "MU"}]})
+    prev = base / "runs" / "2026-09-14-1823Z"
+    prev.mkdir()
+    (prev / "compute_triggers.json").write_text(json.dumps({"catalyst_threat": [{"ticker": "MU"}]}))
+    assert "thesis" not in _lite(base, rd)["agents"]
+    (prev / "compute_triggers.json").write_text(json.dumps({}))
+    assert "NEW live trigger" in _lite(base, rd)["agents"]["thesis"]["reasons"][0]
+
+
+def test_deep_lite_recheck_adds_thesis_for_a_structural_catalyst_after_wave1(tmp_path):
+    base, rd = _run(tmp_path, ledger_rows=[LAST_DEEP], freshness=FRESH_ALL, name="2026-09-15-0740Z")
+    (rd / "out_catalyst.json").write_text(json.dumps({"catalysts": [
+        {"headline": "x", "date": "2026-09-15", "horizon": "structural", "affects": ["NVDA"]}]}))
+    p = _lite(base, rd)
+    assert "thesis" in p["agents"] and p["recheck_after_wave1"] is False
+
+
+def test_fresh_ladder_skips_are_reported(tmp_path):
+    base, rd = _run(tmp_path, ladder={"dispatch_selected": [], "skipped_fresh": [
+        {"cluster": "AI Semis/Fabs", "agent": "cluster_semis", "reason": "ladder is 1d old"}]})
+    assert _plan(base, rd, "deep")["skipped"]["cluster_semis"] == "ladder is 1d old"
+
+
+def test_hbm_refresh_runs_in_parallel_with_wave_1(tmp_path):
+    base, rd = _run(tmp_path, freshness={"artefacts": [{"key": "hbm_tracker", "state": "dark"}]})
+    assert any("IN PARALLEL with Wave 1" in s for s in _plan(base, rd, "deep")["scripts"])

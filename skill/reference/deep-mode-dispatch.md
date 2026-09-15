@@ -51,10 +51,13 @@ next run can check the falsifier.
 
 ## HBM-TRACKER REFRESH trigger
 (added 2026-09-06). Dispatch a **narrow refresh of the `hbm-tracker` skill** on a DEEP run
-whenever `freshness` reports `hbm_tracker` past its 21-day TTL (`stale` or `dark`). Run it
-BEFORE Stage 1 dispatch, because `slices` snapshots `consumer_view.json` into
-`runs/<ts>/shared/` and three Stage-1 agents — `smith-thesis`, `smith-catalyst`,
-`smith-cycle` — read that frozen copy. Refreshing after the snapshot updates nothing this run.
+whenever `freshness` reports `hbm_tracker` past its 21-day TTL (`stale` or `dark`). **Since
+2026-09-15 it runs IN PARALLEL with Wave 1, not before it.** On 09-15 catalyst sat idle ~4 minutes
+waiting for it. The refresh (~3.5 min) must land before the Wave-2 re-slice, which re-snapshots
+`consumer_view.json` into `runs/<ts>/shared/` for `smith-thesis`, `smith-cycle` and the cluster
+specialists. `smith-catalyst` reads the pre-refresh snapshot; tell it so. It uses HBM only for its
+Theme-2 cross-check. A weekly scheduled task (`hbm-tracker-weekly-refresh`, Sunday 19:30 IST)
+keeps the tracker inside its TTL, so this in-sweep refresh should rarely fire.
 
 **Why this trigger exists.** The HBM tracker is a separate, deliberately on-demand skill with
 no cadence, but Smith reads it every deep run. Until 2026-09-06 Smith depended on it fully and
@@ -191,12 +194,24 @@ power instead". Dispatch the single named cluster; skip the gate.
 capped at 3. Dispatch exactly those. Adding one by hand defeats the cursor that guarantees every
 eligible cluster is refreshed within 2–3 deep runs.
 
+**Fresh-ladder skip (added 2026-09-15).** The gate no longer dispatches a cluster whose ladder is
+under `LADDER_FRESH_SKIP_DAYS` (7) old. The 09-15 run rebuilt two ladders a day after building
+them, ~250K tokens for rankings that move on quarters. Four facts reopen a fresh ladder, and the
+reopen reason lands in its `reasons`:
+- a structural catalyst first seen after the ladder on a member;
+- a member reporting within the earnings window;
+- the ladder's own leader-over-laggard call currently scoring wrong;
+- a held member the ladder never ranked.
+
+Skipped clusters appear in `compute_ladder.json` → `skipped_fresh` and in `dispatch-plan`'s
+`skipped`.
+
 **Order of operations inside Wave 2:**
 1. `pipeline` has already produced `compute_ladder.json` (it is the LAST stage, after `triggers`,
    so its gate can see which clusters already carry a live rotation pair).
 2. Wave 1 lands → `merge-tails --agents <wave 1>`.
 3. Re-render slices INCLUDING the cluster keys:
-   `slices --agents thesis,cycle,book,tax,rebound,<dispatch_selected...>`.
+   `slices --agents thesis,cycle,<dispatch_selected...>`.
 4. Dispatch `smith-cluster` once per key, in parallel with the rest of Wave 2.
 5. Write each returned fenced tail to `runs/<ts>/out_<key>.json`, then
    `merge-tails --agents <wave 2 incl. cluster keys>`.

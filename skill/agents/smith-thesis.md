@@ -118,3 +118,19 @@ with unstamped entries as never fully current, and that is the honest reading.
 - TWO-SIDED EVIDENCE (G58): every thesis entry ships `evidence_for` AND `evidence_against`; an empty side is an explicit `[]` plus a note, never an omitted key. Write the arrays before the one-liner. "beat"/"miss" mean reported-vs-consensus only; a forward guide below the Street is `guide_below_consensus`. Reported quarter and forward guide are separate signals — name which one you weighted. A carve-out from one cross-check must name the check that applies instead, or set `verified:"unverified"`.
 - PLAUSIBILITY BANDS: sanity-check every externally sourced number before returning it (beta 0–3.5; any moving average within ±50% of live price; HBM ASP within 0-50 USD/GB band; ratios/percentages in economically sensible ranges). Out-of-band → discard, flag in data_quality — never ingest into output or state.
 - HBMTRACKER RECONCILIATION: applies only when HBM-sensitive names (MU, EWY, DRAM) are in current holdings — SNDK is NAND and is out of scope for HBM pricing. Read `consumer_view.json` ONLY; never history.json. Use its precomputed `trend_pct_within_basis` — do not compute your own % change between datapoints, and never difference across a basis change. Check the `corrections` array before forming a view. Do not invent or interpolate — if a field is null or missing, say so and move on. Tensions are flagged in both directions (thesis too bullish vs falling ASP, or too bearish vs flat/rising ASP), and "no action — measurement artifact or open correction" is always an allowed verdict.
+
+## PRIOR FINDINGS (added 2026-09-15)
+
+Your slice carries `prior_findings` (inline, or under `read_these_files` when large),
+`prior_findings_since` and `prior_findings_rule`. They hold what earlier runs, deep and quick,
+already established, including the orchestrator's own conclusions. The user's standing
+instruction: start from them and spend your budget on what changed since `prior_findings_since`.
+
+- **Do not re-search a prior finding** unless it is `expired`, it directly drives a number you are
+  about to put in a verdict or proposal, or you have new evidence against it. Re-verifying for
+  one of those reasons is allowed; re-discovering is not.
+- **Record re-checks in your JSON tail**, both keys optional. Ids you checked and still hold go in
+  `findings_reaffirmed`. Anything wrong or materially changed goes in `findings_revised` as
+  `[{"id", "claim", "source", "reason"}]`.
+- **Genuinely new items still go in your normal output fields.** Never restate a prior finding as
+  if it were new.

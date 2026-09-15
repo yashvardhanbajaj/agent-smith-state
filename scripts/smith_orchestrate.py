@@ -18,7 +18,7 @@ import shutil
 import subprocess
 import sys
 from argparse import Namespace
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 
 from smith_core import *  # noqa: F401,F403
 import smith_state as ss
@@ -26,7 +26,9 @@ import smith_state as ss
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 WAVE = {"catalyst": 1, "signals": 1, "watchlist": 1, "scout": 1, "earnings": 1, "quality": 1,
-        "thesis": 2, "cycle": 2, "rebound": 2, "strategist": 3}
+        # rebound moved to Wave 1 on 2026-09-15: every input it reads is a Wave-0 compute file, so
+        # waiting for Wave 1 to land only added latency.
+        "rebound": 1, "thesis": 2, "cycle": 2, "strategist": 3}
 # THESIS trigger (a): a live price trigger on a held name.
 THESIS_LIVE_FAMILIES = ("oversold_reversion", "overbought_distribution", "catalyst_threat", "thesis_break")
 MACRO_US10Y_PTS, MACRO_VIX = 0.12, 22.0
@@ -36,6 +38,11 @@ CLUSTER_MAX = 3
 # Priced-refresh materiality gate, part (a).
 MATERIAL_FAMILIES = ("oversold_reversion", "overbought_distribution", "catalyst_threat", "thesis_break", "stretch")
 RUNS_KEEP = 10
+# DEEP-LITE window (added 2026-09-15, user-approved): a deep run this soon after the previous deep
+# run reuses the slow-moving reads (thesis map, watchlist setups, diversifier bench) unless a fact
+# says otherwise. Measured: 5 deep runs in 10 days, 09-14 and 09-15 back to back; the 09-15 thesis
+# pass cost 178K tokens and changed zero statuses.
+DEEP_LITE_HOURS = 48
 
 
 def _j(path, default=None):
@@ -87,8 +94,53 @@ def _trading_days_until(today, target):
 # ---------------------------------------------------------------------------------------------
 # dispatch-plan
 # ---------------------------------------------------------------------------------------------
-def dispatch_plan(base_dir, run_dir, mode, asks=(), today=None):
+def _deep_lite(base_dir, now, asks):
+    last = None
+    for r in _ledger_rows(base_dir):
+        ts = parse_ts(r.get("ts")) if r.get("mode") == "deep" else None
+        if ts and ts < now and (last is None or ts > last):
+            last = ts
+    if last is None:
+        return {"active": False, "reason": "no earlier deep run on the ledger"}
+    hours = (now - last).total_seconds() / 3600.0
+    info = {"last_deep_ts": last.isoformat(), "hours_since": round(hours, 1), "window_hours": DEEP_LITE_HOURS}
+    if "full" in asks:
+        return dict(info, active=False, reason="user asked for a full deep run")
+    if hours >= DEEP_LITE_HOURS:
+        return dict(info, active=False, reason=f"last deep run {hours:.0f}h ago (>= {DEEP_LITE_HOURS}h)")
+    return dict(info, active=True, reason=f"last deep run {hours:.1f}h ago (< {DEEP_LITE_HOURS}h)")
+
+
+def _stale_artefacts(fresh):
+    return {str(a.get("key", "")).split(".")[-1] for a in (fresh.get("artefacts") or [])
+            if isinstance(a, dict) and a.get("state") in ("stale", "dark", "missing")}
+
+
+def _live_pairs(trig, held):
+    return {(fam, r.get("ticker")) for fam in THESIS_LIVE_FAMILIES for r in ((trig or {}).get(fam) or [])
+            if isinstance(r, dict) and r.get("ticker") in held}
+
+
+def _structural_hits(tail, held, since):
+    rows = tail.get("catalysts") if isinstance(tail, dict) else tail
+    hits = set()
+    for r in rows or []:
+        if not isinstance(r, dict) or r.get("horizon") != "structural":
+            continue
+        try:
+            d = date.fromisoformat(str(r.get("date"))[:10])
+        except ValueError:
+            continue
+        if d >= since:
+            hits |= held & set(r.get("affects") or [])
+    return sorted(hits)
+
+
+def dispatch_plan(base_dir, run_dir, mode, asks=(), today=None, now=None):
     today = resolve_today(today)
+    if now is None:
+        real = now_utc()
+        now = real if desk_today(real) == today else datetime.combine(today, time(12, 0), tzinfo=timezone.utc)
     asks = set(asks or ())
     mi = _j(os.path.join(run_dir, "market_inputs.json"), {}) or {}
     trig = _j(os.path.join(run_dir, "compute_triggers.json"), {}) or {}
@@ -112,10 +164,45 @@ def dispatch_plan(base_dir, run_dir, mode, asks=(), today=None):
                      and str(f.get("reported_date") or "9999")[:10] <= today.isoformat())
 
     add("signals", "every run")
-    if mode == "deep":
+    lite = _deep_lite(base_dir, now, asks) if mode == "deep" else None
+    if mode == "deep" and not lite["active"]:
         for k in ("thesis", "watchlist", "catalyst"):
             add(k, "deep roster (mandatory)")
         add("scout", "deep roster (mandatory)", mode="full")
+    elif mode == "deep":
+        # DEEP-LITE: signals, catalyst, strategist, rebound, earnings, the monthlies and the ladder
+        # gate are unchanged. Thesis, watchlist and scout's bench run only on a fact.
+        stale_keys = _stale_artefacts(fresh)
+        add("catalyst", f"deep-lite roster (last deep run {lite['hours_since']}h ago)")
+        if "diversifier_candidates" in stale_keys:
+            add("scout", "deep-lite: diversifier bench stale or missing", mode="full")
+        else:
+            add("scout", "deep-lite: Fed/options/regime only, diversifier bench still fresh", mode="macro_only")
+        prev = previous_run_dir(base_dir, run_dir)
+        prev_trig = (_j(os.path.join(prev, "compute_triggers.json"), {}) or {}) if prev else {}
+        new_live = sorted(_live_pairs(trig, held) - _live_pairs(prev_trig, held))
+        if new_live:
+            add("thesis", "deep-lite: NEW live trigger since the last run: "
+                          + ", ".join(f"{t} {fam}" for fam, t in new_live))
+        if "thesis" in stale_keys:
+            add("thesis", "thesis artefact stale or dark")
+        if pending:
+            add("thesis", f"post-print status pending adjudication: {', '.join(pending)}")
+        if "thesis" in asks:
+            add("thesis", "user asked about a holding's story")
+        since = parse_ts(lite["last_deep_ts"]).astimezone(IST).date()
+        hits = _structural_hits(_j(os.path.join(run_dir, "out_catalyst.json"), None), held, since)
+        if hits:
+            add("thesis", f"deep-lite: structural catalyst since {since} on held {', '.join(hits)}")
+        if "thesis" not in agents:
+            skipped["thesis"] = ("deep-lite: no new live trigger, staleness, pending print, ask or "
+                                 f"structural catalyst on a held name since {since}")
+        if "watchlist" in asks:
+            add("watchlist", "user asked about the watchlist")
+        elif "watchlist_setups" in stale_keys:
+            add("watchlist", "deep-lite: watchlist setups stale or missing")
+        else:
+            skipped["watchlist"] = "deep-lite: setups still fresh, no ask"
     else:
         live = sorted({r.get("ticker") for fam in THESIS_LIVE_FAMILIES for r in (trig.get(fam) or [])
                        if isinstance(r, dict) and r.get("ticker") in held})
@@ -196,9 +283,13 @@ def dispatch_plan(base_dir, run_dir, mode, asks=(), today=None):
             scripts.append("smith_edgar.py insider-cluster for the top 5 holdings by weight")
         for key in (ladder.get("dispatch_selected") or [])[:CLUSTER_MAX]:
             add(key, "cluster ladder dispatch gate (compute_ladder.json)", agent="smith-cluster", wave=2)
+        for row in ladder.get("skipped_fresh") or []:
+            if isinstance(row, dict) and row.get("agent"):
+                skipped[row["agent"]] = row.get("reason")
         for a in fresh.get("artefacts") or []:
             if isinstance(a, dict) and "hbm" in str(a.get("key", "")) and a.get("state") in ("stale", "dark"):
-                scripts.append("hbm-tracker narrow refresh BEFORE slices (hbm_tracker past TTL)")
+                scripts.append("hbm-tracker narrow refresh IN PARALLEL with Wave 1 (hbm_tracker past TTL): it must land "
+                               "before the Wave-2 re-slice; tell catalyst its HBM snapshot is pre-refresh")
                 break
     if "quality" in asks:
         add("quality", "user asked for a quality check")
@@ -206,13 +297,16 @@ def dispatch_plan(base_dir, run_dir, mode, asks=(), today=None):
         add("cycle", "user asked for a cycle read")
     add("strategist", "every run")
 
+    recheck = bool(lite and lite.get("active") and "thesis" not in agents
+                   and not os.path.exists(os.path.join(run_dir, "out_catalyst.json")))
     waves = {"1": [], "2": [], "3": []}
     for k, a in agents.items():
         waves[str(a["wave"])].append(k)
     for w in waves.values():
         w.sort()
     return {"mode": mode, "today": today.isoformat(), "waves": waves, "agents": agents,
-            "skipped": skipped, "scripts": scripts,
+            "skipped": skipped, "scripts": scripts, "deep_lite": lite,
+            "recheck_after_wave1": recheck,
             "merge_after_wave1": ",".join(waves["1"]),
             "reslice_wave2": ",".join(waves["2"]),
             "ledger": ("dispatch smith-ledger only if ledger-parse reports dispatch_agent, or lots "
@@ -375,6 +469,13 @@ def postflight_commit(args):
     out["commit"] = ss.commit_state(base, rd, persist_safe=None)
     out.update(_merge_journal(base, rd, today))
     out.update(_append_shadow_triggers(base, rd, today))
+    # Prior-findings digest (2026-09-15): fold committed state, this run's tails and the
+    # orchestrator's findings_orchestrator.json into findings.json. Never blocks a commit.
+    try:
+        import smith_findings
+        out["findings"] = smith_findings.update(base, rd, os.path.basename(os.path.normpath(rd)), today)
+    except Exception as e:  # noqa: BLE001
+        out["findings"] = {"error": f"{type(e).__name__}: {e}"}
 
     book = _j(os.path.join(rd, "compute_book.json"), {}) or {}
     mi = _j(os.path.join(rd, "market_inputs.json"), {}) or {}

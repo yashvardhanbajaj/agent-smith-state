@@ -821,6 +821,12 @@ def _prior_run_prices(base_dir, run_dir, state):
 # whole layer would never once carry authority.
 LADDER_TTL_DAYS = 14
 
+# A ladder younger than this is NOT re-dispatched (added 2026-09-15, user-approved cost cut). The
+# 2026-09-15 deep run rebuilt the semis and hyperscaler ladders one day after the 09-14 run built
+# them, ~250K tokens for rankings that move on quarters. _ladder_reopen_reasons lists the events
+# that still force a rebuild inside the window.
+LADDER_FRESH_SKIP_DAYS = 7
+
 # Cost control, not analysis. A cluster agent costs the same 75-145K tokens as any other agent
 # in this fleet regardless of what it does, so dispatching all 7 held clusters every deep run
 # roughly doubles fleet cost. Three per run plus the round-robin cursor refreshes every eligible

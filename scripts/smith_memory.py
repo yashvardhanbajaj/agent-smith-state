@@ -2595,6 +2595,9 @@ def cmd_slices(args):
     trim = [{"ticker": r.get("ticker"), "name": r.get("name"), "qty": r.get("qty"),
              "weight_pct": round(r.get("weight_pct") or 0, 2)} for r in rows]
 
+    import smith_findings
+    findings_doc = smith_findings.load(base)
+    today_d = resolve_today(args.today)
     shared_dir = os.path.join(rd, "shared")
     os.makedirs(shared_dir, exist_ok=True)
     shared_paths, shared_notes = {}, []
@@ -2698,6 +2701,7 @@ def cmd_slices(args):
         if agent == "strategist":           # always rendered; book/tax slices retired 2026-09-14
             sl["_lots_digest"] = lots_digest
             sl["_open_trims_sig"] = open_trims_sig
+        cluster_members = None
         if is_cluster_agent(agent):
             # WHICH cluster this dispatch is for. Without this the agent has a template and a
             # 30-cluster file and no idea which row is its job. The playbook (the axes that
@@ -2716,9 +2720,17 @@ def cmd_slices(args):
                 cname, crow = match[0]
                 sl["cluster_name"] = cname
                 sl["cluster_prior_ladder"] = crow.get("prior_ladder")
+                cluster_members = [m.get("ticker") for m in crow.get("members") or []]
                 _place(sl, "cluster_ladder_row", crow, shared_dir, shared_once,
                        name=f"ladder_{slug}")
 
+        # PRIOR FINDINGS (2026-09-15): what earlier runs already established, filtered to this
+        # agent, so it researches the delta instead of re-answering a settled question.
+        dig = smith_findings.digest_for(findings_doc, agent, held=held, cluster_name=sl.get("cluster_name"),
+                                        cluster_members=cluster_members, today=today_d)
+        sl["prior_findings_since"] = dig["since"]
+        sl["prior_findings_rule"] = dig["rule"]
+        _place(sl, "prior_findings", dig["findings"], shared_dir, shared_once, name=f"prior_findings_{agent}")
         for k in spec["state"]:
             v = state.get(k)
             if k in ("thesis", "sector_map") and isinstance(v, dict):

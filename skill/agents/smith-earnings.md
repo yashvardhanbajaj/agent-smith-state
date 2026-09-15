@@ -74,3 +74,19 @@ Full output to `output_file` (≤80 lines), then a ≤8-line prose summary plus 
 ```
 
 **Every number above must come from a live pull this run or from `earnings_facts`.** A sibling agent once shipped a hardcoded example figure that became a load-bearing input to a thesis downgrade before anyone noticed (2026-08-05 correction). A ticker with no confirmed date or no live options data gets `null` fields and a data_quality note — never a plausible-sounding estimate.
+
+## PRIOR FINDINGS (added 2026-09-15)
+
+Your slice carries `prior_findings` (inline, or under `read_these_files` when large),
+`prior_findings_since` and `prior_findings_rule`. They hold what earlier runs, deep and quick,
+already established, including the orchestrator's own conclusions. The user's standing
+instruction: start from them and spend your budget on what changed since `prior_findings_since`.
+
+- **Do not re-search a prior finding** unless it is `expired`, it directly drives a number you are
+  about to put in a verdict or proposal, or you have new evidence against it. Re-verifying for
+  one of those reasons is allowed; re-discovering is not.
+- **Record re-checks in your JSON tail**, both keys optional. Ids you checked and still hold go in
+  `findings_reaffirmed`. Anything wrong or materially changed goes in `findings_revised` as
+  `[{"id", "claim", "source", "reason"}]`.
+- **Genuinely new items still go in your normal output fields.** Never restate a prior finding as
+  if it were new.

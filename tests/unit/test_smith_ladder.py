@@ -317,7 +317,7 @@ class TestDispatchGate:
     def test_a_fresh_ladder_scores_no_staleness_points(self, tmp_path, capsys):
         args = _build(tmp_path, self._three("C"),
                       abs_returns={"AC": 1.0, "BC": 0.0, "DC": -1.0},
-                      prior_ladders={"C": {"as_of": "2026-09-06", "confidence": "high"}})
+                      prior_ladders={"C": {"as_of": "2026-08-31", "confidence": "high"}})   # 8d: past the fresh-skip window, inside TTL
         out = _run(capsys, args)
         assert out["dispatch"][0]["priority_score"] == 0
         assert out["clusters"]["C"]["prior_ladder"]["stale"] is False
@@ -838,3 +838,49 @@ class TestRestatementNoLongerRetires:
         pr = self._leg(pair_id=None, pair_role=None, trigger_type="conviction_average",
                         repeat_count=9)
         assert self._retire(pr) is None
+
+
+class TestFreshLadderSkip:
+    """LADDER_FRESH_SKIP_DAYS (2026-09-15): a ladder under 7 days old is reused unless a fact reopens it."""
+    RET = {"AC": 1.0, "BC": 0.0, "DC": -1.0}
+
+    def _three(self):
+        return [_pos("AC", "C", atr20_pct=3.0), _pos("BC", "C", atr20_pct=9.0), _pos("DC", "C", atr20_pct=15.0)]
+
+    def _ladder(self, **kw):
+        d = {"as_of": "2026-09-06", "confidence": "medium", "leader": "AC", "laggard": "DC",
+             "ranking": [{"t": "AC"}, {"t": "BC"}, {"t": "DC"}]}
+        d.update(kw)
+        return {"C": d}
+
+    def test_a_ladder_younger_than_seven_days_is_skipped(self, tmp_path, capsys):
+        out = _run(capsys, _build(tmp_path, self._three(), abs_returns=self.RET, prior_ladders=self._ladder()))
+        assert out["dispatch"] == [] and out["dispatch_selected"] == []
+        assert out["skipped_fresh"][0]["cluster"] == "C" and out["skipped_fresh"][0]["age_days"] == 2
+
+    def test_member_earnings_reopen_it(self, tmp_path, capsys):
+        out = _run(capsys, _build(tmp_path, self._three(), abs_returns=self.RET, prior_ladders=self._ladder(),
+                                  earnings={"AC": {"date": "2026-09-10"}}))
+        assert out["dispatch"][0]["cluster"] == "C"
+        assert "fresh ladder reopened" in " ".join(out["dispatch"][0]["reasons"])
+
+    def test_a_structural_catalyst_first_seen_after_the_ladder_reopens_it(self, tmp_path, capsys):
+        args = _build(tmp_path, self._three(), abs_returns=self.RET, prior_ladders=self._ladder())
+        path = tmp_path / "base" / "state.json"
+        st = json.loads(path.read_text())
+        st["factor_catalysts"] = [{"headline": "old", "horizon": "structural", "first_seen": "2026-09-05", "affects": ["BC"]}]
+        path.write_text(json.dumps(st))
+        assert _run(capsys, args)["dispatch"] == []
+        st["factor_catalysts"].append({"headline": "new", "horizon": "structural", "first_seen": "2026-09-07", "affects": ["BC"]})
+        path.write_text(json.dumps(st))
+        assert "structural catalyst" in " ".join(_run(capsys, args)["dispatch"][0]["reasons"])
+
+    def test_a_wrong_scoring_call_reopens_it(self, tmp_path, capsys):
+        out = _run(capsys, _build(tmp_path, self._three(), abs_returns=self.RET,
+                                  prior_ladders=self._ladder(leader="DC", laggard="AC")))
+        assert "scoring wrong" in " ".join(out["dispatch"][0]["reasons"])
+
+    def test_an_unranked_held_member_reopens_it(self, tmp_path, capsys):
+        out = _run(capsys, _build(tmp_path, self._three(), abs_returns=self.RET,
+                                  prior_ladders=self._ladder(ranking=[{"t": "AC"}, {"t": "BC"}])))
+        assert "not on the ladder: DC" in " ".join(out["dispatch"][0]["reasons"])

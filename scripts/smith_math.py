@@ -1567,6 +1567,40 @@ def _ladder_track_record(prior_ladder, abs_ret, today):
             "ladder_confidence_at_call": prior_ladder.get("confidence")}
 
 
+def _ladder_reopen_reasons(c, prior, catalysts, track):
+    """Why a ladder younger than LADDER_FRESH_SKIP_DAYS must still be rebuilt (added 2026-09-15).
+    Four events, each a fact rather than a price move: a structural catalyst first seen after the
+    ladder on one of its members; a member reporting inside LADDER_EARNINGS_WINDOW_DAYS; the
+    ladder's own leader-over-laggard call currently scoring wrong; a held member the ladder never
+    ranked. Anything else waits for the ladder to age past the window."""
+    reasons = []
+    members = {m["ticker"] for m in c.get("members") or []}
+    as_of = _parse_as_of(prior.get("as_of"))
+    rows = catalysts.get("catalysts") if isinstance(catalysts, dict) else catalysts
+    for cat in rows or []:
+        if not isinstance(cat, dict) or cat.get("horizon") != "structural":
+            continue
+        seen = _parse_as_of(cat.get("first_seen") or cat.get("date"))
+        hit = members & set(cat.get("affects") or [])
+        if hit and seen and (as_of is None or seen > as_of):
+            reasons.append(f"structural catalyst first seen {seen} on {', '.join(sorted(hit))}: "
+                           f"{str(cat.get('headline') or '')[:90]}")
+    soon = [m["ticker"] for m in c.get("members") or []
+            if m.get("days_to_earnings") is not None and 0 <= m["days_to_earnings"] <= LADDER_EARNINGS_WINDOW_DAYS]
+    if soon:
+        reasons.append(f"{', '.join(soon)} reports within {LADDER_EARNINGS_WINDOW_DAYS}d")
+    if isinstance(track, dict) and track.get("scored") and track.get("correct") is False:
+        reasons.append(f"the current ladder's call ({track.get('leader')} over {track.get('laggard')}) "
+                       f"is scoring wrong ({track.get('spread_pp')}pp)")
+    ranked = {(r.get("t") or r.get("ticker")) for r in (prior.get("ranking") or []) if isinstance(r, dict)}
+    ranked |= {(r.get("ticker") or r.get("t")) for r in (prior.get("unranked") or []) if isinstance(r, dict)}
+    if ranked:
+        missing = sorted(members - ranked)
+        if missing:
+            reasons.append(f"held member(s) not on the ladder: {', '.join(missing)}")
+    return reasons
+
+
 def cmd_ladder(args):
     # `default=None` means "return None if absent" -- see the _NO_DEFAULT sentinel in
     # smith_core.load_json. Until 2026-09-08 it raised instead, so the `if risk is None`
@@ -1737,11 +1771,24 @@ def cmd_ladder(args):
         if pair.get("cluster"):
             live_rotation_clusters.add(pair["cluster"])
 
-    dispatch = []
+    dispatch, skipped_fresh = [], []
     for cluster, c in clusters.items():
         if not c["eligible"]:
             continue
         score, reasons = 0, []
+        # FRESH-LADDER SKIP (2026-09-15): see LADDER_FRESH_SKIP_DAYS and _ladder_reopen_reasons.
+        age = c["prior_ladder"]["age_days"]
+        if age is not None and age < LADDER_FRESH_SKIP_DAYS:
+            reopen = _ladder_reopen_reasons(c, prior_ladders.get(cluster) or {},
+                                            state.get("factor_catalysts"), track_record.get(cluster))
+            if not reopen:
+                skipped_fresh.append({"cluster": cluster, "agent": f"cluster_{c['slug']}", "age_days": age,
+                                      "reason": (f"ladder is {age}d old (< {LADDER_FRESH_SKIP_DAYS}d) with no "
+                                                 "structural catalyst, member earnings, wrong-scoring call or "
+                                                 "unranked member since -- reuse it")})
+                continue
+            score += 2
+            reasons.append("fresh ladder reopened: " + "; ".join(reopen))
         if c["prior_ladder"]["stale"]:
             score += 3
             age = c["prior_ladder"]["age_days"]
@@ -1804,6 +1851,7 @@ def cmd_ladder(args):
         "dispatch": dispatch,
         "dispatch_selected": [r["agent"] for r in selected],
         "dispatch_selected_clusters": [r["cluster"] for r in selected],
+        "skipped_fresh": skipped_fresh, "fresh_skip_days": LADDER_FRESH_SKIP_DAYS,
         "track_record": track_record,
         "data_quality": dq,
     })
@@ -4643,7 +4691,7 @@ def main():
     sp.add_argument("--run-dir", required=True)
     sp.add_argument("--mode", choices=("quick", "deep"), required=True)
     sp.add_argument("--ask", action="append", default=[],
-                    choices=("thesis", "watchlist", "why", "quality", "cycle"),
+                    choices=("full", "thesis", "watchlist", "why", "quality", "cycle"),
                     help="an explicit user ask that forces an agent (repeatable)")
     sp.add_argument("--today", default=None)
 
