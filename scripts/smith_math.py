@@ -70,6 +70,7 @@ from smith_core import _prior_run_prices
 from smith_ledger import _avg_cost_from_lots, _months_between, policy_ltcg_months, months_until_ltcg
 from smith_lifecycle import _proposal_parse_date
 from smith_ledger import cmd_trade_rationale  # noqa: E402
+import smith_marketdata  # noqa: E402
 from smith_marketdata import cmd_indicators, cmd_normalize_bars, cmd_session_gate  # noqa: E402
 from smith_orchestrate import cmd_dispatch_plan, cmd_triggers_diff, cmd_postflight  # noqa: E402
 from smith_runlife import (cmd_lock, cmd_commit_state, cmd_health,  # noqa: E402
@@ -2482,7 +2483,7 @@ def _parse_as_of(raw):
 
 
 def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
-                    rel_usable=True, rel_age=None):
+                    rel_usable=True, rel_age=None, support=None):
     """Measure whether the book is in a broad correction, and if so which names have fallen
     far enough — and are volatile enough — to be worth watching for a relief rally.
 
@@ -2611,11 +2612,15 @@ def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
             # intact thesis is a setup; a dip alongside a broken one is a knife.
             out["excluded"]["thesis_blocked"].append(f"{t} ({status})")
             continue
+        sup = (support or {}).get(t) or {}
         out["candidates"].append({
             "ticker": t, "tier": row["tier"], "cluster": row.get("cluster"),
             "fall_pct": round(fall, 2), "fall_window": window, "atr20_pct": round(a, 2),
             "thesis_status": status,
             "thesis_known": status is not None,
+            "support_level": sup.get("nearest_support"),
+            "support_label": sup.get("nearest_support_label"),
+            "support_distance_pct": sup.get("nearest_support_distance_pct"),
             # Depth of fall in units of the name's own daily range -- the honest counterweight.
             # ATR20 is a DAILY range; comparing a multi-day fall against it directly
             # would overstate the dislocation. Scale by sqrt(window) -- 5d expected
@@ -4152,8 +4157,12 @@ def cmd_triggers(args):
     conviction_average.sort(key=lambda x: -(x.get("conviction_score") or 0))
     conviction_exit.sort(key=lambda x: -(x.get("negative_signal_count") or 0))
     entry_setup.sort(key=lambda x: -(x.get("conviction_score") or 0))
+    _rebound_pool = [r["ticker"] for r in (universe.get("tickers") or [])
+                     if r.get("tier") in ("T1_HELD", "T2_ALUMNI", "T4_WATCHLIST") and not r.get("suppressed")]
+    _rebound_bars = load_json(os.path.join(args.run_dir, "bars.json"), default={}) or {}
+    _rebound_support = smith_marketdata.support_levels(_rebound_bars, _rebound_pool) if _rebound_bars else {}
     rebound = _rebound_screen(book, risk, policy, dc, universe, thesis, today,
-                              rel_usable=rel_usable, rel_age=rel_age)
+                              rel_usable=rel_usable, rel_age=rel_age, support=_rebound_support)
 
     if rebound.get("stale_warning"):
         dq.append(rebound["stale_warning"])
@@ -4234,6 +4243,96 @@ def cmd_triggers(args):
         "abs_return_1m_pct_values": (abs_vals if rel_usable else {}),
         "data_quality": dq,
     })
+
+
+# ---------------------------------------------------------------------------
+# draft-specs -- script-drafted strategist proposal specs (added 2026-09-15,
+# efficiency pass item 5: "the triggers already size every candidate; let a script draft the
+# specs and the fixed sections, leaving the strategist to accept, reject and explain")
+# ---------------------------------------------------------------------------
+_DRAFT_SINGLE_LEG_KEYS = ("oversold_reversion", "overbought_distribution", "catalyst_threat",
+                          "thesis_break", "trend_entry", "trend_breakdown", "conviction_average",
+                          "conviction_exit", "entry_setup", "reentry", "bench_diversifier")
+_DRAFT_PAIRED_KEYS = ("profit_rotation", "cluster_rotation")
+
+
+def _draft_leg_spec(ticker, trigger_type, direction, row, pair_id=None, pair_role=None):
+    return {"direction": direction, "ticker": ticker, "trigger_type": trigger_type,
+            "pair_id": pair_id, "pair_role": pair_role,
+            "size_usd": row.get("suggested_size_usd"),
+            "size_wanted_usd": row.get("size_wanted_usd"), "clamped_by": row.get("clamped_by"),
+            "price_at_proposal": row.get("price_usd"), "stop_price_usd": row.get("stop_price_usd"),
+            "draft_reasons": row.get("reasons"), "blockers": row.get("blockers"),
+            # Left for the strategist to write -- this is judgment, never scripted:
+            "rationale": None, "evidence_quality": None}
+
+
+def _draft_proposal_specs(triggers, open_keys):
+    specs, skipped = [], []
+    for key in _DRAFT_SINGLE_LEG_KEYS:
+        for row in triggers.get(key) or []:
+            if row.get("vote") != "live":
+                continue
+            ticker, ttype = row.get("ticker"), row.get("trigger_type", key)
+            if (ticker, ttype) in open_keys:
+                skipped.append(f"{ticker}/{ttype} already open")
+                continue
+            specs.append(_draft_leg_spec(ticker, ttype, row.get("direction"), row))
+    for key in _DRAFT_PAIRED_KEYS:
+        for row in triggers.get(key) or []:
+            if row.get("vote") != "live":
+                continue
+            sell, buy = row.get("sell_leg") or {}, row.get("buy_leg") or {}
+            ttype, pair_id = row.get("trigger_type", key), row.get("pair_id")
+            sk, bk = (sell.get("ticker"), ttype), (buy.get("ticker"), ttype)
+            if sk in open_keys or bk in open_keys:
+                skipped.append(f"pair {pair_id} already open ({sell.get('ticker')}/{buy.get('ticker')})")
+                continue
+            specs.append(_draft_leg_spec(sell.get("ticker"), ttype, sell.get("direction"),
+                                         sell, pair_id=pair_id, pair_role="sell"))
+            specs.append(_draft_leg_spec(buy.get("ticker"), ttype, buy.get("direction"),
+                                         buy, pair_id=pair_id, pair_role="buy"))
+    return specs, skipped
+
+
+def _draft_stress_anchor(market_inputs, fomc_cache):
+    mi, fc = market_inputs or {}, fomc_cache or {}
+    return {"us10y_pct": mi.get("us10y"), "vix": mi.get("vix"), "dxy": mi.get("dxy"),
+            "fed_rate_pct": fc.get("rate_pct"), "fed_stance": fc.get("stance")}
+
+
+def _draft_scorecard_quote(scorecard):
+    if not scorecard:
+        return None
+    o = scorecard.get("overall") or {}
+    parts = [f"Stored scorecard (as_of {scorecard.get('as_of')}, n={o.get('n')}): "
+             f"overall {scorecard.get('overall_accuracy_30d')}% "
+             f"({o.get('worked')}/{o.get('missed')}/{o.get('neutral')} worked/missed/neutral)"]
+    for label, d in (scorecard.get("by_direction") or {}).items():
+        parts.append(f"{label} {d.get('accuracy_pct')}% (n={d.get('n')})")
+    return "; ".join(parts)
+
+
+def cmd_draft_specs(args):
+    """Drafts the strategist's proposal specs from compute_triggers.json's already-sized/-scored
+    live candidates, plus the stress table's anchor block and a pre-formatted scorecard quote --
+    the mechanical two-thirds of TASK 2/4/6 that was previously hand-written in the strategist's
+    32-minute, 42-call pass. Judgment (rationale, evidence_quality, accept/reject, scenario
+    mechanism/impact estimates, scorecard INTERPRETATION) stays the strategist's -- this only
+    drafts the arithmetic fields the trigger rows already carry."""
+    triggers = load_json(os.path.join(args.run_dir, "compute_triggers.json"), default={})
+    props = load_json(os.path.join(args.base_dir, "proposals.json"), default={})
+    market_inputs = load_json(os.path.join(args.run_dir, "market_inputs.json"), default={})
+    state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    open_keys = {(pr.get("ticker"), pr.get("trigger_type"))
+                 for pr in (props.get("proposals") or [])
+                 if pr.get("status") in ("open", "accepted_by_user")}
+    specs, skipped = _draft_proposal_specs(triggers, open_keys)
+    out = {"as_of": triggers.get("as_of"), "proposal_specs": specs, "skipped_already_open": skipped,
+           "stress_table_anchor": _draft_stress_anchor(market_inputs, state.get("fomc_cache")),
+           "scorecard_quote": _draft_scorecard_quote(props.get("scorecard"))}
+    atomic_write_json(os.path.join(args.run_dir, "proposal_specs.json"), out)
+    emit(out)
 
 
 # ---------------------------------------------------------------------------
@@ -4813,6 +4912,10 @@ def main():
     sp.add_argument("--today", default=None)
     sp.add_argument("--agents", default=None, help="comma-separated; default = all")
 
+    sp = sub.add_parser("draft-specs", help="script-draft the strategist's proposal specs from compute_triggers.json's sized live candidates")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+
     sp = sub.add_parser("gaps", help="look up known_gaps across BOTH state.json and the archive")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--id", default=None, help="exact gap id, e.g. G44")
@@ -4999,6 +5102,7 @@ def main():
          "book": cmd_book, "journal": cmd_journal, "attribution": cmd_attribution,
          "drift": cmd_drift, "risk": cmd_risk, "rotation": cmd_rotation, "derisk": cmd_derisk,
          "triggers": cmd_triggers, "buckets": cmd_buckets, "ladder": cmd_ladder,
+         "draft-specs": cmd_draft_specs,
          "score": cmd_score,
          "pipeline": cmd_pipeline, "lots": cmd_lots,
          "history": cmd_history, "universe": cmd_universe, "maxpain": cmd_maxpain, "compact": cmd_compact, "gaps": cmd_gaps, "slices": cmd_slices,

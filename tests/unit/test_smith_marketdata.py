@@ -228,3 +228,31 @@ def test_signals_merge_ignores_script_owned_caches():
     out = {"signal_history": {"changed": {}}, "atr20_updates": {"MU": 9.9}, "rsi14_updates": {"MU": 50}}
     res = sm._merge_signals(out, state, "2026-09-14", script_owned_indicators=True)
     assert "atr20" not in state["data_cache"] and set(res["ignored_script_owned"]) == {"atr20_updates", "rsi14_updates"}
+
+
+# --- support_levels (added 2026-09-15, rebound efficiency pass) -----------------------------------
+
+def test_support_levels_picks_nearest_floor_below_price():
+    # A rising series: sma50 < sma100 < sma200 < last close, and the swing low sits below all of
+    # them -- sma50 (the highest floor below price) should win as nearest_support.
+    closes = [100.0 + i * 0.5 for i in range(260)]
+    bars = {"XYZ": _series(closes)}
+    out = md.support_levels(bars, ["XYZ"])
+    row = out["XYZ"]
+    assert row["last_close"] == closes[-1]
+    assert row["nearest_support_label"] == "sma50"
+    assert row["nearest_support"] == row["sma50"] < row["last_close"]
+    assert row["nearest_support_distance_pct"] > 0
+
+
+def test_support_levels_null_when_price_below_every_floor():
+    # A sharp final plunge below every SMA and the swing low -- no floor below price.
+    closes = [100.0] * 259 + [10.0]
+    bars = {"XYZ": _series(closes)}
+    row = md.support_levels(bars, ["XYZ"])["XYZ"]
+    assert row["nearest_support"] is None and row["nearest_support_label"] is None
+
+
+def test_support_levels_skips_tickers_with_no_bars():
+    assert md.support_levels({}, ["ZZZ"]) == {}
+    assert md.support_levels({"ZZZ": []}, ["ZZZ"]) == {}

@@ -137,6 +137,46 @@ def rsi_wilder(closes, n=14):
     return 100.0 if al == 0 else round(100 - 100 / (1 + ag / al), 1)
 
 
+def sma(closes, n):
+    return round(sum(closes[-n:]) / n, 4) if len(closes) >= n else None
+
+
+SWING_LOW_WINDOW, SWING_LOW_EXCLUDE_RECENT = 60, 5
+
+
+def support_levels(bars, tickers):
+    """Per-ticker candidate support floors from daily bars, script-computed so smith-rebound
+    stops spending its budget re-fetching price history bars.json already holds (2026-09-15
+    efficiency pass). SMA50/100/200 plus a 60-session swing low (excluding the most recent 5
+    sessions, so today's own bar can't read as its own support); `nearest_support` is the
+    highest of these that sits below the last close -- the floor price would actually test next,
+    not the deepest one on record."""
+    out = {}
+    for t in tickers:
+        rows = [b for b in (bars.get(t) or []) if _num(b.get("c"))]
+        if not rows:
+            continue
+        closes = [b["c"] for b in rows]
+        last = closes[-1]
+        levels = {"sma50": sma(closes, 50), "sma100": sma(closes, 100), "sma200": sma(closes, 200)}
+        window = rows[:-SWING_LOW_EXCLUDE_RECENT][-SWING_LOW_WINDOW:] if len(rows) > SWING_LOW_EXCLUDE_RECENT else []
+        lows = [b["l"] for b in window if _num(b.get("l"))]
+        if lows:
+            levels["swing_low_60d"] = round(min(lows), 4)
+        below = {k: v for k, v in levels.items() if v is not None and v < last}
+        row = {"last_close": round(last, 4), **levels}
+        if below:
+            label = max(below, key=below.get)
+            row["nearest_support"] = below[label]
+            row["nearest_support_label"] = label
+            row["nearest_support_distance_pct"] = round((last - below[label]) / last * 100, 2)
+        else:
+            row["nearest_support"] = None
+            row["nearest_support_label"] = None
+        out[t] = row
+    return out
+
+
 def pct_return(closes, k):
     return (round((closes[-1] / closes[-1 - k] - 1) * 100, 2)
             if len(closes) > k and closes[-1 - k] else None)

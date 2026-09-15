@@ -2219,7 +2219,11 @@ AGENT_SLICES = {
                    # "valuation" added 2026-09-07 -- forensic_risk (Beneish/Altman), on-demand/
                    # monthly, MISSING on most runs by design (see the thesis slice's comment).
                    "refs": ["book", "valuation"], "holdings": "trim"},
-    "rebound":    {"state": ["sector_map"], "cache": [], "refs": ["book", "risk"],
+    # "triggers" added 2026-09-15 -- compute_triggers.json's `rebound` block now carries a
+    # script-computed `support_level`/`support_label`/`support_distance_pct` per candidate
+    # (smith_marketdata.support_levels, from bars.json SMA50/100/200 + 60d swing low), so the
+    # agent reads it here instead of WebFetching Barchart per candidate for the same numbers.
+    "rebound":    {"state": ["sector_map"], "cache": [], "refs": ["book", "risk", "triggers"],
                    "holdings": "full"},
     "ledger":     {"state": [], "cache": ["ticker_map"], "refs": ["book", "lots"],
                    "holdings": "full"},
@@ -2252,7 +2256,7 @@ AGENT_SLICES = {
                    # BUY on that name (SKILL.md's valuation section); on-demand/monthly,
                    # MISSING on most runs by design.
                    "refs": ["drift", "sentiment", "risk", "book", "derisk", "triggers",
-                            "rotation", "crosscheck", "valuation",
+                            "rotation", "crosscheck", "valuation", "proposal_specs",
                             # Stage-1 tails by reference, not pasted into the prompt (2026-09-14);
                             # scout_tail replaced macro_tail; taxcalc replaced smith-tax.
                             "scout_tail", "thesis_tail", "signals_tail", "catalyst_tail", "taxcalc"],
@@ -2265,6 +2269,10 @@ REF_FILES = {
     "rotation": "compute_rotation.json", "sentiment": "compute_sentiment.json",
     "derisk": "compute_derisk.json", "triggers": "compute_triggers.json",
     "buckets": "compute_buckets.json",
+    # proposal_specs.json (added 2026-09-15, smith_math.py draft-specs) -- the script-drafted
+    # proposal specs, stress-table anchor and scorecard quote; see the strategist slice's
+    # "proposal_specs" ref below.
+    "proposal_specs": "proposal_specs.json",
     "market_inputs": "market_inputs.json",
     # Added 2026-09-07, closing a gap between what SKILL.md's WAVES section promised (book
     # gets compute_bookcalc.json, tax gets compute_taxcalc.json) and what AGENT_SLICES actually

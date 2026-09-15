@@ -100,6 +100,45 @@ def test_quick_never_dispatches_clusters(tmp_path):
     assert not [k for k in p["agents"] if k.startswith("cluster_")]
 
 
+# --- dispatch_prompts (added 2026-09-15, efficiency pass item 7) ---------------------------------
+
+def test_rebound_dispatch_prompt_states_gate_as_context_not_reason(tmp_path):
+    p = _plan(*_run(tmp_path, triggers={"correction_state": "correction"},
+                    session={"gate_classification": "ESCALATING", "cluster_moves_pct": {}}))
+    assert "rebound" in p["dispatch_prompts"]
+    txt = p["dispatch_prompts"]["rebound"]
+    assert "ESCALATING" in txt and "TIMING CONTEXT ONLY" in txt
+    assert "correction_state=correction" in txt
+
+
+def test_scout_dispatch_prompt_differs_by_mode(tmp_path):
+    p = _plan(*_run(tmp_path, mi={"us10y_change_pts": 0.2, "vix": 15.0, "smh_change_pct": 0.1,
+                                  "asia": {}, "spx": 1, "ndx": 1, "smh": 1}))
+    assert p["agents"]["scout"]["mode"] == "macro_only"
+    assert "macro_only" in p["dispatch_prompts"]["scout"]
+    base, rd = _run(tmp_path / "d")
+    p = _plan(base, rd, "deep")
+    assert p["agents"]["scout"]["mode"] == "full"
+    assert "full" in p["dispatch_prompts"]["scout"]
+
+
+def test_earnings_dispatch_prompt_only_on_verify_only(tmp_path):
+    state = {"data_cache": {"earnings_facts": {"MU": {"status": "PENDING", "reported_date": "2026-09-13"}}}}
+    p = _plan(*_run(tmp_path, state=state))
+    assert "VERIFY-ONLY" in p["dispatch_prompts"]["earnings"] and "MU" in p["dispatch_prompts"]["earnings"]
+    base, rd = _run(tmp_path / "d", ledger_rows=["2026-09-07T03:00:00+00:00,deep,1,95,1,1,1,,,,,ok,x"])
+    p = _plan(base, rd, "deep")
+    assert "earnings" not in p["dispatch_prompts"]
+
+
+def test_catalyst_dispatch_prompt_only_when_gate_escalating(tmp_path):
+    p = _plan(*_run(tmp_path, session={"gate_classification": "ESCALATING", "cluster_moves_pct": {}}))
+    assert "ESCALATING" in p["dispatch_prompts"]["catalyst"]
+    p = _plan(*_run(tmp_path / "b", mi={"us10y_change_pts": 0.01, "vix": 15.0, "smh_change_pct": 4.0,
+                                        "asia": {}, "spx": 1, "ndx": 1, "smh": 1}))
+    assert "catalyst" in p["agents"] and "catalyst" not in p["dispatch_prompts"]
+
+
 def test_deep_earnings_window_counts_trading_days(tmp_path):
     state = {"data_cache": {"earnings_calendar": {"MU": {"date": "2026-09-21"}, "NVDA": {"date": "2026-09-22"}}}}
     p = _plan(*_run(tmp_path, state=state), "deep")                 # Mon 09-14 -> Mon 09-21 = 5 trading days

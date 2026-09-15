@@ -136,6 +136,49 @@ def _structural_hits(tail, held, since):
     return sorted(hits)
 
 
+# Ready-made per-agent dispatch prompts (added 2026-09-15, efficiency pass item 7). Each of
+# these agents' canned dispatch instruction previously lived only as prose in
+# reference/stage1-dispatch.md, re-read and hand-transcribed into the dispatch message every
+# run it fired -- rebound's "gate is timing context, not the reason" line, scout's mode
+# description, earnings' VERIFY-ONLY framing. Templating them here means the orchestrator can
+# use dispatch_prompts[key] verbatim instead of opening that reference section again once the
+# agent's dispatch condition is already known to fire the same way each time.
+def _dispatch_prompt_rebound(a, gate):
+    return (f"Normal mode -- your embedded compute_triggers.json `rebound` block is the "
+           f"candidate pool, already screened; diff holdings vs state.json for SL forensics "
+           f"only if qty_changes shows exits/trims. State this run's gate_classification "
+           f"({gate}) as TIMING CONTEXT ONLY, never as the reason you were dispatched -- the "
+           f"actual reason: {'; '.join(a['reasons'])}.")
+
+
+def _dispatch_prompt_scout(a, gate):
+    if a.get("mode") == "macro_only":
+        return ("Mode macro_only: tasks 3-5 only (Fed funds/stance, options positioning, "
+                "calendar + regime read). Skip session read, sentiment narrative and the "
+                "diversifier bench -- an omitted bench is carried forward, never wiped.")
+    return "Mode full: all six tasks, including the session read and diversifier bench refresh."
+
+
+def _dispatch_prompt_earnings(a, gate):
+    if a.get("mode") == "verify_only":
+        return (f"VERIFY-ONLY pass on {', '.join(a.get('tickers') or [])} -- confirm or correct "
+               "the earnings_facts entry now that its reported_date has passed. Do not run a "
+               "full earnings read on names outside this list.")
+    return None
+
+
+def _dispatch_prompt_catalyst(a, gate):
+    if gate == "ESCALATING":
+        return (f"Dispatched on gate={gate} -- fixed <=6-query budget, target <90s. State the "
+               "gate reading up front; it IS the trigger here (unlike rebound/scout, where the "
+               "gate is context, not the reason).")
+    return None
+
+
+_DISPATCH_PROMPT_TEMPLATES = {"rebound": _dispatch_prompt_rebound, "scout": _dispatch_prompt_scout,
+                              "earnings": _dispatch_prompt_earnings, "catalyst": _dispatch_prompt_catalyst}
+
+
 def dispatch_plan(base_dir, run_dir, mode, asks=(), today=None, now=None):
     today = resolve_today(today)
     if now is None:
@@ -304,8 +347,17 @@ def dispatch_plan(base_dir, run_dir, mode, asks=(), today=None, now=None):
         waves[str(a["wave"])].append(k)
     for w in waves.values():
         w.sort()
+    gate_now = session.get("gate_classification") or holdings.get("gate_classification")
+    dispatch_prompts = {}
+    for k, a in agents.items():
+        tmpl = _DISPATCH_PROMPT_TEMPLATES.get(k)
+        if tmpl:
+            txt = tmpl(a, gate_now)
+            if txt:
+                dispatch_prompts[k] = txt
     return {"mode": mode, "today": today.isoformat(), "waves": waves, "agents": agents,
             "skipped": skipped, "scripts": scripts, "deep_lite": lite,
+            "dispatch_prompts": dispatch_prompts,
             "recheck_after_wave1": recheck,
             "merge_after_wave1": ",".join(waves["1"]),
             "reslice_wave2": ",".join(waves["2"]),
