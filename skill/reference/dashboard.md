@@ -6,7 +6,7 @@ as a reference for what a panel used to look like when porting or checking one.
 
 Read this before editing the builder, or when a rendered panel looks wrong. SKILL.md §6 keeps
 the operative rules (generate don't author; read the printed panel counts; reuse `artifact_url`;
-declare `capabilities: {"self": {}}`).
+declare `capabilities: {"db": {}}`).
 
 ---
 
@@ -60,19 +60,64 @@ stop-loss record, hit-rate grades and tax lots.
 
 ## The decisions round trip
 
-Unchanged in format, so `smith_math.py sync-decisions` parses v1 and v2 pages identically:
-decisions accumulate in `<script type="application/json" id="smith-decisions">`, and a click
-republishes the page via `window.claude.self.publish` with the blob swapped.
+**Rewritten 2026-09-16 onto the `db` runtime capability** (see DB MIGRATION below). Rows still
+render client-side *from* the `DEC` array (`decideBox`, unchanged since v2) — that design
+survived the migration untouched. What changed is where `DEC` comes from and how a click lands.
 
-**v1's landmine is gone — do not reintroduce it.** v1 located the clicked row by string-matching
-the literal substring `data-surface="X" data-element-id="Y"` inside the pristine HTML, so
-reordering two attributes silently broke the "recorded" confirmation (the decision still
-persisted, so it failed quietly rather than loudly). v2 renders rows *from* the decisions array,
-so a recorded decision simply re-renders as recorded. Only the blob is swapped in the pristine
-source; no string surgery touches markup.
+**v1's landmine is still gone, for the same reason as before.** v1 located the clicked row by
+string-matching the literal substring `data-surface="X" data-element-id="Y"` inside the pristine
+HTML, so reordering two attributes silently broke the "recorded" confirmation. Rows are rendered
+*from* the decisions array, never string-matched against markup — true under both the v2 publish
+design and the current db design.
 
-Still true, and load-bearing: `PRISTINE` is captured **once, at load**, before any click, per
-`window.claude.self`'s own contract. Never serialize the live DOM after a mutation.
+## DB MIGRATION (2026-09-16)
+
+**Why.** The v2 design stored decisions inside the published page itself: a click read the
+pristine HTML's `<script id="smith-decisions">` blob, appended the new decision, and
+republished the WHOLE document via `window.claude.self.publish`. Reading them back cost the
+same amount in the other direction — §1.7's sync had to `WebFetch` the entire ~600KB page just
+to pull that one blob back out (120K+ tokens per sync, twice in one FOMC-day run — see the
+2026-09-15 efficiency review). The page's *content* was never the expensive part; the
+decisions were riding inside it for no reason connected to what they are.
+
+**What changed.** Decisions now live in the artifact's `db` capability, in a `decisions`
+collection — one document per click, written directly (`db.collection("decisions").add(payload)`),
+read directly (`db.collection("decisions").get()`). No page republish happens on a click at all
+any more; `window.claude.self`/`artifact` is not used anywhere in this file's client JS. The
+publish declaration moved from `capabilities: {"self": {}}` to `capabilities: {"db": {}}`.
+
+- **Client (`DECISIONS_JS`).** On load, `claude.use("db")` resolves the namespace (or `null` —
+  `readOnly()`, same banner as before). A successful resolve does one `collection("decisions").get()`,
+  populates `DEC`, and calls the existing global `render(currentTab())` to re-paint with real
+  decisions — the very first paint still happens with `DEC = []` (APP_JS's own
+  `DOMContentLoaded` handler), so a viewer sees the page immediately and decisions fill in a
+  beat later, same UX as v2's synchronous blob just spread across two paints instead of one.
+  A click builds the same `payload` shape as before (`surface`, `element_id`, `decision`,
+  `reason`, `decided_on`, plus `new_status`/`headline`/`date` where the surface needs them),
+  writes it with `.add()`, and pushes it onto the local `DEC` array — no re-render needed since
+  `decideBox` already showed the optimistic "Recorded" span synchronously before the write even
+  lands. `db`'s own error codes (`not_granted`, `capability_disabled`, `capability_removed`,
+  `revoked`) drop to `readOnly()`; anything else is a plain alert.
+- **Server (`sync-decisions`).** `smith_math.py sync-decisions` now takes `--records-file`
+  (a JSON array the orchestrator wrote from an `Artifact action:"read_db"` call against the
+  `decisions` collection) instead of `--html-file`. The per-decision reconciliation loop
+  (`cmd_sync_decisions`'s body) is unchanged — it never cared how the array reached it. The old
+  `--html-file` path (`_extract_decisions`, regex over a `<script>` tag) is kept as a documented
+  LEGACY fallback, not removed, in case a page published before this migration is still live
+  somewhere and needs one last sync.
+- **The decisions collection never gets pruned.** Every sync reads the WHOLE collection (it's
+  naturally small — dozens of clicks over months, nowhere near the 5,000-document-per-artifact
+  cap) and relies on the SAME idempotent "already {status}" skip logic `cmd_sync_decisions`
+  always had to make re-syncing safe — a decision already applied just gets skipped again,
+  cheaply. This mirrors v2's own design (which also never trimmed the accumulating blob) rather
+  than introducing a new deletion path with its own failure modes.
+- **A real side effect, not just an implementation swap: republishing the dashboard is no
+  longer destructive.** Because decisions never lived in the published HTML to begin with under
+  this design, a fresh `smith_dashboard.py` build can be republished at any time without risking
+  an unsynced click — the "must not republish if sync was skipped" rule (§1.7's step 0, §6's
+  PUBLISH paragraph) existed ONLY because v2's design put decisions inside the very content
+  being overwritten. Sync-before-build is still worth doing so the freshly built page reflects
+  reconciled proposal/state changes, but it is no longer a data-loss guard.
 
 ## CSS landmines that survived the rewrite
 
@@ -119,27 +164,28 @@ local server, not the file — the Artifact wrapper supplies `<meta charset>`.
 
 Via the Artifact tool. **URL persistence:** pass `state.json`'s `artifact_url` as the `url`
 parameter or a new session mints a new URL; write the returned URL back. Every publish declares
-`capabilities: {"self": {}}` — that is what makes the decision buttons work.
+`capabilities: {"db": {}}` — that is what makes the decision buttons work (rewritten 2026-09-16,
+see the DB MIGRATION section below; replaced `{"self": {}}`, which the page no longer needs at
+all — nothing client-side calls `window.claude.self`/`artifact` any more).
 
 
 ## Moved from SKILL.md on 2026-09-14
 
 > Moved verbatim out of SKILL.md on 2026-09-14 (core cut to <=60KB). Load this file only when the core step that cites it runs. Where this text and the core disagree, the core wins — it reflects the scripted flow (`preflight`, `smith_fetch.py`, `dispatch-plan`, `postflight`).
 
-### 1.7. DASHBOARD DECISION SYNC (added 2026-08-25, gated by frequency since 2026-09-14 — see step 0 below)
-The interactive dashboard (§6) lets the user click Accept/Reject/Hold on proposals and equivalent decisions on 8 other surfaces (auto-retired proposals, watchlist setups, the diversifier bench, the de-risk queue, known gaps, learning-parameter escalations, thesis verdicts, factor catalysts). **No capability lets a published page write to this Mac's filesystem** — checked against the real artifact-capabilities contract before any of this was built; only `downloads`/`mcp`/`self` exist. So a click is durable only because the page republishes ITSELF (`window.claude.self.publish`) with the decision embedded in a `<script type="application/json" id="smith-decisions">` blob — this step is where that accumulated data actually gets read and applied.
+### 1.7. DASHBOARD DECISION SYNC (added 2026-08-25; moved onto the `db` capability 2026-09-16 — see DB MIGRATION above; still gated by frequency since 2026-09-14 — see step 0 below)
+The interactive dashboard (§6) lets the user click Accept/Reject/Hold on proposals and equivalent decisions on 8 other surfaces (auto-retired proposals, watchlist setups, the diversifier bench, the de-risk queue, known gaps, learning-parameter escalations, thesis verdicts, factor catalysts). A click writes one document directly to the artifact's `db` capability (`decisions` collection) — this step is where that accumulated data actually gets read and applied.
 
-**0. FREQUENCY GATE (added 2026-09-14, closes a real token-waste finding). A skipped or failed sync means §6 must NOT republish this run** (see §6 PUBLISH) — otherwise the fresh page overwrites clicks still sitting in the live one. This step's WebFetch pulls the ENTIRE live dashboard page — 480KB+ measured 2026-09-09 — to extract a decisions blob that is usually empty (engagement has run roughly 1 sync-worthy click per ~25 runs historically). Paying that fetch on every single quick sweep is the single largest recurring, avoidable cost in this skill. **Always run the full sync on a DEEP run** (infrequent enough that the cost is fine, and a deep review is exactly when you want any pending decision reconciled before a fresh proposal set is written). **On a QUICK or PRICED REFRESH run, skip steps 1-5 entirely unless `state.json.dashboard_last_synced_ts` is missing or more than 24 hours old, or the user explicitly asks to sync/check the dashboard.** State which happened in one line either way — "Dashboard sync: skipped (synced 3h ago)" is a normal, expected line, not a silently-dropped step.
+**0. FREQUENCY GATE (added 2026-09-14, closes a real token-waste finding).** Even though a `db` read is cheap on its own (a handful of small documents, not the whole page), a sync still costs an `Artifact action:"read_db"` call and a script call, and engagement has run roughly 1 sync-worthy click per ~25 runs historically — so the gate stays. **Always run the full sync on a DEEP run.** **On a QUICK or PRICED REFRESH run, skip steps 1-4 entirely unless `state.json.dashboard_last_synced_ts` is missing or more than 24 hours old, or the user explicitly asks to sync/check the dashboard.** State which happened in one line either way — "Dashboard sync: skipped (synced 3h ago)" is a normal, expected line, not a silently-dropped step. **Unlike before 2026-09-16, a skipped sync no longer blocks §6 from republishing** — decisions live in the db, not in the page, so a fresh build can't clobber them; sync before publish is still worth doing so the page reflects reconciled state, not to prevent data loss.
 
 1. Read `state.json.artifact_url`. If absent (first run, dashboard never published), skip this step entirely and say so in one line — nothing to sync yet.
-2. **Use `WebFetch`, never `Artifact action:"read"`** (a plain unauthenticated HTTP fetch returns an 18KB app shell with no decisions blob — checked 2026-09-14 — so it cannot replace WebFetch) — the latter is guaranteed to return an owned artifact's full raw content into this conversation's own context (confirmed 2026-09-09: one such call cost 120K+ tokens for what should have been a cheap pending-decisions check). Save the raw HTML to `runs/<ts>/dashboard_fetched.html` (or, for a mini-briefing with no run dir yet, a scratch path — this step runs BEFORE step 2 creates the run directory, so use a temp path if needed).
-3. Run `python3 scripts/smith_math.py sync-decisions --base-dir . --html-file runs/<ts>/dashboard_fetched.html --today <date>`. This is fully deterministic — it parses the JSON blob and dispatches per-surface, it is never eyeballed or hand-applied. It also stamps `state.json.dashboard_last_synced_ts`, which is what step 0's gate reads next time.
+2. `Artifact action:"read_db"`, `url` = `state.json.artifact_url`, `db_op:"list"`, `collection:"decisions"` (a generous `query.limit`, e.g. 500 — the collection is naturally small). Write the returned documents to a flat JSON array file, `runs/<ts>/dashboard_decisions.json` — each entry carrying its document id as `id` plus the decision fields (`surface`, `element_id`, `decision`, `reason`, `decided_on`, and `new_status`/`headline`/`date` where the surface wrote them). This result is small (a handful of documents at most); it does not carry the 120K-token cost the old WebFetch-the-whole-page path did.
+3. Run `python3 scripts/smith_math.py sync-decisions --base-dir . --records-file runs/<ts>/dashboard_decisions.json --today <date>`. This is fully deterministic — it parses the array and dispatches per-surface, it is never eyeballed or hand-applied. It also stamps `state.json.dashboard_last_synced_ts`, which is what step 0's gate reads next time. (LEGACY: `--html-file` still works against a page published before this migration — see DB MIGRATION above.)
 4. **State the result in one line at the top of the briefing** — "Dashboard sync: 2 accepted, 1 rejected, 1 held since last run" or "Dashboard sync: nothing pending." Silent reconciliation is exactly the kind of thing this codebase's own standing discipline says never to do (see G50, the factor-catalysts persist gap that went undetected for a week because nothing announced it).
-5. **Order matters, and this is why the step number is 1.7, before step 2's compute pipeline runs**: syncing after the pipeline, or after step 6 rebuilds the dashboard, would silently overwrite any unsynced clicks still sitting in the live artifact — the artifact is the ONLY durable copy of a click until this step reconciles it. A freshly-rebuilt dashboard (step 6) always ships its decisions blob empty, precisely because this step has already drained whatever was there.
 
 **What each surface does, briefly (full design: `sync-decisions`'s own docstring in smith_math.py)** — Accept: `status: "accepted_by_user"`, distinct from a ledger-confirmed `executed`/`fulfilled`/`filled`, since a click is a stated intent, never proof of a trade. Reject: identical code path to a chat `dismiss P-014`. Hold: proposal stays open, gains `held_on`/`held_reason`. Revive: reopens an auto-retired proposal. Watchlist/diversifier "not interested": writes `state.watchlist_suppressed`, read by `entry_setup`/`bench_diversifier` trigger generation in `cmd_triggers` so a suppressed ticker stops being re-proposed. De-risk "disagree": writes `state.derisk_overrides`, which `cmd_derisk`'s dashboard rendering shows ALONGSIDE the computed score, never instead of it — a real risk signal is annotated, never suppressed. Gap "resolve": standard gap-closing shape, EXCEPT a gap carrying a `user_decision` field (a standing directive from a prior real conversation, e.g. G18's "confirmed LEAVE AS wont_fix, do not re-open") is never offered the button at all — that one needs a chat conversation, not a tap, and the dashboard doesn't pretend otherwise. Learning-parameter "approve": the one surface where a click IS the intended mechanism — moves an `escalated` parameter to `active` at its measured value via `smith_learning.user_force_approve`, which no-ops safely if the parameter has since moved out of `escalated` (a stale click never forces a value the user wasn't actually looking at). Thesis "confirm": logged as an observation only, never bumps `verified`. Thesis "override": requires a reason, writes `verified: "user_stated"` — a real, distinct evidence tier that can move a status but never masquerades as a sourced primary/secondary check. Catalyst "priced in": adds to `state.catalyst_suppressed`; smith-catalyst's dispatch prompt is told not to re-surface a suppressed (headline, date) pair.
 
-**Single-user assumption, stated so it's never rediscovered as a surprise**: `self.publish` runs with the clicking viewer's own authority. If this dashboard is ever shared, anyone with write access could inject a fake decision on any of the 9 surfaces — including a Thesis Override or a Learning-parameter Approve, both of which change what the system believes, not just what it measures. No access control exists; keep the artifact unshared.
+**Single-user assumption, stated so it's never rediscovered as a surprise**: a `db` write lands under the clicking viewer's own authority, and the default access rules give every signed-in viewer of a `db` artifact both read and write on the shared `decisions` collection. If this dashboard is ever shared, anyone with access could inject a fake decision on any of the 9 surfaces — including a Thesis Override or a Learning-parameter Approve, both of which change what the system believes, not just what it measures. No access-rule restriction is declared; keep the artifact unshared.
 
 ### 6. DASHBOARD ARTIFACT
 
@@ -156,7 +202,7 @@ pipeline`), then `score` → `proposals` → `stops` → `validate` individually
 
 **REGRESSION GUARD (2026-07-28, restated and now enforced in code).** v1's guard was a written instruction to diff before publishing, and it failed: `build()` ended up calling only 12 of its ~35 `_render_*` functions, so thirteen panels — thesis map, signal history, execution log, data-quality caveats, self-learning, stop-loss efficacy, watchlist setups, factor themes, trade triggers, diversifier bench, rotation analysis, retired proposals, open gaps — were defined, never called, and silently absent from the published page for weeks. Their unit tests all still passed, because each builder worked fine in isolation; nothing tested that it was *reached*. v2 replaces the instruction with a mechanism: `REQUIRED_KEYS` + `assert_payload_complete()` fail the build if a payload key goes missing, `tests/unit/test_smith_dashboard_payload.py` pins the floor, and `tests/verify_dashboard.sh` diffs the whole output against a golden master. **Still diff byte size before publishing** — but the guard no longer depends on someone remembering to.
 
-**PUBLISH — only if §1.7's sync ran AND succeeded this run** (hotfix 2026-09-14). If the frequency gate skipped it, or the fetch/sync failed, build `dashboard.html` locally, say "Dashboard: built, not republished (sync skipped)" in one line, and stop — republishing would silently discard any unsynced Accept/Reject/Hold clicks. Otherwise publish via the Artifact tool. **URL PERSISTENCE — critical**: if state.json has `artifact_url`, pass it as the tool's `url` parameter or a new session mints a NEW url; save the returned URL back to `artifact_url` after. Every publish must declare `capabilities: {"self": {}}` — that is what lets the Accept/Reject/Hold buttons republish the page with a decision embedded (§1.7 drains them next run). Both modes run the same builder; it is cheap and always reflects current state.
+**PUBLISH — republishing is safe any run, since 2026-09-16** (see DB MIGRATION above; supersedes the 2026-09-14 hotfix that made publish conditional on §1.7's sync — decisions live in the `db` capability now, not inside the page, so a fresh build can never clobber an unsynced click). Syncing first is still good practice (the freshly built page then reflects reconciled proposal/state changes), but is no longer required before publishing. Publish via the Artifact tool. **URL PERSISTENCE — critical**: if state.json has `artifact_url`, pass it as the tool's `url` parameter or a new session mints a NEW url; save the returned URL back to `artifact_url` after. Every publish must declare `capabilities: {"db": {}}` — that is what lets the Accept/Reject/Hold buttons write decisions (§1.7 drains them next run). Both modes run the same builder; it is cheap and always reflects current state.
 
 **HONESTY CONSTRAINTS baked into the charts — do not "fix" them to make numbers look cleaner:** (a) ledger rows whose `value_trust` is not `ok` are drawn ringed/hatched and EXCLUDED from scales and win/loss counts; (b) cumulative book-vs-SMH is deliberately NOT plotted while `external_flow_usd` is unpopulated, because a cumulative line would mix deposits with returns.
 

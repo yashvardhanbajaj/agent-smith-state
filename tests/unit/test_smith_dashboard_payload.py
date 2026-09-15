@@ -188,16 +188,20 @@ class TestHonestyConstraints:
 
 
 class TestRender:
-    def test_html_embeds_the_payload_and_an_empty_decisions_blob(self, payload):
+    def test_html_embeds_the_payload_and_declares_no_decisions_blob(self, payload):
+        """Decisions moved onto the `db` capability 2026-09-16 -- the page no longer embeds a
+        smith-decisions script tag at all; DEC is populated client-side from a db read."""
         html = sd.render_html(payload)
         assert '<script type="application/json" id="smith-payload">' in html
-        assert '<script type="application/json" id="smith-decisions">[]</script>' in html
+        assert 'id="smith-decisions"' not in html
 
-    def test_a_freshly_built_page_always_ships_decisions_empty(self, payload):
-        """SKILL.md §1.7: the sync step drains the live blob BEFORE the rebuild, so a new page
-        starting with anything else would silently replay already-applied decisions."""
+    def test_decisions_js_uses_the_db_capability_not_self_publish(self, payload):
+        """Rewritten 2026-09-16: no client-side self.publish/PRISTINE snapshot any more --
+        clicks write directly to db.collection("decisions")."""
         html = sd.render_html(payload)
-        assert html.count('id="smith-decisions">[]<') == 1
+        assert 'claude.use("db")' in html
+        assert "db.collection(\"decisions\")" in html
+        assert "window.claude.self" not in html and "PRISTINE" not in html
 
     def test_payload_json_cannot_close_its_own_script_tag(self):
         """Any `</` inside the data would end the tag early and dump the rest of the payload
