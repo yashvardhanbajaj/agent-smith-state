@@ -1036,8 +1036,11 @@ APP_JS = r"""<script>
    below is the single manifest, and each entry names its renderer. */
 
 var D = JSON.parse(document.getElementById("smith-payload").textContent);
-var DEC = (function(){ try { return JSON.parse(
-    document.getElementById("smith-decisions").textContent) || []; } catch(e){ return []; } })();
+// DEC starts empty and is populated asynchronously from the db capability's `decisions`
+// collection (DECISIONS_JS below) -- the first paint renders with no recorded decisions, then
+// re-renders once the db read resolves. See DECISIONS_JS's module docstring for why this
+// replaced the old synchronous smith-decisions script-tag blob.
+var DEC = [];
 
 /* ---------- formatting ---------- */
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){
@@ -2497,17 +2500,24 @@ document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeShee
 </script>"""
 
 
-# The decision round trip. Unlike v1 this does NOT string-surgery a row's markup -- rows are
-# rendered client-side from the decisions array, so a recorded decision simply re-renders as
-# recorded. Only the blob is swapped in the pristine source, which is the one thing
-# smith_math.py's sync-decisions actually parses. That removes v1's attribute-order landmine
-# entirely (see the module docstring).
+# The decision round trip -- rewritten 2026-09-16 onto the `db` runtime capability, replacing
+# the v2-original design (PRISTINE-snapshot + window.claude.self.publish, whole-page re-render
+# on every click). That design's cost fell on the READ side, not this file: every dashboard
+# sync fetched and parsed the ~600KB published page just to pull the decisions array back out
+# of it (~120K+ tokens per sync, twice in one FOMC-day run). A `db` document write/read is a
+# few hundred bytes each way and needs no page republish at all -- clicking Accept no longer
+# triggers a full-document self-publish, just one `decisions.add()`. Rows still render
+# client-side from the DEC array (decideBox, unchanged); DEC is now populated from a live db
+# read instead of a script-tag blob captured at load. `smith_math.py sync-decisions
+# --records-file` reads the same collection back on the orchestrator side (§1.7) via
+# `Artifact action:"read_db"`, replacing the WebFetch-the-whole-page path entirely.
 DECISIONS_JS = r"""<script>
 (function(){
-  var PRISTINE = document.documentElement.outerHTML;   // captured at load, never the live DOM
+  var db = null;
   function readOnly(msg){
     document.querySelectorAll(".decide").forEach(function(el){
       el.querySelectorAll("button,input,select").forEach(function(x){ x.disabled = true; }); });
+    if (document.querySelector(".ro-banner")) return;
     var b = document.createElement("div");
     b.className = "ro-banner";
     b.textContent = msg || "Read-only view — decisions cannot be recorded from here. " +
@@ -2515,13 +2525,21 @@ DECISIONS_JS = r"""<script>
     var w = document.getElementById("wrap");
     if (w) w.insertBefore(b, w.firstChild);
   }
-  if (!window.claude || !window.claude.self){
-    document.addEventListener("DOMContentLoaded", function(){ readOnly(); });
-    return;
-  }
+  function currentTab(){ return (location.hash || "").slice(1) || "command"; }
+  if (!window.claude || typeof window.claude.use !== "function"){ readOnly(); return; }
+  window.claude.use("db").then(function(ns){
+    db = ns;
+    if (!db){ readOnly(); return; }
+    return db.collection("decisions").get().then(function(snap){
+      DEC = snap.docs.map(function(d){ var v = Object.assign({}, d.data()); v.id = d.id; return v; });
+      if (typeof render === "function") render(currentTab());
+    });
+  }).catch(function(){ readOnly(); });
+
   document.body.addEventListener("click", function(ev){
     var btn = ev.target.closest(".decide button");
     if (!btn) return;
+    if (!db){ readOnly("Still connecting — try again in a moment, or reload."); return; }
     var g = btn.closest(".decide");
     var surface = g.getAttribute("data-surface");
     var elementId = g.getAttribute("data-element-id");
@@ -2543,27 +2561,18 @@ DECISIONS_JS = r"""<script>
     var ctrls = g.querySelectorAll("button,input,select");
     ctrls.forEach(function(x){ x.disabled = true; });
 
-    var arr;
-    var m = PRISTINE.match(
-      /<script type="application\/json" id="smith-decisions">([\s\S]*?)<\/script>/);
-    try { arr = m ? (JSON.parse(m[1]) || []) : []; } catch(e){ arr = []; }
-    arr.push(payload);
-    var newHtml = PRISTINE.replace(
-      /<script type="application\/json" id="smith-decisions">[\s\S]*?<\/script>/,
-      '<script type="application/json" id="smith-decisions">' +
-        JSON.stringify(arr).replace(/</g, "\\u003c") + "<\/script>");
-
-    // optimistic local confirmation; the reload after publish re-renders it from the blob
+    // optimistic local confirmation; the write lands in the background
     var span = document.createElement("span");
     span.className = "recorded";
     span.textContent = "Recorded: " + decision + (reason ? " — " + reason : "") +
       " (syncs on the next Agent Smith run)";
     g.replaceChildren(span);
 
-    window.claude.self.publish("<!doctype html>" + newHtml).catch(function(err){
+    db.collection("decisions").add(payload).then(function(ref){
+      DEC.push(Object.assign({id: ref.id}, payload));
+    }).catch(function(err){
       var code = err && err.code;
-      if (code === "conflict") return;
-      if (code === "not_writer" || code === "not_granted" || code === "consent_required"){
+      if (["not_granted", "capability_disabled", "capability_removed", "revoked"].indexOf(code) >= 0){
         readOnly(); return; }
       alert("That decision was not saved (" + (code || "unknown error") + "). Try again.");
     });
@@ -2601,8 +2610,7 @@ def render_html(payload):
         '<main class="wrap" id="wrap"></main>'
         '<div class="sheet-back" id="sheetback"></div>'
         '<aside class="sheet" id="sheet" tabindex="-1" aria-label="ticker detail"></aside>'
-        '<script type="application/json" id="smith-payload">' + blob + "</script>"
-        '<script type="application/json" id="smith-decisions">[]</script>' +
+        '<script type="application/json" id="smith-payload">' + blob + "</script>" +
         APP_JS + DECISIONS_JS
     )
 

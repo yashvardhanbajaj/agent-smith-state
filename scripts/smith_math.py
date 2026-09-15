@@ -4371,10 +4371,28 @@ def _extract_decisions(html):
     return parsed if isinstance(parsed, list) else []
 
 
+def _decisions_from_records_file(path):
+    """Reads the decisions[] array from a JSON file the orchestrator wrote after an
+    `Artifact action:"read_db"` call against the dashboard's `decisions` collection (added
+    2026-09-16, replacing the WebFetch-the-whole-page path -- see `--records-file` below).
+    Each record's `id` (the db document id) is harmless extra data to the per-decision loop,
+    which only reads the fields it already knows. Malformed/absent -> [], same contract as
+    `_extract_decisions`."""
+    try:
+        with open(path) as f:
+            parsed = json.load(f)
+    except (OSError, ValueError):
+        return []
+    return parsed if isinstance(parsed, list) else []
+
+
 def cmd_sync_decisions(args):
-    with open(args.html_file) as f:
-        html = f.read()
-    decisions = _extract_decisions(html)
+    if getattr(args, "records_file", None):
+        decisions = _decisions_from_records_file(args.records_file)
+    else:
+        with open(args.html_file) as f:
+            html = f.read()
+        decisions = _extract_decisions(html)
     today = str(resolve_today(args.today))
 
     import copy
@@ -5085,7 +5103,13 @@ def main():
     sp = sub.add_parser("sync-decisions",
                         help="reconcile the interactive dashboard's accumulated button clicks")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
-    sp.add_argument("--html-file", required=True, help="fetched dashboard HTML (WebFetch output saved to disk)")
+    src = sp.add_mutually_exclusive_group(required=True)
+    src.add_argument("--records-file",
+                     help="JSON array from Artifact action:read_db against the dashboard's "
+                          "decisions collection, saved to disk (the current path, added "
+                          "2026-09-16 -- replaces the whole-page WebFetch)")
+    src.add_argument("--html-file", help="LEGACY: fetched dashboard HTML (WebFetch output saved "
+                                         "to disk) from before decisions moved to the db capability")
     sp.add_argument("--today", default=None)
 
     args = p.parse_args()

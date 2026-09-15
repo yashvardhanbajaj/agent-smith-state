@@ -122,6 +122,33 @@ def test_sync_decisions_rolls_back_a_failing_decision_and_does_not_stamp(tmp_pat
     assert "dashboard_last_synced_ts" not in st
 
 
+def test_sync_decisions_reads_records_file_the_same_way_as_html(tmp_path):
+    # records-file (added 2026-09-16, replaces WebFetching the whole dashboard page) feeds the
+    # same per-decision loop as --html-file -- prove it reconciles a proposal reject identically.
+    (tmp_path / "proposals.json").write_text(json.dumps({"proposals": [{"id": "P-1", "status": "open"}],
+                                                        "scorecard": {}}))
+    (tmp_path / "state.json").write_text(json.dumps({"k": 1}))
+    records = tmp_path / "records.json"
+    records.write_text(json.dumps([
+        {"id": "abc123", "surface": "proposal", "element_id": "P-1", "decision": "reject",
+         "reason": "no longer relevant"}]))
+    out = _emit(smm.cmd_sync_decisions, Namespace(base_dir=str(tmp_path),
+                                                  records_file=str(records), html_file=None,
+                                                  today="2026-09-16"))
+    assert out["ok"] is True
+    assert json.loads((tmp_path / "proposals.json").read_text())["proposals"][0]["status"] == "dismissed_by_user"
+
+
+def test_decisions_from_records_file_tolerates_missing_or_malformed(tmp_path):
+    assert smm._decisions_from_records_file(str(tmp_path / "nope.json")) == []
+    bad = tmp_path / "bad.json"
+    bad.write_text("not json")
+    assert smm._decisions_from_records_file(str(bad)) == []
+    not_a_list = tmp_path / "obj.json"
+    not_a_list.write_text(json.dumps({"surface": "x"}))
+    assert smm._decisions_from_records_file(str(not_a_list)) == []
+
+
 def _trades(tmp_path):
     (tmp_path / "trades.json").write_text(json.dumps({"trades": [
         {"ticker": "MU", "date": "2026-09-10", "qty_change": 2, "reason": "UNCAPTURED",

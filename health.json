@@ -1,10 +1,11 @@
 {
   "ok": false,
-  "as_of": "2026-09-15T07:40:08Z",
+  "as_of": "2026-09-15T19:21:19Z",
   "problems": [
-    "1 scheduled run(s) in the last 10 days left no or partial artefacts: 2026-09-11 MISSING"
+    "1 scheduled run(s) in the last 10 days left no or partial artefacts: 2026-09-11 MISSING",
+    "skill/ mirror differs from live config (reference/dashboard.md) -- run skill/sync-from-live.sh"
   ],
-  "headline": "Health: 1 problem(s) -- 1 scheduled run(s) in the last 10 days left no or partial artefacts: 2026-09-11 MISSING",
+  "headline": "Health: 2 problem(s) -- 1 scheduled run(s) in the last 10 days left no or partial artefacts: 2026-09-11 MISSING",
   "missed_runs": [
     {
       "date": "2026-09-11",
@@ -22,19 +23,29 @@
     "age_min": 0.0,
     "heartbeat_age_min": 0.0,
     "holder": {
-      "run_id": "2026-09-15-0740Z",
-      "mode": "deep",
+      "run_id": "2026-09-15-1921Z",
+      "mode": "quick",
       "run_dir": null,
-      "acquired_utc": "2026-09-15T07:40:08Z",
-      "heartbeat_utc": "2026-09-15T07:40:08Z",
-      "steals": []
+      "acquired_utc": "2026-09-15T19:21:19Z",
+      "heartbeat_utc": "2026-09-15T19:21:19Z",
+      "steals": [
+        {
+          "from_run_id": "2026-09-15-0907Z",
+          "kind": "smith",
+          "age_min": 614.1,
+          "heartbeat_age_min": 614.1,
+          "stolen_utc": "2026-09-15T19:21:19Z"
+        }
+      ]
     }
   },
-  "last_ledger_row_age_h": 12.7,
+  "last_ledger_row_age_h": 10.7,
   "uncommitted_runs": [],
   "mirror": {
     "checked": true,
-    "stale": false,
-    "differs": []
+    "stale": true,
+    "differs": [
+      "reference/dashboard.md"
+    ]
   }
 }

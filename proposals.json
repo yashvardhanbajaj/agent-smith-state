@@ -8321,7 +8321,7 @@
       "rationale": "REFRESH of open P-256. catalyst_threat: CXMT HBM3E risk-production report, 9 days old (2026-09-01), re-stamped not re-verified 2026-09-07, single secondary source (techtimes.com), risk/qualification-stage only, not in supplier contract pricing. gaps-checked (smith_math.py gaps --query CXMT unverified catalyst): no exact precedent, closest are G30 (CXMT catalyst-monitoring gap) and G58 (unverified-claims evidence gate). Watch thesis, cluster at $0 ceiling room, cap-independent by design.",
       "trigger_type": "catalyst_threat",
       "date": "2026-09-10",
-      "status": "open",
+      "status": "dismissed_by_user",
       "benchmark_price_at_proposal": 574.29,
       "benchmark_ticker": "SMH",
       "id": "P-261",
@@ -8334,7 +8334,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-09T00:00:00Z, still open",
+      "note": "recommended 2x since 2026-09-09T00:00:00Z, still open | dismissed by user 2026-09-15T14:40+05:30: user 2026-09-15: superseded by P-305 (Sell ASML, cluster_rotation vs TSM)",
       "priority_score": 4,
       "priority": "HIGH",
       "priority_reasons": [
@@ -8353,28 +8353,8 @@
       "revalidated_on": "2026-09-15",
       "retires_when": "ASML no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
       "date_raw": "2026-09-10T00:00:00Z",
-      "stacks_on": {
-        "accepted_id": null,
-        "accepted_size_usd": null,
-        "member_ids": [
-          "P-261",
-          "P-305"
-        ],
-        "open_ids": [
-          "P-261",
-          "P-305"
-        ],
-        "accepted_ids": [],
-        "sides_merged": [
-          "SELL",
-          "TRIM"
-        ],
-        "combined_usd": 1267.09,
-        "position_usd": 2782.37,
-        "combined_pct_of_position": 45.5,
-        "side": "REDUCE",
-        "severity": "note"
-      }
+      "dismissed_by": "user",
+      "dismiss_reason": "user 2026-09-15: superseded by P-305 (Sell ASML, cluster_rotation vs TSM)"
     },
     {
       "action": "Trim MU",
@@ -8485,7 +8465,7 @@
       "rationale": "REFRESH of open P-257. Same CXMT catalyst_threat. TENSION FLAG: AMAT also carries open BUY P-231 ($400, conviction_average, RSI14 33.3 oversold, thesis strengthening, rotation bucket null -- not accumulate, so 2a-i does not shield it from this trim). Both live and cap-independent of each other's logic; net effect if both execute is roughly a wash (~$118 net buy). Recommend the user pick one direction.",
       "trigger_type": "catalyst_threat",
       "date": "2026-09-10",
-      "status": "open",
+      "status": "dismissed_by_user",
       "benchmark_price_at_proposal": 574.29,
       "benchmark_ticker": "SMH",
       "id": "P-264",
@@ -8498,7 +8478,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-09T00:00:00Z, still open",
+      "note": "recommended 2x since 2026-09-09T00:00:00Z, still open | dismissed by user 2026-09-15T14:40+05:30: user 2026-09-15: contradicts P-314 (Buy AMAT, oversold_reversion); strategist retired its stale CXMT basis",
       "priority_score": 4,
       "priority": "HIGH",
       "priority_reasons": [
@@ -8516,7 +8496,9 @@
       "review_flags": [],
       "revalidated_on": "2026-09-15",
       "retires_when": "AMAT no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
-      "date_raw": "2026-09-10T00:00:00Z"
+      "date_raw": "2026-09-10T00:00:00Z",
+      "dismissed_by": "user",
+      "dismiss_reason": "user 2026-09-15: contradicts P-314 (Buy AMAT, oversold_reversion); strategist retired its stale CXMT basis"
     },
     {
       "action": "Trim SKHY",
@@ -10196,29 +10178,7 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-15",
-      "retires_when": "the cluster_rotation pairing cluster_rotation-ASML-TSM is no longer live this run -- both legs retire together, never one alone",
-      "stacks_on": {
-        "accepted_id": null,
-        "accepted_size_usd": null,
-        "member_ids": [
-          "P-261",
-          "P-305"
-        ],
-        "open_ids": [
-          "P-261",
-          "P-305"
-        ],
-        "accepted_ids": [],
-        "sides_merged": [
-          "SELL",
-          "TRIM"
-        ],
-        "combined_usd": 1267.09,
-        "position_usd": 2782.37,
-        "combined_pct_of_position": 45.5,
-        "side": "REDUCE",
-        "severity": "note"
-      }
+      "retires_when": "the cluster_rotation pairing cluster_rotation-ASML-TSM is no longer live this run -- both legs retire together, never one alone"
     },
     {
       "action": "Buy TSM",

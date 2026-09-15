@@ -3809,8 +3809,8 @@
       "META": "2026-09-14",
       "NVDA": "2026-09-14",
       "SKHY": "2026-09-14",
-      "SNDK": "2026-09-14",
-      "SMCI": "2026-09-14"
+      "SMCI": "2026-09-14",
+      "ONTO": "2026-09-15"
     },
     "last_seen": {
       "VRT": "2026-09-15",
@@ -3979,6 +3979,29 @@
       "status": "open"
     },
     {
+      "id": "G96",
+      "description": "narrative.json (dashboard READ section) has no owner, TTL, or freshness check, so it silently serves stale prose from a prior day as if it were this run's judgment. Found 2026-09-15: the published dashboard's READ panel was verbatim 2026-09-09T14:36Z priced-refresh text (cash breach 2.71%, SELL MSFT/BUY KLAC pair, VRT/META intraday moves) rendered under a 2026-09-14 18:23Z run's meta/positions -- the two had been silently diverging for 5 days because no run in between wrote a fresh narrative.json (it is optional per SKILL.md S6 and nothing enforces it). User caught the mismatch by inspection, not any system check.",
+      "opened": "2026-09-15",
+      "owner": "orchestrator"
+    },
+    {
+      "id": "G98",
+      "opened": "2026-09-15",
+      "owner": "orchestrator / policy.cluster_playbooks",
+      "status": "open",
+      "description": "NBIS (neocloud: sells GPU capacity to MSFT/Meta, funded by a floating SOFR+2.50% secured facility plus a $5B convert) sits in the 'Compute/Hyperscaler' cluster alongside MSFT/GOOG/AMZN, which BUY capacity and largely self-fund. smith-cluster (2026-09-15) measured NBIS at ~54% of the cluster's weight x ATR20 risk proxy on a 3.2% weight, so the cluster's 'below 15% target / ~$3,800 room' figure treats a financing-and-rate-exposed neocloud dollar as equivalent to an MSFT dollar. Drift, cluster_room sizing and the hyperscaler ladder all inherit the mix.",
+      "next_step": "User decision: either split a 'Neocloud' sub-cluster (NBIS, plus bench CRWV/IREN) with its own target/band in policy.cluster_playbooks, or add a financing_risk tag that sizing respects. Do not change policy.json without explicit instruction."
+    },
+    {
+      "id": "G97",
+      "description": "state.sentiment and state.risk_off_status were never in _stage_run_block's staged keys, so postflight commit (the only path that writes state.json since the 2026-09-14 overhaul) never refreshed them -- both sat frozen at whatever a pre-postflight run last hand-staged. Found live 2026-09-15: the dashboard Sentiment panel showed score 65.7 with three components stuck at exactly 50.0, while this run's own compute_sentiment.json already had the real read (71.2, no defaulted components). risk_off_status shared the identical bug but happened to already read \"normal\", matching this run's real compute_drift.json value by coincidence -- a materially more dangerous latent failure mode (a stale \"normal\" during a real risk-off session would silently mask it) that was never actually wrong yet, so nothing would have caught it without this investigation.",
+      "opened": "2026-09-15",
+      "owner": "orchestrator",
+      "closed": "2026-09-15",
+      "resolution": "_stage_run_block (smith_orchestrate.py) now stages both fields every run: sentiment from compute_sentiment.json (score/band/components), risk_off_status from compute_drift.json. Also backfilled this run's state.json sentiment by hand (risk_off_status needed no backfill, value was already correct). Dashboard payload additionally now reads sent_note/sent_action_hint/sent_prior_band fresh from the run dir's compute_sentiment.json each build (display-only, no persisted schema slot, so no reason to round-trip through state).",
+      "status": "closed"
+    },
+    {
       "id": "G94",
       "description": "cmd_ledger_apply wrote rows in a side/action/unsigned-qty shape but cmd_lots' FIFO consumer only ever reads the legacy signed qty_change field -- every row written since the 2026-09-06 script-first ledger rewrite was silently invisible to FIFO, `.get('qty_change') or 0` defaulting a missing field to 0 rather than erroring.",
       "opened": "2026-09-10",
@@ -4045,38 +4068,6 @@
       "closed": "2026-09-07",
       "resolution": "Seeded state.us_market_holidays with the full 2026 NYSE calendar (12 entries: 10 full closures plus 2 early-close days -- day after Thanksgiving and Christmas Eve -- each date computed directly via the standard NYSE observance rules, e.g. Independence Day observed Fri 2026-07-03 since July 4 falls on a Saturday). SKILL.md step 1.6's HOLIDAY CALENDAR CHECK can now function as documented instead of relying on the orchestrator's own calendar knowledge. Per SKILL.md, this needs re-seeding annually -- flag for a 2027 refresh near year-end.",
       "closed_by": "gap-audit 2026-09-07"
-    },
-    {
-      "id": "G91",
-      "description": "compute_book.json's pnl_pct returned null on the 2026-09-07-0741 run -- root-caused: cmd_book NEVER derives pnl_pct itself (totals.get('pnl_pct') only, no fallback), and every normal orchestrator-built holdings.json (checked runs/2026-09-03-1845, 2026-08-31-1554) always precomputes and supplies it directly from networth_holdings' asset_summary (invested_usd vs total_value_usd) -- there is no 'invested' figure in totals at all for a fallback to use. This was MY OWN ad-hoc holdings.json build (the live tokenomics-demo run) omitting that precompute step, not a script defect. Corrected here rather than left mischaracterized. Closing.",
-      "opened": "2026-09-07",
-      "owner": "orchestrator",
-      "status": "closed",
-      "closed": "2026-09-07",
-      "resolution": "Root-caused as an ad-hoc holdings.json build gap, not a script defect -- no code change needed. Corrected the mischaracterization in this entry rather than leaving it standing as a false product-bug report."
-    },
-    {
-      "id": "G96",
-      "description": "narrative.json (dashboard READ section) has no owner, TTL, or freshness check, so it silently serves stale prose from a prior day as if it were this run's judgment. Found 2026-09-15: the published dashboard's READ panel was verbatim 2026-09-09T14:36Z priced-refresh text (cash breach 2.71%, SELL MSFT/BUY KLAC pair, VRT/META intraday moves) rendered under a 2026-09-14 18:23Z run's meta/positions -- the two had been silently diverging for 5 days because no run in between wrote a fresh narrative.json (it is optional per SKILL.md S6 and nothing enforces it). User caught the mismatch by inspection, not any system check.",
-      "opened": "2026-09-15",
-      "owner": "orchestrator"
-    },
-    {
-      "id": "G97",
-      "description": "state.sentiment and state.risk_off_status were never in _stage_run_block's staged keys, so postflight commit (the only path that writes state.json since the 2026-09-14 overhaul) never refreshed them -- both sat frozen at whatever a pre-postflight run last hand-staged. Found live 2026-09-15: the dashboard Sentiment panel showed score 65.7 with three components stuck at exactly 50.0, while this run's own compute_sentiment.json already had the real read (71.2, no defaulted components). risk_off_status shared the identical bug but happened to already read \"normal\", matching this run's real compute_drift.json value by coincidence -- a materially more dangerous latent failure mode (a stale \"normal\" during a real risk-off session would silently mask it) that was never actually wrong yet, so nothing would have caught it without this investigation.",
-      "opened": "2026-09-15",
-      "owner": "orchestrator",
-      "closed": "2026-09-15",
-      "resolution": "_stage_run_block (smith_orchestrate.py) now stages both fields every run: sentiment from compute_sentiment.json (score/band/components), risk_off_status from compute_drift.json. Also backfilled this run's state.json sentiment by hand (risk_off_status needed no backfill, value was already correct). Dashboard payload additionally now reads sent_note/sent_action_hint/sent_prior_band fresh from the run dir's compute_sentiment.json each build (display-only, no persisted schema slot, so no reason to round-trip through state).",
-      "status": "closed"
-    },
-    {
-      "id": "G98",
-      "opened": "2026-09-15",
-      "owner": "orchestrator / policy.cluster_playbooks",
-      "status": "open",
-      "description": "NBIS (neocloud: sells GPU capacity to MSFT/Meta, funded by a floating SOFR+2.50% secured facility plus a $5B convert) sits in the 'Compute/Hyperscaler' cluster alongside MSFT/GOOG/AMZN, which BUY capacity and largely self-fund. smith-cluster (2026-09-15) measured NBIS at ~54% of the cluster's weight x ATR20 risk proxy on a 3.2% weight, so the cluster's 'below 15% target / ~$3,800 room' figure treats a financing-and-rate-exposed neocloud dollar as equivalent to an MSFT dollar. Drift, cluster_room sizing and the hyperscaler ladder all inherit the mix.",
-      "next_step": "User decision: either split a 'Neocloud' sub-cluster (NBIS, plus bench CRWV/IREN) with its own target/band in policy.cluster_playbooks, or add a financing_risk tag that sizing respects. Do not change policy.json without explicit instruction."
     }
   ],
   "sentiment": {
@@ -5745,7 +5736,7 @@
       }
     }
   },
-  "latest_run_dir": "runs/2026-09-15-0740Z",
+  "latest_run_dir": "runs/2026-09-15-1921Z",
   "rebound_candidates": {
     "as_of": "2026-09-15",
     "correction_state": "pullback",

@@ -1,7 +1,7 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**91 total gaps** -- 16 open, 75 archived (closed).
+**91 total gaps** -- 15 open, 76 archived (closed).
 
 ---
 
@@ -819,7 +819,7 @@ FMP plan tier blocks `statements` (key-metrics/financial-scores) for this book's
 
 ---
 
-## G91 -- OPEN
+## G91 -- closed
 **Opened:** 2026-09-07  **Owner:** orchestrator  **Closed:** 2026-09-07  
 
 compute_book.json's pnl_pct returned null on the 2026-09-07-0741 run -- root-caused: cmd_book NEVER derives pnl_pct itself (totals.get('pnl_pct') only, no fallback), and every normal orchestrator-built holdings.json (checked runs/2026-09-03-1845, 2026-08-31-1554) always precomputes and supplies it directly from networth_holdings' asset_summary (invested_usd vs total_value_usd) -- there is no 'invested' figure in totals at all for a fallback to use. This was MY OWN ad-hoc holdings.json build (the live tokenomics-demo run) omitting that precompute step, not a script defect. Corrected here rather than left mischaracterized. Closing.

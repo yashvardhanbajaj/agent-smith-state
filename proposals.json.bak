@@ -6162,7 +6162,7 @@
       "direction_bucket": "BUY",
       "size_usd": 341.56,
       "price_at_proposal": 461.67,
-      "rationale": "Highest conviction_score in the book at 34.3 and the only name firing conviction_average and oversold_reversion together: RSI14 33.3, strengthening thesis, -3.12pp vs SMH, +18.7pct to mean target, cap_multiple 0.45 so it is well inside its own risk cap. The cycle logic is the reason this is the buy rather than a levered supplier: smith-cycle calls the position LATE-BY-COST -- margins peaking on memory input cost while physical demand still accelerates -- and its single strongest evidence_AGAINST a late read is upstream semicap, where lead times are EXTENDING (etch and deposition doubled to 12 months, packaging/test beyond 18) and ASML and KLA are both raising capacity plans. AMAT is upstream equipment: it is paid by the capex being committed, it is not the name absorbing the memory cost inflation, and it carries none of the debt-funded-growth flags smith-quality raised against AMZN, BE or INTC. If the late call is right, this is the part of the chain that is late last.",
+      "rationale": "Highest conviction_score in the book at 34.3 and the only name firing conviction_average and oversold_reversion together: RSI14 33.3, strengthening thesis, -3.12pp vs SMH, +18.7pct to mean target, cap_multiple 0.45 so it is well inside its own risk cap. The cycle logic is the reason this is the buy rather than a levered supplier: smith-cycle calls the position LATE-BY-COST -- margins peaking on memory input cost while physical demand still accelerates -- and its single strongest evidence_AGAINST a late read is upstream semicap, where lead times are EXTENDING (etch and deposition doubled to 12 months, packaging/test beyond 18) and ASML and KLA are both raising capacity plans. AMAT is upstream\u2026",
       "trigger_type": "conviction_average",
       "date": "2026-08-31",
       "status": "auto_retired",
@@ -6187,7 +6187,8 @@
       "date_raw": "2026-08-31T00:00:00Z",
       "retired_on": "2026-09-14",
       "retired_reason": "(accepted, never executed) AMAT no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared",
-      "note": "auto-retired 2026-09-14: (accepted, never executed) AMAT no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared"
+      "note": "auto-retired 2026-09-14: (accepted, never executed) AMAT no longer appears in this run's live conviction_average list -- the condition this buy was sized against has cleared",
+      "text_archived": "proposals-text-archive.json"
     },
     {
       "action": "Sell FLTW",
@@ -8320,7 +8321,7 @@
       "rationale": "REFRESH of open P-256. catalyst_threat: CXMT HBM3E risk-production report, 9 days old (2026-09-01), re-stamped not re-verified 2026-09-07, single secondary source (techtimes.com), risk/qualification-stage only, not in supplier contract pricing. gaps-checked (smith_math.py gaps --query CXMT unverified catalyst): no exact precedent, closest are G30 (CXMT catalyst-monitoring gap) and G58 (unverified-claims evidence gate). Watch thesis, cluster at $0 ceiling room, cap-independent by design.",
       "trigger_type": "catalyst_threat",
       "date": "2026-09-10",
-      "status": "open",
+      "status": "dismissed_by_user",
       "benchmark_price_at_proposal": 574.29,
       "benchmark_ticker": "SMH",
       "id": "P-261",
@@ -8333,7 +8334,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-09T00:00:00Z, still open",
+      "note": "recommended 2x since 2026-09-09T00:00:00Z, still open | dismissed by user 2026-09-15T14:40+05:30: user 2026-09-15: superseded by P-305 (Sell ASML, cluster_rotation vs TSM)",
       "priority_score": 4,
       "priority": "HIGH",
       "priority_reasons": [
@@ -8373,7 +8374,9 @@
         "combined_pct_of_position": 45.5,
         "side": "REDUCE",
         "severity": "note"
-      }
+      },
+      "dismissed_by": "user",
+      "dismiss_reason": "user 2026-09-15: superseded by P-305 (Sell ASML, cluster_rotation vs TSM)"
     },
     {
       "action": "Trim MU",
@@ -8484,7 +8487,7 @@
       "rationale": "REFRESH of open P-257. Same CXMT catalyst_threat. TENSION FLAG: AMAT also carries open BUY P-231 ($400, conviction_average, RSI14 33.3 oversold, thesis strengthening, rotation bucket null -- not accumulate, so 2a-i does not shield it from this trim). Both live and cap-independent of each other's logic; net effect if both execute is roughly a wash (~$118 net buy). Recommend the user pick one direction.",
       "trigger_type": "catalyst_threat",
       "date": "2026-09-10",
-      "status": "open",
+      "status": "dismissed_by_user",
       "benchmark_price_at_proposal": 574.29,
       "benchmark_ticker": "SMH",
       "id": "P-264",
@@ -8497,7 +8500,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-09T00:00:00Z, still open",
+      "note": "recommended 2x since 2026-09-09T00:00:00Z, still open | dismissed by user 2026-09-15T14:40+05:30: user 2026-09-15: contradicts P-314 (Buy AMAT, oversold_reversion); strategist retired its stale CXMT basis",
       "priority_score": 4,
       "priority": "HIGH",
       "priority_reasons": [
@@ -8515,7 +8518,9 @@
       "review_flags": [],
       "revalidated_on": "2026-09-15",
       "retires_when": "AMAT no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
-      "date_raw": "2026-09-10T00:00:00Z"
+      "date_raw": "2026-09-10T00:00:00Z",
+      "dismissed_by": "user",
+      "dismiss_reason": "user 2026-09-15: contradicts P-314 (Buy AMAT, oversold_reversion); strategist retired its stale CXMT basis"
     },
     {
       "action": "Trim SKHY",
@@ -8996,7 +9001,7 @@
       "direction_bucket": "BUY",
       "size_usd": 795.51,
       "price_at_proposal": 456.49,
-      "rationale": "Consolidated: oversold_reversion (RSI14 33.3<35, live) + conviction_average (score 28.3, support-anchored stop $411.21, thesis strengthening/secondary-verified, both live today) both fire BUY on AMAT -- sized to the larger, cap-headroom-bound oversold figure rather than stacking two separate AMAT buys. NOTE: AMAT is simultaneously named in a live catalyst_threat TRIM (CXMT HBM3E structural risk, $274.64, 20pct, still open as P-264) -- that evidence is unchanged since 2026-09-07 (stale, qualification-stage only, no fresh price reaction), while the RSI dip and conviction score are fresh. My call: prioritize this bounce entry: keep P-264 open as a standing structural hedge, don't let it block the technical add. Net book exposure to AMAT is roughly flat if both execute. Supersedes P-231 (old single-trigger sizing, $400).",
+      "rationale": "Consolidated: oversold_reversion (RSI14 33.3<35, live) + conviction_average (score 28.3, support-anchored stop $411.21, thesis strengthening/secondary-verified, both live today) both fire BUY on AMAT -- sized to the larger, cap-headroom-bound oversold figure rather than stacking two separate AMAT buys. NOTE: AMAT is simultaneously named in a live catalyst_threat TRIM (CXMT HBM3E structural risk, $274.64, 20pct, still open as P-264) -- that evidence is unchanged since 2026-09-07 (stale, qualification-stage only, no fresh price reaction), while the RSI dip and conviction score are fresh. My call: prioritize this bounce entry: keep P-264 open as a standing structural hedge, don't let it block t\u2026",
       "trigger_type": "oversold_reversion",
       "date": "2026-09-14",
       "status": "superseded",
@@ -9021,7 +9026,8 @@
       "revalidated_on": "2026-09-14",
       "retires_when": "AMAT RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening",
       "date_raw": "2026-09-14T00:00:00Z",
-      "note": "auto-superseded 2026-08-03 -- folded into P-314 as a repeat of the same open proposal"
+      "note": "auto-superseded 2026-08-03 -- folded into P-314 as a repeat of the same open proposal",
+      "text_archived": "proposals-text-archive.json"
     },
     {
       "action": "Buy NVDA",
@@ -9398,7 +9404,7 @@
       "direction_bucket": "SELL",
       "size_usd": 309.68,
       "price_at_proposal": 516.13,
-      "rationale": "cluster_rotation refresh (ladder-driven, medium confidence, 6d old): AMD ranks #8 of 10 in AI Semis/Fabs (laggard) -- guide-down read below consensus (08-11) plus a $5bn debt raise (08-14) levering the balance sheet to fund capex it doesn't own; explicitly overriding the ladder's own qualifier that this is the rank most at odds with fresh price action. Refreshes P-268 ($468.99): AMD received a partial stop-trim in the 09-10 cascade, so today's recompute on the now-smaller position sizes correctly at $309.68. Supersedes P-268. [Desk note 2026-09-14: this sell leg's buy-leg partner was P-287, which the lifecycle dedup logic auto-superseded into P-285 (profit_rotation-NBIS-KLAC) the same run it was created -- a same-ticker/same-direction/same-day merge that dropped the pair_id link. P-285 has been manually resized to $444.41 to fund both rotations combined; treat P-285 as this sell leg's buy-leg partner going forward, not P-287.]",
+      "rationale": "cluster_rotation refresh (ladder-driven, medium confidence, 6d old): AMD ranks #8 of 10 in AI Semis/Fabs (laggard) -- guide-down read below consensus (08-11) plus a $5bn debt raise (08-14) levering the balance sheet to fund capex it doesn't own; explicitly overriding the ladder's own qualifier that this is the rank most at odds with fresh price action. Refreshes P-268 ($468.99): AMD received a partial stop-trim in the 09-10 cascade, so today's recompute on the now-smaller position sizes correctly at $309.68. Supersedes P-268. [Desk note 2026-09-14: this sell leg's buy-leg partner was P-287, which the lifecycle dedup logic auto-superseded into P-285 (profit_rotation-NBIS-KLAC) the same run it\u2026",
       "trigger_type": "cluster_rotation",
       "date": "2026-09-14",
       "status": "auto_retired",
@@ -9427,7 +9433,8 @@
       "date_raw": "2026-09-14T00:00:00Z",
       "retired_on": "2026-09-14",
       "retired_reason": "the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
-      "note": "auto-retired 2026-09-14: the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone"
+      "note": "auto-retired 2026-09-14: the cluster_rotation pairing this leg belongs to is no longer live this run -- both legs of a rotation retire together, never one alone",
+      "text_archived": "proposals-text-archive.json"
     },
     {
       "action": "Buy KLAC",
@@ -9950,7 +9957,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-14",
-      "retires_when": "KLAC no longer appears in this run's live conviction_average list"
+      "retires_when": "KLAC no longer appears in this run's live conviction_average list",
+      "text_archived": "proposals-text-archive.json"
     },
     {
       "action": "Buy CIEN",
@@ -10084,7 +10092,7 @@
       "direction_bucket": "BUY",
       "size_usd": 340.61,
       "price_at_proposal": 222.32,
-      "rationale": "User-prompted re-entry-after-stop review. MRVL was stopped out this morning (4sh @ $216.65, real stop-loss fill) then named by smith-catalyst as one of the two names hit hardest by today's Amodei AI-pacing sentiment shock (-7% same-day, alongside AVGO) -- a multiple-compression read, not a fundamental one (no guidance cut, no company-specific bad news found). Thesis remains strengthening (secondary-verified: Q2 FY26 beat, G44 interest-coverage scare resolved; against: rising SBC/dilution trend, 3 insiders sold in 60d). compute_triggers.json already carries a live conviction_average BUY (score 59.3, medium tier) with support $207.46 and stop $191.70 -- size clamped to $340.61 by ATR headroom (wanted $603.26), meaning the position is already large relative to its risk cap even after this morning's partial stop-out (was the #1 risk-share holding in the book pre-stop). Re-buying the full 4 shares now ($889) would be buying back above the $216.65 exit price (a whipsaw cost) and re-concentrating into an already-large, beta-1.405 position during an ESCALATING gate with FOMC 2 days out. Recommend the smaller, system-clamped size now (or on a dip toward the $207-212 support band), holding the rest until after the 2026-09-16 FOMC outcome -- same staging logic already applied to MSFT/TSM today.",
+      "rationale": "User-prompted re-entry-after-stop review. MRVL was stopped out this morning (4sh @ $216.65, real stop-loss fill) then named by smith-catalyst as one of the two names hit hardest by today's Amodei AI-pacing sentiment shock (-7% same-day, alongside AVGO) -- a multiple-compression read, not a fundamental one (no guidance cut, no company-specific bad news found). Thesis remains strengthening (secondary-verified: Q2 FY26 beat, G44 interest-coverage scare resolved; against: rising SBC/dilution trend, 3 insiders sold in 60d). compute_triggers.json already carries a live conviction_average BUY (score 59.3, medium tier) with support $207.46 and stop $191.70 -- size clamped to $340.61 by ATR headroom \u2026",
       "trigger_type": "conviction_average",
       "date": "2026-09-14",
       "created_utc": "2026-09-14T19:09:20Z",
@@ -10109,7 +10117,8 @@
       "review_flags": [],
       "revalidated_on": "2026-09-14",
       "retires_when": "MRVL no longer appears in this run's live conviction_average list",
-      "note": "auto-superseded 2026-08-03 -- folded into P-317 as a repeat of the same open proposal"
+      "note": "auto-superseded 2026-08-03 -- folded into P-317 as a repeat of the same open proposal",
+      "text_archived": "proposals-text-archive.json"
     },
     {
       "action": "Trim VRT",
