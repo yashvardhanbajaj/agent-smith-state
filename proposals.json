@@ -4972,10 +4972,10 @@
         "accepted_size_usd": 150,
         "member_ids": [
           "P-149",
-          "P-333"
+          "P-344"
         ],
         "open_ids": [
-          "P-333"
+          "P-344"
         ],
         "accepted_ids": [
           "P-149"
@@ -4983,9 +4983,9 @@
         "sides_merged": [
           "BUY"
         ],
-        "combined_usd": 750,
+        "combined_usd": 650,
         "position_usd": 1251.66,
-        "combined_pct_of_position": 59.9,
+        "combined_pct_of_position": 51.9,
         "side": "ADD",
         "severity": "note"
       }
@@ -10263,7 +10263,7 @@
       "trigger_type": "cluster_rotation",
       "date": "2026-09-15T14:06:53+05:30",
       "created_utc": "2026-09-15T08:36:53Z",
-      "status": "open",
+      "status": "superseded",
       "benchmark_price_at_proposal": 544.15,
       "benchmark_ticker": "SMH",
       "pair_id": "cluster_rotation-ASML-TSM",
@@ -10292,7 +10292,8 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-16",
-      "retires_when": "the cluster_rotation pairing cluster_rotation-ASML-TSM is no longer live this run -- both legs retire together, never one alone"
+      "retires_when": "the cluster_rotation pairing cluster_rotation-ASML-TSM is no longer live this run -- both legs retire together, never one alone",
+      "note": "auto-superseded 2026-08-03 -- folded into P-340 as a repeat of the same open proposal"
     },
     {
       "action": "Sell GEV",
@@ -11057,7 +11058,7 @@
       "trigger_type": "catalyst_threat",
       "date": "2026-09-16",
       "created_utc": "2026-09-16T19:07:01Z",
-      "status": "open",
+      "status": "dismissed_by_desk",
       "cluster": "AI Power/Cooling/DC Infra",
       "price_check": {
         "supplied": 921.11,
@@ -11082,7 +11083,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-16",
-      "retires_when": "GEV no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "GEV no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "dismissed_by": "desk",
+      "dismiss_reason": "Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch",
+      "note": "dismissed by desk 2026-09-17T00:51+05:30: Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch"
     },
     {
       "action": "Trim VRT",
@@ -11094,7 +11098,7 @@
       "trigger_type": "catalyst_threat",
       "date": "2026-09-16",
       "created_utc": "2026-09-16T19:07:01Z",
-      "status": "open",
+      "status": "dismissed_by_desk",
       "cluster": "AI Power/Cooling/DC Infra",
       "price_check": {
         "supplied": 239.155,
@@ -11115,7 +11119,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-15T14:06:53+05:30, still open",
+      "note": "recommended 2x since 2026-09-15T14:06:53+05:30, still open | dismissed by desk 2026-09-17T00:51+05:30: Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch",
       "priority_score": 6,
       "priority": "HIGH",
       "priority_reasons": [
@@ -11137,7 +11141,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-16",
-      "retires_when": "VRT no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "VRT no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "dismissed_by": "desk",
+      "dismiss_reason": "Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch"
     },
     {
       "action": "Trim ALAB",
@@ -11149,7 +11155,7 @@
       "trigger_type": "catalyst_threat",
       "date": "2026-09-16",
       "created_utc": "2026-09-16T19:07:01Z",
-      "status": "open",
+      "status": "dismissed_by_desk",
       "cluster": "AI Networking/Optics",
       "price_check": {
         "supplied": 268.16,
@@ -11170,7 +11176,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-15T14:06:53+05:30, still open",
+      "note": "recommended 2x since 2026-09-15T14:06:53+05:30, still open | dismissed by desk 2026-09-17T00:51+05:30: Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch",
       "priority_score": 6,
       "priority": "HIGH",
       "priority_reasons": [
@@ -11191,7 +11197,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-16",
-      "retires_when": "ALAB no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "ALAB no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "dismissed_by": "desk",
+      "dismiss_reason": "Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch"
     },
     {
       "action": "Trim AVGO",
@@ -11203,7 +11211,7 @@
       "trigger_type": "catalyst_threat",
       "date": "2026-09-16",
       "created_utc": "2026-09-16T19:07:01Z",
-      "status": "open",
+      "status": "dismissed_by_desk",
       "cluster": "AI Networking/Optics",
       "price_check": {
         "supplied": 337.41,
@@ -11224,7 +11232,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-16T16:05:30+05:30, still open",
+      "note": "recommended 2x since 2026-09-16T16:05:30+05:30, still open | dismissed by desk 2026-09-17T00:51+05:30: Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch",
       "priority_score": 4,
       "priority": "HIGH",
       "priority_reasons": [
@@ -11240,7 +11248,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-16",
-      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "dismissed_by": "desk",
+      "dismiss_reason": "Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch"
     },
     {
       "action": "Trim NBIS",
@@ -11252,7 +11262,7 @@
       "trigger_type": "catalyst_threat",
       "date": "2026-09-16",
       "created_utc": "2026-09-16T19:07:01Z",
-      "status": "open",
+      "status": "dismissed_by_desk",
       "cluster": "Compute/Hyperscaler",
       "price_check": {
         "supplied": 214.07,
@@ -11277,7 +11287,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-16",
-      "retires_when": "NBIS no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "NBIS no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "dismissed_by": "desk",
+      "dismiss_reason": "Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch",
+      "note": "dismissed by desk 2026-09-17T00:51+05:30: Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch"
     },
     {
       "action": "Trim COHR",
@@ -11289,7 +11302,7 @@
       "trigger_type": "catalyst_threat",
       "date": "2026-09-16",
       "created_utc": "2026-09-16T19:07:01Z",
-      "status": "open",
+      "status": "dismissed_by_desk",
       "cluster": "AI Networking/Optics",
       "price_check": {
         "supplied": 286.665,
@@ -11310,7 +11323,7 @@
         }
       ],
       "repeat_count": 2,
-      "note": "recommended 2x since 2026-09-15T14:06:53+05:30, still open",
+      "note": "recommended 2x since 2026-09-15T14:06:53+05:30, still open | dismissed by desk 2026-09-17T00:51+05:30: Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch",
       "priority_score": 4,
       "priority": "HIGH",
       "priority_reasons": [
@@ -11326,7 +11339,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-16",
-      "retires_when": "COHR no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "COHR no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "dismissed_by": "desk",
+      "dismiss_reason": "Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch"
     },
     {
       "action": "Buy GOOG",
@@ -11338,7 +11353,7 @@
       "trigger_type": "catalyst_threat",
       "date": "2026-09-16",
       "created_utc": "2026-09-16T19:07:01Z",
-      "status": "open",
+      "status": "dismissed_by_desk",
       "cluster": "Compute/Hyperscaler",
       "price_check": {
         "supplied": 339.87,
@@ -11365,7 +11380,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-16",
-      "retires_when": "GOOG no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "GOOG no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "dismissed_by": "desk",
+      "dismiss_reason": "Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch",
+      "note": "dismissed by desk 2026-09-17T00:51+05:30: Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch"
     },
     {
       "action": "Buy MSFT",
@@ -11377,7 +11395,7 @@
       "trigger_type": "catalyst_threat",
       "date": "2026-09-16",
       "created_utc": "2026-09-16T19:07:01Z",
-      "status": "open",
+      "status": "dismissed_by_desk",
       "cluster": "Compute/Hyperscaler",
       "price_check": {
         "supplied": 492.17,
@@ -11410,7 +11428,7 @@
         }
       ],
       "repeat_count": 4,
-      "note": "recommended 4x since 2026-09-14, still open",
+      "note": "recommended 4x since 2026-09-14, still open | dismissed by desk 2026-09-17T00:51+05:30: Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch",
       "priority_score": 7,
       "priority": "HIGH",
       "priority_reasons": [
@@ -11430,7 +11448,9 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-16",
-      "retires_when": "MSFT no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "MSFT no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "dismissed_by": "desk",
+      "dismiss_reason": "Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch"
     },
     {
       "action": "Buy AMZN",
@@ -11442,7 +11462,7 @@
       "trigger_type": "catalyst_threat",
       "date": "2026-09-16",
       "created_utc": "2026-09-16T19:07:01Z",
-      "status": "open",
+      "status": "dismissed_by_desk",
       "cluster": "Compute/Hyperscaler",
       "price_check": {
         "supplied": 246.3,
@@ -11469,7 +11489,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-16",
-      "retires_when": "AMZN no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "AMZN no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "dismissed_by": "desk",
+      "dismiss_reason": "Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch",
+      "note": "dismissed by desk 2026-09-17T00:51+05:30: Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch"
     },
     {
       "action": "Buy QCOM",
@@ -11481,7 +11504,7 @@
       "trigger_type": "catalyst_threat",
       "date": "2026-09-16",
       "created_utc": "2026-09-16T19:07:01Z",
-      "status": "open",
+      "status": "dismissed_by_desk",
       "cluster": "AI Semis/Fabs",
       "price_check": {
         "supplied": 184.57,
@@ -11512,7 +11535,10 @@
       ],
       "review_flags": [],
       "revalidated_on": "2026-09-16",
-      "retires_when": "QCOM no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+      "retires_when": "QCOM no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "dismissed_by": "desk",
+      "dismiss_reason": "Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch",
+      "note": "dismissed by desk 2026-09-17T00:51+05:30: Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch"
     },
     {
       "action": "Buy WDC",
@@ -11524,7 +11550,7 @@
       "trigger_type": "catalyst_threat",
       "date": "2026-09-16",
       "created_utc": "2026-09-16T19:07:01Z",
-      "status": "open",
+      "status": "dismissed_by_desk",
       "cluster": "AI Memory/Storage",
       "price_check": {
         "supplied": 418.13,
@@ -11551,7 +11577,487 @@
         }
       ],
       "repeat_count": 3,
-      "note": "recommended 3x since 2026-09-14, still open",
+      "note": "recommended 3x since 2026-09-14, still open | dismissed by desk 2026-09-17T00:51+05:30: Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash in excess at 18.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "proposal_class": "idea",
+      "price_now": 417.22,
+      "price_drift_pct": -0.22,
+      "still_valid_because": [
+        "cash in excess at 18.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-16",
+      "retires_when": "WDC no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "dismissed_by": "desk",
+      "dismiss_reason": "Resized: user rejected cluster-band-constrained sizing, ordered max-ROI/conviction-weighted sizing instead -- superseded by a revised rate-rotation batch"
+    },
+    {
+      "action": "Trim NBIS",
+      "ticker": "NBIS",
+      "direction_bucket": "TRIM",
+      "size_usd": 1300,
+      "price_at_proposal": 214.07,
+      "rationale": "RESIZED (user: size for max ROI, not cluster-band fit -- supersedes P-327). Literal floating-rate debt (SOFR+2.50% facility + $5B convert, G98) means a Fed hike is a mechanical earnings drag, not a re-rating risk -- and the thesis is already WATCH (dilution/data-center concerns unresolved), so there is no strong offsetting growth case to protect. Weakest thesis + most direct rate exposure in the sell basket = largest cut.",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-16",
+      "created_utc": "2026-09-16T19:22:00Z",
+      "status": "open",
+      "cluster": "Compute/Hyperscaler",
+      "supersedes": [
+        "P-327"
+      ],
+      "price_check": {
+        "supplied": 214.07,
+        "reference": 211.11,
+        "source": "live_quotes",
+        "deviation_pct": 1.4,
+        "corrected": false
+      },
+      "benchmark_price_at_proposal": 549.37,
+      "benchmark_ticker": "SMH",
+      "id": "P-334",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "proposal_class": "idea",
+      "price_now": 211.11,
+      "price_drift_pct": -1.38,
+      "still_valid_because": [
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-16",
+      "retires_when": "NBIS no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "action": "Trim AVGO",
+      "ticker": "AVGO",
+      "direction_bucket": "TRIM",
+      "size_usd": 1000,
+      "price_at_proposal": 337.41,
+      "rationale": "RESIZED (supersedes P-326). VMware-acquisition debt plus an analyst-flagged bond-downgrade overhang -- real refinancing-cost exposure -- and thesis already WATCH since 2026-09-02. Same logic as NBIS: weak thesis conviction, direct rate mechanism, sized up accordingly.",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-16",
+      "created_utc": "2026-09-16T19:22:00Z",
+      "status": "open",
+      "cluster": "AI Networking/Optics",
+      "supersedes": [
+        "P-326"
+      ],
+      "price_check": {
+        "supplied": 337.41,
+        "reference": 341.94,
+        "source": "live_quotes",
+        "deviation_pct": 1.32,
+        "corrected": false
+      },
+      "benchmark_price_at_proposal": 549.37,
+      "benchmark_ticker": "SMH",
+      "id": "P-335",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "proposal_class": "idea",
+      "price_now": 341.94,
+      "price_drift_pct": 1.34,
+      "still_valid_because": [
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-16",
+      "retires_when": "AVGO no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "action": "Trim GEV",
+      "ticker": "GEV",
+      "direction_bucket": "TRIM",
+      "size_usd": 1300,
+      "price_at_proposal": 890.17,
+      "rationale": "RESIZED (supersedes P-323, size unchanged). Largest single dollar exposure to the AI-infra duration story, thesis WATCH on a genuinely contested signal (Sell-initiation the same day guidance was raised). Biggest absolute book impact for the risk it carries, independent of where the cluster band sits.",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-16",
+      "created_utc": "2026-09-16T19:22:00Z",
+      "status": "open",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "supersedes": [
+        "P-323"
+      ],
+      "price_check": {
+        "supplied": 921.11,
+        "reference": 890.17,
+        "source": "live_quotes",
+        "deviation_pct": 3.48,
+        "corrected": true
+      },
+      "benchmark_price_at_proposal": 549.37,
+      "benchmark_ticker": "SMH",
+      "id": "P-336",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "catalyst_threat: GLJ Research (Gordon Johnson) initiates GE Vernova (GEV) at Sell, $470 price target -- 51% below the 09-11 close of $957.27 and described as the lowest target on Wall Street -- citing 2027-vintage turbine deliveries booked in 2024 pre-price-hikes (~3pp backlog margin vs 10-11pp on 2025-vintage shipping 2028); GEV fell ~9% Monday (2026-09-14) -- Single boutique shop's outlier call -- GLJ's $470 PT is the Street's lowest, implying consensus sits well above it -- against no confirmed change in GE Vernova's own guidance. The backlog-margin mechanism (fixed-price turbine orders signed before 2024 price hikes, shipping in 2027) is real and checkable, but is one analyst's model, not a company disclosure or a peer-corroborated view yet; not name-checked in this note: VRT/BE, GEV's Power/Cooling cluster-mates (16.82% of equity combined), so treat as idiosyncratic to GEV, not proven cluster-wide.; Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "proposal_class": "idea",
+      "price_now": 890.17,
+      "price_drift_pct": 0.0,
+      "still_valid_because": [
+        "catalyst_threat: GLJ Research (Gordon Johnson) initiates GE Vernova (GEV) at Sell, $470 price target -- 51% below the 09-11 close of $957.27 and described as the lowest target on Wall Street -- citing 2027-vintage turbine deliveries booked in 2024 pre-price-hikes (~3pp backlog margin vs 10-11pp on 2025-vintage shipping 2028); GEV fell ~9% Monday (2026-09-14) -- Single boutique shop's outlier call -- GLJ's $470 PT is the Street's lowest, implying consensus sits well above it -- against no confirmed change in GE Vernova's own guidance. The backlog-margin mechanism (fixed-price turbine orders signed before 2024 price hikes, shipping in 2027) is real and checkable, but is one analyst's model, not a company disclosure or a peer-corroborated view yet; not name-checked in this note: VRT/BE, GEV's Power/Cooling cluster-mates (16.82% of equity combined), so treat as idiosyncratic to GEV, not proven cluster-wide.; Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-16",
+      "retires_when": "GEV no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "action": "Trim VRT",
+      "ticker": "VRT",
+      "direction_bucket": "TRIM",
+      "size_usd": 700,
+      "price_at_proposal": 239.155,
+      "rationale": "RESIZED DOWN (supersedes P-324, was $1,000). Same duration exposure as GEV but a cleaner fundamental print (+24% rev, +60% adj EPS, no contested signal) -- less of the position's expected return is a rate bet versus a growth bet, so it is cut less.",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-16",
+      "created_utc": "2026-09-16T19:22:00Z",
+      "status": "open",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "supersedes": [
+        "P-324"
+      ],
+      "price_check": {
+        "supplied": 239.155,
+        "reference": 238.49,
+        "source": "live_quotes",
+        "deviation_pct": 0.28,
+        "corrected": false
+      },
+      "benchmark_price_at_proposal": 549.37,
+      "benchmark_ticker": "SMH",
+      "id": "P-337",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "VRT at 1.75x its ATR risk cap",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "proposal_class": "idea",
+      "full_cure_usd": 1230.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 57.0,
+      "tranche_note": "cures 57% of the risk cap excess ($1,230) -- roughly 2 tranches this size to fully clear it",
+      "price_now": 238.49,
+      "price_drift_pct": -0.28,
+      "still_valid_because": [
+        "VRT at 1.75x its ATR risk cap",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-16",
+      "retires_when": "VRT no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "action": "Trim ALAB",
+      "ticker": "ALAB",
+      "direction_bucket": "TRIM",
+      "size_usd": 500,
+      "price_at_proposal": 257.35,
+      "rationale": "RESIZED DOWN (supersedes P-325, was $900). Highest multiple in the book, so real duration exposure -- but thesis status is STRENGTHENING (Q2 beat, Q3 guide above consensus), the strongest conviction case in the sell basket. Cut for the rate risk, not gutted, since the underlying growth case has not weakened.",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-16",
+      "created_utc": "2026-09-16T19:22:00Z",
+      "status": "open",
+      "cluster": "AI Networking/Optics",
+      "supersedes": [
+        "P-325"
+      ],
+      "price_check": {
+        "supplied": 268.16,
+        "reference": 257.35,
+        "source": "live_quotes",
+        "deviation_pct": 4.2,
+        "corrected": true
+      },
+      "benchmark_price_at_proposal": 549.37,
+      "benchmark_ticker": "SMH",
+      "id": "P-338",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "ALAB at 1.37x its ATR risk cap",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "proposal_class": "idea",
+      "full_cure_usd": 488.0,
+      "cure_basis": "risk cap",
+      "cure_pct": 103.0,
+      "price_now": 257.35,
+      "price_drift_pct": 0.0,
+      "still_valid_because": [
+        "ALAB at 1.37x its ATR risk cap",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-16",
+      "retires_when": "ALAB no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "action": "Trim COHR",
+      "ticker": "COHR",
+      "direction_bucket": "TRIM",
+      "size_usd": 200,
+      "price_at_proposal": 286.665,
+      "rationale": "RESIZED DOWN (supersedes P-328, was $500). Smallest, lowest-conviction position in the sell basket -- a top-up source for the rotation, not a primary target.",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-16",
+      "created_utc": "2026-09-16T19:22:00Z",
+      "status": "open",
+      "cluster": "AI Networking/Optics",
+      "supersedes": [
+        "P-328"
+      ],
+      "price_check": {
+        "supplied": 286.665,
+        "reference": 280.0,
+        "source": "live_quotes",
+        "deviation_pct": 2.38,
+        "corrected": false
+      },
+      "benchmark_price_at_proposal": 549.37,
+      "benchmark_ticker": "SMH",
+      "id": "P-339",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "catalyst_threat: Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 2026-09-11); GLW fell ~12-14% Monday with direct optics-peer contagion -- Coherent -11%, Lumentum -9%, Fabrinet -6% (not held) (2026-09-14) -- ATM programs sell shares gradually and opportunistically, not $2bn upfront, so realized dilution will be a fraction of the headline over time -- but the stated purpose is 'general corporate purposes,' not a named project, which is what drove the -12-14% single-day reaction. Was one of the four items in Monday's desk narrative but had NOT yet been logged as its own catalyst; added this run. Peer contagion (COHR/LITE) is a read-through, not a COHR/LITE-specific fundamental event.; Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "proposal_class": "idea",
+      "price_now": 280.0,
+      "price_drift_pct": -2.33,
+      "still_valid_because": [
+        "catalyst_threat: Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 2026-09-11); GLW fell ~12-14% Monday with direct optics-peer contagion -- Coherent -11%, Lumentum -9%, Fabrinet -6% (not held) (2026-09-14) -- ATM programs sell shares gradually and opportunistically, not $2bn upfront, so realized dilution will be a fraction of the headline over time -- but the stated purpose is 'general corporate purposes,' not a named project, which is what drove the -12-14% single-day reaction. Was one of the four items in Monday's desk narrative but had NOT yet been logged as its own catalyst; added this run. Peer contagion (COHR/LITE) is a read-through, not a COHR/LITE-specific fundamental event.; Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-16",
+      "retires_when": "COHR no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "action": "Buy TSM",
+      "ticker": "TSM",
+      "direction_bucket": "BUY",
+      "size_usd": 1800,
+      "price_at_proposal": 417.5,
+      "rationale": "ADDED (not in the first pass -- was excluded on cluster-band grounds the user has now overridden). Foundry monopoly, pricing power that persists regardless of the rate environment, thesis STRENGTHENING (July revenue +45% YoY, trailing 7-month +37% YoY). Best single fundamental case for capital in the book right now -- largest allocation in the buy basket on conviction, not band room.",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-16",
+      "created_utc": "2026-09-16T19:22:00Z",
+      "status": "open",
+      "cluster": "AI Semis/Fabs",
+      "price_check": {
+        "supplied": 417.5,
+        "reference": 417.5,
+        "source": "live_quotes",
+        "deviation_pct": 0.0,
+        "corrected": false
+      },
+      "benchmark_price_at_proposal": 549.37,
+      "benchmark_ticker": "SMH",
+      "id": "P-340",
+      "history": [
+        {
+          "date": "2026-09-15T14:06:53+05:30",
+          "size_usd": 834.71,
+          "price_at_proposal": 419.4803,
+          "rationale": "Cluster ladder ranks TSM #1 of 6 (leader): owns the CoWoS advanced-packaging bottleneck, August revenue +53.3% YoY (TSMC 6-K, primary source) well past the ladder's +25% falsifier -- price agreeing (rel_intra +4.2pp) reads as accelerating revenue, not sentiment. Funded 1:1 from the ASML sell leg per the pair; size never exceeds TSM's own $2,279 ATR headroom. STAGE: execute alongside the ASML leg after the 2026-09-16 close, both legs together (not split across sessions)."
+        }
+      ],
+      "repeat_count": 2,
+      "note": "recommended 2x since 2026-09-15T14:06:53+05:30, still open",
+      "priority_score": 6,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash in excess at 18.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "proposal_class": "idea",
+      "price_now": 417.5,
+      "price_drift_pct": 0.0,
+      "still_valid_because": [
+        "cash in excess at 18.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]",
+        "recommended 2x, still unactioned -- one more restatement auto-retires it"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-16",
+      "retires_when": "TSM no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "action": "Buy GOOG",
+      "ticker": "GOOG",
+      "direction_bucket": "BUY",
+      "size_usd": 1300,
+      "price_at_proposal": 339.87,
+      "rationale": "RESIZED DOWN (supersedes P-329, was $1,700, to make room for TSM). Net-cash mega-cap, self-funds its own AI capex -- a hawkish Fed cannot reprice its funding cost the way it can a debt-financed builder. Thesis STRENGTHENING.",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-16",
+      "created_utc": "2026-09-16T19:22:00Z",
+      "status": "open",
+      "cluster": "Compute/Hyperscaler",
+      "supersedes": [
+        "P-329"
+      ],
+      "price_check": {
+        "supplied": 339.87,
+        "reference": 341.0412,
+        "source": "live_quotes",
+        "deviation_pct": 0.34,
+        "corrected": false
+      },
+      "benchmark_price_at_proposal": 549.37,
+      "benchmark_ticker": "SMH",
+      "id": "P-341",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash in excess at 18.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "proposal_class": "idea",
+      "price_now": 341.04,
+      "price_drift_pct": 0.34,
+      "still_valid_because": [
+        "cash in excess at 18.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-16",
+      "retires_when": "GOOG no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "action": "Buy MSFT",
+      "ticker": "MSFT",
+      "direction_bucket": "BUY",
+      "size_usd": 900,
+      "price_at_proposal": 492.17,
+      "rationale": "RESIZED DOWN (supersedes P-330, was $1,200). Same self-funded-capex logic as GOOG, thesis STRENGTHENING (confirmed ~38GW datacenter buildout target). Also the destination leg of today's earlier NBIS-driven rotation (P-321/322, since retired as a duplicate of P-327/this batch).",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-16",
+      "created_utc": "2026-09-16T19:22:00Z",
+      "status": "open",
+      "cluster": "Compute/Hyperscaler",
+      "supersedes": [
+        "P-330"
+      ],
+      "price_check": {
+        "supplied": 492.17,
+        "reference": 495.9485,
+        "source": "live_quotes",
+        "deviation_pct": 0.76,
+        "corrected": false
+      },
+      "benchmark_price_at_proposal": 549.37,
+      "benchmark_ticker": "SMH",
+      "id": "P-342",
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash in excess at 18.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "bullish signal 'PEER LEADER' has a 67% INTERIM 7d hit rate (n=9, not yet 30d-validated) in this book",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]",
+        "caveat -- MSFT is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula"
+      ],
+      "proposal_class": "idea",
+      "price_now": 495.95,
+      "price_drift_pct": 0.77,
+      "still_valid_because": [
+        "cash in excess at 18.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "bullish signal 'PEER LEADER' has a 67% INTERIM 7d hit rate (n=9, not yet 30d-validated) in this book",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]",
+        "caveat -- MSFT is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-16",
+      "retires_when": "MSFT no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "action": "Buy QCOM",
+      "ticker": "QCOM",
+      "direction_bucket": "BUY",
+      "size_usd": 500,
+      "price_at_proposal": 184.57,
+      "rationale": "RESIZED (supersedes P-332, size unchanged). Thesis STRENGTHENING, diversifying into auto/datacenter, lowest relative multiple of the shielded names -- kept modest because TSM is the stronger conviction call in the same cluster and both compete for the same capital.",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-16",
+      "created_utc": "2026-09-16T19:22:00Z",
+      "status": "open",
+      "cluster": "AI Semis/Fabs",
+      "supersedes": [
+        "P-332"
+      ],
+      "price_check": {
+        "supplied": 184.57,
+        "reference": 189.39,
+        "source": "live_quotes",
+        "deviation_pct": 2.55,
+        "corrected": false
+      },
+      "benchmark_price_at_proposal": 549.37,
+      "benchmark_ticker": "SMH",
+      "id": "P-343",
+      "priority_score": 7,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash in excess at 18.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "bullish signal 'PEER LEADER' has a 67% INTERIM 7d hit rate (n=9, not yet 30d-validated) in this book",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]",
+        "caveat -- QCOM is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula"
+      ],
+      "proposal_class": "idea",
+      "price_now": 189.39,
+      "price_drift_pct": 2.61,
+      "still_valid_because": [
+        "cash in excess at 18.0% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "bullish signal 'PEER LEADER' has a 67% INTERIM 7d hit rate (n=9, not yet 30d-validated) in this book",
+        "catalyst_threat: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) (2026-09-14) -- Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut. [carried forward, last confirmed 2026-09-14]",
+        "caveat -- QCOM is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-16",
+      "retires_when": "QCOM no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)"
+    },
+    {
+      "action": "Buy WDC",
+      "ticker": "WDC",
+      "direction_bucket": "BUY",
+      "size_usd": 500,
+      "price_at_proposal": 418.13,
+      "rationale": "RESIZED DOWN (supersedes P-333, was $600, to fund TSM). Thesis STRENGTHENING, current-cycle earnings visibility (FY26 Q4 beat, Citi PT $800) rather than a multi-year story -- less duration risk than the names being sold.",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-16",
+      "created_utc": "2026-09-16T19:22:00Z",
+      "status": "open",
+      "cluster": "AI Memory/Storage",
+      "supersedes": [
+        "P-333"
+      ],
+      "price_check": {
+        "supplied": 418.13,
+        "reference": 417.22,
+        "source": "live_quotes",
+        "deviation_pct": 0.22,
+        "corrected": false
+      },
+      "benchmark_price_at_proposal": 549.37,
+      "benchmark_ticker": "SMH",
+      "id": "P-344",
       "priority_score": 5,
       "priority": "HIGH",
       "priority_reasons": [
@@ -11573,10 +12079,10 @@
         "accepted_size_usd": 150,
         "member_ids": [
           "P-149",
-          "P-333"
+          "P-344"
         ],
         "open_ids": [
-          "P-333"
+          "P-344"
         ],
         "accepted_ids": [
           "P-149"
@@ -11584,9 +12090,9 @@
         "sides_merged": [
           "BUY"
         ],
-        "combined_usd": 750,
+        "combined_usd": 650,
         "position_usd": 1251.66,
-        "combined_pct_of_position": 59.9,
+        "combined_pct_of_position": 51.9,
         "side": "ADD",
         "severity": "note"
       }
