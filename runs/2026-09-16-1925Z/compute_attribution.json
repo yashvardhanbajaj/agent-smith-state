@@ -1,0 +1,107 @@
+{
+  "value_delta_usd": -6138.47,
+  "fx_effect_usd": -249.14,
+  "flow_usd": -6075.29,
+  "residual_market_move_usd": 185.96,
+  "qty_changes": [
+    {
+      "ticker": "VRT",
+      "qty_diff": -6,
+      "likely_corporate_action": false
+    },
+    {
+      "ticker": "GEV",
+      "qty_diff": -1.5,
+      "likely_corporate_action": false
+    },
+    {
+      "ticker": "LITE",
+      "qty_diff": -0.5,
+      "likely_corporate_action": false
+    },
+    {
+      "ticker": "ALAB",
+      "qty_diff": -4,
+      "likely_corporate_action": false
+    },
+    {
+      "ticker": "NBIS",
+      "qty_diff": -5,
+      "likely_corporate_action": false,
+      "full_exit": true,
+      "est_proceeds_usd": 1055.55,
+      "price_basis": "last_known_price_prior_run"
+    },
+    {
+      "ticker": "AVGO",
+      "qty_diff": -2,
+      "likely_corporate_action": false,
+      "full_exit": true,
+      "est_proceeds_usd": 683.88,
+      "price_basis": "last_known_price_prior_run"
+    }
+  ],
+  "data_quality": [],
+  "flow_components": {
+    "adds_trims_usd": -4335.86,
+    "new_entries_usd": 0.0,
+    "exits_usd": -1739.43,
+    "exits_unpriced": [],
+    "exit_price_basis": "last_known_price_prior_run"
+  },
+  "rolling": {
+    "1m": {
+      "from": "2026-08-17",
+      "to": "2026-09-16",
+      "sessions": 21,
+      "coverage_pct": 100.0,
+      "uncovered": [],
+      "smh_pct": -8.63,
+      "book_pct": -10.33,
+      "excess_pp": -1.7,
+      "realized_excess_pp": null,
+      "realized_reason": "external_flow_usd is not recorded on every ledger row in the window, so a deposit would read as return"
+    },
+    "3m": {
+      "from": "2026-06-16",
+      "to": "2026-09-16",
+      "sessions": 63,
+      "coverage_pct": 100.0,
+      "uncovered": [],
+      "smh_pct": -11.88,
+      "book_pct": -13.61,
+      "excess_pp": -1.73,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "6m": {
+      "from": "2026-03-17",
+      "to": "2026-09-16",
+      "sessions": 126,
+      "coverage_pct": 100.0,
+      "uncovered": [],
+      "smh_pct": 36.77,
+      "book_pct": 33.61,
+      "excess_pp": -3.16,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "12m": {
+      "from": "2025-09-17",
+      "to": "2026-09-16",
+      "sessions": 250,
+      "coverage_pct": 100.0,
+      "uncovered": [],
+      "smh_pct": 77.83,
+      "book_pct": 123.04,
+      "excess_pp": 45.21,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "basis": "current_holdings_constant_mix",
+    "benchmark": "SMH",
+    "as_of": "2026-09-16",
+    "basis_label": "trailing windows: current holdings at current weights vs SMH. Not a realized return (trades, wallet cash and deposits excluded) and flattered by hindsight: it prices the names you kept"
+  },
+  "ledger_rows_available": 53
+}
