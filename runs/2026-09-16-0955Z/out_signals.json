@@ -1,0 +1,57 @@
+{"signal_history":{"changed":{
+  "ASML":["TARGET GAP"],"GEV":["TARGET GAP"],"KLAC":["TARGET GAP"],"TER":["TARGET GAP"],
+  "AMAT":["TARGET GAP"],"APH":["TARGET GAP"],"STM":["TARGET GAP"],"GLW":["TARGET GAP"],
+  "CIEN":["TARGET GAP"],"MSFT":["TARGET GAP"],
+  "NBIS":["PEER LAGGARD","TARGET GAP"],"AMD":["STRONG UPTREND","TARGET GAP"],
+  "AVGO":["OVERSOLD BOUNCE","TARGET GAP"],"BE":["PEER LEADER"]
+ },"unchanged_count":13},
+ "news_watermark":"2026-09-16","resolved_flags":[],"new_flags":[],
+ "journal_new":[
+   {"date":"2026-09-16","ticker":"NBIS","bucket":"PEER LAGGARD","price_at_flag":207.37,"analyst_target":280.0,"day_atr_mult":0.24,"rel_sigma":-1.28,"normalized":true},
+   {"date":"2026-09-16","ticker":"BE","bucket":"PEER LEADER","price_at_flag":259.35,"analyst_target":276.05,"day_atr_mult":0.54,"rel_sigma":1.31,"normalized":true}
+ ],
+ "peer_map_updates":{},
+ "analyst_targets_updates":{
+   "VRT":{"mean_target_usd":338.15,"n_analysts":17,"as_of":"2026-09-16"},
+   "ASML":{"mean_target_usd":2157.62,"n_analysts":6,"as_of":"2026-09-16"},
+   "GEV":{"mean_target_usd":1236.43,"n_analysts":22,"as_of":"2026-09-16"},
+   "GOOG":{"mean_target_usd":422.34,"n_analysts":12,"as_of":"2026-09-16"},
+   "ALAB":{"mean_target_usd":389.95,"n_analysts":17,"as_of":"2026-09-16"},
+   "KLAC":{"mean_target_usd":233.77,"n_analysts":21,"as_of":"2026-09-16"},
+   "TER":{"mean_target_usd":446.47,"n_analysts":12,"as_of":"2026-09-16"},
+   "TSM":{"mean_target_usd":551.26,"n_analysts":8,"as_of":"2026-09-16"},
+   "COHR":{"mean_target_usd":415.36,"n_analysts":17,"as_of":"2026-09-16"},
+   "LITE":{"mean_target_usd":1149.38,"n_analysts":17,"as_of":"2026-09-16"},
+   "AMAT":{"mean_target_usd":640.89,"n_analysts":28,"as_of":"2026-09-16"},
+   "CLS":{"mean_target_usd":477.22,"n_analysts":13,"as_of":"2026-09-16"},
+   "WDC":{"mean_target_usd":664.92,"n_analysts":19,"as_of":"2026-09-16"},
+   "APH":{"mean_target_usd":99.26,"n_analysts":10,"as_of":"2026-09-16"},
+   "MRVL":{"mean_target_usd":284.64,"n_analysts":27,"as_of":"2026-09-16"},
+   "AMD":{"mean_target_usd":615.07,"n_analysts":35,"as_of":"2026-09-16"},
+   "QCOM":{"mean_target_usd":193.90,"n_analysts":26,"as_of":"2026-09-16"},
+   "MU":{"mean_target_usd":1513.11,"n_analysts":30,"as_of":"2026-09-16"},
+   "AMZN":{"mean_target_usd":328.17,"n_analysts":40,"as_of":"2026-09-16"},
+   "STM":{"mean_target_usd":75.04,"n_analysts":9,"as_of":"2026-09-16"},
+   "AVGO":{"mean_target_usd":531.85,"n_analysts":30,"as_of":"2026-09-16"},
+   "NOW":{"mean_target_usd":142.97,"n_analysts":30,"as_of":"2026-09-16"},
+   "BE":{"mean_target_usd":276.05,"n_analysts":18,"as_of":"2026-09-16"},
+   "MSFT":{"mean_target_usd":572.92,"n_analysts":34,"as_of":"2026-09-16"},
+   "GLW":{"mean_target_usd":194.31,"n_analysts":10,"as_of":"2026-09-16"},
+   "CIEN":{"mean_target_usd":504.13,"n_analysts":16,"as_of":"2026-09-16"}
+ },
+ "vol_normalization":{
+   "AMD":{"atr20_pct":4.05,"day_atr_mult":0.36,"rel_sigma":0.62,"threshold_pct":6.07},
+   "QCOM":{"atr20_pct":3.63,"day_atr_mult":0.23,"rel_sigma":2.52,"threshold_pct":5.45},
+   "NOW":{"atr20_pct":4.72,"day_atr_mult":-0.28,"rel_sigma":1.63,"threshold_pct":7.08},
+   "BE":{"atr20_pct":6.51,"day_atr_mult":0.54,"rel_sigma":1.31,"threshold_pct":9.77},
+   "NBIS":{"atr20_pct":7.5,"day_atr_mult":0.24,"rel_sigma":-1.28,"threshold_pct":11.25},
+   "AVGO":{"atr20_pct":3.34,"day_atr_mult":0.24,"rel_sigma":-0.77,"threshold_pct":5.01}
+ },
+ "findings_reaffirmed":["catalyst:9744ffb8fe","catalyst:ce8fa6cd04","catalyst:511c7b86ce","catalyst:786fb3d78e","catalyst:c1a6f6b205","thesis:AMD","thesis:AVGO","thesis:MSFT","thesis:GEV","thesis:GLW","thesis:BE"],
+ "data_quality":[
+   "Live premarket quotes (~08:46 ET) diverge from compute_buckets' day-move snapshot for CIEN (+4.6% live vs ~1.5% implied), WDC (-3.51% vs ~1.2%), QCOM (+4.25% vs ~0.8%) -- normal pre-market drift given market_session=pre-open, no bucket determination changed.",
+   "NBIS analyst consensus returned empty (None) from get_us_stocks_details this run; used compute_buckets' cached target ($280.00) instead.",
+   "AVGO's live-fetched upside_per (36.21%) does not reconcile with compute_buckets' upside_pct (55.5%) off the same $531.85 target; used the buckets figure for internal consistency with pos/rel_sigma.",
+   "No dedicated earnings-calendar pull this run (quick-mode budget) -- EARNINGS PROXIMITY assessed from news scan only, not cross-checked against the smith-earnings/watchlist cache.",
+   "rel_sigma_sd from compute_buckets = 0.932, inside the well-calibrated 0.8-1.3 band -- no drift to report this run."
+ ]}

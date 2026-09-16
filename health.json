@@ -1,9 +1,9 @@
 {
   "ok": false,
-  "as_of": "2026-09-15T19:21:19Z",
+  "as_of": "2026-09-16T10:30:04Z",
   "problems": [
     "1 scheduled run(s) in the last 10 days left no or partial artefacts: 2026-09-11 MISSING",
-    "skill/ mirror differs from live config (reference/dashboard.md) -- run skill/sync-from-live.sh"
+    "uncommitted staged state in 2026-09-16-0955Z -- a run died before commit-state; recover with `commit-state --run-dir runs/<dir>` or `abort --run-dir runs/<dir>`"
   ],
   "headline": "Health: 2 problem(s) -- 1 scheduled run(s) in the last 10 days left no or partial artefacts: 2026-09-11 MISSING",
   "missed_runs": [
@@ -20,32 +20,24 @@
     "held": true,
     "stale": false,
     "kind": "smith",
-    "age_min": 0.0,
-    "heartbeat_age_min": 0.0,
+    "age_min": 35.0,
+    "heartbeat_age_min": 35.0,
     "holder": {
-      "run_id": "2026-09-15-1921Z",
+      "run_id": "2026-09-16-0955Z",
       "mode": "quick",
       "run_dir": null,
-      "acquired_utc": "2026-09-15T19:21:19Z",
-      "heartbeat_utc": "2026-09-15T19:21:19Z",
-      "steals": [
-        {
-          "from_run_id": "2026-09-15-0907Z",
-          "kind": "smith",
-          "age_min": 614.1,
-          "heartbeat_age_min": 614.1,
-          "stolen_utc": "2026-09-15T19:21:19Z"
-        }
-      ]
+      "acquired_utc": "2026-09-16T09:55:05Z",
+      "heartbeat_utc": "2026-09-16T09:55:05Z",
+      "steals": []
     }
   },
-  "last_ledger_row_age_h": 10.7,
-  "uncommitted_runs": [],
+  "last_ledger_row_age_h": 25.8,
+  "uncommitted_runs": [
+    "2026-09-16-0955Z"
+  ],
   "mirror": {
     "checked": true,
-    "stale": true,
-    "differs": [
-      "reference/dashboard.md"
-    ]
+    "stale": false,
+    "differs": []
   }
 }

@@ -1388,6 +1388,15 @@
       "evidence": "usage-audit run_id=2026-09-15-0740Z, agent=scout, tokens=124146, tool_calls=20, duration_s=364",
       "source_run": "2026-09-15-0740Z",
       "supersedes": null
+    },
+    {
+      "id": "L-052",
+      "date": "2026-09-15",
+      "kind": "correction",
+      "text": "USAGE AUDIT (auto-logged, 2026-09-15-0740Z): strategist used 248,513 tokens this run vs a trailing median of 118,574 over its last 5 runs -- 2.1x, past the 1.5x flag threshold. Investigate whether this run's dispatch prompt asked strategist to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
+      "evidence": "usage-audit run_id=2026-09-15-0740Z, agent=strategist, tokens=248513, tool_calls=42, duration_s=1933",
+      "source_run": "2026-09-15-0740Z",
+      "supersedes": null
     }
   ]
 }
