@@ -1,0 +1,269 @@
+{
+ "policy_draft": null,
+ "stress_table": {
+  "as_of": "2026-09-16",
+  "anchored_to": {
+   "us10y_pct": 5.006,
+   "vix": 17.71,
+   "dxy": 100.309,
+   "fed_rate_pct": 3.875,
+   "fed_stance": "hawkish"
+  },
+  "scenarios": [
+   {
+    "scenario": "Hawkish-for-longer: Dec hike + 10y 5.25-5.50%",
+    "impact_pct_low": -10.0,
+    "impact_pct_high": -5.7,
+    "most_exposed": [
+     "MU",
+     "ASML",
+     "KLAC"
+    ],
+    "mechanism": "Further rate rise directly compresses long-duration AI-capex/semicap multiples; 95.7% of equity is AI-capex exposed (compute_drift.ai_capex_pct).",
+    "basis": "live",
+    "note": "Anchored to scout's confirmed post-FOMC funds rate and live US10y (5.006%, cycle high)."
+   },
+   {
+    "scenario": "Oil spike to $120-130 (stagflation)",
+    "impact_pct_low": -11.5,
+    "impact_pct_high": -7.2,
+    "most_exposed": [
+     "MU",
+     "ASML",
+     "KLAC",
+     "GLW",
+     "MRVL"
+    ],
+    "mechanism": "Inflation pass-through raises Dec-hike odds further, compounding the rate-driven multiple compression on top of the existing Brent/WTI shock.",
+    "basis": "live",
+    "note": "Anchored to scout's live Brent ~$107.50/WTI ~$103.78 (Hormuz/Saudi-pipeline driven)."
+   },
+   {
+    "scenario": "Oil/geopolitical relief, Brent back to $80",
+    "impact_pct_low": 4.3,
+    "impact_pct_high": 7.2,
+    "most_exposed": [
+     "ASML",
+     "KLAC",
+     "NOW"
+    ],
+    "mechanism": "Inflation pressure eases, Dec-hike odds fall, 10y likely retreats -- relief for duration multiples.",
+    "basis": "live",
+    "note": "Symmetric inverse of the oil-spike scenario off the same live Brent anchor."
+   },
+   {
+    "scenario": "Midterm divided government + seasonal Q4 rally",
+    "impact_pct_low": 5.7,
+    "impact_pct_high": 9.3,
+    "most_exposed": [
+     "ALAB",
+     "TER",
+     "VRT"
+    ],
+    "mechanism": "Base-case election outcome removes a binary overhang; midterm-year seasonality (+13.59% mean autumn-low-to-year-end vs +9.09% non-midterm) applied partially to a high-beta book.",
+    "basis": "live",
+    "note": "Anchored to scout's divided-govt base-case odds and quoted seasonality statistic."
+   },
+   {
+    "scenario": "Democratic-sweep tail (export controls/antitrust)",
+    "impact_pct_low": -6.5,
+    "impact_pct_high": -3.6,
+    "most_exposed": [
+     "TSM",
+     "ASML",
+     "AMAT",
+     "GOOG",
+     "AMZN",
+     "MSFT"
+    ],
+    "mechanism": "Tighter China export controls hit the semicap/foundry supply chain; hyperscaler antitrust revival pressures Compute/Hyperscaler cluster multiples.",
+    "basis": "live",
+    "note": "Tail probability, not base case -- scout flags divided government (Dem House favored, Senate coin-flip) as the base case."
+   },
+   {
+    "scenario": "AI-capex pause (pacing essay becomes real cuts)",
+    "impact_pct_low": -20.1,
+    "impact_pct_high": -12.9,
+    "most_exposed": [
+     "ALAB",
+     "VRT",
+     "GEV",
+     "GLW",
+     "MRVL",
+     "COHR",
+     "LITE"
+    ],
+    "mechanism": "Extrapolates the 09-14 single-session cluster shock (Networking/Optics -8.28%, Power/Cooling -7.42%) to a sustained capex-cut scenario across the most duration/multiple-sensitive clusters.",
+    "basis": "static_assumption",
+    "note": "No hyperscaler has actually cut 2026/27 capex guidance -- this is a sample-of-one extrapolation, not a live signal."
+   }
+  ],
+  "data_quality": [
+   "USD/INR: book is USD-reported, ~0% direct book-level impact; INR-terms net-worth effect not re-derived here.",
+   "Scenario (f) basis is static_assumption -- treat its range as illustrative, not measured."
+  ]
+ },
+ "proposals": [
+  {
+   "direction": "TRIM",
+   "ticker": "MU",
+   "size_usd": 186.0,
+   "price_at_proposal": null,
+   "rationale": "Thesis WATCH + CXMT HBM3E competitive threat (verified secondary) + computed hawkish-FOMC/cycle-high-10y rate shock; stale Amodei-essay catalyst no longer independently sufficient.",
+   "trigger_type": "catalyst_threat",
+   "trigger_bucket": "catalyst_threat",
+   "pair_id": null,
+   "pair_role": null,
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 1,
+    "computed": 2,
+    "unverified": 1
+   }
+  },
+  {
+   "direction": "SELL",
+   "ticker": "AMD",
+   "size_usd": 153.75,
+   "price_at_proposal": null,
+   "rationale": "Thesis WATCH (verified secondary) -- book profit, rotate into ALAB.",
+   "trigger_type": "profit_rotation",
+   "trigger_bucket": "profit_rotation",
+   "pair_id": "profit_rotation-AMD-ALAB",
+   "pair_role": "sell",
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 1,
+    "computed": 2,
+    "unverified": 0
+   }
+  },
+  {
+   "direction": "BUY",
+   "ticker": "ALAB",
+   "size_usd": 153.75,
+   "price_at_proposal": 269.18,
+   "rationale": "Thesis strengthening (verified secondary), -15.93% 1m / -7.76pp vs benchmark, RSI14 43.8 not overbought -- price says WHEN, thesis says WHICH WAY. Supersedes P-338's remaining open TRIM balance (stale catalyst_threat rationale overtaken by the thesis update).",
+   "trigger_type": "profit_rotation",
+   "trigger_bucket": "profit_rotation",
+   "pair_id": "profit_rotation-AMD-ALAB",
+   "pair_role": "buy",
+   "size_wanted_usd": 238.62,
+   "clamped_by": "profit_rotation sell-leg proceeds ($153.75 < $238.62 conviction_average want)",
+   "stop_price_usd": 230.31,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 1,
+    "computed": 2,
+    "unverified": 1
+   }
+  },
+  {
+   "direction": "SELL",
+   "ticker": "GLW",
+   "size_usd": 129.98,
+   "price_at_proposal": null,
+   "rationale": "Thesis WATCH (verified secondary) -- cluster laggard, rotate into MRVL.",
+   "trigger_type": "cluster_rotation",
+   "trigger_bucket": "cluster_rotation",
+   "pair_id": "cluster_rotation-GLW-MRVL",
+   "pair_role": "sell",
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 1,
+    "computed": 2,
+    "unverified": 0
+   }
+  },
+  {
+   "direction": "BUY",
+   "ticker": "MRVL",
+   "size_usd": 129.98,
+   "price_at_proposal": null,
+   "rationale": "Thesis strengthening (verified secondary) -- cluster performer leg. Draft batch's conflicting standalone catalyst_threat MRVL TRIM dropped (same-ticker, opposite-direction conflict, weaker/stale evidence).",
+   "trigger_type": "cluster_rotation",
+   "trigger_bucket": "cluster_rotation",
+   "pair_id": "cluster_rotation-GLW-MRVL",
+   "pair_role": "buy",
+   "size_wanted_usd": null,
+   "clamped_by": "GLW sell-leg proceeds",
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 1,
+    "computed": 2,
+    "unverified": 0
+   }
+  },
+  {
+   "direction": "BUY",
+   "ticker": "XOM",
+   "size_usd": 950.0,
+   "price_at_proposal": 163.32,
+   "rationale": "New non-AI-capex diversifier: beta 0.175, direct Brent/WTI leverage, policy-neutral-to-favorable across all three midterm scenarios. Sized for conviction, not cluster fit. Caution: unexplained -3.5% same-day move despite oil strength.",
+   "trigger_type": "bench_diversifier",
+   "trigger_bucket": "bench_diversifier",
+   "pair_id": null,
+   "pair_role": null,
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": 150.0,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 1,
+    "computed": 1,
+    "unverified": 1
+   }
+  },
+  {
+   "direction": "BUY",
+   "ticker": "TSM",
+   "size_usd": 1604.0,
+   "price_at_proposal": 416.34,
+   "rationale": "Housekeeping resize of P-345 to its remaining un-filled balance after today's 3sh fill ($1,252.76 of $2,857 target). No thesis change.",
+   "trigger_type": "cluster_rotation",
+   "trigger_bucket": "cluster_rotation",
+   "pair_id": null,
+   "pair_role": null,
+   "size_wanted_usd": null,
+   "clamped_by": null,
+   "stop_price_usd": null,
+   "exited_on": null,
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 2,
+    "unverified": 0
+   }
+  }
+ ],
+ "scorecard_read": "Stored scorecard (n=80): overall 37.5% (30/39/11 worked/missed/neutral); TRIM/SELL 50.0% (n=42) meaningfully outperforms BUY 37.5% (n=24) and HOLD 0.0% (n=14). This run leans on the trim/rotation side (MU trim, AMD/GLW sell legs) consistent with the desk's stronger TRIM/SELL track record, and keeps the BUY list disciplined (2 rotation-paired legs + 1 new diversifier) rather than the draft's 4-name conviction_average batch, given BUY's weaker recorded hit rate. HOLD's 0% on n=14 is flagged as a likely grading-scope artifact (HOLD calls lack a directional outcome to score against) rather than a genuine signal to act on.",
+ "deemphasize_buckets": [],
+ "data_quality": [
+  "proposal_specs.json drafted 28 rows; 25 were catalyst_threat TRIMs all citing the single, now 5-session-old, absorbed Amodei essay -- deduped to 7 rows / 5 decisions per strategist_specs_final.json, full rejection reasons there.",
+  "Draft batch contained same-batch buy/trim conflicts on both MRVL and KLAC (catalyst_threat TRIM vs conviction_average/cluster_rotation BUY) -- resolved in favor of the fresher, thesis-strengthening buy side in both cases.",
+  "P-339 (Trim COHR) not retired despite COHR's thesis reading strengthening this run -- no fresh RSI/overbought confirmation pulled this run, flagged for user review rather than formally superseded on incomplete evidence.",
+  "Defensive bench (UNH/SO/DUK/PG/LLY/NEM/JNJ) prices refreshed but thesis/target text >7 days stale -- not sized this run, budget concentrated on the three explicit macro questions.",
+  "XOM -3.5% same-day move despite oil strength is unexplained (scout data_quality) -- carried into the XOM proposal as a caution, not resolved."
+ ],
+ "findings_reaffirmed": [
+  "playbook:risk_off",
+  "macro:calendar"
+ ],
+ "findings_revised": [
+  {
+   "id": "macro:fomc",
+   "claim": "Fed funds 3.63% (stance hawkish), cached pre-decision",
+   "source": "scout out_scout.json findings_revised (2026-09-16)",
+   "reason": "FOMC decision landed: hiked 25bp to 3.75-4.00% (mid 3.875%), hawkish dot plot confirmed (12/18 for one more hike). stress_table_anchor.fed_rate_pct=3.63 in proposal_specs.json is pre-decision and stale -- used 3.875 in this run's stress table per the dispatch's explicit instruction."
+  }
+ ]
+}

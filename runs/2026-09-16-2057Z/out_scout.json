@@ -1,0 +1,45 @@
+{
+  "mode": "full",
+  "session_read": {
+    "futures": {"es_pct": 0.428, "nq_pct": 1.065},
+    "asia": {"nikkei_pct": -0.014, "kospi_pct": -0.854, "taiex_pct": -0.765, "stoxx50_pct": 0.481, "note": "none exceed the >1% gap-risk threshold"},
+    "gap_risk": [],
+    "headline_scan": ["No book-specific overnight headlines beyond FOMC outcome and oil spike; neither is a direct AI-capex-chain hit; per-holding depth owned by smith-signals"]
+  },
+  "sentiment_narrative": "Composite sentiment score is 66.7 (\"greed\"), unchanged band. Driven by calm VIX (75.9) and SPX near highs (pct_off_52w_high 86.4), partly offset by cooling momentum (RSI14 44.0) and middling yield-trend (64.1). No action_hint set -- not an extreme, strategist should size normally. Reads as backward-looking calm that has not yet absorbed the hawkish FOMC/oil combination described in the regime read.",
+  "fed_funds_pct": 3.875,
+  "fomc_stance": "hawkish",
+  "fomc_cache_update": {"rate_pct": 3.875, "stance": "hawkish", "next_check_date": "2026-10-30", "note": "Hiked +25bp to 3.75-4.00% on 2026-09-16, 12-0, first hike since 2023. Dot plot: 12/18 see one more 25bp hike to 4.125% by year-end, 4 see two more (4.375%). Warsh presser: economy 'strengthening', flagged oil-driven price shocks as inflation risk to guard against broadening. CME FedWatch: 63.7% probability of a second hike at Dec 2026 meeting; futures price ~4.1% by December, ~2.2 hikes (~56bp) across next 3 meetings."},
+  "spy_pcr_oi": 1.14, "spy_pcr_vol": 0.77, "spy_max_pain": 758.0,
+  "qqq_pcr_oi": 1.832, "qqq_pcr_vol": 2.757, "qqq_max_pain": 715.0,
+  "calendar": {"next_fomc": "2026-10-28", "next_cpi": "2026-10-14", "next_nfp": "2026-10-02", "earnings_season_window": false},
+  "regime": "risk_off",
+  "regime_note": "Risk-off for the book's dominant AI-capex/rate-sensitive clusters specifically, not a broad-market panic (VIX 17.71 mid-range, sentiment still 'greed' on backward-looking data). Hawkish 25bp hike + hawkish dot plot (12/18 for one more) + US10y at 5.006% (highest this cycle, key psychological level) + a genuine geopolitical oil shock (Brent ~$107.50, near 4-month high, Hormuz/Saudi-pipeline/Russia-sanctions driven) together press long-duration growth multiples and raise Dec-hike odds (63.7% priced) via inflation pass-through. Midterm seasonality (weak Sept/Oct, historically strong Q4/Q1 in midterm years: +13.59% mean autumn-low-to-yearend vs +9.09% non-midterm) argues against overreacting into panic selling despite the multi-factor headwind.",
+  "cluster_impact": {
+    "ai_capex_chain": "Pressured first and hardest: 10yr at 5.006% plus hawkish dots compress long-duration multiples directly; QQQ options (pcr_oi 1.832, pcr_vol 2.757, both put-heavy) confirm the market is pricing this specifically into Nasdaq. Floating-rate-funded neoclouds (NBIS-style) face a second, funding-cost channel. Midterm scenario: divided government (base case, ~51/49 Dem Senate odds, Dem House favored) keeps current loosened chip-export-control policy largely intact via gridlock but raises oversight/hearing risk; a Democratic sweep (tail risk) is the scenario most likely to tighten China export controls and revive hyperscaler antitrust.",
+    "rate_sensitive": "Highest-beta group to today's news; second Dec hike (63.7% priced) plus oil-driven inflation surprise both argue against near-term relief -- the cluster most exposed to a 'hawkish for longer' read.",
+    "defensives": "Relatively insulated from the Fed/oil combination; natural rotation beneficiary if the market de-risks from duration exposure. PG/JNJ/UNH-style names screen well.",
+    "energy": "Standout positive-carry cluster on the Brent/WTI spike (OPEC+ adding supply but outweighed by Middle East supply-disruption premium); policy-neutral-to-favorable across all three midterm scenarios since data-center power fights are about AI-load allocation, not oil & gas. XOM added to diversifier bench this run on this basis."
+  },
+  "diversifier_candidates": {
+    "VST": {"price_usd": 140.39, "target_usd": 223.17, "upside_pct": 59.0, "thesis": "Merchant power gen, beta 1.41 -- AI-load adjacent, NOT clean", "status": "active", "clean_diversifier": false, "as_of": "2026-09-06"},
+    "UNH": {"price_usd": 375.26, "target_usd": 471.65, "upside_pct": 25.7, "thesis": "Managed care rebound, beta 0.62", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "SO": {"price_usd": 86.23, "target_usd": 101.45, "upside_pct": 17.6, "thesis": "Regulated SE utility, beta 0.32", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "DUK": {"price_usd": 117.76, "target_usd": 138.61, "upside_pct": 17.7, "thesis": "Regulated utility, beta 0.36", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "PG": {"price_usd": 147.02, "target_usd": 163.35, "upside_pct": 11.1, "thesis": "Staples ballast, beta 0.38", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "LLY": {"price_usd": 1137.82, "target_usd": 1270.37, "upside_pct": 11.7, "thesis": "Pharma/GLP-1, beta 0.50", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "NEM": {"price_usd": 121.76, "target_usd": 133.0, "upside_pct": 9.2, "thesis": "Gold miner, beta 0.54", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "JNJ": {"price_usd": 267.28, "target_usd": 269.95, "upside_pct": 1.0, "thesis": "Diversified pharma/medtech, beta 0.24", "status": "active", "clean_diversifier": true, "as_of": "2026-09-06"},
+    "XOM": {"price_usd": 163.32, "target_usd": 173.42, "upside_pct": 6.2, "thesis": "Integrated oil major, direct Brent/WTI leverage amid the live Hormuz/Saudi-pipeline supply-disruption rally; beta 0.175 (very low correlation to AI-capex/duration risk); policy-neutral across midterm scenarios. Fell -3.5% today despite oil strength -- cause unconfirmed, flag for next run.", "status": "new", "clean_diversifier": true, "as_of": "2026-09-17"}
+  },
+  "data_quality": [
+    "Diversifier bench: target_usd/thesis for VST/UNH/SO/DUK/PG/LLY/NEM/JNJ carried forward from 2026-09-06 (>7 days stale) -- this run's budget was concentrated on the three explicit macro questions (Fed/oil/midterms); price_usd refreshed for all 8 plus new XOM.",
+    "XOM -3.5% single-day move despite Brent/WTI strength has no confirmed company-specific cause from this run's research.",
+    "Oil price figures (Brent ~$107.50, WTI ~$103.78) drawn from search results that also mixed in stale 2024-dated pages; cross-checked against an independently-reported YTD figure (Brent +78% YTD to ~$107.89 as of 09-14) which is internally consistent, so treated as reliable but flagged."
+  ],
+  "findings_reaffirmed": ["orchestrator:9770e78e7a"],
+  "findings_revised": [
+    {"id": "macro:fomc", "claim": "Fed funds 3.63% (stance hawkish), cached pre-decision", "source": "CNBC/Fox Business/Yahoo Finance, 2026-09-16", "reason": "FOMC decision landed 2026-09-16: hiked 25bp to 3.75-4.00% (midpoint 3.875%), hawkish dot plot confirmed (12/18 for one more hike to 4.125%)."},
+    {"id": "macro:calendar", "claim": "next_fomc: 2026-09-16", "source": "orchestrator run history / CME-Fed calendar", "reason": "That meeting has concluded; next FOMC is 2026-10-28/29. next_cpi and next_nfp unchanged, not re-verified (not expired, no contradicting evidence)."}
+  ]
+}

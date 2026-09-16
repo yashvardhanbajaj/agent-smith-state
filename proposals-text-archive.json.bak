@@ -153,6 +153,41 @@
     },
     "P-285": {
       "rationale": "CONSOLIDATED KLAC buy (desk-merged 2026-09-14): the lifecycle dedup logic collapsed two same-day \"Buy KLAC\" proposals -- this one (profit_rotation-NBIS-KLAC, $134.73) and P-287 (cluster_rotation-AMD-KLAC, $309.68) -- into a single open row, keeping only the smaller $134.73 size in history and silently dropping the AMD-KLAC pair_id link, which orphaned P-286 (Sell AMD)'s buy leg. Manually corrected: size restored to the combined $444.41 ($134.73 NBIS proceeds + $309.68 AMD proceeds), funding BOTH rotations into one KLAC position add. Original reasons stand: KLAC is this run's preferred AI Semis/Fabs performer (cluster ladder rank #2 of 10) and the laggard buy leg of profit_rotation-NBIS-KLAC (-5.7pp vs SMH, strengthening thesis). Also funds cluster_rotation-AMD-KLAC (see P-286)."
+    },
+    "P-187": {
+      "rationale": "Highest conviction_score in the book at 34.3 and the only name firing conviction_average and oversold_reversion together: RSI14 33.3, strengthening thesis, -3.12pp vs SMH, +18.7pct to mean target, cap_multiple 0.45 so it is well inside its own risk cap. The cycle logic is the reason this is the buy rather than a levered supplier: smith-cycle calls the position LATE-BY-COST -- margins peaking on memory input cost while physical demand still accelerates -- and its single strongest evidence_AGAINST a late read is upstream semicap, where lead times are EXTENDING (etch and deposition doubled to 12 months, packaging/test beyond 18) and ASML and KLA are both raising capacity plans. AMAT is upstream equipment: it is paid by the capex being committed, it is not the name absorbing the memory cost inflation, and it carries none of the debt-funded-growth flags smith-quality raised against AMZN, BE or INTC. If the late call is right, this is the part of the chain that is late last."
+    },
+    "P-275": {
+      "rationale": "Consolidated: oversold_reversion (RSI14 33.3<35, live) + conviction_average (score 28.3, support-anchored stop $411.21, thesis strengthening/secondary-verified, both live today) both fire BUY on AMAT -- sized to the larger, cap-headroom-bound oversold figure rather than stacking two separate AMAT buys. NOTE: AMAT is simultaneously named in a live catalyst_threat TRIM (CXMT HBM3E structural risk, $274.64, 20pct, still open as P-264) -- that evidence is unchanged since 2026-09-07 (stale, qualification-stage only, no fresh price reaction), while the RSI dip and conviction score are fresh. My call: prioritize this bounce entry: keep P-264 open as a standing structural hedge, don't let it block the technical add. Net book exposure to AMAT is roughly flat if both execute. Supersedes P-231 (old single-trigger sizing, $400)."
+    },
+    "P-286": {
+      "rationale": "cluster_rotation refresh (ladder-driven, medium confidence, 6d old): AMD ranks #8 of 10 in AI Semis/Fabs (laggard) -- guide-down read below consensus (08-11) plus a $5bn debt raise (08-14) levering the balance sheet to fund capex it doesn't own; explicitly overriding the ladder's own qualifier that this is the rank most at odds with fresh price action. Refreshes P-268 ($468.99): AMD received a partial stop-trim in the 09-10 cascade, so today's recompute on the now-smaller position sizes correctly at $309.68. Supersedes P-268. [Desk note 2026-09-14: this sell leg's buy-leg partner was P-287, which the lifecycle dedup logic auto-superseded into P-285 (profit_rotation-NBIS-KLAC) the same run it was created -- a same-ticker/same-direction/same-day merge that dropped the pair_id link. P-285 has been manually resized to $444.41 to fund both rotations combined; treat P-285 as this sell leg's buy-leg partner going forward, not P-287.]"
+    },
+    "P-299": {
+      "history": [
+        {
+          "date": "2026-09-14T00:00:00Z",
+          "size_usd": 309.68,
+          "price_at_proposal": 180.64,
+          "rationale": "cluster_rotation buy leg refresh (ladder rank #2 of 10 in AI Semis/Fabs): process-control/metrology dollars-per-wafer rise faster than wafer starts as GAA and advanced packaging ramp. Funded from the AMD sale. Refreshes P-269 ($468.99, stale AMD-position-size basis). Supersedes P-269."
+        },
+        {
+          "date": "2026-09-14",
+          "size_usd": 444.41,
+          "price_at_proposal": 180.64,
+          "rationale": "CONSOLIDATED KLAC buy (desk-merged 2026-09-14): the lifecycle dedup logic collapsed two same-day \"Buy KLAC\" proposals -- this one (profit_rotation-NBIS-KLAC, $134.73) and P-287 (cluster_rotation-AMD-KLAC, $309.68) -- into a single open row, keeping only the smaller $134.73 size in history and silently dropping the AMD-KLAC pair_id link, which orphaned P-286 (Sell AMD)'s buy leg. Manually corrected: size restored to the combined $444.41 ($134.73 NBIS proceeds + $309.68 AMD proceeds), funding BOTH rotations into one KLAC position add. Original reasons stand: KLAC is this run's preferred AI Semis/Fabs performer (cluster ladder rank #2 of 10) and the laggard buy leg of profit_rotation-NBIS-KLAC (-5.7pp vs SMH, strengthening thesis). Also funds cluster_rotation-AMD-KLAC (see P-286).",
+          "pair_id": "profit_rotation-NBIS-KLAC"
+        },
+        {
+          "date": "2026-09-14T19:03:51+05:30",
+          "size_usd": 721.97,
+          "price_at_proposal": 170.0,
+          "rationale": "Laggard (-10.5pp) with strengthening thesis -- yet to rally. Funded by MU sell proceeds (self-funding pair). Not clamped."
+        }
+      ]
+    },
+    "P-303": {
+      "rationale": "User-prompted re-entry-after-stop review. MRVL was stopped out this morning (4sh @ $216.65, real stop-loss fill) then named by smith-catalyst as one of the two names hit hardest by today's Amodei AI-pacing sentiment shock (-7% same-day, alongside AVGO) -- a multiple-compression read, not a fundamental one (no guidance cut, no company-specific bad news found). Thesis remains strengthening (secondary-verified: Q2 FY26 beat, G44 interest-coverage scare resolved; against: rising SBC/dilution trend, 3 insiders sold in 60d). compute_triggers.json already carries a live conviction_average BUY (score 59.3, medium tier) with support $207.46 and stop $191.70 -- size clamped to $340.61 by ATR headroom (wanted $603.26), meaning the position is already large relative to its risk cap even after this morning's partial stop-out (was the #1 risk-share holding in the book pre-stop). Re-buying the full 4 shares now ($889) would be buying back above the $216.65 exit price (a whipsaw cost) and re-concentrating into an already-large, beta-1.405 position during an ESCALATING gate with FOMC 2 days out. Recommend the smaller, system-clamped size now (or on a dip toward the $207-212 support band), holding the rest until after the 2026-09-16 FOMC outcome -- same staging logic already applied to MSFT/TSM today."
     }
   }
 }

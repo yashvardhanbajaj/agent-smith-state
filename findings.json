@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-17",
-  "run_id": "2026-09-16-1925Z",
-  "run_ts": "2026-09-16T19:32:57Z",
+  "updated": "2026-09-16",
+  "run_id": "2026-09-16-2057Z",
+  "run_ts": "2026-09-16T21:25:00Z",
   "findings": [
     {
       "id": "catalyst:07c3be4d13",
@@ -14,13 +14,13 @@
       "as_of": "2026-09-14",
       "ttl_days": 1,
       "expires": "2026-09-15",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "noise",
       "direction": "ambiguous",
       "source": "https://kalkine.ca/news/technology/celestica-inc-stock-surges-633-as-trading-activity-spikes-and-market-attention-builds",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-14",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": true
     },
     {
@@ -33,13 +33,18 @@
       "as_of": "2026-09-15",
       "ttl_days": 2,
       "expires": "2026-09-17",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "immediate",
       "direction": "tailwind",
       "source": "https://ca.finance.yahoo.com/news/servicenow-jumps-6-4-ai-205808694.html",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
+      "last_reaffirmed": "2026-09-16",
+      "reaffirmed_by": [
+        "catalyst",
+        "signals"
+      ],
       "expired": false
     },
     {
@@ -62,14 +67,14 @@
       "as_of": "2026-09-14",
       "ttl_days": 2,
       "expires": "2026-09-16",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "immediate",
       "direction": "threat",
       "source": "https://en.sedaily.com/finance/2026/09/14/kospi-tumbles-33-percent-on-rate-oil-and-ai-slowdown-fears",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-14",
-      "runs_seen": 4,
-      "expired": true
+      "runs_seen": 5,
+      "expired": false
     },
     {
       "id": "catalyst:511c7b86ce",
@@ -81,7 +86,7 @@
       "as_of": "2026-09-14",
       "ttl_days": 14,
       "expires": "2026-09-28",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "structural",
       "direction": "tailwind",
       "source": "https://www.timothysykes.com/news/bloom-energy-corporation-be-news-2026_09_08/",
@@ -89,9 +94,62 @@
       "first_seen": "2026-09-14",
       "last_reaffirmed": "2026-09-16",
       "reaffirmed_by": [
+        "catalyst",
         "signals"
       ],
-      "runs_seen": 4,
+      "runs_seen": 5,
+      "expired": false
+    },
+    {
+      "id": "catalyst:68ffcdcb21",
+      "kind": "catalyst",
+      "subject": [
+        "COHR"
+      ],
+      "claim": "Corning (GLW) $2bn at-the-market equity program with Goldman Sachs -- magnitude: GLW -12-14% same session; optics-peer read-through to COHR (-11%) and LITE -- reaffirmed, unresolved per orchestrator:a76f6b6505",
+      "as_of": "2026-09-16",
+      "ttl_days": 14,
+      "expires": "2026-09-30",
+      "run_id": "2026-09-16-2057Z",
+      "horizon": "structural",
+      "direction": "threat",
+      "source": "https://247wallst.com/investing/2026/09/14/corning-tumbles-12-on-2b-at-the-market-equity-offering-coherent-sinks-11-lumentum-drops-9-fabrinet-slides-6/",
+      "agent": "smith-catalyst",
+      "first_seen": "2026-09-16",
+      "runs_seen": 1,
+      "expired": false
+    },
+    {
+      "id": "catalyst:7180d87827",
+      "kind": "catalyst",
+      "subject": [
+        "MRVL",
+        "AVGO",
+        "ALAB",
+        "COHR",
+        "LITE",
+        "CIEN",
+        "GLW",
+        "APH",
+        "VRT",
+        "GEV",
+        "BE",
+        "ASML",
+        "KLAC",
+        "TSM",
+        "TER"
+      ],
+      "claim": "Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate continues (Altman/Musk endorse, Burry/Sankar/Trump dismiss, Harris calls for legislation) -- magnitude: political/investor noise widened (Burry, Sankar, Trump, Harris) but no new stock-moving mechanism found this window; classification unchanged",
+      "as_of": "2026-09-16",
+      "ttl_days": 14,
+      "expires": "2026-09-30",
+      "run_id": "2026-09-16-2057Z",
+      "horizon": "structural",
+      "direction": "threat",
+      "source": "https://the-agent-report.com/2026/09/ai-development-brake-amodei-altman-2026/",
+      "agent": "smith-catalyst",
+      "first_seen": "2026-09-16",
+      "runs_seen": 1,
       "expired": false
     },
     {
@@ -118,7 +176,7 @@
       "as_of": "2026-09-15",
       "ttl_days": 2,
       "expires": "2026-09-17",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "immediate",
       "direction": "threat",
       "source": "https://cryptonews.com/news/cme-fedwatch-fomc-september-2026-odds-rate-hike-50/",
@@ -130,7 +188,26 @@
         "strategist",
         "thesis"
       ],
-      "runs_seen": 4,
+      "runs_seen": 5,
+      "expired": false
+    },
+    {
+      "id": "catalyst:90ef472ced",
+      "kind": "catalyst",
+      "subject": [
+        "VRT"
+      ],
+      "claim": "GE Vernova (GEV) initiated Sell by GLJ Research, $470 PT (Street-low) -- magnitude: 51% below GEV's 09-11 close of $957.27; citing 2027-vintage turbine margins; contested vs GEV's own guidance raise, still unresolved",
+      "as_of": "2026-09-16",
+      "ttl_days": 14,
+      "expires": "2026-09-30",
+      "run_id": "2026-09-16-2057Z",
+      "horizon": "structural",
+      "direction": "threat",
+      "source": "https://247wallst.com/investing/2026/09/14/ge-vernova-sinks-9-as-glj-research-starts-at-sell-with-470-target-eaton-drops-7-quanta-services-falls-4/",
+      "agent": "smith-catalyst",
+      "first_seen": "2026-09-16",
+      "runs_seen": 1,
       "expired": false
     },
     {
@@ -145,7 +222,7 @@
       "as_of": "2026-09-15",
       "ttl_days": 14,
       "expires": "2026-09-29",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://247wallst.com/investing/2026/09/14/corning-tumbles-12-on-2b-at-the-market-equity-offering-coherent-sinks-11-lumentum-drops-9-fabrinet-slides-6/",
@@ -153,12 +230,37 @@
       "first_seen": "2026-09-15",
       "last_reaffirmed": "2026-09-16",
       "reaffirmed_by": [
+        "catalyst",
         "rebound",
         "signals",
         "strategist",
         "thesis"
       ],
-      "runs_seen": 4,
+      "runs_seen": 5,
+      "expired": false
+    },
+    {
+      "id": "catalyst:aa6e4a3cf0",
+      "kind": "catalyst",
+      "subject": [
+        "MU",
+        "EWY",
+        "ASML",
+        "LRCX",
+        "AMAT",
+        "TER"
+      ],
+      "claim": "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambricon -- magnitude: ~1 year ahead of 2027 consensus timeline; risk-production/qualification stage, not volume -- HBM tracker 43d stale, unverified against consumer_view.json this run",
+      "as_of": "2026-09-16",
+      "ttl_days": 14,
+      "expires": "2026-09-30",
+      "run_id": "2026-09-16-2057Z",
+      "horizon": "structural",
+      "direction": "threat",
+      "source": "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm",
+      "agent": "smith-catalyst",
+      "first_seen": "2026-09-16",
+      "runs_seen": 1,
       "expired": false
     },
     {
@@ -185,13 +287,13 @@
       "as_of": "2026-09-14",
       "ttl_days": 14,
       "expires": "2026-09-28",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-14",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -210,14 +312,14 @@
       "as_of": "2026-09-14",
       "ttl_days": 2,
       "expires": "2026-09-16",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "immediate",
       "direction": "threat",
       "source": "https://en.sedaily.com/finance/2026/09/14/kospi-falls-326-percent-to-close-at-668437",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-14",
-      "runs_seen": 4,
-      "expired": true
+      "runs_seen": 5,
+      "expired": false
     },
     {
       "id": "catalyst:b87bc240d0",
@@ -243,14 +345,14 @@
       "as_of": "2026-09-14",
       "ttl_days": 2,
       "expires": "2026-09-16",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "immediate",
       "direction": "threat",
       "source": "https://finance.yahoo.com/markets/live/stock-market-today-monday-september-14-dow-sp-500-nasdaq-080559558.html",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-14",
-      "runs_seen": 4,
-      "expired": true
+      "runs_seen": 5,
+      "expired": false
     },
     {
       "id": "catalyst:c1a6f6b205",
@@ -276,7 +378,7 @@
       "as_of": "2026-09-15",
       "ttl_days": 2,
       "expires": "2026-09-17",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "immediate",
       "direction": "threat",
       "source": "https://the-agent-report.com/2026/09/ai-development-brake-amodei-altman-2026/",
@@ -284,12 +386,13 @@
       "first_seen": "2026-09-15",
       "last_reaffirmed": "2026-09-16",
       "reaffirmed_by": [
+        "catalyst",
         "rebound",
         "signals",
         "strategist",
         "thesis"
       ],
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -302,7 +405,7 @@
       "as_of": "2026-09-15",
       "ttl_days": 14,
       "expires": "2026-09-29",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://247wallst.com/investing/2026/09/14/ge-vernova-sinks-9-as-glj-research-starts-at-sell-with-470-target-eaton-drops-7-quanta-services-falls-4/",
@@ -310,11 +413,12 @@
       "first_seen": "2026-09-15",
       "last_reaffirmed": "2026-09-16",
       "reaffirmed_by": [
+        "catalyst",
         "signals",
         "strategist",
         "thesis"
       ],
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -333,7 +437,7 @@
       "as_of": "2026-09-07",
       "ttl_days": 14,
       "expires": "2026-09-21",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm",
@@ -341,9 +445,39 @@
       "first_seen": "2026-09-07",
       "last_reaffirmed": "2026-09-16",
       "reaffirmed_by": [
+        "catalyst",
         "thesis"
       ],
-      "runs_seen": 4,
+      "runs_seen": 5,
+      "expired": false
+    },
+    {
+      "id": "catalyst:f0d89e72c1",
+      "kind": "catalyst",
+      "subject": [
+        "TSM",
+        "ASML",
+        "TER",
+        "KLAC",
+        "MSFT",
+        "COHR",
+        "VRT",
+        "CLS",
+        "WDC",
+        "MU",
+        "GOOG"
+      ],
+      "claim": "FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental AI-infra selloff follows -- SMH closes +0.64% vs Monday's -4.75%, NDX -0.01%, SPX -0.45%, Dow -1.2% (broad-market laggard, not semis-led) -- magnitude: SMH post-close +0.64% (545.56 vs prev close 542.11) same session as the hawkish decision -- relief that an already-priced event did not trigger a second leg down, not \u2026",
+      "as_of": "2026-09-16",
+      "ttl_days": 2,
+      "expires": "2026-09-18",
+      "run_id": "2026-09-16-2057Z",
+      "horizon": "immediate",
+      "direction": "ambiguous",
+      "source": "https://finance.yahoo.com/markets/live/stock-market-today-wednesday-september-16-dow-sp-500-nasdaq-fed-meeting-decision-080356525.html",
+      "agent": "smith-catalyst",
+      "first_seen": "2026-09-16",
+      "runs_seen": 1,
       "expired": false
     },
     {
@@ -358,13 +492,17 @@
       "as_of": "2026-09-07",
       "ttl_days": 14,
       "expires": "2026-09-21",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "horizon": "structural",
       "direction": "ambiguous",
       "source": "https://www.techtimes.com/articles/326406/20260903/cxmt-hits-10-dram-share-samsungs-hbm-pivot-handed-china-market-vacancy.htm",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-07",
-      "runs_seen": 4,
+      "runs_seen": 5,
+      "last_reaffirmed": "2026-09-16",
+      "reaffirmed_by": [
+        "catalyst"
+      ],
       "expired": false
     },
     {
@@ -375,11 +513,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 7,
       "expires": "2026-09-22",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "medium",
       "agent": "smith-cluster",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -390,11 +528,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 7,
       "expires": "2026-09-22",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "medium",
       "agent": "smith-cluster",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -405,11 +543,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 7,
       "expires": "2026-09-22",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "medium",
       "agent": "smith-cluster",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -420,11 +558,11 @@
       "as_of": "2026-09-14",
       "ttl_days": 7,
       "expires": "2026-09-21",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "medium",
       "agent": "smith-cluster",
       "first_seen": "2026-09-14",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -435,50 +573,62 @@
       "as_of": "2026-09-09",
       "ttl_days": 7,
       "expires": "2026-09-16",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "medium",
       "agent": "smith-cluster",
       "first_seen": "2026-09-09",
-      "runs_seen": 4,
-      "expired": true
+      "runs_seen": 5,
+      "expired": false
     },
     {
       "id": "macro:calendar",
       "kind": "macro",
       "subject": "calendar",
-      "claim": "earnings_season_window: False; next_cpi: 2026-10-14; next_fomc: 2026-09-16; next_nfp: 2026-10-02",
-      "as_of": "2026-09-15",
+      "claim": "next_fomc: 2026-09-16",
+      "as_of": "2026-09-16",
       "ttl_days": 7,
-      "expires": "2026-09-22",
-      "run_id": "2026-09-16-1925Z",
+      "expires": "2026-09-23",
+      "run_id": "2026-09-16-2057Z",
       "agent": "smith-scout",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 1,
+      "previous_claim": "earnings_season_window: False; next_cpi: 2026-10-14; next_fomc: 2026-10-28; next_nfp: 2026-10-02",
+      "revised_by": "scout",
+      "revised_reason": "That meeting has concluded; next FOMC is 2026-10-28/29. next_cpi and next_nfp unchanged, not re-verified (not expired, no contradicting evidence).",
+      "source": "orchestrator run history / CME-Fed calendar",
+      "last_reaffirmed": "2026-09-16",
+      "reaffirmed_by": [
+        "strategist"
+      ],
       "expired": false
     },
     {
       "id": "macro:fomc",
       "kind": "macro",
       "subject": "Fed",
-      "claim": "Fed funds 3.63% (stance hawkish). cached -- no FOMC meeting has concluded since last check; decision lands 2026-09-16 2pm ET, real refresh due the run after 2026-09-17. Target range confirmed 3.50-3.75% going into the meeting (Kiplinger/FedRateCalc, 2026-09-15).",
-      "as_of": "2026-09-15",
-      "ttl_days": 2,
-      "expires": "2026-09-17",
-      "run_id": "2026-09-16-1925Z",
+      "claim": "Fed funds 3.63% (stance hawkish), cached pre-decision",
+      "as_of": "2026-09-16",
+      "ttl_days": 44,
+      "expires": "2026-10-30",
+      "run_id": "2026-09-16-2057Z",
       "agent": "smith-scout",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 1,
+      "previous_claim": "Fed funds 3.63% (stance hawkish), cached pre-decision",
+      "revised_by": "strategist",
+      "revised_reason": "FOMC decision landed: hiked 25bp to 3.75-4.00% (mid 3.875%), hawkish dot plot confirmed (12/18 for one more hike). stress_table_anchor.fed_rate_pct=3.63 in proposal_specs.json is pre-decision and stale -- used 3.875 in this run's stress table per the dispatch's explicit instruction.",
+      "source": "scout out_scout.json findings_revised (2026-09-16)",
       "expired": false
     },
     {
       "id": "macro:regime",
       "kind": "macro",
       "subject": "regime",
-      "claim": "Regime risk_off: 10yr +32bp over the trailing month (us10y_chg_1m_bps) despite a flat/-1.4bp print today; VIX +1.9% to 17.43 -- elevated, not panicked. Market has partially but not fully priced a hawkish outcome; ~90-92% hike probability is priced (CME FedWatch via 24/7 Wall St 2026-09-14 and Yahoo/Stocktwits ~2026-09-15) for what would be the first hike since 2023. Green ES/NQ futures this morni\u2026",
-      "as_of": "2026-09-15",
+      "claim": "Regime risk_off: Risk-off for the book's dominant AI-capex/rate-sensitive clusters specifically, not a broad-market panic (VIX 17.71 mid-range, sentiment still 'greed' on backward-looking data). Hawkish 25bp hike + hawkish dot plot (12/18 for one more) + US10y at 5.006% (highest this cycle, key psychological level) + a genuine geopolitical oil shock (Brent ~$107.50, near 4-month high, Hormuz/Saud\u2026",
+      "as_of": "2026-09-16",
       "ttl_days": 1,
-      "expires": "2026-09-16",
-      "run_id": "2026-09-16-1925Z",
+      "expires": "2026-09-17",
+      "run_id": "2026-09-16-2057Z",
       "agent": "smith-scout",
       "first_seen": "2026-09-15",
       "last_reaffirmed": "2026-09-16",
@@ -486,8 +636,9 @@
         "strategist",
         "thesis"
       ],
-      "runs_seen": 4,
-      "expired": true
+      "runs_seen": 1,
+      "previous_claim": "Regime risk_off: 10yr +32bp over the trailing month (us10y_chg_1m_bps) despite a flat/-1.4bp print today; VIX +1.9% to 17.43 -- elevated, not panicked. Market has partially but not fully priced a hawkish outcome; ~90-92% hike probability is priced (CME FedWatch via 24/7 Wall St 2026-09-14 and Yahoo/Stocktwits ~2026-09-15) for what would be the first hike since 2023. Green ES/NQ futures this morni\u2026",
+      "expired": false
     },
     {
       "id": "orchestrator:0aa1099ae5",
@@ -529,6 +680,21 @@
       "expires": "2026-09-17",
       "run_id": "2026-09-16-0955Z",
       "source": "orchestrator, run 2026-09-16-0955Z",
+      "agent": "orchestrator",
+      "first_seen": "2026-09-16",
+      "runs_seen": 1,
+      "expired": false
+    },
+    {
+      "id": "orchestrator:2cc103b6f8",
+      "kind": "orchestrator",
+      "subject": "macro:regime",
+      "claim": "Macro regime risk_off for AI-capex/rate-sensitive clusters specifically (US10y 5.006% cycle high, hawkish dots, Brent ~$107.5 Hormuz shock), not broad panic",
+      "as_of": "2026-09-16",
+      "ttl_days": 7,
+      "expires": "2026-09-23",
+      "run_id": "2026-09-16-2057Z",
+      "source": "scout tail 2026-09-16-2057Z",
       "agent": "orchestrator",
       "first_seen": "2026-09-16",
       "runs_seen": 1,
@@ -584,11 +750,26 @@
       "agent": "orchestrator",
       "first_seen": "2026-09-15",
       "runs_seen": 1,
-      "expired": true,
+      "expired": false,
       "last_reaffirmed": "2026-09-16",
       "reaffirmed_by": [
         "thesis"
       ]
+    },
+    {
+      "id": "orchestrator:85d2044710",
+      "kind": "orchestrator",
+      "subject": "macro:fomc",
+      "claim": "FOMC 2026-09-16 +25bp to 3.75-4.00% was absorbed by AI hardware (SMH +0.64% same session); FedWatch-odds catalysts retired",
+      "as_of": "2026-09-16",
+      "ttl_days": 14,
+      "expires": "2026-09-30",
+      "run_id": "2026-09-16-2057Z",
+      "source": "catalyst+scout tails 2026-09-16-2057Z",
+      "agent": "orchestrator",
+      "first_seen": "2026-09-16",
+      "runs_seen": 1,
+      "expired": false
     },
     {
       "id": "orchestrator:8be9220b47",
@@ -643,7 +824,11 @@
       "agent": "orchestrator",
       "first_seen": "2026-09-17",
       "runs_seen": 1,
-      "expired": false
+      "expired": false,
+      "last_reaffirmed": "2026-09-16",
+      "reaffirmed_by": [
+        "scout"
+      ]
     },
     {
       "id": "orchestrator:a72706b0fa",
@@ -676,6 +861,21 @@
       "expired": false
     },
     {
+      "id": "orchestrator:b68adec42b",
+      "kind": "orchestrator",
+      "subject": "strategy:cash_deployment",
+      "claim": "Strategy: hold rotation course, no new long-duration AI adds before Oct NFP/CPI/FOMC; stage bulk of cash into Oct-low / post-Nov-3 midterm window; ~$6k cash kept as hawkish-for-longer hedge",
+      "as_of": "2026-09-16",
+      "ttl_days": 21,
+      "expires": "2026-10-07",
+      "run_id": "2026-09-16-2057Z",
+      "source": "strategist tail 2026-09-16-2057Z",
+      "agent": "orchestrator",
+      "first_seen": "2026-09-16",
+      "runs_seen": 1,
+      "expired": false
+    },
+    {
       "id": "orchestrator:bea50db56e",
       "kind": "orchestrator",
       "subject": "proposals_review",
@@ -702,6 +902,36 @@
       "source": "cluster_hyperscaler 2026-09-15; known gap G98",
       "agent": "orchestrator",
       "first_seen": "2026-09-15",
+      "runs_seen": 1,
+      "expired": false
+    },
+    {
+      "id": "orchestrator:da0c1e5cd2",
+      "kind": "orchestrator",
+      "subject": "XOM",
+      "claim": "XOM oil hedge ($950) recommended by strategist but auto-retired by bench_diversifier conviction gate (6.2% upside, no bars) -- advisory only",
+      "as_of": "2026-09-16",
+      "ttl_days": 7,
+      "expires": "2026-09-23",
+      "run_id": "2026-09-16-2057Z",
+      "source": "proposals engine 2026-09-16-2057Z",
+      "agent": "orchestrator",
+      "first_seen": "2026-09-16",
+      "runs_seen": 1,
+      "expired": false
+    },
+    {
+      "id": "orchestrator:fd0ee8e471",
+      "kind": "orchestrator",
+      "subject": "macro:midterms",
+      "claim": "Midterm Nov 3 2026 base case divided government; Dem sweep tail = export-control/antitrust risk to TSM/ASML/AMAT and GOOG/AMZN/MSFT",
+      "as_of": "2026-09-16",
+      "ttl_days": 21,
+      "expires": "2026-10-07",
+      "run_id": "2026-09-16-2057Z",
+      "source": "scout tail 2026-09-16-2057Z",
+      "agent": "orchestrator",
+      "first_seen": "2026-09-16",
       "runs_seen": 1,
       "expired": false
     },
@@ -777,7 +1007,11 @@
       "agent": "smith-strategist",
       "first_seen": "2026-09-15",
       "runs_seen": 1,
-      "expired": false
+      "expired": false,
+      "last_reaffirmed": "2026-09-16",
+      "reaffirmed_by": [
+        "strategist"
+      ]
     },
     {
       "id": "thesis:ALAB",
@@ -787,11 +1021,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 21,
       "expires": "2026-10-06",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -802,11 +1036,11 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -817,7 +1051,7 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -825,7 +1059,7 @@
       "reaffirmed_by": [
         "signals"
       ],
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -836,11 +1070,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 21,
       "expires": "2026-10-06",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -851,11 +1085,11 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -866,11 +1100,11 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -900,7 +1134,7 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -908,7 +1142,7 @@
       "reaffirmed_by": [
         "signals"
       ],
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -919,11 +1153,11 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -934,11 +1168,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 21,
       "expires": "2026-10-06",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -949,11 +1183,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 21,
       "expires": "2026-10-06",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -964,7 +1198,7 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -972,7 +1206,7 @@
       "reaffirmed_by": [
         "signals"
       ],
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -983,7 +1217,7 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -991,7 +1225,7 @@
       "reaffirmed_by": [
         "signals"
       ],
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1002,11 +1236,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 21,
       "expires": "2026-10-06",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1017,11 +1251,11 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1032,11 +1266,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 21,
       "expires": "2026-10-06",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1047,11 +1281,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 21,
       "expires": "2026-10-06",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1062,7 +1296,7 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -1070,7 +1304,7 @@
       "reaffirmed_by": [
         "signals"
       ],
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1081,11 +1315,11 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1111,11 +1345,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 21,
       "expires": "2026-10-06",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1126,11 +1360,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 21,
       "expires": "2026-10-06",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1141,11 +1375,11 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "primary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1156,11 +1390,11 @@
       "as_of": "2026-09-16",
       "ttl_days": 21,
       "expires": "2026-10-07",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1171,11 +1405,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 21,
       "expires": "2026-10-06",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1186,11 +1420,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 21,
       "expires": "2026-10-06",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -1201,11 +1435,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 21,
       "expires": "2026-10-06",
-      "run_id": "2026-09-16-1925Z",
+      "run_id": "2026-09-16-2057Z",
       "verified": "primary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     }
   ]

@@ -1,0 +1,139 @@
+[
+ {
+  "direction": "TRIM",
+  "ticker": "MU",
+  "trigger_type": "catalyst_threat",
+  "pair_id": null,
+  "pair_role": null,
+  "size_usd": 186.0,
+  "price_at_proposal": null,
+  "benchmark_price_at_proposal": 545.56,
+  "benchmark_ticker": "SMH",
+  "stop_price_usd": null,
+  "supersedes": [],
+  "rationale": "Thesis WATCH (unverified) plus a computed, live rate shock: hawkish 25bp hike to 3.75-4.00%, 12/18 dots for one more hike, US10y at a cycle-high 5.006% -- memory is HBM/CXMT-exposed (CXMT reached HBM3E risk production ~1yr ahead of consensus, 2026-09-01, verified secondary) and duration-sensitive on top of that competitive threat. Primary basis is the computed rate move, not the stale 09-12 Amodei essay carried in the draft -- that catalyst is 5 sessions old and SMH absorbed the FOMC session (+0.64%), so it no longer independently justifies size on its own.",
+  "evidence_quality": {
+   "verified": 1,
+   "computed": 2,
+   "unverified": 1
+  }
+ },
+ {
+  "direction": "SELL",
+  "ticker": "AMD",
+  "trigger_type": "profit_rotation",
+  "pair_id": "profit_rotation-AMD-ALAB",
+  "pair_role": "sell",
+  "size_usd": 153.75,
+  "price_at_proposal": null,
+  "benchmark_price_at_proposal": 545.56,
+  "benchmark_ticker": "SMH",
+  "stop_price_usd": null,
+  "supersedes": [],
+  "rationale": "AMD thesis WATCH (verified secondary) -- book profit on the weaker-thesis leg and rotate into ALAB, whose thesis just confirmed strengthening. One share already sold today outside this proposal flow per the fill log; this sizes the remainder against the current position.",
+  "evidence_quality": {
+   "verified": 1,
+   "computed": 2,
+   "unverified": 0
+  }
+ },
+ {
+  "direction": "BUY",
+  "ticker": "ALAB",
+  "trigger_type": "profit_rotation",
+  "pair_id": "profit_rotation-AMD-ALAB",
+  "pair_role": "buy",
+  "size_usd": 153.75,
+  "price_at_proposal": 269.18,
+  "benchmark_price_at_proposal": 545.56,
+  "benchmark_ticker": "SMH",
+  "stop_price_usd": 230.31,
+  "supersedes": [
+   "P-338"
+  ],
+  "rationale": "ALAB thesis strengthening (verified secondary), down -15.93% 1m / -7.76pp vs benchmark, RSI14 43.8 (not overbought) -- price says WHEN, thesis says WHICH WAY. P-338 (open TRIM ALAB, catalyst_threat, partially filled today) is superseded: it was sized off the 09-12 Amodei-essay sentiment shock, which the thesis update has now overtaken -- continuing to sell into a name whose own thesis just strengthened, while also buying it, is the exact contradiction Task 2d/2a-i exist to catch. Recommend closing P-338's remaining open balance.",
+  "evidence_quality": {
+   "verified": 1,
+   "computed": 2,
+   "unverified": 1
+  }
+ },
+ {
+  "direction": "SELL",
+  "ticker": "GLW",
+  "trigger_type": "cluster_rotation",
+  "pair_id": "cluster_rotation-GLW-MRVL",
+  "pair_role": "sell",
+  "size_usd": 129.98,
+  "price_at_proposal": null,
+  "benchmark_price_at_proposal": 545.56,
+  "benchmark_ticker": "SMH",
+  "stop_price_usd": null,
+  "supersedes": [],
+  "rationale": "GLW thesis WATCH (verified secondary), laggard within AI Networking/Optics -- rotate into the cluster's stronger performer. Standalone catalyst_threat GLW trim ($86.65 in the draft batch) is dropped as redundant with this pair; only one GLW sell is proposed.",
+  "evidence_quality": {
+   "verified": 1,
+   "computed": 2,
+   "unverified": 0
+  }
+ },
+ {
+  "direction": "BUY",
+  "ticker": "MRVL",
+  "trigger_type": "cluster_rotation",
+  "pair_id": "cluster_rotation-GLW-MRVL",
+  "pair_role": "buy",
+  "size_usd": 129.98,
+  "price_at_proposal": null,
+  "benchmark_price_at_proposal": 545.56,
+  "benchmark_ticker": "SMH",
+  "stop_price_usd": null,
+  "supersedes": [],
+  "rationale": "MRVL thesis strengthening (verified secondary) -- performer leg of the GLW/MRVL cluster rotation. Standalone catalyst_threat MRVL trim ($230.12 in the draft batch) is dropped: it directly contradicted this buy (same ticker, opposite direction, same batch) and rested only on the stale 09-12 Amodei essay against a thesis that has since strengthened -- the fresher, better-evidenced read wins per the batch-conflict rule.",
+  "evidence_quality": {
+   "verified": 1,
+   "computed": 2,
+   "unverified": 0
+  }
+ },
+ {
+  "direction": "BUY",
+  "ticker": "XOM",
+  "trigger_type": "bench_diversifier",
+  "pair_id": null,
+  "pair_role": null,
+  "size_usd": 950.0,
+  "price_at_proposal": 163.32,
+  "benchmark_price_at_proposal": 545.56,
+  "benchmark_ticker": "SMH",
+  "stop_price_usd": 150.0,
+  "supersedes": [],
+  "rationale": "New oil/rate hedge sleeve, added to scout's diversifier bench this run. Beta 0.175 (near-zero correlation to the book's dominant AI-capex/duration factor), direct positive leverage to the live Brent/WTI supply shock (~$107.50/$103.78, Hormuz/Saudi-pipeline driven) that is the second leg (with the hawkish FOMC) of today's risk-off pressure on the rest of the book, and policy-neutral to favorable across all three midterm scenarios (data-center power politics are AI-load allocation, not oil & gas). Sized for conviction as the book's first non-AI-capex diversifier position, not to fit a cluster band. Caution: XOM fell -3.5% today despite oil strength with no confirmed company-specific cause (scout data_quality) -- flagged, not yet explained; stop set below that unexplained weakness.",
+  "evidence_quality": {
+   "verified": 1,
+   "computed": 1,
+   "unverified": 1
+  }
+ },
+ {
+  "direction": "BUY",
+  "ticker": "TSM",
+  "trigger_type": "cluster_rotation",
+  "pair_id": null,
+  "pair_role": null,
+  "size_usd": 1604.0,
+  "price_at_proposal": 416.34,
+  "benchmark_price_at_proposal": 545.56,
+  "benchmark_ticker": "SMH",
+  "stop_price_usd": null,
+  "supersedes": [
+   "P-345"
+  ],
+  "rationale": "Resize of P-345 (BUY TSM $2857, paired with the already-open ASML sell P-305) to its remaining un-filled balance: 3 shares were bought today at $416.34 (=$1252.76), leaving ~$1604 of the original target. No change to thesis (TSM strengthening) or the underlying rotation logic -- this is a pure housekeeping resize so the open proposal reflects the actual remaining order rather than double-counting the filled portion.",
+  "evidence_quality": {
+   "verified": 0,
+   "computed": 2,
+   "unverified": 0
+  }
+ }
+]

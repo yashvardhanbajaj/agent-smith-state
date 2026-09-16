@@ -624,7 +624,9 @@ _LED_FIELDS = {
     "amount": r"Amount:\s*\$?\s*([0-9][0-9,]*\.?[0-9]*)",
     "price":  r"Price:\s*\$?\s*([0-9][0-9,]*\.?[0-9]*)",
     "shares": r"Shares:\s*([0-9]*\.?[0-9]+)",
-    "order_type": r"Order Type:\s*([A-Za-z ]+?)(?:\s+US\b|\s+a/c|$)",
+    # the 2026-09-16 body template dropped the trailing "US a/c no." row, so the value is now
+    # followed by a newline and "Explore US Stock" -- stop at end of line as well.
+    "order_type": r"Order Type:[ \t]*([A-Za-z ]+?)(?:\s+US\b|\s+a/c|[ \t]*\n|$)",
     "name": r"Ticker:\s*(.+?)\s+Amount:",
 }
 
