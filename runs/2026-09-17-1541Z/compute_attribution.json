@@ -1,0 +1,76 @@
+{
+  "value_delta_usd": -295.72,
+  "fx_effect_usd": -254.67,
+  "flow_usd": -884.34,
+  "residual_market_move_usd": 843.28,
+  "qty_changes": [
+    {
+      "ticker": "COHR",
+      "qty_diff": -3,
+      "likely_corporate_action": false
+    }
+  ],
+  "data_quality": [],
+  "flow_components": {
+    "adds_trims_usd": -884.34,
+    "new_entries_usd": 0.0,
+    "exits_usd": 0.0,
+    "exits_unpriced": [],
+    "exit_price_basis": "last_known_price_prior_run"
+  },
+  "rolling": {
+    "1m": {
+      "from": "2026-08-18",
+      "to": "2026-09-17",
+      "sessions": 21,
+      "coverage_pct": 100.0,
+      "uncovered": [],
+      "smh_pct": -1.79,
+      "book_pct": -1.98,
+      "excess_pp": -0.19,
+      "realized_excess_pp": null,
+      "realized_reason": "external_flow_usd is not recorded on every ledger row in the window, so a deposit would read as return"
+    },
+    "3m": {
+      "from": "2026-06-17",
+      "to": "2026-09-17",
+      "sessions": 63,
+      "coverage_pct": 100.0,
+      "uncovered": [],
+      "smh_pct": -10.32,
+      "book_pct": -10.06,
+      "excess_pp": 0.26,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "6m": {
+      "from": "2026-03-18",
+      "to": "2026-09-17",
+      "sessions": 126,
+      "coverage_pct": 100.0,
+      "uncovered": [],
+      "smh_pct": 42.15,
+      "book_pct": 37.13,
+      "excess_pp": -5.02,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "12m": {
+      "from": "2025-09-18",
+      "to": "2026-09-17",
+      "sessions": 250,
+      "coverage_pct": 100.0,
+      "uncovered": [],
+      "smh_pct": 76.54,
+      "book_pct": 112.57,
+      "excess_pp": 36.03,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "basis": "current_holdings_constant_mix",
+    "benchmark": "SMH",
+    "as_of": "2026-09-17",
+    "basis_label": "trailing windows: current holdings at current weights vs SMH. Not a realized return (trades, wallet cash and deposits excluded) and flattered by hindsight: it prices the names you kept"
+  },
+  "ledger_rows_available": 55
+}
