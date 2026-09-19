@@ -57,6 +57,7 @@ from smith_ledger import (cmd_lots, cmd_history, cmd_universe, cmd_ledger_parse,
 import smith_valuation
 import smith_perf
 from smith_correlation import cmd_correlation
+from smith_comms import cmd_comms_route, cmd_comms_status
 from smith_valuation import cmd_valuation
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails, cmd_freshness, cmd_report, cmd_runs, cmd_crosscheck
 from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_add_proposal,
@@ -3803,7 +3804,12 @@ def cmd_triggers(args):
     book = load_json(os.path.join(args.run_dir, "compute_book.json"))
     drift = load_json(os.path.join(args.run_dir, "compute_drift.json"), default={})
     rotation = load_json(os.path.join(args.run_dir, "compute_rotation.json"), default={})
-    state = load_json(os.path.join(args.base_dir, "state.json"), default={})
+    # STAGED state (2026-09-19): identical to state.json during the normal pipeline -- nothing is
+    # staged yet when triggers first runs -- but after a desk-round REVISION (smith_comms) the
+    # re-run must see the analysts' corrected verdicts and narrowed catalyst mappings, or it
+    # keeps firing the very threats they just withdrew.
+    from smith_state import load_state as _load_staged
+    state = _load_staged(args.base_dir, args.run_dir) or {}
     lots = load_json(os.path.join(args.base_dir, "lots.json"), default={})
     policy = load_json(os.path.join(args.base_dir, "policy.json"), default={})
     # Cluster state, for the overbought cluster-tension check further down. Both default to empty so
@@ -4937,6 +4943,11 @@ def main():
     sp.add_argument("--run-dir", required=True)
     sp.add_argument("--today", default=None)
     sp.add_argument("--agents", default=None, help="comma-separated agent names to merge (default: every agent MERGE_RULES knows how to merge)")
+    sp.add_argument("--revision", action="store_true",
+                    help="re-merge after a desk-round REVISION (smith_comms): skips the side "
+                         "effects that must happen once per run -- shifting stress_table_prev, "
+                         "appending a ladder's track-record score, recording its learning "
+                         "observation")
 
     sp = sub.add_parser("stops")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
@@ -5108,6 +5119,21 @@ def main():
     sp.add_argument("--full", action="store_true", help="include the per-month table")
     sp.add_argument("--today", default=None)
 
+    sp = sub.add_parser("comms-route",
+                        help="one DESK ROUND: harvest asks/tells/answers from every agent tail, "
+                             "open debates from crosscheck conflicts, apply revisions, and say who "
+                             "must be resumed or newly dispatched. Repeat until converged.")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--today", default=None)
+    sp.add_argument("--max-rounds", type=int, default=6)
+    sp.add_argument("--include-low", action="store_true",
+                    help="also debate low-severity crosscheck findings")
+
+    sp = sub.add_parser("comms-status", help="the desk conversation digest for this run")
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--full", action="store_true")
+
     sp = sub.add_parser("correlation",
                         help="realised correlation: effective number of bets, whether the "
                              "diversification credit on the stop sum is earned, and whether "
@@ -5223,7 +5249,7 @@ def main():
          "usage-audit": cmd_usage_audit,
          "usage-report": cmd_usage_report, "ledger-parse": cmd_ledger_parse, "ledger-apply": cmd_ledger_apply,
          "crosscheck": cmd_crosscheck, "bookcalc": cmd_bookcalc, "taxcalc": cmd_taxcalc,
-         "valuation": cmd_valuation, "perf": cmd_perf, "correlation": cmd_correlation,
+         "valuation": cmd_valuation, "perf": cmd_perf, "correlation": cmd_correlation, "comms-route": cmd_comms_route, "comms-status": cmd_comms_status,
          "sync-decisions": cmd_sync_decisions,
          "trade-rationale": cmd_trade_rationale, "indicators": cmd_indicators,
          "dispatch-plan": cmd_dispatch_plan, "triggers-diff": cmd_triggers_diff, "postflight": cmd_postflight,

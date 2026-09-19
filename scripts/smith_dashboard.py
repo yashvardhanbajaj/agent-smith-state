@@ -148,6 +148,7 @@ def build_payload(base, built_at=None):
     journal = rf("compute_journal.json")
     attrib = rf("compute_attribution.json")
     corr = rf("compute_correlation.json")
+    desk = rf("comms/digest.json")
     fresh = rf("compute_freshness.json")
     buckets = rf("compute_buckets.json")
     mkt = rf("market_inputs.json")
@@ -718,6 +719,12 @@ def build_payload(base, built_at=None):
             # 121 positions that were stopped out and never re-entered.
             "realized": attrib.get("realized") or {},
         },
+        # THE DESK CONVERSATION (added 2026-09-19): debates the analysts settled with each other,
+        # revisions they made because of it, and what is still unresolved.
+        "desk": {"debates": (desk.get("debates") or [])[:20],
+                 "revisions": (desk.get("revisions") or [])[:20],
+                 "unresolved": (desk.get("unresolved") or [])[:20],
+                 "counts": desk.get("counts") or {}, "round": desk.get("round")},
         "correlation": {
             "diversification": corr.get("diversification") or {},
             "stop_risk": corr.get("stop_risk") or {},
@@ -1760,6 +1767,23 @@ function tabBook(){
         +"</tbody></table>":"")
       +(cw.pairs&&cw.pairs.length? '<p class="note">Most correlated: '+cw.pairs.slice(0,5).map(function(x){return esc(x.pair.join("/"))+" "+esc(String(x.corr));}).join(" \u00b7 ")+"</p>":"")
       +"</div>"));
+  }
+
+  var dk=(D.desk||{});
+  if((dk.debates||[]).length||(dk.unresolved||[]).length){
+    var badge=function(o){return '<span class="pill '+(o==="revised"?"acc":o==="held"?"info":"hold")+'">'+esc(o)+"</span>";};
+    H.push(panel("Desk debate",
+      "how the analysts argued it out this run \u2014 "+esc(String((dk.counts||{}).total||0))+" messages over "+esc(String(dk.round||0))+" round(s)",
+      (dk.debates||[]).map(function(t){
+        return '<details><summary><div class="srow"><span class="caret">\u25b8</span><b>'+esc(t.ticker||"book")+"</b> "
+          +esc(String(t.debate||"").split("|")[0].replace(/_/g," "))+" "+badge(t.outcome)+"</div></summary>"
+          +'<div class="dbody">'+(t.sides||[]).map(function(sd){
+            return "<p><b>"+esc(sd.agent)+"</b> "+(sd.position?badge(sd.position):badge(sd.status))+" "+esc(sd.answer||"")
+              +(sd.revision_applied&&sd.revision_applied.length?'<br><span class="note">changed: '+esc(sd.revision_applied.slice(0,3).join("; "))+"</span>":"")+"</p>";
+          }).join("")+"</div></details>";
+      }).join("")
+      +((dk.unresolved||[]).length?'<div class="pad"><p class="note"><b>Unresolved:</b> '+dk.unresolved.map(function(u){
+          return esc(u.to)+" \u2190 "+esc((u.ticker?u.ticker+": ":"")+String(u.question||"").slice(0,120))+" ("+esc(u.status)+")";}).join(" \u00b7 ")+"</p></div>":"")));
   }
 
   H.push(panel("Beat or lag "+esc(q.benchmark||"SMH"),

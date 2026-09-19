@@ -1629,7 +1629,7 @@ def _merge_quality(out, state, today):
             "force_thesis_review": len(ftr), "financials_cache_updated": len(fin_updates)}
 
 
-def _merge_cluster(out, state, today, cluster_name=None, ladder_track_record=None):
+def _merge_cluster(out, state, today, cluster_name=None, ladder_track_record=None, revision=False):
     """Fold ONE cluster specialist's tail into state.cluster_ladders[<cluster>].
 
     PER-CLUSTER, never wholesale. Up to LADDER_MAX_DISPATCH clusters are refreshed per run and
@@ -1685,7 +1685,8 @@ def _merge_cluster(out, state, today, cluster_name=None, ladder_track_record=Non
     # on. Capped at LADDER_TRACK_RECORD_CAP: a rolling window, because a ranking that was right
     # about a different cluster composition two years ago is not evidence about this one.
     score = (ladder_track_record or {}).get(cname)
-    if score:
+    # Same-run revision: the score of the replaced ladder was already appended on first merge.
+    if score and not revision:
         entry["track_record"] = (entry["track_record"] + [score])[-LADDER_TRACK_RECORD_CAP:]
     # A ladder with no ordering is not a ladder. Persisting one would hand the rotation trigger
     # a `leader`/`laggard` pair with nothing behind it, which is worse than having no ladder at
@@ -1707,7 +1708,7 @@ def _merge_cluster(out, state, today, cluster_name=None, ladder_track_record=Non
             "scored_call": score if (score or {}).get("scored") else None}
 
 
-def _merge_strategist(out, state, today):
+def _merge_strategist(out, state, today, revision=False):
     """Persist the strategist's stress table (added 2026-08-31).
 
     smith-strategist was the ONLY Stage-1/2 agent with no merge rule at all. That was defensible
@@ -1731,7 +1732,9 @@ def _merge_strategist(out, state, today):
                 if not isinstance(x.get("impact_pct_low"), (int, float))
                 or not isinstance(x.get("impact_pct_high"), (int, float))]
     prior = state.get("stress_table")
-    if prior:
+    # A same-run REVISION must not shift this run's own first table into `_prev` -- that would
+    # erase the previous run's table, which is the only thing `_prev` exists to hold.
+    if prior and not revision:
         state["stress_table_prev"] = prior
     st.setdefault("as_of", today)
     state["stress_table"] = st
@@ -1889,6 +1892,8 @@ def cmd_merge_tails(args):
             extra["ladder_track_record"] = (
                 load_json(os.path.join(args.run_dir, "compute_ladder.json"),
                           default={}).get("track_record") or {})
+        if getattr(args, "revision", False) and (agent == "strategist" or is_cluster_agent(agent)):
+            extra["revision"] = True
         results[agent] = rule(out, state, today, **extra)
         # LADDER CALLS FEED THE LEARNING STORE (added 2026-09-08). Each scored call -- did the
         # ladder's named leader actually beat its named laggard -- is one observation, on the
@@ -1898,7 +1903,7 @@ def cmd_merge_tails(args):
         # import: smith_learning pulls in smith_lifecycle, which this module does not otherwise
         # need, and a top-level import would make every `slices`/`gaps` call pay for it.
         _sc = (results[agent] or {}).get("scored_call") if isinstance(results[agent], dict) else None
-        if _sc:
+        if _sc and not getattr(args, "revision", False):
             import smith_learning
             smith_learning.record_observation(
                 args.base_dir, "ladder.hit_rate", 1 if _sc.get("correct") else 0,
@@ -2256,7 +2261,7 @@ AGENT_SLICES = {
                    # BUY on that name (SKILL.md's valuation section); on-demand/monthly,
                    # MISSING on most runs by design.
                    "refs": ["drift", "sentiment", "risk", "book", "derisk", "triggers",
-                            "rotation", "crosscheck", "valuation", "proposal_specs",
+                            "rotation", "crosscheck", "comms_digest", "valuation", "proposal_specs",
                             # Stage-1 tails by reference, not pasted into the prompt (2026-09-14);
                             # scout_tail replaced macro_tail; taxcalc replaced smith-tax.
                             "scout_tail", "thesis_tail", "signals_tail", "catalyst_tail", "taxcalc"],
@@ -2299,6 +2304,10 @@ REF_FILES = {
     # crosscheck.json (added 2026-09-07, see cmd_crosscheck's docstring for the invocation-
     # order fix that makes this file exist before WAVE 3 dispatches).
     "crosscheck": "crosscheck.json",
+    # comms/digest.json (added 2026-09-19, smith_comms): the desk conversation -- settled debates,
+    # revisions, answered questions and what is still unresolved. The strategist adjudicates on
+    # the POST-debate record instead of on two raw tails that disagree.
+    "comms_digest": "comms/digest.json",
     # compute_valuation.json (added 2026-09-07, smith_valuation.py) -- ON-DEMAND / MONTHLY,
     # not a mandatory every-run stage (see SKILL.md's valuation section). Only produced on a
     # run where the orchestrator dispatched a fetch of FMP statement data and ran
@@ -2359,7 +2368,8 @@ def resolve_agent(agent):
 # A cluster slice refs all three deliberately (they are the judgment it reasons on top of) and
 # would otherwise report MISSING on most runs -- the same false-alarm class as `valuation`.
 OPTIONAL_REFS = {"valuation", "catalyst_tail", "quality_tail", "earnings_tail", "signals_tail",
-                 "options", "scout_tail", "thesis_tail", "taxcalc"}  # options: deep-run fetch only
+                 "options", "scout_tail", "thesis_tail", "taxcalc",
+                 "comms_digest"}  # options: deep-run fetch only
 
 # Agents whose REAL input is the outside world, not a file. Their slice can be byte-identical to
 # last run's and they still have work to do, because news, prices and filings moved even when
@@ -2739,6 +2749,13 @@ def cmd_slices(args):
         sl["prior_findings_since"] = dig["since"]
         sl["prior_findings_rule"] = dig["rule"]
         _place(sl, "prior_findings", dig["findings"], shared_dir, shared_once, name=f"prior_findings_{agent}")
+        # THE DESK CONVERSATION (added 2026-09-19, smith_comms). Every analyst gets the protocol,
+        # the ownership directory, the messages addressed to it, and the answers to its own
+        # questions -- inline, because an inbox that has to be fetched is an inbox that gets
+        # skipped. Messages queued for an agent not yet dispatched are delivered HERE, at no
+        # extra dispatch cost.
+        import smith_comms
+        sl.update(smith_comms.slice_block(rd, agent))
         for k in spec["state"]:
             v = state.get(k)
             if k in ("thesis", "sector_map") and isinstance(v, dict):

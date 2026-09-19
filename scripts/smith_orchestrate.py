@@ -366,7 +366,17 @@ def dispatch_plan(base_dir, run_dir, mode, asks=(), today=None, now=None):
 
 
 def cmd_dispatch_plan(args):
-    emit(dispatch_plan(args.base_dir, args.run_dir, args.mode, args.ask, args.today))
+    plan = dispatch_plan(args.base_dir, args.run_dir, args.mode, args.ask, args.today)
+    # Persisted (2026-09-19) because the desk router needs to know who is still SCHEDULED: a
+    # question to an agent that has not run yet is delivered free in its slice, while one to an
+    # agent that is not on the roster at all opens a new layer. Without the plan on disk the
+    # router cannot tell those apart.
+    try:
+        with open(os.path.join(args.run_dir, "dispatch_plan.json"), "w") as fh:
+            json.dump(plan, fh, indent=2)
+    except OSError:
+        pass
+    emit(plan)
 
 
 # ---------------------------------------------------------------------------------------------

@@ -31,23 +31,23 @@ SHOW_EXPIRED_DAYS = 3
 
 # How long a finding stays "settled" before an agent should treat it as needing a re-check.
 TTL_DAYS = {"macro_regime": 1, "macro_calendar": 7, "playbook": 2, "orchestrator": 2,
-            "thesis": 21, "ladder": 7,
+            "thesis": 21, "ladder": 7, "debate": 7,
             "catalyst:structural": 14, "catalyst:immediate": 2, "catalyst:noise": 1, "catalyst": 3}
 
 # Which finding kinds each agent receives. An agent never gets a kind its own slice already carries
 # in full (thesis/strategist/cluster already embed state.thesis), so the digest adds no duplicate bytes.
 AGENT_KINDS = {
-    "catalyst": ("catalyst", "macro", "orchestrator"),
+    "catalyst": ("catalyst", "macro", "debate", "orchestrator"),
     "signals": ("catalyst", "thesis", "orchestrator"),
-    "thesis": ("catalyst", "ladder", "macro", "orchestrator"),
+    "thesis": ("catalyst", "ladder", "macro", "debate", "orchestrator"),
     "watchlist": ("catalyst", "macro"),
     "scout": ("macro", "playbook", "orchestrator"),
     "rebound": ("catalyst", "macro", "playbook", "orchestrator"),
-    "cycle": ("catalyst", "macro", "ladder", "orchestrator"),
+    "cycle": ("catalyst", "macro", "ladder", "debate", "orchestrator"),
     "earnings": ("catalyst",),
-    "quality": ("thesis",),
-    "cluster": ("ladder", "catalyst", "orchestrator"),
-    "strategist": ("playbook", "macro", "catalyst", "ladder", "orchestrator"),
+    "quality": ("thesis", "debate"),
+    "cluster": ("ladder", "catalyst", "debate", "orchestrator"),
+    "strategist": ("playbook", "macro", "catalyst", "ladder", "debate", "orchestrator"),
     "ledger": (),
 }
 AGENT_CAP = {"strategist": 60}
@@ -169,6 +169,16 @@ def extract(state, run_dir, run_id, today):
                 f"{', '.join(sa.get('execute') or []) or 'none'}; hold {', '.join(hold) or 'none'}. "
                 f"Rule: {sa.get('confirmation_rule') or ''}", today, ttl,
                 verified="judgment", agent="smith-strategist")
+
+    # DESK DEBATES (added 2026-09-19): what the analysts argued out with each other this run, so
+    # the next run starts from the settled position instead of re-arguing it.
+    try:
+        import smith_comms
+        for r in smith_comms.findings_rows(run_dir):
+            add("debate", r["key"], r["subject"], r["claim"], today, r.get("ttl_days") or TTL_DAYS["debate"],
+                agent="desk:" + "+".join(r.get("agents") or []))
+    except Exception:  # noqa: BLE001 -- a malformed ledger must never block postflight
+        pass
 
     orch = load_json(os.path.join(run_dir, "findings_orchestrator.json"), default=None)
     rows = orch.get("findings") if isinstance(orch, dict) else orch
