@@ -55,6 +55,7 @@ from smith_core import load_json, emit, fail, clamp
 from smith_ledger import (cmd_lots, cmd_history, cmd_universe, cmd_ledger_parse,
                           cmd_ledger_apply, cmd_bookcalc, cmd_taxcalc)
 import smith_valuation
+import smith_perf
 from smith_valuation import cmd_valuation
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails, cmd_freshness, cmd_report, cmd_runs, cmd_crosscheck
 from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_add_proposal,
@@ -73,6 +74,7 @@ from smith_ledger import cmd_trade_rationale  # noqa: E402
 import smith_marketdata  # noqa: E402
 from smith_marketdata import cmd_indicators, cmd_normalize_bars, cmd_session_gate  # noqa: E402
 from smith_orchestrate import cmd_dispatch_plan, cmd_triggers_diff, cmd_postflight  # noqa: E402
+from smith_perf import cmd_perf  # noqa: E402
 from smith_runlife import (cmd_lock, cmd_commit_state, cmd_health,  # noqa: E402
                            cmd_memory_summary, cmd_preflight, cmd_abort)
 
@@ -1155,7 +1157,42 @@ def cmd_attribution(args):
     result["rolling"] = _rolling_windows(args.run_dir, holdings, ledger_path)
     result["ledger_rows_available"] = result["rolling"].pop("_ledger_rows", 0)
 
+    # REALIZED return, from the position-level reconstruction (added 2026-09-19). `rolling` above
+    # is survivorship-biased by construction and must never be the headline on its own: it priced
+    # today's 27 survivors back 12 months and reported +46.76pp of excess while the reconstructed
+    # book, which includes the 121 positions stopped out and never re-entered, shows the opposite
+    # sign. Both are emitted, and `realized` is the one the briefing leads with.
+    result["realized"] = _realized_block(args.base_dir)
+
     emit(result)
+
+
+def _realized_block(base_dir):
+    """Attach smith_perf's reconstruction if its price history exists, else say why not.
+
+    Never fabricates: a missing perf_bars.json degrades to an explicit reason, because a silent
+    fallback to the constant-mix number is exactly the confusion this block exists to end.
+    """
+    bars = load_json(os.path.join(base_dir, "perf_bars.json"), default=None)
+    if not bars:
+        return {"available": False,
+                "reason": "perf_bars.json missing -- run `smith_fetch.py perf-bars --base-dir .`"}
+    trades = (load_json(os.path.join(base_dir, "trades.json"), default={}) or {}).get("trades", [])
+    if not trades:
+        return {"available": False, "reason": "trades.json has no trades"}
+    recon = smith_perf.reconstruct(trades, bars)
+    if recon.get("error") or not recon.get("series"):
+        return {"available": False, "reason": recon.get("error") or "empty reconstruction"}
+    series = recon["series"]
+    material = [r for r in series if r["value_usd"] >= 10000.0]
+    return {"available": True,
+            "full_history": smith_perf.chain(series, bars),
+            "material_capital": smith_perf.chain(material, bars) if material else None,
+            "material_floor_usd": 10000.0,
+            "money_weighted": smith_perf.selection_cost(series, bars),
+            "basis": "trades.json rebuilt daily and priced at closes; includes exited names",
+            "note": "TWR equal-weights the sub-$5K months, so full_history overstates the damage; "
+                    "material_capital and money_weighted describe the capital that mattered."}
 
 
 
@@ -5045,6 +5082,23 @@ def main():
                     help="tax delta below which FIFO-vs-HIFO is not worth complicating execution")
     sp.add_argument("--today", default=None)
 
+    sp = sub.add_parser("perf",
+                        help="REALIZED return: rebuilds the book from trades.json + daily closes "
+                             "and reports TWR vs SMH plus the dollar cost of selection. This is "
+                             "the survivorship-free number rolling_constant_mix cannot produce.")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", default=None, help="writes compute_perf.json here when given")
+    sp.add_argument("--bars", default=None, help="default: <base-dir>/perf_bars.json")
+    sp.add_argument("--bench", default=smith_perf.BENCH)
+    sp.add_argument("--since", default=None, help="YYYY-MM-DD; trim the chain's start")
+    sp.add_argument("--until", default=None)
+    sp.add_argument("--min-book", type=float, default=smith_perf.MIN_BOOK_USD,
+                    help="exclude sessions whose PRIOR book is below this (denominator stability)")
+    sp.add_argument("--material-book", type=float, default=10000.0,
+                    help="second chain restricted to sessions at or above this book value")
+    sp.add_argument("--full", action="store_true", help="include the per-month table")
+    sp.add_argument("--today", default=None)
+
     sp = sub.add_parser("valuation",
                         help="reverse-DCF, ROIC-vs-WACC and forensic (Beneish/Altman) checks "
                              "from agent-fetched FMP statement data")
@@ -5142,7 +5196,7 @@ def main():
          "usage-audit": cmd_usage_audit,
          "usage-report": cmd_usage_report, "ledger-parse": cmd_ledger_parse, "ledger-apply": cmd_ledger_apply,
          "crosscheck": cmd_crosscheck, "bookcalc": cmd_bookcalc, "taxcalc": cmd_taxcalc,
-         "valuation": cmd_valuation,
+         "valuation": cmd_valuation, "perf": cmd_perf,
          "sync-decisions": cmd_sync_decisions,
          "trade-rationale": cmd_trade_rationale, "indicators": cmd_indicators,
          "dispatch-plan": cmd_dispatch_plan, "triggers-diff": cmd_triggers_diff, "postflight": cmd_postflight,

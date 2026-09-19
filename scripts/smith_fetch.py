@@ -427,6 +427,50 @@ def run_all(args, source):
     return report
 
 
+def fetch_perf_bars(args):
+    """Full daily close history for every ticker that has EVER appeared in trades.json.
+
+    Deliberately not limited to current holdings: the realized-return reconstruction has to price
+    positions on the days they were actually held, including the 45 names since exited. Uses
+    auto_adjust=False (raw closes) because the reconstruction carries raw share counts -- the two
+    must share a basis. trades.json contains no splits (all 13 corporate-action rows are
+    `adjustment` reconciliations), so no split alignment is needed today; a future split would
+    require either adjusting the quantity series or switching both sides to adjusted closes.
+    """
+    import json as _json
+    base = args.base_dir
+    trades = (_json.load(open(os.path.join(base, "trades.json"))) or {}).get("trades", [])
+    tickers = sorted({t["ticker"] for t in trades if t.get("ticker")} | {args.bench, "SPY"})
+    if not trades:
+        return {"ok": False, "error": "trades.json has no trades"}
+    start = args.start
+    if not start:
+        first = min(str(t.get("date") or "")[:10] for t in trades if t.get("date"))
+        y, m, d = (int(x) for x in first.split("-"))
+        start = f"{y - 1 if m == 1 else y}-{12 if m == 1 else m - 1:02d}-01"
+    try:
+        import yfinance as yf
+    except ImportError as e:
+        return {"ok": False, "error": f"yfinance unavailable: {e}"}
+    frame = yf.download(tickers, start=start, interval="1d", progress=False, auto_adjust=False)["Close"]
+    out, thin = {}, []
+    for t in tickers:
+        if t not in frame.columns:
+            thin.append(t)
+            continue
+        s = frame[t].dropna()
+        if len(s) < 2:
+            thin.append(t)
+            continue
+        out[t] = {str(i)[:10]: round(float(v), 4) for i, v in s.items()}
+    path = args.out or os.path.join(base, "perf_bars.json")
+    _write_json(path, out)
+    spans = [d for rows in out.values() for d in rows]
+    return {"ok": bool(out), "written": path, "tickers": len(out), "requested": len(tickers),
+            "unresolved": thin, "start": start,
+            "span": [min(spans), max(spans)] if spans else None}
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -439,7 +483,21 @@ def main():
     sp.add_argument("--tickers", default=None, help="extra comma-separated tickers")
     sp.add_argument("--fixtures", default=None, help="offline: read normalised fixtures from this dir")
     sp.add_argument("--budget-seconds", type=float, default=120.0)
+
+    pb = sub.add_parser("perf-bars",
+                        help="daily closes for EVERY ticker ever traded (not just held ones) "
+                             "plus the benchmark, written to <base-dir>/perf_bars.json. Feeds "
+                             "`smith_math.py perf`. Exited names are the whole point: leaving "
+                             "them out is what made the old constant-mix number survivorship-biased.")
+    pb.add_argument("--base-dir", default=os.environ.get("SMITH_BASE_DIR", "/Users/yb/Claude/AgentSmith"))
+    pb.add_argument("--start", default=None, help="default: 30d before the first trade")
+    pb.add_argument("--bench", default="SMH")
+    pb.add_argument("--out", default=None)
     args = ap.parse_args()
+
+    if args.cmd == "perf-bars":
+        print(json.dumps(fetch_perf_bars(args)))
+        return
 
     if args.fixtures:
         source = FixtureSource(args.fixtures)
