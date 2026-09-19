@@ -1,0 +1,184 @@
+{
+  "as_of": "2026-09-19",
+  "ltcg_window": {
+    "earliest_open_lot": "2026-07-31",
+    "live_decisions": false,
+    "first_crossing": "2028-07-31",
+    "note": "All 62 open lots are short-term; the 24-month Indian boundary first bites 2028-07-31. No trim this run can be deferred into long-term treatment. One line, not a section."
+  },
+  "trim_sequencing": [
+    {
+      "proposal_id": "P-305",
+      "ticker": "ASML",
+      "size_usd": 834.71,
+      "shares_implied": 0.499656,
+      "price_usd": 1670.57,
+      "fifo": {
+        "lots": [
+          {
+            "date": "2026-08-24",
+            "qty": 0.499656,
+            "price_usd": 1757.32
+          }
+        ],
+        "realised_gain_usd": -43.35
+      },
+      "hifo": {
+        "lots": [
+          {
+            "date": "2026-08-25",
+            "qty": 0.499656,
+            "price_usd": 1767.17
+          }
+        ],
+        "realised_gain_usd": -48.27
+      },
+      "tax_delta_usd": -4.92,
+      "material": false,
+      "shortfall_shares": null,
+      "note": "HIFO realises -4.92 vs FIFO."
+    },
+    {
+      "proposal_id": "P-310",
+      "ticker": "TER",
+      "size_usd": 333.26,
+      "shares_implied": 0.899754,
+      "price_usd": 370.39,
+      "fifo": {
+        "lots": [
+          {
+            "date": "2026-08-20",
+            "qty": 0.002731,
+            "price_usd": 381.04
+          },
+          {
+            "date": "2026-08-25",
+            "qty": 0.897023,
+            "price_usd": 374.41
+          }
+        ],
+        "realised_gain_usd": -3.64
+      },
+      "hifo": {
+        "lots": [
+          {
+            "date": "2026-08-20",
+            "qty": 0.002731,
+            "price_usd": 381.04
+          },
+          {
+            "date": "2026-08-25",
+            "qty": 0.897023,
+            "price_usd": 374.41
+          }
+        ],
+        "realised_gain_usd": -3.64
+      },
+      "tax_delta_usd": 0.0,
+      "material": false,
+      "shortfall_shares": null,
+      "note": "FIFO and HIFO select the same lots -- no sequencing decision to make, do not complicate execution for it."
+    },
+    {
+      "proposal_id": "P-339",
+      "ticker": "COHR",
+      "size_usd": 200,
+      "shares_implied": 0.630321,
+      "price_usd": 317.2988,
+      "fifo": {
+        "lots": [
+          {
+            "date": "2026-08-24",
+            "qty": 0.630321,
+            "price_usd": 279.06
+          }
+        ],
+        "realised_gain_usd": 24.1
+      },
+      "hifo": {
+        "lots": [
+          {
+            "date": "2026-08-24",
+            "qty": 0.630321,
+            "price_usd": 279.06
+          }
+        ],
+        "realised_gain_usd": 24.1
+      },
+      "tax_delta_usd": 0.0,
+      "material": false,
+      "shortfall_shares": null,
+      "note": "FIFO and HIFO select the same lots -- no sequencing decision to make, do not complicate execution for it."
+    },
+    {
+      "proposal_id": "P-346",
+      "ticker": "MU",
+      "size_usd": 186.0,
+      "shares_implied": 0.182756,
+      "price_usd": 1017.75,
+      "fifo": {
+        "lots": [
+          {
+            "date": "2026-08-24",
+            "qty": 0.182756,
+            "price_usd": 920.44
+          }
+        ],
+        "realised_gain_usd": 17.78
+      },
+      "hifo": {
+        "lots": [
+          {
+            "date": "2026-08-24",
+            "qty": 0.182756,
+            "price_usd": 920.44
+          }
+        ],
+        "realised_gain_usd": 17.78
+      },
+      "tax_delta_usd": 0.0,
+      "material": false,
+      "shortfall_shares": null,
+      "note": "FIFO and HIFO select the same lots -- no sequencing decision to make, do not complicate execution for it."
+    }
+  ],
+  "open_trims": 4,
+  "all_deltas_zero": false,
+  "harvest_candidates": [
+    {
+      "ticker": "AMAT",
+      "unrealised_loss_usd": -98.23,
+      "pct": -6.85,
+      "thesis_status": "strengthening",
+      "has_open_trim": false,
+      "qty": 3.008179
+    },
+    {
+      "ticker": "STM",
+      "unrealised_loss_usd": -6.05,
+      "pct": -0.8,
+      "thesis_status": "watch",
+      "has_open_trim": false,
+      "qty": 15
+    },
+    {
+      "ticker": "CIEN",
+      "unrealised_loss_usd": -0.23,
+      "pct": -7.16,
+      "thesis_status": "strengthening",
+      "has_open_trim": false,
+      "qty": 0.008528
+    }
+  ],
+  "lots_residual": {
+    "ASML": -1.1e-06,
+    "AMZN": -2.0,
+    "MU": -0.9999993,
+    "APH": -5.0,
+    "AMAT": -0.9999994,
+    "NOW": -1.0
+  },
+  "data_quality": [],
+  "wash_sale_note": "India has no US-style 30-day wash-sale rule on equities. Rebuying soon after a harvest is legal but resets basis lower, surrendering future downside cushion -- an economic trade-off, not a legal bar.",
+  "note": "Sequencing and harvest SIZING are arithmetic and are settled here. Whether a harvest CONFLICTS with a thesis or an open buy proposal is judgment and belongs to the strategist -- `thesis_status` and `has_open_trim` are supplied so it can weigh that without re-deriving anything."
+}

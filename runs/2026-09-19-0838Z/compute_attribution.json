@@ -1,0 +1,116 @@
+{
+  "value_delta_usd": 4375.81,
+  "fx_effect_usd": -278.44,
+  "flow_usd": 2775.54,
+  "residual_market_move_usd": 1878.71,
+  "qty_changes": [
+    {
+      "ticker": "MU",
+      "qty_diff": 1.0,
+      "likely_corporate_action": true
+    },
+    {
+      "ticker": "AMAT",
+      "qty_diff": 1.0,
+      "likely_corporate_action": false
+    },
+    {
+      "ticker": "APH",
+      "qty_diff": 5,
+      "likely_corporate_action": false
+    },
+    {
+      "ticker": "AMZN",
+      "qty_diff": 2,
+      "likely_corporate_action": false
+    },
+    {
+      "ticker": "NBIS",
+      "qty_diff": 5,
+      "likely_corporate_action": false,
+      "new_entry": true,
+      "est_cost_usd": 1111.15
+    },
+    {
+      "ticker": "NOW",
+      "qty_diff": 1,
+      "likely_corporate_action": false
+    },
+    {
+      "ticker": "SKHY",
+      "qty_diff": 1,
+      "likely_corporate_action": false,
+      "new_entry": true,
+      "est_cost_usd": 187.9
+    }
+  ],
+  "data_quality": [],
+  "flow_components": {
+    "adds_trims_usd": 1476.49,
+    "new_entries_usd": 1299.05,
+    "exits_usd": 0.0,
+    "exits_unpriced": [],
+    "exit_price_basis": "last_known_price_prior_run"
+  },
+  "rolling": {
+    "1m": {
+      "from": "2026-08-19",
+      "to": "2026-09-18",
+      "sessions": 21,
+      "coverage_pct": 100.0,
+      "uncovered": [],
+      "smh_pct": 2.15,
+      "book_pct": 1.55,
+      "excess_pp": -0.6,
+      "realized_excess_pp": null,
+      "realized_reason": "external_flow_usd is not recorded on every ledger row in the window, so a deposit would read as return"
+    },
+    "3m": {
+      "from": "2026-06-18",
+      "to": "2026-09-18",
+      "sessions": 63,
+      "coverage_pct": 99.4,
+      "uncovered": [
+        "SKHY"
+      ],
+      "smh_pct": -13.17,
+      "book_pct": -12.44,
+      "excess_pp": 0.73,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "6m": {
+      "from": "2026-03-19",
+      "to": "2026-09-18",
+      "sessions": 126,
+      "coverage_pct": 99.4,
+      "uncovered": [
+        "SKHY"
+      ],
+      "smh_pct": 45.09,
+      "book_pct": 41.84,
+      "excess_pp": -3.25,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "12m": {
+      "from": "2025-09-19",
+      "to": "2026-09-18",
+      "sessions": 250,
+      "coverage_pct": 99.4,
+      "uncovered": [
+        "SKHY"
+      ],
+      "smh_pct": 81.5,
+      "book_pct": 128.26,
+      "excess_pp": 46.76,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "basis": "current_holdings_constant_mix",
+    "benchmark": "SMH",
+    "as_of": "2026-09-18",
+    "basis_label": "trailing windows: current holdings at current weights vs SMH. Not a realized return (trades, wallet cash and deposits excluded) and flattered by hindsight: it prices the names you kept"
+  },
+  "ledger_rows_available": 56
+}

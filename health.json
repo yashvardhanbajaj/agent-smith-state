@@ -1,11 +1,19 @@
 {
   "ok": false,
-  "as_of": "2026-09-17T15:41:33Z",
+  "as_of": "2026-09-19T08:38:40Z",
   "problems": [
-    "1 scheduled run(s) in the last 10 days left no or partial artefacts: 2026-09-11 MISSING"
+    "2 scheduled run(s) in the last 10 days left no or partial artefacts: 2026-09-18 FIRED_BUT_NO_LEDGER_ROW, 2026-09-11 MISSING"
   ],
-  "headline": "Health: 1 problem(s) -- 1 scheduled run(s) in the last 10 days left no or partial artefacts: 2026-09-11 MISSING",
+  "headline": "Health: 1 problem(s) -- 2 scheduled run(s) in the last 10 days left no or partial artefacts: 2026-09-18 FIRED_BUT_NO_LEDGER_ROW, 2026-09-11 MISSING",
   "missed_runs": [
+    {
+      "date": "2026-09-18",
+      "weekday": "Fri",
+      "verdict": "FIRED_BUT_NO_LEDGER_ROW",
+      "expected": [
+        "agent-smith-daily-us"
+      ]
+    },
     {
       "date": "2026-09-11",
       "weekday": "Fri",
@@ -22,15 +30,15 @@
     "age_min": 0.0,
     "heartbeat_age_min": 0.0,
     "holder": {
-      "run_id": "2026-09-17-1541Z",
+      "run_id": "2026-09-19-0838Z",
       "mode": "quick",
       "run_dir": null,
-      "acquired_utc": "2026-09-17T15:41:33Z",
-      "heartbeat_utc": "2026-09-17T15:41:33Z",
+      "acquired_utc": "2026-09-19T08:38:40Z",
+      "heartbeat_utc": "2026-09-19T08:38:40Z",
       "steals": []
     }
   },
-  "last_ledger_row_age_h": 18.3,
+  "last_ledger_row_age_h": 40.3,
   "uncommitted_runs": [],
   "mirror": {
     "checked": true,

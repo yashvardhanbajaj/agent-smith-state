@@ -1,0 +1,154 @@
+{
+ "policy_draft": null,
+ "stress_table": null,
+ "proposals": [],
+ "no_new_proposals_reason": "Quick sweep, market closed (Fri 2026-09-18 close basis). risk_off_status normal (drawdown -1.13% vs warn 15%; aggregate open risk 6.45% vs 10% cap; no position or ATR-cap breach, max position TSM 8.99% vs 12%). No oversold_reversion, overbought_distribution, thesis_break, trend_breakdown or reentry fired. The live rows that did fire were each rejected on evidence: catalyst_threat x27 (single carried-forward pacing-essay/CXMT mapping, see data_quality), conviction_exit ASML (3 'independent' signals are one contested unverified WATCH + a misapplied catalyst + a mild peer-laggard), ladder-driven cluster_rotation pairs (ladder track record below sample bar 1/2, 2/2, 0/1 -- reported not acted on; VRT->BE buys the +28.6% 1m, S&P-inclusion-Monday, shadow-scale-out name), profit_rotation MU->CIEN and AMZN->MSFT (would reverse the user's own 09-18 MU and AMZN adds one day later), trend_entry LITE (conviction low 29.7, unresolved GLW-ATM optics overhang, stop 13.4% below on a 6.7% ATR name = high stop-out odds, sentiment extreme_greed), conviction_average CIEN (low 21.6, dust position, optics overhang), entry_setup VST (no live price/ATR, no size). Sentiment extreme_greed (75.1) would lead with profit-booking, but no name is RSI>70 and the record of trims (28.3%, n=46) does not support manufacturing one.",
+ "risk_off": {
+  "status": "normal",
+  "drawdown_pct": -1.128,
+  "warn_pct": 15,
+  "risk_off_pct": 25,
+  "aggregate_open_risk_pct": 6.45,
+  "aggregate_open_risk_cap_pct": 10,
+  "correction_state": "none",
+  "gate": "STABILIZING",
+  "note": "Disclosed side effects, not action drivers: AI Semis/Fabs 37.97% of equity vs 33% ceiling (30.1% on total-book basis, in band); AI Power/Cooling under its floor at 8.8% of equity vs 12%; cash 20.7% of total book vs 5-15 band (wallet $8,811); AI-capex chain ~95.8% of invested equity."
+ },
+ "stale_proposal_retirements": {
+  "retire_open_now": [
+   {
+    "id": "P-305",
+    "ticker": "ASML",
+    "reason": "Sell leg of ASML->TSM. Conviction_exit's 3 signals are correlated, not independent: WATCH is unverified and contested (5 for/3 against), the CXMT leg is smith-thesis's own flagged misapplication to EUV tooling, and the trend leg is a mild -6.2pp peer laggard at RSI 48.6. Ladder authority is below the sample bar (1/2). Retire together with P-352."
+   },
+   {
+    "id": "P-352",
+    "ticker": "TSM",
+    "reason": "Buy leg of the same pair. It is a 'remaining balance' of a cash-funded target whose premise (the rate-shock sell basket) never executed; TSM is already 7sh / 8.99% after the 09-16 fill and adding $1,604 would take it to ~13.7% of equity, over the 12% single-name max. Cash it assumed was redeployed 09-18 elsewhere."
+   },
+   {
+    "id": "P-310",
+    "ticker": "TER",
+    "reason": "Basis was a 1.078x ATR-cap breach on 09-15. compute_risk now shows TER at 0.89x cap, not over_cap ($228 headroom); cap alone was never sufficient and the residual catalyst is the CXMT mapping."
+   },
+   {
+    "id": "P-314",
+    "ticker": "AMAT",
+    "reason": "Satisfied. The user bought +1 AMAT on 09-18 (~the $412 sized). oversold_reversion no longer fires (RSI14 43.8 > 35, Friday +6.5% catch-up bounce)."
+   },
+   {
+    "id": "P-318",
+    "ticker": "SNDK",
+    "reason": "rebound-class proposal but correction_state is none (rebound screen not run); no thesis on file (T2_ALUMNI), weakest-evidence item by its own rationale; SNDK +6.2% on 09-17 removed the dislocation."
+   },
+   {
+    "id": "P-339",
+    "ticker": "COHR",
+    "reason": "Satisfied. COHR was stopped out on 09-17 (3sh @ ~$295); remaining 2sh / 1.88% is already the reduced position this trim was meant to top up."
+   },
+   {
+    "id": "P-341",
+    "ticker": "GOOG",
+    "reason": "Stale: bought as a 'shielded name' leg of a 09-16 rate-shock rotation funded by sells that never happened; the user deployed the wallet into AMZN/AMAT/NOW/MU/NBIS/APH instead. GOOG is already 6.2% of equity with thesis strengthening but only 1 unverified evidence item."
+   },
+   {
+    "id": "P-343",
+    "ticker": "QCOM",
+    "reason": "Stale, same basket premise. QCOM fell -5.6% Friday on a cause not established, and its strengthening call now rests on secondary web sources with an open thesis-vs-catalyst_threat crosscheck flag; a fresh view is needed, not a 3-day-old add."
+   },
+   {
+    "id": "P-344",
+    "ticker": "WDC",
+    "reason": "Stale, same basket premise; the memory/storage slot was filled by the user's +1 MU on 09-18. WDC is already 3.9% of equity; new Solidigm NAND-fab report is ambiguous (long-dated supply add)."
+   },
+   {
+    "id": "P-346",
+    "ticker": "MU",
+    "reason": "Contradicted by the user's own +1 MU buy on 09-18 (2.0004sh, 6.04%). Trim size ($186) is immaterial to the exposure and the real MU binary is FQ4 earnings 2026-10-01."
+   }
+  ],
+  "recommend_desk_close_housekeeping": [
+   {
+    "ids": [
+     "P-007",
+     "P-008",
+     "P-009",
+     "P-026"
+    ],
+    "reason": "July rebound stage-in DEFERRALS (GLW/CQQQ/GOOG/CLS/COHR/VRT), 50+ days old, correction_state none; no live purpose."
+   }
+  ],
+  "keep": [
+   {
+    "id": "P-028",
+    "reason": "ASML trim-watch, no capital action, harmless."
+   }
+  ],
+  "user_owned_no_strategist_action": [
+   {
+    "ids": [
+     "P-149",
+     "P-186"
+    ],
+    "reason": "accepted_by_user 2026-08-31; strategist never retires accepted ids. P-186 (Sell CIEN) left the 0.0085sh CIEN residue that is now a user_decision dust flag."
+   }
+  ],
+  "count_note": "proposals.json holds 10 status=open plus 4 deferred, 2 accepted, 1 watch = 17 non-terminal; only the 10 open are retire candidates."
+ },
+ "scorecard_read": "Stored scorecard as_of 2026-09-19, n=88: overall 27.3% (24 worked / 48 missed / 16 neutral, avg benefit -2.94%); TRIM/SELL 28.3% (n=46, avg -3.45%); BUY 39.3% (n=28, avg +0.18%); HOLD 0.0% (n=14, avg -7.49%). alpha_scored_count is 0 so none of this is benchmark-relative and it mixes market beta into strategist error on a rising tape; 6 rows quarantined for anchor review. Implication: the desk's sells have lost money on average and its buys roughly broke even, so no proposal here deserves more than modest weight and no sell should be manufactured on a mechanical trigger alone; HOLD at 0% says stating 'stay still' has also not been a graded edge.",
+ "hit_rate_lines": [
+  "MOMENTUM+VOLUME 20.0% (n=15, payoff 1.23) -- below 40% over >=5: de-emphasize",
+  "TARGET GAP 36.8% (n=19, payoff 1.27) -- below 40% over >=5: de-emphasize (note conviction_exit ASML leans on '+29% vs analyst target')",
+  "OVERSOLD BOUNCE 66.7% (n=3, payoff 8.13) -- thin sample, keep, no verdict",
+  "BREAKDOWN n=1 -- skipped"
+ ],
+ "deemphasize_buckets": [
+  "MOMENTUM+VOLUME",
+  "TARGET GAP"
+ ],
+ "adjudications": [
+  {
+   "item": "catalyst_threat x27",
+   "verdict": "mapping artifact for 24 names; 3 narrow real threads, none proposal-worthy",
+   "detail": "26 of 27 rows cite one 247wallst 09-14 article on the Amodei pacing essay. The catalyst record itself says no new stock-moving mechanism, sentiment/multiple-compression rather than demand cut, no hyperscaler capex cut, and diversified hyperscalers flat; it also maps to NOW (2.0% Enterprise Software), STM (analog), NBIS and GOOG/MSFT/AMZN, which its own text says were unaffected. Since then SMH closed +2.2% on 09-18 (573.0), VIX 14.81, NDX RSI 55.8. Real, narrower threads: GLW $2bn ATM (GLW/COHR/LITE, price already reacted -9 to -14%), GEV GLJ Sell (GEV/VRT, contested vs a guidance raise), CXMT HBM3E (MU/SKHY real; ASML/TER/AMAT linkage unestablished per thesis). Trimming after the reaction sells the move, and TRIM/SELL has scored 28.3%. The draft TRIM TSM $606.7 is REJECTED: TSM thesis strengthening, RSI 56.9, +3.3pp, 8.99% is inside the 12% cap, and the only support is the essay mapping. No gaps-precedent query spent because no catalyst_threat proposal is sized."
+  },
+  {
+   "item": "crosscheck ladder_vs_thesis SKHY (blocking)",
+   "verdict": "no rotation sized in AI Memory/Storage",
+   "detail": "Ladder ranks SKHY #1, thesis holds it WATCH (unverified); SKHY is 1sh with no INDmoney confirmation (UNMATCHED, two limit buys cancelled by email) and its 52wk_low reads 0 upstream. Neither side is verified enough to size money, so the conflict is left unresolved and the position stays unreconciled until smith-ledger clears it."
+  },
+  {
+   "item": "crosscheck AMAT/QCOM thesis_vs_catalyst_threat",
+   "verdict": "thesis kept, threat discounted",
+   "detail": "Both are strengthening; the only threat evidence is the carried CXMT/pacing mapping and AMAT's own thesis says the linkage to deposition/etch is unestablished."
+  },
+  {
+   "item": "09-18 executed basket",
+   "verdict": "user-initiated, no open proposal covered AMZN/NOW/NBIS/APH/MU",
+   "detail": "Thesis flags sizing ahead of resolution on AMZN (WATCH, peer gap widened to -7.8pp), NBIS (WATCH, floating-rate debt) and AMD. Not an instruction to unwind; surfaced only so the record shows the buys were not proposal-backed."
+  }
+ ],
+ "open_user_decisions": [
+  "CIEN 0.008528sh / $2.98 dust residue: sell to zero or hold as rounding artifact (new flag, no proposal).",
+  "SKHY 1sh ($187.9) unreconciled fill, no confirmation: needs ledger reconciliation before it carries any weight in analysis. The stale TER dust flag (2026-08-19) is superseded: TER is 5.0027sh / 5.49%, not dust; recommend the orchestrator close it (signals already resolved it)."
+ ],
+ "findings_reaffirmed": [
+  "catalyst:7180d87827",
+  "catalyst:aa6e4a3cf0",
+  "catalyst:68ffcdcb21",
+  "catalyst:90ef472ced",
+  "macro:fomc"
+ ],
+ "findings_revised": [],
+ "data_quality": [
+  "Prices are Friday 2026-09-18 close (market closed Saturday); every stated level is from live_quotes/compute files timestamped to that session, not re-fetched.",
+  "Stress table not produced (quick mode, none provided in the slice); stress_table_anchor in proposal_specs available (us10y 4.998, vix 14.81, dxy 100.22, fed 3.875 hawkish) if a later deep run wants it.",
+  "SKHY holding is an UNRECONCILED fill (UNMATCHED in qty_changes); weights involving SKHY (0.56%) are provisional. Five 09-18 qty changes (MU, AMAT, APH, AMZN, NOW, NBIS) are trade_reason UNCAPTURED pending ledger.",
+  "MU qty_changes row shows likely_corporate_action=true (ratio 1.9996) but the user confirms a +1sh buy; treat as a buy, not a split.",
+  "Tiering: KLAC, LITE, CIEN, APH, NOW, MRVL, ALAB, CLS thesis entries are status-only this run, so '0 against' on LITE/CIEN reflects the trim, not an absence of evidence; LITE was not proposed partly because of that.",
+  "proposals.json shows 10 open, not 17; the other 7 non-terminal rows are deferred/accepted/watch.",
+  "reentry: 45 alumni unjudged (no state.thesis entry) -- unexamined, not rejected; VST entry_setup has no live price/ATR so cannot be sized this run.",
+  "Sentiment is a proxy composite (extreme_greed 75.1), not CNN's index; VIX component 92.4 is the driver.",
+  "Budget exceeded: ~12 tool calls against soft cap ~8, all reads of computed files; output not truncated."
+ ]
+}

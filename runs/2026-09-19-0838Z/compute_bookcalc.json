@@ -1,0 +1,180 @@
+{
+  "as_of": "2026-09-19",
+  "ex_dates": [],
+  "ex_window_days": 30,
+  "annual_dividend_income_usd": 0.0,
+  "div_yield_pct": 0.0,
+  "ltcg": {
+    "earliest_open_lot": "2026-07-31",
+    "lots_total": 62,
+    "lots_dated": 62,
+    "live_decisions": false,
+    "first_crossing": "2028-07-31",
+    "note": "All 62 open lots are short-term; the 24-month Indian boundary first bites 2028-07-31. There is no LTCG decision to make and no urgency to claim."
+  },
+  "risk_weighted_concentration": [
+    {
+      "ticker": "MU",
+      "weight_pct": 6.036,
+      "beta": 1.648,
+      "risk_weight_pct": 9.514,
+      "risk_minus_dollar_pp": 3.478
+    },
+    {
+      "ticker": "ASML",
+      "weight_pct": 8.667,
+      "beta": 0.981,
+      "risk_weight_pct": 8.132,
+      "risk_minus_dollar_pp": -0.535
+    },
+    {
+      "ticker": "TER",
+      "weight_pct": 5.493,
+      "beta": 1.516,
+      "risk_weight_pct": 7.965,
+      "risk_minus_dollar_pp": 2.472
+    },
+    {
+      "ticker": "TSM",
+      "weight_pct": 8.993,
+      "beta": 0.85,
+      "risk_weight_pct": 7.312,
+      "risk_minus_dollar_pp": -1.681
+    },
+    {
+      "ticker": "KLAC",
+      "weight_pct": 5.252,
+      "beta": 1.306,
+      "risk_weight_pct": 6.56,
+      "risk_minus_dollar_pp": 1.308
+    },
+    {
+      "ticker": "AMAT",
+      "weight_pct": 5.273,
+      "beta": 1.292,
+      "risk_weight_pct": 6.516,
+      "risk_minus_dollar_pp": 1.243
+    },
+    {
+      "ticker": "WDC",
+      "weight_pct": 3.931,
+      "beta": 1.383,
+      "risk_weight_pct": 5.2,
+      "risk_minus_dollar_pp": 1.269
+    },
+    {
+      "ticker": "VRT",
+      "weight_pct": 4.433,
+      "beta": 1.169,
+      "risk_weight_pct": 4.957,
+      "risk_minus_dollar_pp": 0.524
+    },
+    {
+      "ticker": "MRVL",
+      "weight_pct": 3.608,
+      "beta": 1.412,
+      "risk_weight_pct": 4.873,
+      "risk_minus_dollar_pp": 1.265
+    },
+    {
+      "ticker": "NBIS",
+      "weight_pct": 3.294,
+      "beta": 1.495,
+      "risk_weight_pct": 4.71,
+      "risk_minus_dollar_pp": 1.416
+    },
+    {
+      "ticker": "CLS",
+      "weight_pct": 3.952,
+      "beta": 1.244,
+      "risk_weight_pct": 4.702,
+      "risk_minus_dollar_pp": 0.75
+    },
+    {
+      "ticker": "ALAB",
+      "weight_pct": 2.69,
+      "beta": 1.599,
+      "risk_weight_pct": 4.115,
+      "risk_minus_dollar_pp": 1.425
+    }
+  ],
+  "risk_hogs": [
+    {
+      "ticker": "MU",
+      "weight_pct": 6.036,
+      "risk_weight_pct": 9.514,
+      "risk_minus_dollar_pp": 3.478,
+      "beta": 1.648
+    },
+    {
+      "ticker": "TER",
+      "weight_pct": 5.493,
+      "risk_weight_pct": 7.965,
+      "risk_minus_dollar_pp": 2.472,
+      "beta": 1.516
+    },
+    {
+      "ticker": "KLAC",
+      "weight_pct": 5.252,
+      "risk_weight_pct": 6.56,
+      "risk_minus_dollar_pp": 1.308,
+      "beta": 1.306
+    },
+    {
+      "ticker": "AMAT",
+      "weight_pct": 5.273,
+      "risk_weight_pct": 6.516,
+      "risk_minus_dollar_pp": 1.243,
+      "beta": 1.292
+    },
+    {
+      "ticker": "WDC",
+      "weight_pct": 3.931,
+      "risk_weight_pct": 5.2,
+      "risk_minus_dollar_pp": 1.269,
+      "beta": 1.383
+    }
+  ],
+  "size_not_risk": [
+    {
+      "ticker": "TSM",
+      "weight_pct": 8.993,
+      "risk_weight_pct": 7.312,
+      "risk_minus_dollar_pp": -1.681,
+      "beta": 0.85
+    },
+    {
+      "ticker": "APH",
+      "weight_pct": 4.606,
+      "risk_weight_pct": 2.815,
+      "risk_minus_dollar_pp": -1.791,
+      "beta": 0.639
+    },
+    {
+      "ticker": "GOOG",
+      "weight_pct": 6.156,
+      "risk_weight_pct": 1.342,
+      "risk_minus_dollar_pp": -4.814,
+      "beta": 0.228
+    },
+    {
+      "ticker": "AMZN",
+      "weight_pct": 3.767,
+      "risk_weight_pct": 0.861,
+      "risk_minus_dollar_pp": -2.906,
+      "beta": 0.239
+    },
+    {
+      "ticker": "MSFT",
+      "weight_pct": 4.394,
+      "risk_weight_pct": 0.345,
+      "risk_minus_dollar_pp": -4.049,
+      "beta": 0.082
+    }
+  ],
+  "betas_missing": [],
+  "data_quality": [
+    "no --summary-file supplied: dividends and ex-dates not computed this run."
+  ],
+  "note": "risk_hogs carry MORE portfolio risk than dollars (beta x weight); size_not_risk are the reverse -- big positions that are quiet. A book can be concentrated in dollars and diversified in risk, or the reverse, and only this ranking distinguishes them."
+}
