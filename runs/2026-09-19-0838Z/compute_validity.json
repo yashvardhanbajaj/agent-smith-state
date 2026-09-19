@@ -1,0 +1,427 @@
+{
+  "as_of": "2026-09-19",
+  "run_dir": "runs/2026-09-19-0838Z",
+  "counts": {
+    "retire": 10
+  },
+  "rows": [
+    {
+      "id": "P-305",
+      "ticker": "ASML",
+      "direction": "SELL",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "MEDIUM",
+      "retire_because": [
+        "the strategist recommends retiring it: Sell leg of ASML->TSM. Conviction_exit's 3 signals are correlated, not independent: WATCH is unverified and contested (5 for/3 against), the CXMT leg is smith-thesis's own flagged misapplication to EUV tooling, and the trend leg is a mild -6.2pp peer laggard at RSI 48.6. Ladder authority is below th"
+      ],
+      "weakened_because": [
+        "its cluster rotation trigger no longer fires on ASML"
+      ],
+      "trigger_state": "not_firing",
+      "trigger": "cluster_rotation",
+      "since": {
+        "stock_pct": 5.07,
+        "smh_pct": 5.3,
+        "agree_pp": 0.23,
+        "price_now": 1670.57
+      },
+      "against": [
+        "cluster rotation no longer fires on ASML (recomputed this run)",
+        "thesis: no new deterioration since the 2026-07-28 China-DUV dent; EPS estimates revised +20.4%",
+        "thesis: BofA calls the selloff an overreaction; price recovered near highs"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": "Sell leg of ASML->TSM. Conviction_exit's 3 signals are correlated, not independent: WATCH is unverified and contested (5 for/3 against), the CXMT leg is smith-thesis's own flagged misapplication to EUV tooling, and the trend leg is a mild -6.2pp peer laggard at RSI 48.6. Ladder authority is below the sample bar (1/2). Retire together with P-352.",
+      "thesis_status": "watch",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 3,
+      "after_trade": {
+        "shares": 0.4997,
+        "pct_of_position": 28.6,
+        "weight_before": 8.67,
+        "weight_after": 6.35
+      },
+      "drops_off_when": "the cluster_rotation pairing cluster_rotation-ASML-TSM is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": true
+    },
+    {
+      "id": "P-310",
+      "ticker": "TER",
+      "direction": "TRIM",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "MEDIUM",
+      "retire_because": [
+        "the strategist recommends retiring it: Basis was a 1.078x ATR-cap breach on 09-15. compute_risk now shows TER at 0.89x cap, not over_cap ($228 headroom); cap alone was never sufficient and the residual catalyst is the CXMT mapping."
+      ],
+      "weakened_because": [
+        "the market moved 5.9pp against it relative to SMH",
+        "trimming a `strengthening` thesis"
+      ],
+      "trigger_state": "firing",
+      "trigger": "catalyst_threat",
+      "since": {
+        "stock_pct": 11.2,
+        "smh_pct": 5.3,
+        "agree_pp": -5.9,
+        "price_now": 370.39
+      },
+      "against": [
+        "TER +11.2% vs SMH +5.3% since proposed (5.9pp against the proposal)",
+        "thesis: Q2 revenue >100% YoY, EPS $2.47 non-GAAP vs $2.05 consensus; Q3 guide well above consensus; CEO cited test demand 'from wafer to AI data center'",
+        "thesis: TARGET GAP 25.3% upside, 12 analysts, mean target $446.47"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": "Basis was a 1.078x ATR-cap breach on 09-15. compute_risk now shows TER at 0.89x cap, not over_cap ($228 headroom); cap alone was never sufficient and the residual catalyst is the CXMT mapping.",
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 3,
+      "after_trade": {
+        "shares": 0.8998,
+        "pct_of_position": 18.0,
+        "weight_before": 5.49,
+        "weight_after": 4.55
+      },
+      "drops_off_when": "TER no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-314",
+      "ticker": "AMAT",
+      "direction": "BUY",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "MEDIUM",
+      "retire_because": [
+        "you bought 1 AMAT on 2026-09-18 -- already acted on",
+        "the strategist recommends retiring it: Satisfied. The user bought +1 AMAT on 09-18 (~the $412 sized). oversold_reversion no longer fires (RSI14 43.8 > 35, Friday +6.5% catch-up bounce)."
+      ],
+      "weakened_because": [
+        "its oversold reversion trigger no longer fires on AMAT"
+      ],
+      "trigger_state": "not_firing",
+      "trigger": "oversold_reversion",
+      "since": {
+        "stock_pct": 3.87,
+        "smh_pct": 5.3,
+        "agree_pp": -1.43,
+        "price_now": 443.7458
+      },
+      "against": [
+        "oversold reversion no longer fires on AMAT (recomputed this run)",
+        "thesis: PEER LAGGARD persists: -12.55pp vs SMH over 1m (-1.39 sigma). Friday's +6.5% (1.61x ATR) was a sector catch-up bounce (SMH +2.2%, TER +4.9%, KLAC +4.8%), not na",
+        "thesis: Live catalyst_threat TRIM trigger rests only on the carried-forward CXMT HBM3E reason; linkage to deposition/etch revenue remains unestablished"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [
+        "you bought 1 AMAT on 2026-09-18"
+      ],
+      "desk_retire_reason": "Satisfied. The user bought +1 AMAT on 09-18 (~the $412 sized). oversold_reversion no longer fires (RSI14 43.8 > 35, Friday +6.5% catch-up bounce).",
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 3,
+      "after_trade": {
+        "shares": 0.9289,
+        "pct_of_position": 23.2,
+        "weight_before": 5.27,
+        "weight_after": 6.42
+      },
+      "drops_off_when": "AMAT RSI14 recovers above 50 (setup consumed) or its thesis leaves intact/strengthening",
+      "drops_off_met": true
+    },
+    {
+      "id": "P-318",
+      "ticker": "SNDK",
+      "direction": "BUY",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "MEDIUM",
+      "retire_because": [
+        "the strategist recommends retiring it: rebound-class proposal but correction_state is none (rebound screen not run); no thesis on file (T2_ALUMNI), weakest-evidence item by its own rationale; SNDK +6.2% on 09-17 removed the dislocation."
+      ],
+      "weakened_because": [],
+      "trigger_state": "n/a",
+      "trigger": "rebound",
+      "since": {
+        "stock_pct": 15.45,
+        "smh_pct": 5.3,
+        "agree_pp": 10.15,
+        "price_now": 1791.8199
+      },
+      "against": [],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": "rebound-class proposal but correction_state is none (rebound screen not run); no thesis on file (T2_ALUMNI), weakest-evidence item by its own rationale; SNDK +6.2% on 09-17 removed the dislocation.",
+      "thesis_status": null,
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 3,
+      "after_trade": {
+        "shares": 0.1116,
+        "weight_before": 0.0,
+        "weight_after": 0.59
+      },
+      "drops_off_when": null,
+      "drops_off_met": false
+    },
+    {
+      "id": "P-339",
+      "ticker": "COHR",
+      "direction": "TRIM",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "HIGH",
+      "retire_because": [
+        "you sold 3 COHR on 2026-09-17 -- already acted on",
+        "the strategist recommends retiring it: Satisfied. COHR was stopped out on 09-17 (3sh @ ~$295); remaining 2sh / 1.88% is already the reduced position this trim was meant to top up."
+      ],
+      "weakened_because": [
+        "the market moved 6.4pp against it relative to SMH",
+        "trimming a `strengthening` thesis"
+      ],
+      "trigger_state": "firing",
+      "trigger": "catalyst_threat",
+      "since": {
+        "stock_pct": 10.69,
+        "smh_pct": 4.3,
+        "agree_pp": -6.38,
+        "price_now": 317.2988
+      },
+      "against": [
+        "COHR +10.7% vs SMH +4.3% since proposed (6.4pp against the proposal)",
+        "thesis: Q4 FY26 revenue $2.05B beat $2.025B consensus, EPS $1.74 beat $1.65 consensus; guided Q1 rev $2.2-2.4B/EPS $1.85-2.05, above the just-reported quarter",
+        "thesis: CEO cites AI-datacenter demand as outstanding, 7 consecutive quarters of record revenue"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [
+        "you sold 3 COHR on 2026-09-17"
+      ],
+      "desk_retire_reason": "Satisfied. COHR was stopped out on 09-17 (3sh @ ~$295); remaining 2sh / 1.88% is already the reduced position this trim was meant to top up.",
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 2,
+      "after_trade": {
+        "shares": 0.6303,
+        "pct_of_position": 31.5,
+        "weight_before": 1.88,
+        "weight_after": 1.3
+      },
+      "drops_off_when": "COHR no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-341",
+      "ticker": "GOOG",
+      "direction": "BUY",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "HIGH",
+      "retire_because": [
+        "the strategist recommends retiring it: Stale: bought as a 'shielded name' leg of a 09-16 rate-shock rotation funded by sells that never happened; the user deployed the wallet into AMZN/AMAT/NOW/MU/NBIS/APH instead. GOOG is already 6.2% of equity with thesis strengthening but only 1 unverified evidence item."
+      ],
+      "weakened_because": [],
+      "trigger_state": "firing",
+      "trigger": "catalyst_threat",
+      "since": {
+        "stock_pct": 1.83,
+        "smh_pct": 4.3,
+        "agree_pp": -2.47,
+        "price_now": 346.08
+      },
+      "against": [],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": "Stale: bought as a 'shielded name' leg of a 09-16 rate-shock rotation funded by sells that never happened; the user deployed the wallet into AMZN/AMAT/NOW/MU/NBIS/APH instead. GOOG is already 6.2% of equity with thesis strengthening but only 1 unverified evidence item.",
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 2,
+      "after_trade": {
+        "shares": 3.7564,
+        "pct_of_position": 62.6,
+        "weight_before": 6.16,
+        "weight_after": 9.64
+      },
+      "drops_off_when": "GOOG no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-343",
+      "ticker": "QCOM",
+      "direction": "BUY",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "HIGH",
+      "retire_because": [
+        "the strategist recommends retiring it: Stale, same basket premise. QCOM fell -5.6% Friday on a cause not established, and its strengthening call now rests on secondary web sources with an open thesis-vs-catalyst_threat crosscheck flag; a fresh view is needed, not a 3-day-old add."
+      ],
+      "weakened_because": [
+        "the market moved 7.8pp against it relative to SMH"
+      ],
+      "trigger_state": "firing",
+      "trigger": "catalyst_threat",
+      "since": {
+        "stock_pct": -3.52,
+        "smh_pct": 4.3,
+        "agree_pp": -7.82,
+        "price_now": 178.08
+      },
+      "against": [
+        "QCOM -3.5% vs SMH +4.3% since proposed (7.8pp against the proposal)",
+        "thesis: -5.6% to -5.8% on Friday (1.33x its 4.22% ATR) against SMH +2.21%, roughly an 8pp one-day divergence; 24/7 Wall St called it 'positioning-driven profit-taking' ",
+        "thesis: Pre-existing handset headwinds (Apple modem transition, smartphone weakness) remain unresolved; 1 dated negative item on INDmoney 09-17"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": "Stale, same basket premise. QCOM fell -5.6% Friday on a cause not established, and its strengthening call now rests on secondary web sources with an open thesis-vs-catalyst_threat crosscheck flag; a fresh view is needed, not a 3-day-old add.",
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 2,
+      "after_trade": {
+        "shares": 2.8077,
+        "pct_of_position": 56.1,
+        "weight_before": 2.64,
+        "weight_after": 4.06
+      },
+      "drops_off_when": "QCOM no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-344",
+      "ticker": "WDC",
+      "direction": "BUY",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "HIGH",
+      "retire_because": [
+        "the strategist recommends retiring it: Stale, same basket premise; the memory/storage slot was filled by the user's +1 MU on 09-18. WDC is already 3.9% of equity; new Solidigm NAND-fab report is ambiguous (long-dated supply add)."
+      ],
+      "weakened_because": [],
+      "trigger_state": "firing",
+      "trigger": "catalyst_threat",
+      "since": {
+        "stock_pct": 5.71,
+        "smh_pct": 4.3,
+        "agree_pp": 1.41,
+        "price_now": 442.01
+      },
+      "against": [
+        "thesis: stock fell ~11% AH same day despite beat -- expectations priced in"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": "Stale, same basket premise; the memory/storage slot was filled by the user's +1 MU on 09-18. WDC is already 3.9% of equity; new Solidigm NAND-fab report is ambiguous (long-dated supply add).",
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 2,
+      "after_trade": {
+        "shares": 1.1312,
+        "pct_of_position": 37.7,
+        "weight_before": 3.93,
+        "weight_after": 5.33
+      },
+      "drops_off_when": "WDC no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-346",
+      "ticker": "MU",
+      "direction": "TRIM",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "HIGH",
+      "retire_because": [
+        "you bought 1 MU on 2026-09-18 -- the opposite of this proposal",
+        "the strategist recommends retiring it: Contradicted by the user's own +1 MU buy on 09-18 (2.0004sh, 6.04%). Trim size ($186) is immaterial to the exposure and the real MU binary is FQ4 earnings 2026-10-01."
+      ],
+      "weakened_because": [
+        "the market moved 4.5pp against it relative to SMH"
+      ],
+      "trigger_state": "firing",
+      "trigger": "catalyst_threat",
+      "since": {
+        "stock_pct": 9.5,
+        "smh_pct": 5.03,
+        "agree_pp": -4.47,
+        "price_now": 1017.75
+      },
+      "against": [
+        "MU +9.5% vs SMH +5.0% since proposed (4.5pp against the proposal)",
+        "you bought 1 MU on 2026-09-18",
+        "thesis: HBM3E flat within stack-derived basis at $9.00/GB mid, 0.0% trend 2026-07-19 to 2026-09-15 (src: HBMTracker consumer_view.json, as_of 2026-09-15); tier2-only pe",
+        "thesis: AI Memory/Storage cluster +4.18% and MU +4.1% on Friday; the cause is not established by the catalyst scan (momentum plus macro relief, no company event)",
+        "earnings 2026-10-01 (9 sessions away)"
+      ],
+      "contradicting_trades": [
+        "you bought 1 MU on 2026-09-18"
+      ],
+      "acted_on": [],
+      "desk_retire_reason": "Contradicted by the user's own +1 MU buy on 09-18 (2.0004sh, 6.04%). Trim size ($186) is immaterial to the exposure and the real MU binary is FQ4 earnings 2026-10-01.",
+      "thesis_status": "watch",
+      "desk": null,
+      "earnings": "2026-10-01",
+      "age_sessions": 2,
+      "after_trade": {
+        "shares": 0.1828,
+        "pct_of_position": 9.1,
+        "weight_before": 6.04,
+        "weight_after": 5.51
+      },
+      "drops_off_when": "MU no longer appears in a structural-threat factor catalyst (cap/cluster-independent -- staying inside the ATR cap does NOT retire this)",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-352",
+      "ticker": "TSM",
+      "direction": "BUY",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "HIGH",
+      "retire_because": [
+        "you bought 3 TSM on 2026-09-16 -- already acted on",
+        "the strategist recommends retiring it: Buy leg of the same pair. It is a 'remaining balance' of a cash-funded target whose premise (the rate-shock sell basket) never executed; TSM is already 7sh / 8.99% after the 09-16 fill and adding $1,604 would take it to ~13.7% of equity, over the 12% single-name max. Cash it assumed was redeployed 0"
+      ],
+      "weakened_because": [
+        "its cluster rotation trigger no longer fires on TSM"
+      ],
+      "trigger_state": "not_firing",
+      "trigger": "cluster_rotation",
+      "since": {
+        "stock_pct": 4.09,
+        "smh_pct": 5.03,
+        "agree_pp": -0.94,
+        "price_now": 433.36
+      },
+      "against": [
+        "cluster rotation no longer fires on TSM (recomputed this run)"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [
+        "you bought 3 TSM on 2026-09-16"
+      ],
+      "desk_retire_reason": "Buy leg of the same pair. It is a 'remaining balance' of a cash-funded target whose premise (the rate-shock sell basket) never executed; TSM is already 7sh / 8.99% after the 09-16 fill and adding $1,604 would take it to ~13.7% of equity, over the 12% single-name max. Cash it assumed was redeployed 09-18 elsewhere.",
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 2,
+      "after_trade": {
+        "shares": 3.7013,
+        "pct_of_position": 52.9,
+        "weight_before": 8.99,
+        "weight_after": 13.12
+      },
+      "drops_off_when": "the cluster_rotation pairing None is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": true
+    }
+  ],
+  "note": "advisory: proposals.json is not edited and nothing is dismissed. A `retire` verdict waits for the user's click (user decision 2026-09-19)."
+}
