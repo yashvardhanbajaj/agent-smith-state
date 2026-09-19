@@ -1650,6 +1650,7 @@ def cmd_score(args):
                "benchmark_move_pct": round(bench_move, 2) if bench_move is not None else None,
                "scored_vs": scored_vs,
                "signed_benefit_pct": round(signed, 2), "verdict": verdict,
+               "size_usd": pr.get("size_usd"),      # expectancy weights by capital asked for
                "window": "90d" if age >= 90 else "30d"}
         rows.append(row)
         pr["outcome_pct"] = None if verdict == "needs_anchor_review" else round(signed, 2)
@@ -1663,9 +1664,61 @@ def cmd_score(args):
             return None
         w = sum(1 for r in subset if r["verdict"] == "worked")
         m = sum(1 for r in subset if r["verdict"] == "missed")
-        return {"n": n, "worked": w, "missed": m, "neutral": n - w - m,
-                "accuracy_pct": round(w / n * 100, 1),
-                "avg_benefit_pct": round(sum(r["signed_benefit_pct"] for r in subset) / n, 2)}
+        out = {"n": n, "worked": w, "missed": m, "neutral": n - w - m,
+               "accuracy_pct": round(w / n * 100, 1),
+               "avg_benefit_pct": round(sum(r["signed_benefit_pct"] for r in subset) / n, 2)}
+        out.update(expectancy(subset))
+        return out
+
+    def expectancy(subset):
+        """Expectancy per dollar proposed, net of the round-trip fee.
+
+        WHY ACCURACY IS NOT ENOUGH (added 2026-09-19). Hit rate answers "how often", never "how
+        much", and the two come apart precisely when it matters: a 27% accuracy is excellent if
+        the 27% are large and the 73% are small, and ruinous the other way round. This desk's
+        own stop record is the proof next door -- 57.1% of stops "won" while the set lost money,
+        because the wins were small and the losses were not. So the headline the strategist reads
+        should be the number that survives that asymmetry.
+
+        Three things this adds that accuracy hides:
+          * SIZE WEIGHTING. A $1,604 proposal and a $150 one counted equally before. `size_usd`
+            weights each row by the capital it actually asked for, so the scorecard describes the
+            book rather than the list.
+          * THE FEE. INDmoney charges ~0.30% on a buy (measured across 7 confirmations,
+            2026-09-06). A proposal whose edge is under a round trip is not an edge; every
+            expectancy figure here is stated net of it.
+          * DOLLARS. expectancy_usd_per_1k is what a thousand dollars routed through this
+            signal would have returned -- the unit a sizing decision is actually made in.
+        """
+        if not subset:
+            return {}
+        sizes = [abs(float(r.get("size_usd") or 0)) for r in subset]
+        benefits = [r["signed_benefit_pct"] for r in subset]
+        gross = sum(benefits) / len(benefits)
+        net = gross - ROUND_TRIP_FEE_PCT
+        total_size = sum(sizes)
+        out = {"expectancy_pct_net": round(net, 3),
+               "expectancy_usd_per_1k": round(net * 10.0, 2),
+               "round_trip_fee_pct": ROUND_TRIP_FEE_PCT,
+               "positive_expectancy": net > 0}
+        if total_size > 0:
+            weighted = sum(b * s for b, s in zip(benefits, sizes)) / total_size
+            out.update({"size_weighted_benefit_pct": round(weighted, 3),
+                        "size_weighted_expectancy_pct_net": round(weighted - ROUND_TRIP_FEE_PCT, 3),
+                        "capital_proposed_usd": round(total_size, 2),
+                        "expectancy_usd_total": round((weighted - ROUND_TRIP_FEE_PCT) / 100
+                                                      * total_size, 2),
+                        "sized_rows": sum(1 for s in sizes if s > 0)})
+        else:
+            out["size_weighted_note"] = "no row in this subset carries size_usd"
+        # payoff ratio feeds smith_conviction.track_record_multiplier's Kelly path directly
+        wins = [b for b in benefits if b > VERDICT_THRESHOLD_PCT]
+        losses = [-b for b in benefits if b < -VERDICT_THRESHOLD_PCT]
+        if wins and losses:
+            out["avg_win_pct"] = round(sum(wins) / len(wins), 2)
+            out["avg_loss_pct"] = round(sum(losses) / len(losses), 2)
+            out["payoff_ratio"] = round((sum(wins) / len(wins)) / (sum(losses) / len(losses)), 2)
+        return out
 
     # quarantined rows are reported but never counted -- see the anchor guard above
     graded = [r for r in rows if r["verdict"] != "needs_anchor_review"]
@@ -1887,6 +1940,11 @@ def cmd_score_shadow_journal(args):
           "hit_rate_by_key": hit_rate_by_key, "written": not args.dry_run,
           "data_quality": dq})
 
+
+# Round-trip cost of acting on a proposal: INDmoney charges ~0.30% on the buy and 0.00% on the
+# sell (measured across 7 confirmations 2026-09-06, smith_ledger.LEDGER_FEE_PCT). An edge smaller
+# than this is not an edge, which is why every expectancy figure in the scorecard is net of it.
+ROUND_TRIP_FEE_PCT = 0.30
 
 VOL_TIERS = (("low", 3.0), ("mid", 5.5), ("high", float("inf")))
 
