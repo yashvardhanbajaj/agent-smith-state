@@ -5151,8 +5151,14 @@ def main():
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
 
     sp = sub.add_parser("learn-stop-calibration",
-                        help="cohort win-rate read on stop distance -- escalation only, never auto-applies")
+                        help="per-volatility-tier read on stop distance at a fixed 30-session "
+                             "horizon -- escalation only, never auto-applies")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--record", action="store_true",
+                    help="feed each scored mid-tier stop into learning.json and promote the "
+                         "stops.atr_multiple.mid parameter's state (idempotent per stop)")
+    sp.add_argument("--run-dir", default=None)
+    sp.add_argument("--today", default=None)
 
     sp = sub.add_parser("sync-decisions",
                         help="reconcile the interactive dashboard's accumulated button clicks")

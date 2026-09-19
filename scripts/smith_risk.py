@@ -127,7 +127,7 @@ def support_anchored_cap(atr_pct, price_usd, support_usd, total_book_usd, policy
 CAP_BREACH_MATERIALITY_PCT_DEFAULT = 2.0
 
 
-def stop_and_cap(atr_pct, price_usd, qty, total_book_usd, policy):
+def stop_and_cap(atr_pct, price_usd, qty, total_book_usd, policy, learned_multiple=None):
     """
     Implements policy.json's stop_loss_framework:
       stop_distance_pct = max(2 * atr_pct, 3.0)
@@ -180,7 +180,7 @@ def stop_and_cap(atr_pct, price_usd, qty, total_book_usd, policy):
     position_open_risk_usd = mv * stop_distance_pct / 100
     cap_multiple = (mv / max_position_usd) if max_position_usd else None
 
-    return {
+    out = {
         "atr20_pct": atr_pct,
         "stop_distance_pct": round(stop_distance_pct, 3),
         "stop_price_usd": round(stop_price_usd, 4),
@@ -193,6 +193,23 @@ def stop_and_cap(atr_pct, price_usd, qty, total_book_usd, policy):
         "market_value_usd": round(mv, 2),
         "data_quality_flag": False,
     }
+    # ADVISORY learned stop, never the operative one (added 2026-09-19). `learned_multiple` is
+    # supplied by the caller from smith_learning's `stops.atr_multiple.<tier>` parameter, which
+    # is measured from what actually happened 30 sessions after each stop fired. It is reported
+    # ALONGSIDE the policy stop and never replaces it: policy.json's stop_loss_framework is
+    # user-confirmed (2026-07-27, "tight, large-quantum stops by design") and escalation-only.
+    # The point is that the design choice now carries its measured cost instead of being
+    # re-litigated from memory each time someone notices a stop looked expensive.
+    if learned_multiple and learned_multiple != 2.0:
+        learned_dist = max(learned_multiple * atr_pct, 3.0)
+        out["learned_stop"] = {
+            "atr_multiple": learned_multiple,
+            "stop_distance_pct": round(learned_dist, 3),
+            "stop_price_usd": round(price_usd * (1 - learned_dist / 100), 4),
+            "wider_by_pp": round(learned_dist - stop_distance_pct, 3),
+            "status": "advisory -- policy stop above is the operative one",
+        }
+    return out
 
 
 def rotation_bucket(over_cap, thesis_status, net_signal, overbought=False):

@@ -452,22 +452,25 @@ def fetch_perf_bars(args):
         import yfinance as yf
     except ImportError as e:
         return {"ok": False, "error": f"yfinance unavailable: {e}"}
-    frame = yf.download(tickers, start=start, interval="1d", progress=False, auto_adjust=False)["Close"]
+    frame = yf.download(tickers, start=start, interval="1d", progress=False, auto_adjust=False)
     out, thin = {}, []
     for t in tickers:
-        if t not in frame.columns:
+        try:
+            sub = frame.xs(t, axis=1, level=1)[["High", "Low", "Close"]].dropna()
+        except (KeyError, IndexError):
             thin.append(t)
             continue
-        s = frame[t].dropna()
-        if len(s) < 2:
+        if len(sub) < 2:
             thin.append(t)
             continue
-        out[t] = {str(i)[:10]: round(float(v), 4) for i, v in s.items()}
+        # same row shape as a run's bars.json, so atr_pct() and the indicators path can read it
+        out[t] = [{"d": str(i)[:10], "h": round(float(r.High), 4), "l": round(float(r.Low), 4),
+                   "c": round(float(r.Close), 4)} for i, r in sub.iterrows()]
     path = args.out or os.path.join(base, "perf_bars.json")
     _write_json(path, out)
-    spans = [d for rows in out.values() for d in rows]
+    spans = [r["d"] for rows in out.values() for r in rows]
     return {"ok": bool(out), "written": path, "tickers": len(out), "requested": len(tickers),
-            "unresolved": thin, "start": start,
+            "unresolved": thin, "start": start, "shape": "{ticker: [{d,h,l,c}]}",
             "span": [min(spans), max(spans)] if spans else None}
 
 

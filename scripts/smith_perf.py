@@ -60,6 +60,23 @@ TRADING_DAYS = 252
 # reconstruction
 # ---------------------------------------------------------------------------
 
+def closes_index(bars):
+    """Normalise either accepted bar shape to {ticker: {date: close}}.
+
+    perf_bars.json carries full OHLC rows ({ticker: [{d,h,l,c}]}) so the same file can feed
+    `atr_pct` for the stop-loss backfill; the flat {ticker: {date: close}} form is still accepted
+    because it is what the first version wrote and what tests find easiest to build.
+    """
+    out = {}
+    for ticker, rows in (bars or {}).items():
+        if isinstance(rows, dict):
+            out[ticker] = rows
+        elif isinstance(rows, list):
+            out[ticker] = {str(r["d"])[:10]: float(r["c"]) for r in rows
+                           if r.get("c") is not None and r.get("d")}
+    return out
+
+
 def _price_on(bars, ticker, day):
     """Last close at or before `day`. Carries a stale price forward rather than dropping the
     position, which would read as a sale."""
@@ -104,6 +121,7 @@ def reconstruct(trades, bars, bench=BENCH, min_book_usd=MIN_BOOK_USD, since=None
     Selling below the session close shows up here as a negative return, and that is correct, not
     noise -- it is the execution cost of the fill, which a close-to-close series would hide.
     """
+    bars = closes_index(bars)
     sessions = sorted(bars.get(bench) or [])
     if len(sessions) < 2:
         return {"series": [], "error": f"no {bench} bars to define a session calendar"}
@@ -178,6 +196,7 @@ def chain(series, bars, bench=BENCH):
     """
     if not series:
         return {"n_sessions": 0, "twr_pct": None, "reason": "empty series"}
+    bars = closes_index(bars)
     growth, equity, peak, max_dd = 1.0, 1.0, 1.0, 0.0
     for row in series:
         growth *= (1 + row["ret"])
@@ -218,6 +237,7 @@ def selection_cost(series, bars, bench=BENCH):
     """
     if not series:
         return {"selection_cost_usd": None, "reason": "empty series"}
+    bars = closes_index(bars)
     units, deployed = 0.0, 0.0
     for row in series:
         px = _price_on(bars, bench, row["d"])
@@ -240,6 +260,7 @@ def selection_cost(series, bars, bench=BENCH):
 def by_period(series, bars, bench=BENCH, key=lambda d: d[:7]):
     """Sub-period TWR vs benchmark. Default key is calendar month. Used to show WHERE the
     excess came from rather than asserting a single 16-month number."""
+    bars = closes_index(bars)
     buckets = defaultdict(list)
     for row in series:
         buckets[key(row["d"])].append(row)

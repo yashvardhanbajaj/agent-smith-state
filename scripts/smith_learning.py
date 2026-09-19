@@ -705,7 +705,9 @@ PRIORITY_SCORER_DEFAULTS = {
 # coin flip to indicate anything, and does NOT propose a specific new numeric floor unless the
 # divergence is large enough to say something concrete. "No calibration change indicated" is a
 # legitimate, honest output of a calibration pass, not a null result to paper over.
-STOP_CALIBRATION_NEUTRAL_BAND_PP = 10.0  # win rate within 50%+/-this = "no clear signal"
+STOP_CALIBRATION_NEUTRAL_BAND_PP = 10.0
+STOP_TIER_MIN_N = 20          # below this a tier abstains rather than voting on ~6 stops
+STOP_RECOVERY_MATERIAL_PP = 1.5   # post-stop drift inside +/-1.5% is noise, not a rule defect  # win rate within 50%+/-this = "no clear signal"
 
 
 def compute_stop_calibration(base_dir):
@@ -735,20 +737,138 @@ def compute_stop_calibration(base_dir):
             "(older rows, a different price source) rather than a genuine cohort effect. Treat "
             "this one more cautiously than cascade/deliberate; it's data-quality-confounded.")
 
+    # ---- volatility-TIER calibration on the fixed-horizon basis (added 2026-09-19) ----------
+    # This block was refused outright until stops_analysis.json began carrying atr20_pct_at_fill
+    # and a 30-session outcome per row. Two things changed and both matter:
+    #   (a) TIERS. A single `max(2*ATR%, 3.0%)` rule spans a 2.0%-ATR hyperscaler and a 14.3%-ATR
+    #       power name. Pooling them measures the book's vol mix, not the rule.
+    #   (b) HORIZON. The `overall`/`by_cohort` reads above compare each fill to the LATEST price,
+    #       so they re-rate with the tape: the same 165 stops read 57.1% win on 2026-09-14 and
+    #       43.6% four sessions later. Nothing can be calibrated against a moving target, so the
+    #       tier reads below use `_30d` exclusively and the pooled reads are kept only for
+    #       continuity with what the dashboard already shows.
+    tier_30d = stops.get("by_vol_tier_30d") or {}
+    overall_30d = stops.get("overall_30d") or {}
+
+    def tier_read(row, tier):
+        n, wr = row.get("count") or 0, row.get("win_rate_pct")
+        avg = row.get("avg_move_pct")
+        base = {"n": n, "win_rate_pct": wr, "avg_move_pct_after_stop": avg,
+                "avg_move_in_atr": row.get("avg_move_in_atr")}
+        if n < STOP_TIER_MIN_N:
+            base["signal"] = f"insufficient data (n={n}, need {STOP_TIER_MIN_N})"
+            return base
+        # avg_move_pct is the stock's move AFTER the stop fired: positive means it recovered,
+        # i.e. the stop sold into a dip it should have held through.
+        if avg is not None and avg >= STOP_RECOVERY_MATERIAL_PP:
+            base["signal"] = (f"stops in this tier sell into recoveries -- the stock is "
+                              f"{avg:+.2f}% on average {stops.get('horizon_sessions', 30)} "
+                              f"sessions later; a WIDER multiple is indicated")
+        elif avg is not None and avg <= -STOP_RECOVERY_MATERIAL_PP:
+            base["signal"] = (f"stops in this tier avoid real damage ({avg:+.2f}% after); "
+                              f"the current multiple is earning its keep or could tighten")
+        else:
+            base["signal"] = "no clear signal (post-stop drift inside the noise band)"
+        return base
+
+    tier_reads = {t: tier_read(row, t) for t, row in tier_30d.items()}
+    actionable = [t for t, r in tier_reads.items()
+                  if r.get("n", 0) >= STOP_TIER_MIN_N and "WIDER" in (r.get("signal") or "")]
+
     return {
         "overall": read(overall),
         "by_cohort": cohort_reads,
+        "overall_30d": overall_30d,
+        "by_vol_tier_30d": tier_reads,
+        "tiers": {t: f"ATR20% < {hi}" for t, hi in
+                  (("low", 3.0), ("mid", 5.5), ("high", "inf"))},
+        "tiers_indicating_wider": actionable,
         "current_policy": "stop_distance_pct = max(2*ATR%, 3.0%), confirmed 2026-07-27",
+        "basis": (f"fixed {stops.get('horizon_sessions', 30)}-session horizon after each fill, "
+                  f"NOT the latest price -- see stops_analysis.basis_note"),
         "note": ("ESCALATION-ONLY finding -- policy.json's stop_loss_framework is never auto-"
-                 "modified regardless of what this shows. Per-volatility-TIER calibration is "
-                 "not currently possible: stops_analysis.json has no ATR-at-fill per row, only "
-                 "cascade-vs-deliberate cohort. If tier-level calibration is wanted, that field "
-                 "needs adding to the stop-scoring pipeline first, not estimated here."),
+                 "modified regardless of what this shows. The desk's stated posture is tight, "
+                 "large-quantum stops BY DESIGN (user, 2026-07-27); this measures what that "
+                 "posture costs per volatility tier so the choice is informed, not so it is "
+                 "overridden."),
     }
 
 
+STOP_MULTIPLE_PARAM = "stops.atr_multiple.mid"
+STOP_MULTIPLE_DEFAULT = 2.0          # policy.json: stop_distance_pct = max(2*ATR%, 3.0%)
+
+
+def stop_multiple_aggregator(observations):
+    """Turn per-stop outcomes into the ATR multiple the evidence asks for, for ONE vol tier.
+
+    Each observation is the stock's 30-session move after a stop fired, expressed in ATRs
+    (`move_30d_in_atr`). A positive mean says the stop sold into a recovery of that many ATRs,
+    so the stop belonged that much further away; a negative mean says it correctly dodged
+    further damage and the multiple could tighten. The asked-for multiple is therefore
+    default + mean(drift in ATRs), which keeps the unit of the answer the same as the unit of
+    the policy it feeds.
+
+    Deliberately ONE tier (mid). Pooling tiers measures the book's volatility mix rather than
+    the rule, and `low` has n=3 -- far too few to be handed a vote. `high` is close to neutral
+    and is left on its default until it has an opinion worth acting on.
+    """
+    drifts = [o.get("value") for o in observations if isinstance(o.get("value"), (int, float))]
+    if not drifts:
+        return None, 0
+    return STOP_MULTIPLE_DEFAULT + sum(drifts) / len(drifts), len(drifts)
+
+
+def record_stop_observations(base_dir, today=None, run_dir=None, write=True):
+    """Feed each scored mid-tier stop into the learning store, once.
+
+    Idempotent by (date, ticker): a stop already recorded is never appended twice, so this can
+    run on every sweep without inflating n. That matters more than it sounds -- the n-gate is
+    the only thing standing between a real calibration and a confident one built on the same
+    twelve stops counted thirty times.
+    """
+    stops = load_json(os.path.join(base_dir, "stops_analysis.json"), default={}) or {}
+    store = load_store(base_dir)
+    seen = {(o.get("note") or "") for o in store.get("observations", [])
+            if o.get("param_id") == STOP_MULTIPLE_PARAM}
+    added = []
+    for row in stops.get("stops") or []:
+        if row.get("vol_tier") != "mid" or row.get("move_30d_in_atr") is None:
+            continue
+        key = f"{row.get('date')}/{row.get('ticker')}"
+        if key in seen:
+            continue
+        store["observations"].append({
+            "date": str(today or desk_today()), "param_id": STOP_MULTIPLE_PARAM,
+            "value": row["move_30d_in_atr"], "run_dir": run_dir, "note": key,
+        })
+        seen.add(key)
+        added.append(key)
+    if added and write:
+        write_store(base_dir, store)
+    return added
+
+
 def cmd_learn_stop_calibration(args):
-    emit(compute_stop_calibration(args.base_dir))
+    out = compute_stop_calibration(args.base_dir)
+    if getattr(args, "record", False):
+        added = record_stop_observations(args.base_dir, today=args.today, run_dir=args.run_dir)
+        result = promote(args.base_dir, STOP_MULTIPLE_PARAM, STOP_MULTIPLE_DEFAULT,
+                         stop_multiple_aggregator, today=args.today, run_dir=args.run_dir,
+                         why="mid-tier stop drift at the 30-session horizon")
+        out["learning"] = {
+            "param_id": STOP_MULTIPLE_PARAM, "observations_added": len(added),
+            "state": result["state"], "n": result["n"], "n_gate": result["n_gate"],
+            "value_in_use": result["value"], "measured": (round(result["measured"], 3)
+                                                          if result["measured"] is not None else None),
+            "band": [round(result["band_lo"], 3), round(result["band_hi"], 3)],
+            "reads_as": (f"evidence asks for {result['measured']:.2f}x ATR on mid-vol names vs the "
+                         f"{STOP_MULTIPLE_DEFAULT:.1f}x in policy"
+                         if result["measured"] is not None else "no measurement yet"),
+            "note": ("SHADOW until n reaches the gate, and ESCALATION-ONLY thereafter: policy.json "
+                     "is never written by this path. The user's tight-stop posture is a stated "
+                     "design choice; this parameter exists so the choice carries a number."),
+        }
+    emit(out)
 
 
 def cmd_learn_priority_params(args):

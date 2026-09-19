@@ -10,6 +10,7 @@ import re
 import os
 from datetime import date, datetime, timezone
 
+import smith_marketdata
 import smith_risk
 from smith_core import *  # noqa: F401,F403 -- shared constants and IO helpers
 from smith_core import load_json, emit, fail
@@ -1887,6 +1888,64 @@ def cmd_score_shadow_journal(args):
           "data_quality": dq})
 
 
+VOL_TIERS = (("low", 3.0), ("mid", 5.5), ("high", float("inf")))
+
+
+def _vol_tier(atr_pct):
+    """Volatility bucket from ATR20%. Boundaries at 3% and 5.5% split this book's 72 traded names
+    into roughly thirds -- a mega-cap hyperscaler (AMZN ~2.2%) from a semicap name (AMAT ~3.9%)
+    from a high-beta optics/power name (LITE ~6.7%, BE ~6.5%). A single stop multiple applied
+    across that range is three different risk decisions wearing one number."""
+    if atr_pct is None:
+        return None
+    for name, hi in VOL_TIERS:
+        if atr_pct < hi:
+            return name
+    return "high"
+
+
+STOP_HORIZON_SESSIONS = 30
+
+
+def _move_at_horizon(perf_bars, ticker, date, fill_price, sessions=STOP_HORIZON_SESSIONS):
+    """Price move from the fill to a FIXED horizon, not to "now".
+
+    WHY THIS EXISTS (added 2026-09-19). Every verdict in this file compares the fill against the
+    LATEST price, so the measured efficacy of the entire stop discipline re-rates whenever the
+    market moves. The same 165 stops scored -$2,218 net with a 57.1% win rate on 2026-09-14 and
+    +$5,571 net with a 43.6% win rate on 2026-09-18 -- four sessions and one relief rally apart,
+    with no new stop in between. A metric that inverts its own conclusion on a week's tape cannot
+    calibrate a policy. The horizon measure asks the stable question instead: 30 sessions after
+    this stop fired, was the stock above or below the fill? Returns None while a stop is younger
+    than the horizon, so recent stops abstain rather than contributing a half-formed answer.
+    """
+    rows = (perf_bars or {}).get(ticker)
+    if not rows or not date or not fill_price:
+        return None, None
+    after = [r for r in rows if str(r.get("d"))[:10] > str(date)[:10]]
+    if len(after) < sessions:
+        return None, None
+    px = after[sessions - 1].get("c")
+    if not px:
+        return None, None
+    return round((float(px) - fill_price) / fill_price * 100, 2), after[sessions - 1]["d"]
+
+
+def _atr_at_fill(perf_bars, ticker, date, n=20):
+    """ATR20% computed from the bars ENDING at the fill date -- never later ones.
+
+    Using today's ATR to tier a stop taken eight months ago would leak hindsight into the
+    calibration: the ATR is exactly the quantity that moved when the position blew up.
+    """
+    rows = (perf_bars or {}).get(ticker)
+    if not rows or not date:
+        return None
+    upto = [r for r in rows if str(r.get("d"))[:10] <= str(date)[:10]]
+    if len(upto) < n + 1:
+        return None
+    return smith_marketdata.atr_pct(upto, n=n)
+
+
 def cmd_stops(args):
     """Stop-loss efficacy: for every stop-loss trade with a known fill price, measure whether
     the stop helped or hurt versus simply holding through -- using PRICE, not narrative.
@@ -1918,6 +1977,9 @@ def cmd_stops(args):
     trades = load_json(os.path.join(args.base_dir, "trades.json"), default={"trades": []})
     prices = load_json(args.prices_json, default={}) if args.prices_json else {}
     today = resolve_today(args.today)
+    # optional: absent perf_bars.json just leaves atr20_pct_at_fill null on every row, which the
+    # calibration reports as "not tierable" rather than silently falling back to today's ATR.
+    perf_bars = load_json(os.path.join(args.base_dir, "perf_bars.json"), default={}) or {}
 
     all_stops = [t for t in trades.get("trades", []) if t.get("reason") == "stop-loss"]
     no_fill_price = [t for t in all_stops if not t.get("price_at_trade")]
@@ -1983,11 +2045,32 @@ def cmd_stops(args):
         qty_abs = abs(t.get("qty_change") or 0)
         dollar_impact = round((now - fill) * qty_abs, 2)
         verdict = "hurt" if move_pct > 1.0 else ("saved" if move_pct < -1.0 else "flat")
+        atr_at_fill = _atr_at_fill(perf_bars, ticker, t.get("date"))
+        horizon_move, horizon_date = _move_at_horizon(perf_bars, ticker, t.get("date"), fill)
         scored.append({
             "ticker": ticker, "date": t.get("date"), "fill_time_utc": t.get("fill_time_utc"),
             "days_since": days_since, "fill_price": fill, "price_now": now,
             "move_pct": move_pct, "qty": qty_abs, "dollar_impact": dollar_impact,
             "verdict": verdict, "cohort": cohort.get(id(t), "unknown"),
+            # ATR-AT-FILL (added 2026-09-19). Without it, cmd_learn_stop_calibration could only
+            # ever compare the cascade/deliberate cohorts and had to refuse tier-level work
+            # outright ("stops_analysis.json has no ATR-at-fill per row"). That refusal made the
+            # single richest dataset on the desk -- 165 scored stops -- unable to answer the one
+            # question it exists for: is `max(2*ATR%, 3.0%)` the right multiple, and is it the
+            # right multiple for a 2%-ATR name AND a 7%-ATR name at once? Backfilled from the
+            # same daily OHLC history the realized-return reconstruction uses, so the whole
+            # series is available at once rather than only for stops taken from today onward.
+            "atr20_pct_at_fill": atr_at_fill,
+            "vol_tier": _vol_tier(atr_at_fill),
+            "move_in_atr": (round(move_pct / atr_at_fill, 2)
+                            if atr_at_fill else None),
+            "move_30d_pct": horizon_move,
+            "horizon_date": horizon_date,
+            "verdict_30d": (None if horizon_move is None else
+                            ("hurt" if horizon_move > 1.0 else
+                             ("saved" if horizon_move < -1.0 else "flat"))),
+            "move_30d_in_atr": (round(horizon_move / atr_at_fill, 2)
+                                if (horizon_move is not None and atr_at_fill) else None),
         })
     scored.sort(key=lambda r: r.get("date") or "", reverse=True)
 
@@ -2007,6 +2090,30 @@ def cmd_stops(args):
     by_cohort = {c: summarize([r for r in scored if r["cohort"] == c])
                  for c in ("cascade", "deliberate", "unknown")}
     by_cohort = {k: v for k, v in by_cohort.items() if v}
+
+    def summarize_30d(rows):
+        rows = [r for r in rows if r.get("verdict_30d")]
+        if not rows:
+            return None
+        n = len(rows)
+        saved = sum(1 for r in rows if r["verdict_30d"] == "saved")
+        hurt = sum(1 for r in rows if r["verdict_30d"] == "hurt")
+        moves = [r["move_30d_pct"] for r in rows]
+        in_atr = [r["move_30d_in_atr"] for r in rows if r.get("move_30d_in_atr") is not None]
+        return {"count": n, "avg_move_pct": round(sum(moves) / n, 2),
+                "median_move_pct": round(sorted(moves)[n // 2], 2),
+                "saved": saved, "hurt": hurt, "flat": n - saved - hurt,
+                "win_rate_pct": round(saved / (saved + hurt) * 100, 1) if (saved + hurt) else None,
+                "avg_move_in_atr": (round(sum(in_atr) / len(in_atr), 2) if in_atr else None)}
+
+    # the STABLE basis: fixed 30-session horizon, immune to where the tape happens to be today
+    overall_30d = summarize_30d(scored)
+    by_tier_30d = {t: summarize_30d([r for r in scored if r.get("vol_tier") == t])
+                   for t in ("low", "mid", "high")}
+    by_tier_30d = {k: v for k, v in by_tier_30d.items() if v}
+    by_tier_now = {t: summarize([r for r in scored if r.get("vol_tier") == t])
+                   for t in ("low", "mid", "high")}
+    by_tier_now = {k: v for k, v in by_tier_now.items() if v}
 
     # -- RE-ENTRY ROUND-TRIP TRACKING (added 2026-09-06, user request) --------------------
     # cmd_stops above answers "did the stop help or hurt" by comparing the STOP FILL to the
@@ -2167,6 +2274,13 @@ def cmd_stops(args):
 
     out = {
         "as_of": today.isoformat(), "overall": overall, "by_cohort": by_cohort,
+        "overall_30d": overall_30d, "by_vol_tier_30d": by_tier_30d, "by_vol_tier_now": by_tier_now,
+        "horizon_sessions": STOP_HORIZON_SESSIONS,
+        "basis_note": ("`overall`/`by_cohort` compare the fill to the LATEST price and therefore "
+                       "re-rate with the market -- these same 165 stops read -$2,218 / 57.1% win "
+                       "on 2026-09-14 and +$5,571 / 43.6% on 2026-09-18. Calibrate on the _30d "
+                       "blocks, which fix the horizon at "
+                       f"{STOP_HORIZON_SESSIONS} sessions after each fill."),
         "stops": scored, "data_quality": dq,
         "reentries": reentries, "reentry_summary": reentry_summary, "by_ticker": by_ticker,
     }
