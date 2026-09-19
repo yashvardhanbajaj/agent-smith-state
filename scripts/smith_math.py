@@ -56,6 +56,7 @@ from smith_ledger import (cmd_lots, cmd_history, cmd_universe, cmd_ledger_parse,
                           cmd_ledger_apply, cmd_bookcalc, cmd_taxcalc)
 import smith_valuation
 import smith_perf
+from smith_correlation import cmd_correlation
 from smith_valuation import cmd_valuation
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails, cmd_freshness, cmd_report, cmd_runs, cmd_crosscheck
 from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_add_proposal,
@@ -2156,6 +2157,14 @@ def cmd_pipeline(args):
         # proposed there. It is a GATE, not a data dependency -- a missing triggers file
         # degrades the score by 2 points, it does not fail the stage.
         ("ladder",      ["compute_risk.json"],                      lambda d: d.get("clusters") is not None),
+        # `correlation` needs compute_risk for the stop-risk view and holdings for weights. Both
+        # it and `perf` depend on perf_bars.json rather than the run's own bars.json, because
+        # they must price names the book no longer holds -- exited positions are the whole point
+        # of the realized-return series and are equally load-bearing for a correlation estimated
+        # over a year. Degradable: no perf_bars.json just means these two sections are absent,
+        # never that the sweep fails.
+        ("correlation", ["compute_risk.json", "holdings.json"],     lambda d: d.get("diversification")),
+        ("perf",        [],                                          lambda d: d.get("twr")),
     ]
 
     stage_names = [st[0] for st in STAGES]
@@ -2174,7 +2183,7 @@ def cmd_pipeline(args):
     # yfinance outage (no or partial market_inputs.json) used to abort the pipeline before
     # derisk/triggers/ladder -- a whole run with no proposals because one mood gauge was missing.
     # It writes an explicit degraded payload instead, which derisk reads as the neutral band.
-    DEGRADABLE = {"sentiment"}
+    DEGRADABLE = {"sentiment", "correlation", "perf"}
 
     def degrade(name, reason):
         atomic_write_json(out(name), {"degraded": True, "reason": reason,
@@ -5099,6 +5108,18 @@ def main():
     sp.add_argument("--full", action="store_true", help="include the per-month table")
     sp.add_argument("--today", default=None)
 
+    sp = sub.add_parser("correlation",
+                        help="realised correlation: effective number of bets, whether the "
+                             "diversification credit on the stop sum is earned, and whether "
+                             "policy's named clusters are real risk buckets or just labels")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--lookback", type=int, default=250)
+    sp.add_argument("--min-obs", type=int, default=40)
+    sp.add_argument("--top", type=int, default=12)
+    sp.add_argument("--full", action="store_true", help="include the full matrix")
+    sp.add_argument("--today", default=None)
+
     sp = sub.add_parser("valuation",
                         help="reverse-DCF, ROIC-vs-WACC and forensic (Beneish/Altman) checks "
                              "from agent-fetched FMP statement data")
@@ -5202,7 +5223,7 @@ def main():
          "usage-audit": cmd_usage_audit,
          "usage-report": cmd_usage_report, "ledger-parse": cmd_ledger_parse, "ledger-apply": cmd_ledger_apply,
          "crosscheck": cmd_crosscheck, "bookcalc": cmd_bookcalc, "taxcalc": cmd_taxcalc,
-         "valuation": cmd_valuation, "perf": cmd_perf,
+         "valuation": cmd_valuation, "perf": cmd_perf, "correlation": cmd_correlation,
          "sync-decisions": cmd_sync_decisions,
          "trade-rationale": cmd_trade_rationale, "indicators": cmd_indicators,
          "dispatch-plan": cmd_dispatch_plan, "triggers-diff": cmd_triggers_diff, "postflight": cmd_postflight,

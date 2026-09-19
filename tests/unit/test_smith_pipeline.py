@@ -12,7 +12,9 @@ OK = {"indicators": {"skipped": True, "tickers": None}, "freshness": {"artefacts
       "journal": {"journal_updates": []}, "attribution": {"value_delta_usd": 0},
       "rotation": {"tickers": [1]}, "buckets": {"tickers": []}, "sentiment": {"score": 50},
       "derisk": {"queue": [1]}, "triggers": {"correction_state": "none"},
-      "ladder": {"clusters": {}}}
+      "ladder": {"clusters": {}},
+      # both added 2026-09-19; DEGRADABLE, so a missing perf_bars.json must not fail a sweep
+      "correlation": {"diversification": {"effective_bets": 2.05}}, "perf": {"twr": {"twr_pct": 1.0}}}
 
 
 def _run(tmp_path, monkeypatch, overrides=None, market_inputs=True, pre=(), **kw):
@@ -47,7 +49,9 @@ def _run(tmp_path, monkeypatch, overrides=None, market_inputs=True, pre=(), **kw
 def test_clean_run(tmp_path, monkeypatch):
     out, rd, calls, code = _run(tmp_path, monkeypatch)
     assert code == 0 and out["ok"] and out["degraded"] == []
-    assert calls[0] == "indicators" and calls[-1] == "ladder"
+    # `perf` is last since 2026-09-19; `ladder` stays last of the trigger-dependent stages
+    assert calls[0] == "indicators" and calls[-1] == "perf"
+    assert calls.index("ladder") < calls.index("correlation")
     assert json.loads((rd / "compute_triggers.json").read_text()) == {"correction_state": "none"}
 
 
