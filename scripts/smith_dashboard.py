@@ -147,6 +147,7 @@ def build_payload(base, built_at=None):
     ladder = rf("compute_ladder.json")
     journal = rf("compute_journal.json")
     attrib = rf("compute_attribution.json")
+    corr = rf("compute_correlation.json")
     fresh = rf("compute_freshness.json")
     buckets = rf("compute_buckets.json")
     mkt = rf("market_inputs.json")
@@ -712,6 +713,17 @@ def build_payload(base, built_at=None):
             "components": attrib.get("flow_components") or {},
             "rolling": attrib.get("rolling") or {},
             "changes": attrib.get("qty_changes") or [],
+            # REALIZED, survivorship-free (added 2026-09-19). `rolling` above prices only the
+            # names still held; this one rebuilds the book from the trade ledger and keeps the
+            # 121 positions that were stopped out and never re-entered.
+            "realized": attrib.get("realized") or {},
+        },
+        "correlation": {
+            "diversification": corr.get("diversification") or {},
+            "stop_risk": corr.get("stop_risk") or {},
+            "cohesion": corr.get("cluster_cohesion") or [],
+            "pairs": (corr.get("most_correlated_pairs") or [])[:10],
+            "window": corr.get("window") or {},
         },
         "lots": lots if isinstance(lots, dict) else {},
         "policy_targets": (policy.get("cluster_targets")
@@ -1721,6 +1733,35 @@ function tabBook(){
       return {label:human(key), v:val, vlabel:signed(val,2)+"pp",
         title:human(key)+" "+signed(val,2)+"pp vs benchmark"};
     }).filter(function(r){ return r.v!=null && !isNaN(r.v); });
+  var rz=(D.attribution.realized||{}), rzf=rz.full_history||{}, rzm=rz.material_capital||{}, mw=rz.money_weighted||{};
+  if(rz.available){
+    H.push(panel("Realized return (survivorship-free)",
+      "rebuilt from the trade ledger, including names since exited \u2014 unlike the constant-mix windows below",
+      '<div class="pad"><dl class="kv">'
+      +"<dt>Full history "+esc(rzf.from||"")+" \u2192 "+esc(rzf.to||"")+"</dt><dd>"+signed(rzf.twr_pct,2)+"% vs "+esc(q.benchmark||"SMH")+" "+signed(rzf.benchmark_pct,2)+"% = <b>"+signed(rzf.excess_pp,2)+"pp</b></dd>"
+      +"<dt>Material capital (\u2265$"+esc(String(rz.material_floor_usd||10000))+")</dt><dd>"+signed(rzm.twr_pct,2)+"% vs "+signed(rzm.benchmark_pct,2)+"% = <b>"+signed(rzm.excess_pp,2)+"pp</b></dd>"
+      +"<dt>Selection cost (money-weighted)</dt><dd><b>"+signed(mw.selection_cost_usd,2)+"</b> on "+usd(mw.net_capital_deployed_usd)+" deployed</dd>"
+      +"<dt>Max drawdown / vol</dt><dd>"+signed(rzf.max_drawdown_pct,1)+"% / "+esc(String(rzf.vol_annualized_pct||"-"))+"% ann</dd>"
+      +'</dl><p class="note">TWR equal-weights the sub-$5K months, so full history overstates the damage; the material-capital and dollar figures describe the capital that mattered.</p></div>'));
+  }
+  var cw=(D.correlation||{}), cd=cw.diversification||{}, csr=cw.stop_risk||{};
+  if(cd.effective_bets!=null){
+    var coh=(cw.cohesion||[]).filter(function(c){return c.cohesion_gap!=null;});
+    H.push(panel("Concentration, measured",
+      "realised daily-return correlation "+esc((cw.window||{}).from||"")+" \u2192 "+esc((cw.window||{}).to||""),
+      '<div class="pad"><dl class="kv">'
+      +"<dt>Effective bets</dt><dd><b>"+esc(String(cd.effective_bets))+"</b> from "+esc(String(cd.holdings_counted))+" positions (DR "+esc(String(cd.diversification_ratio))+")</dd>"
+      +"<dt>Avg pairwise correlation</dt><dd>"+esc(String(csr.avg_pairwise_correlation!=null?csr.avg_pairwise_correlation:"-"))+"</dd>"
+      +"<dt>Stop sum (all-fire)</dt><dd>"+usd(csr.independent_sum_usd)+"</dd>"
+      +"<dt>Diversification credit</dt><dd>"+usd(csr.diversification_credit_usd)+" \u2014 <b>"+(csr.take_the_credit?"earned":"NOT earned")+"</b></dd>"
+      +'</dl>'
+      +(coh.length? '<table><thead><tr><th>Cluster</th><th class="n">within</th><th class="n">vs rest</th><th>verdict</th></tr></thead><tbody>'
+        +coh.map(function(c){return "<tr><td>"+esc(c.cluster)+'</td><td class="n">'+esc(String(c.avg_within))+'</td><td class="n">'+esc(String(c.avg_vs_rest_of_book))+"</td><td>"+esc(c.verdict)+"</td></tr>";}).join("")
+        +"</tbody></table>":"")
+      +(cw.pairs&&cw.pairs.length? '<p class="note">Most correlated: '+cw.pairs.slice(0,5).map(function(x){return esc(x.pair.join("/"))+" "+esc(String(x.corr));}).join(" \u00b7 ")+"</p>":"")
+      +"</div>"));
+  }
+
   H.push(panel("Beat or lag "+esc(q.benchmark||"SMH"),
     roll.basis_label||"per period, never cumulative — a cumulative line would mix deposits with returns",
     rollRows.length? '<div class="pad">'+divergingBars(rollRows,
