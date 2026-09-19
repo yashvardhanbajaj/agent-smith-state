@@ -121,9 +121,15 @@ class TestPositions:
 
 
 class TestProposals:
-    def test_open_proposals_are_priority_ordered_high_first(self, payload):
-        rank = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
-        got = [rank.get(p["priority"], 3) for p in payload["proposals"]["open"]]
+    def test_open_proposals_are_verdict_first_then_effective_priority(self, payload):
+        # 2026-09-19: what still deserves a decision leads; the desk's retire recommendations
+        # sink to one collapsed row. Within a verdict, EFFECTIVE priority (a weakened HIGH reads
+        # MEDIUM) orders the cards -- the stored priority alone put stale HIGHs on top.
+        verdict = {"valid": 0, "weakened": 1, "retire": 2}
+        rank = {"HIGH": 0, "MEDIUM": 1, "LOW": 2, "RETIRE": 3}
+        got = [(verdict.get((p.get("v") or {}).get("verdict"), 0),
+                rank.get((p.get("v") or {}).get("effective_priority") or p["priority"], 4))
+               for p in payload["proposals"]["open"]]
         assert got == sorted(got)
 
     def test_history_carries_every_proposal_not_just_the_open_ones(self, payload):

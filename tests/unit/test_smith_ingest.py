@@ -184,3 +184,22 @@ def test_trade_rationale_refuses_when_nothing_matches_and_writes_nothing(tmp_pat
 def test_validate_flags_trades_without_provenance(tmp_path):
     (tmp_path / "trades.json").write_text(json.dumps({"trades": [{"ticker": "X", "date": "2026-01-02"}]}))
     assert "TRADE PROVENANCE" in sm.validate_trade_provenance(str(tmp_path))[0]
+
+
+def test_retire_decision_is_recorded_as_the_desks_withdrawal_not_a_user_override(tmp_path):
+    # Retire confirms the DESK's own recommendation (smith_validity verdict), so it must land as
+    # dismissed_by_desk -- counted as a strategist miss -- never as the user's taste.
+    (tmp_path / "proposals.json").write_text(json.dumps({"proposals": [
+        {"id": "P-346", "status": "open"}, {"id": "P-2", "status": "open"}], "scorecard": {}}))
+    (tmp_path / "state.json").write_text(json.dumps({"k": 1}))
+    records = tmp_path / "records.json"
+    records.write_text(json.dumps([
+        {"id": "a", "surface": "proposal", "element_id": "P-346", "decision": "retire"},
+        {"id": "b", "surface": "proposal", "element_id": "P-2", "decision": "reject"}]))
+    out = _emit(smm.cmd_sync_decisions, Namespace(base_dir=str(tmp_path), records_file=str(records),
+                                                  html_file=None, today="2026-09-19"))
+    assert out["ok"] is True
+    props = {p["id"]: p for p in json.loads((tmp_path / "proposals.json").read_text())["proposals"]}
+    assert props["P-346"]["status"] == "dismissed_by_desk"
+    assert props["P-346"]["dismiss_reason"]
+    assert props["P-2"]["status"] == "dismissed_by_user"

@@ -319,8 +319,25 @@ def build_payload(base, built_at=None):
     open_props = [prop_full(p) for p in all_props if p.get("status") == "open"]
     accepted = [prop_full(p) for p in all_props
                 if p.get("status") in ("accepted_by_user", "deferred", "watch")]
+    # IS IT STILL TRUE? (added 2026-09-19, smith_validity). Every open card carries today's
+    # re-check -- trigger still firing, alpha since proposed, your contradicting trades, the
+    # strategist's retire list -- so the card leads with the verdict instead of a paragraph of
+    # rationale written the day it was proposed. Advisory: nothing is dismissed here.
+    try:
+        import smith_validity
+        vrows = smith_validity.check_all(
+            base, run_dir=os.path.join(base, run_dir) if run_dir else None)["rows"]
+    except Exception:  # noqa: BLE001 -- a failed check must not blank the proposals panel
+        vrows = []
+    vmap = {r["id"]: r for r in vrows}
+    for d in open_props:
+        d["v"] = vmap.get(d["id"]) or {}
     prio_rank = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
-    open_props.sort(key=lambda p: (prio_rank.get(p["priority"], 3), -(p["size"] or 0)))
+    verdict_rank = {"valid": 0, "weakened": 1, "retire": 2}
+    open_props.sort(key=lambda p: (verdict_rank.get((p.get("v") or {}).get("verdict"), 0),
+                                   prio_rank.get((p.get("v") or {}).get("effective_priority")
+                                                 or p["priority"], 3),
+                                   -(p["size"] or 0)))
 
     proposals = {
         "open": open_props,
@@ -957,6 +974,27 @@ tr.flagged:hover td{background:var(--neg-soft);filter:brightness(.98)}
 .decide button.b-accept:hover{border-color:var(--pos);color:var(--pos)}
 .decide button.b-reject:hover{border-color:var(--neg);color:var(--neg)}
 .decide button:disabled{opacity:.5;cursor:default}
+.decide button.b-pick{border:2px solid var(--acc);color:var(--acc)}
+.pc{display:flex;flex-direction:column;gap:9px;min-width:0}
+.pc-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.pc-size{font-family:var(--mono);font-size:13.5px;color:var(--ink-2)}
+.pc-id{margin-left:auto}
+.pc-verdict{border-radius:4px;padding:7px 11px;font-size:13px;line-height:1.45}
+.pc-verdict.retire{background:var(--neg-soft);color:var(--neg)}
+.pc-verdict.weakened{background:var(--warn-soft);color:var(--warn)}
+.pc-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:7px}
+.pc-tiles>div{background:var(--surf-2);border-radius:4px;padding:7px 10px;display:flex;flex-direction:column;gap:1px}
+.pc-tiles .k,.pc-fa .k{font-family:var(--cond);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.pc-fa .k.pos{color:var(--pos)} .pc-fa .k.neg{color:var(--neg)}
+.pc-tiles .v{font-family:var(--mono);font-size:13.5px}
+.pc-tiles .s{font-size:11.5px;color:var(--ink-3)}
+.pc-fa{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.pc-fa ul{margin:4px 0 0;padding-left:16px} .pc-fa li{font-size:12.5px;color:var(--ink-2);margin-bottom:3px}
+.pc-more summary{padding:4px 0} .pc-more .dbody{padding:4px 0 6px}
+.pc-decide{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:9px}
+.card:has(.pc){grid-template-columns:1fr}
+button.retire-all{font-family:var(--cond);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:4px;border:1px solid var(--neg);color:var(--neg);background:var(--surf);cursor:pointer;margin-left:8px}
+@media(max-width:640px){.pc-fa{grid-template-columns:1fr}}
 .decide input.reason{font:inherit;font-size:11.5px;padding:3px 7px;border-radius:4px;
   border:1px solid var(--line-2);background:var(--surf);color:var(--ink);width:150px}
 .decide select{font:inherit;font-size:11.5px;padding:3px 5px;border-radius:4px;
@@ -1132,14 +1170,14 @@ function table(cols,rows,opts){
   return '<div class="tbl-scroll"><table><thead><tr>'+head+"</tr></thead><tbody>"+
     rows.join("")+"</tbody></table></div>";
 }
-function decideBox(surface,id,extra){
+function decideBox(surface,id,extra,pick){
   var rec=null;
   for(var i=DEC.length-1;i>=0;i--){
     if(DEC[i].surface===surface && DEC[i].element_id===id){ rec=DEC[i]; break; } }
   if(rec) return '<span class="recorded">Recorded: '+esc(rec.decision)+
     (rec.reason?" — "+esc(rec.reason):"")+" (syncs next run)</span>";
-  var B={proposal:[["accept","Accept","b-accept"],["reject","Reject","b-reject"],
-                   ["hold","Hold","b-hold"]],
+  var B={proposal:(pick==="retire"?[["retire","Retire","b-reject"]]:[]).concat(
+                   [["accept","Accept","b-accept"],["reject","Reject","b-reject"],["hold","Hold","b-hold"]]),
          auto_retired_proposal:[["revive","Revive","b-revive"]],
          watchlist:[["watch_closely","Watch closely","b-watch"],
                     ["not_interested","Not interested","b-reject"]],
@@ -1149,8 +1187,9 @@ function decideBox(surface,id,extra){
          learning_param:[["approve","Approve","b-accept"],["defer","Defer","b-hold"]],
          thesis:[["confirm","Confirm","b-accept"],["override","Override","b-hold"]],
          catalyst:[["priced_in","Already priced in","b-hold"]]}[surface]||[];
-  var btns=B.map(function(b){ return '<button type="button" class="'+b[2]+
-    '" data-decision="'+b[0]+'">'+esc(b[1])+"</button>"; }).join("");
+  var btns=B.map(function(b){ var mine=(pick&&b[0]===pick);
+    return '<button type="button" class="'+b[2]+(mine?" b-pick":"")+
+    '" data-decision="'+b[0]+'">'+esc(b[1])+(mine?" (desk pick)":"")+"</button>"; }).join("");
   var sel = surface==="thesis" ? '<select class="new-status" aria-label="new thesis status">'+
     ["strengthening","intact","watch","broken"].map(function(s){
       return '<option value="'+s+'">'+s+"</option>"; }).join("")+"</select>" : "";
@@ -1475,10 +1514,15 @@ function tabCommand(){
     (k.sent_note?'<p class="note muted" style="margin:0">'+esc(k.sent_note)+"</p>":"")+
     "</div></div>",{span:true}));
 
-  /* open proposals */
+  /* open proposals -- verdict-first (2026-09-19): what still deserves a decision leads; what
+     the desk says to retire collapses into one row with one-click retire. Nothing is dismissed
+     without your click (user decision 2026-09-19). */
   var props=D.proposals.open||[];
+  var vd=function(p){ return (p.v||{}).verdict||"valid"; };
+  var live=props.filter(function(p){ return vd(p)!=="retire"; });
+  var dead=props.filter(function(p){ return vd(p)==="retire"; });
   var pairs={}, singles=[];
-  props.forEach(function(p){ if(p.pair_id){ (pairs[p.pair_id]=pairs[p.pair_id]||[]).push(p); }
+  live.forEach(function(p){ if(p.pair_id){ (pairs[p.pair_id]=pairs[p.pair_id]||[]).push(p); }
     else singles.push(p); });
   var body="";
   Object.keys(pairs).forEach(function(pid){
@@ -1488,17 +1532,31 @@ function tabCommand(){
         return '<div class="pair-leg">'+propCardInner(p)+"</div>"; }).join("")+"</div></div>";
   });
   ["HIGH","MEDIUM","LOW"].forEach(function(tier){
-    var rows=singles.filter(function(p){ return (p.priority||"LOW")===tier; });
+    var rows=singles.filter(function(p){ return ((p.v||{}).effective_priority||p.priority||"LOW")===tier; });
     if(!rows.length) return;
     var inner=rows.map(propCard).join("");
     body+=detailsRow('<span class="pill '+tier.toLowerCase()+'">'+tier+"</span>"+
       '<span class="muted">'+rows.length+" proposal"+(rows.length>1?"s":"")+" · "+
-      usd(rows.reduce(function(a,b){ return a+(b.size||0); },0))+"</span>",
+      usd(rows.reduce(function(a,b){ return a+(b.size||0); },0))+
+      (rows.some(function(p){ return vd(p)==="weakened"; })?" · some weakened":"")+"</span>",
       inner, tier==="HIGH");
   });
-  H.push(panel("Open proposals", props.length+" live · advisory only, never executed",
-    body||null,{span:true, sev: props.some(function(p){ return p.priority==="HIGH"; })?
-      "warn":null}));
+  if(dead.length){
+    var ids=dead.map(function(p){ return p.id; });
+    var undecided=ids.filter(function(id){ return !DEC.some(function(d){
+      return d.surface==="proposal" && d.element_id===id; }); });
+    body+=detailsRow('<span class="pill sell">Retire</span>'+
+      '<span class="muted">'+dead.length+" proposal"+(dead.length>1?"s":"")+
+      " the desk recommends retiring · "+usd(dead.reduce(function(a,b){ return a+(b.size||0); },0))+"</span>"+
+      (undecided.length?' <button type="button" class="retire-all" data-ids="'+esc(undecided.join(","))+
+        '">Retire all '+undecided.length+"</button>":""),
+      dead.map(propCard).join(""), !live.length);
+  }
+  H.push(panel("Open proposals",
+    live.length+" to decide"+(dead.length?" · "+dead.length+" to retire":"")+
+      " · advisory only, never executed",
+    body||null,{span:true, sev: live.some(function(p){
+      return ((p.v||{}).effective_priority||p.priority)==="HIGH"; })?"warn":null}));
 
   // "Accepted -- awaiting execution" panel REMOVED from Command 2026-09-15 (user correction).
   // It kept re-showing every accepted/deferred/watch proposal on the "what to do today" tab,
@@ -1555,27 +1613,64 @@ function tabCommand(){
 }
 
 function propCardInner(p){
-  var stale = (p.flags||[]).length>0;
-  return '<div class="lhs">'+
-    '<span class="act">'+esc(p.action||"")+"</span>"+
-    '<span class="amt">'+usd(p.size)+"</span>"+
-    (p.cluster?'<span class="pill">'+esc(p.cluster)+"</span>":"")+
-    '<span class="meta">'+esc(p.id||"")+" · "+esc(p.date||"")+"</span></div>"+
-    "<div>"+dirPill(p.dir)+" "+
-    (p.trigger?'<span class="pill info">'+esc(p.trigger)+"</span> ":"")+
-    (p.priority?'<span class="pill '+String(p.priority).toLowerCase()+'">'+
-      esc(p.priority)+"</span>":"")+
-    '<p class="why" style="margin:7px 0 0">'+esc(p.rationale||"")+"</p>"+
-    ((p.valid||[]).length?"<ul>"+p.valid.map(function(v){
-      return "<li>"+esc(v)+"</li>"; }).join("")+"</ul>":"")+
-    (stale?'<p class="meta warnc">⚠ '+p.flags.map(esc).join(" · ")+"</p>":"")+
-    (p.tranche?'<p class="meta">'+esc(p.tranche)+"</p>":"")+
-    (p.retires?'<p class="meta">Retires when: '+esc(p.retires)+"</p>":"")+
-    (p.px0!=null?'<p class="meta">Proposed at '+usd(p.px0,2)+
-      (p.px1!=null?" · now "+usd(p.px1,2):"")+
-      (p.drift!=null?" ("+signed(p.drift,1)+")":"")+"</p>":"")+
-    "</div>"+
-    '<div class="rhs">'+tk(p.t)+decideBox("proposal",p.id)+"</div>";
+  /* Verdict first (redesigned 2026-09-19). The old card led with the rationale written the day
+     the proposal was made and offered Accept/Reject/Hold as equals; P-346 still read HIGH three
+     sessions after you had bought the very name it said to trim. */
+  var v=p.v||{}, at=v.after_trade||{}, since=v.since||{};
+  var verdict=v.verdict||"valid";
+  var head='<div class="pc-head"><span class="act">'+esc(p.action||"")+"</span>"+
+    '<span class="pc-size">'+usd(p.size)+
+      (at.shares!=null?" · "+n(at.shares, at.shares<1?2:1)+" sh":"")+
+      (at.pct_of_position!=null?" · "+n(at.pct_of_position,0)+"% of position":"")+"</span>"+
+    '<span class="meta pc-id">'+esc(p.id||"")+(v.age_sessions!=null?" · "+v.age_sessions+
+      " session"+(v.age_sessions===1?"":"s")+" old":" · "+esc(p.date||""))+"</span></div>";
+  var reasons = verdict==="retire" ? (v.retire_because||[]) :
+                verdict==="weakened" ? (v.weakened_because||[]) : [];
+  var banner = verdict==="valid" ? "" :
+    '<div class="pc-verdict '+verdict+'">'+
+      (verdict==="retire"?"Desk says retire":"Weakened")+
+      (reasons.length?": "+esc(reasons[0].replace(/^the strategist recommends retiring it: /,"strategist: ")):"")+
+      (reasons.length>1?'<span class="muted"> · +'+(reasons.length-1)+" more</span>":"")+"</div>";
+  var agree=since.agree_pp;
+  var tiles='<div class="pc-tiles">'+
+    '<div><span class="k">Since proposed</span><span class="v">'+
+      (since.stock_pct!=null?signed(since.stock_pct,1):"—")+
+      (since.smh_pct!=null?'<span class="muted"> vs SMH '+signed(since.smh_pct,1)+"</span>":"")+
+      "</span>"+(agree!=null?'<span class="s '+(agree<0?"neg":"pos")+'">'+
+      (agree<0?"against":"with")+" the call by "+n(Math.abs(agree),1)+"pp</span>":"")+"</div>"+
+    '<div><span class="k">Trigger now</span><span class="v">'+
+      (v.trigger_state==="firing"?"Still firing":v.trigger_state==="not_firing"?
+        '<span class="warnc">Not firing</span>':"Judgment call")+"</span>"+
+      (p.trigger?'<span class="s">'+esc(human(p.trigger))+"</span>":"")+"</div>"+
+    '<div><span class="k">Weight after</span><span class="v">'+
+      (at.weight_before!=null?n(at.weight_before,1)+"% → "+n(at.weight_after,1)+"%":"—")+
+      "</span>"+(p.cluster?'<span class="s">'+esc(p.cluster)+"</span>":"")+"</div>"+
+    '<div><span class="k">Thesis</span><span class="v">'+esc(v.thesis_status||"—")+"</span>"+
+      (v.earnings?'<span class="s warnc">earnings '+esc(v.earnings)+"</span>":"")+"</div>"+
+    "</div>";
+  var forList=(p.valid&&p.valid.length?p.valid:p.reasons||[]).slice(0,3);
+  var againstList=(v.against||[]).slice(0,3);
+  var clip1=function(t){ t=String(t||""); return t.length>150?t.slice(0,147)+"…":t; };
+  var fa='<div class="pc-fa"><div><span class="k pos">For</span>'+
+    (forList.length?"<ul>"+forList.map(function(x){ return "<li>"+esc(clip1(x))+"</li>"; }).join("")+"</ul>"
+      :'<p class="muted">Nothing recorded</p>')+"</div>"+
+    '<div><span class="k neg">Against</span>'+
+    (againstList.length?"<ul>"+againstList.map(function(x){ return "<li>"+esc(clip1(x))+"</li>"; }).join("")+"</ul>"
+      :'<p class="muted">None found this run</p>')+"</div></div>";
+  var desk = v.desk?'<p class="meta">Desk: '+esc(v.desk)+"</p>":"";
+  var drops = v.drops_off_when?'<p class="meta">'+(v.drops_off_met?'<span class="pos">✓</span> ':"")+
+    "Drops off when: "+esc(clip1(v.drops_off_when))+
+    (v.drops_off_met?" — met":"")+"</p>":
+    (p.retires?'<p class="meta">Drops off when: '+esc(clip1(p.retires))+"</p>":"");
+  var full='<details class="pc-more"><summary><div class="srow"><span class="caret">▸</span>'+
+    '<span class="muted">Full rationale and every reason</span></div></summary><div class="dbody">'+
+    '<p class="why">'+esc(p.rationale||"")+"</p>"+
+    (reasons.length>1?"<ul>"+reasons.map(function(x){ return "<li>"+esc(x)+"</li>"; }).join("")+"</ul>":"")+
+    (p.px0!=null?'<p class="meta">Proposed at '+usd(p.px0,2)+(since.price_now!=null?" · now "+usd(since.price_now,2):"")+"</p>":"")+
+    "</div></details>";
+  var pick = verdict==="retire" ? "retire" : verdict==="valid" ? "accept" : null;
+  return '<div class="pc">'+head+banner+tiles+fa+desk+drops+full+
+    '<div class="pc-decide">'+tk(p.t)+decideBox("proposal",p.id,"",pick)+"</div></div>";
 }
 function propCard(p){ return '<div class="card">'+propCardInner(p)+"</div>"; }
 
@@ -2602,6 +2697,33 @@ DECISIONS_JS = r"""<script>
   }).catch(function(){ readOnly(); });
 
   document.body.addEventListener("click", function(ev){
+    var bulk = ev.target.closest("button.retire-all");
+    if (bulk){
+      ev.preventDefault(); ev.stopPropagation();
+      if (!db){ readOnly("Still connecting — try again in a moment, or reload."); return; }
+      // re-check at click time: a card retired individually after this row rendered must not
+      // be written a second time
+      var ids = (bulk.getAttribute("data-ids") || "").split(",").filter(Boolean)
+        .filter(function(id){ return !DEC.some(function(x){
+          return x.surface === "proposal" && x.element_id === id; }); });
+      if (!ids.length){ bulk.textContent = "Nothing left to retire"; bulk.disabled = true; return; }
+      if (!ids.length || !confirm("Retire " + ids.length + " proposal(s) the desk recommends retiring?")) return;
+      bulk.disabled = true; bulk.textContent = "Retiring…";
+      var day = new Date().toISOString().slice(0,10);
+      Promise.all(ids.map(function(id){
+        var payload = {surface: "proposal", element_id: id, decision: "retire",
+                       reason: "desk recommendation, confirmed in bulk", decided_on: day};
+        return db.collection("decisions").add(payload).then(function(ref){
+          DEC.push(Object.assign({id: ref.id}, payload)); });
+      })).then(function(){
+        bulk.textContent = "Recorded — syncs next run";
+        if (typeof render === "function") render(currentTab());
+      }).catch(function(err){
+        bulk.disabled = false; bulk.textContent = "Retire all";
+        alert("Not all retirements were saved (" + ((err && err.code) || "unknown error") + "). Try again.");
+      });
+      return;
+    }
     var btn = ev.target.closest(".decide button");
     if (!btn) return;
     if (!db){ readOnly("Still connecting — try again in a moment, or reload."); return; }

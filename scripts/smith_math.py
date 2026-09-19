@@ -58,6 +58,7 @@ import smith_valuation
 import smith_perf
 from smith_correlation import cmd_correlation
 from smith_comms import cmd_comms_route, cmd_comms_status
+from smith_validity import cmd_validity
 from smith_valuation import cmd_valuation
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails, cmd_freshness, cmd_report, cmd_runs, cmd_crosscheck
 from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_add_proposal,
@@ -4483,6 +4484,19 @@ def cmd_sync_decisions(args):
                         continue
                     dismiss_proposal_core(props, element_id, reason, actor="user (dashboard)")
                     proposals_dirty = True
+                elif decision == "retire":
+                    # RETIRE (added 2026-09-19) is not Reject. It is the user confirming the
+                    # DESK's own recommendation to withdraw its proposal (smith_validity verdict
+                    # `retire`) -- so it is recorded as dismissed_by_desk, which the scorecard
+                    # counts as a strategist miss. Filing it as a user override would hide the
+                    # desk's own stale calls inside the exclusion meant for the user's taste.
+                    if pr.get("status") != "open":
+                        skipped.append({"surface": surface, "element_id": element_id, "why": f"already {pr.get('status')}"})
+                        continue
+                    dismiss_proposal_core(props, element_id,
+                                          reason or "desk recommended retirement; confirmed on the dashboard",
+                                          actor="desk (retire recommendation, confirmed by user)")
+                    proposals_dirty = True
                 elif decision == "accept":
                     if pr.get("status") != "open":
                         skipped.append({"surface": surface, "element_id": element_id, "why": f"already {pr.get('status')}"})
@@ -5130,6 +5144,15 @@ def main():
     sp.add_argument("--include-low", action="store_true",
                     help="also debate low-severity crosscheck findings")
 
+    sp = sub.add_parser("validity",
+                        help="re-check every OPEN proposal against today: trigger still firing, "
+                             "alpha since proposed, your contradicting trades, the strategist's "
+                             "retire list, thesis direction, desk debates. Advisory -- never "
+                             "edits or dismisses a proposal.")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--run-dir", default=None)
+    sp.add_argument("--today", default=None)
+
     sp = sub.add_parser("comms-status", help="the desk conversation digest for this run")
     sp.add_argument("--run-dir", required=True)
     sp.add_argument("--full", action="store_true")
@@ -5249,7 +5272,7 @@ def main():
          "usage-audit": cmd_usage_audit,
          "usage-report": cmd_usage_report, "ledger-parse": cmd_ledger_parse, "ledger-apply": cmd_ledger_apply,
          "crosscheck": cmd_crosscheck, "bookcalc": cmd_bookcalc, "taxcalc": cmd_taxcalc,
-         "valuation": cmd_valuation, "perf": cmd_perf, "correlation": cmd_correlation, "comms-route": cmd_comms_route, "comms-status": cmd_comms_status,
+         "valuation": cmd_valuation, "perf": cmd_perf, "correlation": cmd_correlation, "comms-route": cmd_comms_route, "validity": cmd_validity, "comms-status": cmd_comms_status,
          "sync-decisions": cmd_sync_decisions,
          "trade-rationale": cmd_trade_rationale, "indicators": cmd_indicators,
          "dispatch-plan": cmd_dispatch_plan, "triggers-diff": cmd_triggers_diff, "postflight": cmd_postflight,
