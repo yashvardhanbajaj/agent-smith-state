@@ -2861,8 +2861,13 @@ def _trigger_catalyst_threat(base, ticker, mv, catalyst_threats_by_ticker, rotat
                             "are answering different questions (financing-structure risk vs. "
                             "operating fundamentals); this does not cancel the trigger, but "
                             "size and priority are a judgement call, not a formula")
+        read_through = sorted({p for c in cats for p in (c.get("read_through") or [])})
         catalyst_threat.append({**base, "trigger_type": "catalyst_threat", "direction": "TRIM",
                                 "vote": "live",
+                                # which EVENT(s) drive this row -- the dashboard groups by event,
+                                # so three events read as three lines, not ten trims
+                                "events": [f"{c.get('headline', '')[:90]} ({c.get('date', '')})" for c in cats],
+                                "read_through": read_through,
                                 "suggested_size_usd": round(size, 2),
                                 "trim_fraction": CATALYST_THREAT_TRIM_FRACTION,
                                 "over_cap_independent": True,
@@ -3919,9 +3924,44 @@ def cmd_triggers(args):
     # carry-forward merge keeps it in state until the next scan can retire it explicitly.
     # ONE READER for the freshness rule -- the dashboard goes through the same helper.
     factor_catalysts = smith_risk.live_catalysts(state, today, include_suppressed=True)
+    # DEDUP + BREADTH (2026-09-19, see smith_risk): near-duplicate reports of one event count
+    # once, and a threat touching most of the book becomes ONE book-level factor_threat row
+    # instead of a 20% trim of every name it lists -- on 2026-09-19 a single essay entry
+    # listing 26 of 27 holdings produced 26 of the 27 live TRIMs ($6,746).
+    _equity = sum(float(r.get("market_value_usd") or 0) for r in risk.get("positions", []))
+    _weights = ({r["ticker"]: float(r.get("market_value_usd") or 0) / _equity * 100
+                 for r in risk.get("positions", [])} if _equity else {})
     catalyst_threats_by_ticker = {}
-    for cat in factor_catalysts:
+    factor_threat = []
+    for cat in smith_risk.dedupe_catalysts(factor_catalysts):
         if cat.get("direction") != "threat" or cat.get("horizon") != "structural":
+            continue
+        if smith_risk.is_broad_catalyst(cat, _weights, held=held_tickers):
+            names, pct = smith_risk.catalyst_breadth(cat, _weights, held=held_tickers)
+            factor_threat.append({
+                "trigger_type": "factor_threat", "direction": "BOOK", "vote": "live",
+                "headline": cat.get("headline"), "date": cat.get("date"),
+                "magnitude": cat.get("magnitude"), "source": cat.get("source"),
+                "held_names": sorted(names), "held_count": len(names), "equity_pct": pct,
+                "duplicates_folded": len(cat.get("duplicates") or []),
+                "reasons": [f"touches {len(names)} held names ({pct:.0f}% of equity) -- a "
+                            f"threat to the whole factor is answered by gross exposure and "
+                            f"cash, not by trimming each name the same fraction"],
+                "suggested_size_usd": None})
+            continue
+        # COMPANY-SPECIFIC EVENTS TRIM ONLY THE COMPANY (2026-09-19). When the headline names a
+        # held company -- "Corning (GLW) ... ATM program", "GE Vernova (GEV) initiated Sell" --
+        # the event is about THAT company. Its peers in `affects` are read-through (same-session
+        # sympathy selling), not a structural threat of their own: a Street-low Sell on GEV is not
+        # a reason to trim VRT, nor Corning's dilution a reason to trim Lumentum. They ride along
+        # on the named company's row as `read_through` instead of becoming live trims.
+        named = [t for t in held_tickers
+                 if re.search(rf"(?<![A-Za-z]){re.escape(t)}(?![A-Za-z])", str(cat.get("headline") or ""))
+                 and t in (cat.get("affects") or [])]
+        if named:
+            peers = [t for t in (cat.get("affects") or []) if t not in named and t in held_tickers]
+            for t in named:
+                catalyst_threats_by_ticker.setdefault(t, []).append(dict(cat, read_through=peers))
             continue
         for t in (cat.get("affects") or []):
             catalyst_threats_by_ticker.setdefault(t, []).append(cat)
@@ -4242,7 +4282,8 @@ def cmd_triggers(args):
                    "conviction_average": len(conviction_average), "conviction_exit": len(conviction_exit),
                    "entry_setup": len(entry_setup), "reentry": len(reentry),
                    "bench_diversifier": len(bench_diversifier),
-                   "profit_rotation": len(profit_rotation), "cluster_rotation": len(cluster_rotation)}
+                   "profit_rotation": len(profit_rotation), "cluster_rotation": len(cluster_rotation),
+                   "factor_threat": len(factor_threat)}
     shadow_counts = {"laggard_rotation": len(laggard), "profit_ratchet": len(ratchet),
                      "scale_out_ladder": len(ladder),
                      "cluster_bench_rotation": len(cluster_bench_rotation),
@@ -4279,6 +4320,7 @@ def cmd_triggers(args):
         "live_counts": live_counts, "shadow_counts": shadow_counts,
         "oversold_reversion": oversold, "overbought_distribution": overbought,
         "catalyst_threat": catalyst_threat, "thesis_break": thesis_break,
+        "factor_threat": factor_threat,
         "trend_entry": trend_entry, "trend_breakdown": trend_breakdown,
         "conviction_average": conviction_average, "conviction_exit": conviction_exit,
         "entry_setup": entry_setup, "reentry": reentry, "bench_diversifier": bench_diversifier,

@@ -219,3 +219,59 @@ class TestRender:
 
     def test_the_page_declares_a_title(self, payload):
         assert "<title>Agent Smith Desk</title>" in sd.render_html(payload)
+
+
+class TestAttentionDigest:
+    """Command shows a few lines, not every trigger row (user, 2026-09-19: "Dashboard should
+    have fewer important only entries")."""
+
+    def _trig(self):
+        return {
+            "factor_threat": [{"headline": "Essay", "held_count": 26, "equity_pct": 99.4,
+                               "held_names": ["A"] * 26}],
+            "catalyst_threat": [
+                {"ticker": "MU", "suggested_size_usd": 400, "events": ["CXMT (09-01)"], "vote": "live"},
+                {"ticker": "TER", "suggested_size_usd": 370, "events": ["CXMT (09-01)"], "vote": "live"},
+                {"ticker": "GLW", "suggested_size_usd": 90, "events": ["Corning ATM (09-14)"],
+                 "read_through": ["COHR", "LITE"], "vote": "live"}],
+            "trend_entry": [{"ticker": "LITE", "vote": "live", "conviction_score": 29.7,
+                             "direction": "BUY", "suggested_size_usd": 330, "reasons": ["r"]}],
+            "conviction_average": [{"ticker": "KLAC", "vote": "live", "conviction_score": 61.0,
+                                    "direction": "BUY", "suggested_size_usd": 400, "reasons": ["r"]}],
+            "overbought_distribution": [{"ticker": "BE", "vote": "live", "direction": "TRIM",
+                                         "suggested_size_usd": 100, "reasons": ["RSI 78"]}],
+            "laggard_rotation": [{"ticker": "X", "vote": "shadow"}],
+        }
+
+    def test_catalyst_threats_collapse_to_one_line_per_event(self):
+        import smith_dashboard as sd
+        items = sd.attention_digest(self._trig())["items"]
+        threats = [i for i in items if i["kind"] == "catalyst_threat"]
+        assert len(threats) == 2
+        cx = next(i for i in threats if "CXMT" in i["detail"])
+        assert cx["names"] == ["MU", "TER"] and cx["size"] == 770
+
+    def test_the_factor_threat_is_one_book_line(self):
+        import smith_dashboard as sd
+        items = sd.attention_digest(self._trig())["items"]
+        assert items[0]["kind"] == "factor_threat" and items[0]["dir"] == "BOOK"
+
+    def test_low_conviction_ideas_are_left_out_and_counted(self):
+        import smith_dashboard as sd
+        d = sd.attention_digest(self._trig())
+        titles = [i["title"] for i in d["items"]]
+        assert "Buy LITE" not in titles and "Buy KLAC" in titles
+        assert d["below_medium_conviction"] == 1
+
+    def test_defensive_signals_without_a_score_always_show(self):
+        import smith_dashboard as sd
+        assert any(i["title"] == "Trim BE" for i in sd.attention_digest(self._trig())["items"])
+
+    def test_shadow_rows_never_reach_command(self):
+        import smith_dashboard as sd
+        assert not any(i["kind"] == "laggard_rotation" for i in sd.attention_digest(self._trig())["items"])
+
+    def test_read_through_names_are_noted_not_trimmed(self):
+        import smith_dashboard as sd
+        g = next(i for i in sd.attention_digest(self._trig())["items"] if "Corning" in (i["detail"] or ""))
+        assert g["names"] == ["GLW"] and "COHR" in g["note"]

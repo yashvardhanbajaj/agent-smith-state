@@ -122,6 +122,121 @@ def assert_payload_complete(p):
         )
 
 
+# "NEEDS YOUR ATTENTION" (added 2026-09-19). User: "Dashboard should have fewer important only
+# entries." The Command tab listed every trigger row -- 46 of them, shadow rows included -- and
+# 27 of the live ones were one essay fanned out across the book. This condenses the trigger file
+# into the few lines that deserve a look today:
+#   * one line per book-level factor threat,
+#   * one line per catalyst EVENT (not per name it touches), with the names and total trim size,
+#   * the strongest few live ideas from every other family (shadow families never appear).
+# The full per-row detail moves to Diagnostics; nothing is hidden, it is just not on Command.
+ATTENTION_PER_FAMILY = 2
+ATTENTION_MAX = 8
+_LIVE_IDEA_FAMILIES = ("thesis_break", "oversold_reversion", "overbought_distribution",
+                       "trend_breakdown", "conviction_exit", "trend_entry", "conviction_average",
+                       "entry_setup", "reentry", "bench_diversifier", "profit_rotation",
+                       "cluster_rotation")
+
+
+def attention_digest(trig):
+    items = []
+    for f in (trig.get("factor_threat") or []):
+        items.append({"kind": "factor_threat", "dir": "BOOK",
+                      "title": f"{f.get('held_count')} holdings exposed to one factor event",
+                      "detail": f.get("headline"), "names": f.get("held_names") or [],
+                      "equity_pct": f.get("equity_pct"), "size": None,
+                      "note": "answered by gross exposure and cash, not by trimming each name"})
+    events = {}
+    for r in trig.get("catalyst_threat") or []:
+        for e in (r.get("events") or ["(unnamed catalyst)"]):
+            g = events.setdefault(e, {"names": [], "size": 0.0, "read_through": set()})
+            g["names"].append(r.get("ticker"))
+            g["size"] += float(r.get("suggested_size_usd") or 0)
+            g["read_through"].update(r.get("read_through") or [])
+    for e, g in sorted(events.items(), key=lambda kv: -kv[1]["size"]):
+        items.append({"kind": "catalyst_threat", "dir": "TRIM",
+                      "title": f"Threat: trim {', '.join(g['names'])}",
+                      "detail": e, "names": g["names"], "size": round(g["size"], 2),
+                      "note": (f"read-through only: {', '.join(sorted(g['read_through']))}"
+                               if g["read_through"] else None)})
+    try:
+        from smith_conviction import CONVICTION_TIERS
+        medium = min(t[0] for t in CONVICTION_TIERS if t[1] == "medium")
+    except Exception:  # noqa: BLE001
+        medium = 45
+    screened_out = 0
+
+    def worth_a_look(r):
+        # An IDEA reaches Command only at medium conviction or better (buy leg for a rotation).
+        # Defensive signals carry no conviction score and always pass -- a thesis break or an
+        # overbought name is exactly what the digest is for. On 2026-09-19 every buy idea and
+        # every rotation scored 7-30 against a medium bar of 45; the strategist rejected all.
+        score = (r.get("buy_leg") or {}).get("conviction_score") if "buy_leg" in r \
+            else r.get("conviction_score")
+        return score is None or score >= medium
+
+    for fam in _LIVE_IDEA_FAMILIES:
+        rows = [r for r in (trig.get(fam) or []) if isinstance(r, dict) and r.get("vote") == "live"]
+        kept = [r for r in rows if worth_a_look(r)]
+        screened_out += len(rows) - len(kept)
+        rows = kept
+        def size_of(r):
+            if "sell_leg" in r:
+                return float((r.get("sell_leg") or {}).get("suggested_size_usd") or 0)
+            return float(r.get("suggested_size_usd") or 0)
+        rows.sort(key=lambda r: (-(r.get("conviction_score") or 0), -size_of(r)))
+        for r in rows[:ATTENTION_PER_FAMILY]:
+            if "sell_leg" in r:
+                sl, bl = r.get("sell_leg") or {}, r.get("buy_leg") or {}
+                title = f"Rotate {sl.get('ticker')} -> {bl.get('ticker')}"
+                names = [sl.get("ticker"), bl.get("ticker")]
+                dirn = "ROTATE"
+            else:
+                title = f"{(r.get('direction') or '').title()} {r.get('ticker')}"
+                names, dirn = [r.get("ticker")], r.get("direction")
+            reasons = r.get("reasons") or (r.get("sell_leg") or {}).get("reasons") or []
+            items.append({"kind": fam, "dir": dirn, "title": title,
+                          "detail": reasons[0] if reasons else None, "names": names,
+                          "size": round(size_of(r), 2) or None,
+                          "note": (r.get("blockers") or [None])[0]})
+    return {"items": items[:ATTENTION_MAX], "omitted": max(0, len(items) - ATTENTION_MAX),
+            "below_medium_conviction": screened_out, "medium_bar": medium,
+            "total_live_rows": sum(len(v) for k, v in trig.items()
+                                   if isinstance(v, list) and k in (("factor_threat", "catalyst_threat")
+                                                                    + _LIVE_IDEA_FAMILIES))}
+
+
+def cat_row(c):
+    return {
+        "headline": clip(c.get("headline"), 400), "date": c.get("date"),
+        "horizon": c.get("horizon"), "direction": c.get("direction"),
+        "affects": c.get("affects") or [], "exposure": num(c.get("exposure_pct_equity")),
+        "magnitude": clip(c.get("magnitude"), 500),
+        "folded": len(c.get("duplicates") or []),
+        "sources": (c.get("sources") or c.get("source") or [])
+        if isinstance(c.get("sources") or c.get("source"), list)
+        else [c.get("source")] if c.get("source") else [],
+    }
+
+
+COMMAND_CATALYSTS_MAX = 5
+
+
+def _command_catalysts(st):
+    """Live, deduped, directional catalysts, most material first: structural before immediate,
+    then how many names each touches. Noise and `ambiguous` direction never reach Command."""
+    try:
+        live = smith_risk.live_catalysts(st, desk_today())
+        cats = smith_risk.dedupe_catalysts(live)
+    except Exception:  # noqa: BLE001 -- a malformed entry must not blank the panel
+        cats = list(st.get("factor_catalysts") or [])
+    cats = [c for c in cats if c.get("direction") in ("threat", "tailwind")
+            and c.get("horizon") in ("structural", "immediate")]
+    cats.sort(key=lambda c: (c.get("horizon") != "structural", -len(c.get("affects") or []),
+                             str(c.get("date") or "")), reverse=False)
+    return cats[:COMMAND_CATALYSTS_MAX]
+
+
 def build_payload(base, built_at=None):
     st = load(os.path.join(base, "state.json"), {}) or {}
     policy = load(os.path.join(base, "policy.json"), {}) or {}
@@ -353,7 +468,7 @@ def build_payload(base, built_at=None):
 
     # ---- triggers --------------------------------------------------------------------
     TRIGGER_FAMILIES = [
-        "catalyst_threat", "thesis_break", "oversold_reversion", "overbought_distribution",
+        "factor_threat", "catalyst_threat", "thesis_break", "oversold_reversion", "overbought_distribution",
         "trend_entry", "trend_breakdown", "conviction_average", "conviction_exit",
         "entry_setup", "reentry", "bench_diversifier", "profit_rotation", "cluster_rotation",
         "cluster_bench_rotation", "cluster_consolidation", "laggard_rotation",
@@ -361,6 +476,15 @@ def build_payload(base, built_at=None):
     ]
 
     def trig_row(r):
+        if r.get("trigger_type") == "factor_threat":
+            return {"paired": False, "factor": True, "vote": r.get("vote"),
+                    "trigger_type": "factor_threat", "dir": "BOOK",
+                    "headline": clip(r.get("headline"), 300), "date": r.get("date"),
+                    "names": r.get("held_names") or [], "count": r.get("held_count"),
+                    "equity_pct": num(r.get("equity_pct")),
+                    "folded": r.get("duplicates_folded"),
+                    "reasons": [clip(x, 400) for x in (r.get("reasons") or [])],
+                    "sources": [r.get("source")] if r.get("source") else []}
         if "sell_leg" in r or "buy_leg" in r:  # paired rotation
             sl, bl = r.get("sell_leg") or {}, r.get("buy_leg") or {}
             return {
@@ -401,6 +525,8 @@ def build_payload(base, built_at=None):
             "blockers": [clip(x, 300) for x in (r.get("blockers") or [])],
             "sources": (r.get("catalyst_sources") or [])[:3],
             "retires": clip(r.get("retires_when"), 260),
+            "events": [clip(x, 160) for x in (r.get("events") or [])],
+            "read_through": r.get("read_through") or [],
         }
 
     fam = {}
@@ -411,6 +537,7 @@ def build_payload(base, built_at=None):
     triggers = {
         "as_of": trig.get("as_of"),
         "families": fam,
+        "attention": attention_digest(trig),
         "live_counts": trig.get("live_counts") or {},
         "shadow_counts": trig.get("shadow_counts") or {},
         "thresholds": trig.get("thresholds") or {},
@@ -681,15 +808,11 @@ def build_payload(base, built_at=None):
         } for t, v in thesis.items()},
         "signals": {t: v for t, v in sighist.items()},
         "signals_as_of": st.get("signal_history_as_of") or {},
-        "catalysts": [{
-            "headline": clip(c.get("headline"), 400), "date": c.get("date"),
-            "horizon": c.get("horizon"), "direction": c.get("direction"),
-            "affects": c.get("affects") or [], "exposure": num(c.get("exposure_pct_equity")),
-            "magnitude": clip(c.get("magnitude"), 500),
-            "sources": (c.get("sources") or c.get("source") or [])
-            if isinstance(c.get("sources") or c.get("source"), list)
-            else [c.get("source")] if c.get("source") else [],
-        } for c in (st.get("factor_catalysts") or [])],
+        # Command shows the LIVE, DEDUPED set (smith_risk readers -- the same ones the trigger
+        # engine uses, so the panel and the triggers cannot disagree about which events exist);
+        # Diagnostics keeps the raw array, duplicates and expired entries included.
+        "catalysts": [cat_row(c) for c in _command_catalysts(st)],
+        "catalysts_all": [cat_row(c) for c in (st.get("factor_catalysts") or [])],
         "catalysts_as_of": st.get("factor_catalysts_as_of"),
         "themes": st.get("factor_themes") or {},
         "diversifiers": st.get("diversifier_candidates") or {},
@@ -975,6 +1098,10 @@ tr.flagged:hover td{background:var(--neg-soft);filter:brightness(.98)}
 .decide button.b-reject:hover{border-color:var(--neg);color:var(--neg)}
 .decide button:disabled{opacity:.5;cursor:default}
 .decide button.b-pick{border:2px solid var(--acc);color:var(--acc)}
+.att-row{display:flex;gap:12px;align-items:flex-start;padding:9px 15px;border-bottom:1px solid var(--line)}
+.att-row:last-child{border-bottom:0}
+.att-main{min-width:0;flex:1}
+.att-main .meta{margin-top:2px}
 .pc{display:flex;flex-direction:column;gap:9px;min-width:0}
 .pc-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
 .pc-size{font-family:var(--mono);font-size:13.5px;color:var(--ink-2)}
@@ -1569,16 +1696,32 @@ function tabCommand(){
   // Track record's "Proposal history" table already lists every proposal ever made, searchable.
   // D.proposals.accepted itself is untouched -- if another panel needs it later, the data's here.
 
-  /* live triggers */
-  H.push(panel("Live triggers",
-    "as of "+esc(D.triggers.as_of||"")+" · RSI "+D.triggers.rsi_age+
-    "d old, coverage "+pct(D.triggers.rsi_cov,0),
-    triggerBody(),{span:true}));
+  /* needs your attention -- the few lines worth a look; full trigger detail is in Diagnostics */
+  var att=(D.triggers.attention||{}), items=att.items||[];
+  H.push(panel("Needs your attention",
+    (items.length?items.length+" item"+(items.length>1?"s":""):"nothing")+
+      " · from "+n(att.total_live_rows||0,0)+" live trigger rows · full list in Diagnostics",
+    items.length? items.map(function(it){
+      var dirc=it.dir==="TRIM"||it.dir==="SELL"?"sell":it.dir==="BUY"?"buy":it.dir==="BOOK"?"hold":"info";
+      return '<div class="att-row"><span class="pill '+dirc+'">'+esc(it.dir==="BOOK"?"Book":it.dir||"")+"</span>"+
+        '<div class="att-main"><b>'+esc(it.title||"")+"</b>"+
+        (it.size?' <span class="num muted">'+usd(it.size)+"</span>":"")+
+        (it.equity_pct!=null?' <span class="num muted">'+n(it.equity_pct,0)+"% of equity</span>":"")+
+        (it.detail?'<div class="meta">'+esc(String(it.detail).slice(0,170))+"</div>":"")+
+        (it.note?'<div class="meta warnc">'+esc(String(it.note).slice(0,170))+"</div>":"")+
+        "</div></div>"; }).join("")+
+      (att.omitted?'<p class="meta" style="padding:0 15px 10px">+'+att.omitted+" more in Diagnostics</p>":"")+
+      (att.below_medium_conviction?'<p class="meta" style="padding:0 15px 10px">'+att.below_medium_conviction+
+        " idea"+(att.below_medium_conviction>1?"s":"")+" below medium conviction (score &lt; "+att.medium_bar+
+        ") left out · see All triggers in Diagnostics</p>":"")
+    : '<p class="empty">No live trigger needs a decision today.</p>',
+    {span:true}));
 
   /* factor catalysts */
   var cats=D.catalysts||[];
   if(cats.length){
-    H.push(panel("Factor catalysts", D.catalysts_as_of||"",
+    H.push(panel("Factor catalysts", "most material "+cats.length+", live and de-duplicated · all "+
+      (D.catalysts_all||[]).length+" entries in Diagnostics",
       cats.map(function(c,i){
         var dirc=c.direction==="threat"?"sell":c.direction==="tailwind"?"buy":"hold";
         return '<div class="card"><div class="lhs">'+
@@ -1677,7 +1820,7 @@ function propCard(p){ return '<div class="card">'+propCardInner(p)+"</div>"; }
 function triggerBody(){
   var fams=D.triggers.families||{}, keys=Object.keys(fams);
   if(!keys.length) return '<p class="empty">No triggers fired this run.</p>';
-  var order=["catalyst_threat","thesis_break","cluster_rotation","profit_rotation",
+  var order=["factor_threat","catalyst_threat","thesis_break","cluster_rotation","profit_rotation",
     "laggard_rotation","cluster_bench_rotation","cluster_consolidation","conviction_exit",
     "conviction_average","oversold_reversion","overbought_distribution","trend_entry",
     "trend_breakdown","profit_ratchet","scale_out_ladder","entry_setup","reentry",
@@ -1687,6 +1830,15 @@ function triggerBody(){
   return keys.map(function(f){
     var rows=fams[f], live=rows.filter(function(r){ return r.vote==="live"; }).length;
     var inner=rows.map(function(r){
+      if(r.factor){
+        return '<div class="card"><div class="lhs"><span class="pill hold">Book</span>'+
+          '<span class="amt">'+n(r.equity_pct,0)+'% of equity</span></div><div>'+
+          '<p class="why" style="margin:0 0 6px"><b>'+esc(r.headline||"")+"</b></p>"+
+          '<div class="meta">'+(r.count||0)+" held names: "+tks(r.names)+
+          (r.folded?" · "+r.folded+" duplicate report(s) folded":"")+"</div>"+
+          "<ul>"+(r.reasons||[]).map(function(x){ return "<li>"+esc(x)+"</li>"; }).join("")+"</ul>"+
+          '</div><div class="rhs"></div></div>';
+      }
       if(r.paired){
         return '<div class="pair"><div class="pair-head">'+esc(r.pair_id||"rotation")+
           (r.ladder_driven?" · ladder-driven ("+esc(r.ladder_conf||"")+")":"")+
@@ -2313,6 +2465,20 @@ function historyTable(){
 /* ================================================================= TAB: DIAGNOSTICS */
 function tabDiag(){
   var H=[], F=D.freshness||{};
+
+  /* every trigger row (moved here from Command, 2026-09-19 -- Command shows the digest) */
+  H.push(panel("All triggers",
+    "as of "+esc(D.triggers.as_of||"")+" · RSI "+D.triggers.rsi_age+
+    "d old, coverage "+pct(D.triggers.rsi_cov,0)+" · live and shadow",
+    triggerBody(),{span:true}));
+  var ca=D.catalysts_all||[];
+  if(ca.length){
+    H.push(panel("All factor catalysts (raw)", ca.length+" entries as stored, duplicates and expired included",
+      table([{h:"Date"},{h:"Dir"},{h:"Horizon"},{h:"Affects",n:1},{h:"Headline"}],
+        ca.map(function(c){ return '<tr><td class="mono">'+esc(c.date||"")+"</td><td>"+esc(c.direction||"")+
+          "</td><td>"+esc(c.horizon||"")+'</td><td class="n">'+(c.affects||[]).length+"</td><td>"+
+          esc(String(c.headline||"").slice(0,140))+"</td></tr>"; })),{span:true}));
+  }
 
   var art=(F.artefacts||[]).slice().sort(function(a,b){
     var o={dark:0,stale:1,fresh:2}; return (o[a.state]||3)-(o[b.state]||3); });

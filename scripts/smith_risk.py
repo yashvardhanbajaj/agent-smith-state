@@ -614,3 +614,107 @@ def catalyst_carry_summary(state, today):
     iso = today.isoformat()
     fresh = sum(1 for c in live if str(c.get("last_confirmed") or c.get("date") or "")[:10] == iso)
     return fresh, len(live) - fresh
+
+
+# ---------------------------------------------------------------------------------------------
+# CATALYST DEDUP + BREADTH (added 2026-09-19)
+# ---------------------------------------------------------------------------------------------
+# User, looking at 27 live catalyst_threat TRIMs: "why are there so many ... and that too all of
+# trim." Measured: 26 of the 27 came from ONE catalyst -- an Amodei 'pace the frontier' essay
+# entry whose `affects` listed 26 of 27 holdings -- and state carried near-duplicates of the same
+# events (three Amodei entries, two each for CXMT, GLW's ATM and the GEV Sell). The trigger turned
+# that into a 20% trim of nearly the whole book, $6,746.
+#
+# Two defects, one reader for both:
+#   * NEAR-DUPLICATES. Catalyst identity is (headline, date), so a re-worded report of the same
+#     event is a second catalyst. They are grouped here on the distinctive tokens both headlines
+#     share (proper nouns, tickers, figures) within a few days, and ONE canonical entry survives.
+#   * BREADTH. A threat that touches most of the book is not a reason to trim any name in
+#     particular -- every name would be trimmed by the same fraction, which is just a clumsy way
+#     to reduce gross exposure. Such a catalyst is a FACTOR threat, answered at book level (cash,
+#     exposure), and must not fan out into per-name trims.
+CATALYST_DEDUP_DAYS = 5
+CATALYST_DEDUP_OVERLAP = 0.5
+BROAD_MAX_NAMES = 6          # more held names than this -> factor threat, not name threats
+BROAD_MAX_EQUITY_PCT = 30.0  # or more than this share of invested equity
+_GENERIC_CAPS = {"THE", "A", "AN", "AND", "OF", "IN", "ON", "FOR", "TO", "BY", "AT", "CEO", "AI",
+                 "US", "SELL", "BUY", "NEW", "Q1", "Q2", "Q3", "Q4", "VERIFIED", "IT", "ITS"}
+
+
+def _distinct_tokens(headline):
+    import re as _re
+    toks = set()
+    for w in _re.findall(r"[A-Za-z0-9$%.\-']+", str(headline or "")):
+        w = w.strip(".-'").replace("'s", "")
+        if not w:
+            continue
+        if w[0].isupper() or any(ch.isdigit() for ch in w):
+            u = w.upper()
+            if u not in _GENERIC_CAPS and len(u) > 1:
+                toks.add(u)
+    return toks
+
+
+def _cat_day(c):
+    try:
+        return date.fromisoformat(str(c.get("date") or "")[:10])
+    except ValueError:
+        return None
+
+
+def dedupe_catalysts(cats):
+    """Collapse near-duplicate reports of one event. Returns canonical entries, each carrying
+    `duplicates` (the other headlines folded into it). Two entries are the same event when they
+    share direction, sit within CATALYST_DEDUP_DAYS, and at least half the distinctive tokens of
+    the shorter headline (names, tickers, figures) appear in the other. The canonical entry is the
+    most recently confirmed; ties go to the one that states its magnitude."""
+    items = [c for c in cats if isinstance(c, dict)]
+    groups = []
+    for c in items:
+        tc, dc = _distinct_tokens(c.get("headline")), _cat_day(c)
+        home = None
+        for g in groups:
+            h = g[0]
+            if h.get("direction") != c.get("direction"):
+                continue
+            dh = _cat_day(h)
+            if dc and dh and abs((dc - dh).days) > CATALYST_DEDUP_DAYS:
+                continue
+            th = _distinct_tokens(h.get("headline"))
+            small = min(len(tc), len(th))
+            if small >= 2 and len(tc & th) / small >= CATALYST_DEDUP_OVERLAP:
+                home = g
+                break
+        (home.append(c) if home is not None else groups.append([c]))
+    out = []
+    for g in groups:
+        g.sort(key=lambda c: (str(c.get("last_confirmed") or c.get("date") or ""),
+                              bool(c.get("magnitude"))), reverse=True)
+        canon = dict(g[0])
+        if len(g) > 1:
+            canon["duplicates"] = [x.get("headline") for x in g[1:]]
+            # AFFECTS IS THE UNION (found on first live use, 2026-09-19): re-reports of one event
+            # list different names -- the later GLW ATM entry listed only its optics peer COHR,
+            # the later GEV Sell entry only VRT -- so keeping just the newest copy silently
+            # dropped the named company itself from its own threat.
+            seen, union = set(), []
+            for x in g:
+                for t in (x.get("affects") or []):
+                    if t not in seen:
+                        seen.add(t)
+                        union.append(t)
+            canon["affects"] = union
+        out.append(canon)
+    return out
+
+
+def catalyst_breadth(cat, weight_by_ticker, held=None):
+    """(held names affected, share of equity they are) for one catalyst."""
+    held = set(held if held is not None else weight_by_ticker)
+    names = [t for t in (cat.get("affects") or []) if t in held]
+    return names, round(sum(float(weight_by_ticker.get(t) or 0) for t in names), 2)
+
+
+def is_broad_catalyst(cat, weight_by_ticker, held=None):
+    names, pct = catalyst_breadth(cat, weight_by_ticker, held)
+    return len(names) > BROAD_MAX_NAMES or pct > BROAD_MAX_EQUITY_PCT

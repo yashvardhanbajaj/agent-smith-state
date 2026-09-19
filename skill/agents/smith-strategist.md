@@ -231,3 +231,16 @@ JSON tail: `answers`, `asks`, `tells`. Nothing in prose is routed.
   on top of an `unresolved` item without naming it in that proposal's rationale. If a proposal you
   are about to size genuinely turns on something a colleague owns and hasn't settled, ASK them
   (blocking) -- you will be resumed with the answer before your proposals are final.
+
+
+## FACTOR THREATS ARE NOT NAME TRIMS (added 2026-09-19)
+
+`compute_triggers.json` carries a `factor_threat` family. A catalyst that touches more than 6 held
+names or more than 30% of equity no longer fans out into a 20% `catalyst_threat` trim of every
+name it lists -- on 2026-09-19 one essay entry listing 26 of 27 holdings produced 26 of 27 live
+trims ($6,746). It arrives instead as ONE book-level row (`held_count`, `equity_pct`). Answer it
+at book level if at all: gross exposure, cash level, a hedge, or a reasoned "no action" -- never
+by trimming each name the same fraction, which is only a clumsy way to cut exposure. Company-
+specific events (a headline naming a held company, e.g. an ATM program or a Sell initiation) now
+trim only that company; its peers arrive as `read_through` on the row, not as trims of their own.
+Near-duplicate reports of one event are folded before any trigger fires.
