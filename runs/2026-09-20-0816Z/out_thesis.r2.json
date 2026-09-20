@@ -1,0 +1,83 @@
+{
+  "thesis": {
+    "changed": {
+      "MU": {
+        "status": "watch",
+        "thesis": "Memory (DRAM/HBM); 2.0004sh / 6.04% of equity. WATCH remains CXMT structural/capacity risk, not ASP.",
+        "evidence_for": [
+          {"claim": "HBM3E's own direct contract_quote (tier1-corroborated, dated 2026-09-20) is $12.40/GB, first HBM3E-basis contract print since 2026-01-15 -- this supersedes the prior evidence line's use of the $9.00/GB stack-derived figure as the lead HBM3E datapoint", "date": "2026-09-20", "source": "HBMTracker consumer_view.json generations.hbm3e.segments_by_basis (contract_quote)"},
+          {"claim": "Analyst mean target $1513.11, ~49% above the $1017.75 close, n=30", "date": "2026-09-18", "source": "INDmoney via smith-signals"}
+        ],
+        "evidence_against": [
+          {"claim": "CXMT HBM3E risk production shipping qualification samples to Alibaba/Cambricon, ~1yr ahead of 2027 consensus -- qualification stage only", "date": "2026-09-07", "source": "smith-catalyst (carried forward)"},
+          {"claim": "HBM4 Vera Rubin supplier share: SK hynix 60-70%, Samsung 25-30%, MU the residual -- MU captures the least of the ramp", "date": "2026-06-05", "source": "HBMTracker supply_structure"}
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "CORRECTED per M2.11: prior evidence_for line labeled the $9.00/GB stack-derived figure as 'HBM3E flat within stack-derived basis', but generations.hbm3 and generations.hbm3e carry an IDENTICAL stack_derived series (same dates, same $9.00 mid) -- flagged in data_quality as a possible shared/duplicated computation, not independent HBM3E confirmation. The evidence line now leads with HBM3E's own native contract_quote ($12.40/GB, tier1, 2026-09-20) instead. Status unchanged (WATCH): the corrected level still shows no erosion, so no status action.",
+        "reviewed_on": "2026-09-20"
+      }
+    },
+    "unchanged_count": 26,
+    "reviewed_unchanged": []
+  },
+  "sector_map": {"changed": {}, "unchanged_count": 27},
+  "data_quality": [
+    "generations.hbm3 and generations.hbm3e in HBMTracker consumer_view.json carry an identical stack_derived segment (2026-07-19/08-05/09-15, all $9.00/GB mid) -- worth the tracker owner checking whether this is a genuine coincidence or a shared/duplicated calc feeding both generations."
+  ],
+  "comms": {
+    "answers": [
+      {
+        "id": "M2.6",
+        "position": "held",
+        "answer": "Confirmed: post-SanDisk separation WDC retains zero DRAM, NAND or HBM revenue line -- it is now purely nearline HDD. Your rank-3/laggard verdict is factually correct, not a misclassification of WDC's business. But I am NOT reassigning WDC's sector_map entry this round: policy.json's cluster_targets has no 'Storage/HDD' (or equivalent) bucket -- only 'AI Memory/Storage' exists for this space. Moving WDC to an off-policy cluster name would silently drop it out of drift tracking entirely (the exact failure mode this agent's brief warns against -- a near-miss/invented cluster name fails the orchestrator's exact-string match against policy.json). Recommend the orchestrator/strategist add a proper HDD/storage cluster target to policy.json first; once that exists I'll reassign WDC to it in the same run. Until then WDC stays in AI Memory/Storage with a flagged mismatch (zero exposure to the cluster's shared tailwind), which is exactly what your rank-3/laggard verdict already captures -- so no change needed on your side either. This is a classification note, not a thesis action: WDC's STRENGTHENING status is unaffected and untouched.",
+        "evidence": [
+          {"claim": "WDC completed separation of its flash business (SanDisk) in 2026, retaining only the HDD business -- no DRAM/NAND/HBM revenue line remains", "source": "smith-thesis sector knowledge / prior run holdings classification", "date": "2026-09-20"},
+          {"claim": "policy.json cluster_targets contains 'AI Memory/Storage' (target 10%, band 6-16%) with no separate HDD/storage cluster", "source": "policy.json", "date": "2026-09-20"}
+        ],
+        "confidence": "high"
+      },
+      {
+        "id": "M2.11",
+        "position": "revised",
+        "answer": "Correct, and thank you for the catch. generations.hbm3 and generations.hbm3e both carry an identical stack_derived segment ($9.00/GB mid, same three dates) in consumer_view.json -- citing that figure as 'HBM3E flat within stack-derived basis' was not wrong about the number existing under the HBM3E generation key, but it understated that HBM3E now has its OWN native, more current, tier-1 contract_quote ($12.40/GB, 2026-09-20) that should lead the evidence line instead. Revised MU.evidence_for accordingly and added a data_quality flag about the two generations sharing an identical stack_derived series.",
+        "evidence": [
+          {"claim": "hbm3e.segments_by_basis contains both a stack_derived segment (identical to hbm3's) and a contract_quote segment with the new 2026-09-20 $12.40/GB point", "source": "HBMTracker consumer_view.json", "date": "2026-09-20"}
+        ],
+        "confidence": "high",
+        "revision": {
+          "thesis": {
+            "changed": {
+              "MU": {"_see": "full corrected entry in this file's thesis.changed.MU"}
+            }
+          }
+        }
+      },
+      {
+        "id": "M2.12",
+        "position": "revised",
+        "answer": "Confirmed against supply_structure directly: 'all three vendors passed NVIDIA HBM4 certification for Vera Rubin -- the first HBM generation where all three qualified at the start of the ramp, unlike HBM3E where SK Hynix held an early near-monopoly.' This is a real structural difference from HBM3E and belongs in evidence_against, not evidence_for, for any thesis leaning on the 60-70% share as durable. SKHY's entry (status-only this run, full text lives in state.json) should have its HBM4-leadership evidence_for line paired with this caveat next time it's expanded to full text; flagging it now so it isn't lost. Status unaffected (SKHY stays WATCH -- this reframes the nature of the upside, doesn't remove it: SK hynix's current 60-70% allocation is real today, just not moat-protected going forward).",
+        "evidence": [
+          {"claim": "qualification_status: all three vendors passed NVIDIA HBM4 certification for Vera Rubin at ramp start, unlike HBM3E's SK-hynix near-monopoly", "source": "HBMTracker consumer_view.json supply_structure.hbm4_vera_rubin_allocation", "date": "2026-06-05"}
+        ],
+        "confidence": "high",
+        "revision": {
+          "thesis": {
+            "changed": {
+              "SKHY": {
+                "status": "watch",
+                "evidence_against_add": [
+                  {"claim": "HBM4 is the first generation where SK hynix, Samsung AND Micron all passed NVIDIA certification for Vera Rubin at the START of the ramp -- unlike HBM3E where SK hynix held an early near-monopoly. The current 60-70% allocation is a starting share, not a structural moat; Samsung/Micron qualification removes the single-source lock-in that HBM3E-era SKHY exposure relied on", "date": "2026-06-05", "source": "HBMTracker supply_structure.hbm4_vera_rubin_allocation"}
+                ],
+                "note": "evidence_against line added per M2.12 (cluster_memory); status unchanged (WATCH)."
+              }
+            }
+          }
+        }
+      }
+    ],
+    "asks": [],
+    "tells": []
+  }
+}

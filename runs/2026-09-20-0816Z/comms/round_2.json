@@ -1,0 +1,90 @@
+{
+  "round": 2,
+  "at": "2026-09-20T08:28:27Z",
+  "converged": false,
+  "stop_reason": null,
+  "deliveries": {
+    "strategist": {
+      "mode": "inbox",
+      "messages": [
+        "M1.1",
+        "M1.2",
+        "M1.5",
+        "M2.14",
+        "M2.16"
+      ],
+      "inbox": "runs/2026-09-20-0816Z/comms/inbox_strategist.json",
+      "reply_file": "runs/2026-09-20-0816Z/out_strategist.json"
+    },
+    "thesis": {
+      "mode": "resume",
+      "messages": [
+        "M2.6",
+        "M2.11",
+        "M2.12"
+      ],
+      "inbox": "runs/2026-09-20-0816Z/comms/inbox_thesis.json",
+      "reply_file": "runs/2026-09-20-0816Z/out_thesis.r2.json"
+    },
+    "cycle": {
+      "mode": "dispatch",
+      "messages": [
+        "M2.7",
+        "M2.10"
+      ],
+      "inbox": "runs/2026-09-20-0816Z/comms/inbox_cycle.json",
+      "reply_file": "runs/2026-09-20-0816Z/out_cycle.r2.json"
+    },
+    "earnings": {
+      "mode": "resume",
+      "messages": [
+        "M2.9"
+      ],
+      "inbox": "runs/2026-09-20-0816Z/comms/inbox_earnings.json",
+      "reply_file": "runs/2026-09-20-0816Z/out_earnings.r2.json"
+    }
+  },
+  "new_agents": [
+    "cycle"
+  ],
+  "desk_requests": [
+    {
+      "id": "M2.8",
+      "from": "cluster_memory",
+      "ticker": null,
+      "question": "Can a script confirm whether the 2026-09-20 HBM3E contract_quote ($12.40/GB) and the 2026-01-15 contract_quote ($15.00/GB) come from the same research house and the same contract scope? If yes, a -17.3% within-basis decline is publishable and contradicts correction C1."
+    }
+  ],
+  "answered_this_round": [
+    "M1.4",
+    "M1.3"
+  ],
+  "awaiting_answers": [
+    "M2.6",
+    "M2.7",
+    "M2.8",
+    "M2.9",
+    "M2.10",
+    "M2.11",
+    "M2.12"
+  ],
+  "queued_for_scheduled_agents": [
+    "strategist"
+  ],
+  "revisions": [],
+  "remerge": [],
+  "rerun_crosscheck": false,
+  "debates_opened": [],
+  "reminders": [],
+  "rejected": [],
+  "schema_repairs": [],
+  "counts": {
+    "queued": 5,
+    "answered": 2,
+    "delivered": 6,
+    "open": 1,
+    "recorded": 4,
+    "total": 18,
+    "revisions": 0
+  }
+}

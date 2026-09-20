@@ -1,0 +1,37 @@
+{
+  "watchlist_setups": [
+    {"ticker": "SPGI", "type": "oversold_bounce", "upside_pct": 22.1, "pos": 0.14},
+    {"ticker": "IONQ", "type": "oversold_bounce", "upside_pct": 43.5, "pos": 0.23},
+    {"ticker": "QBTS", "type": "oversold_bounce", "upside_pct": 51.5, "pos": 0.13},
+    {"ticker": "RGTI", "type": "oversold_bounce", "upside_pct": 45.3, "pos": 0.07},
+    {"ticker": "BABA", "type": "oversold_bounce_caution_negative_news", "upside_pct": 39.3, "pos": 0.21},
+    {"ticker": "IREN", "type": "target_gap", "upside_pct": 40.9, "pos": 0.37},
+    {"ticker": "DDOG", "type": "target_gap_insider_selling", "upside_pct": 19.4, "pos": 0.68},
+    {"ticker": "BLK", "type": "target_gap", "upside_pct": 19.2, "pos": 0.50},
+    {"ticker": "GOOGL", "type": "target_gap_cross_class_of_held_GOOG", "upside_pct": 18.4, "pos": 0.66},
+    {"ticker": "STX", "type": "target_gap_insider_selling", "upside_pct": 23.7, "pos": 0.69},
+    {"ticker": "AEP", "type": "target_gap", "upside_pct": 16.4, "pos": 0.41}
+  ],
+  "earnings_calendar_updates": {},
+  "watchlist_scan_cursor": 19,
+  "data_quality": [
+    "No holding earnings fall inside the 14-day window except MU (10-01, already cached/confirmed) -- zero re-fetches needed this run.",
+    "IONQ/QBTS/RGTI are speculative quantum-computing names, thin analyst coverage (few analysts), not AI-capex-cluster names -- oversold thresholds met mechanically but risk profile is materially higher than the book's core.",
+    "BABA meets oversold-bounce pos/upside thresholds but its news leg is net negative this window (lawsuit, price-target cuts) -- flagged as a mechanical hit only, not a clean setup.",
+    "IREN and DDOG target gaps carry real headwinds (IREN: Q4 net loss + rising debt from AI-cloud pivot; DDOG: repeated CEO/insider share sales in Aug-Sep) not visible in the upside number alone.",
+    "GOOGL is a different share class of held GOOG -- listing it as a 'setup' would be double-counting the same underlying exposure the book already has; treated as informational only."
+  ],
+  "comms": {
+    "answers": [],
+    "asks": [],
+    "tells": [
+      {
+        "to": "strategist",
+        "ticker": null,
+        "fact": "Book has zero open buy proposals and ~$6,684 deployable for ideas (max $607/deploy). This run's watchlist slice (cursor 4-19) found no clean AI-capex-cluster setup -- the mechanically qualifying names are SPGI (cleanest: pos 0.14, upside 22.1%, positive news, quality business) and a cluster of high-risk speculative names (IONQ/QBTS/RGTI quantum-computing, IREN AI-cloud pivot with debt overhang, BABA with net-negative news despite the upside number). None of these are in the book's existing clusters, so any deploy from this list is a genuine diversification call, not a top-up. If deploying idle cash this run, SPGI is the only candidate here without a real caveat attached.",
+        "source": "smith-watchlist scan 2026-09-20, get_us_stocks_details batch",
+        "weight": "high"
+      }
+    ]
+  }
+}

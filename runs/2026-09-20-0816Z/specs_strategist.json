@@ -1,0 +1,165 @@
+{
+  "as_of": "2026-09-20",
+  "benchmark_price_at_proposal_smh": 573.0,
+  "proposals": [
+    {
+      "pair_id": "profit_rotation-MU-AMAT",
+      "pair_role": "sell",
+      "direction": "SELL",
+      "ticker": "MU",
+      "size_usd": 610.76,
+      "price_at_proposal": 1017.75,
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "idea",
+      "benchmark_price_at_proposal": 573.0,
+      "stop_price_usd": null,
+      "evidence_quality": {"verified": 1, "computed": 2, "unverified": 0}
+    },
+    {
+      "pair_id": "profit_rotation-MU-AMAT",
+      "pair_role": "buy",
+      "direction": "BUY",
+      "ticker": "AMAT",
+      "size_usd": 504.51,
+      "price_at_proposal": 443.7458,
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "idea",
+      "benchmark_price_at_proposal": 573.0,
+      "stop_price_usd": 408.9561,
+      "evidence_quality": {"verified": 1, "computed": 2, "unverified": 0}
+    },
+    {
+      "pair_id": "profit_rotation-AMD-KLAC",
+      "pair_role": "sell",
+      "direction": "SELL",
+      "ticker": "AMD",
+      "size_usd": 167.39,
+      "price_at_proposal": 557.98,
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "idea",
+      "benchmark_price_at_proposal": 573.0,
+      "stop_price_usd": null,
+      "evidence_quality": {"verified": 0, "computed": 2, "unverified": 0}
+    },
+    {
+      "pair_id": "profit_rotation-AMD-KLAC",
+      "pair_role": "buy",
+      "direction": "BUY",
+      "ticker": "KLAC",
+      "size_usd": 167.39,
+      "price_at_proposal": 177.14,
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "idea",
+      "benchmark_price_at_proposal": 573.0,
+      "stop_price_usd": 162.5082,
+      "evidence_quality": {"verified": 0, "computed": 2, "unverified": 0}
+    },
+    {
+      "pair_id": "profit_rotation-SKHY-CIEN",
+      "pair_role": "sell",
+      "direction": "SELL",
+      "ticker": "SKHY",
+      "size_usd": 56.37,
+      "price_at_proposal": 187.90,
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "idea",
+      "benchmark_price_at_proposal": 573.0,
+      "stop_price_usd": null,
+      "evidence_quality": {"verified": 0, "computed": 2, "unverified": 0}
+    },
+    {
+      "pair_id": "profit_rotation-SKHY-CIEN",
+      "pair_role": "buy",
+      "direction": "BUY",
+      "ticker": "CIEN",
+      "size_usd": 56.37,
+      "price_at_proposal": 349.50,
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "idea",
+      "benchmark_price_at_proposal": 573.0,
+      "stop_price_usd": 301.6185,
+      "evidence_quality": {"verified": 0, "computed": 2, "unverified": 0}
+    },
+    {
+      "pair_id": "cluster_rotation-GLW-LITE",
+      "pair_role": "sell",
+      "direction": "SELL",
+      "ticker": "GLW",
+      "size_usd": 135.09,
+      "price_at_proposal": 150.10,
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "idea",
+      "benchmark_price_at_proposal": 573.0,
+      "stop_price_usd": null,
+      "evidence_quality": {"verified": 1, "computed": 2, "unverified": 0}
+    },
+    {
+      "pair_id": "cluster_rotation-GLW-LITE",
+      "pair_role": "buy",
+      "direction": "BUY",
+      "ticker": "LITE",
+      "size_usd": 135.09,
+      "price_at_proposal": 929.53,
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "idea",
+      "benchmark_price_at_proposal": 573.0,
+      "stop_price_usd": 805.1589,
+      "evidence_quality": {"verified": 1, "computed": 2, "unverified": 0}
+    },
+    {
+      "pair_id": "cluster_rotation-ASML-TSM",
+      "pair_role": "sell",
+      "direction": "SELL",
+      "ticker": "ASML",
+      "size_usd": 438.53,
+      "price_at_proposal": 1670.57,
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "idea",
+      "benchmark_price_at_proposal": 573.0,
+      "stop_price_usd": null,
+      "evidence_quality": {"verified": 0, "computed": 2, "unverified": 0},
+      "note": "EDITED down from ladder's suggested_size_usd 877.05 -- ladder track record 1/2, below sample bar, 5d old, medium confidence. Halved pending validation."
+    },
+    {
+      "pair_id": "cluster_rotation-ASML-TSM",
+      "pair_role": "buy",
+      "direction": "BUY",
+      "ticker": "TSM",
+      "size_usd": 438.53,
+      "price_at_proposal": 433.36,
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "idea",
+      "benchmark_price_at_proposal": 573.0,
+      "stop_price_usd": null,
+      "evidence_quality": {"verified": 0, "computed": 2, "unverified": 0},
+      "note": "EDITED down from ladder's suggested_size_usd 877.05 -- see sell leg note."
+    }
+  ],
+  "rejected": [
+    {
+      "trigger_type": "catalyst_threat",
+      "tickers": ["ASML", "MU", "TER", "AMAT", "GEV", "GLW", "SKHY"],
+      "reason": "CXMT HBM3E risk-production event: evidence carried forward from a 43-day-stale tracker read and M2.13 confirms it still does not show up in today's freshly-refreshed tier-1 HBM contract quotes (HBM3E $12.40/GB, HBM4 $16.00/GB) -- risk-production/qualification stage, not volume, zero observed pricing impact. None of the seven names carry a broken or watch-with-corroborating-evidence thesis strong enough to outrank this weak catalyst read, and TRIM is the scorecard's worst-performing trigger family (size-weighted net expectancy -5.32%, n=46). AMAT specifically is rejected as a TRIM in favor of the opposite call (profit_rotation BUY leg) -- see rationale in output."
+    },
+    {
+      "trigger_type": "conviction_average",
+      "tickers": ["AMAT", "KLAC", "CIEN"],
+      "reason": "Superseded by the paired profit_rotation legs on the same tickers (MU->AMAT, AMD->KLAC, SKHY->CIEN), which are self-funded (no fresh cash) and better match the user's stated preference for book-profit-into-laggard trades. Standalone buys would duplicate the same names at different sizes."
+    },
+    {
+      "trigger_type": "trend_entry",
+      "tickers": ["LITE"],
+      "reason": "Superseded by cluster_rotation GLW->LITE, which buys the same name self-funded from the GLW sell rather than fresh cash."
+    },
+    {
+      "trigger_type": "entry_setup",
+      "tickers": ["IONQ", "QBTS", "RGTI", "BABA"],
+      "reason": "Speculative/caveated per watchlist M1.5 (RGTI has no live price/ATR this run; BABA news leg net-negative; IONQ/QBTS/RGTI are speculative quantum with no held-book analog). Not proposed."
+    },
+    {
+      "trigger_type": "cash_deployment",
+      "tickers": [],
+      "reason": "deployable_cash_usd $2,430.15 and deployable_cash_for_ideas_usd $6,684.34 are NOT deployed this run. See HOLD verdict in output -- stop_risk.independent_sum ($2,743.98) is almost exactly the above-band cash; extreme_greed sentiment + dismal BUY/TRIM scorecard expectancy + memory-cluster veto on new capital before 2026-10-01 argue for holding, not forcing the cash back into band mechanically."
+    }
+  ]
+}

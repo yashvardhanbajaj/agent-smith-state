@@ -1,0 +1,59 @@
+{
+  "round": 1,
+  "at": "2026-09-20T08:22:45Z",
+  "converged": false,
+  "stop_reason": null,
+  "deliveries": {
+    "strategist": {
+      "mode": "inbox",
+      "messages": [
+        "M1.1",
+        "M1.2",
+        "M1.5"
+      ],
+      "inbox": "runs/2026-09-20-0816Z/comms/inbox_strategist.json",
+      "reply_file": "runs/2026-09-20-0816Z/out_strategist.json"
+    },
+    "thesis": {
+      "mode": "inbox",
+      "messages": [
+        "M1.3"
+      ],
+      "inbox": "runs/2026-09-20-0816Z/comms/inbox_thesis.json",
+      "reply_file": "runs/2026-09-20-0816Z/out_thesis.json"
+    },
+    "earnings": {
+      "mode": "dispatch",
+      "messages": [
+        "M1.4"
+      ],
+      "inbox": "runs/2026-09-20-0816Z/comms/inbox_earnings.json",
+      "reply_file": "runs/2026-09-20-0816Z/out_earnings.r1.json"
+    }
+  },
+  "new_agents": [
+    "earnings"
+  ],
+  "desk_requests": [],
+  "answered_this_round": [],
+  "awaiting_answers": [
+    "M1.4"
+  ],
+  "queued_for_scheduled_agents": [
+    "strategist",
+    "thesis"
+  ],
+  "revisions": [],
+  "remerge": [],
+  "rerun_crosscheck": false,
+  "debates_opened": [],
+  "reminders": [],
+  "rejected": [],
+  "schema_repairs": [],
+  "counts": {
+    "queued": 4,
+    "delivered": 1,
+    "total": 5,
+    "revisions": 0
+  }
+}

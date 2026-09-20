@@ -1,0 +1,349 @@
+{
+  "cluster": "AI Memory/Storage",
+  "confidence": "medium",
+  "confidence_reasons": [
+    "return_coverage is 3/3 and the HBM tracker refreshed mid-run to price_staleness_days=0, so the decisive axis (HBM4 vs HBM3E ASP premium) is evidenced on same-date, same-basis, tier-1 corroborated quotes.",
+    "Not high: the HBM4 allocation split driving rank 1 vs rank 2 is a 2026-06-05 supply-chain estimate, 107 days old, and Micron's share in it is explicitly 'not a company-disclosed figure'.",
+    "Not high: an unresolved basis discrepancy in the HBM3E series (see data_quality) means I cannot state the direction of HBM3E contract pricing, only its level.",
+    "SKHY is an unreconciled fill with INDmoney 52wk_low=0; ranking it leader is an axis call, not a position call."
+  ],
+  "cluster_thesis": {
+    "status": "watch",
+    "innings": "rolling",
+    "text": "Not one cycle but two, rolling from one generation into the next. HBM3 is flat at $9.00/GB (0.0% within stack-derived basis, 07-19 to 09-15) and HBM4 prints $16.00/GB contract, a ~29% per-GB premium over HBM3E's $12.40 on the same date and same basis. The cluster tailwind is intact but it has MIGRATED generations: exposure to HBM as a category no longer describes exposure to where memory margin is being made. This is why the desk's single `late` cycle read is too coarse for this cluster -- HBM3/HBM3E is late, the HBM4 ramp is early, and they are opposite trades inside one sleeve.",
+    "falsifier": "MU's 2026-10-01 FQ4 guiding HBM4 committed capacity flat or down, or a second tier-1 HBM4 contract quote below $13/GB, would collapse the generational premium and make this a single late-cycle bet rather than a rolling one.",
+    "scoped_to": "HBM3/HBM3E -> HBM4 generational handoff within AI Memory/Storage only"
+  },
+  "margin_pool": {
+    "moving_toward": "HBM4-generation stacked DRAM, and specifically the vendors holding COMMITTED (not announced) HBM4 wafer allocation for Vera Rubin",
+    "moving_away_from": "HBM3/HBM3E-generation supply and anything priced off it; conventional DRAM is ambiguous (HBM wafer crowd-out tightens it, CXMT's ~10% domestic share loosens it)",
+    "evidence": [
+      {
+        "claim": "HBM4 $16.00/GB contract_quote vs HBM3E $12.40/GB [12.0-12.8] contract_quote -- same date, same basis, both tier-1 corroborated: a ~29% per-GB generational premium, the first time it is observable without splicing measurement bases",
+        "date": "2026-09-20",
+        "source": "HBMTracker consumer_view.json (price_staleness_days=0)"
+      },
+      {
+        "claim": "HBM3 flat at $9.00/GB mid, trend_pct_within_basis 0.0% over 2026-07-19 to 2026-09-15 on the stack_derived basis",
+        "date": "2026-09-15",
+        "source": "HBMTracker consumer_view.json"
+      },
+      {
+        "claim": "Correction C2's stack-derived estimate of the generational premium (~25%/GB, 67%/stack) is confirmed by today's direct contract quotes at ~29%",
+        "date": "2026-09-20",
+        "source": "HBMTracker corrections C2 + generations.hbm4.latest"
+      },
+      {
+        "claim": "HBM4 Vera Rubin allocation: SK hynix 60-70%, Samsung 25-30%, Micron the residual (analyst estimate, single digits to low teens)",
+        "date": "2026-06-05",
+        "source": "HBMTracker supply_structure"
+      },
+      {
+        "claim": "HBM wafer input rising 18% -> 30% of DRAM by end-2027, crowding out conventional DRAM supply",
+        "date": "2026-09-07",
+        "source": "TrendForce via smith-catalyst catalyst:f8110cdee2"
+      }
+    ]
+  },
+  "ranking": [
+    {
+      "rank": 1,
+      "ticker": "SKHY",
+      "held": true,
+      "verdict": "leader",
+      "differentiator_reads": [
+        {
+          "axis": "HBM4 sampling timing and committed capacity vs announced capacity",
+          "read": "Holds 60-70% of NVIDIA Vera Rubin HBM4 allocation vs Samsung 25-30%, the largest committed share of the generation that now carries the ~29% ASP premium. Most capture of the premium per unit of HBM capacity.",
+          "source": "HBMTracker supply_structure (as_of 2026-06-05) + generations.hbm4.latest 2026-09-20",
+          "date": "2026-09-20"
+        },
+        {
+          "axis": "contract-price pass-through: how much of a spot move reaches realised ASP",
+          "read": "Highest HBM-mix of the three, so the HBM4 contract print passes through to realised ASP with the least commodity-DRAM dilution.",
+          "source": "HBMTracker supply_structure + state.thesis SKHY",
+          "date": "2026-09-20"
+        },
+        {
+          "axis": "enterprise SSD exposure as a separate AI-adjacent driver",
+          "read": "Owns Solidigm; reportedly weighing a US NAND fab (upstate NY). Adds a second AI-adjacent driver, but 'weighing' only -- no capex, wafer capacity or timeline, so no supply effect inside this book's horizon.",
+          "source": "Reuters via thestar.com.my, carried in catalyst:dfd8f21142",
+          "date": "2026-09-18"
+        }
+      ],
+      "case_against": "The HBM4 round is the FIRST generation where all three vendors passed NVIDIA certification at ramp start -- SK hynix's HBM3E near-monopoly explicitly does not carry forward, so 60-70% is a starting allocation, not a moat. The position is 0.56% weight and an UNRECONCILED fill with no INDmoney success confirmation, and INDmoney live 52wk_low=0 means no signal buckets are computable for it. +20.07% in a month with KOSPI +2.66% on Friday alone: a large share of the move is Korea beta, not name alpha."
+    },
+    {
+      "rank": 2,
+      "ticker": "MU",
+      "held": true,
+      "verdict": "middle",
+      "differentiator_reads": [
+        {
+          "axis": "HBM qualification status at each of NVDA/AMD/Broadcom, and at which generation",
+          "read": "Qualified for HBM4 at Vera Rubin alongside SK hynix and Samsung, but takes the residual allocation -- captures the least of the 29% HBM4 premium of the three qualified vendors.",
+          "source": "HBMTracker supply_structure",
+          "date": "2026-06-05"
+        },
+        {
+          "axis": "conventional-DRAM crowd-out -- HBM wafer conversion tightening commodity supply",
+          "read": "The axis MU owns better than SKHY: HBM wafer input 18%->30% of DRAM by end-2027 tightens the commodity DRAM MU has real share in. Partially offset by CXMT taking ~10% domestic China DRAM share into the vacancy Samsung's HBM pivot left.",
+          "source": "TrendForce via catalyst:f8110cdee2 / aa6e4a3cf0",
+          "date": "2026-09-07"
+        },
+        {
+          "axis": "DRAM vs NAND revenue mix, and the direction of each cycle independently",
+          "read": "Carries both DRAM and enterprise SSD/NAND, so it is the only held name expressing both legs; that diversification is also why it captures less of the single best leg (HBM4).",
+          "source": "state.thesis MU + cluster playbook",
+          "date": "2026-09-19"
+        }
+      ],
+      "case_against": "Ranked second on allocation share, but it is the widest-target name in the cluster (mean $1,513.11 on a $1,017.75 close, n=30) and the only liquid vehicle here. A 2026-10-01 FQ4 disclosing HBM4 COMMITTED capacity above the low-teens residual promotes it to rank 1 immediately, and thesis status is `watch` on CXMT structural risk rather than on ASP."
+    },
+    {
+      "rank": 3,
+      "ticker": "WDC",
+      "held": true,
+      "verdict": "laggard",
+      "differentiator_reads": [
+        {
+          "axis": "HBM qualification status at each of NVDA/AMD/Broadcom, and at which generation",
+          "read": "None, at any generation. Post-SanDisk separation WDC is nearline HDD -- it cannot capture an HBM-generation premium because it has no HBM, no DRAM and no NAND. Zero score on four of this cluster's six differentiators.",
+          "source": "cluster playbook differentiators vs WDC business mix",
+          "date": "2026-09-20"
+        },
+        {
+          "axis": "DRAM vs NAND revenue mix",
+          "read": "No DRAM and no NAND post-separation; the NAND leg the book used to own through WDC now sits in SNDK, which the book does not hold.",
+          "source": "state.thesis WDC (primary-verified 2026-09-19) + SNDK as separate listed entity",
+          "date": "2026-09-19"
+        },
+        {
+          "axis": "enterprise SSD exposure as a separate AI-adjacent driver from DRAM",
+          "read": "Exposed instead to nearline HDD exabyte demand -- a real AI-storage driver, but a DIFFERENT one from this cluster's shared tailwind, and one that does not re-rate on an HBM contract print.",
+          "source": "cluster playbook vs WDC mix",
+          "date": "2026-09-20"
+        }
+      ],
+      "case_against": "Laggard here is a CLASSIFICATION verdict, not a sell case. Thesis is `strengthening` on primary verification, and -4.49% over a month in which the cluster mean was +7.99% is exactly what a non-HBM name does while HBM leads -- it is evidence WDC is misfiled in this cluster, not evidence it is broken. Holding it is the book's only diversification away from the HBM generational bet."
+    }
+  ],
+  "unranked": [],
+  "leader": "SKHY",
+  "laggard": "WDC",
+  "reorder_when": [
+    "2026-10-01: MU FQ4 discloses HBM4 committed capacity above the low-teens residual, or names an HBM4 customer beyond NVIDIA -> MU to rank 1 over SKHY.",
+    "2026-10-28: SK hynix Q3 guidance cuts HBM4 shipment volume or concedes allocation share to Samsung for the Vera Rubin ramp -> SKHY drops to rank 2.",
+    "Any date: a second tier-1 HBM4 contract quote below $13.00/GB collapses the ~29% generational premium -> the whole ladder inverts toward commodity-DRAM and NAND mix, promoting MU and neutralising WDC's laggard verdict.",
+    "Any date: WDC is reassigned out of AI Memory/Storage into a storage/HDD cluster -> this ladder becomes a two-name HBM ladder and WDC's rank-3 verdict is void (recommended: see tells to thesis).",
+    "By 2026-12-31: CXMT moves from HBM3E risk production to disclosed VOLUME shipment with a named unit count -> compresses the premium for every member, MU and SKHY equally, WDC not at all."
+  ],
+  "redundant_pairs": [
+    {
+      "pair": [
+        "MU",
+        "WDC"
+      ],
+      "same_bet_because": "Both sit in the book's AI Memory/Storage cluster and both are US large-cap storage-adjacent names, which is why a price-and-volatility screen would look at them.",
+      "keep": "both",
+      "drop": null,
+      "verdict": "distinct"
+    },
+    {
+      "pair": [
+        "MU",
+        "SKHY"
+      ],
+      "same_bet_because": "Both are HBM4-qualified DRAM suppliers to the same customer (NVIDIA Vera Rubin) at the same generation; they share the single decisive axis and will move together on any HBM4 contract print or hyperscaler capex revision.",
+      "keep": "MU",
+      "drop": null,
+      "verdict": "redundant"
+    }
+  ],
+  "bench": [
+    {
+      "ticker": "SNDK",
+      "price_usd": 1791.82,
+      "why_better_than": "WDC -- SNDK is the NAND/enterprise-SSD business that left WDC at the separation, so it scores on two of this cluster's differentiators (DRAM/NAND mix direction, enterprise SSD as a separate AI-adjacent driver) where WDC now scores zero. It is the pure expression of the leg the book lost.",
+      "entry_condition": "Do NOT chase: +10.99% today to $1,791.82 on a $1,614.39 prev close, and ATR20 is 15.6% -- the highest in the entire book's cache. Wait for a pullback to roughly the $1,600-1,620 prior close with NAND contract pricing confirmed rising in a tier-1 source, and size for a 2x-ATR (31%) stop before committing anything."
+    },
+    {
+      "ticker": "STX",
+      "price_usd": 858.79,
+      "why_better_than": "WDC -- the same nearline-HDD exabyte driver, but if the book wants that bet it should own the better-consolidated expression; STX is the direct read-through pair for WDC and a cleaner way to hold the driver WDC is actually exposed to.",
+      "entry_condition": "Only as a REPLACEMENT for WDC, never alongside it (that pair would be genuinely redundant). Condition: WDC's 2026-11-06 print shows nearline exabyte growth trailing STX's most recent quarter. Also +6.93% today -- not an entry price."
+    }
+  ],
+  "catalysts": [
+    {
+      "date": "2026-10-01",
+      "event": "MU FQ4 earnings -- the cluster's next hard datapoint. What matters is not the beat but HBM4 committed capacity and DRAM/NAND mix commentary.",
+      "reorders": [
+        "MU",
+        "SKHY"
+      ],
+      "read_through_to": [
+        "SKHY",
+        "SNDK",
+        "WDC"
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "event": "SK hynix Q3 results and guidance -- HBM4 shipment volume and Vera Rubin allocation confirmation.",
+      "reorders": [
+        "SKHY",
+        "MU"
+      ],
+      "read_through_to": [
+        "MU",
+        "SNDK"
+      ]
+    },
+    {
+      "date": "2026-11-06",
+      "event": "WDC earnings -- nearline HDD exabyte demand, the driver that actually governs it.",
+      "reorders": [
+        "WDC"
+      ],
+      "read_through_to": [
+        "STX"
+      ]
+    },
+    {
+      "date": "2026-12-31",
+      "event": "Next TrendForce contract guide / any tier-1 HBM4 contract quote -- confirms or breaks the ~29% generational premium that this entire ladder rests on.",
+      "reorders": [
+        "SKHY",
+        "MU",
+        "WDC"
+      ],
+      "read_through_to": [
+        "MU",
+        "SKHY",
+        "SNDK"
+      ]
+    }
+  ],
+  "thesis_tensions": [
+    {
+      "ticker": "WDC",
+      "ladder_rank": 3,
+      "thesis_status": "strengthening",
+      "tension": "smith-thesis has WDC `strengthening` on primary verification; I rank it last in this cluster. BOTH ARE TRUE and the reconciliation is a classification error, not a disagreement about the company: WDC's strengthening driver is nearline HDD exabyte demand, which is NOT this cluster's shared tailwind. Ranking it here penalises it for an exposure it does not have. I am not asking thesis to downgrade -- I am asking the cluster map to move WDC out of AI Memory/Storage."
+    },
+    {
+      "ticker": "SKHY",
+      "ladder_rank": 1,
+      "thesis_status": "watch",
+      "tension": "smith-thesis has SKHY `watch`; I rank it leader. The watch is about position reconciliation (unconfirmed fill, 52wk_low=0) and CXMT structural risk, not about HBM4 capture. My rank-1 is an axis verdict on which name captures the most of the cluster tailwind per unit of exposure; it is NOT a recommendation to size into an unreconciled line, and the two should not be collapsed."
+    },
+    {
+      "ticker": "MU",
+      "ladder_rank": 2,
+      "thesis_status": "watch",
+      "tension": "No tension. thesis's own evidence_against already carries the HBM4 residual-allocation point that drives my rank 2; we agree."
+    }
+  ],
+  "prior_ladder_review": {
+    "leader_was": "SKHY",
+    "laggard_was": "WDC",
+    "was_correct": true,
+    "why": "Order held: SKHY +20.07% vs cluster mean +7.99% vs WDC -4.49% over the month, dispersion 12.29pp. But it was right for a reason only now evidenced -- on 2026-09-09 the HBM4 premium existed solely as a spliced stack-derived estimate (correction C2); today's same-date contract quotes confirm it at ~29%. Score the call correct, but treat the 09-09 confidence of `medium` as having been generous."
+  },
+  "data_quality": "two high-severity items restated: C1 contradicted by house-clean history; record-date vs publication-date freshness illusion",
+  "findings_reaffirmed": [
+    "catalyst:dca7246842",
+    "catalyst:aa6e4a3cf0",
+    "catalyst:f8110cdee2",
+    "catalyst:dfd8f21142",
+    "orchestrator:1baef9a5b2"
+  ],
+  "findings_revised": [
+    {
+      "id": "catalyst:aa6e4a3cf0",
+      "claim": "The finding's own caveat -- 'HBM tracker 43d stale, unverified against consumer_view.json this run' -- is now VOID. The tracker refreshed during this run to price_staleness_days=0 with tier-1 contract quotes for both HBM3E and HBM4. The CXMT claim itself stands unchanged in magnitude (risk production, qualification samples, ~10% domestic DRAM share, no advanced-HBM capability); what changes is that it can now be checked against live pricing, and it is NOT visible in either contract quote.",
+      "source": "HBMTracker consumer_view.json generated_at 2026-09-20T08:23:06Z",
+      "reason": "staleness caveat resolved mid-run; CXMT magnitude unchanged but now corroborated as absent from contract pricing"
+    }
+  ],
+  "deployment_view": "implied move 10.22% added as the lead reason not to deploy before 2026-10-01",
+  "comms": {
+    "answers": [],
+    "asks": [
+      {
+        "to": "thesis",
+        "ticker": "WDC",
+        "question": "WDC is trimmed to status-only this run. Post-SanDisk separation, does WDC retain ANY DRAM, NAND or HBM revenue line, or is it now purely nearline HDD? And separately: should WDC be reassigned out of the AI Memory/Storage cluster into a storage/HDD cluster, since it scores zero on four of the six differentiators this cluster is ranked on?",
+        "why": "My rank-3/laggard verdict for WDC rests entirely on it having no exposure to this cluster's shared tailwind. If WDC retains a memory revenue line, the verdict is wrong. If it does not, the cluster map -- not WDC -- is what needs fixing, and my laggard label is misleading to anyone reading it as a sell case.",
+        "blocking": true
+      },
+      {
+        "to": "cycle",
+        "ticker": null,
+        "question": "Does your `late` cycle_position (2026-09-06, medium) distinguish HBM GENERATIONS? Today's tracker refresh shows HBM3 flat at $9.00/GB while HBM4 prints $16.00/GB contract, a ~29% premium over HBM3E's $12.40 on the same date and basis. That reads as a late HBM3/HBM3E leg and an early HBM4 ramp simultaneously.",
+        "why": "My cluster innings call is `rolling`, which contradicts the desk's single `late`. I want to know whether that is a genuine disagreement or whether `late` was always a whole-chain average that my cluster is entitled to split.",
+        "blocking": false
+      },
+      {
+        "to": "desk",
+        "ticker": null,
+        "question": "Can a script confirm whether the 2026-09-20 HBM3E contract_quote ($12.40/GB) and the 2026-01-15 contract_quote ($15.00/GB) come from the same research house and the same contract scope? If yes, a -17.3% within-basis decline is publishable and contradicts correction C1.",
+        "why": "It is the one memory-pricing direction I refused to state. It does not change this ladder (which rests on a same-date level spread) but it would materially change the cluster thesis status from `intact` toward `watch`.",
+        "blocking": false
+      },
+      {
+        "to": "earnings",
+        "ticker": "MU",
+        "question": "For the 2026-10-01 FQ4 print, what is the option-implied expected move, and does consensus carry any explicit HBM4 capacity or allocation expectation I can score the disclosure against?",
+        "why": "My top reorder_when condition is 'MU discloses HBM4 committed capacity above the low-teens residual'. Without a consensus baseline I cannot say on 10-01 whether the disclosure was a promotion or already priced.",
+        "blocking": false
+      }
+    ],
+    "tells": [
+      {
+        "to": "cycle",
+        "ticker": null,
+        "fact": "HBM tracker refreshed DURING this run (generated_at 2026-09-20T08:23:06Z, price_staleness_days=0 for both HBM3E and HBM4). Two new tier-1 corroborated contract_quote points: HBM3E $12.40/GB [12.0-12.8] and HBM4 $16.00/GB, same date, same basis -- a ~29% generational premium now directly observable rather than inferred from stack arithmetic. HBM3 remains flat at $9.00/GB (0.0% within basis, 07-19 to 09-15).",
+        "source": "/Users/yb/Claude/HBMTracker/consumer_view.json",
+        "weight": "high"
+      },
+      {
+        "to": "thesis",
+        "ticker": "MU",
+        "fact": "The MU thesis's evidence_for cites 'HBM3E flat within stack-derived basis at $9.00/GB mid, as_of 2026-09-15'. That point is now superseded: HBM3E has a direct tier-1 contract_quote of $12.40/GB dated 2026-09-20, and the $9.00 stack-derived figure is the HBM3-basis series. The MU evidence line is quoting an HBM3-level number under an HBM3E label.",
+        "source": "HBMTracker consumer_view.json generations.hbm3 vs generations.hbm3e, 2026-09-20",
+        "weight": "high"
+      },
+      {
+        "to": "thesis",
+        "ticker": "SKHY",
+        "fact": "The SKHY thesis rests on 60-70% HBM4 Vera Rubin allocation, but the same tracker record states HBM4 is the FIRST generation where all three vendors (SK hynix, Samsung, Micron) passed NVIDIA certification at the START of the ramp, unlike HBM3E where SK hynix held an early near-monopoly. The allocation is a starting share, not a structural moat, and belongs in evidence_against.",
+        "source": "HBMTracker supply_structure hbm4_vera_rubin_allocation, qualification_status field",
+        "weight": "normal"
+      },
+      {
+        "to": "catalyst",
+        "ticker": null,
+        "fact": "CXMT's HBM3E risk production is NOT visible in either of today's fresh tier-1 contract quotes (HBM3E $12.40/GB, HBM4 $16.00/GB). Your finding's magnitude note said 'not yet reflected in any supplier contract price' when the tracker was 43 days stale -- that is now verified against live pricing rather than assumed.",
+        "source": "HBMTracker consumer_view.json, 2026-09-20",
+        "weight": "normal"
+      },
+      {
+        "to": "strategist",
+        "ticker": null,
+        "fact": "AI Memory/Storage has $3,257.01 of room and no breach, so the ~$2,430 of above-band cash would fit here on capacity grounds. My verdict is that it should NOT go here before MU's 2026-10-01 print -- late HBM3/HBM3E leg, the only liquid vehicle (MU) prints in 11 days at 4.28% ATR, and the axis leader (SKHY) is a 0.56% unreconciled line that cannot be sized into. Ordering view only; sizing is yours.",
+        "source": "cluster_ladder_row + HBMTracker + desk cycle_position",
+        "weight": "high"
+      },
+      {
+        "to": "watchlist",
+        "ticker": "SNDK",
+        "fact": "SNDK closed +10.99% at $1,791.82 (prev close $1,614.39) with ATR20 of 15.6%, the highest in the book's ATR cache. It is my top bench name for this cluster (it is the NAND/enterprise-SSD leg the book lost when WDC separated), but it is emphatically not an entry price today.",
+        "source": "yfinance 2026-09-20 + data_cache.atr20",
+        "weight": "normal"
+      }
+    ]
+  },
+  "reorder_when[0]": "MU promotion now requires CY2028 commitment, named allocation share/customer count, wafer-start or bit-share figure, or HBM4E pull-forward; a restatement of sold-out/booked-through-CY2027 explicitly does NOT reorder"
+}

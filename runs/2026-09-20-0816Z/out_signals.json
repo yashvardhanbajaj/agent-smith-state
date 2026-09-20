@@ -1,0 +1,92 @@
+{
+  "signal_history": {
+    "changed": {
+      "AMAT": ["MOMENTUM+VOLUME", "PEER LAGGARD", "STRONG UPTREND", "TARGET GAP"]
+    },
+    "unchanged_count": 26
+  },
+  "news_watermark": "2026-09-20",
+  "resolved_flags": [],
+  "new_flags": [],
+  "journal_new": [
+    {
+      "date": "2026-09-20",
+      "ticker": "AMAT",
+      "bucket": "MOMENTUM+VOLUME",
+      "price_at_flag": 444.57,
+      "analyst_target": 640.89,
+      "day_atr_mult": 1.61,
+      "rel_sigma": null,
+      "normalized": true
+    }
+  ],
+  "peer_map_updates": {},
+  "analyst_targets_updates": {
+    "TSM": {"mean_target_usd": 551.26, "n_analysts": 8, "as_of": "2026-09-19"},
+    "ASML": {"mean_target_usd": 2157.62, "n_analysts": null, "as_of": "2026-09-19"},
+    "GOOG": {"mean_target_usd": 422.34, "n_analysts": 12, "as_of": "2026-09-19"},
+    "MU": {"mean_target_usd": 1513.11, "n_analysts": 30, "as_of": "2026-09-19"},
+    "TER": {"mean_target_usd": 446.47, "n_analysts": 12, "as_of": "2026-09-19"},
+    "AMAT": {"mean_target_usd": 640.89, "n_analysts": 28, "as_of": "2026-09-19"},
+    "KLAC": {"mean_target_usd": 233.77, "n_analysts": 21, "as_of": "2026-09-19"},
+    "APH": {"mean_target_usd": 99.26, "n_analysts": 10, "as_of": "2026-09-19"},
+    "VRT": {"mean_target_usd": 338.15, "n_analysts": 17, "as_of": "2026-09-19"},
+    "MSFT": {"mean_target_usd": 572.92, "n_analysts": 34, "as_of": "2026-09-19"},
+    "CLS": {"mean_target_usd": 477.22, "n_analysts": 14, "as_of": "2026-09-19"},
+    "WDC": {"mean_target_usd": 664.92, "n_analysts": 19, "as_of": "2026-09-19"},
+    "AMZN": {"mean_target_usd": 328.17, "n_analysts": 40, "as_of": "2026-09-19"},
+    "MRVL": {"mean_target_usd": 284.64, "n_analysts": 27, "as_of": "2026-09-19"},
+    "NBIS": {"mean_target_usd": 288.33, "n_analysts": null, "as_of": "2026-09-19"},
+    "GEV": {"mean_target_usd": 1236.43, "n_analysts": 22, "as_of": "2026-09-19"},
+    "LITE": {"mean_target_usd": 1149.38, "n_analysts": 17, "as_of": "2026-09-19"},
+    "ALAB": {"mean_target_usd": 389.95, "n_analysts": 17, "as_of": "2026-09-19"},
+    "QCOM": {"mean_target_usd": 193.9, "n_analysts": 26, "as_of": "2026-09-19"},
+    "STM": {"mean_target_usd": 75.04, "n_analysts": 9, "as_of": "2026-09-19"},
+    "NOW": {"mean_target_usd": 142.97, "n_analysts": 29, "as_of": "2026-09-19"},
+    "COHR": {"mean_target_usd": 415.36, "n_analysts": 17, "as_of": "2026-09-19"},
+    "AMD": {"mean_target_usd": 615.07, "n_analysts": 35, "as_of": "2026-09-19"},
+    "BE": {"mean_target_usd": 280.24, "n_analysts": 18, "as_of": "2026-09-19"},
+    "GLW": {"mean_target_usd": 194.31, "n_analysts": 10, "as_of": "2026-09-19"},
+    "SKHY": {"mean_target_usd": 249.7, "n_analysts": 11, "as_of": "2026-09-19"},
+    "CIEN": {"mean_target_usd": 504.13, "n_analysts": 16, "as_of": "2026-09-19"}
+  },
+  "vol_normalization": {
+    "AMAT": {"atr20_pct": 3.92, "day_atr_mult": 1.61, "rel_sigma": -1.39, "threshold_pct": 5.88},
+    "AMD": {"atr20_pct": 3.74, "day_atr_mult": 0.63, "rel_sigma": 2.08, "threshold_pct": 5.61},
+    "BE": {"atr20_pct": 6.45, "day_atr_mult": -0.76, "rel_sigma": 2.37, "threshold_pct": 9.68},
+    "SKHY": {"atr20_pct": 4.64, "day_atr_mult": 0.58, "rel_sigma": 1.68, "threshold_pct": 6.96},
+    "AMZN": {"atr20_pct": 2.19, "day_atr_mult": 0.54, "rel_sigma": -1.55, "threshold_pct": 3.29},
+    "LITE": {"atr20_pct": 6.69, "day_atr_mult": 0.6, "rel_sigma": 0.67, "threshold_pct": 10.04}
+  },
+  "data_quality": [
+    "FMP insiderTrades (search-insider-trades) ACCESS DENIED -- plan tier below Starter/Premium/Ultimate/Enterprise; deep-mode top-10 insider-activity task could not run via Form-4 data this run, fell back to news-derived only (nothing material found). Same root cause family as G90 (FMP plan-tier coverage gaps), now confirmed to also block insiderTrades not just statements.",
+    "ASML analyst target: raw INDmoney fetch this run showed mean $2135.91 (n=6) vs compute_buckets.json's $2157.62 -- used the script figure per no-recompute rule, flagging the source discrepancy for awareness only.",
+    "SKHY raw INDmoney feed still returns 52week_low=0 (the known 2026-09-06 artifact); script's cached wk52 correctly rejected it and pos stayed 0.841, not a fake 1.0 breakout -- no action needed, noted for continuity."
+  ],
+  "findings_reaffirmed": [
+    "catalyst:68ffcdcb21", "catalyst:9744ffb8fe", "catalyst:7180d87827", "catalyst:90ef472ced",
+    "catalyst:aa6e4a3cf0", "catalyst:dca7246842", "catalyst:511c7b86ce", "thesis:COHR",
+    "thesis:AMZN", "thesis:MU"
+  ],
+  "findings_revised": [],
+  "comms": {
+    "answers": [],
+    "asks": [],
+    "tells": [
+      {
+        "to": "thesis",
+        "ticker": "AMAT",
+        "fact": "AMAT reported record fiscal Q3: revenue $9.1B (+25% YoY), net income +43% to $2.5B (18-19 Sep 2026 coverage); stock +6.51% same day, now STRONG UPTREND + MOMENTUM+VOLUME (confirmed) + TARGET GAP (+44.4% upside, $640.89 target). This print is not in your prior_findings list -- worth a thesis-status check.",
+        "source": "INDmoney news feed, 18-19 Sep 2026",
+        "weight": "high"
+      },
+      {
+        "to": "earnings",
+        "ticker": "AMAT",
+        "fact": "AMAT fiscal Q3 beat: revenue $9.1B +25% YoY, NI +43% to $2.5B, +6.51% day reaction. Also announced a $5B India investment (17 Sep). Flagging since 'beat/miss' language and post-earnings-drift tracking are your ownership and this print doesn't appear to be in data_cache.earnings_facts yet.",
+        "source": "INDmoney news feed, 17-19 Sep 2026",
+        "weight": "normal"
+      }
+    ]
+  }
+}

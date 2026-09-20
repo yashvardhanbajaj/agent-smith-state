@@ -1,0 +1,87 @@
+{
+  "SPY": {
+    "symbol": "SPY",
+    "underlying_price": 761.6900024414062,
+    "expiries": {
+      "2026-09-25": {
+        "max_pain": 763.0,
+        "pain_at_max_pain": 254748.0,
+        "pcr_oi": 2.259,
+        "pcr_vol": 1.132,
+        "call_oi": 225682,
+        "put_oi": 509773,
+        "call_vol": 170444,
+        "put_vol": 192914,
+        "strikes_used": 170,
+        "strike_range": [
+          500.0,
+          930.0
+        ],
+        "spot_vs_max_pain_pct": -0.17,
+        "boundary_artifact": false
+      },
+      "2026-09-30": {
+        "max_pain": 761.0,
+        "pain_at_max_pain": 1241869.0,
+        "pcr_oi": 3.005,
+        "pcr_vol": 0.977,
+        "call_oi": 440984,
+        "put_oi": 1325373,
+        "call_vol": 108958,
+        "put_vol": 106438,
+        "strikes_used": 319,
+        "strike_range": [
+          375.0,
+          900.0
+        ],
+        "spot_vs_max_pain_pct": 0.09,
+        "boundary_artifact": false
+      }
+    },
+    "data_quality": [],
+    "note": "pcr_oi is put/call OPEN INTEREST (standing positioning); pcr_vol is today's FLOW. Different questions -- report both, never blend them. Max-pain is a gravity heuristic, not a forecast -- it moves as OI shifts and is least meaningful far from expiry."
+  },
+  "QQQ": {
+    "symbol": "QQQ",
+    "underlying_price": 721.4500122070312,
+    "expiries": {
+      "2026-09-25": {
+        "max_pain": 717.0,
+        "pain_at_max_pain": 299382.0,
+        "pcr_oi": 3.391,
+        "pcr_vol": 2.754,
+        "call_oi": 92192,
+        "put_oi": 312646,
+        "call_vol": 120358,
+        "put_vol": 331407,
+        "strikes_used": 169,
+        "strike_range": [
+          450.0,
+          930.0
+        ],
+        "spot_vs_max_pain_pct": 0.62,
+        "boundary_artifact": false
+      },
+      "2026-09-30": {
+        "max_pain": 710.0,
+        "pain_at_max_pain": 1540030.0,
+        "pcr_oi": 1.412,
+        "pcr_vol": 1.583,
+        "call_oi": 282888,
+        "put_oi": 399416,
+        "call_vol": 48831,
+        "put_vol": 77299,
+        "strikes_used": 282,
+        "strike_range": [
+          405.0,
+          950.0
+        ],
+        "spot_vs_max_pain_pct": 1.61,
+        "boundary_artifact": false
+      }
+    },
+    "data_quality": [],
+    "note": "pcr_oi is put/call OPEN INTEREST (standing positioning); pcr_vol is today's FLOW. Different questions -- report both, never blend them. Max-pain is a gravity heuristic, not a forecast -- it moves as OI shifts and is least meaningful far from expiry."
+  },
+  "as_of_utc": "2026-09-20T08:17:36Z"
+}

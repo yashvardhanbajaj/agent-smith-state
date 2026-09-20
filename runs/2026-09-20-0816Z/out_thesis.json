@@ -1,0 +1,181 @@
+{
+  "thesis": {
+    "changed": {
+      "MU": {
+        "status": "watch",
+        "thesis": "Memory (DRAM/HBM); 2.0004sh / 6.04% of equity. WATCH remains CXMT structural/capacity risk, not ASP -- fresh HBM tracker refresh (5d stale, was 46d dark) confirms no ASP erosion. FQ4 earnings 2026-10-01 is the next hard datapoint.",
+        "evidence_for": [
+          {
+            "claim": "HBM3E stack-derived basis still flat at $9.00/GB, 0.0% trend 2026-07-19 to 2026-09-15, tier1-corroborated (upgraded from prior tier2-only read)",
+            "date": "2026-09-15",
+            "source": "HBMTracker consumer_view.json"
+          },
+          {
+            "claim": "First contract_quote datapoint since 2026-01-15: HBM3E $12.4/GB and HBM4 $16.0/GB, both tier1-corroborated -- absolute levels sit above the stack-derived floor, consistent with TrendForce's corrected view (C1) that HBM3E pricing is rising/flat post-3Q25 renegotiation, not the phantom -51% decline",
+            "date": "2026-09-20",
+            "source": "HBMTracker consumer_view.json"
+          },
+          {
+            "claim": "Analyst mean target $1513.11, ~49% above the $1017.75 close, n=30",
+            "date": "2026-09-18",
+            "source": "INDmoney via smith-signals"
+          }
+        ],
+        "evidence_against": [
+          {
+            "claim": "CXMT HBM3E risk production shipping qualification samples to Alibaba/Cambricon, ~1yr ahead of 2027 consensus -- qualification stage only, still not reflected in any supplier contract print",
+            "date": "2026-09-07",
+            "source": "smith-catalyst (carried forward)"
+          },
+          {
+            "claim": "HBM4 Vera Rubin supplier share: SK hynix 60-70%, Samsung 25-30%, MU the residual -- MU captures the least of the ramp even as pricing firms",
+            "date": "2026-06-05",
+            "source": "HBMTracker supply_structure"
+          }
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "Status unchanged (WATCH). This run's HBM refresh (staleness_days 0-5, first usable pricing in 6 weeks) closes the freshness gap flagged in the dispatch: no ASP-driven downgrade case exists -- stack-derived is flat, and the new tier1 contract quotes ($12.4/HBM3E, $16.0/HBM4) sit at levels that corroborate a firming, not weakening, pricing backdrop. No status action; precedent check not run (no verdict moved).",
+        "reviewed_on": "2026-09-20",
+        "_see": "full corrected entry in this file's thesis.changed.MU"
+      },
+      "SKHY": {
+        "status": "watch",
+        "thesis": "SK hynix ADR; HBM4 Vera Rubin leader (60-70% share). 1sh / ~0.56% is an UNRECONCILED fill -- unchanged from prior run.",
+        "evidence_for": [
+          {
+            "claim": "New tier1 HBM4 contract quote $16.0/GB (2026-09-20) sits ~29% above the new HBM3E contract quote ($12.4/GB), corroborating the generational premium SKHY's HBM4 leadership captures most directly (60-70% Vera Rubin share)",
+            "date": "2026-09-20",
+            "source": "HBMTracker consumer_view.json"
+          }
+        ],
+        "evidence_against": [
+          {
+            "claim": "Position still unreconciled (no INDmoney success confirmation); CXMT HBM3E risk-production and ~10% domestic DRAM share both carried forward, qualification-stage only",
+            "date": "2026-09-07",
+            "source": "smith-catalyst (carried forward)"
+          }
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "evidence_against line added per M2.12 (cluster_memory); status unchanged (WATCH).",
+        "reviewed_on": "2026-09-20",
+        "evidence_against_add": [
+          {
+            "claim": "HBM4 is the first generation where SK hynix, Samsung AND Micron all passed NVIDIA certification for Vera Rubin at the START of the ramp -- unlike HBM3E where SK hynix held an early near-monopoly. The current 60-70% allocation is a starting share, not a structural moat; Samsung/Micron qualification removes the single-source lock-in that HBM3E-era SKHY exposure relied on",
+            "date": "2026-06-05",
+            "source": "HBMTracker supply_structure.hbm4_vera_rubin_allocation"
+          }
+        ]
+      }
+    },
+    "unchanged_count": 25,
+    "reviewed_unchanged": [
+      "ASML",
+      "GEV",
+      "VRT",
+      "AMAT",
+      "GLW",
+      "COHR",
+      "WDC",
+      "AMD",
+      "AMZN",
+      "STM",
+      "NBIS",
+      "ALAB",
+      "APH",
+      "BE",
+      "CIEN",
+      "CLS",
+      "GOOG",
+      "KLAC",
+      "LITE",
+      "MRVL",
+      "MSFT",
+      "NOW",
+      "QCOM",
+      "TER",
+      "TSM"
+    ]
+  },
+  "sector_map": {
+    "changed": {},
+    "unchanged_count": 27
+  },
+  "ai_capex_pct": 95.76,
+  "factor_flags": [
+    "AI-capex chain is 95.76% of equity vs realized correlation of ~2.05 independent bets across 27 names -- a datacenter-capex pause is not a 27-name risk, it is functionally a 2-bet risk with 27 tickets on it.",
+    "AI Semis/Fabs cluster (TSM/AMAT/KLAC/TER/ASML/QCOM/AMD/STM) is the single largest sub-cluster and moved together Friday (SMH +2.21%, AMAT +6.51%, TER +4.9%, KLAC +4.8%) -- confirms the correlation read, not a diversifying bounce."
+  ],
+  "thesis_tensions": [
+    {
+      "metric": "hbm3e.usd_per_gb",
+      "current_value": 12.4,
+      "basis": "contract_quote",
+      "trend_within_basis_pct": null,
+      "verdict_conflict": "MU/SKHY carry WATCH; first tier1-corroborated contract_quote since 2026-01-15 ($15.0/GB) lands at $12.4/GB, but the tool refuses to bridge a delta across the intervening stack_derived segment (2026-07-19/08-05/09-15, all $9.00/GB flat) per its own cross_basis_change_is_meaningless=true flag.",
+      "direction": "no_action",
+      "reconciliation": "(c) measurement-basis discontinuity -- no computable trend exists between the 01-15 contract point and today's. Read the absolute level instead: $12.4/GB sits comfortably above the $9.00/GB stack-derived floor and is consistent with TrendForce's C1-corrected view (suppliers raised HBM3E prices ~20% for 2026 after the 3Q25 renegotiation) rather than any erosion case. No status change.",
+      "corrections_checked": [
+        "C1"
+      ]
+    },
+    {
+      "metric": "hbm4.usd_per_gb",
+      "current_value": 16.0,
+      "basis": "contract_quote",
+      "trend_within_basis_pct": null,
+      "verdict_conflict": "SKHY thesis leans on HBM4 Vera Rubin leadership (60-70% share); new $16.0/GB contract quote is the first HBM4 contract-basis print in the tracker.",
+      "direction": "no_action",
+      "reconciliation": "(c) single point, no trend computable. The figure corroborates C2's corrected generational-premium finding (~25-29% HBM4-over-HBM3E premium: $16.0 vs $12.4 = 29% here). Confirms structure, not direction -- no status change for SKHY or MU.",
+      "corrections_checked": [
+        "C2"
+      ]
+    }
+  ],
+  "data_quality": [
+    "HBM3 (non-E) and HBM3E stack-derived basis both current as of 2026-09-15 (5d stale) -- within the ~30d tolerance, first usable refresh in 6 weeks.",
+    "New HBM3E/HBM4 contract_quote points (2026-09-20) are each single data points -- no within-basis trend line exists yet; treat as level confirmation only, not momentum.",
+    "AMAT desk tell (M1.3) resolved: the 18-19 Sep coverage is recirculated Aug-24 FQ3 earnings, not a new report -- see comms.answers."
+  ],
+  "findings_reaffirmed": [
+    "orchestrator:4dd831d5d4",
+    "orchestrator:1acbddb361",
+    "catalyst:9744ffb8fe"
+  ],
+  "findings_revised": [],
+  "comms": {
+    "answers": [
+      {
+        "id": "M1.3",
+        "position": "held",
+        "answer": "AMAT's fiscal Q3 (rev $9.12B +25% YoY beat, NI figures, Q4 guide $10.25B) was already reported 2026-08-24 and is the basis for my existing STRENGTHENING verdict, verified secondary against SEC 8-K/10-Q + stockanalysis.com that same date. The 18-19 Sep coverage cited in the tell is that same print recirculating in the press, coinciding with a sector-wide semicap catch-up bounce (SMH +2.21%, TER +4.9%, KLAC +4.8%, AMAT +6.51% at 1.61x ATR) already logged in AMAT's evidence_against as 'sector catch-up bounce, not name leadership' and 'PEER LAGGARD persists -12.55pp vs SMH over 1m'. No new fundamental data -- status stays STRENGTHENING, not upgraded further. The MOMENTUM+VOLUME fire is a price/volume confirmation of an already-priced thesis, not a fresh catalyst.",
+        "evidence": [
+          {
+            "claim": "AMAT FQ3 rev $9.12B beat $9.0B consensus, EPS $3.50 beat $3.39, Q4 guide $10.25B +/- $500M",
+            "source": "SEC 8-K/10-Q + stockanalysis.com",
+            "date": "2026-08-24"
+          },
+          {
+            "claim": "Friday's +6.51% move was a sector-wide semicap bounce, not AMAT-specific leadership",
+            "source": "smith-signals 2026-09-19",
+            "date": "2026-09-19"
+          }
+        ],
+        "confidence": "high"
+      }
+    ],
+    "asks": [],
+    "tells": [
+      {
+        "to": "cluster_memory",
+        "ticker": "MU",
+        "fact": "HBM tracker refreshed this run (staleness 0-5d vs 46d dark prior): stack-derived HBM3E still flat ($9.00/GB, 0.0% trend); FIRST contract_quote prints since Jan appeared for both HBM3E ($12.4/GB) and HBM4 ($16.0/GB), both tier1-corroborated -- levels support a firming pricing backdrop, not the erosion case. Useful input for any cluster ladder reordering on the memory leg.",
+        "source": "HBMTracker consumer_view.json, as_of 2026-09-20",
+        "weight": "normal"
+      }
+    ]
+  }
+}

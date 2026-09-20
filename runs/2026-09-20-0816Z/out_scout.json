@@ -1,0 +1,67 @@
+{
+  "mode": "full",
+  "session_read": {
+    "futures": {"es_pct": 0.949, "nq_pct": 1.598},
+    "asia": {"nikkei_pct": 1.376, "kospi_pct": 2.663, "taiex_pct": 0.397, "stoxx50_pct": -1.371},
+    "gap_risk": ["AI-Semis/Fabs and memory names (e.g. MU) carry the most weekend gap risk from Friday's SMH +2.21% / KOSPI +2.66% momentum continuation"],
+    "headline_scan": ["No new macro headline since Friday's close identified that would gap the book Monday (headline-level only; per-holding depth owned by signals/catalyst)"],
+    "note": "All figures are Friday 2026-09-19 close / Friday futures print carried flat over the weekend -- market closed, not a live Monday pre-market read"
+  },
+  "sentiment_narrative": "Composite sentiment 75.1, extreme_greed (unchanged band vs prior run). VIX sub-score 92.4 reflects real complacency (VIX 14.81, near 52wk low); RSI14 55.8 is neutral, not overbought; SPX sits ~91.5% toward its 52wk high. action_hint = propose profit-booking on overweight/breach names -- this run's sizing should lean toward measured, staged deployment of the $2,430-$6,684 deployable cash rather than a single lump-sum commit, given the market is this close to its highs on a complacent options tape.",
+  "fed_funds_pct": 3.875,
+  "fomc_stance": "hawkish",
+  "fomc_cache_update": null,
+  "fomc_cache_reused": "cached -- no FOMC meeting since last check (next_check_date 2026-10-30)",
+  "spy_pcr_oi": 2.259,
+  "spy_pcr_vol": 1.132,
+  "spy_max_pain": 763.0,
+  "qqq_pcr_oi": 3.391,
+  "qqq_pcr_vol": 2.754,
+  "qqq_max_pain": 717.0,
+  "options_note": "Figures are Friday 2026-09-19 close real OI (fetched Saturday, not the zeroed pre-market snapshot) -- not live. SPY: spot -0.17%/+0.09% vs max-pain across expiries, pcr_oi much more put-heavy (2.26-3.01) than pcr_vol (0.98-1.13) -- standing positioning more defensive than today's flow. QQQ: spot trades ABOVE max-pain at both expiries (+0.62%/+1.61%), pcr_oi and pcr_vol both elevated and closer together (3.39/2.75 near-dated) -- broader put demand, not just standing OI. No boundary_artifact or data_quality flags on either file.",
+  "calendar": {"next_fomc": "2026-10-28", "next_cpi": "2026-10-14", "next_nfp": "2026-10-02", "earnings_season_window": false},
+  "regime": "neutral",
+  "regime_note": "Yields up (US10y 4.998%, +5.1bp Friday, +34.5bp trailing month, near cycle high) + vol down (VIX -4.1% to 14.81) + equities up (SPX +0.17%, SMH +2.21%) reads as a hawkish-hike-already-absorbed, soft-landing tape -- not risk-off, but fragile: Fed dots point to a further ~64%-odds Dec hike, and the AI-capex chain has shown 1.7-2.5x SMH sensitivity to rate scares before (09-14 episode). Friday's SMH/KOSPI rally has no confirmed new capex catalyst (prior orchestrator finding) -- momentum, not fundamentals.",
+  "cluster_impact": {
+    "ai_capex_chain": "Near-term tailwind into Monday from Friday's momentum, but remains the first cluster to reprice on any yield/FOMC-dot scare; unconfirmed by new capex guidance.",
+    "rate_sensitive": "10-yr still near cycle highs with a hawkish Fed -- no discount-rate relief yet despite Friday's equity rally; SPY options positioning (pcr_oi >> pcr_vol) shows the market hedging this exact risk.",
+    "defensives": "Extreme-greed sentiment + SPX near 52wk high argues for adding ballast here rather than chasing the AI-capex momentum leg -- directly motivates this run's diversifier refresh."
+  },
+  "diversifier_candidates": {
+    "VST": {"price_usd": 140.67, "target_usd": 223.17, "upside_pct": 58.7, "thesis": "Merchant power gen, beta 1.41 -- AI-load adjacent, NOT clean", "status": "active", "clean_diversifier": false, "as_of": "2026-09-06"},
+    "UNH": {"price_usd": 376.90, "target_usd": 475.23, "upside_pct": 26.1, "thesis": "Managed care, beta ~0.62; 27-analyst consensus Buy, avg target raised from $471.65", "status": "active", "clean_diversifier": true, "as_of": "2026-09-20"},
+    "SO": {"price_usd": 85.52, "target_usd": 100.29, "upside_pct": 17.3, "thesis": "Regulated SE utility, beta 0.32; 23-analyst consensus, Hold rating, avg target essentially flat vs prior", "status": "active", "clean_diversifier": true, "as_of": "2026-09-20"},
+    "DUK": {"price_usd": 117.53, "target_usd": 137.28, "upside_pct": 16.8, "thesis": "Regulated utility, beta 0.36; 18-analyst consensus Buy, target essentially flat vs prior", "status": "active", "clean_diversifier": true, "as_of": "2026-09-20"},
+    "LLY": {"price_usd": 1152.93, "target_usd": 1300.0, "upside_pct": 12.75, "thesis": "Pharma/GLP-1, beta 0.50; target raised post beat-and-raise quarter (from $1270.37)", "status": "active", "clean_diversifier": true, "as_of": "2026-09-20"},
+    "NEM": {"price_usd": 123.41, "target_usd": 139.04, "upside_pct": 12.7, "thesis": "Gold miner, beta 0.54; 22-analyst consensus Buy, target raised from $133.00", "status": "active", "clean_diversifier": true, "as_of": "2026-09-20"},
+    "PG": {"price_usd": 146.39, "target_usd": 163.25, "upside_pct": 11.5, "thesis": "Staples ballast, beta 0.38; target essentially flat vs prior", "status": "active", "clean_diversifier": true, "as_of": "2026-09-20"},
+    "XOM": {"price_usd": 163.54, "target_usd": 173.42, "upside_pct": 6.0, "thesis": "Integrated oil major, direct Brent/WTI leverage, beta 0.175, policy-neutral across midterm scenarios. Prior run's -3.5% anomaly did not persist -- Friday's move (+0.17%) was in line with tape.", "status": "active", "clean_diversifier": true, "as_of": "2026-09-17"},
+    "JNJ": {"price_usd": 269.99, "target_usd": 238.20, "upside_pct": -11.8, "thesis": "Diversified pharma/medtech, beta 0.24 -- clean on correlation, but consensus target flipped BELOW spot (was $269.95, now $238.20 across 20 analysts) -- no upside case remains at current price; recommend excluding from new-cash proposals until re-underwritten.", "status": "active", "clean_diversifier": true, "as_of": "2026-09-20"}
+  },
+  "data_quality": [
+    "VST target/thesis not refreshed this run (still 2026-09-06) -- budget; price refreshed",
+    "Options figures are Friday 2026-09-19 real close OI, not live -- market closed all weekend",
+    "Futures/Asia session-read figures are Friday's close carried flat, not a fresh Monday pre-market read"
+  ],
+  "findings_reaffirmed": ["macro:calendar", "macro:fomc"],
+  "comms": {
+    "answers": [],
+    "asks": [],
+    "tells": [
+      {
+        "to": "strategist",
+        "ticker": "JNJ",
+        "fact": "JNJ analyst-consensus price target flipped from $269.95 to $238.20 (now below spot $269.99, 20-analyst consensus) -- the diversifier-bench upside case for JNJ is gone. If JNJ was in scope for the $2,430-$6,684 deployable-cash proposal, that case no longer holds; NEM's target rose 133->139.04 (upside 12.7%) and UNH's rose 471.65->475.23 (upside 26.1%) as stronger clean alternatives.",
+        "source": "WebSearch analyst-consensus aggregators, 2026-09-20",
+        "weight": "high"
+      },
+      {
+        "to": "strategist",
+        "ticker": null,
+        "fact": "Sentiment action_hint (extreme_greed, unchanged) plus SPX near 52wk high plus QQQ trading above max-pain at both expiries argues for staged/split rather than lump-sum deployment of the relaxed-band cash this run.",
+        "source": "compute_sentiment.json + compute_options.json",
+        "weight": "normal"
+      }
+    ]
+  }
+}

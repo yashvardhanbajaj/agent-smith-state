@@ -1,0 +1,366 @@
+{
+  "policy_draft": null,
+  "stress_table": {
+    "as_of": "2026-09-20",
+    "anchored_to": {
+      "us10y_pct": 4.998,
+      "vix": 14.81,
+      "dxy": 100.22,
+      "fed_rate_pct": 3.875,
+      "fed_stance": "hawkish"
+    },
+    "scenarios": [
+      {
+        "scenario": "AI-capex pause",
+        "impact_pct_low": -25.0,
+        "impact_pct_high": -15.0,
+        "most_exposed": [
+          "AMAT",
+          "ASML",
+          "MU",
+          "VRT",
+          "GEV",
+          "KLAC",
+          "TER"
+        ],
+        "mechanism": "Capex order pullback hits highest-beta semicap/memory/power names hardest; book is 95.759% AI-capex so this is close to a whole-book stress.",
+        "basis": "static_assumption",
+        "note": "Not re-derived from a fresh capex-guide input this run."
+      },
+      {
+        "scenario": "Rates +100bp",
+        "impact_pct_low": -14.0,
+        "impact_pct_high": -8.0,
+        "most_exposed": [
+          "VRT",
+          "BE",
+          "CIEN",
+          "LITE"
+        ],
+        "mechanism": "Discount-rate repricing of long-duration growth cash flows plus higher cost of debt-funded capex for infra names.",
+        "basis": "live",
+        "note": "Anchored to US10Y 4.998% and hawkish FOMC stance (fed_funds 3.875%), which raise the probability weight on this scenario relative to prior runs."
+      },
+      {
+        "scenario": "Tariff/export-control escalation",
+        "impact_pct_low": -18.0,
+        "impact_pct_high": -10.0,
+        "most_exposed": [
+          "ASML",
+          "AMAT",
+          "TER",
+          "MU",
+          "SKHY"
+        ],
+        "mechanism": "China revenue-at-risk for export-control-exposed semicap names; competitive HBM exposure to CXMT's risk-production milestone for MU/SKHY.",
+        "basis": "live",
+        "note": "CXMT catalyst active this run (see rejected catalyst_threat batch) though not yet showing in HBM contract pricing."
+      },
+      {
+        "scenario": "USD/INR +/-3%",
+        "impact_pct_low": 0.0,
+        "impact_pct_high": 0.0,
+        "most_exposed": [],
+        "mechanism": "Book is 100% USD-reported (INDmoney US holdings); no direct USD P&L effect. A 3% INR depreciation raises this book's INR-terms net worth ~3%; a 3% INR appreciation lowers it ~3%.",
+        "basis": "live",
+        "note": "usdinr 95.88 this run."
+      }
+    ],
+    "data_quality": [
+      "AI-capex pause row is a standing rule-of-thumb, not re-derived from a fresh capex guide this run."
+    ]
+  },
+  "proposals": [
+    {
+      "direction": "SELL",
+      "ticker": "MU",
+      "size_usd": 610.76,
+      "price_at_proposal": 1017.75,
+      "rationale": "Stretched (names_stretched), watch thesis, real profit to book; also consistent with cluster_memory's no-new-capital-into-memory-before-10-01 verdict (this is a trim, not new capital).",
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "idea",
+      "pair_id": "profit_rotation-MU-AMAT",
+      "pair_role": "sell",
+      "size_wanted_usd": 610.76,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 2,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "AMAT",
+      "size_usd": 504.51,
+      "price_at_proposal": 443.7458,
+      "rationale": "Laggard (-12.6pp) with strengthening thesis; earnings desk (verified) confirms not extended on the print -- beat+guided up, then fell -5.12%/-7.90%, -16.8% below pre-print close. Corroborated by trend_entry (conviction 26.0) and conviction_average (blended entry clears stop). Supersedes/rejects the catalyst_threat TRIM on AMAT.",
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "idea",
+      "pair_id": "profit_rotation-MU-AMAT",
+      "pair_role": "buy",
+      "size_wanted_usd": 504.51,
+      "clamped_by": null,
+      "stop_price_usd": 408.9561,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 2,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "SELL",
+      "ticker": "AMD",
+      "size_usd": 167.39,
+      "price_at_proposal": 557.98,
+      "rationale": "Stretched, watch thesis, real profit to book.",
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "idea",
+      "pair_id": "profit_rotation-AMD-KLAC",
+      "pair_role": "sell",
+      "size_wanted_usd": 167.39,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "KLAC",
+      "size_usd": 167.39,
+      "price_at_proposal": 177.14,
+      "rationale": "Laggard (-7.6pp), strengthening thesis, reported beat, blended entry clears stop.",
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "idea",
+      "pair_id": "profit_rotation-AMD-KLAC",
+      "pair_role": "buy",
+      "size_wanted_usd": 167.39,
+      "clamped_by": null,
+      "stop_price_usd": 162.5082,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "SELL",
+      "ticker": "SKHY",
+      "size_usd": 56.37,
+      "price_at_proposal": 187.9,
+      "rationale": "Stretched, watch thesis, real profit to book.",
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "idea",
+      "pair_id": "profit_rotation-SKHY-CIEN",
+      "pair_role": "sell",
+      "size_wanted_usd": 56.37,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "CIEN",
+      "size_usd": 56.37,
+      "price_at_proposal": 349.5,
+      "rationale": "Laggard (-14.8pp), strengthening thesis (3 for/0 against), stop clears blended entry.",
+      "trigger_type": "profit_rotation",
+      "trigger_bucket": "idea",
+      "pair_id": "profit_rotation-SKHY-CIEN",
+      "pair_role": "buy",
+      "size_wanted_usd": 56.37,
+      "clamped_by": null,
+      "stop_price_usd": 301.6185,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "SELL",
+      "ticker": "GLW",
+      "size_usd": 135.09,
+      "price_at_proposal": 150.1,
+      "rationale": "Laggard within AI Networking/Optics (-3.7pp), watch thesis, dead money in cluster; also carries a $2bn ATM dilution overhang (Corning/Goldman).",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "idea",
+      "pair_id": "cluster_rotation-GLW-LITE",
+      "pair_role": "sell",
+      "size_wanted_usd": 135.09,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 2,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "LITE",
+      "size_usd": 135.09,
+      "price_at_proposal": 929.53,
+      "rationale": "Cluster leader, strengthening thesis, STRONG UPTREND (+10.3pp vs benchmark), named by 8 independent sources this run.",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "idea",
+      "pair_id": "cluster_rotation-GLW-LITE",
+      "pair_role": "buy",
+      "size_wanted_usd": 135.09,
+      "clamped_by": null,
+      "stop_price_usd": 805.1589,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 2,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "SELL",
+      "ticker": "ASML",
+      "size_usd": 438.53,
+      "price_at_proposal": 1670.57,
+      "rationale": "EDITED from ladder suggestion 877.05 (halved): ladder track record 1/2, below sample bar, medium confidence, 5d old. ASML's own case is two-sided (lowest toolmaker beta, PT +35.7%, possibly mispriced low on the -6.4%/no-new-negative move) -- not a clean laggard-with-broken-thesis call, sized cautiously.",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "idea",
+      "pair_id": "cluster_rotation-ASML-TSM",
+      "pair_role": "sell",
+      "size_wanted_usd": 877.05,
+      "clamped_by": "strategist edit -- immature ladder",
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 0
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "TSM",
+      "size_usd": 438.53,
+      "price_at_proposal": 433.36,
+      "rationale": "EDITED from ladder suggestion 877.05 (halved, see sell leg). Cluster leader owning the CoWoS-class packaging bottleneck, Aug bookings +53.3% YoY vs +25% falsifier, smallest cluster move on the 09-14 drawdown.",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": "idea",
+      "pair_id": "cluster_rotation-ASML-TSM",
+      "pair_role": "buy",
+      "size_wanted_usd": 877.05,
+      "clamped_by": "strategist edit -- immature ladder",
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 0
+      }
+    }
+  ],
+  "scorecard_read": "n=88 overall: 27.3% accuracy but -3.238% net expectancy (-4.408% size-weighted, -$1,631.17 on $37,000.87 proposed) -- lead with expectancy, the record loses money net of fees even before size-weighting, and loses more once sized. TRIM/SELL (n=46) is worst at -5.322% size-weighted, -$1,114.67 -- directly why the catalyst_threat TRIM batch was rejected wholesale this run rather than partially executed. BUY (n=28) is least-bad at -1.642% size-weighted, -$242.29, payoff ratio 1.40 -- still negative net, which is why every BUY proposed here required a verified or corroborating-computed input, not a trigger alone. HOLD (n=14, only 3 sized) at -21.093% size-weighted is too thin a sample (n=3) to generalize and does not bear on the book-level idle-cash-hold decision, which is a different kind of claim. alpha_scored_count is 0 of 88 -- none of this is benchmark-relative yet.",
+  "deemphasize_buckets": [],
+  "data_quality": [
+    "No taxcalc ref in this run's slice (smith-tax retired 2026-09-14, replacement compute_taxcalc.json not present this run) -- lot-level trim sequencing/tax for the five SELL legs above is not quoted; user should check lot detail before acting.",
+    "catalyst_threat batch rejected wholesale rather than partially -- see specs_strategist.json 'rejected' block for full per-ticker reasoning.",
+    "LTCG: no live deferral candidates -- earliest open lot 2026-07-15, boundary mid-2028 (per prior_findings, reconfirmed, not re-derived)."
+  ],
+  "findings_reaffirmed": [
+    "risk_off_status normal",
+    "cash breach high-side only, no other drift breach",
+    "AI-capex 95.759% of equity, no cap breach",
+    "earliest open lot 2026-07-15 / LTCG boundary mid-2028"
+  ],
+  "comms": {
+    "answers": [
+      {
+        "id": "M1.1",
+        "position": "noted",
+        "answer": "JNJ was not in scope for any proposal this run (not a live trigger, not in the five rotations above) -- no action needed on this tell.",
+        "confidence": "high"
+      },
+      {
+        "id": "M1.2",
+        "position": "held",
+        "answer": "Incorporated by construction: all five proposals are self-funded rotations (sell proceeds fund the buy leg), so zero fresh cash is deployed this run regardless -- trivially staged, not lump-sum.",
+        "confidence": "high"
+      },
+      {
+        "id": "M1.5",
+        "position": "noted",
+        "answer": "SPGI did not fire a live trigger this run so it is not proposed -- agreed it is the cleanest bench name, but proposing an untriggered idea would be manufacturing activity. Will pick it up the moment it triggers.",
+        "confidence": "high"
+      },
+      {
+        "id": "M2.14",
+        "position": "held",
+        "answer": "Agreed and incorporated: the only memory-cluster action this run is a SELL (trim MU, stretched+watch), not new capital -- consistent with your no-new-capital-before-10-01 verdict, not contradicted by it.",
+        "confidence": "high"
+      },
+      {
+        "id": "M2.16",
+        "position": "held",
+        "answer": "Directly used as the lead evidence for the AMAT BUY leg (profit_rotation-MU-AMAT) -- cited as verified in that proposal's evidence_quality and rationale.",
+        "confidence": "high"
+      },
+      {
+        "id": "M3.21",
+        "position": "held",
+        "answer": "Confirmed I did not use `late` cycle_position as a reason to hold the cash -- the hold rationale is stop_risk offset + scorecard expectancy + extreme_greed sentiment, none of which is cycle_position.",
+        "confidence": "high"
+      },
+      {
+        "id": "M3.24",
+        "position": "held",
+        "answer": "Incorporated: no fresh MU buy is proposed either way, and the 10.22% implied move is cited as the reason not to treat 10-01 as a scheduled buy signal in either direction -- it's a genuine two-sided binary, addressed by waiting, not front-running.",
+        "confidence": "high"
+      },
+      {
+        "id": "M3.27",
+        "position": "noted",
+        "answer": "Consumed the post-revision MU/SKHY thesis via comms_digest (settled, revised) -- SKHY's evidence_against line (HBM4 tri-vendor certification) is reflected in the SKHY sell rationale above.",
+        "confidence": "high"
+      },
+      {
+        "id": "M4.32",
+        "position": "held",
+        "answer": "No WDC proposal made -- compliant with the guard rail, WDC is not treated as a rotation source or sell candidate anywhere in this batch.",
+        "confidence": "high"
+      },
+      {
+        "id": "M4.33",
+        "position": "held",
+        "answer": "Fully incorporated -- no fresh buy into MU; the only MU action is a profit-take SELL, and the implied-move/priced-headline argument is cited directly in the deploy-vs-hold cash verdict above.",
+        "confidence": "high"
+      },
+      {
+        "id": "M4.37",
+        "position": "noted",
+        "answer": "Consumed the post-revision cluster_memory MU output via comms_digest (watch-scoped rolling thesis, restated deployment_view, corrected reorder_when) -- used throughout the MU sell rationale and the cash-hold verdict.",
+        "confidence": "high"
+      },
+      {
+        "id": "M5.40",
+        "position": "noted",
+        "answer": "Consistent with M3.21 -- cycle backdrop was not used as an argument in either direction this run.",
+        "confidence": "high"
+      }
+    ],
+    "asks": [],
+    "tells": []
+  }
+}

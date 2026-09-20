@@ -1,0 +1,94 @@
+{
+  "mode": "deep",
+  "today": "2026-09-20",
+  "waves": {
+    "1": [
+      "catalyst",
+      "scout",
+      "signals",
+      "watchlist"
+    ],
+    "2": [
+      "cluster_memory",
+      "thesis"
+    ],
+    "3": [
+      "strategist"
+    ]
+  },
+  "agents": {
+    "signals": {
+      "agent": "smith-signals",
+      "wave": 1,
+      "reasons": [
+        "every run"
+      ]
+    },
+    "thesis": {
+      "agent": "smith-thesis",
+      "wave": 2,
+      "reasons": [
+        "deep roster (mandatory)"
+      ]
+    },
+    "watchlist": {
+      "agent": "smith-watchlist",
+      "wave": 1,
+      "reasons": [
+        "deep roster (mandatory)"
+      ]
+    },
+    "catalyst": {
+      "agent": "smith-catalyst",
+      "wave": 1,
+      "reasons": [
+        "deep roster (mandatory)"
+      ]
+    },
+    "scout": {
+      "agent": "smith-scout",
+      "wave": 1,
+      "reasons": [
+        "deep roster (mandatory)"
+      ],
+      "mode": "full"
+    },
+    "cluster_memory": {
+      "agent": "smith-cluster",
+      "wave": 2,
+      "reasons": [
+        "cluster ladder dispatch gate (compute_ladder.json)"
+      ]
+    },
+    "strategist": {
+      "agent": "smith-strategist",
+      "wave": 3,
+      "reasons": [
+        "every run"
+      ]
+    }
+  },
+  "skipped": {
+    "cluster_optics": "ladder is 6d old (< 7d) with no structural catalyst, member earnings, wrong-scoring call or unranked member since -- reuse it",
+    "cluster_power": "ladder is 5d old (< 7d) with no structural catalyst, member earnings, wrong-scoring call or unranked member since -- reuse it",
+    "cluster_semis": "ladder is 5d old (< 7d) with no structural catalyst, member earnings, wrong-scoring call or unranked member since -- reuse it",
+    "cluster_hyperscaler": "ladder is 5d old (< 7d) with no structural catalyst, member earnings, wrong-scoring call or unranked member since -- reuse it"
+  },
+  "scripts": [
+    "hbm-tracker narrow refresh IN PARALLEL with Wave 1 (hbm_tracker past TTL): it must land before the Wave-2 re-slice; tell catalyst its HBM snapshot is pre-refresh"
+  ],
+  "deep_lite": {
+    "last_deep_ts": "2026-09-16T21:24:02+00:00",
+    "hours_since": 82.9,
+    "window_hours": 48,
+    "active": false,
+    "reason": "last deep run 83h ago (>= 48h)"
+  },
+  "dispatch_prompts": {
+    "scout": "Mode full: all six tasks, including the session read and diversifier bench refresh."
+  },
+  "recheck_after_wave1": false,
+  "merge_after_wave1": "catalyst,scout,signals,watchlist",
+  "reslice_wave2": "cluster_memory,thesis",
+  "ledger": "dispatch smith-ledger only if ledger-parse reports dispatch_agent, or lots reports a mismatch or phantom short"
+}

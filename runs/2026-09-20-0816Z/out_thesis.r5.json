@@ -1,0 +1,43 @@
+{
+  "thesis": {
+    "changed": {
+      "MU": {
+        "status": "watch",
+        "note": "No further status action this round. Evidence-line wording tightened per M5.39 -- see full entry from round 2 (already corrected to lead with the $12.40/GB native contract_quote), now with an explicit 'do not read as duplication-resolved' caveat added below.",
+        "evidence_for_caveat_add": [
+          {"claim": "The prior round-2 correction led with HBM3E's $12.40/GB native contract_quote (2026-09-20) instead of the shared $9.00/GB stack_derived figure -- that choice stands on independent merits (fresher, tier1, unambiguously HBM3E-labeled) regardless of which generation the $9.00 series originated on. The $9.00 figure is no longer cited in MU's evidence at all as of this round; it should not be re-added for either hbm3 or hbm3e until the tracker owner resolves the duplication (open defect, suggested C3)", "date": "2026-09-20", "source": "smith-thesis desk answer M5.39"}
+        ],
+        "reviewed_on": "2026-09-20"
+      }
+    },
+    "unchanged_count": 26,
+    "reviewed_unchanged": []
+  },
+  "data_quality": [
+    "hbm3/hbm3e stack_derived $9.00/GB series duplication direction is now attributed (C1 filed on hbm3e; hbm3 is the apparent borrow) but NOT resolved as a tracker fact -- cycle correctly flags this as inference, open as suggested-C3. Neither generation's $9.00 figure should be cited as a generation-specific direction read until fixed."
+  ],
+  "comms": {
+    "answers": [
+      {
+        "id": "M5.39",
+        "position": "held",
+        "answer": "Answering all three desk questions directly. (a) Origination direction does NOT change the MU evidence_for rewrite from round 2. That rewrite led with the $12.40/GB native contract_quote (2026-09-20, tier1) on its own merits -- freshest datapoint, unambiguously HBM3E-labeled by its own generation key with no duplication question attached to it -- not because the $9.00 figure was 'really HBM3's'. Whether $9.00 originated on hbm3e and was duplicated onto hbm3, or the reverse, the $12.40 print was still the better lead. So the rewrite stands, but for the reason I gave at the time (freshness/unambiguity), not for the reason M2.6's framing implied (that $9.00 belonged to the other generation) -- that framing was wrong and I should not have passed it forward uncritically. (b) No, $9.00 is not safe to cite for EITHER generation right now. Cycle's finding is correct: C1 is filed on hbm3e.usd_per_gb and describes those exact points as HBM3E's own ($300/36GB), which means hbm3's identical series is the unexplained one -- but 'C1 says it's HBM3E's' is still the tracker's self-description, not an independent resolution of why hbm3 carries the same numbers. I am not resolving this by inference either. Until the tracker owner (hbm-tracker skill) files a real fix, I am treating the $9.00 stack_derived figure as UNCITABLE for direction on either generation, full stop -- which is already reflected in MU's current evidence (it no longer appears there since round 2). (c) I checked every thesis entry and thesis_tensions line I have written this run: none of them assert an HBM3 (plain, non-E) direction read. My hbm3-generation citations were limited to the now-removed MU line and a context-only mention in my original task output that HBM3 stack_derived was 'flat' -- that line was descriptive scene-setting, not load-bearing for any verdict, and I am retracting it as unsafe rather than defending it. On the second matter (the -18.92% TrendForce segment): I did not author M2.8/M3.22's framing and have not treated that segment as contradicting C1 anywhere in MU's or SKHY's evidence -- my citations of C1 have consistently used the corrected_view (rising/flat, not the pre-flip decline), so no correction needed on my side there, but I've noted cycle's point for the record: the -18.92% segment ends 2026-01-15, exactly where C1 says the repricing begins, so it is pre-flip and must not be read as current.",
+        "evidence": [
+          {"claim": "MU.evidence_for as of round 2 cites only the $12.40/GB contract_quote (2026-09-20) for HBM3E level; the $9.00 stack_derived figure was removed from that line, not merely reordered", "source": "out_thesis.r2.json thesis.changed.MU", "date": "2026-09-20"},
+          {"claim": "C1 correction is filed on metric hbm3e.usd_per_gb and describes the $9.00/GB points as HBM3E's own stack-derived figure ($300/36GB)", "source": "HBMTracker consumer_view.json corrections[C1]", "date": "2026-08-05 (opened)"}
+        ],
+        "confidence": "high"
+      }
+    ],
+    "asks": [],
+    "tells": [
+      {
+        "to": "hbm-tracker",
+        "ticker": null,
+        "fact": "Confirming cycle's finding from this desk's memory-analyst side: generations.hbm3 and generations.hbm3e in consumer_view.json carry a point-for-point identical stack_derived series (2026-07-19/08-05/09-15, $9.00/GB mid, band [8,10]). C1 is filed on hbm3e and describes these as HBM3E's own figure, implying hbm3's copy is the unexplained one -- but that's the tracker's own filing, not an independent resolution. Recommend logging as C3 (open defect) rather than resolving by inference, and treating both generations' $9.00 stack_derived reads as uncitable for direction until fixed.",
+        "source": "smith-thesis + smith-cycle cross-check, 2026-09-20",
+        "weight": "high"
+      }
+    ]
+  }
+}

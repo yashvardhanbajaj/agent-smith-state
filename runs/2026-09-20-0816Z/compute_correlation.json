@@ -1,0 +1,209 @@
+{
+  "as_of": "2026-09-20",
+  "window": {
+    "from": "2025-09-22",
+    "to": "2026-09-18",
+    "lookback_sessions": 250,
+    "min_pair_obs": 40
+  },
+  "diversification": {
+    "diversification_ratio": 1.433,
+    "effective_bets": 2.05,
+    "holdings_counted": 27,
+    "portfolio_vol_daily_pct": 2.755,
+    "portfolio_vol_annualized_pct": 43.7,
+    "weighted_avg_vol_annualized_pct": 62.7,
+    "imputed_pairs": 0,
+    "imputed_with": null,
+    "reads_as": "27 positions behaving like ~2.1 independent bets"
+  },
+  "stop_risk": {
+    "independent_sum_usd": 2743.98,
+    "avg_pairwise_correlation": 0.401,
+    "correlated_usd": 1784.82,
+    "diversification_credit_usd": 959.16,
+    "credit_pct_of_sum": 35.0,
+    "positions": 27,
+    "take_the_credit": false,
+    "note": "aggregate_open_risk_usd is the ALL-FIRE sum (the perfect-correlation case) and stays the number to hold capital against. `correlated_usd` is the expected joint loss at the measured correlation; the difference is the diversification credit a book would claim by treating these as independent bets. At this correlation that credit is not earned -- a factor drawdown is precisely when every one of these stops fires together."
+  },
+  "cluster_cohesion": [
+    {
+      "cluster": "AI Memory/Storage",
+      "members": 3,
+      "avg_within": 0.751,
+      "avg_vs_rest_of_book": 0.459,
+      "cohesion_gap": 0.292,
+      "verdict": "coherent risk bucket"
+    },
+    {
+      "cluster": "AI Networking/Optics",
+      "members": 7,
+      "avg_within": 0.547,
+      "avg_vs_rest_of_book": 0.419,
+      "cohesion_gap": 0.128,
+      "verdict": "coherent risk bucket"
+    },
+    {
+      "cluster": "AI Power/Cooling/DC Infra",
+      "members": 3,
+      "avg_within": 0.57,
+      "avg_vs_rest_of_book": 0.426,
+      "cohesion_gap": 0.144,
+      "verdict": "coherent risk bucket"
+    },
+    {
+      "cluster": "AI Semis/Fabs",
+      "members": 7,
+      "avg_within": 0.607,
+      "avg_vs_rest_of_book": 0.434,
+      "cohesion_gap": 0.174,
+      "verdict": "coherent risk bucket"
+    },
+    {
+      "cluster": "Analog/Industrial Semis",
+      "members": 1,
+      "verdict": "too few priced members to test"
+    },
+    {
+      "cluster": "Compute/Hyperscaler",
+      "members": 4,
+      "avg_within": 0.264,
+      "avg_vs_rest_of_book": 0.212,
+      "cohesion_gap": 0.053,
+      "verdict": "weak"
+    },
+    {
+      "cluster": "Compute/Hyperscaler OEM",
+      "members": 1,
+      "verdict": "too few priced members to test"
+    },
+    {
+      "cluster": "Enterprise Software",
+      "members": 1,
+      "verdict": "too few priced members to test"
+    }
+  ],
+  "most_correlated_pairs": [
+    {
+      "pair": [
+        "AMAT",
+        "KLAC"
+      ],
+      "corr": 0.8705
+    },
+    {
+      "pair": [
+        "MU",
+        "SKHY"
+      ],
+      "corr": 0.8151
+    },
+    {
+      "pair": [
+        "ASML",
+        "KLAC"
+      ],
+      "corr": 0.815
+    },
+    {
+      "pair": [
+        "AMAT",
+        "ASML"
+      ],
+      "corr": 0.814
+    },
+    {
+      "pair": [
+        "COHR",
+        "LITE"
+      ],
+      "corr": 0.7854
+    },
+    {
+      "pair": [
+        "COHR",
+        "GLW"
+      ],
+      "corr": 0.7716
+    },
+    {
+      "pair": [
+        "SKHY",
+        "TER"
+      ],
+      "corr": 0.7702
+    },
+    {
+      "pair": [
+        "AMAT",
+        "TER"
+      ],
+      "corr": 0.7649
+    },
+    {
+      "pair": [
+        "CIEN",
+        "COHR"
+      ],
+      "corr": 0.7342
+    },
+    {
+      "pair": [
+        "ASML",
+        "TSM"
+      ],
+      "corr": 0.7316
+    },
+    {
+      "pair": [
+        "AMAT",
+        "MU"
+      ],
+      "corr": 0.7285
+    },
+    {
+      "pair": [
+        "SKHY",
+        "WDC"
+      ],
+      "corr": 0.7252
+    }
+  ],
+  "tickers": [
+    "ALAB",
+    "AMAT",
+    "AMD",
+    "AMZN",
+    "APH",
+    "ASML",
+    "BE",
+    "CIEN",
+    "CLS",
+    "COHR",
+    "GEV",
+    "GLW",
+    "GOOG",
+    "KLAC",
+    "LITE",
+    "MRVL",
+    "MSFT",
+    "MU",
+    "NBIS",
+    "NOW",
+    "QCOM",
+    "SKHY",
+    "STM",
+    "TER",
+    "TSM",
+    "VRT",
+    "WDC"
+  ],
+  "dropped_no_history": [],
+  "pairs_below_min_obs": [],
+  "data_quality": [
+    "pairwise-complete: each pair uses its own overlapping dates, so a recently-bought name does not truncate the whole matrix (it would have cut 27 names to 50 shared sessions before this was fixed).",
+    "correlations are realised and backward-looking; they rise in drawdowns, which is precisely when the diversification credit would be relied on."
+  ],
+  "written": "runs/2026-09-20-0816Z/compute_correlation.json"
+}
