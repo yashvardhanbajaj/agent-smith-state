@@ -117,3 +117,33 @@ def test_session_age_counts_weekdays_not_calendar_days():
     from datetime import date
     assert sv._sessions_between(date(2026, 9, 16), date(2026, 9, 19)) == 2   # Wed -> Sat: Thu, Fri
     assert sv._sessions_between(date(2026, 9, 18), date(2026, 9, 21)) == 1   # Fri -> Mon
+
+
+def test_tickers_in_reads_paired_rotation_legs():
+    """Paired rotation rows nest tickers under sell_leg/buy_leg, not sell/buy.
+
+    Regression for 2026-09-20: reading only `sell`/`buy` returned an empty set for every
+    profit_rotation / cluster_rotation row, so a proposal the rotation trigger had just
+    produced was scored `not_firing` on its own creating run and demoted on the dashboard.
+    """
+    row = {"pair_id": "cluster_rotation-GLW-LITE", "trigger_type": "cluster_rotation",
+           "sell_leg": {"ticker": "GLW", "direction": "SELL", "suggested_size_usd": 135.09},
+           "buy_leg": {"ticker": "LITE", "direction": "BUY", "suggested_size_usd": 135.09}}
+    assert sv._tickers_in(row) == {"GLW", "LITE"}
+
+
+def test_tickers_in_still_reads_flat_and_legacy_shapes():
+    """The legacy `sell`/`buy` shape and plain single-ticker rows keep working."""
+    assert sv._tickers_in({"ticker": "MU"}) == {"MU"}
+    assert sv._tickers_in({"sell": {"ticker": "A"}, "buy": {"ticker": "B"}}) == {"A", "B"}
+    assert sv._tickers_in("not a dict") == set()
+
+
+def test_accepted_by_user_is_rechecked():
+    """An acceptance is agreement with the reasoning at the time, not a standing order to
+    execute later -- so it gets re-checked like any open card (user correction, 2026-09-20)."""
+    assert "accepted_by_user" in sv.RECHECKED_STATUSES
+    assert "open" in sv.RECHECKED_STATUSES
+    # explicitly NOT re-checked: these are "not now" states, not agreed positions
+    assert "deferred" not in sv.RECHECKED_STATUSES
+    assert "watch" not in sv.RECHECKED_STATUSES

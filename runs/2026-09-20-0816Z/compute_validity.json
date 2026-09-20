@@ -1,7 +1,461 @@
 {
   "as_of": "2026-09-20",
   "run_dir": "runs/2026-09-20-0816Z",
-  "counts": {},
-  "rows": [],
+  "counts": {
+    "retire": 2,
+    "valid": 10
+  },
+  "rows": [
+    {
+      "id": "P-149",
+      "ticker": "WDC",
+      "direction": "BUY",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "LOW",
+      "retire_because": [
+        "you bought 1 WDC on 2026-09-15 -- already acted on"
+      ],
+      "weakened_because": [
+        "19 sessions old"
+      ],
+      "trigger_state": "n/a",
+      "trigger": null,
+      "since": {
+        "stock_pct": -4.4,
+        "smh_pct": null,
+        "agree_pp": null,
+        "price_now": 442.01
+      },
+      "against": [
+        "thesis: stock fell ~11% AH same day despite beat -- expectations priced in"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [
+        "you bought 1 WDC on 2026-09-15"
+      ],
+      "desk_retire_reason": null,
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 19,
+      "after_trade": {
+        "shares": 0.3394,
+        "pct_of_position": 11.3,
+        "weight_before": 3.93,
+        "weight_after": 4.36
+      },
+      "drops_off_when": null,
+      "drops_off_met": false
+    },
+    {
+      "id": "P-186",
+      "ticker": "CIEN",
+      "direction": "SELL",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "HIGH",
+      "retire_because": [
+        "you sold 2 CIEN on 2026-09-01 -- already acted on"
+      ],
+      "weakened_because": [
+        "trimming a `strengthening` thesis",
+        "14 sessions old"
+      ],
+      "trigger_state": "firing",
+      "trigger": "profit_rotation",
+      "since": {
+        "stock_pct": 53.48,
+        "smh_pct": null,
+        "agree_pp": null,
+        "price_now": 349.5
+      },
+      "against": [
+        "thesis: recent earnings beat and AI-related demand support robust cash-flow outlook; DCF suggests undervalued",
+        "thesis: FQ3 2026 revenue $1.67B beat $1.64B consensus; adj EPS $2.11 beat $1.73 consensus"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [
+        "you sold 1 CIEN on 2026-08-31",
+        "you sold 2 CIEN on 2026-09-01"
+      ],
+      "desk_retire_reason": null,
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 14,
+      "after_trade": {
+        "shares": 0.9773,
+        "pct_of_position": 11459.7,
+        "weight_before": 0.01,
+        "weight_after": 0.0
+      },
+      "drops_off_when": "the profit_rotation pairing monday-cien-amat is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-353",
+      "ticker": "MU",
+      "direction": "SELL",
+      "verdict": "valid",
+      "effective_priority": "HIGH",
+      "priority": "HIGH",
+      "retire_because": [],
+      "weakened_because": [],
+      "trigger_state": "firing",
+      "trigger": "profit_rotation",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": -0.0,
+        "price_now": 1017.75
+      },
+      "against": [
+        "thesis: HBM3E stack-derived basis still flat at $9.00/GB, 0.0% trend 2026-07-19 to 2026-09-15, tier1-corroborated (upgraded from prior tier2-only read)",
+        "thesis: First contract_quote datapoint since 2026-01-15: HBM3E $12.4/GB and HBM4 $16.0/GB, both tier1-corroborated -- absolute levels sit above the stack-derived floor,",
+        "earnings 2026-10-01 (9 sessions away)"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "watch",
+      "desk": null,
+      "earnings": "2026-10-01",
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 0.6001,
+        "pct_of_position": 30.0,
+        "weight_before": 6.04,
+        "weight_after": 4.3
+      },
+      "drops_off_when": "the profit_rotation pairing profit_rotation-MU-AMAT is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-354",
+      "ticker": "AMAT",
+      "direction": "BUY",
+      "verdict": "valid",
+      "effective_priority": "HIGH",
+      "priority": "HIGH",
+      "retire_because": [],
+      "weakened_because": [],
+      "trigger_state": "firing",
+      "trigger": "profit_rotation",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": 0.0,
+        "price_now": 443.7458
+      },
+      "against": [
+        "thesis: PEER LAGGARD persists: -12.55pp vs SMH over 1m (-1.39 sigma). Friday's +6.5% (1.61x ATR) was a sector catch-up bounce (SMH +2.2%, TER +4.9%, KLAC +4.8%), not na",
+        "thesis: Live catalyst_threat TRIM trigger rests only on the carried-forward CXMT HBM3E reason; linkage to deposition/etch revenue remains unestablished"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 1.1369,
+        "pct_of_position": 28.4,
+        "weight_before": 5.27,
+        "weight_after": 6.67
+      },
+      "drops_off_when": "the profit_rotation pairing profit_rotation-MU-AMAT is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-355",
+      "ticker": "AMD",
+      "direction": "SELL",
+      "verdict": "valid",
+      "effective_priority": "HIGH",
+      "priority": "HIGH",
+      "retire_because": [],
+      "weakened_because": [],
+      "trigger_state": "firing",
+      "trigger": "profit_rotation",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": -0.0,
+        "price_now": 557.98
+      },
+      "against": [
+        "thesis: Q2 rev $11.54B beat, EPS $1.66 beat, Data Center rev +107% YoY",
+        "thesis: ~$5B investment-grade debt offering closed for AI/datacenter capex"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "watch",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 0.3,
+        "pct_of_position": 30.0,
+        "weight_before": 1.65,
+        "weight_after": 1.16
+      },
+      "drops_off_when": "the profit_rotation pairing profit_rotation-AMD-KLAC is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-356",
+      "ticker": "KLAC",
+      "direction": "BUY",
+      "verdict": "valid",
+      "effective_priority": "HIGH",
+      "priority": "HIGH",
+      "retire_because": [],
+      "weakened_because": [],
+      "trigger_state": "firing",
+      "trigger": "profit_rotation",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": 0.0,
+        "price_now": 177.14
+      },
+      "against": [
+        "thesis: stock fell ~9.6% after-hours on the July 28 beat -- expectations-reset/valuation reaction, unresolved whether it recurs",
+        "thesis: pulled back -3.21% the day after the 09-09 add (now $182.91 vs $181.98 buy, essentially flat) -- continues the beat-but-sells-off pattern; no negative company n"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 0.945,
+        "pct_of_position": 9.4,
+        "weight_before": 5.25,
+        "weight_after": 5.72
+      },
+      "drops_off_when": "the profit_rotation pairing profit_rotation-AMD-KLAC is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-357",
+      "ticker": "SKHY",
+      "direction": "SELL",
+      "verdict": "valid",
+      "effective_priority": "HIGH",
+      "priority": "HIGH",
+      "retire_because": [],
+      "weakened_because": [],
+      "trigger_state": "firing",
+      "trigger": "profit_rotation",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": -0.0,
+        "price_now": 187.9
+      },
+      "against": [
+        "thesis: New tier1 HBM4 contract quote $16.0/GB (2026-09-20) sits ~29% above the new HBM3E contract quote ($12.4/GB), corroborating the generational premium SKHY's HBM4 "
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "watch",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 0.3,
+        "pct_of_position": 30.0,
+        "weight_before": 0.56,
+        "weight_after": 0.39
+      },
+      "drops_off_when": "the profit_rotation pairing profit_rotation-SKHY-CIEN is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-358",
+      "ticker": "CIEN",
+      "direction": "BUY",
+      "verdict": "valid",
+      "effective_priority": "HIGH",
+      "priority": "HIGH",
+      "retire_because": [],
+      "weakened_because": [],
+      "trigger_state": "firing",
+      "trigger": "profit_rotation",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": 0.0,
+        "price_now": 349.5
+      },
+      "against": [
+        "thesis: market multiples suggest expensive despite DCF signal; carries a prior 59% trim + weak FY guide vs AI PoC win",
+        "thesis: position remains 0.01% weight post-trim despite improved print"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 0.1613,
+        "pct_of_position": 1891.3,
+        "weight_before": 0.01,
+        "weight_after": 0.18
+      },
+      "drops_off_when": "the profit_rotation pairing profit_rotation-SKHY-CIEN is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-359",
+      "ticker": "GLW",
+      "direction": "SELL",
+      "verdict": "valid",
+      "effective_priority": "MEDIUM",
+      "priority": "MEDIUM",
+      "retire_because": [],
+      "weakened_because": [],
+      "trigger_state": "firing",
+      "trigger": "cluster_rotation",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": -0.0,
+        "price_now": 150.1
+      },
+      "against": [
+        "thesis: Q2 core EPS +30%; Truist upgrade to Buy; +18% on the week; 15% polysilicon tariff tailwind; 19% sales CAGR guided through 2030"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "watch",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 0.9,
+        "pct_of_position": 30.0,
+        "weight_before": 1.33,
+        "weight_after": 0.94
+      },
+      "drops_off_when": "the cluster_rotation pairing cluster_rotation-GLW-LITE is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-360",
+      "ticker": "LITE",
+      "direction": "BUY",
+      "verdict": "valid",
+      "effective_priority": "HIGH",
+      "priority": "HIGH",
+      "retire_because": [],
+      "weakened_because": [],
+      "trigger_state": "firing",
+      "trigger": "cluster_rotation",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": 0.0,
+        "price_now": 929.53
+      },
+      "against": [],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 0.1453,
+        "pct_of_position": 14.5,
+        "weight_before": 2.76,
+        "weight_after": 3.14
+      },
+      "drops_off_when": "the cluster_rotation pairing cluster_rotation-GLW-LITE is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-361",
+      "ticker": "ASML",
+      "direction": "SELL",
+      "verdict": "valid",
+      "effective_priority": "MEDIUM",
+      "priority": "MEDIUM",
+      "retire_because": [],
+      "weakened_because": [],
+      "trigger_state": "firing",
+      "trigger": "cluster_rotation",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": -0.0,
+        "price_now": 1670.57
+      },
+      "against": [
+        "thesis: no new deterioration since the 2026-07-28 China-DUV dent; EPS estimates revised +20.4%",
+        "thesis: BofA calls the selloff an overreaction; price recovered near highs"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "watch",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 0.2625,
+        "pct_of_position": 15.0,
+        "weight_before": 8.67,
+        "weight_after": 7.46
+      },
+      "drops_off_when": "the cluster_rotation pairing cluster_rotation-ASML-TSM is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": false
+    },
+    {
+      "id": "P-362",
+      "ticker": "TSM",
+      "direction": "BUY",
+      "verdict": "valid",
+      "effective_priority": "MEDIUM",
+      "priority": "MEDIUM",
+      "retire_because": [],
+      "weakened_because": [],
+      "trigger_state": "firing",
+      "trigger": "cluster_rotation",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": 0.0,
+        "price_now": 433.36
+      },
+      "against": [],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 1.0119,
+        "pct_of_position": 14.5,
+        "weight_before": 8.99,
+        "weight_after": 10.16
+      },
+      "drops_off_when": "the cluster_rotation pairing cluster_rotation-ASML-TSM is no longer live this run -- both legs retire together, never one alone",
+      "drops_off_met": false
+    }
+  ],
   "note": "advisory: proposals.json is not edited and nothing is dismissed. A `retire` verdict waits for the user's click (user decision 2026-09-19)."
 }

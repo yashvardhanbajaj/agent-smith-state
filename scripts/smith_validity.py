@@ -33,6 +33,19 @@ from datetime import date
 
 from smith_core import emit, load_json, atomic_write_json, resolve_today
 
+# WHICH PROPOSALS GET RE-CHECKED (widened 2026-09-20, on the user's correction).
+# `accepted_by_user` used to be exempt, because "accepted" was read as a standing instruction to
+# execute. The user corrected that: an acceptance means "I agree with your reasoning AS OF THEN" --
+# it is not an execution order, it does not expire into one, and it carries no obligation to trade
+# later without re-checking whether the reasoning still holds. Exempting it was exactly backwards:
+# an accepted proposal is MORE likely to be acted on, so a stale premise there is more dangerous,
+# not less. The case that proved it: P-186 (Sell CIEN, accepted 2026-08-31) rested on a weak-guide
+# overhang; CIEN reported a clean beat+raise on 2026-09-03 and its thesis flipped to
+# `strengthening`. The premise died three days after acceptance and nothing re-asked for 20 days.
+# `deferred` and `watch` stay out: those are explicitly "not now" states that already re-decide
+# themselves each run, not positions the user has agreed with.
+RECHECKED_STATUSES = ("open", "accepted_by_user")
+
 ALPHA_AGAINST_PP = 3.0        # the market has moved this far against the proposal -> weakened
 ALPHA_AGAINST_RETIRE_PP = 3.0  # ... and the trigger is gone too -> retire
 STALE_SESSIONS = 10
@@ -62,7 +75,13 @@ def _tickers_in(row):
     for k in ("ticker", "t"):
         if isinstance(row.get(k), str):
             out.add(row[k])
-    for leg in ("sell", "buy"):
+    # Paired rotation rows (profit_rotation, cluster_rotation, laggard_rotation) nest their
+    # tickers under `sell_leg`/`buy_leg`. Reading only `sell`/`buy` found NOTHING in them, so
+    # every rotation-derived proposal was scored `trigger_state: not_firing` on the very run
+    # that created it -- "its profit rotation trigger no longer fires on MU" about a proposal
+    # the profit_rotation trigger had just produced. That silently demoted every rotation
+    # proposal's effective_priority on the dashboard (found 2026-09-20).
+    for leg in ("sell", "buy", "sell_leg", "buy_leg"):
         v = row.get(leg)
         if isinstance(v, dict):
             out |= _tickers_in(v)
@@ -282,7 +301,7 @@ def build_context(base_dir, run_dir=None, today=None):
 def check_all(base_dir, run_dir=None, today=None):
     ctx = build_context(base_dir, run_dir, today)
     props = ((_read(os.path.join(base_dir, "proposals.json"), {}) or {}).get("proposals") or [])
-    rows = [check_one(p, ctx) for p in props if p.get("status") == "open"]
+    rows = [check_one(p, ctx) for p in props if p.get("status") in RECHECKED_STATUSES]
     counts = {}
     for r in rows:
         counts[r["verdict"]] = counts.get(r["verdict"], 0) + 1
