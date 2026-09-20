@@ -66,18 +66,29 @@ class TestClusterRotationRespectsClusterRoom:
         out = []
         conv = {"LAG": _conv_row(3000.0, "Semis", rel_pp=-5.0),
                 "PERF": _conv_row(1000.0, "Semis", rel_pp=5.0)}
+        import smith_ticket
+        # $100K book -> R_base $500; both names carry _conv_row's 8% ATR -> a 16% stop.
+        sizing = smith_ticket.sizing_context(
+            100000.0, {"stop_loss_framework": {"risk_per_position_pct_of_book": 0.5}},
+            {"LAG": 16.0, "PERF": 16.0})
         smith_math._trigger_cluster_rotation(
             conv, {"LAG": "stuck|watch", "PERF": "running|strengthening"}, out,
-            cluster_rows=cluster_rows)
+            cluster_rows=cluster_rows, sizing=sizing)
         return out[0]
 
+    # CHANGED 2026-09-20 (deliberately): the sell leg was 30% of market value ($900 of the $3,000
+    # LAG) and the buy matched it in dollars. The sell now removes 1R = $500 of risk, which at a
+    # 16% stop is $3,125 -- more than the position -- so it is a full exit ($3,000), and the buy
+    # is the $480 of risk that frees at the same 16% stop = $3,000. Same-cluster credit-back still
+    # applies: the cluster is "full" (room $0) yet the swap must still size its buy leg.
     def test_full_cluster_still_sizes_the_buy_leg(self):
         pair = self._pair({"Semis": {"cluster_room_usd": 0.0}})
-        assert pair["buy_leg"]["suggested_size_usd"] == pytest.approx(900.0)  # 30% of 3000
-        assert pair["buy_leg"]["clamped_by"] is None
+        assert pair["sell_leg"]["suggested_size_usd"] == pytest.approx(3000.0)
+        assert pair["buy_leg"]["suggested_size_usd"] == pytest.approx(3000.0)
+        assert pair["buy_leg"]["clamped_by"] == "risk freed by the sell leg"   # not the cluster clamp
 
     def test_no_drift_data_degrades_to_the_prior_behaviour(self):
-        assert self._pair({})["buy_leg"]["suggested_size_usd"] == pytest.approx(900.0)
+        assert self._pair({})["buy_leg"]["suggested_size_usd"] == pytest.approx(3000.0)
 
 
 class TestProfitRotationRespectsClusterRoom:

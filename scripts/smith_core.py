@@ -239,11 +239,11 @@ LAGGARD_PCTILE = 25.0            # bottom quartile of 1m relative strength = "ye
 
 RATCHET_MIN_GAIN_PCT = 15.0      # gain before a stop is worth ratcheting to breakeven
 
-LADDER_TIERS_PCT = [25.0, 50.0]  # scale-out rungs, each selling LADDER_FRACTION of the position
+LADDER_TIERS_PCT = [25.0, 50.0]  # scale-out rungs; each rung sells SEVERITY_R["scale_out_ladder"] of risk
 
-LADDER_FRACTION = 1.0 / 3.0
-
-OVERBOUGHT_TRIM_FRACTION = 0.25  # profit-take slice on an overbought name
+# (The per-family market-value fractions that used to be defined here -- 1/3 per ladder rung, 0.25
+# overbought, 0.20 catalyst threat, 0.40 thesis break -- are gone. A sell is now sized in RISK
+# DOLLARS by SEVERITY_R further down this file; see the block that defines it for why.)
 
 MAX_SINGLE_DEPLOY_FRACTION = 0.25  # cap one buy suggestion at this share of deployable cash
 
@@ -270,9 +270,7 @@ MAX_SINGLE_DEPLOY_FRACTION = 0.25  # cap one buy suggestion at this share of dep
 # own evidence_for/evidence_against arrays. Gating these behind a fabricated hit-rate measurement
 # would mean re-deriving conviction the analyst agents already established, which is the exact
 # manual-workaround gap this closes, not a new heuristic being tested.
-CATALYST_THREAT_TRIM_FRACTION = 0.20  # a probabilistic tail risk -- lighter than overbought's 0.25
-
-THESIS_BREAK_TRIM_FRACTION = 0.40  # a confirmed fundamental break -- heavier; strategist may size to a full exit
+# (Sized by SEVERITY_R["catalyst_threat"] / SEVERITY_R["thesis_break"] -- see the SEVERITY_R block.)
 
 # A technical dip on an intact thesis is a bounce setup; a technical dip alongside a FUNDAMENTAL
 # negative is a falling knife. Only the latter disqualifies -- requiring net-bullish signals
@@ -608,6 +606,107 @@ LTCG_MONTHS_DEFAULT = 24          # India: US-listed foreign shares
 LTCG_DEFER_WINDOW_MONTHS = 6.0    # inside this, trimming forfeits a near boundary
 
 DUST_USD_DEFAULT = 400.0
+
+
+def dust_usd(policy):
+    """THE one dust / minimum-position number. Resolution order: policy.trade_materiality.
+    min_position_usd, then policy.mandate.dust_position_usd (the override cmd_derisk has always
+    honoured), then DUST_USD_DEFAULT.
+
+    WHY ONE NUMBER (2026-09-20). smith_ticket.exit_or_hold needs a "below this a position is a
+    stub, never a partial trim" threshold, and this file already had one: DUST_USD_DEFAULT
+    ($400), used by cmd_derisk's friction term and by smith_lifecycle's shadow-trigger
+    retirement (which retires a trim once the position it targets is under it). A second
+    MIN_POSITION_USD would let "too small to trim" and "too small to keep a stop on" disagree
+    about the same $187 SKHY position. So the engine's MIN_POSITION_USD *is* this value, and
+    validate_policy flags a policy.trade_materiality.min_position_usd that differs from
+    DUST_USD_DEFAULT (smith_lifecycle still reads the constant directly, so a divergence there
+    would be silent otherwise)."""
+    tm = (policy or {}).get("trade_materiality") or {}
+    for v in (tm.get("min_position_usd"), ((policy or {}).get("mandate") or {}).get("dust_position_usd")):
+        if isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0:
+            return float(v)
+    return DUST_USD_DEFAULT
+
+
+# ---------------------------------------------------------------------------
+# SELL SIZING IN RISK DOLLARS -- SEVERITY_R (Phase 2 of the proposal-engine rebuild, 2026-09-20)
+# ---------------------------------------------------------------------------
+# WHY. Every sell path used to be `market_value x constant` (0.20 / 0.25 / 0.30 / 0.40 / 1/3 /
+# 0.50), while every buy is already sized in risk dollars (smith_risk.stop_and_cap). The
+# asymmetry meant the SAME signal removed wildly different risk depending on the name: 25% of a
+# 12%-stop MU is $61 of risk, 25% of a 6%-stop name of the same size is $30 -- and neither had
+# any relationship to the 0.5%-of-book (R_base) budget the position was sized to. The motivating
+# incident: on a $42.5K book the engine proposed rotating $56.37 of SKHY into CIEN; a correct
+# 10-point call on that ticket earns $5.64. A market-value fraction cannot express "this trade
+# is too small to matter" or "this trim should remove this much risk"; a risk number can.
+#
+# A severity is in units of R_base (0.5% of book, ~$212.71 today). size_usd = severity x
+# R_base / (stop_pct/100), so a 3%-ATR name gets a LARGER dollar trim than a 12%-ATR name for the
+# same severity -- correct (equal risk removed), and impossible to write as a market-value
+# fraction. Sizes are then clamped to the position (a sell can never exceed what is held) and
+# passed through smith_ticket.exit_or_hold (stub / >60% rule) and smith_ticket.materiality.
+#
+# Every rung below is a judgement about how much RISK a signal deserves to remove, not a
+# fitted number -- the desk has no evidence yet on which severity earns its keep (that is what
+# the Phase 4 scoring is for), so they are ordered by how sure the evidence is, and the old
+# fractions' ordering (thesis_break > overbought > catalyst_threat) is preserved.
+SEVERITY_R = {
+    # a profit-take on an RSI-stretched name: the position is fine, it just ran -- take half a
+    # unit of risk off the table (old: 25% of market value)
+    "overbought_distribution": 0.5,
+    # a probabilistic structural tail-risk, not a confirmed break -- same half unit; deliberately
+    # not lighter than overbought any more, since the old 0.20-vs-0.25 gap was market-value noise
+    # (old: 20% of market value)
+    "catalyst_threat": 0.5,
+    # one scale-out rung of a winner, applied per rung (old: one third of market value per rung)
+    "scale_out_ladder": 0.5,
+    # sell leg of "sell what ran, buy what hasn't": a full unit -- a rotation should move real
+    # risk or not happen, and its buy leg is sized off the risk this frees (old: 30% of mv)
+    "profit_rotation": 1.0,
+    # sell leg of a same-cluster laggard->performer swap (old: 30% of mv)
+    "cluster_rotation": 1.0,
+    # sell leg of a ladder-laggard -> never-held bench name; shadow (old: 30% of mv)
+    "cluster_bench_rotation": 1.0,
+    # exiting a name whose price AND thesis are both breaking down (old: 30% of mv)
+    "trend_breakdown": 1.0,
+    # a confirmed fundamental break: two units -- for most names this clamps to the whole
+    # position, i.e. a full exit (old: 40% of mv)
+    "thesis_break": 2.0,
+    # convergence of >=3 independent negatives; same two units, same usual full-exit outcome
+    # (old: 50% of mv)
+    "conviction_exit": 2.0,
+}
+
+# trim_risk_cap is NOT in the table because it is not a choice: it is COMPUTED as
+# (R_open - R_base) / R_base = cap_multiple - 1, which sizes to mv - max_position_usd, i.e.
+# EXACTLY back to the ATR cap and never past it. See smith_ticket.trim_risk_cap_severity.
+# cluster_consolidation is likewise absent: it is a full exit of the dropped name by definition.
+
+# The old market-value fractions, kept ONLY so every trigger row can carry `legacy_size_usd` and
+# the golden diff shows what changed per family. Delete with the legacy_size_usd fields next
+# release. Nothing may size a live row from this table.
+LEGACY_SELL_FRACTION = {
+    "overbought_distribution": 0.25, "catalyst_threat": 0.20, "thesis_break": 0.40,
+    "scale_out_ladder": 1.0 / 3.0, "trend_breakdown": 0.30, "conviction_exit": 0.50,
+    "profit_rotation": 0.30, "cluster_rotation": 0.30, "cluster_bench_rotation": 0.30,
+}
+
+# Round-trip cost of acting on a proposal: INDmoney charges ~0.30% on the buy and 0.00% on the
+# sell (measured across 7 confirmations 2026-09-06, smith_ledger.LEDGER_FEE_PCT). An edge smaller
+# than this is not an edge, which is why every expectancy figure in the scorecard is net of it.
+# Moved here from smith_lifecycle 2026-09-20 so smith_ticket (pure, imports only smith_core) can
+# price the fee side of its materiality floor from the same number.
+ROUND_TRIP_FEE_PCT = 0.30
+
+# Materiality floors (policy.trade_materiality overrides each; confirmed:false until signed).
+# A ticket must clear ALL of them -- see smith_ticket.materiality for the incident and arithmetic.
+MIN_TICKET_USD = 250.0           # below this a fill is a rounding error on a $42K book
+MIN_TICKET_PCT_OF_BOOK = 0.40    # % of total book: scales the floor as the book grows
+MIN_TICKET_R = 0.20              # a ticket must risk at least this many R_base
+FEE_COVER_MULT = 25.0            # ticket must be >= this many times its own round-trip fee
+# exit_or_hold: a trim removing more than this share of a position is a full exit in all but name
+TRIM_TO_EXIT_FRACTION = 0.60
 
 # ---------------------------------------------------------------------------
 # lots -- deterministic FIFO with corporate-action support

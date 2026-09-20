@@ -50,6 +50,7 @@ from datetime import date, datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import smith_risk
 import smith_conviction
+import smith_ticket
 from smith_core import *  # noqa: F401,F403
 from smith_core import load_json, emit, fail, clamp
 from smith_ledger import (cmd_lots, cmd_history, cmd_universe, cmd_ledger_parse,
@@ -2316,7 +2317,7 @@ def cmd_derisk(args):
 
     today = resolve_today(args.today)
     ltcg_months = policy_ltcg_months(policy)
-    dust_usd = (policy.get("mandate") or {}).get("dust_position_usd", DUST_USD_DEFAULT)
+    dust_floor = dust_usd(policy)   # smith_core.dust_usd: the ONE dust number (also smith_ticket's MIN_POSITION_USD)
 
     rel_cache = state.get("data_cache", {}).get("rel_strength_1m", {}) or {}
     rel_vals = rel_cache.get("values_pp", {}) or {}
@@ -2405,9 +2406,9 @@ def cmd_derisk(args):
         if unknown_date_qty > 0:
             friction += 25.0
             fr_reasons.append("lot date unknown (predates email history, G1)")
-        if mv < dust_usd:
+        if mv < dust_floor:
             friction += 30.0
-            fr_reasons.append(f"position below ${dust_usd:g} dust threshold")
+            fr_reasons.append(f"position below ${dust_floor:g} dust threshold")
         friction = clamp(friction)
 
         cap_exempt = cap_x_for_frag != cap_x and bool(cap_x) and cap_x > 1.0
@@ -2704,6 +2705,177 @@ def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
 # side-effecting style so the diff against the original block is minimal and auditable.
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# RISK-SIZED SELLS (Phase 2, 2026-09-20) -- shared helpers for every trigger below
+# ---------------------------------------------------------------------------
+def _compact_materiality(m):
+    """The parts of a smith_ticket.materiality verdict worth persisting on every sized row."""
+    if not m:
+        return None
+    out = {k: m.get(k) for k in ("ok", "floor_usd", "binding_term", "shortfall_usd")}
+    if m.get("exempt"):
+        out["exempt"] = m["exempt"]
+    return out
+
+
+def _no_sizing():
+    """A sizing context with no book -- every risk-sized sell reports size None with a reason
+    rather than an estimate. Only reached when a caller omits the context."""
+    return smith_ticket.sizing_context(0.0, {}, {})
+
+
+def _size_sell(family, ticker, mv, sizing, severity_r=None):
+    """Size one sell leg of `family` in risk dollars and package the row fields.
+
+    Returns {"fields": {...merged into the row...}, "res": smith_ticket.size_sell_leg's result}.
+    `legacy_size_usd` is the OLD market-value-fraction number, carried for one release so the
+    golden diff shows what changed per family (smith_core.LEGACY_SELL_FRACTION)."""
+    sev = SEVERITY_R[family] if severity_r is None else severity_r
+    res = smith_ticket.size_sell_leg(sev, mv, (sizing["stop_pct_by_ticker"] or {}).get(ticker), sizing)
+    size = res["size_usd"]
+    fields = {"suggested_size_usd": size,
+              "legacy_size_usd": round(mv * LEGACY_SELL_FRACTION[family], 2) if family in LEGACY_SELL_FRACTION else None,
+              "severity_r": sev, "stop_pct": res["stop_pct"],
+              "risk_removed_usd": res["risk_removed_usd"], "sell_action": res["action"],
+              "trim_fraction": round(size / mv, 4) if (size and mv) else None,
+              "sizing_note": res["sizing_note"], "materiality": _compact_materiality(res["materiality"])}
+    return {"fields": fields, "res": res}
+
+
+def _apply_sell_verdict(row, sized):
+    """Fold the materiality / exit-or-hold verdict into a row. A sub-floor ticket is neither
+    shrunk nor dropped: a LIVE row is demoted to vote "below_materiality" (shadow rows keep their
+    vote -- their job is to be scored, and the verdict rides along in `materiality`)."""
+    res = sized["res"]
+    row.setdefault("blockers", [])
+    if res["vote_hint"] == "below_materiality":
+        m = res["materiality"] or {}
+        row["materiality_shortfall_usd"] = m.get("shortfall_usd")
+        if row.get("vote") == "live":
+            row["vote"] = "below_materiality"
+        row["blockers"].append(
+            (f"below materiality: ${(res['size_usd'] or 0):,.2f} vs a ${m.get('floor_usd', 0):,.2f} floor "
+             f"({m.get('binding_term')}) -- emitted, not shrunk to the floor and not dropped"
+             if res["action"] != "hold" else f"not a trim candidate: {res['sizing_note'].split('; ')[-1]}"))
+    elif res["vote_hint"] == smith_ticket.UNSIZED:
+        row["blockers"].append(res["sizing_note"])
+    return row
+
+
+def _pair_sizing(sizing, total_book, policy, conviction_by_ticker):
+    """The caller's sizing context, or one rebuilt from what a pair trigger already has (book,
+    policy and each name's ATR in conviction_by_ticker) so it can be called standalone."""
+    if sizing is not None:
+        return sizing
+    stops = {t: smith_ticket.stop_pct_from_atr((c or {}).get("atr_pct"))
+             for t, c in (conviction_by_ticker or {}).items()}
+    return smith_ticket.sizing_context(total_book, policy, stops)
+
+
+def _apply_pair_notes(row, sold):
+    """Blockers a paired row must carry so the strategist reads WHY a leg is what it is."""
+    row.setdefault("blockers", [])
+    sell = sold["res"]
+    if sell["vote_hint"] == "below_materiality":
+        row["blockers"].append("sell leg: " + sell["sizing_note"].split("; ")[-1])
+    if row.get("materiality_legs_below"):
+        row["blockers"].append(
+            f"below materiality ({'+'.join(row['materiality_legs_below'])} leg): the pair is emitted "
+            f"but not proposed -- short by ${row['materiality_shortfall_usd']:,.2f}. Not shrunk to the "
+            f"floor and not dropped: this is what a ticket too small to act on looks like.")
+    rr = row.get("rotation_risk") or {}
+    freed = rr.get("r_freed_usd") or 0.0
+    if freed and abs(rr.get("heat_delta_final_usd") or 0.0) > 0.05 * freed:
+        row["blockers"].append(
+            f"not risk-flat: the sell frees ${freed:,.2f} of risk and the buy re-takes "
+            f"${rr['buy_risk_final_usd']:,.2f} (bound by {rr.get('bound_by')}); the difference goes to "
+            f"cash, not into the book")
+    return row
+
+
+def _cluster_room_for(cluster_rows, cluster):
+    """Standing cluster-ceiling room in dollars for `cluster` (cmd_drift's cluster_room_usd), or
+    None when the cluster is unknown / has no policy band -- clamp_size treats None as
+    non-binding ("unknown != a reason to block"). Every buy site passes THIS instead of a bare
+    None: clamp_size promised "never push a cluster over its ceiling" and four of its six call
+    sites never enforced it."""
+    if not cluster or not cluster_rows:
+        return None
+    return (cluster_rows.get(cluster) or {}).get("cluster_room_usd")
+
+
+def _buy_leg_verdict(size, ticker, sizing):
+    """Materiality verdict for a BUY of `size` dollars, or None when it is not a ticket."""
+    stop = (sizing["stop_pct_by_ticker"] or {}).get(ticker)
+    if not size or not stop or not sizing["r_base_usd"]:
+        return None
+    fee = size * sizing["fee_pct"] / 100.0
+    return smith_ticket.materiality(size, stop, sizing["total_book_usd"], sizing["r_base_usd"],
+                                    fee, sizing["materiality"])
+
+
+def _apply_buy_materiality(row, sizing, size_key="suggested_size_usd"):
+    """Attach a materiality verdict to a single-leg BUY row -- ANNOTATE ONLY, never demote.
+
+    Sells and rotation legs are demoted to vote "below_materiality" (that is the $56 fix). A
+    single-leg buy is deliberately NOT: the desk's standing complaint is zero fresh buy ideas while
+    cash sits above its band, most single-leg buys are FIRST TRANCHES (smith_conviction's
+    STAGE_FRACTION 0.5) that sit just under the floor by construction (AMAT's $504.51 tranche vs a
+    $543 floor on the live 2026-09-20 run), and the floors are still unconfirmed. Demoting them
+    would cure the small-ticket problem by deepening the buy drought. So the verdict rides along in
+    `materiality` / `materiality_shortfall_usd` with an advisory blocker, and the vote is
+    untouched until the user signs the floors and decides buys should be held to them."""
+    m = _buy_leg_verdict(row.get(size_key), row.get("ticker"), sizing)
+    if m is None:
+        return row
+    row["materiality"] = _compact_materiality(m)
+    if not m["ok"]:
+        row["materiality_shortfall_usd"] = m["shortfall_usd"]
+        row.setdefault("blockers", []).append(
+            f"below the materiality floor (advisory for single-leg buys): ${row[size_key]:,.2f} vs "
+            f"${m['floor_usd']:,.2f} ({m['binding_term']}); vote unchanged -- buys are annotated, not "
+            f"demoted, until the floors are confirmed")
+    return row
+
+
+def _rotation_buy_leg(sell_size, sell_ticker, buy_t, buy_conv, buy_r_ticket, cluster_room, sizing):
+    """Risk-conserving buy leg of a rotation: smith_ticket.rotation_legs, then every existing
+    clamp, with the binding constraint NAMED. Returns (size, clamped_by, legs)."""
+    st = sizing["stop_pct_by_ticker"] or {}
+    legs = smith_ticket.rotation_legs(sell_size, st.get(sell_ticker), buy_r_ticket, st.get(buy_t))
+    size, clamped_by = smith_conviction.clamp_size(legs["buy_size_usd"], buy_conv["headroom_usd"],
+                                                   cluster_room, None)
+    if clamped_by is None and size and size < legs["buy_uncapped_usd"] - 0.01:
+        clamped_by = ("buy R_ticket (its own conviction tranche)" if legs["bound_by"] == "buy_r_ticket"
+                      else "risk freed by the sell leg")
+    elif clamped_by is None and size and legs["bound_by"] == "r_freed":
+        clamped_by = "risk freed by the sell leg"
+    legs = dict(legs, buy_size_final_usd=size,
+                buy_risk_final_usd=round((size or 0.0) * (st.get(buy_t) or 0.0) / 100.0, 2))
+    legs["heat_delta_final_usd"] = round(legs["buy_risk_final_usd"] - legs["r_freed_usd"], 2)
+    return size, clamped_by, legs
+
+
+def _pair_verdict(row, sell_res, buy_size, buy_ticker, sizing):
+    """Pair-level materiality: BOTH legs must be tickets worth taking. Either leg sub-floor demotes
+    a LIVE pair together (the legs retire together, so they may not vote separately)."""
+    bm = _buy_leg_verdict(buy_size, buy_ticker, sizing)
+    row["buy_leg"]["materiality"] = _compact_materiality(bm)
+    row["sell_leg"]["materiality"] = _compact_materiality(sell_res["res"]["materiality"])
+    short = []
+    if sell_res["res"]["vote_hint"] == "below_materiality":
+        short.append(("sell", (sell_res["res"]["materiality"] or {}).get("shortfall_usd")))
+    if bm is not None and not bm["ok"]:
+        short.append(("buy", bm["shortfall_usd"]))
+    if not short:
+        return row
+    row["materiality_shortfall_usd"] = max((v or 0.0) for _, v in short)
+    row["materiality_legs_below"] = [k for k, _ in short]
+    if row.get("vote") == "live":
+        row["vote"] = "below_materiality"
+    return row
+
+
 def _trigger_oversold_reversion(base, ticker, status, healthy, rsi_usable, rsi, over_cap,
                                  headroom, max_single, fundamental_headwind, oversold, dq):
     """Section A: oversold_reversion (BUY, live)."""
@@ -2729,14 +2901,18 @@ def _trigger_oversold_reversion(base, ticker, status, healthy, rsi_usable, rsi, 
 
 def _trigger_overbought_distribution(base, ticker, rsi_usable, rsi, rel_usable, abs_pct, mv,
                                      sector_map, cluster_rows, rel_vals, risk_by_ticker, thesis,
-                                     overbought):
+                                     overbought, sizing=None):
     """Section B: overbought_distribution (TRIM, live). Deliberately INDEPENDENT of over_cap:
     booking profit on a name that ran is the point, and gating it on a risk-cap breach is
-    precisely what made every trim an ATR trim."""
+    precisely what made every trim an ATR trim.
+
+    SIZED IN RISK (2026-09-20): SEVERITY_R["overbought_distribution"] x R_base / stop, not a
+    quarter of market value -- see smith_core's SEVERITY_R block."""
+    sizing = sizing or _no_sizing()
     if rsi_usable and rsi is not None and rsi > RSI_OVERBOUGHT:
         genuinely_up = (abs_pct is not None and abs_pct > 0) if rel_usable else None
         if genuinely_up is not False:
-            size = mv * OVERBOUGHT_TRIM_FRACTION
+            sized = _size_sell("overbought_distribution", ticker, mv, sizing)
             reasons = [f"RSI14 {rsi:.1f} > {RSI_OVERBOUGHT:g} (overbought)"]
             if genuinely_up:
                 reasons.append(f"up {abs_pct:+.1f}% on the month -- real gain to protect")
@@ -2794,17 +2970,16 @@ def _trigger_overbought_distribution(base, ticker, rsi_usable, rsi, rel_usable, 
                                     f"So the real choice is trim-anyway and accept a deeper "
                                     f"underweight, or leave it -- there is no third option this "
                                     f"run. Do not go looking for one.")
-            overbought.append({**base, "trigger_type": "overbought_distribution",
+            overbought.append(_apply_sell_verdict({**base, "trigger_type": "overbought_distribution",
                                "direction": "TRIM", "vote": "live",
-                               "suggested_size_usd": round(size, 2),
-                               "trim_fraction": OVERBOUGHT_TRIM_FRACTION,
+                               **sized["fields"],
                                "over_cap_independent": True,
                                "cluster_tension": cluster_tension,
                                "cluster_drift_pt": cl_drift,
                                "rotation_targets": rotation_targets,
                                "retires_when": f"{ticker} RSI14 falls below {RSI_OVERBOUGHT_EXIT:g} "
                                                "or it is no longer up on the month",
-                               "reasons": reasons, "blockers": blockers})
+                               "reasons": reasons, "blockers": blockers}, sized))
 
 
 def _trigger_laggard_rotation(base, ticker, rel_usable, laggard_set, healthy, over_cap, headroom,
@@ -2831,13 +3006,17 @@ def _trigger_laggard_rotation(base, ticker, rel_usable, laggard_set, healthy, ov
 
 
 def _trigger_catalyst_threat(base, ticker, mv, catalyst_threats_by_ticker, rotation_by_ticker,
-                             status, catalyst_threat):
+                             status, catalyst_threat, sizing=None):
     """Section F: catalyst_threat (TRIM, live). Deliberately independent of over_cap/cluster/cash,
     same discipline as overbought_distribution -- a structural threat is a reason to trim on its
-    own, not something that should wait for a volatility-budget breach to also be true."""
+    own, not something that should wait for a volatility-budget breach to also be true.
+
+    SIZED IN RISK (2026-09-20): SEVERITY_R["catalyst_threat"]. The $37.58 SKHY trim this used to
+    emit on a $188 stub is now a full exit or nothing (smith_ticket.exit_or_hold)."""
+    sizing = sizing or _no_sizing()
     cats = catalyst_threats_by_ticker.get(ticker)
     if cats:
-        size = mv * CATALYST_THREAT_TRIM_FRACTION
+        sized = _size_sell("catalyst_threat", ticker, mv, sizing)
         # A carried-forward catalyst is labelled as such in the reason line (2026-09-08).
         # It is NOT downweighted: a structural threat that no one re-reported this week is
         # still a structural threat -- the label exists so the strategist can see the
@@ -2862,30 +3041,34 @@ def _trigger_catalyst_threat(base, ticker, mv, catalyst_threats_by_ticker, rotat
                             "operating fundamentals); this does not cancel the trigger, but "
                             "size and priority are a judgement call, not a formula")
         read_through = sorted({p for c in cats for p in (c.get("read_through") or [])})
-        catalyst_threat.append({**base, "trigger_type": "catalyst_threat", "direction": "TRIM",
+        catalyst_threat.append(_apply_sell_verdict({**base, "trigger_type": "catalyst_threat", "direction": "TRIM",
                                 "vote": "live",
                                 # which EVENT(s) drive this row -- the dashboard groups by event,
                                 # so three events read as three lines, not ten trims
                                 "events": [f"{c.get('headline', '')[:90]} ({c.get('date', '')})" for c in cats],
                                 "read_through": read_through,
-                                "suggested_size_usd": round(size, 2),
-                                "trim_fraction": CATALYST_THREAT_TRIM_FRACTION,
+                                **sized["fields"],
                                 "over_cap_independent": True,
                                 "catalyst_sources": [c.get("source") for c in cats],
                                 "retires_when": f"{ticker} no longer appears in a "
                                                 "structural-threat factor catalyst",
-                                "reasons": reasons, "blockers": blockers})
+                                "reasons": reasons, "blockers": blockers}, sized))
 
 
-def _trigger_thesis_break(base, ticker, status, mv, thesis, thesis_break):
+def _trigger_thesis_break(base, ticker, status, mv, thesis, thesis_break, sizing=None):
     """Section G: thesis_break (TRIM, live). A broken thesis has nothing to do with cost basis,
     so this is its own top-level check, not chained onto the ratchet/ladder logic -- it must
     fire even when lots.json has no entry for this ticker. LIVE from day one; see the
-    constants-file note (smith_core.py's CATALYST_THREAT_TRIM_FRACTION docstring)."""
+    constants-file note (the "why live from day one" comment in smith_core.py above
+    FUNDAMENTAL_HEADWIND_BUCKETS).
+
+    SIZED IN RISK (2026-09-20): SEVERITY_R["thesis_break"] = 2R, which on most names clamps to the
+    whole position -- a confirmed break is usually a full exit, and now says so."""
+    sizing = sizing or _no_sizing()
     if status == "broken":
         ev_for, ev_against, verified = smith_risk.thesis_evidence(thesis.get(ticker))
         thesis_line = smith_risk.thesis_text(thesis.get(ticker))
-        size = mv * THESIS_BREAK_TRIM_FRACTION
+        sized = _size_sell("thesis_break", ticker, mv, sizing)
         reasons = ([thesis_line] if thesis_line else []) + \
                   [f"broken -- {c.get('claim', '')} ({c.get('date', '')}, {c.get('source', '')})"
                    for c in (ev_against or [])[:3]]
@@ -2894,21 +3077,24 @@ def _trigger_thesis_break(base, ticker, status, mv, thesis, thesis_break):
             blockers.append(f"{ticker} marked broken with no evidence_against recorded -- "
                             "sizing proceeds anyway (a status flip is itself the signal) but "
                             "flag for the next smith-thesis touch to backfill the evidence")
-        thesis_break.append({**base, "trigger_type": "thesis_break", "direction": "TRIM",
+        thesis_break.append(_apply_sell_verdict({**base, "trigger_type": "thesis_break", "direction": "TRIM",
                              "vote": "live",
-                             "suggested_size_usd": round(size, 2),
-                             "trim_fraction": THESIS_BREAK_TRIM_FRACTION,
+                             **sized["fields"],
                              "over_cap_independent": True,
                              "evidence_verified": verified,
                              "retires_when": f"{ticker}'s thesis is no longer 'broken'",
-                             "reasons": reasons, "blockers": blockers})
+                             "reasons": reasons, "blockers": blockers}, sized))
 
 
 def _trigger_ratchet_and_ladder(base, ticker, r, mv, price, rsi, lots, laggard_set, ratchet,
-                                ladder, dq):
+                                ladder, dq, sizing=None):
     """Sections D/E: profit_ratchet + scale_out_ladder (both shadow). Share the same avg-cost
     precompute, so extracted as one function rather than two -- forcing them apart would mean
-    computing avg_cost/priced_qty/unpriced_qty twice for no benefit."""
+    computing avg_cost/priced_qty/unpriced_qty twice for no benefit.
+
+    Each ladder rung sells SEVERITY_R["scale_out_ladder"] of risk (was a third of market value per
+    rung); every rung is the same size because the risk it removes is the same."""
+    sizing = sizing or _no_sizing()
     avg_cost, priced_qty, unpriced_qty = _avg_cost_from_lots(lots.get(ticker))
     if avg_cost and price:
         gain_pct = (price - avg_cost) / avg_cost * 100.0
@@ -2926,20 +3112,23 @@ def _trigger_ratchet_and_ladder(base, ticker, r, mv, price, rsi, lots, laggard_s
                                         f"stop sits at ${stop:,.2f}, BELOW breakeven -- a "
                                         "retracement turns this winner into a realised loss"],
                             "blockers": basis_note})
+        sized = _size_sell("scale_out_ladder", ticker, mv, sizing)
+        legacy_slice = round(mv * LEGACY_SELL_FRACTION["scale_out_ladder"], 2)
         tiers = [{"gain_pct": t, "triggered": gain_pct >= t,
-                  "slice_usd": round(mv * LADDER_FRACTION, 2)} for t in LADDER_TIERS_PCT]
+                  "slice_usd": sized["fields"]["suggested_size_usd"],
+                  "legacy_slice_usd": legacy_slice} for t in LADDER_TIERS_PCT]
         if any(t["triggered"] for t in tiers):
             hit = [t for t in tiers if t["triggered"]]
             rungs = ", ".join("+%g%%" % t["gain_pct"] for t in hit)
-            ladder.append({**base, "trigger_type": "scale_out_ladder", "direction": "TRIM",
+            ladder.append(_apply_sell_verdict({**base, "trigger_type": "scale_out_ladder", "direction": "TRIM",
                            "vote": "shadow",
                            "avg_cost_usd": round(avg_cost, 4), "gain_pct": round(gain_pct, 2),
                            "tiers": tiers,
-                           "suggested_size_usd": hit[-1]["slice_usd"],
+                           **sized["fields"],
                            "reasons": [f"up {gain_pct:+.1f}% vs basis -- "
                                        f"{len(hit)} of {len(tiers)} scale-out rung(s) reached "
                                        f"({rungs})"],
-                           "blockers": basis_note})
+                           "blockers": list(basis_note)}, sized))
     elif ticker in laggard_set or (rsi is not None and rsi > RSI_OVERBOUGHT):
         if not lots.get(ticker):
             dq.append(f"{ticker} has no lots.json entry -- profit_ratchet/scale_out_ladder "
@@ -2950,14 +3139,20 @@ def _trigger_conviction_held(base, ticker, r, mv, price, rsi, rel_pp, rsi_usable
                              over_cap, headroom, thesis, signal_history, atr_vals, total_book,
                              policy, deployable_for_ideas, build_ctx, conviction_by_ticker,
                              catalyst_threats_by_ticker, lots, trend_entry, trend_breakdown,
-                             conviction_average, conviction_exit, dq):
+                             conviction_average, conviction_exit, dq, sizing=None, cluster_rows=None):
     """Sections H/I/J/K: the four conviction-driven triggers on currently-HELD tickers (added
     2026-08-24). Kept as one function, not four -- all of H/I/J/K share the SAME conv/ctx/
     buckets/polarity computed once per ticker, and splitting them apart would mean either
     recomputing that shared state four times or threading it through four call sites, neither
     of which is safer than the original single pass. Also populates conviction_by_ticker,
     consumed later by the O/P rotation-pairing pass -- that population must happen here
-    regardless of which of H/I/J/K (if any) actually fires."""
+    regardless of which of H/I/J/K (if any) actually fires.
+
+    2026-09-20: trend_breakdown / conviction_exit sell in RISK (SEVERITY_R), and the two buys
+    (trend_entry / conviction_average) now pass their cluster's REAL ceiling room to clamp_size
+    instead of None."""
+    sizing = sizing or _no_sizing()
+    cluster_room = _cluster_room_for(cluster_rows, r.get("cluster"))
     buckets = signal_history.get(ticker) or []
     ctx = build_ctx(ticker, thesis.get(ticker), buckets, price, rsi, rel_pp, ticker)
     conv = smith_conviction.score_conviction(ctx)
@@ -2978,7 +3173,7 @@ def _trigger_conviction_held(base, ticker, r, mv, price, rsi, rel_pp, rsi_usable
                 if atr_pct and price else None)
         target, wanted = ((None, None) if not pmax else
                           smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"]))
-        size_final, clamped_by = smith_conviction.clamp_size(wanted, headroom, None, deployable_for_ideas)
+        size_final, clamped_by = smith_conviction.clamp_size(wanted, headroom, cluster_room, deployable_for_ideas)
         trend_entry.append({**base, "trigger_type": "trend_entry", "direction": "BUY", "vote": "live",
                            "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
                            "size_wanted_usd": wanted, "suggested_size_usd": size_final, "clamped_by": clamped_by,
@@ -2989,12 +3184,12 @@ def _trigger_conviction_held(base, ticker, r, mv, price, rsi, rel_pp, rsi_usable
     # --- I. trend_breakdown (TRIM/SELL, live) -- price falling + thesis weak -> exit the
     # breakdown. Mirror of H on the bearish side.
     if not healthy and {"BREAKDOWN", "STRONG DOWNTREND"} & set(buckets):
-        size = mv * 0.30
-        trend_breakdown.append({**base, "trigger_type": "trend_breakdown", "direction": "TRIM", "vote": "live",
+        sized = _size_sell("trend_breakdown", ticker, mv, sizing)
+        trend_breakdown.append(_apply_sell_verdict({**base, "trigger_type": "trend_breakdown", "direction": "TRIM", "vote": "live",
                                "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
-                               "suggested_size_usd": round(size, 2), "over_cap_independent": True,
+                               **sized["fields"], "over_cap_independent": True,
                                "retires_when": f"{ticker} no longer carries BREAKDOWN/STRONG DOWNTREND or thesis recovers",
-                               "reasons": conv["conviction_reasons"], "blockers": []})
+                               "reasons": conv["conviction_reasons"], "blockers": []}, sized))
 
     # --- J. conviction_average (BUY, live) -- ORGANISING RULE: price lagging/fallen + thesis
     # strong -> average down. Requires the BLENDED entry to stay ABOVE the current stop --
@@ -3028,7 +3223,7 @@ def _trigger_conviction_held(base, ticker, r, mv, price, rsi, rel_pp, rsi_usable
         if avg_cost_h and priced_qty_h and stop_now is not None and price < avg_cost_h:
             pmax = smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy)
             target, wanted = smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"])
-            size_final, clamped_by = smith_conviction.clamp_size(wanted, headroom, None, deployable_for_ideas)
+            size_final, clamped_by = smith_conviction.clamp_size(wanted, headroom, cluster_room, deployable_for_ideas)
             add_qty = (size_final / price) if (size_final and price) else 0.0
             blended = ((avg_cost_h * priced_qty_h) + (price * add_qty)) / (priced_qty_h + add_qty) if add_qty else avg_cost_h
             if blended > stop_now:
@@ -3061,20 +3256,22 @@ def _trigger_conviction_held(base, ticker, r, mv, price, rsi, rel_pp, rsi_usable
         1 if (rsi_usable and rsi is not None and rsi > RSI_OVERBOUGHT and polarity["net"] <= 0) else 0,
     ])
     if smith_conviction.convergence_exit_score(neg_count) and not over_cap:
-        size = mv * 0.50  # convergence of negatives is the strongest sell signal this engine has
+        # convergence of negatives is the strongest sell signal this engine has -> the heaviest rung
+        # of SEVERITY_R (2R, which for most names clamps to the whole position)
+        sized = _size_sell("conviction_exit", ticker, mv, sizing)
         reasons = list(conv["conviction_reasons"])
         reasons.insert(0, f"{neg_count} independent negative signals converged (thesis/catalyst/trend/technical)")
-        conviction_exit.append({**base, "trigger_type": "conviction_exit", "direction": "SELL", "vote": "live",
+        conviction_exit.append(_apply_sell_verdict({**base, "trigger_type": "conviction_exit", "direction": "SELL", "vote": "live",
                                "conviction_score": conv["conviction_score"], "negative_signal_count": neg_count,
-                               "suggested_size_usd": round(size, 2), "over_cap_independent": True,
+                               **sized["fields"], "over_cap_independent": True,
                                "retires_when": f"fewer than 3 of {ticker}'s independent negative signals remain",
-                               "reasons": reasons, "blockers": []})
+                               "reasons": reasons, "blockers": []}, sized))
 
 
 def _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_history, thesis,
                               factor_catalysts, earnings_facts, mention_counts, track_record_for,
                               atr_vals, sector_map, entry_setup, total_book=None, policy=None,
-                              deployable_for_ideas=None):
+                              deployable_for_ideas=None, market_prices=None, cluster_rows=None):
     """Section L: entry_setup (BUY) -- smith-watchlist's setups, persisted to state.json
     this run for the first time (previously had NO code path into proposals at all -- 9 setups
     found on 2026-08-24, 1 reached a proposal, hand-written narrative only).
@@ -3091,7 +3288,14 @@ def _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_hi
     floor by 0.6-0.8 points on valuation + RSI alone. Sizing them live would cure the buy
     drought by lowering quality. A setup with no state.thesis entry therefore votes `shadow`
     (logged, never a ticket) with a blocker naming the missing thesis, until smith-thesis has
-    actually examined the name."""
+    actually examined the name.
+
+    PRICE (2026-09-20, Phase 2 prerequisite). Setup rows carry no price, and the four candidates
+    were in NEITHER live_quotes.json nor bars.json, so the sizing above stayed inert on the live
+    run. smith_fetch now fetches candidate names; this reads `market_prices` (live quote, else the
+    last daily close) when the row lacks `price_usd`. A price is NEVER back-derived from an
+    analyst target and an upside percentage -- that would invent the input the sizing depends on."""
+    market_prices = market_prices or {}
     for row in watchlist_setups:
         ticker = row.get("ticker")
         if not ticker or ticker in risk_by_ticker:
@@ -3116,17 +3320,23 @@ def _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_hi
             continue
         atr_pct = atr_vals.get(ticker)
         price = row.get("price_usd")
+        price_source = "setup_row" if price else None
+        if not price and market_prices.get(ticker):
+            price, price_source = market_prices[ticker]["price"], market_prices[ticker]["source"]
         blockers = []
         if not atr_pct:
             blockers.append(f"no live ATR for {ticker} this run -- setup valid, sizing needs a fetch")
         if not price:
-            blockers.append(f"no price_usd on {ticker}'s watchlist setup row -- sizing needs a live price")
+            blockers.append(f"no price_usd on {ticker}'s watchlist setup row and none in "
+                            "live_quotes.json/bars.json -- sizing needs a fetched price")
         pmax = (smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy)
                 if (atr_pct and price) else None)
         target, wanted = ((None, None) if not pmax else
                           smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"]))
         size_final, clamped_by = ((None, None) if wanted is None else
-                                  smith_conviction.clamp_size(wanted, None, None, deployable_for_ideas))
+                                  smith_conviction.clamp_size(
+                                      wanted, None, _cluster_room_for(cluster_rows, sector_map.get(ticker)),
+                                      deployable_for_ideas))
         vote = "live"
         if thesis.get(ticker) is None:
             vote = "shadow"
@@ -3134,7 +3344,7 @@ def _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_hi
                             "on valuation + RSI alone; smith-thesis must examine it first")
         entry_setup.append({"ticker": ticker, "cluster": sector_map.get(ticker), "thesis_status": conv["thesis_status"],
                             "watchlist_type": row.get("type"), "upside_pct": row.get("upside_pct"),
-                            "price_usd": price,
+                            "price_usd": price, "price_source": price_source,
                             "trigger_type": "entry_setup", "direction": "BUY", "vote": vote,
                             "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
                             "size_wanted_usd": wanted, "suggested_size_usd": size_final, "clamped_by": clamped_by,
@@ -3147,7 +3357,7 @@ def _trigger_reentry_scan(trades, recently_exited, signal_history, thesis, facto
                           earnings_facts, upside_pct_for, rsi_vals, rsi_usable, rel_vals,
                           rel_usable, mention_counts, track_record_for, atr_vals, total_book,
                           policy, deployable_for_ideas, sector_map, reentry, reentry_no_thesis,
-                          reentry_judged_out):
+                          reentry_judged_out, cluster_rows=None):
     """Section M: reentry (BUY, live) -- the direct fix for "an exited name has no headroom row,
     so the engine sizes its re-entry at $0": recently_exited tickers, priced from the last known
     fill (trades.json), sized via policy_max_position_usd at qty=0 (works for unheld names by
@@ -3183,7 +3393,8 @@ def _trigger_reentry_scan(trades, recently_exited, signal_history, thesis, facto
         pmax = smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy) if (atr_pct and price) else None
         target, wanted = ((None, None) if not pmax else
                           smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"]))
-        size_final, clamped_by = smith_conviction.clamp_size(wanted, None, None, deployable_for_ideas)
+        size_final, clamped_by = smith_conviction.clamp_size(
+            wanted, None, _cluster_room_for(cluster_rows, sector_map.get(ticker)), deployable_for_ideas)
         reentry.append({"ticker": ticker, "cluster": sector_map.get(ticker), "thesis_status": conv["thesis_status"],
                         "exited_on": exit_date.isoformat(), "price_usd": price,
                         "trigger_type": "reentry", "direction": "BUY", "vote": "live",
@@ -3198,7 +3409,8 @@ def _trigger_reentry_scan(trades, recently_exited, signal_history, thesis, facto
 
 def _trigger_bench_diversifier_scan(diversifier_candidates, risk_by_ticker, state, mention_counts,
                                     track_record_for, atr_vals, total_book, policy,
-                                    deployable_for_ideas, bench_diversifier):
+                                    deployable_for_ideas, bench_diversifier, market_prices=None,
+                                    cluster_rows=None, sector_map=None):
     """Section N: bench_diversifier (BUY, live) -- smith-scout's diversifier bench, sized for the
     first time. VST's 63.9% modelled upside had never once been referenced by any proposal.
     Honest limit: these names carry no thesis, no factor_catalysts, and no pos/RSI proxy in
@@ -3212,7 +3424,7 @@ def _trigger_bench_diversifier_scan(diversifier_candidates, risk_by_ticker, stat
             continue
         if smith_risk.is_watchlist_suppressed(state, ticker):
             continue  # shares the watchlist suppression list -- see smith_risk's reader
-        price = dv.get("price_usd")
+        price = dv.get("price_usd") or ((market_prices or {}).get(ticker) or {}).get("price")
         # buckets stays [] genuinely -- these names carry no signal history in this book (see
         # the comment above), so track_record_for([]) correctly returns None rather than
         # faking a bucket to look up. Wired for consistency with the other 8 triggers rather
@@ -3229,7 +3441,12 @@ def _trigger_bench_diversifier_scan(diversifier_candidates, risk_by_ticker, stat
         pmax = smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy) if (atr_pct and price) else None
         target, wanted = ((None, None) if not pmax else
                           smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"]))
-        size_final, clamped_by = smith_conviction.clamp_size(wanted, None, None, deployable_for_ideas)
+        # A clean diversifier is by definition outside the AI-capex clusters, so it usually has no
+        # sector_map entry and therefore no ceiling to breach -- None is the honest answer there;
+        # if the name HAS been classified into a banded cluster the real room is passed.
+        size_final, clamped_by = smith_conviction.clamp_size(
+            wanted, None, _cluster_room_for(cluster_rows, (sector_map or {}).get(ticker)),
+            deployable_for_ideas)
         bench_diversifier.append({"ticker": ticker, "cluster": None, "thesis_status": None,
                                   "price_usd": price, "trigger_type": "bench_diversifier", "direction": "BUY",
                                   "vote": "live", "conviction_score": conv["conviction_score"],
@@ -3265,7 +3482,7 @@ def _pair_cluster_room_usd(cluster_rows, sell_cluster, buy_cluster, sell_size):
 
 
 def _trigger_cluster_bench_rotation(cluster_ladders, conviction_by_ticker, thesis,
-                                    risk_by_ticker, today, cluster_bench_rotation):
+                                    risk_by_ticker, today, cluster_bench_rotation, sizing=None):
     """Section Q: cluster_bench_rotation (PAIRED, SHADOW). Sell the ladder's laggard, buy a name
     the book does NOT own.
 
@@ -3282,7 +3499,11 @@ def _trigger_cluster_bench_rotation(cluster_ladders, conviction_by_ticker, thesi
     The SELL leg still has to clear the same bars as a live rotation: fresh ladder, real
     authority, held, not over cap, and a thesis the authority level permits selling. A shadow
     vote is not a licence to relax the sell side; the shadow-ness is entirely about the buy.
+
+    The sell leg is risk-sized (SEVERITY_R["cluster_bench_rotation"]); the buy stays unsized (a
+    never-held name has no ticket until it earns a vote).
     """
+    sizing = _pair_sizing(sizing, 0.0, {}, conviction_by_ticker)
     for cluster, entry in (cluster_ladders or {}).items():
         bench = [b for b in (entry.get("bench") or []) if isinstance(b, dict) and b.get("ticker")]
         if not bench:
@@ -3304,13 +3525,14 @@ def _trigger_cluster_bench_rotation(cluster_ladders, conviction_by_ticker, thesi
             continue
         buy_t = cand["ticker"]
         sell_mv = conviction_by_ticker[sell_t]["market_value_usd"]
-        sell_size = round(sell_mv * 0.30, 2)
-        cluster_bench_rotation.append({
+        sold = _size_sell("cluster_bench_rotation", sell_t, sell_mv, sizing)
+        sell_size = sold["fields"]["suggested_size_usd"]
+        row = {
             "pair_id": f"cluster_bench_rotation-{sell_t}-{buy_t}",
             "trigger_type": "cluster_bench_rotation", "vote": "shadow", "cluster": cluster,
             "ladder_as_of": entry.get("as_of"), "ladder_confidence": eff_conf,
             "ladder_authority": authority,
-            "sell_leg": {"ticker": sell_t, "direction": "SELL", "suggested_size_usd": sell_size,
+            "sell_leg": {"ticker": sell_t, "direction": "SELL", **sold["fields"],
                          "reasons": [picked[2]]},
             "buy_leg": {"ticker": buy_t, "direction": "BUY", "suggested_size_usd": None,
                         "price_usd": cand.get("price_usd"),
@@ -3320,11 +3542,13 @@ def _trigger_cluster_bench_rotation(cluster_ladders, conviction_by_ticker, thesi
                                      "journal history and no thesis entry. Scored at 7/30d before "
                                      "it can be sized."]},
             "retires_when": (f"EITHER {cluster}'s ladder drops {buy_t} from its bench "
-                             f"OR {sell_t} leaves the bottom of that ladder")})
+                             f"OR {sell_t} leaves the bottom of that ladder")}
+        row["sell_leg"]["materiality"] = _compact_materiality(sold["res"]["materiality"])
+        cluster_bench_rotation.append(row)
 
 
 def _trigger_cluster_consolidation(cluster_ladders, conviction_by_ticker, risk_by_ticker,
-                                   today, cluster_consolidation):
+                                   today, cluster_consolidation, sizing=None, cluster_rows=None):
     """Section R: cluster_consolidation (PAIRED, SHADOW). Two holdings that are ONE bet -- same
     customer, same product, same process step -- collapsed into the better of the two.
 
@@ -3337,7 +3561,12 @@ def _trigger_cluster_consolidation(cluster_ladders, conviction_by_ticker, risk_b
 
     Only acts on pairs the agent explicitly marked `verdict: "redundant"`. A candidate the agent
     looked at and called `distinct` is a judgment already made, not an unanswered question.
+
+    The sell leg stays a FULL EXIT of the dropped name (no severity: consolidation is not a trim).
+    The buy leg is now risk-conserving (smith_ticket.rotation_legs) rather than dollar-matched, and
+    passes the kept name's ATR headroom and cluster room through clamp_size.
     """
+    sizing = _pair_sizing(sizing, 0.0, {}, conviction_by_ticker)
     for cluster, entry in (cluster_ladders or {}).items():
         authority, eff_conf, _ = smith_risk.ladder_authority(
             entry, today, ttl_days=LADDER_TTL_DAYS, min_scored=LADDER_MIN_SCORED_CALLS)
@@ -3360,35 +3589,55 @@ def _trigger_cluster_consolidation(cluster_ladders, conviction_by_ticker, risk_b
             if conviction_by_ticker[keep]["over_cap"]:
                 continue
             drop_mv = conviction_by_ticker[drop]["market_value_usd"]
-            cluster_consolidation.append({
+            st = sizing["stop_pct_by_ticker"] or {}
+            keep_conv = conviction_by_ticker[keep]
+            room = _pair_cluster_room_usd(cluster_rows, conviction_by_ticker[drop]["cluster"],
+                                          keep_conv["cluster"], drop_mv)
+            buy_size, buy_clamped, legs = _rotation_buy_leg(drop_mv, drop, keep, keep_conv, None, room, sizing)
+            drop_risk = round(drop_mv * (st.get(drop) or 0.0) / 100.0, 2) if st.get(drop) else None
+            row = ({
                 "pair_id": f"cluster_consolidation-{drop}-{keep}",
                 "trigger_type": "cluster_consolidation", "vote": "shadow", "cluster": cluster,
                 "ladder_as_of": entry.get("as_of"), "ladder_confidence": eff_conf,
                 "ladder_authority": authority,
                 "sell_leg": {"ticker": drop, "direction": "SELL",
                              "suggested_size_usd": round(drop_mv, 2),
+                             "legacy_size_usd": round(drop_mv, 2), "sell_action": "full_exit",
+                             "risk_removed_usd": drop_risk,
                              "market_value_usd": round(drop_mv, 2),
                              "reasons": [f"same bet as {keep}: {rp.get('same_bet_because') or 'agent verdict'}"]},
                 "buy_leg": {"ticker": keep, "direction": "BUY",
-                            "suggested_size_usd": round(drop_mv, 2),
+                            "suggested_size_usd": buy_size, "clamped_by": buy_clamped,
+                            "legacy_size_usd": round(drop_mv, 2),
                             "reasons": [f"the better expression of the {cluster} bet {keep} and "
                                         f"{drop} both make"],
                             "blockers": ["SHADOW -- 'same bet' is a business judgment with no "
                                          "numeric proof available here; the script can only "
                                          "screen for resemblance, never for cause."]},
+                "rotation_risk": legs,
                 "retires_when": (f"EITHER {cluster}'s ladder stops calling {keep}/{drop} "
                                  f"redundant OR that ladder goes stale")})
+            row["buy_leg"]["materiality"] = _compact_materiality(_buy_leg_verdict(buy_size, keep, sizing))
+            cluster_consolidation.append(row)
 
 
 def _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, total_book, policy,
-                             profit_rotation, cluster_rows=None):
+                             profit_rotation, cluster_rows=None, sizing=None):
     """Section O: profit_rotation (PAIRED, live). ORGANISING RULE -- sell an EXTENDED name whose
     thesis is WEAK (book profit), buy a LAGGARD whose thesis is STRONG (yet to rally). This is
     "sell what ran, buy what hasn't", scoped by thesis so it never contradicts cluster_rotation.
     One row per rotation idea, never two independently-scored legs -- 19 rotation pairs were
     attempted all-time before this and 0 survived, because the old pairing scored each leg
     separately and one half died. Both legs retire TOGETHER (see cmd_proposals's paired
-    retirement rule)."""
+    retirement rule).
+
+    RISK-SIZED (2026-09-20). The sell leg removes SEVERITY_R["profit_rotation"] of risk; the buy
+    leg is what that risk buys in the LAGGARD (smith_ticket.rotation_legs), capped by the laggard's
+    own conviction ticket and then by every existing clamp, with the binding one named in
+    `clamped_by`. `rotation_risk` on the row reports risk freed / redeployed / left over, so a
+    rotation that quietly de-risks (its buy ticket is smaller than the risk freed) says so instead
+    of looking flat."""
+    sizing = _pair_sizing(sizing, total_book, policy, conviction_by_ticker)
     sell_candidates = [t for t in names_stretched if t in conviction_by_ticker
                        and smith_risk.thesis_status(thesis.get(t)) == "watch"
                        and not conviction_by_ticker[t]["over_cap"]]
@@ -3406,7 +3655,9 @@ def _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, tota
         used_buys.add(buy_t)
         pair_id = f"profit_rotation-{sell_t}-{buy_t}"
         sell_mv = conviction_by_ticker[sell_t]["market_value_usd"]
-        sell_size = round(sell_mv * 0.30, 2)
+        sold = _size_sell("profit_rotation", sell_t, sell_mv, sizing)
+        sell_size = sold["fields"]["suggested_size_usd"] or 0.0
+        legacy_sell = sold["fields"]["legacy_size_usd"]
         buy_conv = conviction_by_ticker[buy_t]
         atr_pct = buy_conv["atr_pct"]
         pmax = (smith_conviction.policy_max_position_usd(atr_pct, buy_conv["price"], total_book, policy)
@@ -3421,17 +3672,28 @@ def _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, tota
         # pairs get the sale's proceeds credited back; see _pair_cluster_room_usd.
         cluster_room = _pair_cluster_room_usd(cluster_rows, conviction_by_ticker[sell_t]["cluster"],
                                               buy_conv["cluster"], sell_size)
-        buy_size, clamped_by = smith_conviction.clamp_size(min(wanted or 0, sell_size),
-                                                           buy_conv["headroom_usd"], cluster_room, None)
-        profit_rotation.append({
+        buy_stop = (sizing["stop_pct_by_ticker"] or {}).get(buy_t)
+        # the buy's OWN ticket: the risk its conviction-sized tranche (`wanted`) would take. No
+        # conviction sizing -> no ticket -> zero buy, exactly as `min(wanted or 0, ...)` behaved.
+        buy_r_ticket = (wanted * buy_stop / 100.0) if (wanted is not None and buy_stop) else 0.0
+        buy_size, clamped_by, legs = _rotation_buy_leg(sell_size, sell_t, buy_t, buy_conv, buy_r_ticket,
+                                                       cluster_room, sizing)
+        legacy_buy, _ = smith_conviction.clamp_size(
+            min(wanted or 0, legacy_sell), buy_conv["headroom_usd"],
+            _pair_cluster_room_usd(cluster_rows, conviction_by_ticker[sell_t]["cluster"],
+                                   buy_conv["cluster"], legacy_sell), None)
+        row = {
             "pair_id": pair_id, "trigger_type": "profit_rotation", "vote": "live",
-            "sell_leg": {"ticker": sell_t, "direction": "SELL", "suggested_size_usd": sell_size,
+            "sell_leg": {"ticker": sell_t, "direction": "SELL", **sold["fields"],
                         "market_value_usd": round(sell_mv, 2),
                         "reasons": [f"stretched (in names_stretched) with a watch thesis -- real profit to book"]},
             "buy_leg": {"ticker": buy_t, "direction": "BUY", "suggested_size_usd": buy_size, "clamped_by": clamped_by,
+                       "legacy_size_usd": legacy_buy,
                        "conviction_score": buy_conv["conviction_score"],
                        "reasons": [f"laggard ({buy_conv['rel_pp']:+.1f}pp) with a {smith_risk.thesis_status(thesis.get(buy_t))} thesis -- yet to rally"]},
-            "retires_when": f"EITHER {sell_t} drops out of the stretched cohort OR {buy_t}'s thesis leaves intact/strengthening"})
+            "rotation_risk": legs,
+            "retires_when": f"EITHER {sell_t} drops out of the stretched cohort OR {buy_t}'s thesis leaves intact/strengthening"}
+        profit_rotation.append(_apply_pair_notes(_pair_verdict(row, sold, buy_size, buy_t, sizing), sold))
 
 
 def _cluster_rotation_legs_from_ladder(entry, tickers_here, conviction_by_ticker, thesis, authority):
@@ -3520,7 +3782,7 @@ def _cluster_rotation_legs_from_ladder(entry, tickers_here, conviction_by_ticker
 
 
 def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cluster_rows=None,
-                              cluster_ladders=None, today=None):
+                              cluster_ladders=None, today=None, sizing=None):
     """Section P: cluster_rotation (PAIRED, live). ORGANISING RULE -- within the SAME cluster,
     sell the laggard, buy the performer. This is the opposite price/thesis pairing from
     profit_rotation and is why the two do not contradict -- same price state (laggard), opposite
@@ -3537,7 +3799,12 @@ def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cl
     against a semiconductor ETF. On the live 2026-09-07 book that put AVGO last in optics on a
     -13.31pp reading while it was in fact +5.19pp ahead of its own cluster -- and an open
     proposal was selling it.
+
+    RISK-SIZED (2026-09-20): sell leg = SEVERITY_R["cluster_rotation"] of risk; buy leg = the risk
+    that frees, in the performer (no ticket of its own -- this pair never conviction-sized its
+    buy), then headroom / cluster room. See _trigger_profit_rotation for `rotation_risk`.
     """
+    sizing = _pair_sizing(sizing, 0.0, {}, conviction_by_ticker)
     by_cluster = {}
     for t, c in conviction_by_ticker.items():
         by_cluster.setdefault(c["cluster"], []).append(t)
@@ -3574,21 +3841,26 @@ def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cl
             buy_why = (f"performer within {cluster} ({conviction_by_ticker[buy_t]['rel_pp']:+.1f}pp), "
                        f"{smith_risk.thesis_status(thesis.get(buy_t))} thesis")
         sell_mv = conviction_by_ticker[sell_t]["market_value_usd"]
-        sell_size = round(sell_mv * 0.30, 2)
+        sold = _size_sell("cluster_rotation", sell_t, sell_mv, sizing)
+        sell_size = sold["fields"]["suggested_size_usd"] or 0.0
+        legacy_sell = sold["fields"]["legacy_size_usd"]
         buy_conv = conviction_by_ticker[buy_t]
         # Always a same-cluster pair, so the sale funds its own room -- this is effectively
         # non-binding by construction and is passed for consistency and for the case where a
         # cluster is so far over its ceiling that even the swap leaves it breached.
         cluster_room = _pair_cluster_room_usd(cluster_rows, cluster, cluster, sell_size)
-        buy_size, clamped_by = smith_conviction.clamp_size(sell_size, buy_conv["headroom_usd"],
-                                                           cluster_room, None)
+        buy_size, clamped_by, legs = _rotation_buy_leg(sell_size, sell_t, buy_t, buy_conv, None,
+                                                       cluster_room, sizing)
+        legacy_buy, _ = smith_conviction.clamp_size(
+            legacy_sell, buy_conv["headroom_usd"],
+            _pair_cluster_room_usd(cluster_rows, cluster, cluster, legacy_sell), None)
         # The retirement condition must name what the pair was actually BUILT on, or the
         # lifecycle pass revalidates a ladder-driven pair against a price fact nobody used.
         retires = (f"EITHER {cluster}'s ladder no longer ranks {buy_t} above {sell_t} "
                    f"OR that ladder goes stale (>{LADDER_TTL_DAYS}d)" if ladder_driven else
                    f"EITHER {sell_t}'s thesis strengthens OR {buy_t} is no longer the "
                    f"cluster's relative-strength leader")
-        cluster_rotation.append({
+        row = {
             "pair_id": f"cluster_rotation-{sell_t}-{buy_t}", "trigger_type": "cluster_rotation", "vote": "live",
             "cluster": cluster,
             "ladder_driven": ladder_driven,
@@ -3596,12 +3868,15 @@ def _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cl
             "ladder_confidence": eff_conf if ladder_driven else None,
             "ladder_authority": authority,
             "ladder_authority_reasons": auth_reasons,
-            "sell_leg": {"ticker": sell_t, "direction": "SELL", "suggested_size_usd": sell_size,
+            "sell_leg": {"ticker": sell_t, "direction": "SELL", **sold["fields"],
                         "reasons": [sell_why]},
             "buy_leg": {"ticker": buy_t, "direction": "BUY", "suggested_size_usd": buy_size, "clamped_by": clamped_by,
+                       "legacy_size_usd": legacy_buy,
                        "conviction_score": buy_conv["conviction_score"],
                        "reasons": [buy_why]},
-            "retires_when": retires})
+            "rotation_risk": legs,
+            "retires_when": retires}
+        cluster_rotation.append(_apply_pair_notes(_pair_verdict(row, sold, buy_size, buy_t, sizing), sold))
 
 
 
@@ -3864,7 +4139,7 @@ def cmd_triggers(args):
                    (added 2026-08-17) are exempted for a different reason -- they consume findings
                    that are already evidence-graded and sourced by smith-catalyst/smith-thesis
                    before they ever reach here, not a newly invented statistical heuristic with no
-                   track record. See smith_core.py's CATALYST_THREAT_TRIM_FRACTION note.
+                   track record. See the "why live from day one" comment in smith_core.py.
     """
     risk = load_json(os.path.join(args.run_dir, "compute_risk.json"))
     book = load_json(os.path.join(args.run_dir, "compute_book.json"))
@@ -4038,6 +4313,37 @@ def cmd_triggers(args):
     diversifier_candidates = state.get("diversifier_candidates", {}) or {}
     earnings_facts = dc.get("earnings_facts", {}) or {}
     atr_vals = (dc.get("atr20", {}) or {}).get("values_pct", {}) or {}
+
+    # RISK-SIZING CONTEXT (Phase 2, 2026-09-20): R_base, the materiality floors, the one dust
+    # number and every name's stop distance, gathered once. Held names take the stop cmd_risk
+    # already published (smith_risk.stop_and_cap's own figure); everyone else derives it from the
+    # ATR cache by the identical rule. A name with neither has NO stop and therefore no risk-sized
+    # ticket -- never an estimate.
+    _stop_by_ticker = {t: smith_ticket.stop_pct_from_atr(a) for t, a in atr_vals.items() if a}
+    for _t, _r in risk_by_ticker.items():
+        if _r.get("stop_distance_pct"):
+            _stop_by_ticker[_t] = _r["stop_distance_pct"]
+    sizing = smith_ticket.sizing_context(total_book, policy, _stop_by_ticker)
+    if not sizing["materiality"]["confirmed"]:
+        dq.append("policy.trade_materiality is UNCONFIRMED (confirmed:false) -- the engine uses these "
+                  "floors (min ticket $%g / %g%% of book / %gR, dust $%g) but the user has not signed "
+                  "them; treat every below_materiality verdict as provisional."
+                  % (sizing["materiality"]["min_ticket_usd"], sizing["materiality"]["min_ticket_pct_of_book"],
+                     sizing["materiality"]["min_ticket_r"], sizing["min_position_usd"]))
+
+    # PRICES FOR NAMES THE BOOK DOES NOT HOLD (Phase 2 prerequisite): live quote first, else the
+    # last daily close in bars.json. Both files are written by smith_fetch, which now fetches the
+    # watchlist-setup / diversifier / cluster-bench names too. Never derived from target+upside.
+    market_prices = {}
+    _bars_for_px = load_json(os.path.join(args.run_dir, "bars.json"), default={}) or {}
+    for _t, _rows in _bars_for_px.items():
+        _closes = [b.get("c") for b in (_rows or []) if isinstance(b, dict) and b.get("c")]
+        if _closes:
+            market_prices[_t] = {"price": round(float(_closes[-1]), 4), "source": "bars.json last close"}
+    for _t, _q in (load_json(os.path.join(args.run_dir, "live_quotes.json"), default={}) or {}).items():
+        _px = _q.get("price") if isinstance(_q, dict) else _q
+        if _px:
+            market_prices[_t] = {"price": round(float(_px), 4), "source": "live_quotes.json"}
 
     # analyst_targets (added 2026-08-24, closes the standing gap: data_cache.analyst_targets has
     # been empty since it was reserved -- the real numbers live scattered in journal.json's
@@ -4233,7 +4539,7 @@ def cmd_triggers(args):
         # --- B. overbought_distribution (TRIM, live) ---------------------------
         _trigger_overbought_distribution(base, ticker, rsi_usable, rsi, rel_usable, abs_pct, mv,
                                          sector_map, cluster_rows, rel_vals, risk_by_ticker,
-                                         thesis, overbought)
+                                         thesis, overbought, sizing)
 
         # --- C. laggard_rotation (BUY, shadow) --------------------------------
         _trigger_laggard_rotation(base, ticker, rel_usable, laggard_set, healthy, over_cap,
@@ -4242,27 +4548,27 @@ def cmd_triggers(args):
 
         # --- D/E. profit_ratchet + scale_out_ladder (shadow) -------------------
         _trigger_ratchet_and_ladder(base, ticker, r, mv, price, rsi, lots, laggard_set, ratchet,
-                                    ladder, dq)
+                                    ladder, dq, sizing)
 
         # --- F. catalyst_threat (TRIM, live) ------------------------------------
         _trigger_catalyst_threat(base, ticker, mv, catalyst_threats_by_ticker, rotation_by_ticker,
-                                 status, catalyst_threat)
+                                 status, catalyst_threat, sizing)
 
         # --- G. thesis_break (TRIM, live) ---------------------------------------
-        _trigger_thesis_break(base, ticker, status, mv, thesis, thesis_break)
+        _trigger_thesis_break(base, ticker, status, mv, thesis, thesis_break, sizing)
 
         # --- H/I/J/K. conviction-driven triggers on HELD tickers (added 2026-08-24) -----------
         _trigger_conviction_held(base, ticker, r, mv, price, rsi, rel_pp, rsi_usable, healthy,
                                  over_cap, headroom, thesis, signal_history, atr_vals, total_book,
                                  policy, deployable_for_ideas, build_ctx, conviction_by_ticker,
                                  catalyst_threats_by_ticker, lots, trend_entry, trend_breakdown,
-                                 conviction_average, conviction_exit, dq)
+                                 conviction_average, conviction_exit, dq, sizing, cluster_rows)
 
     # --- L. entry_setup (BUY, live) --------------------------------------------------------
     _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_history, thesis,
                               factor_catalysts, earnings_facts, mention_counts, _track_record_for,
                               atr_vals, sector_map, entry_setup, total_book, policy,
-                              deployable_for_ideas)
+                              deployable_for_ideas, market_prices, cluster_rows)
 
     # --- M. reentry (BUY, live) -----------------------------------------------------------
     _reentry_no_thesis, _reentry_judged_out = [], []
@@ -4270,25 +4576,59 @@ def cmd_triggers(args):
                           earnings_facts, upside_pct_for, rsi_vals, rsi_usable, rel_vals,
                           rel_usable, mention_counts, _track_record_for, atr_vals, total_book,
                           policy, deployable_for_ideas, sector_map, reentry, _reentry_no_thesis,
-                          _reentry_judged_out)
+                          _reentry_judged_out, cluster_rows)
 
     # --- N. bench_diversifier (BUY, live) --------------------------------------------------
     _trigger_bench_diversifier_scan(diversifier_candidates, risk_by_ticker, state, mention_counts,
                                     _track_record_for, atr_vals, total_book, policy,
-                                    deployable_for_ideas, bench_diversifier)
+                                    deployable_for_ideas, bench_diversifier, market_prices,
+                                    cluster_rows, sector_map)
 
     # --- O/P. profit_rotation + cluster_rotation (PAIRED, live) ---------------------------
     _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, total_book, policy,
-                             profit_rotation, cluster_rows)
+                             profit_rotation, cluster_rows, sizing)
     _cluster_ladders = state.get("cluster_ladders") or {}
     _trigger_cluster_rotation(conviction_by_ticker, thesis, cluster_rotation, cluster_rows,
-                              _cluster_ladders, today)
+                              _cluster_ladders, today, sizing)
 
     # --- Q/R. cluster_bench_rotation + cluster_consolidation (PAIRED, SHADOW) --------------
     _trigger_cluster_bench_rotation(_cluster_ladders, conviction_by_ticker, thesis,
-                                    risk_by_ticker, today, cluster_bench_rotation)
+                                    risk_by_ticker, today, cluster_bench_rotation, sizing)
     _trigger_cluster_consolidation(_cluster_ladders, conviction_by_ticker, risk_by_ticker,
-                                   today, cluster_consolidation)
+                                   today, cluster_consolidation, sizing, cluster_rows)
+
+    # --- materiality on the single-leg BUYS: annotate only (sells and rotation legs carry their own
+    # verdict and ARE demoted). Unfunded rows (size 0/None) are not tickets and are skipped.
+    for _fam in (oversold, laggard, trend_entry, conviction_average, entry_setup, reentry,
+                 bench_diversifier):
+        for _row in _fam:
+            _apply_buy_materiality(_row, sizing)
+    _below = [(fam, r) for fam, rows in (
+        ("oversold_reversion", oversold), ("overbought_distribution", overbought),
+        ("catalyst_threat", catalyst_threat), ("thesis_break", thesis_break),
+        ("trend_entry", trend_entry), ("trend_breakdown", trend_breakdown),
+        ("conviction_average", conviction_average), ("conviction_exit", conviction_exit),
+        ("entry_setup", entry_setup), ("reentry", reentry), ("bench_diversifier", bench_diversifier),
+        ("profit_rotation", profit_rotation), ("cluster_rotation", cluster_rotation))
+        for r in rows if r.get("vote") == "below_materiality"]
+    if _below:
+        dq.append("below_materiality (emitted, not proposed -- too small to act on): " + "; ".join(
+            f"{fam} {r.get('ticker') or r.get('pair_id')} short ${r.get('materiality_shortfall_usd') or 0:,.0f}"
+            for fam, r in _below)
+            + ". Many of these are stubs: a book that generates tickets this small needs consolidating.")
+    _sell_rows = [(fam, r.get("ticker"), r) for fam, rows in (
+        ("overbought_distribution", overbought), ("catalyst_threat", catalyst_threat),
+        ("thesis_break", thesis_break), ("trend_breakdown", trend_breakdown),
+        ("conviction_exit", conviction_exit), ("scale_out_ladder", ladder)) for r in rows] + [
+        (fam, r["sell_leg"]["ticker"], r["sell_leg"]) for fam, rows in (
+            ("profit_rotation", profit_rotation), ("cluster_rotation", cluster_rotation),
+            ("cluster_bench_rotation", cluster_bench_rotation)) for r in rows]
+    if _sell_rows:
+        dq.append("risk-sized sell legs, legacy -> new (family ticker: legacy$ -> new$ [action]; "
+                  "risk removed): " + "; ".join(
+            f"{fam} {t}: {l.get('legacy_size_usd')} -> {l.get('suggested_size_usd')} "
+            f"[{l.get('sell_action')}] risk ${l.get('risk_removed_usd')}"
+            for fam, t, l in _sell_rows))
 
     oversold.sort(key=lambda x: x["rsi14"])
     overbought.sort(key=lambda x: -x["rsi14"])
@@ -4329,14 +4669,31 @@ def cmd_triggers(args):
     reentry.sort(key=lambda x: -(x.get("conviction_score") or 0))
     bench_diversifier.sort(key=lambda x: -(x.get("conviction_score") or 0))
 
-    live_counts = {"oversold_reversion": len(oversold), "overbought_distribution": len(overbought),
-                   "catalyst_threat": len(catalyst_threat), "thesis_break": len(thesis_break),
-                   "trend_entry": len(trend_entry), "trend_breakdown": len(trend_breakdown),
-                   "conviction_average": len(conviction_average), "conviction_exit": len(conviction_exit),
-                   "entry_setup": sum(1 for r in entry_setup if r.get("vote") == "live"),
-                   "reentry": len(reentry), "bench_diversifier": len(bench_diversifier),
-                   "profit_rotation": len(profit_rotation), "cluster_rotation": len(cluster_rotation),
+    def _n_live(rows):
+        return sum(1 for r in rows if r.get("vote") == "live")
+
+    live_counts = {"oversold_reversion": _n_live(oversold), "overbought_distribution": _n_live(overbought),
+                   "catalyst_threat": _n_live(catalyst_threat), "thesis_break": _n_live(thesis_break),
+                   "trend_entry": _n_live(trend_entry), "trend_breakdown": _n_live(trend_breakdown),
+                   "conviction_average": _n_live(conviction_average), "conviction_exit": _n_live(conviction_exit),
+                   "entry_setup": _n_live(entry_setup),
+                   "reentry": _n_live(reentry), "bench_diversifier": _n_live(bench_diversifier),
+                   "profit_rotation": _n_live(profit_rotation), "cluster_rotation": _n_live(cluster_rotation),
                    "factor_threat": len(factor_threat)}
+    below_materiality_counts = {fam: n for fam, n in (
+        ("oversold_reversion", sum(1 for r in oversold if r.get("vote") == "below_materiality")),
+        ("overbought_distribution", sum(1 for r in overbought if r.get("vote") == "below_materiality")),
+        ("catalyst_threat", sum(1 for r in catalyst_threat if r.get("vote") == "below_materiality")),
+        ("thesis_break", sum(1 for r in thesis_break if r.get("vote") == "below_materiality")),
+        ("trend_entry", sum(1 for r in trend_entry if r.get("vote") == "below_materiality")),
+        ("trend_breakdown", sum(1 for r in trend_breakdown if r.get("vote") == "below_materiality")),
+        ("conviction_average", sum(1 for r in conviction_average if r.get("vote") == "below_materiality")),
+        ("conviction_exit", sum(1 for r in conviction_exit if r.get("vote") == "below_materiality")),
+        ("entry_setup", sum(1 for r in entry_setup if r.get("vote") == "below_materiality")),
+        ("reentry", sum(1 for r in reentry if r.get("vote") == "below_materiality")),
+        ("bench_diversifier", sum(1 for r in bench_diversifier if r.get("vote") == "below_materiality")),
+        ("profit_rotation", sum(1 for r in profit_rotation if r.get("vote") == "below_materiality")),
+        ("cluster_rotation", sum(1 for r in cluster_rotation if r.get("vote") == "below_materiality"))) if n}
     shadow_counts = {"entry_setup": sum(1 for r in entry_setup if r.get("vote") == "shadow"),
                      "laggard_rotation": len(laggard), "profit_ratchet": len(ratchet),
                      "scale_out_ladder": len(ladder),
@@ -4369,9 +4726,36 @@ def cmd_triggers(args):
         "max_single_deploy_usd": round(max_single, 2),
         "thresholds": {"rsi_oversold": RSI_OVERSOLD, "rsi_overbought": RSI_OVERBOUGHT,
                        "laggard_pctile": LAGGARD_PCTILE, "ratchet_min_gain_pct": RATCHET_MIN_GAIN_PCT,
-                       "ladder_tiers_pct": LADDER_TIERS_PCT},
+                       "ladder_tiers_pct": LADDER_TIERS_PCT,
+                       # WHAT A TRIM MEANS (Phase 2): a downstream reader can size-check any row
+                       # without reading source. Sells are RISK dollars: size = severity_r x r_base_usd
+                       # / (stop_pct/100), clamped to the position.
+                       "sizing": {
+                           "currency": "risk_dollars",
+                           "r_base_usd": round(sizing["r_base_usd"], 2),
+                           "r_base_rule": "policy.stop_loss_framework.risk_per_position_pct_of_book x total book",
+                           "stop_pct_rule": "max(2 x atr20_pct, 3.0)",
+                           "size_usd_rule": "severity_r x r_base_usd / (stop_pct / 100), min(., market value)",
+                           "severity_r": dict(SEVERITY_R),
+                           "severity_r_computed": {
+                               "trim_risk_cap": "(R_open - R_base) / R_base -- trims exactly to the ATR cap",
+                               "cluster_consolidation": "full exit of the dropped name"},
+                           "exit_or_hold": {"trim_to_exit_fraction": TRIM_TO_EXIT_FRACTION,
+                                            "min_position_usd": sizing["min_position_usd"],
+                                            "rule": "residual < min_position or trim > 60% -> full exit; "
+                                                    "a position already < min_position is never partially trimmed"},
+                           "rotation_buy_rule": "buy = min(buy R_ticket, R_freed) / buy stop, then headroom / "
+                                                "cluster room / deployable cash; rotation_risk names the bound",
+                           "materiality": {**sizing["materiality"],
+                                           "rule": "ticket >= max(min_ticket_usd, min_ticket_pct_of_book% x book, "
+                                                   "min_ticket_r x r_base / stop, fee_cover_mult x round-trip fee); "
+                                                   "sub-floor -> vote below_materiality; full exits exempt"},
+                           "round_trip_fee_pct": sizing["fee_pct"],
+                           "legacy_fractions_for_one_release": {k: round(v, 4) for k, v in LEGACY_SELL_FRACTION.items()},
+                       }},
         "deployable_cash_for_ideas_usd": round(deployable_for_ideas, 2),
         "live_counts": live_counts, "shadow_counts": shadow_counts,
+        "below_materiality_counts": below_materiality_counts,
         "oversold_reversion": oversold, "overbought_distribution": overbought,
         "catalyst_threat": catalyst_threat, "thesis_break": thesis_break,
         "factor_threat": factor_threat,

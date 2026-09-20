@@ -773,7 +773,43 @@ def validate_policy(policy, state=None):
     if unknown:
         defects.append(f"ai_capex_clusters names clusters with no target defined: {unknown}")
 
+    defects.extend(validate_trade_materiality(policy))
     return defects
+
+
+def validate_trade_materiality(policy):
+    """Structural checks on policy.trade_materiality (added 2026-09-20, Phase 2). Absent is fine --
+    smith_ticket falls back to smith_core's defaults. Present, it must be usable: each floor a
+    positive number, `confirmed` a bool that is only true alongside a confirmed_by_user stamp, and
+    min_position_usd equal to smith_core.DUST_USD_DEFAULT.
+
+    That last check is the one that matters. "Too small to trim" (smith_ticket.exit_or_hold) and
+    "too small to keep an instruction on" (smith_lifecycle's shadow-trigger and stop retirement)
+    are the same threshold, and lifecycle reads the constant directly. A policy value that
+    differs would make the two disagree about the same $187 position -- silently.
+    """
+    tm = policy.get("trade_materiality")
+    if tm is None:
+        return []
+    if not isinstance(tm, dict):
+        return ["trade_materiality must be an object"]
+    out = []
+    for k in ("min_ticket_usd", "min_ticket_pct_of_book", "min_ticket_r", "fee_cover_mult",
+              "min_position_usd"):
+        v = tm.get(k)
+        if not isinstance(v, (int, float)) or isinstance(v, bool) or v <= 0:
+            out.append(f"trade_materiality.{k} must be a positive number (got {v!r}) -- "
+                       "smith_ticket would silently fall back to its built-in default")
+    if not isinstance(tm.get("confirmed"), bool):
+        out.append("trade_materiality.confirmed must be true or false")
+    elif tm["confirmed"] and not tm.get("confirmed_by_user"):
+        out.append("trade_materiality.confirmed is true with no confirmed_by_user stamp")
+    mp = tm.get("min_position_usd")
+    if isinstance(mp, (int, float)) and not isinstance(mp, bool) and mp != DUST_USD_DEFAULT:
+        out.append(f"trade_materiality.min_position_usd ({mp:g}) differs from smith_core.DUST_USD_DEFAULT "
+                   f"({DUST_USD_DEFAULT:g}) -- smith_lifecycle's dust retirement still reads the constant, "
+                   "so the two thresholds would disagree. Change both together (see smith_core.dust_usd).")
+    return out
 
 def validate_cache_events(state):
     """Check that any future-dated event in caches (FOMC date, etc.) hasn't already passed.

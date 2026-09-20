@@ -8,6 +8,13 @@ import pytest
 
 import smith_math
 import smith_core
+import smith_ticket
+
+# Sizing context shared by the risk-sized sell tests (Phase 2, 2026-09-20). A $10K book makes
+# R_base $50; AAA's 8% stop then puts one R at $625 -- and 0.5R at $312.50, a genuine partial
+# trim of a $1,000 position (31% removed, $687.50 left, above the $400 minimum position).
+SIZING = smith_ticket.sizing_context(10000.0, {"stop_loss_framework": {"risk_per_position_pct_of_book": 0.5}},
+                                     {"AAA": 8.0})
 
 
 # ---------------------------------------------------------------------------
@@ -70,11 +77,15 @@ class TestOverboughtDistribution:
         smith_math._trigger_overbought_distribution(
             base, "AAA", rsi_usable=True, rsi=80.0, rel_usable=True, abs_pct=12.0, mv=1000.0,
             sector_map={}, cluster_rows={}, rel_vals={}, risk_by_ticker={}, thesis={},
-            overbought=overbought)
+            overbought=overbought, sizing=SIZING)
         assert len(overbought) == 1
         row = overbought[0]
         assert row["direction"] == "TRIM" and row["over_cap_independent"] is True
-        assert row["suggested_size_usd"] == 1000.0 * smith_core.OVERBOUGHT_TRIM_FRACTION
+        # CHANGED 2026-09-20 (deliberately): was 25% of market value (=$250). Now
+        # 0.5R x $50 / 8% stop = $312.50 -- equal risk removed regardless of the name's volatility.
+        assert row["suggested_size_usd"] == 312.5 and row["sell_action"] == "trim"
+        assert row["severity_r"] == 0.5 and row["risk_removed_usd"] == 25.0
+        assert row["legacy_size_usd"] == 250.0
         assert row["cluster_tension"] is False
 
     def test_suppressed_when_rel_usable_but_not_genuinely_up(self, base):
@@ -164,11 +175,12 @@ class TestCatalystThreat:
                           "magnitude": "large", "source": "reuters"}]}
         smith_math._trigger_catalyst_threat(
             base, "AAA", mv=1000.0, catalyst_threats_by_ticker=cats, rotation_by_ticker={},
-            status="intact", catalyst_threat=catalyst_threat)
+            status="intact", catalyst_threat=catalyst_threat, sizing=SIZING)
         assert len(catalyst_threat) == 1
         row = catalyst_threat[0]
         assert row["direction"] == "TRIM" and row["over_cap_independent"] is True
-        assert row["suggested_size_usd"] == 1000.0 * smith_core.CATALYST_THREAT_TRIM_FRACTION
+        # CHANGED 2026-09-20 (deliberately): was 20% of market value (=$200).
+        assert row["suggested_size_usd"] == 312.5 and row["legacy_size_usd"] == 200.0
 
     def test_no_catalyst_does_nothing(self, base):
         catalyst_threat = []
@@ -186,10 +198,10 @@ class TestCatalystThreat:
                           "last_confirmed": "2026-09-07"}]}
         smith_math._trigger_catalyst_threat(
             base, "AAA", mv=1000.0, catalyst_threats_by_ticker=cats, rotation_by_ticker={},
-            status="intact", catalyst_threat=catalyst_threat)
+            status="intact", catalyst_threat=catalyst_threat, sizing=SIZING)
         assert len(catalyst_threat) == 1
         row = catalyst_threat[0]
-        assert row["suggested_size_usd"] == 1000.0 * smith_core.CATALYST_THREAT_TRIM_FRACTION
+        assert row["suggested_size_usd"] == 312.5   # same as an un-carried threat: age never discounts
         assert "carried forward, last confirmed 2026-09-07" in row["reasons"][0]
 
     def test_flags_tension_with_accumulate_rotation(self, base):
@@ -212,11 +224,14 @@ class TestThesisBreak:
         thesis = {"AAA": {"status": "broken", "thesis": "Losing share",
                            "evidence_against": [{"claim": "share loss", "date": "2026-08-01", "source": "10-Q"}],
                            "evidence_for": [], "verified": "primary"}}
-        smith_math._trigger_thesis_break(base, "AAA", "broken", 1000.0, thesis, thesis_break)
+        smith_math._trigger_thesis_break(base, "AAA", "broken", 1000.0, thesis, thesis_break, SIZING)
         assert len(thesis_break) == 1
         row = thesis_break[0]
         assert row["direction"] == "TRIM" and row["evidence_verified"] == "primary"
-        assert row["suggested_size_usd"] == 1000.0 * smith_core.THESIS_BREAK_TRIM_FRACTION
+        # CHANGED 2026-09-20 (deliberately): was 40% of market value (=$400). 2R is
+        # $1,250 at this stop, more than the position -> clamped to a full exit.
+        assert row["suggested_size_usd"] == 1000.0 and row["sell_action"] == "full_exit"
+        assert row["legacy_size_usd"] == 400.0
 
     def test_not_broken_does_nothing(self, base):
         thesis_break = []

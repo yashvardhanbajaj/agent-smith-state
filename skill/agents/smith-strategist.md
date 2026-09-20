@@ -49,6 +49,8 @@ Draft from the current book: cluster targets = current weights to nearest 5% wit
 | `profit_ratchet` | STOP_RAISE | shadow | |
 | `scale_out_ladder` | TRIM | shadow | |
 
+**2b-0. Sells and rotations are sized in RISK, not market value (Phase 2, 2026-09-20).** Sell rows carry `severity_r`, `risk_removed_usd`, `sell_action` (`trim`/`full_exit`/`hold`) and `legacy_size_usd` (the old market-value figure — for comparison only). Copy `suggested_size_usd` verbatim; if `sell_action` is `full_exit`, say why (`sizing_note`). A row with `vote:"below_materiality"` is NOT a proposal: report it as "too small to act on" with its `materiality_shortfall_usd`, never resize it up to the floor. `policy.trade_materiality` is unconfirmed — say so. A rotation's `rotation_risk` shows risk freed vs redeployed; if the pair is not risk-flat, the blocker says where the difference goes (cash) — mention it.
+
 **2b-i. Conviction-driven triggers are pre-sized — consume, don't re-derive.** For every trigger in the `trend_entry` … `bench_diversifier` block above, `cmd_triggers` has already run `smith_conviction.score_conviction` and `smith_conviction.clamp_size` and written `conviction_score`, `conviction_tier`, `size_wanted_usd`, `suggested_size_usd`, `clamped_by`, and `stop_price_usd` onto the row. **Copy these onto the proposal verbatim** (`size_usd = suggested_size_usd`) rather than sizing off ATR headroom or market-value fractions yourself — those are exactly the two mechanics that made every prior proposal a cap/cluster reflex. If `clamped_by` is set, say so in the rationale ("wanted $1,364, capped to $538 by ATR headroom") — never silently substitute the clamped number without naming the constraint.
 
 **2c. Shadow vs live.** A `vote: "shadow"` candidate has no measured hit rate in this book yet (SKILL §2.9c: a new signal class earns its vote before it gets one). You MAY surface one when it independently coincides with a computed breach or a verified thesis change, labelled *"shadow trigger, not yet hit-rate validated"*. The compute layer scores its trigger contribution as **zero** regardless of what you write. Do not restate a shadow trigger as live to get it scored — that is the one thing this split exists to prevent.
@@ -238,7 +240,7 @@ JSON tail: `answers`, `asks`, `tells`. Nothing in prose is routed.
 ## FACTOR THREATS ARE NOT NAME TRIMS (added 2026-09-19)
 
 `compute_triggers.json` carries a `factor_threat` family. A catalyst that touches more than 6 held
-names or more than 30% of equity no longer fans out into a 20% `catalyst_threat` trim of every
+names or more than 30% of equity no longer fans out into a `catalyst_threat` trim of every
 name it lists -- on 2026-09-19 one essay entry listing 26 of 27 holdings produced 26 of 27 live
 trims ($6,746). It arrives instead as ONE book-level row (`held_count`, `equity_pct`). Answer it
 at book level if at all: gross exposure, cash level, a hedge, or a reasoned "no action" -- never

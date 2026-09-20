@@ -2059,10 +2059,8 @@ def cmd_score_shadow_journal(args):
           "data_quality": dq})
 
 
-# Round-trip cost of acting on a proposal: INDmoney charges ~0.30% on the buy and 0.00% on the
-# sell (measured across 7 confirmations 2026-09-06, smith_ledger.LEDGER_FEE_PCT). An edge smaller
-# than this is not an edge, which is why every expectancy figure in the scorecard is net of it.
-ROUND_TRIP_FEE_PCT = 0.30
+# ROUND_TRIP_FEE_PCT (0.30) now lives in smith_core -- smith_ticket's materiality gate needs the same
+# number and must not import this module -- and arrives here through `from smith_core import *`.
 
 VOL_TIERS = (("low", 3.0), ("mid", 5.5), ("high", float("inf")))
 

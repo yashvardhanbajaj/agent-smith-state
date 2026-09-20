@@ -12,6 +12,9 @@ WHAT. `all --run-dir runs/<id>` writes, into the run dir:
   market_inputs.json   core macro strip + Asia block + the sentiment inputs + us10y_change_pts
   live_quotes.json     {TICKER: {price, changePct, prev_close, session, as_of_utc}} (pre/post aware)
   bars.json            1y daily OHLCV for holdings, SMH and peer ETFs (input to `indicators`)
+                       -- PLUS the CANDIDATE names (watchlist setups, diversifier bench, cluster
+                       ladder benches) in BOTH files, so any name that can vote has a price and
+                       an ATR. See candidate_tickers().
   chain_SPY.json / chain_QQQ.json + compute_options.json   (deep, via `smith_math.py maxpain`)
   earnings_calendar.json                                      (deep)
   fetch_report.json    what succeeded, what degraded, what needs the MCP fallback
@@ -311,6 +314,37 @@ def _tickers(base_dir, snapshot_json, extra):
     return sorted(held), sorted(peers | {"SMH"})
 
 
+# Upper bound on candidate names fetched per run. The three sources together are ~25 names today;
+# the cap only exists so a runaway watchlist cannot eat the 120s budget the held book needs.
+MAX_CANDIDATES = 60
+
+
+def candidate_tickers(state):
+    """Names that can VOTE on a proposal without being held: the watchlist setups smith-watchlist
+    surfaced, the scout's diversifier bench, and each cluster ladder's bench.
+
+    WHY (2026-09-20). Phase 1 made `entry_setup` able to size, and it stayed inert on the live run
+    anyway: the four candidates (IONQ, QBTS, RGTI, BABA) were in NEITHER live_quotes.json nor
+    bars.json, so they had no price and no ATR and every one sized to null. smith_fetch only ever
+    fetched HELD names and peer ETFs. The price must come from a fetch, never be back-derived from
+    an analyst target and an upside percentage -- that would be inventing the very input the
+    risk-sized ticket depends on.
+
+    Pure: takes the parsed state dict, returns a sorted, de-duplicated list of upper-case tickers.
+    """
+    out = set()
+    for row in (state.get("watchlist_setups") or []):
+        if isinstance(row, dict) and row.get("ticker"):
+            out.add(str(row["ticker"]).strip().upper())
+    for t in (state.get("diversifier_candidates") or {}):
+        out.add(str(t).strip().upper())
+    for entry in (state.get("cluster_ladders") or {}).values():
+        for b in ((entry or {}).get("bench") or []):
+            if isinstance(b, dict) and b.get("ticker"):
+                out.add(str(b["ticker"]).strip().upper())
+    return sorted(out)[:MAX_CANDIDATES]
+
+
 def run_all(args, source):
     started = time.monotonic()
     rd = args.run_dir
@@ -320,6 +354,12 @@ def run_all(args, source):
     report = {"ok": True, "mode": args.mode, "sections": {}, "fallback_needed": [], "errors": {},
               "written": [], "started_utc": iso_utc()}
     held, peers = _tickers(args.base_dir, args.snapshot_json, args.tickers)
+    try:
+        state_for_cands = _load_json(os.path.join(args.base_dir, "state.json"), {}) or {}
+        cands = [t for t in candidate_tickers(state_for_cands) if t not in set(held)]
+    except Exception as e:  # noqa: BLE001 -- the contract: nothing here may stop the held-book fetch
+        cands = []
+        report["errors"]["candidates"] = f"{type(e).__name__}: {e}"[:200]
     hist = {}
 
     def over_budget():
@@ -345,7 +385,7 @@ def run_all(args, source):
     def need_history():
         want = set(CORE.values()) | set(ASIA.values()) | set(EXTRA_MACRO.values())
         if "bars" in sections or "quotes" in sections:
-            want |= set(held) | set(peers)
+            want |= set(held) | set(peers) | set(cands)
         missing = sorted(want - set(hist))
         if missing:
             hist.update(source.history(missing, period="1y"))
@@ -371,16 +411,20 @@ def run_all(args, source):
 
     def do_bars():
         need_history()
-        bars = {s: hist[s] for s in sorted(set(held) | set(peers)) if s in hist}
+        bars = {s: hist[s] for s in sorted(set(held) | set(peers) | set(cands)) if s in hist}
         absent = sorted((set(held) | set(peers)) - set(bars))
         _write_json(os.path.join(rd, "bars.json"), bars)
         report["written"].append("bars.json")
         if absent:
             report["errors"]["bars_partial"] = f"no daily bars for {absent}"
+        # Candidates are advisory inputs: a missing one degrades that name only, never the section.
+        cand_absent = sorted(set(cands) - set(bars))
+        if cand_absent:
+            report["errors"]["candidate_bars_partial"] = f"no daily bars for candidates {cand_absent}"
 
     def do_quotes():
         need_history()
-        minute = source.minute(sorted(set(held) | {"SMH"}))
+        minute = source.minute(sorted(set(held) | set(cands) | {"SMH"}))
         q = quotes_from(hist, minute)
         smh_live = q.pop("SMH", None) if "SMH" not in held else q.get("SMH")
         if smh_live:
@@ -394,6 +438,9 @@ def run_all(args, source):
         report["written"].append("live_quotes.json")
         if absent:
             report["errors"]["quotes_partial"] = f"no live quote for {absent}"
+        cand_absent = sorted(set(cands) - set(q))
+        if cand_absent:
+            report["errors"]["candidate_quotes_partial"] = f"no live quote for candidates {cand_absent}"
         if held and not q:
             raise RuntimeError("no quotes at all")
 
