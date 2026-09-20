@@ -523,6 +523,9 @@ class TestCandidatePrices:
             st.setdefault("thesis", {})["CORZ"] = "AI hosting|strengthening"
             json.dump(st, open(dst / "base" / "state.json", "w"))
             json.dump({"CORZ": {"price": 15.25}}, open(dst / "rundir" / "live_quotes.json", "w"))
+            # Phase 4: a buy needs a fresh analyst target or the EV gate shadows it (payoff unknown)
+            st["data_cache"].setdefault("analyst_targets", {})["CORZ"] = {"mean_target_usd": 30.0, "as_of": "2026-09-01"}
+            json.dump(st, open(dst / "base" / "state.json", "w"))
             # the fixture book is over its correlation-adjusted heat cap on the conservative bound
             # (Phase 3), which would defer any new buy; this test is about prices, so give it a
             # measured, uncorrelated book with room.

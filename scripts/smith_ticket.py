@@ -32,8 +32,8 @@ pure and operate on plain candidate dicts, not trigger rows, so the gate can be 
 fixture book that is over its cap -- the live book (6.45% heat vs a 10% cap) deliberately never
 binds it, which is why it is safe to land and why live data alone can never validate it.
 
-WHAT IS NOT HERE. No expected-value gate: that is Phase 4. `allocation_priority` is the single
-place its ordering key will be swapped in.
+THE EXPECTED-VALUE GATE lives in smith_edge (Phase 4); `allocation_priority` is the single place
+its ordering key was swapped in.
 """
 import datetime as _dt
 
@@ -447,11 +447,18 @@ def cluster_risk_max_usd(h_eff_max_usd, band_hi_pct, ceiling_basis, total_book_u
 
 
 def allocation_priority(candidate):
-    """THE ordering key: higher is allocated first. The ONE line to change when Phase 4 lands.
+    """THE ordering key: higher is allocated first.
 
-    Today it is conviction_score, because no expected value exists yet. Phase 4 swaps this to EV
-    per unit of MARGINAL risk (EV_R / risk_usd) and nothing else in the allocator changes.
-    """
+    Phase 4 swap (2026-09-20): a candidate that carries an EXPECTED VALUE (`ev_r`, set by
+    smith_math._apply_edge_gate) is ordered by it. EV_R is already per unit of risk, so ordering by
+    it is ordering by EV per unit of the scarce thing the budget is made of -- risk -- rather than by
+    a conviction score that says nothing about payoff or stop distance. A candidate with no EV (a
+    cash-above-band gate override that had no analyst target) falls back to its conviction score;
+    at most one such candidate ever coexists with the others, so the two scales are never mixed
+    across a real ranking."""
+    ev = candidate.get("ev_r")
+    if ev is not None:
+        return ev
     return candidate.get("score") or 0.0
 
 

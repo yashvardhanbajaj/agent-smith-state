@@ -68,7 +68,10 @@ class TestDraftStressAnchorAndScorecardQuote:
                     "overall": {"n": 62, "worked": 19, "missed": 34, "neutral": 9},
                     "by_direction": {"BUY": {"accuracy_pct": 36.4, "n": 22}}}
         quote = m._draft_scorecard_quote(scorecard)
-        assert "n=62" in quote and "30.6%" in quote and "BUY 36.4% (n=22)" in quote
+        # Phase 4: leads with the CURRENT engine's record; legacy figures are second and labelled
+        assert quote.index("CURRENT ENGINE") < quote.index("LEGACY-ENGINE HISTORY")
+        assert "no post-rebuild proposals scored yet" in quote and "n=62" in quote
+        assert "legacy BUY: accuracy 36.4%, n=22" in quote
         assert m._draft_scorecard_quote(None) is None and m._draft_scorecard_quote({}) is None
 
 

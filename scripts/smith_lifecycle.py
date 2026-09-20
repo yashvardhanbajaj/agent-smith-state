@@ -10,25 +10,15 @@ import re
 import os
 from datetime import date, datetime, timezone
 
+import smith_edge
 import smith_marketdata
 import smith_risk
 from smith_core import *  # noqa: F401,F403 -- shared constants and IO helpers
 from smith_core import load_json, emit, fail
 
 
-def _proposal_direction(action):
-    """Returns one of BUY/TRIM/SELL/HOLD. Coarser than the old per-verb token on purpose --
-    see DIRECTION_KEYWORDS. One consequence: an "ADD X" proposal (which presupposes X is
-    already held) now buckets identically to a fresh "BUY X" (which doesn't) for dedup and
-    the holds_presupposed/auto-void check below no longer distinguishes them -- a stale ADD
-    for an exited ticker won't be immediately auto-voided the way it used to be. That's an
-    acceptable trade: the 7-day auto-expiry below is still a backstop, so the cost is a few
-    extra days of visible clutter, not a silently-corrupted proposal."""
-    a = (action or "").upper()
-    for kw, bucket in DIRECTION_KEYWORDS:
-        if kw in a:
-            return bucket
-    return "HOLD"
+# one implementation, in smith_core (Phase 4); the private name is kept for existing callers
+_proposal_direction = proposal_direction
 
 def _proposal_infer_ticker(pr):
     if pr.get("ticker"):
@@ -306,7 +296,8 @@ def _classify_voided_proposals(props, to_supersede, today_date):
 def _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short, cash_excess,
                              cash_pct, cash_band, stretch_by_ticker, derisk, rotation_by_ticker,
                              hit_rates_7d, trigger_live_sets, trigger_rows, trigger_pairs,
-                             state_sector_map, cluster_breach, total_book_usd):
+                             state_sector_map, cluster_breach, total_book_usd,
+                             hit_rates_30d=None, deemphasized_buckets=frozenset()):
     """Deterministic priority score for one open proposal (G47): over-cap position (+2),
     directional cluster breach (+2), directional cash-band breach (+2), genuine stretch on a
     TRIM (+2), a measured bullish signal on a BUY (+2), a live non-ATR trigger (+3 flat, or a
@@ -383,15 +374,23 @@ def _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short,
                            "to take, not just a smaller loss")
     if bucket == "BUY" and ticker:
         rtk = rotation_by_ticker.get(ticker, {})
-        best_hr = None
-        for bkt in rtk.get("bullish_buckets", []):
-            hr = hit_rates_7d.get(bkt)
-            if hr and hr["hit_rate_pct"] > 55 and (best_hr is None or hr["hit_rate_pct"] > best_hr[1]):
-                best_hr = (bkt, hr["hit_rate_pct"], hr["n"])
-        if best_hr:
-            score += 2
-            reasons.append(f"bullish signal '{best_hr[0]}' has a {best_hr[1]:.0f}% INTERIM 7d hit "
-                           f"rate (n={best_hr[2]}, not yet 30d-validated) in this book")
+        # ONE reader (smith_edge.bucket_rate): prefers the validated 30d table and labels its
+        # source. This branch used to read the interim 7d table while the track-record lookup read
+        # 30d, and it only ever REWARDED -- MOMENTUM+VOLUME (20%, n=15) and TARGET GAP (36.8%,
+        # n=19) cost a BUY nothing. bucket_adjustment adds the penalty (<45% over n>=8 -> -2).
+        pts, why = smith_edge.bucket_adjustment(
+            {"bucket_hit_rates": hit_rates_30d or {}, "bucket_hit_rates_7d": hit_rates_7d},
+            rtk.get("bullish_buckets", []))
+        if pts:
+            score += pts
+            reasons.append(why)
+        # Strategist `deemphasize_buckets` (emitted every run, read by nothing until Phase 4): one
+        # priority point, bounded -- an LLM opinion may demote an idea, never erase it.
+        de = set(deemphasized_buckets or ()) & (set(rtk.get("bullish_buckets", []))
+                                                | ({pr["trigger_bucket"]} if pr.get("trigger_bucket") else set()))
+        if de:
+            score -= DEEMPH_PRIORITY_PENALTY
+            reasons.append(f"strategist de-emphasised {', '.join(sorted(de))} (bounded: -{DEEMPH_PRIORITY_PENALTY} priority)")
     # -- non-ATR triggers (added 2026-08-12). Weighted +3 so either can reach MEDIUM alone and
     # HIGH with any one supporting term -- deliberately ABOVE the now-demoted ATR weight of
     # +2, because the whole point of the change is that "this ran, book some" and "this good
@@ -519,7 +518,7 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
                                       current_tickers, drift, trig_rsi, trig_abs,
                                       trigger_live_sets, state_thesis, derisk, cluster_breach,
                                       rotation_by_ticker, hit_rates_7d, parse_date,
-                                      hold_max_age_days, is_accepted=False):
+                                      hold_max_age_days, is_accepted=False, hit_rates_30d=None):
     """Retires one open (or accepted-but-unexecuted) proposal in place (status/retired_on/
     retired_reason/note) the moment its OWN objective trigger is verifiably gone -- reusing the
     same typed structural signals the priority scorer computes (over_cap, directional
@@ -728,11 +727,12 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
         elif pr.get("trigger_type") == "signal_conviction" and pr.get("trigger_bucket"):
             tb = pr["trigger_bucket"]
             rtk = rotation_by_ticker.get(ticker, {}) if ticker else {}
-            hr = hit_rates_7d.get(tb)
+            hr = smith_edge.bucket_rate({"bucket_hit_rates": hit_rates_30d or {},
+                                         "bucket_hit_rates_7d": hit_rates_7d}, tb)
             if tb not in rtk.get("bullish_buckets", []):
                 why = f"{ticker} no longer carries the '{tb}' signal -- the edge this buy was sized against is gone"
-            elif not hr or hr.get("hit_rate_pct", 0) <= 55:
-                why = (f"'{tb}'s interim 7d hit rate has fallen to "
+            elif not hr or (hr.get("hit_rate_pct") or 0) <= BUCKET_REWARD_HIT_RATE_PCT:
+                why = (f"'{tb}'s {hr['source'] if hr else 'measured'} hit rate has fallen to "
                        f"{hr.get('hit_rate_pct') if hr else 'unmeasured'}% (was >55% when proposed) "
                        "-- the measured edge behind this buy no longer clears the bar")
         elif pr.get("trigger_type") in ("trend_entry", "conviction_average", "entry_setup", "reentry", "bench_diversifier"):
@@ -1314,6 +1314,7 @@ def cmd_proposals(args):
     rotation_by_ticker = rotation.get("tickers", {})
     journal = load_json(os.path.join(args.base_dir, "journal.json"), default={})
     hit_rates_7d = journal.get("bucket_hit_rates_7d", {})
+    hit_rates_30d = journal.get("bucket_hit_rates", {})
     # compute_triggers.json (added 2026-08-12): deterministic candidate lists for the five
     # non-ATR triggers. Only the LIVE ones score here -- a shadow trigger that somehow reached
     # a proposal is flagged, not rewarded, so the "earns its vote first" rule can't be bypassed
@@ -1349,6 +1350,7 @@ def cmd_proposals(args):
     # test", never to a retirement on absent data.
     _state = load_json(os.path.join(args.base_dir, "state.json"), default={})
     state_thesis = _state.get("thesis", {}) or {}
+    _deemph_buckets = smith_edge.active_deemphasis(_state, resolve_today(args.today))
     # Cluster fallback for NON-HELD tickers (added 2026-08-12). `cluster` was resolved only from
     # compute_risk.json, which contains held positions ONLY -- so a BUY proposal for a ticker the
     # book does not currently hold had cluster=None and could never earn the directional
@@ -1391,7 +1393,9 @@ def cmd_proposals(args):
         _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short, cash_excess,
                                  _cash_pct, _cash_band, stretch_by_ticker, derisk, rotation_by_ticker,
                                  hit_rates_7d, trigger_live_sets, trigger_rows, trigger_pairs,
-                                 state_sector_map, cluster_breach, total_book_usd)
+                                 state_sector_map, cluster_breach, total_book_usd,
+                                 hit_rates_30d=hit_rates_30d,
+                                 deemphasized_buckets=_deemph_buckets)
 
     # -- CONDITION-BASED AUTO-RETIREMENT (added 2026-08-06, user-reported: "the dashboard is
     # not live and dynamic... under low priority proposals it is showing rebuild cash buffer"
@@ -1435,7 +1439,8 @@ def cmd_proposals(args):
                                                     trigger_live_sets, state_thesis, derisk, cluster_breach,
                                                     rotation_by_ticker, hit_rates_7d, parse_date,
                                                     HOLD_MAX_AGE_DAYS,
-                                                    is_accepted=(pr.get("status") == "accepted_by_user"))
+                                                    is_accepted=(pr.get("status") == "accepted_by_user"),
+                                                    hit_rates_30d=hit_rates_30d)
         if result:
             retired.append(result)
 
@@ -1508,19 +1513,6 @@ def cmd_proposals(args):
           "stacking_warnings": sorted(stack_warnings,
                                       key=lambda w: -(w.get("combined_pct_of_position") or 0))})
 
-def idea_key(pr):
-    """(ticker, direction bucket, trigger type, month) -- what makes two proposals the SAME idea.
-
-    Added 2026-09-20. 88 scored rows were 43 distinct ideas (QCOM BUY x6, MU TRIM x5, DRAM TRIM
-    x5): the same idea is re-proposed each run until it works, so counting rows both inflated n
-    and biased the record negative. The month bucket means a restatement inside one calendar
-    month is one idea while a fresh call a month later is an independent observation. Used for
-    the aggregate denominator only; individual rows are still graded one by one."""
-    direction = pr.get("direction_bucket") or _proposal_direction(pr.get("action"))
-    return (pr.get("ticker"), direction, pr.get("trigger_type"),
-            str(pr.get("date") or "")[:IDEA_MONTH_PREFIX_LEN])
-
-
 def cmd_score(args):
     """Score past proposals on price outcome. The strategist's accountability loop.
 
@@ -1581,7 +1573,7 @@ def cmd_score(args):
     # `superseded` is deliberately ABSENT (2026-09-20). This docstring always said superseded rows
     # are excluded so one idea counts once, but the set contained it: 58 of 88 scored rows were
     # superseded restatements, and 88 rows were only 43 distinct ideas.
-    SCOREABLE = {"executed", "fulfilled", "filled", "auto_retired", "deferred", "watch"}
+    SCOREABLE = SCOREABLE_STATUSES   # shared with smith_edge, so the scorecard and the gate admit the same rows
     EXCLUDED = {"dismissed_by_user"}
     # A DESK withdrawal is excluded from ACCURACY too -- the trade never happened, so there is
     # no outcome to grade -- but it is counted and reported separately rather than folded into
@@ -1781,6 +1773,25 @@ def cmd_score(args):
     # rule was retired as broken; it is still reported under by_direction.
     headline = [r for r in graded if r["direction"] != "HOLD"]
     alpha_scored = [r for r in graded if r["scored_vs"].startswith("alpha vs")]
+
+    def epoch_block(subset, label):
+        """One side of the ENGINE_EPOCH split, in the same shape as by_direction/overall."""
+        sub_trims = [r for r in subset if r["direction"] in ("TRIM", "SELL")]
+        sub_buys = [r for r in subset if r["direction"] == "BUY"]
+        return {"label": label, "engine_epoch": smith_edge._epoch(),
+                "n_rows": len(subset), "n_ideas": len({r["idea"] for r in subset}),
+                "overall": agg([r for r in subset if r["direction"] != "HOLD"]),
+                "by_direction": {"TRIM/SELL": agg(sub_trims), "BUY": agg(sub_buys)}}
+
+    # LEGACY vs SINCE-EPOCH (user decision 2026-09-20: "earlier proposals were too broke"). Every
+    # proposal dated before smith_core.ENGINE_EPOCH came from the legacy engine, so its outcomes
+    # measure that engine and are reported as HISTORY, never as the current engine's record. The
+    # legacy block is the whole pre-rebuild record; since_epoch is what the rebuilt engine has
+    # actually earned -- empty (n=0) until its first proposal is scored 30 days on, and that is
+    # correct. The flat top-level fields below are unchanged for existing readers and are
+    # therefore LEGACY-DOMINATED; headline_basis says so.
+    legacy_rows = [r for r in graded if not smith_edge.post_epoch(r["date"])]
+    epoch_rows = [r for r in graded if smith_edge.post_epoch(r["date"])]
     scorecard = {
         "as_of": str(today),
         "trim_accuracy_30d": (agg(trims) or {}).get("accuracy_pct"),
@@ -1788,6 +1799,17 @@ def cmd_score(args):
         "overall_accuracy_30d": (agg(headline) or {}).get("accuracy_pct"),
         "by_direction": {"TRIM/SELL": agg(trims), "BUY": agg(buys), "HOLD": agg(holds)},
         "overall": agg(headline),
+        "legacy": epoch_block(legacy_rows, "LEGACY-ENGINE HISTORY -- not the current engine's performance"),
+        "since_epoch": (epoch_block(epoch_rows, "rebuilt engine, proposals on/after ENGINE_EPOCH")
+                        if epoch_rows else
+                        {**epoch_block([], "rebuilt engine, proposals on/after ENGINE_EPOCH"),
+                         "note": "no post-rebuild proposal has been scored yet (n=0) -- the first "
+                                 "reaches 30 days about a month after the epoch"}),
+        "headline_basis": ("LEGACY-DOMINATED: the flat accuracy/expectancy fields below pool every graded "
+                           "row, and every row today predates ENGINE_EPOCH. Quote `since_epoch` as the "
+                           "current engine's record and `legacy` only as labelled history."
+                           if not epoch_rows else
+                           "pools legacy and post-epoch rows; quote `since_epoch` for the current engine"),
         "scored_count": len(graded),
         "n_rows": len(graded),
         "n_ideas": len({r["idea"] for r in graded}),
@@ -1979,6 +2001,12 @@ def cmd_score_shadow_journal(args):
 
     def direction_for(e):
         if fname == "trigger_journal.json":
+            # A row the EV/family gate shadowed carries its own direction_bucket (phase 4): the
+            # gate can shadow any trigger family, not only the three that are always shadow, and
+            # a shadowed family can only earn its vote back if its rows are actually scoreable.
+            db = e.get("direction_bucket")
+            if db in ("BUY", "TRIM", "SELL"):
+                return "up" if db == "BUY" else "down"
             return TRIGGER_TYPE_DIRECTION.get(e.get("trigger_type"))
         return "down"  # derisk_journal: flagged as fragile/high-risk -> expects underperformance
 

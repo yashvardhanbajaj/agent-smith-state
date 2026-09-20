@@ -40,6 +40,7 @@ Stages the pipeline deliberately does NOT run (each needs something it cannot su
   validate    --base-dir DIR                                    policy sanity check, not per-run
 """
 import argparse
+import copy
 import json
 import math
 import os
@@ -51,6 +52,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import smith_risk
 import smith_conviction
 import smith_ticket
+import smith_edge
 from smith_core import *  # noqa: F401,F403
 from smith_core import load_json, emit, fail, clamp
 from smith_ledger import (cmd_lots, cmd_history, cmd_universe, cmd_ledger_parse,
@@ -2268,6 +2270,10 @@ def cmd_pipeline(args):
             failed = (name, "produced an empty result despite exiting 0")
             break
         atomic_write_json(out(name), payload)
+        if name == "triggers" and isinstance(payload.get("edge"), dict):
+            # compute_edge.json (Phase 4): the gate's whole table and every ticket's numbers, written
+            # here rather than by cmd_triggers so the golden-master fixture trees stay untouched.
+            atomic_write_json(out("edge"), payload["edge"])
         if name == "lots" and payload.get("write_blocked"):
             results.append({"stage": name, "status": "DEGRADED",
                             "note": "lots.json NOT rebuilt (book/derisk/triggers read the "
@@ -4120,6 +4126,199 @@ def worst_bullish_track_record(bullish, hit_rates_30d, hit_rates_7d):
 
 
 # ---------------------------------------------------------------------------
+# EDGE / EV GATE POST-PASS (Phase 4, 2026-09-20)
+# ---------------------------------------------------------------------------
+# Order: candidates -> family verdict + EV gate (here) -> heat allocation -> materiality.
+# SIZING IDENTITY. The plan writes R_ticket = R_base * f_edge * f_conv * f_track * f_family * STAGE.
+# Today's buy sizer ALREADY equals R_base * f_conv * STAGE (0.5): conviction_tier_pct is f_conv, the
+# track-record tilt is applied to the conviction SCORE before it is tiered (so it is f_track), and
+# STAGE_FRACTION is 0.5. This pass therefore ADDS only f_edge, f_family and the bounded f_deemph --
+# re-applying conviction here would double-count it.
+# SELLS are gated, not scaled: a sell's size is severity-set in risk dollars (Phase 2) with an
+# exit-or-hold rule, and a partial multiplier on it is incoherent. A `watch` family on the sell side
+# is disclosed in the gate block, never shrunk (shrinking a reduction is the risk-increasing direction).
+_EDGE_SINGLE = ("oversold_reversion", "trend_entry", "conviction_average",
+                                                     "entry_setup", "reentry", "bench_diversifier")
+_EDGE_PAIR = ("profit_rotation", "cluster_rotation")
+_EDGE_SELL = ("overbought_distribution", "catalyst_threat", "thesis_break", "trend_breakdown",
+              "conviction_exit")
+
+
+def _table_all_unproven(table):
+    rows = list((table.get("by_family") or {}).values()) + list((table.get("by_direction") or {}).values())
+    return all(r["verdict"] == smith_edge.UNPROVEN for r in rows)
+
+
+def _fresh_target(ticker, dc, target_by_ticker, today):
+    """(target_usd, source, as_of) -- the freshest analyst target within ANALYST_TARGET_MAX_AGE_DAYS from
+    data_cache.analyst_targets or the journal proxy, else (None, None, None). Never estimated."""
+    best = None
+    ent = (dc.get("analyst_targets") or {}).get(ticker)
+    if isinstance(ent, dict) and ent.get("mean_target_usd"):
+        best = (ent.get("as_of") or "", ent["mean_target_usd"], "data_cache.analyst_targets")
+    jt = target_by_ticker.get(ticker)
+    if jt and jt[1] and (best is None or (jt[0] or "") > best[0]):
+        best = (jt[0] or "", jt[1], "journal.analyst_target")
+    if not best:
+        return None, None, None
+    d = _parse_as_of(best[0])
+    if d is None or (today - d).days > ANALYST_TARGET_MAX_AGE_DAYS or (today - d).days < 0:
+        return None, None, None
+    return best[1], best[2], best[0]
+
+
+def _apply_edge_gate(fams, pair_fams, sell_fams, table, sizing, price_of, target_of, conviction_by_ticker,
+                     bullish_of, deemph, dq):
+    """Family verdict + EV gate over every live candidate; scale surviving buys. Returns a ctx dict.
+
+    BUYS (single-leg entries and rotation buy legs) are refused to vote "shadow" with a recorded
+    `refused_because` when EV_R < MIN_EV_R, the analyst target is missing/stale, the family is
+    suppressed, or an assessed rotation edge is below ROTATION_MIN_EDGE_R. SELLS are never EV-refused;
+    a suppressed family shadows a non-protective sell, and PROTECTIVE exits (thesis_break,
+    conviction_exit, trim_risk_cap, factor_threat, catalyst_threat) ignore even a suppressed verdict.
+    Every live ticket gains a `gate` block; buys also gain `edge` and `sizing_factors`."""
+    st = sizing["stop_pct_by_ticker"] or {}
+    cands, index, tickets = [], {}, []
+
+    def edge_for(t, conv, gate, hold=False, row_price=None):
+        # the row's own price_usd first (an alumni/watchlist entry carries the price it was sized at),
+        # then the run's price lookups
+        tgt, src, asof = target_of(t)
+        return smith_edge.evaluate_position(conviction_score=conv, gate=gate, price=row_price or price_of(t),
+                                            stop_pct=st.get(t), target_usd=tgt, target_source=src,
+                                            target_as_of=asof, include_fee=not hold)
+
+    for fam in _EDGE_SINGLE:
+        for row in fams.get(fam, []):
+            if row.get("vote") != "live":
+                continue
+            t = row["ticker"]
+            gate = smith_edge.gate_for(table, "BUY", fam)
+            e = edge_for(t, row.get("conviction_score"), gate, row_price=row.get("price_usd"))
+            row["gate"], row["edge"] = gate, e
+            cid = f"{fam}:{t}"
+            cands.append({"id": cid, "kind": "single", "direction": "BUY", "trigger_type": fam, "gate": gate,
+                          "edge": e, "conviction_score": row.get("conviction_score")})
+            index[cid] = ("single", row)
+    for fam in _EDGE_PAIR:
+        for row in pair_fams.get(fam, []):
+            if row.get("vote") != "live":
+                continue
+            b, sl = row["buy_leg"], row["sell_leg"]
+            gate = smith_edge.gate_for(table, "BUY", fam)
+            e = edge_for(b["ticker"], b.get("conviction_score"), gate, row_price=b.get("price_usd"))
+            hold_conv = (conviction_by_ticker.get(sl["ticker"]) or {}).get("conviction_score")
+            he = edge_for(sl["ticker"], hold_conv, gate, hold=True)
+            rot = smith_edge.rotation_edge(e, he)
+            b["gate"], b["edge"], b["rotation_edge"] = gate, e, rot
+            row["gate"] = gate
+            cid = row["pair_id"]
+            cands.append({"id": cid, "kind": "pair", "direction": "BUY", "trigger_type": fam, "gate": gate,
+                          "edge": e, "rotation": rot, "conviction_score": b.get("conviction_score")})
+            index[cid] = ("pair", row)
+    for fam in _EDGE_SELL:
+        for row in sell_fams.get(fam, []):
+            if row.get("vote") != "live":
+                continue
+            gate = smith_edge.gate_for(table, "SELL", fam)
+            row["gate"] = gate
+            row["edge"] = {"ev_gated": False, "why": "sells are never EV-gated (an EV bar at a 1R payoff "
+                           "would refuse every sell, protective exits included); only the family verdict applies"}
+            cid = f"{fam}:{row.get('ticker')}"
+            cands.append({"id": cid, "kind": "single", "direction": "SELL", "trigger_type": fam, "gate": gate})
+            index[cid] = ("sell", row)
+
+    decisions = smith_edge.decide_gate(cands)
+    saved, factors = {}, {}
+    for c in cands:
+        cid, d = c["id"], decisions[c["id"]]
+        kind, row = index[cid]
+        leg = row["buy_leg"] if kind == "pair" else row
+        rec = {"id": cid, "ticker": leg.get("ticker"), "family": c["trigger_type"], "direction": c["direction"],
+               "vote_before": "live", "vote_after": d["vote"], "refused_because": d["refused_because"],
+               "reason_code": d["reason_code"], "gate": {k: c["gate"].get(k) for k in
+                                                          ("verdict", "multiplier", "basis", "n_eff", "mean_ev_net_pct", "ci95", "family", "level")}}
+        if d.get("suppression_ignored"):
+            rec["note"] = "protective exit: family verdict suppressed but ignored"
+        if c["direction"] == "BUY":
+            e = c["edge"]
+            rec.update(p_win=e.get("p_win"), payoff_r=e.get("payoff_r"), ev_r=e.get("ev_r"), fee_r=e.get("fee_r"),
+                       p_win_basis=e.get("p_win_basis"), size_before_usd=leg.get("suggested_size_usd"))
+            if kind == "pair":
+                rec["rotation_edge"] = c["rotation"]
+        if d["vote"] == "shadow":
+            saved[cid] = {"row": copy.deepcopy(row)}
+            row["vote"] = "shadow"
+            row["refused_because"] = d["refused_because"]
+            row["gate_refused"] = {"code": d["reason_code"], "size_pre_gate_usd": leg.get("suggested_size_usd")}
+            row.setdefault("blockers", []).append(f"REFUSED by the {'family' if c['direction']=='SELL' else 'EV'} gate: "
+                                                  f"{d['refused_because']}")
+            rec["size_after_usd"] = None
+        elif c["direction"] == "BUY":
+            t = leg["ticker"]
+            f_edge_, f_fam = c["edge"]["f_edge"], c["gate"]["multiplier"]
+            f_de = smith_edge.deemph_factor(bullish_of(t), deemph)
+            factor = f_edge_ * f_fam * f_de
+            size = leg.get("suggested_size_usd")
+            cap = smith_ticket.size_from_risk(sizing["r_base_usd"], st.get(t))
+            new = smith_edge.scaled_size(size, factor, leg.get("clamped_by"), cap)
+            fx = {"f_edge": round(f_edge_, 4), "f_family": f_fam, "f_deemph": f_de,
+                  "f_conv_and_track": "embedded in size_wanted_usd (conviction_tier_pct of the track-tilted score)",
+                  "stage_fraction": smith_conviction.STAGE_FRACTION, "combined": round(factor, 4),
+                  "identity": "R_base*f_conv*f_track*STAGE (existing) x f_edge x f_family x f_deemph"}
+            leg["sizing_factors"] = fx
+            if new is not None and size and abs(new - size) > 0.005:
+                leg["size_pre_edge_usd"] = round(size, 2)
+                leg["suggested_size_usd"] = round(new, 2)
+                row.setdefault("blockers", []).append(
+                    f"edge-scaled x{factor:.2f} (f_edge {f_edge_:.2f}, f_family {f_fam:.2f}, f_deemph {f_de:.2f}): "
+                    f"${size:,.2f} -> ${new:,.2f}")
+            rec.update(f_edge=fx["f_edge"], f_family=f_fam, f_deemph=f_de,
+                       size_after_usd=leg.get("suggested_size_usd"))
+        else:
+            rec["size_after_usd"] = None
+        tickets.append(rec)
+        factors[cid] = rec
+    return {"cands": cands, "index": index, "decisions": decisions, "saved": saved, "tickets": tickets,
+            "by_id": factors}
+
+
+def _edge_restore(ctx, cid):
+    """Put a gate-refused buy back LIVE as a cash-above-band override, sized at its edge floor. Returns
+    the row; the caller re-runs heat + materiality and calls _edge_revert if it does not clear."""
+    kind, row = ctx["index"][cid]
+    c = next(x for x in ctx["cands"] if x["id"] == cid)
+    leg = row["buy_leg"] if kind == "pair" else row
+    size = (row.get("gate_refused") or {}).get("size_pre_gate_usd")
+    f_edge_ = (c["edge"].get("f_edge") or F_EDGE_MIN)
+    f_fam = max(c["gate"]["multiplier"], FAMILY_MULT_WATCH)
+    new = round((size or 0.0) * f_edge_ * f_fam, 2)
+    row["vote"] = "live"
+    row["gate_override"] = GATE_OVERRIDE_LABEL
+    row["overridden_refusal"] = row.pop("refused_because", None)
+    row.pop("gate_refused", None)
+    leg["size_pre_edge_usd"] = size
+    leg["suggested_size_usd"] = new
+    leg["sizing_factors"] = {"f_edge": round(f_edge_, 4), "f_family": round(f_fam, 4), "f_deemph": 1.0,
+                             "note": "override sized at the edge floor; family multiplier floored at the watch haircut"}
+    row.setdefault("blockers", []).append(f"GATE OVERRIDE: {GATE_OVERRIDE_LABEL}; refusal was: {row['overridden_refusal']}")
+    return row
+
+
+def _edge_revert(ctx, cid):
+    _, row = ctx["index"][cid]
+    snap = ctx["saved"][cid]["row"]
+    row.clear()
+    row.update(copy.deepcopy(snap))
+    kind, row = ctx["index"][cid]
+    leg = row["buy_leg"] if kind == "pair" else row
+    row["vote"] = "shadow"
+    row["refused_because"] = ctx["decisions"][cid]["refused_because"]
+    row["gate_refused"] = {"code": ctx["decisions"][cid]["reason_code"], "size_pre_gate_usd": leg.get("suggested_size_usd")}
+    row.setdefault("blockers", []).append(f"REFUSED by the EV gate: {row['refused_because']}")
+
+
+# ---------------------------------------------------------------------------
 # PORTFOLIO HEAT BUDGET POST-PASS (Phase 3, 2026-09-20)
 # ---------------------------------------------------------------------------
 # WHY A POST-PASS. A budget is shared by every ticket of the run, so it cannot be spent inside the
@@ -4196,6 +4395,7 @@ def _apply_heat_budget(fams, pair_fams, sell_fams, risk, drift, policy, corr, to
             cid = f"{fam}:{t}"
             cl = cluster_of(row, t)
             cands.append({"id": cid, "kind": "single", "ticker": t, "score": row.get("conviction_score"),
+                          "ev_r": (row.get("edge") or {}).get("ev_r"),
                           "size_usd": size, "stop_pct": stop, "floor_usd": _floor_usd_for(t, sizing),
                           "cluster": cl, "is_ai": cl in ai_clusters})
             index[cid] = ("single", row)
@@ -4209,6 +4409,7 @@ def _apply_heat_budget(fams, pair_fams, sell_fams, risk, drift, policy, corr, to
             scl = cluster_of(sl, sl["ticker"])
             cid = row["pair_id"]
             cands.append({"id": cid, "kind": "pair", "ticker": b["ticker"], "score": b.get("conviction_score"),
+                          "ev_r": (b.get("edge") or {}).get("ev_r"),
                           "size_usd": size, "stop_pct": stop, "floor_usd": _floor_usd_for(b["ticker"], sizing),
                           "cluster": bcl, "is_ai": bcl in ai_clusters,
                           "freed_risk_usd": sl.get("risk_removed_usd") or 0.0,
@@ -4364,7 +4565,7 @@ def _apply_heat_budget(fams, pair_fams, sell_fams, risk, drift, policy, corr, to
             "r_available_usd": round(budget["r_free_usd"] + res["credit_usd"], 2),
             "r_remaining_after_allocation_usd": res["remaining_usd"],
             "book_heat_after_allocation_usd": res["h_after_usd"],
-            "ordering_key": "smith_ticket.allocation_priority (conviction_score desc; Phase 4 swaps in EV per marginal risk)",
+            "ordering_key": "smith_ticket.allocation_priority (EV_R desc -- EV per unit of risk; conviction_score only for a candidate with no EV)",
             "allocated": alloc, "deferred": defers,
             "rooms": {"single_position_pct": max_single, "ai_capex_cap_pct": ai_cap, "ai_capex_denominator": ai_denom,
                       "ai_capex_room_usd": (None if rooms["ai_capex_usd"] is None else round(rooms["ai_capex_usd"], 2)),
@@ -4861,6 +5062,37 @@ def cmd_triggers(args):
     _trigger_cluster_consolidation(_cluster_ladders, conviction_by_ticker, risk_by_ticker,
                                    today, cluster_consolidation, sizing, cluster_rows)
 
+    # --- EDGE / EV GATE (Phase 4): family verdicts + EV gate + edge scaling, BEFORE heat so a refused
+    # buy never consumes budget. Evidence = post-ENGINE_EPOCH proposals and shadow-journal rows only.
+    _props_doc = load_json(os.path.join(args.base_dir, "proposals.json"), default={}) or {}
+    _tj_doc = load_json(os.path.join(args.base_dir, "trigger_journal.json"), default={}) or {}
+    _edge_table = smith_edge.build_table(_props_doc.get("proposals") or [], _tj_doc.get("entries") or [])
+    _out_strat = load_json(os.path.join(args.run_dir, "out_strategist.json"), default={}) or {}
+    _deemph = smith_edge.active_deemphasis(state, today, (_out_strat or {}).get("deemphasize_buckets")
+                                           if isinstance(_out_strat, dict) else None)
+
+    def _edge_price(t):
+        return (price_by_ticker.get(t) or (market_prices.get(t) or {}).get("price")
+                or (conviction_by_ticker.get(t) or {}).get("price"))
+
+    _edge_ctx = _apply_edge_gate(
+        {"oversold_reversion": oversold, "trend_entry": trend_entry, "conviction_average": conviction_average,
+         "entry_setup": entry_setup, "reentry": reentry, "bench_diversifier": bench_diversifier},
+        {"profit_rotation": profit_rotation, "cluster_rotation": cluster_rotation},
+        {"overbought_distribution": overbought, "catalyst_threat": catalyst_threat,
+         "thesis_break": thesis_break, "trend_breakdown": trend_breakdown, "conviction_exit": conviction_exit},
+        _edge_table, sizing, _edge_price, lambda t: _fresh_target(t, dc, target_by_ticker, today),
+        conviction_by_ticker,
+        lambda t: smith_risk.classify_signal_polarity(signal_history.get(t) or [])["bullish"], _deemph, dq)
+    _edge_refused = [t for t in _edge_ctx["tickets"] if t["vote_after"] == "shadow"]
+    if _edge_refused:
+        dq.append("EDGE GATE refused (emitted as shadow, recorded, scored): " + "; ".join(
+            f"{t['family']} {t['ticker']}: {t['refused_because']}" for t in _edge_refused))
+    if _table_all_unproven(_edge_table):
+        dq.append("edge gate: every family/direction verdict is UNPROVEN (n_eff < %d; the legacy engine's record "
+                  "before ENGINE_EPOCH %s is excluded) -- multiplier 1.00, p_win is the UNCALIBRATED 0.45 prior "
+                  "shrunk only by conviction." % (N_MIN, smith_edge._epoch()))
+
     # --- PORTFOLIO HEAT BUDGET (Phase 3): one post-pass over EVERY live buy candidate, after all
     # triggers have sized theirs and before the materiality annotation below reads the final sizes.
     _heat = _apply_heat_budget(
@@ -4879,6 +5111,50 @@ def cmd_triggers(args):
                  bench_diversifier):
         for _row in _fam:
             _apply_buy_materiality(_row, sizing)
+    # --- SAFETY INVARIANT: the gate may never take live BUY tickets to zero while cash is above band.
+    def _edge_clears(cid):
+        """Restore the candidate, re-run heat + materiality on it, keep it only if it is still a live
+        ticket that clears both; otherwise revert it exactly."""
+        nonlocal _heat
+        _edge_restore(_edge_ctx, cid)
+        kind, row = _edge_ctx["index"][cid]
+        scratch = []
+        h2 = _apply_heat_budget(
+            {"oversold_reversion": oversold, "trend_entry": trend_entry, "conviction_average": conviction_average,
+             "entry_setup": entry_setup, "reentry": reentry, "bench_diversifier": bench_diversifier},
+            {"profit_rotation": profit_rotation, "cluster_rotation": cluster_rotation},
+            {"overbought_distribution": overbought, "catalyst_threat": catalyst_threat,
+             "thesis_break": thesis_break, "trend_breakdown": trend_breakdown, "conviction_exit": conviction_exit},
+            risk, drift, policy, load_json(os.path.join(args.run_dir, "compute_correlation.json"), default={}),
+            today, sizing, sector_map, scratch, atr_vals,
+            load_json(os.path.join(args.base_dir, "learning.json"), default={}) or {})
+        leg = row["buy_leg"] if kind == "pair" else row
+        if kind == "single":
+            _apply_buy_materiality(row, sizing)
+        m = _buy_leg_verdict(leg.get("suggested_size_usd"), leg.get("ticker"), sizing)
+        ok = row.get("vote") == "live" and (m is None or m["ok"]) and (leg.get("suggested_size_usd") or 0) > 0
+        if ok:
+            _heat = h2
+            dq.extend(x for x in scratch if x not in dq)
+        else:
+            _edge_revert(_edge_ctx, cid)
+        return ok
+
+    _invariant = smith_edge.enforce_cash_invariant(_edge_ctx["cands"], _edge_ctx["decisions"],
+                                                   deployable > 0, clears=_edge_clears)
+    _invariant["deployable_cash_usd"] = round(deployable, 2)
+    if _invariant["override"]:
+        _o = _edge_ctx["by_id"][_invariant["override"]]
+        _o["vote_after"], _o["gate_override"] = "live", GATE_OVERRIDE_LABEL
+        _o["overridden_refusal"], _o["refused_because"] = _o["refused_because"], None
+        _kind, _orow = _edge_ctx["index"][_invariant["override"]]
+        _oleg = _orow["buy_leg"] if _kind == "pair" else _orow
+        _o["size_after_usd"] = _oleg.get("suggested_size_usd")
+        dq.append(f"GATE OVERRIDE: {_invariant['override']} restored -- {GATE_OVERRIDE_LABEL} "
+                  f"(the gate had left no live buy with ${deployable:,.0f} above the cash band)")
+    elif _invariant["required"]:
+        dq.append("SAFETY INVARIANT could not be honoured: " + str(_invariant["why_not"]))
+
     _below = [(fam, r) for fam, rows in (
         ("oversold_reversion", oversold), ("overbought_distribution", overbought),
         ("catalyst_threat", catalyst_threat), ("thesis_break", thesis_break),
@@ -4991,6 +5267,19 @@ def cmd_triggers(args):
                     "rsi14": None, "gain_pct": None, "rel_strength_1m_pp": None,
                     "pair_id": p["pair_id"], "scored": False}
                    for p in cluster_bench_rotation + cluster_consolidation]
+    # Rows the EV/family gate shadowed are not proposals, so nothing else would ever score them --
+    # and a shadowed (or suppressed) family can only earn its vote back if its rows ARE scored.
+    # They carry direction_bucket so cmd_score_shadow_journal grades them, and shadow_reason.
+    for _t in _edge_ctx["tickets"]:
+        if _t["vote_after"] != "shadow":
+            continue
+        _k, _r = _edge_ctx["index"][_t["id"]]
+        _l = _r["buy_leg"] if _k == "pair" else _r
+        shadow_new.append({"date": today.isoformat(), "ticker": _l["ticker"], "trigger_type": _t["family"],
+                           "direction_bucket": "BUY" if _t["direction"] == "BUY" else "TRIM",
+                           "price_at_flag": _edge_price(_l["ticker"]), "rsi14": None, "gain_pct": None,
+                           "rel_strength_1m_pp": None, "shadow_reason": _t["reason_code"],
+                           "refused_because": _t["refused_because"], "scored": False})
 
     emit({
         "as_of": today.isoformat(),
@@ -5045,6 +5334,7 @@ def cmd_triggers(args):
         "live_counts": live_counts, "shadow_counts": shadow_counts,
         "below_materiality_counts": below_materiality_counts,
         "heat_budget": _heat,
+        "edge": smith_edge.explain(today.isoformat(), _edge_table, _edge_ctx["tickets"], _invariant),
         "deferred_counts": {fam: n for fam, n in (
             (fam, sum(1 for r in rows if r.get("vote") == "deferred")) for fam, rows in (
                 ("oversold_reversion", oversold), ("trend_entry", trend_entry),
@@ -5129,15 +5419,47 @@ def _draft_stress_anchor(market_inputs, fomc_cache):
             "fed_rate_pct": fc.get("rate_pct"), "fed_stance": fc.get("stance")}
 
 
+def _fmt_exp(d):
+    """Expectancy-first one-liner for a scorecard aggregate (SKILL.md: lead with EXPECTANCY, not
+    accuracy -- this function used to emit accuracy only, contradicting the rule it quotes)."""
+    if not d:
+        return "n=0"
+    bits = []
+    if d.get("expectancy_pct_net") is not None:
+        bits.append(f"net expectancy {d['expectancy_pct_net']}%")
+    if d.get("size_weighted_expectancy_pct_net") is not None:
+        bits.append(f"size-weighted {d['size_weighted_expectancy_pct_net']}%")
+    if d.get("expectancy_usd_total") is not None:
+        bits.append(f"${d['expectancy_usd_total']} total")
+    if d.get("payoff_ratio") is not None:
+        bits.append(f"payoff {d['payoff_ratio']}:1")
+    if d.get("accuracy_pct") is not None:
+        bits.append(f"accuracy {d['accuracy_pct']}%")
+    n_rows = d.get("n_rows") if d.get("n_rows") is not None else d.get("n")
+    bits.append(f"n={n_rows} rows" + (f" / {d['n_ideas']} ideas" if d.get("n_ideas") is not None else ""))
+    return ", ".join(bits)
+
+
 def _draft_scorecard_quote(scorecard):
+    """Leads with the CURRENT engine's record (since ENGINE_EPOCH), then the legacy record, labelled.
+    Legacy proposals came from the pre-rebuild engine and are history, not performance."""
     if not scorecard:
         return None
-    o = scorecard.get("overall") or {}
-    parts = [f"Stored scorecard (as_of {scorecard.get('as_of')}, n={o.get('n')}): "
-             f"overall {scorecard.get('overall_accuracy_30d')}% "
-             f"({o.get('worked')}/{o.get('missed')}/{o.get('neutral')} worked/missed/neutral)"]
-    for label, d in (scorecard.get("by_direction") or {}).items():
-        parts.append(f"{label} {d.get('accuracy_pct')}% (n={d.get('n')})")
+    since, legacy = scorecard.get("since_epoch"), scorecard.get("legacy")
+    if since is None and legacy is None:      # a scorecard written before the split existed
+        legacy = {"overall": scorecard.get("overall"), "by_direction": scorecard.get("by_direction")}
+    parts = [f"Stored scorecard (as_of {scorecard.get('as_of')})"]
+    if since and since.get("n_rows"):
+        parts.append("CURRENT ENGINE (since %s): %s" % (since.get("engine_epoch"), _fmt_exp(since.get("overall"))))
+        for label, d in (since.get("by_direction") or {}).items():
+            parts.append(f"  {label}: {_fmt_exp(d)}")
+    else:
+        parts.append("CURRENT ENGINE: no post-rebuild proposals scored yet (n=0)")
+    if legacy:
+        parts.append("LEGACY-ENGINE HISTORY, not current performance -- overall: " + _fmt_exp(legacy.get("overall")))
+        for label, d in (legacy.get("by_direction") or {}).items():
+            if d:
+                parts.append(f"  legacy {label}: {_fmt_exp(d)}")
     return "; ".join(parts)
 
 

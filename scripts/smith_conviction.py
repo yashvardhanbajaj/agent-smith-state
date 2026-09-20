@@ -252,12 +252,23 @@ def kelly_fraction(p, b, fraction=KELLY_FRACTION_DEFAULT):
     missed rows). fraction: the Kelly fraction applied (0.25 = quarter-Kelly). Clamped to
     [0, 1] -- this function never recommends shorting (negative f) or leverage beyond the full
     bankroll (f > 1); a negative edge (b*p <= q) returns 0, not a negative size."""
+    f_full = full_kelly(p, b)
+    if f_full is None:
+        return None
+    return round(max(0.0, min(1.0, f_full)) * fraction, 4)
+
+
+def full_kelly(p, b):
+    """The ONE Kelly formula, f* = (b*p - q)/b, unclamped (negative = negative edge).
+
+    kelly_fraction clamps it to [0, 1] (never short, never leveraged) and track_record_multiplier
+    clamps it to [-1, 1] (it needs the SIGN to tilt a size DOWN). Both used to carry their own
+    copy of the arithmetic; Phase 4 added a third consumer (smith_edge's disclosed Kelly cross-check
+    on every ticket), so the formula lives here once and each caller keeps its own clamp -- their
+    outputs are unchanged."""
     if p is None or b is None or b <= 0:
         return None
-    q = 1.0 - p
-    f_full = (b * p - q) / b
-    f_full = max(0.0, min(1.0, f_full))
-    return round(f_full * fraction, 4)
+    return (b * p - (1.0 - p)) / b
 
 
 def track_record_multiplier(hit_rate_pct, n, max_effect=0.20, n_for_full_authority=20,
@@ -288,7 +299,7 @@ def track_record_multiplier(hit_rate_pct, n, max_effect=0.20, n_for_full_authori
     authority = min(1.0, n / n_for_full_authority)
     if payoff_ratio is not None and payoff_ratio > 0:
         p = hit_rate_pct / 100.0
-        f_full_kelly = max(-1.0, min(1.0, (payoff_ratio * p - (1 - p)) / payoff_ratio))
+        f_full_kelly = max(-1.0, min(1.0, full_kelly(p, payoff_ratio)))
         # f_full_kelly is in [-1,1] (edge direction and strength); map it onto the SAME
         # +/-max_effect band the plain formula uses, so the ceiling is identical either way.
         tilt = f_full_kelly * max_effect * authority

@@ -101,6 +101,35 @@ ANCHOR_REVIEW_PCT = 35.0  # |move| beyond this quarantines a proposal score pend
 # month is one idea; a fresh thesis a month later is a new, independent observation.
 IDEA_MONTH_PREFIX_LEN = 7
 
+
+def proposal_direction(action):
+    """One of BUY/TRIM/SELL/HOLD from a proposal's action text (see DIRECTION_KEYWORDS).
+
+    Moved here from smith_lifecycle 2026-09-20 (Phase 4) so `idea_key` -- which the pure
+    smith_edge module needs -- can live beside it without smith_edge importing smith_lifecycle
+    (which imports smith_edge for the unified bucket reader). smith_lifecycle keeps the old name
+    as an alias; there is exactly one implementation."""
+    a = (action or "").upper()
+    for kw, bucket in DIRECTION_KEYWORDS:
+        if kw in a:
+            return bucket
+    return "HOLD"
+
+
+def idea_key(pr):
+    """(ticker, direction bucket, trigger type, month) -- what makes two proposals the SAME idea.
+
+    Added 2026-09-20. 88 scored rows were 43 distinct ideas (QCOM BUY x6, MU TRIM x5, DRAM TRIM
+    x5): the same idea is re-proposed each run until it works, so counting rows both inflated n
+    and biased the record negative. The month bucket means a restatement inside one calendar
+    month is one idea while a fresh call a month later is an independent observation. Used for
+    the aggregate denominator only; individual rows are still graded one by one. Moved to
+    smith_core in Phase 4 -- smith_edge's n_eff is a count of these keys, and it must be the SAME
+    definition the scorecard uses or the two would disagree about how much evidence exists."""
+    direction = pr.get("direction_bucket") or proposal_direction(pr.get("action"))
+    return (pr.get("ticker"), direction, pr.get("trigger_type"),
+            str(pr.get("date") or "")[:IDEA_MONTH_PREFIX_LEN])
+
 # A HOLD's verdict is ALPHA-relative (2026-09-20): it worked unless the name UNDERPERFORMED its
 # benchmark by more than this. The old rule (|30d move| < 2%) is near-unwinnable on a book whose
 # names routinely move 10%+ a month -- it scored 0 for 10, a broken metric rather than a desk
@@ -746,6 +775,90 @@ STOP_LEARNED_MID_ATR_RANGE = (3.0, 5.5)
 STOP_LEARNED_PARAM_ID = "stops.atr_multiple.mid"
 # Label written to clamped_by / deferred_by so a reader can tell WHICH constraint bound.
 HEAT_DEFER_LABEL = "portfolio heat budget"
+
+
+# ---------------------------------------------------------------------------
+# EDGE / EXPECTED-VALUE GATE (Phase 4 of the proposal-engine rebuild, 2026-09-20)
+# ---------------------------------------------------------------------------
+# ALL OF THESE ARE ENGINEERING CALIBRATION, NOT POLICY. None is a confirmed user decision; each is
+# a conservative default chosen for the reason stated beside it, and none was tuned by looking at
+# the desk's legacy hit rates (see ENGINE_EPOCH -- that record is inadmissible as calibration).
+
+# THE ENGINE EPOCH. Every proposal dated BEFORE this ISO date came from the legacy engine:
+# mechanical market-value sizing, trade tickets discarded on write (9 of 323 rows kept a stop), no
+# materiality floor, no heat budget, no EV bar. The user's words on 2026-09-20: "earlier proposals
+# were too broke." Their outcomes measure THAT engine -- not the one being built -- so they are
+# excluded from every evidence path that feeds sizing or gating (smith_edge's family verdicts,
+# n_eff, hit rates, and the trigger-journal source). A large legacy sample would be exactly as
+# inadmissible as the small one we have. The legacy record is still REPORTED (scorecard `legacy`
+# block, dashboard, briefing) but labelled as history, never as current performance. All of
+# P-001..P-362 predate this date; the first post-rebuild proposal is the first that counts.
+# Compared against a proposal's ISO `date` prefix. A constant, not policy: moving it is a code
+# review, not a config edit, because moving it later would launder legacy evidence back in.
+ENGINE_EPOCH = "2026-09-21"
+
+# Entry EV bar: EV_R = p_win*payoff_R - (1 - p_win) - fee_R must reach this for a BUY to be
+# proposed live. 0.15R is roughly the fee-and-slippage-adjusted edge worth taking a position for;
+# it applies to BUYS ONLY (the actions that ADD risk). It is deliberately NOT applied to sells: at
+# the 0.45 prior a sell "worth" payoff 1.0R has EV_R = -0.13 and would need p_win >= 0.59 to clear
+# this bar, which would refuse EVERY sell -- including thesis_break and catalyst_threat exits --
+# until the desk proved a hit rate no measured record supports. A gate that blocks protective
+# exits is a risk hazard, not risk management.
+MIN_EV_R = 0.15
+# EV at which an entry is sized at its full conviction size; below it the size scales linearly,
+# floored at F_EDGE_MIN so a barely-passing idea is a small position, not a zero one.
+EV_R_FULL = 0.50
+F_EDGE_MIN = 0.25
+# A rotation must add this much EV per unit of risk over simply HOLDING the name it sells, else
+# it is a fee-paying lateral move. Compared only when the held name's own EV is measurable.
+ROTATION_MIN_EDGE_R = 0.25
+# A payoff target is hard-capped at entry*(1 + TARGET_CAP_R * stop_pct/100): a 51% analyst upside
+# on a 12%-stop name must not manufacture a 4.3R trade out of a sell-side price target, which is
+# optimistic by construction.
+TARGET_CAP_R = 4.0
+# An analyst target older than this is not used (payoff unknown -> the buy is shadow with that
+# reason, never estimated). Mirrors data_cache.analyst_targets' declared 7-day TTL in cache_policy.
+ANALYST_TARGET_MAX_AGE_DAYS = 7
+# p_win: UNCALIBRATED engineering prior, chosen for conservatism (below a coin flip, above the
+# 0.38-0.46 the legacy engine printed, so it does not pretend that record is informative). It is
+# NOT measured from history and must be RE-DERIVED once post-epoch scored ideas exist. It is
+# shrunk toward family evidence by w = n_eff/(n_eff + P_WIN_SHRINK_K); K=20 means a family needs
+# 20 independent ideas before its own hit rate outweighs the prior. Ceiling 0.75: this desk has
+# never demonstrated better, and a probability the sizer trusts above it would oversize.
+P_WIN_PRIOR = 0.45
+P_WIN_SHRINK_K = 20
+P_WIN_CEILING = 0.75
+P_WIN_FLOOR = 0.15
+# conviction (0-100) tilts p_win by (0.8 + 0.4*conviction/100): 0 conviction -> x0.8, 100 -> x1.2.
+P_WIN_CONVICTION_LOW, P_WIN_CONVICTION_SPAN = 0.8, 0.4
+# Family verdict thresholds (per (direction, trigger_type) AND per direction).
+N_MIN = 12                # below this many independent ideas a family is `unproven` and NEVER gates
+N_SUPPRESS = 20           # a family is only suppressed at >= this many ideas AND upper-95 < 0
+CI_Z = 1.96               # 95% two-sided normal interval on the per-idea mean
+FAMILY_MULT_WATCH = 0.75  # CI straddles zero: a haircut, not a gate
+FAMILY_MULT_MAX = 1.25    # ceiling for a proven family
+# multiplier = clamp(1 + FAMILY_MULT_SLOPE * mean_ev_net_pct / FAMILY_MULT_MEAN_SCALE_PCT, 0, MAX)
+FAMILY_MULT_SLOPE, FAMILY_MULT_MEAN_SCALE_PCT = 0.5, 5.0
+# Exits that REDUCE a genuinely broken/at-risk position. A suppressed family may never stop the
+# desk from proposing to cut one of these, and none is ever EV-refused. (trim_risk_cap is the
+# trigger_type the legacy rows carry as `risk_cap`; both spellings are listed.)
+PROTECTIVE_EXIT_TRIGGERS = frozenset({"thesis_break", "conviction_exit", "trim_risk_cap", "risk_cap",
+                                      "factor_threat", "catalyst_threat"})
+# The label written to gate_override when the cash-above-band safety invariant restores a buy.
+GATE_OVERRIDE_LABEL = "cash above band -- best available idea permitted"
+# Strategist `deemphasize_buckets`: an LLM opinion, so it is BOUNDED. A de-emphasised signal bucket
+# on a name costs that BUY one priority point and shrinks its size by this factor ONCE (not per
+# bucket) -- it can never zero a ticket, whatever the strategist writes.
+DEEMPH_SIZE_MULT = 0.85
+DEEMPH_PRIORITY_PENALTY = 1
+DEEMPH_MAX_AGE_DAYS = 7
+# Signal-bucket hit-rate PENALTY (the reward branch was always there): a bullish bucket measured
+# below this rate over at least this many scored signals costs a BUY 2 priority points.
+BUCKET_PENALTY_HIT_RATE_PCT, BUCKET_PENALTY_MIN_N, BUCKET_PENALTY_POINTS = 45.0, 8, 2
+BUCKET_REWARD_HIT_RATE_PCT = 55.0
+# proposal statuses that represent a real closed recommendation worth grading (shared by
+# cmd_score and smith_edge so both read the same set). `superseded` is absent on purpose.
+SCOREABLE_STATUSES = frozenset({"executed", "fulfilled", "filled", "auto_retired", "deferred", "watch"})
 
 # ---------------------------------------------------------------------------
 # lots -- deterministic FIFO with corporate-action support

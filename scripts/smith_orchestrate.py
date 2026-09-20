@@ -482,6 +482,42 @@ def _append_shadow_triggers(base_dir, run_dir, today):
     return {"trigger_journal_added": added}
 
 
+def _score_shadow_journals(base_dir, run_dir, today):
+    """Score trigger_journal.json / derisk_journal.json from the prices this run already holds.
+
+    cmd_score_shadow_journal was implemented (2026-08-25) and sat in no pipeline document:
+    trigger_journal.json was 26 days stale with 60 unscored entries, so no shadow family -- including
+    one the Phase 4 gate suppresses -- could ever earn its vote back. Prices come from the run's own
+    files (score_prices.json, live_quotes.json, book positions); a ticker with none stays unscored and
+    is named, never guessed. The scorer locks a verdict on first score, so re-running is idempotent.
+    Never blocks a commit."""
+    from smith_lifecycle import cmd_score_shadow_journal
+    prices = {}
+    book = _j(os.path.join(run_dir, "compute_book.json"), {}) or {}
+    for p in book.get("positions") or []:
+        if p.get("ticker") and p.get("price_usd"):
+            prices[p["ticker"]] = p["price_usd"]
+    for t, q in (_j(os.path.join(run_dir, "live_quotes.json"), {}) or {}).items():
+        px = q.get("price") if isinstance(q, dict) else q
+        if px:
+            prices[t] = px
+    for t, px in (_j(os.path.join(run_dir, "score_prices.json"), {}) or {}).items():
+        if isinstance(px, (int, float)):
+            prices[t] = px
+    pj = os.path.join(run_dir, "shadow_prices.json")
+    atomic_write_json(pj, prices)
+    out = {}
+    for fname in ("trigger_journal.json", "derisk_journal.json"):
+        if not os.path.exists(os.path.join(base_dir, fname)):
+            continue
+        try:
+            out[fname] = _capture(cmd_score_shadow_journal, base_dir=base_dir, file=fname, prices_json=pj,
+                                  today=str(today), dry_run=False)
+        except Exception as e:  # noqa: BLE001 -- scoring must never fail a commit
+            out[fname] = {"error": f"{type(e).__name__}: {e}"}
+    return {"shadow_journal_scored": out}
+
+
 def _stage_run_block(base_dir, run_dir, mode, today):
     book = _j(os.path.join(run_dir, "compute_book.json"), {}) or {}
     holdings = _j(os.path.join(run_dir, "holdings.json"), {}) or {}
@@ -531,6 +567,8 @@ def postflight_commit(args):
     out["commit"] = ss.commit_state(base, rd, persist_safe=None)
     out.update(_merge_journal(base, rd, today))
     out.update(_append_shadow_triggers(base, rd, today))
+    if args.mode in ("deep", "quick"):
+        out.update(_score_shadow_journals(base, rd, today))
     # Prior-findings digest (2026-09-15): fold committed state, this run's tails and the
     # orchestrator's findings_orchestrator.json into findings.json. Never blocks a commit.
     try:

@@ -1785,6 +1785,12 @@ def _merge_strategist(out, state, today, revision=False):
     Keeps ONE prior generation as `stress_table_prev` so the next run can diff rather than merely
     overwrite -- the cheapest possible version of the comparison the table exists to support.
     """
+    # deemphasize_buckets: emitted by the strategist every run and read by NOTHING until Phase 4.
+    # Persist it (with its date) so the next triggers/proposals run can consume it as a bounded
+    # -1 priority and x0.85 size (smith_edge.active_deemphasis / deemph_factor).
+    de = out.get("deemphasize_buckets")
+    if isinstance(de, list):
+        state["strategist_deemphasis"] = {"buckets": [b for b in de if isinstance(b, str)], "as_of": today}
     st = out.get("stress_table")
     if not isinstance(st, dict) or not st.get("scenarios"):
         return {"stress_table": None, "note": "tail carried no stress_table scenarios"}
@@ -2869,6 +2875,15 @@ def cmd_slices(args):
             else:
                 problems.append(f"{agent_label} [{agent}]: shared source '{sname}' unavailable this run")
 
+        if agent == "strategist":
+            # scorecard_gate (Phase 4): the EXACT numbers the sizer/gate used this run, read from
+            # compute_edge.json, so the LLM cannot contradict them in prose. Until now the slice
+            # carried no scorecard or expectancy field at any depth. Shows since-epoch numbers and
+            # says the legacy record is excluded and why.
+            import smith_edge
+            sl["scorecard_gate"] = smith_edge.scorecard_gate_block(
+                load_json(os.path.join(rd, "compute_edge.json"), default=None),
+                (load_json(os.path.join(base, "proposals.json"), default={}) or {}).get("scorecard"))
         if spec.get("holdings") == "trim":
             _place(sl, "holdings", trim, shared_dir, shared_once, name="holdings_trim")
         elif spec.get("holdings") == "full":
