@@ -383,7 +383,7 @@ def score_conviction(ctx):
 STAGE_FRACTION = 0.5  # first tranche only; the rest is explicitly reserved, never deployed in one pass
 
 
-def policy_max_position_usd(atr_pct, price_usd, total_book_usd, policy):
+def policy_max_position_usd(atr_pct, price_usd, total_book_usd, policy, learned_multiple=None):
     """Reuses smith_risk.stop_and_cap AS-IS (qty=0) rather than re-deriving the formula --
     ONE FIELD, ONE READER. max_position_usd/stop_price_usd do not depend on qty or current
     market value at all, so calling with qty=0 correctly returns the FULL policy-allowed size
@@ -391,7 +391,11 @@ def policy_max_position_usd(atr_pct, price_usd, total_book_usd, policy):
     this is precisely what makes re-entry sizing possible; the old engine's `headroom_usd` was
     read only from currently-held positions in compute_risk.json, so an unheld ticker was never
     even in that lookup and sized at $0 by omission, not by a $0 formula result."""
-    return smith_risk.stop_and_cap(atr_pct, price_usd, 0, total_book_usd, policy)
+    # learned_multiple (Phase 3): forwarded so stop_and_cap's ADVISORY learned_stop block is
+    # reachable from the sizing path too. It never changes max_position_usd or stop_price_usd --
+    # see smith_risk.learned_stop_multiple_for.
+    return smith_risk.stop_and_cap(atr_pct, price_usd, 0, total_book_usd, policy,
+                                   learned_multiple=learned_multiple)
 
 
 def conviction_size(conviction_tier_pct, policy_max_usd, stage_fraction=STAGE_FRACTION):
@@ -405,12 +409,29 @@ def conviction_size(conviction_tier_pct, policy_max_usd, stage_fraction=STAGE_FR
     return round(target, 2), round(size_wanted, 2)
 
 
-def clamp_size(size_wanted, headroom_usd, cluster_room_usd, deployable_cash_usd):
+def clamp_size(size_wanted, headroom_usd, cluster_room_usd, deployable_cash_usd, *,
+               heat_room_usd=None, single_position_room_usd=None, ai_capex_room_usd=None,
+               cluster_risk_room_usd=None):
     """Returns (size_final, clamped_by). Clamps to the TIGHTEST of: ATR headroom (never breach
     the position's own risk cap), cluster room (never push a cluster over its ceiling),
     deployable cash (never spend below the cash floor). None inputs are treated as
     non-binding (unknown != a reason to block) but are never used to justify a LARGER size than
-    size_wanted -- an unclamped size_wanted already respects the policy max by construction."""
+    size_wanted -- an unclamped size_wanted already respects the policy max by construction.
+
+    PHASE 3 (2026-09-20) adds four keyword-only clamps, all in DOLLARS of position, all None =
+    non-binding, all only ever SHRINKING a buy, and named by the constraint that bound:
+
+        heat_room            what the run's remaining portfolio-heat budget buys at this stop
+        single_position      policy.max_single_position_pct minus the name's current weight
+        ai_capex             policy.max_ai_capex_factor_pct minus current AI-capex exposure
+        cluster_risk_budget  the cluster's share of the correlation-adjusted heat budget
+
+    max_single_position_pct and max_ai_capex_factor_pct were computed by cmd_drift on every run
+    and displayed, and no sizing function ever received them; policy records the 10% aggregate
+    cap breached at 11.9% and 13.0% while sizing carried on. The return shape is unchanged and the
+    positional signature is unchanged, so every pre-Phase-3 call site keeps working. On a tie the
+    older clamp keeps the name, so a row that was bound by cash yesterday is still bound by cash.
+    """
     if size_wanted is None or size_wanted <= 0:
         return 0.0, None
     candidates = [("size_wanted (unclamped)", size_wanted)]
@@ -420,6 +441,10 @@ def clamp_size(size_wanted, headroom_usd, cluster_room_usd, deployable_cash_usd)
         candidates.append(("cluster ceiling room", max(0.0, cluster_room_usd)))
     if deployable_cash_usd is not None:
         candidates.append(("deployable cash", max(0.0, deployable_cash_usd)))
+    for label, room in (("single_position", single_position_room_usd), ("ai_capex", ai_capex_room_usd),
+                        ("cluster_risk_budget", cluster_risk_room_usd), ("heat_room", heat_room_usd)):
+        if room is not None:
+            candidates.append((label, max(0.0, room)))
     label, size_final = min(candidates, key=lambda c: c[1])
     clamped_by = None if label == "size_wanted (unclamped)" else label
     return round(size_final, 2), clamped_by

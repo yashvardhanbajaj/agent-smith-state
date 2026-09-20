@@ -51,7 +51,8 @@ def test_clean_run(tmp_path, monkeypatch):
     assert code == 0 and out["ok"] and out["degraded"] == []
     # `perf` is last since 2026-09-19; `ladder` stays last of the trigger-dependent stages
     assert calls[0] == "indicators" and calls[-1] == "perf"
-    assert calls.index("ladder") < calls.index("correlation")
+    # correlation runs BEFORE triggers since Phase 3 (the heat budget reads it)
+    assert calls.index("correlation") < calls.index("triggers") < calls.index("ladder")
     assert json.loads((rd / "compute_triggers.json").read_text()) == {"correction_state": "none"}
 
 

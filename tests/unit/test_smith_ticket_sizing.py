@@ -523,6 +523,12 @@ class TestCandidatePrices:
             st.setdefault("thesis", {})["CORZ"] = "AI hosting|strengthening"
             json.dump(st, open(dst / "base" / "state.json", "w"))
             json.dump({"CORZ": {"price": 15.25}}, open(dst / "rundir" / "live_quotes.json", "w"))
+            # the fixture book is over its correlation-adjusted heat cap on the conservative bound
+            # (Phase 3), which would defer any new buy; this test is about prices, so give it a
+            # measured, uncorrelated book with room.
+            json.dump({"as_of": "2026-09-01", "window": {"to": "2026-08-28"},
+                       "stop_risk": {"avg_pairwise_correlation": 0.0}},
+                      open(dst / "rundir" / "compute_correlation.json", "w"))
         out = _run_triggers("triggers_case1", tmp_path, add)
         row = next(r for r in out["entry_setup"] if r["ticker"] == "CORZ")
         assert row["price_usd"] == 15.25 and row["price_source"] == "live_quotes.json"

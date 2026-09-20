@@ -774,7 +774,35 @@ def validate_policy(policy, state=None):
         defects.append(f"ai_capex_clusters names clusters with no target defined: {unknown}")
 
     defects.extend(validate_trade_materiality(policy))
+    defects.extend(validate_heat_budget(policy))
     return defects
+
+
+def validate_heat_budget(policy):
+    """Structural checks on policy.heat_budget (added 2026-09-20, Phase 3). Absent is fine --
+    smith_ticket.heat_policy falls back to smith_core's defaults. Present, it must be usable: the
+    floor a number in [0, 1] (smith_ticket would silently fall back to the default on anything
+    else), cluster_sub_budget a bool, `confirmed` a bool that is only true alongside a
+    confirmed_by_user stamp. It never touches stop_loss_framework: the 10% cap itself is the
+    user's confirmed number, and this block only decides how much of it a correlated book may fill.
+    """
+    hb = policy.get("heat_budget")
+    if hb is None:
+        return []
+    if not isinstance(hb, dict):
+        return ["heat_budget must be an object"]
+    out = []
+    fl = hb.get("heat_floor_at_full_correlation")
+    if not isinstance(fl, (int, float)) or isinstance(fl, bool) or not (0.0 <= fl <= 1.0):
+        out.append(f"heat_budget.heat_floor_at_full_correlation must be a number in [0, 1] (got {fl!r}) -- "
+                   "smith_ticket would silently fall back to its built-in default")
+    if not isinstance(hb.get("cluster_sub_budget"), bool):
+        out.append("heat_budget.cluster_sub_budget must be true or false")
+    if not isinstance(hb.get("confirmed"), bool):
+        out.append("heat_budget.confirmed must be true or false")
+    elif hb["confirmed"] and not hb.get("confirmed_by_user"):
+        out.append("heat_budget.confirmed is true with no confirmed_by_user stamp")
+    return out
 
 
 def validate_trade_materiality(policy):

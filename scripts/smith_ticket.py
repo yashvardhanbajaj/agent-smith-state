@@ -3,7 +3,8 @@
 Agent Smith -- trade-ticket sizing in RISK DOLLARS (Phase 2 of the proposal-engine rebuild).
 
 Pure functions, stdlib only, no I/O -- same contract as smith_risk.py and smith_conviction.py.
-Imports only smith_core's constants (as smith_risk does), never smith_lifecycle or smith_math.
+Imports smith_core's constants (as smith_risk does) and smith_conviction.clamp_size (the one place
+that names a binding clamp), never smith_lifecycle or smith_math.
 
 THE INCIDENT. On 2026-09-20 the engine proposed rotating $56.37 of SKHY into CIEN on a $42,542
 book. A correct 10-point call on that ticket earns $5.64; the round trip costs 0.30% of the buy.
@@ -25,11 +26,22 @@ R_base remains the unit for ENTRIES, for rotation buys' risk conservation, for m
 term, and for trim_risk_cap, whose severity (R_open - R_base)/R_base is measured against the
 budget the position was sized to.
 
-WHAT IS NOT HERE. No heat budget and no expected-value gate: those are Phases 3 and 4. This
-module sizes one ticket, or one rotation, at a time.
+PORTFOLIO HEAT (Phase 3, 2026-09-20, the second half of this file): the functions from
+`heat_policy` down allocate ONE risk budget across EVERY buy candidate of a run at once. They are
+pure and operate on plain candidate dicts, not trigger rows, so the gate can be tested against a
+fixture book that is over its cap -- the live book (6.45% heat vs a 10% cap) deliberately never
+binds it, which is why it is safe to land and why live data alone can never validate it.
+
+WHAT IS NOT HERE. No expected-value gate: that is Phase 4. `allocation_priority` is the single
+place its ordering key will be swapped in.
 """
-from smith_core import (DUST_USD_DEFAULT, FEE_COVER_MULT, MIN_TICKET_PCT_OF_BOOK, MIN_TICKET_R,
-                        MIN_TICKET_USD, ROUND_TRIP_FEE_PCT, TRIM_TO_EXIT_FRACTION, dust_usd)
+import datetime as _dt
+
+from smith_core import (CORRELATION_MAX_AGE_DAYS, DUST_USD_DEFAULT, FEE_COVER_MULT,
+                        HEAT_DEFER_LABEL, HEAT_FLOOR_AT_FULL_CORRELATION, MIN_TICKET_PCT_OF_BOOK,
+                        MIN_TICKET_R, MIN_TICKET_USD, ROUND_TRIP_FEE_PCT, TRIM_TO_EXIT_FRACTION,
+                        dust_usd)
+import smith_conviction
 
 # Reported when a value cannot be sized because an input is missing. Never estimated: a stop the
 # desk cannot compute is not a stop it should trade on.
@@ -289,3 +301,290 @@ def size_sell_leg(severity_r, mv, stop_pct, ctx):
             "risk_removed_usd": round((size or 0.0) * stop_pct / 100.0, 2),
             "clamped_by_mv": raw["clamped_by_mv"], "sizing_note": "; ".join(note),
             "materiality": mat, "vote_hint": vote_hint}
+
+
+# ===========================================================================
+# PORTFOLIO HEAT BUDGET (Phase 3, 2026-09-20)
+# ===========================================================================
+# THE INCIDENT. policy.stop_loss_framework records that the 10% aggregate-open-risk cap was
+# breached at 13.028% (2026-08-26) and 11.947% (2026-08-30) while sizing continued at the full
+# per-position formula: the cap was computed on every run and used only for a warning string. A
+# ticket sized in isolation cannot know that nine others are being sized the same run against the
+# same room. Here every candidate competes for one budget.
+#
+#   H          = aggregate_open_risk_usd        (sum of R_open over the book: the ALL-FIRE sum)
+#   H_max      = cap_pct/100 x total_book
+#   H_eff_max  = H_max x (HEAT_FLOOR + (1 - HEAT_FLOOR) x (1 - rho))     rho = avg pairwise corr
+#   R_free     = max(0, H_eff_max - H)
+#
+# UNITS. Everything in this section is RISK DOLLARS (size x stop/100), the same currency as R_base
+# for entries and R_open for exits -- see the Phase 2 unit trap in smith_core.SEVERITY_R. The only
+# market-value quantities are the per-name dollar rooms (single_position / ai_capex) and the
+# would-be ticket sizes, and each is converted through that ticket's own stop.
+
+# Numeric slack when comparing risk dollars: figures are reported at the cent.
+_EPS = 0.005
+
+
+def _r2(x):
+    """round to the cent; `+ 0.0` turns a -0.0 into 0.0 so a de-risking pair never prints '-0.0'."""
+    return round(x, 2) + 0.0
+
+
+def heat_policy(block):
+    """Resolve policy.heat_budget over smith_core's defaults. `confirmed` rides along so the
+    briefing can say the floor is unsigned. A malformed value falls back to the default."""
+    b = block or {}
+    fl = b.get("heat_floor_at_full_correlation")
+    ok = isinstance(fl, (int, float)) and not isinstance(fl, bool) and 0.0 <= fl <= 1.0
+    sub = b.get("cluster_sub_budget")
+    return {"heat_floor": float(fl) if ok else HEAT_FLOOR_AT_FULL_CORRELATION,
+            "cluster_sub_budget": sub if isinstance(sub, bool) else True,
+            "confirmed": bool(b.get("confirmed")) if b else False}
+
+
+def correlation_read(corr, today):
+    """The correlation the budget may rely on, or the reason it may not.
+
+    Returns {rho, rho_used, basis, measured, reason, as_of, window_to, age_days}. `rho_used` is the
+    measured average pairwise correlation clamped to [0,1] when it is fresh and present, and 1.0
+    (fully correlated: the conservative bound, H_eff_max = H_max x HEAT_FLOOR) otherwise. The
+    caller must say which it was: a missing or stale correlation is NEVER read as zero
+    correlation, because that would hand the book a diversification credit nobody measured -- the
+    whole lesson of stop_risk.take_the_credit being false. Missing = degraded stage, absent file,
+    no stop_risk block, or a price window older than smith_core.CORRELATION_MAX_AGE_DAYS.
+    """
+    out = {"rho": None, "rho_used": 1.0, "measured": False, "as_of": None, "window_to": None,
+           "age_days": None, "reason": None}
+    if not corr or not isinstance(corr, dict):
+        out["reason"] = "compute_correlation.json absent"
+    elif corr.get("degraded"):
+        out["reason"] = f"correlation stage degraded ({corr.get('reason')})"
+    else:
+        rho = (corr.get("stop_risk") or {}).get("avg_pairwise_correlation")
+        out["as_of"] = corr.get("as_of")
+        wt = (corr.get("window") or {}).get("to")
+        out["window_to"] = wt
+        if not isinstance(rho, (int, float)) or isinstance(rho, bool):
+            out["reason"] = "no stop_risk.avg_pairwise_correlation in compute_correlation.json"
+        else:
+            out["rho"] = float(rho)
+            try:
+                age = (today - _dt.date.fromisoformat(str(wt)[:10])).days
+            except (TypeError, ValueError):
+                age = None
+            out["age_days"] = age
+            if age is None:
+                out["reason"] = "correlation price window has no parseable end date"
+            elif age > CORRELATION_MAX_AGE_DAYS:
+                out["reason"] = (f"correlation price window ends {wt}, {age}d old "
+                                 f"(> {CORRELATION_MAX_AGE_DAYS}d)")
+            else:
+                out["measured"] = True
+                out["rho_used"] = min(1.0, max(0.0, float(rho)))
+    out["basis"] = ("measured avg pairwise correlation" if out["measured"] else
+                    f"CONSERVATIVE BOUND (rho treated as 1.0, budget = cap x HEAT_FLOOR): {out['reason']}")
+    return out
+
+
+def heat_budget(h_usd, total_book_usd, cap_pct, corr_read, heat_floor=HEAT_FLOOR_AT_FULL_CORRELATION):
+    """The run's risk budget. See the section header for the formula.
+
+    `over_cap` is H > H_eff_max -- the CORRELATION-ADJUSTED budget, not the raw 10%: a 6.45% book
+    at rho 0.9 is already over its adjusted cap, and it is the adjusted one that gates buys.
+    """
+    h = h_usd or 0.0
+    h_max = (cap_pct or 0.0) / 100.0 * (total_book_usd or 0.0)
+    rho_used = corr_read["rho_used"]
+    factor = heat_floor + (1.0 - heat_floor) * (1.0 - rho_used)
+    h_eff = h_max * factor
+    return {"h_usd": round(h, 2), "h_max_usd": round(h_max, 2), "rho": corr_read["rho"],
+            "rho_used": round(rho_used, 4), "rho_basis": corr_read["basis"],
+            "rho_measured": corr_read["measured"], "heat_floor": heat_floor,
+            "cap_factor": round(factor, 4), "h_eff_max_usd": round(h_eff, 2),
+            "r_free_usd": round(max(0.0, h_eff - h), 2), "over_cap": h > h_eff + _EPS,
+            "over_cap_by_usd": round(max(0.0, h - h_eff), 2)}
+
+
+def cash_funded_room(limit_frac, numerator_usd, denominator_usd, denominator_moves):
+    """Largest cash-funded buy X that keeps (numerator + X) / denominator <= limit_frac.
+
+    `denominator_moves` is the whole point: on INVESTED EQUITY a cash-funded buy raises the
+    numerator AND the denominator, so X <= (l*D - N) / (1 - l), which is larger than the linear
+    l*D - N; on TOTAL BOOK a cash-funded buy leaves the denominator alone and the room is exactly
+    linear. (Same distinction smith_math.cmd_drift documents for cluster ceilings, which uses the
+    linear figure there as a deliberate under-statement.) Returns None -- non-binding, "unknown is
+    not a reason to block" -- when the limit is >= 100% of a moving denominator: a position or a
+    factor cannot exceed 100% of the equity it is part of by adding cash-funded shares of itself.
+    Returns None for missing inputs; never negative.
+    """
+    if limit_frac is None or numerator_usd is None or not denominator_usd or denominator_usd <= 0:
+        return None
+    if denominator_moves:
+        if limit_frac >= 1.0:
+            return None
+        return max(0.0, (limit_frac * denominator_usd - numerator_usd) / (1.0 - limit_frac))
+    return max(0.0, limit_frac * denominator_usd - numerator_usd)
+
+
+def cluster_risk_max_usd(h_eff_max_usd, band_hi_pct, ceiling_basis, total_book_usd, invested_equity_usd):
+    """R_cluster_max: the cluster's share of the risk budget, its policy band ceiling.
+
+    The band ceiling is a share of a market-value denominator, and the policy tests it on
+    `ceiling_basis` (cmd_drift's `ceiling_tested_on`): invested_equity normally, total_book while
+    cash is above the normal band. Risk lives only in invested dollars, so a ceiling of hi% of
+    INVESTED EQUITY is hi% of the risk; a ceiling of hi% of TOTAL BOOK is hi x TB/E percent of the
+    invested dollars' risk. The share is converted with the basis the policy used, never the other
+    one -- mixing them here would silently re-open the denominator bug cmd_drift already fixed
+    twice. Capped at the whole budget. None when the cluster has no band.
+    """
+    if band_hi_pct is None or not h_eff_max_usd:
+        return None
+    share = band_hi_pct / 100.0
+    if ceiling_basis == "total_book" and invested_equity_usd and total_book_usd:
+        share *= total_book_usd / invested_equity_usd
+    return round(h_eff_max_usd * min(1.0, share), 2)
+
+
+def allocation_priority(candidate):
+    """THE ordering key: higher is allocated first. The ONE line to change when Phase 4 lands.
+
+    Today it is conviction_score, because no expected value exists yet. Phase 4 swaps this to EV
+    per unit of MARGINAL risk (EV_R / risk_usd) and nothing else in the allocator changes.
+    """
+    return candidate.get("score") or 0.0
+
+
+def _deferred_reason(budget, net, remaining):
+    if budget["over_cap"]:
+        return (f"book heat ${budget['h_usd']:,.2f} exceeds the correlation-adjusted budget "
+                f"${budget['h_eff_max_usd']:,.2f} -- no new net-risk-adding buys until heat falls")
+    return (f"needs ${net:,.2f} of net new risk, ${max(0.0, remaining):,.2f} of the run's "
+            f"${budget['h_eff_max_usd']:,.2f} correlation-adjusted budget is left")
+
+
+def allocate_heat(candidates, budget, rooms=None, standalone_credit_usd=0.0, key=None):
+    """Allocate ONE heat budget across every buy candidate of a run.
+
+    ORDERING RULE (stated because two of the alternatives are wrong):
+      0. If the book is already over H_eff_max, NO credit is taken from any sell: a sell frees
+         heat only when it executes, and an over-cap book may not fund new risk on the promise of
+         one. Only tickets whose net risk is <= 0 can fit.
+      1. Otherwise the budget is R_free plus `standalone_credit_usd` (live, above-materiality
+         sells that are not part of a pair -- computed by the caller from rows whose vote is
+         "live": a below_materiality, shadow or deferred sell never executes and never counts).
+      2. PAIRS are allocated first, in key order. A pair's net risk is buy_risk - the risk its OWN
+         sell frees; net <= 0 always fits, net > 0 consumes exactly the net, and a pair with a
+         negative net RAISES the remaining budget by the risk it retires. A pair whose buy leg is
+         shrunk under the materiality floor by a downstream clamp is below_materiality: it neither
+         consumes nor frees. Pairs are never partially sized -- half a rotation is not a rotation.
+      3. SINGLES then go greedily in key order. One that fits is taken; one that partly fits is
+         sized down to what is left (clamped_by "heat_room") ONLY if the result still clears its
+         materiality floor; otherwise it is DEFERRED, never dropped, so the desk sees the queue.
+    Before any heat test, each ticket is shrunk by the three static caps -- single_position,
+    ai_capex, cluster_risk_budget -- which only ever reduce it, with running tallies so two buys
+    of one name (or one cluster) in the same run share one room.
+
+    candidate = {id, kind: "single"|"pair", ticker, score, size_usd, stop_pct, floor_usd, cluster,
+                 is_ai, [pair only: freed_risk_usd, sell_size_usd, sell_cluster, sell_is_ai]}
+    rooms     = {"single_position_usd": {ticker: usd|None}, "ai_capex_usd": usd|None,
+                 "cluster_risk_usd": {cluster: risk usd|None}}      (all optional; None = non-binding)
+    Returns {decisions: {id: {...}}, remaining_usd, h_after_usd, credit_usd}.
+    """
+    key = key or allocation_priority        # resolved at call time so a swap is one line
+    rooms = rooms or {}
+    over = budget["over_cap"]
+    credit = 0.0 if over else max(0.0, standalone_credit_usd or 0.0)
+    remaining = budget["r_free_usd"] + credit
+    h_run = budget["h_usd"] - credit
+    single_room = dict(rooms.get("single_position_usd") or {})
+    ai_room = rooms.get("ai_capex_usd")
+    cluster_room = dict(rooms.get("cluster_risk_usd") or {})
+    ordered = (sorted([c for c in candidates if c["kind"] == "pair"], key=lambda c: (-key(c), c["id"]))
+               + sorted([c for c in candidates if c["kind"] != "pair"], key=lambda c: (-key(c), c["id"])))
+    decisions = {}
+
+    for c in ordered:
+        pair = c["kind"] == "pair"
+        stop = c["stop_pct"]
+        size0 = c["size_usd"] or 0.0
+        freed = (c.get("freed_risk_usd") or 0.0) if pair else 0.0
+        sell_usd = (c.get("sell_size_usd") or 0.0) if pair else 0.0
+        floor = c.get("floor_usd") or 0.0
+        d = {"id": c["id"], "status": None, "size_usd": None, "size_pre_heat_usd": round(size0, 2),
+             "would_be_size_usd": None, "clamped_by": None, "risk_usd": None, "net_risk_usd": None,
+             "book_heat_before_usd": round(h_run, 2), "book_heat_after_usd": round(h_run, 2),
+             "heat_room_remaining_usd": round(max(0.0, budget["h_eff_max_usd"] - h_run), 2),
+             "deferred_by": None, "deferred_reason": None}
+        decisions[c["id"]] = d
+
+        # -- static caps: only ever shrink; a swap credits back what it sells from the same pool --
+        sp = single_room.get(c["ticker"])
+        ai = (None if (ai_room is None or not c.get("is_ai"))
+              else ai_room + (sell_usd if c.get("sell_is_ai") else 0.0))
+        cr = cluster_room.get(c.get("cluster"))
+        if cr is not None and pair and c.get("sell_cluster") == c.get("cluster"):
+            cr += freed
+        cr_usd = None if cr is None else cr / (stop / 100.0)
+        size1, clamp1 = smith_conviction.clamp_size(size0, None, None, None, single_position_room_usd=sp,
+                                                    ai_capex_room_usd=ai, cluster_risk_room_usd=cr_usd)
+        d["would_be_size_usd"] = size1
+        if pair and size1 + _EPS < floor and size1 < size0 - _EPS:
+            d.update(status="below_materiality", clamped_by=clamp1,
+                     size_usd=size1, risk_usd=_r2(size1 * stop / 100.0), net_risk_usd=0.0)
+            continue
+
+        if over and not pair and size0 * stop / 100.0 > _EPS:
+            # an over-cap book takes NO new net-risk single buy, and each one says so by name --
+            # tested on the ticket as the signal sized it, so a cluster clamp that happens to
+            # zero it does not hide the real reason
+            # (a would-be of $0 tells the desk nothing, so a ticket a cap zeroed reports the size
+            # the signal asked for)
+            wb = size1 if size1 > 0 else size0
+            d.update(status="deferred", deferred_by=HEAT_DEFER_LABEL, size_usd=None, clamped_by=clamp1,
+                     would_be_size_usd=_r2(wb), risk_usd=_r2(wb * stop / 100.0),
+                     net_risk_usd=_r2(wb * stop / 100.0),
+                     deferred_reason=_deferred_reason(budget, wb * stop / 100.0, 0.0))
+            continue
+        if not pair and not size1 > 0:
+            # a static cap left no room at all: nothing to allocate, nothing to defer
+            d.update(status="no_room", size_usd=0.0, clamped_by=clamp1, risk_usd=0.0, net_risk_usd=0.0)
+            continue
+        risk1 = size1 * stop / 100.0
+        net = risk1 - freed
+        size2, clamp2, accepted = size1, clamp1, True
+        if net > _EPS and net > remaining + _EPS:
+            if pair or not size1 > 0:
+                accepted = False
+            else:
+                room_usd = max(0.0, remaining) / (stop / 100.0)
+                size2, clamp2 = smith_conviction.clamp_size(size1, None, None, None, heat_room_usd=room_usd)
+                # a partial fit is emitted only if it is still a ticket worth taking
+                accepted = size2 > 0 and size2 + _EPS >= floor
+        if not accepted:
+            d.update(status="deferred", deferred_by=HEAT_DEFER_LABEL, size_usd=None, clamped_by=clamp1,
+                     risk_usd=_r2(risk1), net_risk_usd=_r2(net),
+                     deferred_reason=_deferred_reason(budget, net, remaining))
+            continue
+
+        risk2 = size2 * stop / 100.0
+        net2 = risk2 - freed
+        # a negative net (a de-risking pair) raises the budget, but never on an over-cap book
+        remaining = remaining - net2 if not (over and net2 < 0) else remaining
+        h_run = h_run + net2 if not (over and net2 < 0) else h_run
+        if not pair:
+            single_room[c["ticker"]] = (None if sp is None else max(0.0, sp - size2))
+        if ai_room is not None and c.get("is_ai"):
+            ai_room = max(0.0, ai_room - (size2 - (sell_usd if c.get("sell_is_ai") else 0.0)))
+        if cr is not None:
+            cluster_room[c.get("cluster")] = max(0.0, cluster_room.get(c.get("cluster"), 0.0) - risk2
+                                                 + (freed if pair and c.get("sell_cluster") == c.get("cluster") else 0.0))
+        if pair and c.get("sell_cluster") not in (None, c.get("cluster")) and c.get("sell_cluster") in cluster_room \
+                and cluster_room[c["sell_cluster"]] is not None:
+            cluster_room[c["sell_cluster"]] += freed
+        d.update(status="clamped" if (clamp2 or size2 < size0 - _EPS) else "fit", size_usd=round(size2, 2),
+                 clamped_by=clamp2, risk_usd=_r2(risk2), net_risk_usd=_r2(net2),
+                 book_heat_after_usd=_r2(h_run),
+                 heat_room_remaining_usd=_r2(max(0.0, budget["h_eff_max_usd"] - h_run)))
+    return {"decisions": decisions, "remaining_usd": _r2(remaining), "h_after_usd": _r2(h_run),
+            "credit_usd": _r2(credit)}

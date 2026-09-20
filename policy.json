@@ -377,5 +377,16 @@
     "rule": "A ticket must clear ALL of: min_ticket_usd; min_ticket_pct_of_book % of total book; min_ticket_r x R_base / stop (R_base = stop_loss_framework.risk_per_position_pct_of_book % of book); fee_cover_mult x the round-trip fee. A sub-floor ticket is neither shrunk to the floor nor dropped: it is emitted with vote 'below_materiality'. A FULL EXIT is always permitted regardless of size.",
     "min_position_usd_note": "A position below this is a stub -- never partially trimmed, only exited or left (consolidation candidate). It is the SAME number as smith_core.DUST_USD_DEFAULT ($400), which cmd_derisk's friction term and smith_lifecycle's shadow-trigger retirement already use; validate_policy fails if the two diverge.",
     "rationale": "Added 2026-09-20 after the engine proposed rotating $56.37 of SKHY into CIEN on a $42.5K book (a correct 10-point call earns $5.64). Market-value sizing on a sell could not express 'too small to matter'. ADDITIVE: no stop_loss_framework, mandate or cluster_targets value was touched."
+  },
+  "heat_budget": {
+    "confirmed": false,
+    "confirmed_by_user": null,
+    "as_of": "2026-09-20",
+    "status": "PROPOSED -- the engine uses these from 2026-09-20 but the user has not signed them. Every deferred / heat_room / cluster_risk_budget verdict is provisional until confirmed:true.",
+    "heat_floor_at_full_correlation": 0.7,
+    "cluster_sub_budget": true,
+    "rule": "H_eff_max = H_max x (heat_floor + (1 - heat_floor) x (1 - rho)), H_max = stop_loss_framework.aggregate_open_risk_cap_pct_of_book x total book, rho = compute_correlation.stop_risk.avg_pairwise_correlation; R_free = max(0, H_eff_max - H), H = aggregate_open_risk_usd. All live buys of a run share R_free (plus the risk freed by live, above-materiality sells), allocated by smith_ticket.allocation_priority; a ticket that does not fit is emitted with vote 'deferred', never dropped. A missing or stale correlation is treated as 1.0 (budget = cap x heat_floor), never as 0. cluster_sub_budget additionally caps each cluster's open risk at H_eff_max x its band ceiling.",
+    "heat_floor_note": "The share of the aggregate cap that survives at full correlation. It is a floor, not zero, because aggregate_open_risk_usd is already the all-fire (perfect-correlation) sum.",
+    "rationale": "Added 2026-09-20 (Phase 3). stop_loss_framework records the 10% aggregate cap breached at 13.028% (08-26) and 11.947% (08-30) while sizing continued at the full per-position formula: the cap only ever printed a warning. ADDITIVE: no stop_loss_framework, mandate or cluster_targets value was touched."
   }
 }

@@ -28,7 +28,7 @@ see the G34 plan notes -- not an oversight.
 # codebase's ONE FIELD, ONE READER rule exists to prevent.
 from datetime import date
 
-from smith_core import REBOUND_STOP_ATR_FLOOR_MULT
+from smith_core import REBOUND_STOP_ATR_FLOOR_MULT, STOP_LEARNED_MID_ATR_RANGE, STOP_LEARNED_PARAM_ID
 
 
 SIGNAL_POLARITY = {
@@ -125,6 +125,32 @@ def support_anchored_cap(atr_pct, price_usd, support_usd, total_book_usd, policy
 
 
 CAP_BREACH_MATERIALITY_PCT_DEFAULT = 2.0
+
+
+def learned_stop_multiple_for(atr_pct, learning_store):
+    """The measured ATR stop multiple to REPORT (never apply) for a name of this ATR20%, or None.
+
+    WHY THIS EXISTS (Phase 3, 2026-09-20). stop_and_cap has taken a `learned_multiple` since
+    2026-09-19 and built an advisory `learned_stop` block from it -- and NO caller ever passed
+    one, so the block was unreachable: the measured 2.249x (n=30, state active) sat in
+    learning.json while every stop the desk printed carried no trace of it. This resolves the
+    number for a caller to hand over. It changes NO sizing: stop_and_cap reports the learned
+    stop ALONGSIDE the policy stop, and policy.stop_loss_framework is user-confirmed and
+    escalation-only (never auto-modified).
+
+    Returns the multiple only when the parameter's state is `active` (past its n-gate and inside
+    its band -- a `shadow` or `escalated` value is not in use) AND the name is in the tier it was
+    measured on (mid-vol). Anything else -- another tier, no ATR, no store -- is None, and
+    stop_and_cap then emits no learned_stop at all rather than extrapolating one.
+    """
+    param = ((learning_store or {}).get("parameters") or {}).get(STOP_LEARNED_PARAM_ID) or {}
+    cur = param.get("current")
+    if param.get("state") != "active" or not isinstance(cur, (int, float)) or isinstance(cur, bool):
+        return None
+    lo, hi = STOP_LEARNED_MID_ATR_RANGE
+    if atr_pct is None or not (lo <= atr_pct < hi):
+        return None
+    return float(cur)
 
 
 def stop_and_cap(atr_pct, price_usd, qty, total_book_usd, policy, learned_multiple=None):

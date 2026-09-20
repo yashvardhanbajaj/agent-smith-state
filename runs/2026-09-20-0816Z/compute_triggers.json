@@ -59,6 +59,20 @@
         "rule": "ticket >= max(min_ticket_usd, min_ticket_pct_of_book% x book, min_ticket_r x r_base / stop, fee_cover_mult x round-trip fee); sub-floor -> vote below_materiality; full exits exempt"
       },
       "round_trip_fee_pct": 0.3,
+      "heat_budget": {
+        "rule": "H_eff_max = H_max x (heat_floor + (1 - heat_floor) x (1 - rho)); R_free = max(0, H_eff_max - H); H = aggregate_open_risk_usd, H_max = aggregate_open_risk_cap_pct_of_book x total book",
+        "heat_floor": 0.7,
+        "cluster_sub_budget": true,
+        "unmeasured_correlation": "rho treated as 1.0 (conservative bound), never as 0",
+        "allocation": "pairs first (net = buy risk - the risk their own sell frees), then singles greedily by smith_ticket.allocation_priority; a partial fit is sized to the remaining room only if it still clears materiality, else the ticket is DEFERRED (vote 'deferred', never dropped)",
+        "over_cap": "H > H_eff_max -> zero new net-risk buys; sells and net<=0 rotations still emit; no sell credit is taken",
+        "sell_credit": "live above-materiality standalone sells raise the run's budget; below_materiality / shadow / deferred never do",
+        "static_clamps": [
+          "single_position",
+          "ai_capex",
+          "cluster_risk_budget"
+        ]
+      },
       "legacy_fractions_for_one_release": {
         "overbought_distribution": 0.25,
         "catalyst_threat": 0.2,
@@ -102,6 +116,140 @@
     "profit_rotation": 1,
     "cluster_rotation": 1
   },
+  "heat_budget": {
+    "enabled": true,
+    "h_usd": 2743.98,
+    "h_max_usd": 4254.19,
+    "rho": 0.401,
+    "rho_used": 0.401,
+    "rho_basis": "measured avg pairwise correlation",
+    "rho_measured": true,
+    "heat_floor": 0.7,
+    "cap_factor": 0.8797,
+    "h_eff_max_usd": 3742.42,
+    "r_free_usd": 998.44,
+    "over_cap": false,
+    "over_cap_by_usd": 0.0,
+    "confirmed": false,
+    "cluster_sub_budget": true,
+    "correlation": {
+      "rho": 0.401,
+      "measured": true,
+      "as_of": "2026-09-20",
+      "window_to": "2026-09-18",
+      "age_days": 2,
+      "reason": null
+    },
+    "sell_credit_usd": 134.52,
+    "sell_credit_from": [
+      "catalyst_threat:ASML",
+      "catalyst_threat:MU",
+      "catalyst_threat:TER",
+      "catalyst_threat:AMAT",
+      "catalyst_threat:GLW"
+    ],
+    "r_available_usd": 1132.96,
+    "r_remaining_after_allocation_usd": 959.21,
+    "book_heat_after_allocation_usd": 2783.21,
+    "ordering_key": "smith_ticket.allocation_priority (conviction_score desc; Phase 4 swaps in EV per marginal risk)",
+    "allocated": [
+      {
+        "id": "cluster_rotation-GLW-LITE",
+        "size_usd": 339.24,
+        "risk_usd": 45.39,
+        "net_risk_usd": 0.0,
+        "clamped_by": null
+      },
+      {
+        "id": "cluster_rotation-VRT-BE",
+        "size_usd": 381.83,
+        "risk_usd": 49.26,
+        "net_risk_usd": 0.0,
+        "clamped_by": null
+      },
+      {
+        "id": "profit_rotation-MU-AMAT",
+        "size_usd": 504.51,
+        "risk_usd": 39.55,
+        "net_risk_usd": -12.73,
+        "clamped_by": null
+      },
+      {
+        "id": "profit_rotation-AMD-KLAC",
+        "size_usd": 429.19,
+        "risk_usd": 35.45,
+        "net_risk_usd": -6.29,
+        "clamped_by": null
+      },
+      {
+        "id": "cluster_rotation-ASML-TSM",
+        "size_usd": 1110.67,
+        "risk_usd": 50.87,
+        "net_risk_usd": 0.0,
+        "clamped_by": null
+      },
+      {
+        "id": "trend_entry:LITE",
+        "size_usd": 330.54,
+        "risk_usd": 44.23,
+        "net_risk_usd": 44.23,
+        "clamped_by": null
+      },
+      {
+        "id": "conviction_average:AMAT",
+        "size_usd": 504.51,
+        "risk_usd": 39.55,
+        "net_risk_usd": 39.55,
+        "clamped_by": null
+      },
+      {
+        "id": "trend_entry:AMAT",
+        "size_usd": 504.51,
+        "risk_usd": 39.55,
+        "net_risk_usd": 39.55,
+        "clamped_by": null
+      },
+      {
+        "id": "conviction_average:KLAC",
+        "size_usd": 429.19,
+        "risk_usd": 35.45,
+        "net_risk_usd": 35.45,
+        "clamped_by": null
+      },
+      {
+        "id": "conviction_average:CIEN",
+        "size_usd": 248.05,
+        "risk_usd": 33.98,
+        "net_risk_usd": 33.98,
+        "clamped_by": null
+      }
+    ],
+    "deferred": [],
+    "rooms": {
+      "single_position_pct": 12,
+      "ai_capex_cap_pct": 100,
+      "ai_capex_denominator": "invested_equity",
+      "ai_capex_room_usd": null,
+      "cluster_risk_max_usd": {
+        "AI Memory/Storage": 755.21,
+        "AI Networking/Optics": 991.21,
+        "AI Power/Cooling/DC Infra": 1038.41,
+        "AI Semis/Fabs": 1557.62
+      },
+      "cluster_risk_open_usd": {
+        "AI Semis/Fabs": 900.53,
+        "Compute/Hyperscaler": 346.24,
+        "AI Memory/Storage": 338.63,
+        "AI Networking/Optics": 598.55,
+        "AI Power/Cooling/DC Infra": 308.94,
+        "Compute/Hyperscaler OEM": 141.55,
+        "Analog/Industrial Semis": 45.48,
+        "Enterprise Software": 64.06
+      }
+    },
+    "learned_stop_surfaced": true
+  },
+  "deferred_counts": {},
   "oversold_reversion": [],
   "overbought_distribution": [],
   "catalyst_threat": [
@@ -473,6 +621,11 @@
         "named by 8 independent source(s) this run"
       ],
       "blockers": [],
+      "risk_usd": 44.23,
+      "book_heat_before_usd": 2590.44,
+      "book_heat_after_usd": 2634.67,
+      "heat_room_remaining_usd": 1107.75,
+      "heat_status": "fit",
       "materiality": {
         "ok": true,
         "floor_usd": 250.0,
@@ -508,6 +661,18 @@
         "named by 8 independent source(s) this run"
       ],
       "blockers": [],
+      "risk_usd": 39.55,
+      "book_heat_before_usd": 2674.22,
+      "book_heat_after_usd": 2713.77,
+      "heat_room_remaining_usd": 1028.65,
+      "heat_status": "fit",
+      "learned_stop": {
+        "atr_multiple": 2.249,
+        "stop_distance_pct": 8.816,
+        "stop_price_usd": 404.6248,
+        "wider_by_pp": 0.976,
+        "status": "advisory -- policy stop above is the operative one"
+      },
       "materiality": {
         "ok": true,
         "floor_usd": 271.31,
@@ -549,6 +714,18 @@
         "named by 8 independent source(s) this run"
       ],
       "blockers": [],
+      "risk_usd": 39.55,
+      "book_heat_before_usd": 2634.67,
+      "book_heat_after_usd": 2674.22,
+      "heat_room_remaining_usd": 1068.2,
+      "heat_status": "fit",
+      "learned_stop": {
+        "atr_multiple": 2.249,
+        "stop_distance_pct": 8.816,
+        "stop_price_usd": 404.6248,
+        "wider_by_pp": 0.976,
+        "status": "advisory -- policy stop above is the operative one"
+      },
       "materiality": {
         "ok": true,
         "floor_usd": 271.31,
@@ -586,6 +763,18 @@
         "named by 8 independent source(s) this run"
       ],
       "blockers": [],
+      "risk_usd": 35.45,
+      "book_heat_before_usd": 2713.77,
+      "book_heat_after_usd": 2749.22,
+      "heat_room_remaining_usd": 993.2,
+      "heat_status": "fit",
+      "learned_stop": {
+        "atr_multiple": 2.249,
+        "stop_distance_pct": 9.288,
+        "stop_price_usd": 160.6866,
+        "wider_by_pp": 1.028,
+        "status": "advisory -- policy stop above is the operative one"
+      },
       "materiality": {
         "ok": true,
         "floor_usd": 257.52,
@@ -625,6 +814,11 @@
       "blockers": [
         "below the materiality floor (advisory for single-leg buys): $248.05 vs $250.00 (min_ticket_usd); vote unchanged -- buys are annotated, not demoted, until the floors are confirmed"
       ],
+      "risk_usd": 33.98,
+      "book_heat_before_usd": 2749.22,
+      "book_heat_after_usd": 2783.21,
+      "heat_room_remaining_usd": 959.21,
+      "heat_status": "fit",
       "materiality": {
         "ok": false,
         "floor_usd": 250.0,
@@ -662,7 +856,9 @@
       "blockers": [
         "no price_usd on IONQ's watchlist setup row and none in live_quotes.json/bars.json -- sizing needs a fetched price",
         "no state.thesis entry for IONQ -- entry_setup may not vote live on valuation + RSI alone; smith-thesis must examine it first"
-      ]
+      ],
+      "risk_usd": null,
+      "heat_status": "not_allocated (shadow)"
     },
     {
       "ticker": "QBTS",
@@ -690,7 +886,9 @@
       "blockers": [
         "no price_usd on QBTS's watchlist setup row and none in live_quotes.json/bars.json -- sizing needs a fetched price",
         "no state.thesis entry for QBTS -- entry_setup may not vote live on valuation + RSI alone; smith-thesis must examine it first"
-      ]
+      ],
+      "risk_usd": null,
+      "heat_status": "not_allocated (shadow)"
     },
     {
       "ticker": "RGTI",
@@ -719,7 +917,9 @@
         "no live ATR for RGTI this run -- setup valid, sizing needs a fetch",
         "no price_usd on RGTI's watchlist setup row and none in live_quotes.json/bars.json -- sizing needs a fetched price",
         "no state.thesis entry for RGTI -- entry_setup may not vote live on valuation + RSI alone; smith-thesis must examine it first"
-      ]
+      ],
+      "risk_usd": null,
+      "heat_status": "not_allocated (shadow)"
     },
     {
       "ticker": "BABA",
@@ -748,7 +948,9 @@
       "blockers": [
         "no price_usd on BABA's watchlist setup row and none in live_quotes.json/bars.json -- sizing needs a fetched price",
         "no state.thesis entry for BABA -- entry_setup may not vote live on valuation + RSI alone; smith-thesis must examine it first"
-      ]
+      ],
+      "risk_usd": null,
+      "heat_status": "not_allocated (shadow)"
     }
   ],
   "reentry": [],
@@ -816,7 +1018,12 @@
           "floor_usd": 271.31,
           "binding_term": "min_ticket_r",
           "shortfall_usd": 0.0
-        }
+        },
+        "risk_usd": 39.55,
+        "book_heat_before_usd": 2609.46,
+        "book_heat_after_usd": 2596.73,
+        "heat_room_remaining_usd": 1145.69,
+        "heat_status": "fit"
       },
       "rotation_risk": {
         "r_freed_usd": 52.28,
@@ -876,7 +1083,12 @@
           "floor_usd": 257.52,
           "binding_term": "min_ticket_r",
           "shortfall_usd": 0.0
-        }
+        },
+        "risk_usd": 35.45,
+        "book_heat_before_usd": 2596.73,
+        "book_heat_after_usd": 2590.44,
+        "heat_room_remaining_usd": 1151.98,
+        "heat_status": "fit"
       },
       "rotation_risk": {
         "r_freed_usd": 41.74,
@@ -930,7 +1142,9 @@
         "reasons": [
           "laggard (-14.8pp) with a strengthening thesis -- yet to rally"
         ],
-        "materiality": null
+        "materiality": null,
+        "risk_usd": null,
+        "heat_status": "not_allocated (below_materiality)"
       },
       "rotation_risk": {
         "r_freed_usd": 0.0,
@@ -1004,7 +1218,12 @@
           "floor_usd": 464.43,
           "binding_term": "min_ticket_r",
           "shortfall_usd": 0.0
-        }
+        },
+        "risk_usd": 50.87,
+        "book_heat_before_usd": 2590.44,
+        "book_heat_after_usd": 2590.44,
+        "heat_room_remaining_usd": 1151.98,
+        "heat_status": "fit"
       },
       "rotation_risk": {
         "r_freed_usd": 50.87,
@@ -1069,7 +1288,9 @@
           "floor_usd": 518.8,
           "binding_term": "min_ticket_r",
           "shortfall_usd": 111.55
-        }
+        },
+        "risk_usd": 16.7,
+        "heat_status": "not_allocated (below_materiality)"
       },
       "rotation_risk": {
         "r_freed_usd": 16.7,
@@ -1143,7 +1364,12 @@
           "floor_usd": 250.0,
           "binding_term": "min_ticket_usd",
           "shortfall_usd": 0.0
-        }
+        },
+        "risk_usd": 45.39,
+        "book_heat_before_usd": 2609.46,
+        "book_heat_after_usd": 2609.46,
+        "heat_room_remaining_usd": 1132.96,
+        "heat_status": "fit"
       },
       "rotation_risk": {
         "r_freed_usd": 45.39,
@@ -1208,7 +1434,12 @@
           "floor_usd": 250.0,
           "binding_term": "min_ticket_usd",
           "shortfall_usd": 0.0
-        }
+        },
+        "risk_usd": 49.26,
+        "book_heat_before_usd": 2609.46,
+        "book_heat_after_usd": 2609.46,
+        "heat_room_remaining_usd": 1132.96,
+        "heat_status": "fit"
       },
       "rotation_risk": {
         "r_freed_usd": 49.26,
@@ -1837,6 +2068,7 @@
   },
   "data_quality": [
     "policy.trade_materiality is UNCONFIRMED (confirmed:false) -- the engine uses these floors (min ticket $250 / 0.4% of book / 0.1R, dust $400) but the user has not signed them; treat every below_materiality verdict as provisional.",
+    "policy.heat_budget is UNCONFIRMED (confirmed:false) -- the engine uses a 70% floor on the aggregate-risk cap at full correlation and the cluster sub-budget ON, but the user has not signed them; treat every deferred/heat_room verdict as provisional.",
     "below_materiality (emitted, not proposed -- too small to act on): catalyst_threat GEV short $76; catalyst_threat SKHY short $250; profit_rotation profit_rotation-SKHY-CIEN short $250; cluster_rotation cluster_rotation-AMZN-MSFT short $112. Many of these are stubs: a book that generates tickets this small needs consolidating.",
     "risk-sized sell legs, legacy -> new (family ticker: legacy$ -> new$ [action]; risk removed): catalyst_threat ASML: 584.7 -> 584.7 [trim] risk $33.91; catalyst_threat MU: 407.17 -> 407.17 [trim] risk $34.85; catalyst_threat TER: 370.59 -> 370.59 [trim] risk $37.87; catalyst_threat AMAT: 355.72 -> 355.72 [trim] risk $27.89; catalyst_threat GEV: 188.69 -> 188.69 [trim] risk $15.17; catalyst_threat GLW: 90.06 -> 450.3 [full_exit] risk $45.39; catalyst_threat SKHY: 37.58 -> 0.0 [hold] risk $0.0; scale_out_ladder BE: 178.03 -> 534.1 [full_exit] risk $68.9; profit_rotation MU: 610.76 -> 610.76 [trim] risk $52.28; profit_rotation AMD: 167.39 -> 557.98 [full_exit] risk $41.74; profit_rotation SKHY: 56.37 -> 0.0 [hold] risk $0.0; cluster_rotation ASML: 877.05 -> 877.05 [trim] risk $50.87; cluster_rotation AMZN: 381.22 -> 381.22 [trim] risk $16.7; cluster_rotation GLW: 135.09 -> 450.3 [full_exit] risk $45.39; cluster_rotation VRT: 448.6 -> 448.6 [trim] risk $49.26; cluster_bench_rotation ASML: 877.05 -> 877.05 [trim] risk $50.87; cluster_bench_rotation AMZN: 381.22 -> 381.22 [trim] risk $16.7; cluster_bench_rotation VRT: 448.6 -> 448.6 [trim] risk $49.26",
     "reentry: 45 alumni could not be JUDGED at all -- no state.thesis entry exists for them (AAPL, AIA, AMKR, ANET, ARM, AVGO, BABA, BX, CEG, CORZ...). state.thesis is seeded from CURRENT holdings, so an exited name is absent by construction and fails the conviction gate for lack of evidence, not on the evidence. These are not rejected candidates; they are unexamined ones."

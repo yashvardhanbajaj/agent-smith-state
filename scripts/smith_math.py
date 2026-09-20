@@ -740,6 +740,9 @@ def cmd_risk(args):
     atr_cache = state.get("data_cache", {}).get("atr20", {}).get("values_pct", {})
     betas_cache = state.get("data_cache", {}).get("betas", {})
 
+    # The measured mid-tier stop multiple, offered as an ADVISORY learned_stop on each mid-vol
+    # position (Phase 3): reachable for the first time. Never changes a stop, cap or size.
+    learning_store = load_json(os.path.join(args.base_dir, "learning.json"), default={}) or {}
     missing_atr, missing_beta = [], []
     rows = []
     agg_open_risk_usd = 0.0
@@ -753,7 +756,8 @@ def cmd_risk(args):
         if beta is None:
             missing_beta.append(ticker)
 
-        r = smith_risk.stop_and_cap(atr_pct, p.get("price_usd"), p.get("qty"), total_book_usd, policy)
+        r = smith_risk.stop_and_cap(atr_pct, p.get("price_usd"), p.get("qty"), total_book_usd, policy,
+                                    learned_multiple=smith_risk.learned_stop_multiple_for(atr_pct, learning_store))
         r["ticker"] = ticker
         r["cluster"] = sector_map.get(ticker, "Unclassified")
         r["beta"] = beta
@@ -2154,19 +2158,25 @@ def cmd_pipeline(args):
         ("sentiment",   ["market_inputs.json"],                     lambda d: d.get("score") is not None),
         ("derisk",      ["compute_risk.json", "compute_sentiment.json", "compute_book.json"],
                                                                     lambda d: d.get("queue")),
+        # `correlation` runs BEFORE triggers (moved 2026-09-20, Phase 3): the heat budget reads
+        # compute_correlation.json's average pairwise correlation, and while this stage ran after
+        # triggers the file never existed in a fresh run dir -- every run would have fallen back
+        # to the conservative bound and the measured correlation could never matter. It needs only
+        # compute_risk and holdings, both present here. It stays DEGRADABLE: no perf_bars.json just
+        # means the budget takes its conservative bound (rho = 1), never that the sweep fails.
+        # It depends on perf_bars.json rather than the run's own bars.json, because it must price
+        # names the book no longer holds -- exited positions are the whole point of a year-long
+        # realized-return series.
+        ("correlation", ["compute_risk.json", "holdings.json"],     lambda d: d.get("diversification")),
         ("triggers",    ["compute_risk.json", "compute_book.json"], lambda d: "correction_state" in d),
         # `ladder` runs LAST, after triggers, deliberately: its dispatch gate reads
         # compute_triggers.json to score a cluster higher when a rotation pair is already
         # proposed there. It is a GATE, not a data dependency -- a missing triggers file
         # degrades the score by 2 points, it does not fail the stage.
         ("ladder",      ["compute_risk.json"],                      lambda d: d.get("clusters") is not None),
-        # `correlation` needs compute_risk for the stop-risk view and holdings for weights. Both
-        # it and `perf` depend on perf_bars.json rather than the run's own bars.json, because
-        # they must price names the book no longer holds -- exited positions are the whole point
-        # of the realized-return series and are equally load-bearing for a correlation estimated
-        # over a year. Degradable: no perf_bars.json just means these two sections are absent,
-        # never that the sweep fails.
-        ("correlation", ["compute_risk.json", "holdings.json"],     lambda d: d.get("diversification")),
+        # `perf` depends on perf_bars.json rather than the run's own bars.json, because it must
+        # price names the book no longer holds. Degradable: no perf_bars.json just means the
+        # section is absent, never that the sweep fails. (`correlation` moved ahead of `triggers`.)
         ("perf",        [],                                          lambda d: d.get("twr")),
     ]
 
@@ -4109,6 +4119,257 @@ def worst_bullish_track_record(bullish, hit_rates_30d, hit_rates_7d):
     return None
 
 
+# ---------------------------------------------------------------------------
+# PORTFOLIO HEAT BUDGET POST-PASS (Phase 3, 2026-09-20)
+# ---------------------------------------------------------------------------
+# WHY A POST-PASS. A budget is shared by every ticket of the run, so it cannot be spent inside the
+# per-ticker trigger loop, which sees one name at a time. cmd_triggers sizes every candidate as
+# before; this pass then sees them ALL at once, in smith_ticket.allocate_heat, and writes the
+# result back onto the rows. The motivating incident: policy records the 10% aggregate-open-risk
+# cap breached at 13.028% and 11.947% while sizing carried on at the full per-position formula.
+_HEAT_SINGLE_FAMILIES = ("oversold_reversion", "trend_entry", "conviction_average", "entry_setup",
+                         "reentry", "bench_diversifier")
+_HEAT_PAIR_FAMILIES = ("profit_rotation", "cluster_rotation")
+_HEAT_SELL_FAMILIES = ("overbought_distribution", "catalyst_threat", "thesis_break",
+                       "trend_breakdown", "conviction_exit")
+_HEAT_FIELDS = ("risk_usd", "book_heat_before_usd", "book_heat_after_usd", "heat_room_remaining_usd")
+
+
+def _floor_usd_for(ticker, sizing):
+    """The materiality floor (dollars) a BUY of `ticker` must clear -- it does not depend on size."""
+    m = _buy_leg_verdict(1.0, ticker, sizing)
+    return m["floor_usd"] if m else 0.0
+
+
+def _stamp_heat_fields(target, d):
+    for k in _HEAT_FIELDS:
+        target[k] = d.get(k)
+
+
+def _apply_heat_budget(fams, pair_fams, sell_fams, risk, drift, policy, corr, today, sizing,
+                       sector_map, dq, atr_vals=None, learning_store=None):
+    """Run smith_ticket.allocate_heat over every live buy candidate and write the outcome back.
+
+    `fams` / `pair_fams` / `sell_fams` map trigger name -> row list (mutated in place). Returns the
+    `heat_budget` block published in compute_triggers.json (`{"enabled": False, ...}` when policy
+    carries no aggregate cap, in which case no row is touched). Every buy row and every rotation
+    buy leg gains risk_usd / book_heat_before_usd / book_heat_after_usd / heat_room_remaining_usd;
+    a shrunk row names its clamp in clamped_by; a ticket that does not fit is emitted with vote
+    "deferred", deferred_by and would_be_size_usd -- never dropped.
+    """
+    cap_pct = risk.get("aggregate_open_risk_cap_pct")
+    if cap_pct is None:
+        dq.append("heat budget DISABLED: policy carries no aggregate_open_risk_cap_pct_of_book")
+        return {"enabled": False, "reason": "no aggregate_open_risk_cap_pct_of_book in policy"}
+    hp = smith_ticket.heat_policy(policy.get("heat_budget"))
+    total_book = risk.get("total_book_usd") or sizing["total_book_usd"]
+    corr_read = smith_ticket.correlation_read(corr, today)
+    budget = smith_ticket.heat_budget(risk.get("aggregate_open_risk_usd"), total_book, cap_pct,
+                                      corr_read, hp["heat_floor"])
+    if not hp["confirmed"]:
+        dq.append("policy.heat_budget is UNCONFIRMED (confirmed:false) -- the engine uses a %.0f%% floor "
+                  "on the aggregate-risk cap at full correlation and the cluster sub-budget %s, but the "
+                  "user has not signed them; treat every deferred/heat_room verdict as provisional."
+                  % (hp["heat_floor"] * 100, "ON" if hp["cluster_sub_budget"] else "OFF"))
+    if not corr_read["measured"]:
+        dq.append(f"heat budget uses the CONSERVATIVE bound: {corr_read['reason']} -- correlation is "
+                  f"treated as 1.0 (budget = cap x {hp['heat_floor']:g}); no diversification credit "
+                  "is assumed that was not measured.")
+
+    st = sizing["stop_pct_by_ticker"] or {}
+    positions = risk.get("positions") or []
+    mv_by = {p["ticker"]: (p.get("market_value_usd") or 0.0) for p in positions}
+    e_usd = (drift or {}).get("invested_equity_usd")
+    ai_clusters = set(policy.get("ai_capex_clusters") or [])
+    cl_rows = {c.get("cluster"): c for c in ((drift or {}).get("cluster_table") or [])}
+
+    def cluster_of(row, ticker):
+        return row.get("cluster") or sector_map.get(ticker)
+
+    # ---- candidates ----------------------------------------------------------------------------
+    cands, index = [], {}
+    for fam in _HEAT_SINGLE_FAMILIES:
+        for row in fams.get(fam, []):
+            t, stop, size = row.get("ticker"), st.get(row.get("ticker")), row.get("suggested_size_usd")
+            if row.get("vote") != "live" or not size or size <= 0 or not stop:
+                continue
+            cid = f"{fam}:{t}"
+            cl = cluster_of(row, t)
+            cands.append({"id": cid, "kind": "single", "ticker": t, "score": row.get("conviction_score"),
+                          "size_usd": size, "stop_pct": stop, "floor_usd": _floor_usd_for(t, sizing),
+                          "cluster": cl, "is_ai": cl in ai_clusters})
+            index[cid] = ("single", row)
+    for fam in _HEAT_PAIR_FAMILIES:
+        for row in pair_fams.get(fam, []):
+            b, sl = row["buy_leg"], row["sell_leg"]
+            stop, size = st.get(b["ticker"]), b.get("suggested_size_usd")
+            if row.get("vote") != "live" or not size or size <= 0 or not stop:
+                continue
+            bcl = cluster_of(b, b["ticker"])
+            scl = cluster_of(sl, sl["ticker"])
+            cid = row["pair_id"]
+            cands.append({"id": cid, "kind": "pair", "ticker": b["ticker"], "score": b.get("conviction_score"),
+                          "size_usd": size, "stop_pct": stop, "floor_usd": _floor_usd_for(b["ticker"], sizing),
+                          "cluster": bcl, "is_ai": bcl in ai_clusters,
+                          "freed_risk_usd": sl.get("risk_removed_usd") or 0.0,
+                          "sell_size_usd": sl.get("suggested_size_usd") or 0.0,
+                          "sell_cluster": scl, "sell_is_ai": scl in ai_clusters})
+            index[cid] = ("pair", row)
+
+    # ---- credit: live, above-materiality standalone sells (they will actually execute) ---------
+    # Per ticker, never more than the risk the position actually carries: two sell rows on one name
+    # (a catalyst trim AND a rotation's sell leg) cannot free more than R_open between them.
+    ropen_by = {p["ticker"]: (p.get("position_open_risk_usd") or 0.0) for p in positions}
+    pair_freed_by = {}
+    for fam in _HEAT_PAIR_FAMILIES:
+        for row in pair_fams.get(fam, []):
+            if row.get("vote") == "live":
+                t = row["sell_leg"]["ticker"]
+                pair_freed_by[t] = pair_freed_by.get(t, 0.0) + (row["sell_leg"].get("risk_removed_usd") or 0.0)
+    sold_by, credit_rows = {}, []
+    for fam in _HEAT_SELL_FAMILIES:
+        for row in sell_fams.get(fam, []):
+            if row.get("vote") == "live" and row.get("sell_action") in ("trim", "full_exit") \
+                    and (row.get("risk_removed_usd") or 0) > 0:
+                sold_by[row["ticker"]] = sold_by.get(row["ticker"], 0.0) + row["risk_removed_usd"]
+                credit_rows.append(f"{fam}:{row.get('ticker')}")
+    credit = sum(min(v, max(0.0, ropen_by.get(t, 0.0) - pair_freed_by.get(t, 0.0)))
+                 for t, v in sold_by.items())
+
+    # ---- static rooms: single position, AI capex, cluster risk -----------------------------------
+    rooms = {"single_position_usd": {}, "ai_capex_usd": None, "cluster_risk_usd": {}}
+    max_single = policy.get("max_single_position_pct")
+    if max_single is not None and e_usd:
+        for c in cands:
+            rooms["single_position_usd"][c["ticker"]] = smith_ticket.cash_funded_room(
+                max_single / 100.0, mv_by.get(c["ticker"], 0.0), e_usd, True)
+    ai_cap = policy.get("max_ai_capex_factor_pct")
+    ai_denom = policy.get("ai_capex_denominator", "invested_equity")
+    ai_num = ai_den = None
+    if ai_cap is not None and drift:
+        if ai_denom == "total_book" and drift.get("ai_capex_pct_of_total_book") is not None:
+            ai_num, ai_den = drift["ai_capex_pct_of_total_book"] / 100.0 * total_book, total_book
+        elif e_usd and drift.get("ai_capex_pct_of_equity") is not None:
+            ai_num, ai_den = drift["ai_capex_pct_of_equity"] / 100.0 * e_usd, e_usd
+        if ai_den:
+            rooms["ai_capex_usd"] = smith_ticket.cash_funded_room(ai_cap / 100.0, ai_num, ai_den,
+                                                                  ai_denom != "total_book")
+    cluster_max, cluster_open = {}, {}
+    if hp["cluster_sub_budget"]:
+        for p in positions:
+            cluster_open[p.get("cluster")] = cluster_open.get(p.get("cluster"), 0.0) + (p.get("position_open_risk_usd") or 0.0)
+        # sorted: a set's iteration order varies with hash randomisation and would make the published
+        # block (and every golden master) differ byte-for-byte between identical runs
+        for cl in sorted({c["cluster"] for c in cands if c["cluster"]}
+                         | {c.get("sell_cluster") for c in cands if c.get("sell_cluster")}):
+            row = cl_rows.get(cl) or {}
+            band = row.get("band_pct")
+            mx = smith_ticket.cluster_risk_max_usd(budget["h_eff_max_usd"], band[1] if band else None,
+                                                   row.get("ceiling_tested_on"), total_book, e_usd)
+            if mx is not None:
+                cluster_max[cl] = mx
+                rooms["cluster_risk_usd"][cl] = max(0.0, mx - cluster_open.get(cl, 0.0))
+
+    res = smith_ticket.allocate_heat(cands, budget, rooms, credit)
+    dec = res["decisions"]
+
+    # ---- write back ----------------------------------------------------------------------------
+    for cid, (kind, row) in index.items():
+        d = dec[cid]
+        tgt = row if kind == "single" else row["buy_leg"]
+        ticker = tgt["ticker"]
+        _stamp_heat_fields(tgt, d)
+        tgt["heat_status"] = d["status"]
+        if d["status"] == "deferred":
+            row["vote"] = "deferred"
+            row["deferred_by"] = HEAT_DEFER_LABEL
+            row["deferred_reason"] = d["deferred_reason"]
+            row["would_be_size_usd"] = d["would_be_size_usd"]
+            row["size_pre_heat_usd"] = d["size_pre_heat_usd"]
+            row.setdefault("blockers", []).append(
+                f"DEFERRED by the {HEAT_DEFER_LABEL}: {d['deferred_reason']}. Would-be size "
+                f"${d['would_be_size_usd']:,.2f} (risk ${d['risk_usd']:,.2f}); emitted, not proposed, "
+                "so the desk sees the queue.")
+            continue
+        new = d["size_usd"]
+        old = tgt.get("suggested_size_usd") or 0.0
+        if new is not None and new < old - 0.005:
+            tgt["size_pre_heat_usd"] = round(old, 2)
+            tgt["suggested_size_usd"] = new
+            if d["clamped_by"]:
+                tgt["clamped_by"] = d["clamped_by"]
+            row.setdefault("blockers", []).append(
+                f"shrunk by {d['clamped_by']}: ${old:,.2f} -> ${new:,.2f}")
+        if kind == "pair":
+            rr = row.get("rotation_risk") or {}
+            stop = st.get(ticker) or 0.0
+            rr["buy_size_final_usd"] = new
+            rr["buy_risk_final_usd"] = round((new or 0.0) * stop / 100.0, 2)
+            rr["heat_delta_final_usd"] = round(rr["buy_risk_final_usd"] - (rr.get("r_freed_usd") or 0.0), 2)
+            if d["status"] == "below_materiality":
+                bm = _buy_leg_verdict(new, ticker, sizing)
+                row["buy_leg"]["materiality"] = _compact_materiality(bm)
+                row["materiality_shortfall_usd"] = (bm or {}).get("shortfall_usd")
+                row["materiality_legs_below"] = sorted(set((row.get("materiality_legs_below") or []) + ["buy"]))
+                row["vote"] = "below_materiality"
+                row.setdefault("blockers", []).append(
+                    f"below materiality after {d['clamped_by']}: the buy leg shrank to ${new:,.2f} -- the pair "
+                    "neither consumes nor frees heat")
+            else:
+                row["buy_leg"]["materiality"] = _compact_materiality(_buy_leg_verdict(new, ticker, sizing))
+
+    # ---- rows that were not allocated still carry their risk ------------------------------------
+    for fam in list(_HEAT_SINGLE_FAMILIES):
+        for row in fams.get(fam, []):
+            if "risk_usd" not in row:
+                sz, stp = row.get("suggested_size_usd"), st.get(row.get("ticker"))
+                row["risk_usd"] = round(sz * stp / 100.0, 2) if (sz and stp) else None
+                row["heat_status"] = f"not_allocated ({row.get('vote')})"
+    for fam in _HEAT_PAIR_FAMILIES:
+        for row in pair_fams.get(fam, []):
+            b = row["buy_leg"]
+            if "risk_usd" not in b:
+                sz, stp = b.get("suggested_size_usd"), st.get(b["ticker"])
+                b["risk_usd"] = round(sz * stp / 100.0, 2) if (sz and stp) else None
+                b["heat_status"] = f"not_allocated ({row.get('vote')})"
+
+    # ---- learned_stop: make the advisory block reachable and surfaced on BUY rows -----------------
+    lm_any = False
+    for fam in _HEAT_SINGLE_FAMILIES:
+        for row in fams.get(fam, []):
+            atr = (atr_vals or {}).get(row.get("ticker"))
+            lm = smith_risk.learned_stop_multiple_for(atr, learning_store)
+            px = row.get("price_usd")
+            if lm and px:
+                ls = smith_conviction.policy_max_position_usd(atr, px, total_book, policy,
+                                                               learned_multiple=lm).get("learned_stop")
+                if ls:
+                    row["learned_stop"] = ls
+                    lm_any = True
+
+    defers = [{"id": k, "would_be_size_usd": v["would_be_size_usd"], "risk_usd": v["risk_usd"],
+               "reason": v["deferred_reason"]} for k, v in dec.items() if v["status"] == "deferred"]
+    alloc = [{"id": k, "size_usd": v["size_usd"], "risk_usd": v["risk_usd"], "net_risk_usd": v["net_risk_usd"],
+              "clamped_by": v["clamped_by"]} for k, v in dec.items() if v["status"] in ("fit", "clamped")]
+    if defers:
+        dq.append("DEFERRED by the portfolio heat budget (emitted, not proposed): " + "; ".join(
+            f"{x['id']} would-be ${x['would_be_size_usd']:,.2f} (risk ${x['risk_usd']:,.2f})" for x in defers))
+    return {"enabled": True, **budget,
+            "confirmed": hp["confirmed"], "cluster_sub_budget": hp["cluster_sub_budget"],
+            "correlation": {k: corr_read[k] for k in ("rho", "measured", "as_of", "window_to", "age_days", "reason")},
+            "sell_credit_usd": res["credit_usd"], "sell_credit_from": credit_rows if not budget["over_cap"] else [],
+            "r_available_usd": round(budget["r_free_usd"] + res["credit_usd"], 2),
+            "r_remaining_after_allocation_usd": res["remaining_usd"],
+            "book_heat_after_allocation_usd": res["h_after_usd"],
+            "ordering_key": "smith_ticket.allocation_priority (conviction_score desc; Phase 4 swaps in EV per marginal risk)",
+            "allocated": alloc, "deferred": defers,
+            "rooms": {"single_position_pct": max_single, "ai_capex_cap_pct": ai_cap, "ai_capex_denominator": ai_denom,
+                      "ai_capex_room_usd": (None if rooms["ai_capex_usd"] is None else round(rooms["ai_capex_usd"], 2)),
+                      "cluster_risk_max_usd": cluster_max,
+                      "cluster_risk_open_usd": {k: round(v, 2) for k, v in cluster_open.items()}},
+            "learned_stop_surfaced": lm_any}
+
+
 def cmd_triggers(args):
     """Deterministic candidate generation for the seven non-ATR proposal triggers.
 
@@ -4597,6 +4858,18 @@ def cmd_triggers(args):
     _trigger_cluster_consolidation(_cluster_ladders, conviction_by_ticker, risk_by_ticker,
                                    today, cluster_consolidation, sizing, cluster_rows)
 
+    # --- PORTFOLIO HEAT BUDGET (Phase 3): one post-pass over EVERY live buy candidate, after all
+    # triggers have sized theirs and before the materiality annotation below reads the final sizes.
+    _heat = _apply_heat_budget(
+        {"oversold_reversion": oversold, "trend_entry": trend_entry, "conviction_average": conviction_average,
+         "entry_setup": entry_setup, "reentry": reentry, "bench_diversifier": bench_diversifier},
+        {"profit_rotation": profit_rotation, "cluster_rotation": cluster_rotation},
+        {"overbought_distribution": overbought, "catalyst_threat": catalyst_threat,
+         "thesis_break": thesis_break, "trend_breakdown": trend_breakdown, "conviction_exit": conviction_exit},
+        risk, drift, policy, load_json(os.path.join(args.run_dir, "compute_correlation.json"), default={}),
+        today, sizing, sector_map, dq, atr_vals,
+        load_json(os.path.join(args.base_dir, "learning.json"), default={}) or {})
+
     # --- materiality on the single-leg BUYS: annotate only (sells and rotation legs carry their own
     # verdict and ARE demoted). Unfunded rows (size 0/None) are not tickets and are skipped.
     for _fam in (oversold, laggard, trend_entry, conviction_average, entry_setup, reentry,
@@ -4752,11 +5025,29 @@ def cmd_triggers(args):
                                                    "min_ticket_r x r_base / stop, fee_cover_mult x round-trip fee); "
                                                    "sub-floor -> vote below_materiality; full exits exempt"},
                            "round_trip_fee_pct": sizing["fee_pct"],
+                           "heat_budget": {
+                               "rule": "H_eff_max = H_max x (heat_floor + (1 - heat_floor) x (1 - rho)); R_free = max(0, H_eff_max - H); "
+                                       "H = aggregate_open_risk_usd, H_max = aggregate_open_risk_cap_pct_of_book x total book",
+                               "heat_floor": _heat.get("heat_floor"), "cluster_sub_budget": _heat.get("cluster_sub_budget"),
+                               "unmeasured_correlation": "rho treated as 1.0 (conservative bound), never as 0",
+                               "allocation": "pairs first (net = buy risk - the risk their own sell frees), then singles greedily by "
+                                             "smith_ticket.allocation_priority; a partial fit is sized to the remaining room only if it "
+                                             "still clears materiality, else the ticket is DEFERRED (vote 'deferred', never dropped)",
+                               "over_cap": "H > H_eff_max -> zero new net-risk buys; sells and net<=0 rotations still emit; no sell credit is taken",
+                               "sell_credit": "live above-materiality standalone sells raise the run's budget; below_materiality / shadow / deferred never do",
+                               "static_clamps": ["single_position", "ai_capex", "cluster_risk_budget"]},
                            "legacy_fractions_for_one_release": {k: round(v, 4) for k, v in LEGACY_SELL_FRACTION.items()},
                        }},
         "deployable_cash_for_ideas_usd": round(deployable_for_ideas, 2),
         "live_counts": live_counts, "shadow_counts": shadow_counts,
         "below_materiality_counts": below_materiality_counts,
+        "heat_budget": _heat,
+        "deferred_counts": {fam: n for fam, n in (
+            (fam, sum(1 for r in rows if r.get("vote") == "deferred")) for fam, rows in (
+                ("oversold_reversion", oversold), ("trend_entry", trend_entry),
+                ("conviction_average", conviction_average), ("entry_setup", entry_setup),
+                ("reentry", reentry), ("bench_diversifier", bench_diversifier),
+                ("profit_rotation", profit_rotation), ("cluster_rotation", cluster_rotation))) if n},
         "oversold_reversion": oversold, "overbought_distribution": overbought,
         "catalyst_threat": catalyst_threat, "thesis_break": thesis_break,
         "factor_threat": factor_threat,

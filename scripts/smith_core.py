@@ -708,6 +708,37 @@ FEE_COVER_MULT = 25.0            # ticket must be >= this many times its own rou
 TRIM_TO_EXIT_FRACTION = 0.60
 
 # ---------------------------------------------------------------------------
+# PORTFOLIO HEAT BUDGET (Phase 3, 2026-09-20) -- see smith_ticket.heat_budget
+# ---------------------------------------------------------------------------
+# WHY. policy.stop_loss_framework.aggregate_open_risk_cap_pct_of_book (10%) was computed on every
+# run and used only to print a warning. Its own rationale records that it was BREACHED in practice
+# -- 13.028% on 2026-08-26, 11.947% on 2026-08-30 -- while every new buy kept being sized at the
+# full per-position formula, because no sizing function was ever handed the number. The engine
+# sized each ticket as though it were the only one and the book were empty.
+#
+# HEAT_FLOOR is the share of the raw cap that survives when the book's measured average pairwise
+# correlation is 1.0 (every stop fires together). H_eff_max = H_max x (HEAT_FLOOR + (1 - HEAT_FLOOR)
+# x (1 - rho)): at rho 0 the full cap is available, at rho 1 only HEAT_FLOOR of it. It is a floor
+# rather than zero because the ALL-FIRE sum (aggregate_open_risk_usd) is already the perfect-
+# correlation case, so even a fully correlated book is being held against the conservative number;
+# the correlation term only decides how much of the cap it is safe to actually fill. 0.70 is the
+# plan's figure, unconfirmed (policy.heat_budget.confirmed is false until the user signs it).
+HEAT_FLOOR_AT_FULL_CORRELATION = 0.70
+# A correlation estimate older than this is not "measured" for today's book: the estimate is a
+# 250-session window that barely moves in a week, so a week is generous -- past it the price feed
+# behind it (perf_bars.json) has stalled, and the conservative bound applies instead of a stale
+# diversification credit. Never assume credit that was not measured (`take_the_credit: false`).
+CORRELATION_MAX_AGE_DAYS = 7
+# The ATR20% range the learned stop multiple was MEASURED on (learning.json stops.atr_multiple.mid).
+# It is a mid-tier measurement (n=30, low tier n=3, high tier neutral), so it is only ever offered
+# as an advisory for a mid-tier name. Mirrors smith_lifecycle.VOL_TIERS (low < 3.0, mid < 5.5); a
+# test asserts the two agree, because smith_risk (pure) may not import smith_lifecycle.
+STOP_LEARNED_MID_ATR_RANGE = (3.0, 5.5)
+STOP_LEARNED_PARAM_ID = "stops.atr_multiple.mid"
+# Label written to clamped_by / deferred_by so a reader can tell WHICH constraint bound.
+HEAT_DEFER_LABEL = "portfolio heat budget"
+
+# ---------------------------------------------------------------------------
 # lots -- deterministic FIFO with corporate-action support
 # ---------------------------------------------------------------------------
 # WHY THIS EXISTS (added 2026-08-15). Two things were wrong at once.
