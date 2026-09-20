@@ -856,6 +856,11 @@ DEEMPH_MAX_AGE_DAYS = 7
 # below this rate over at least this many scored signals costs a BUY 2 priority points.
 BUCKET_PENALTY_HIT_RATE_PCT, BUCKET_PENALTY_MIN_N, BUCKET_PENALTY_POINTS = 45.0, 8, 2
 BUCKET_REWARD_HIT_RATE_PCT = 55.0
+# A signal bucket's hit rate is admissible evidence (tilts a size, moves a priority, retires a
+# proposal) only over at least this many POST-ENGINE_EPOCH scored signals. Three is the floor the 7d
+# table always used ("don't publish on n=1"); the 30d table had none, so a single matured signal
+# could tilt a Kelly size. Applied at publication (cmd_journal) AND at every reader.
+BUCKET_RATE_MIN_N = 3
 # ---------------------------------------------------------------------------
 # PROPOSAL STATUSES -- one vocabulary, translated ON READ (Phase 5, 2026-09-21)
 # ---------------------------------------------------------------------------

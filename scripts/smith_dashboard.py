@@ -60,6 +60,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from smith_clock import desk_today  # noqa: E402
 import smith_risk  # noqa: E402
+import smith_core  # noqa: E402
+import smith_edge  # noqa: E402
 from smith_core import LIVE_PROPOSAL_STATUSES, canonical_status  # noqa: E402
 
 # --------------------------------------------------------------------------------------
@@ -262,6 +264,9 @@ def build_payload(base, built_at=None):
     derisk = rf("compute_derisk.json")
     ladder = rf("compute_ladder.json")
     journal = rf("compute_journal.json")
+    # EVIDENCE WINDOW (user instruction 2026-09-21): a compute_journal.json without the current
+    # epoch's stamp (an older run) carries legacy-engine rates; read it only through the admitted view.
+    _admitted = smith_edge.admissible_bucket_tables(journal)
     attrib = rf("compute_attribution.json")
     corr = rf("compute_correlation.json")
     desk = rf("comms/digest.json")
@@ -281,7 +286,7 @@ def build_payload(base, built_at=None):
 
     risk_by = {r.get("ticker"): r for r in (risk.get("positions") or [])}
     derisk_by = {r.get("ticker"): r for r in (derisk.get("queue") or [])}
-    grades = (journal.get("name_bucket_grades") or {})
+    grades = _admitted["name_bucket_grades"]
 
     # ---- positions -------------------------------------------------------------------
     positions = []
@@ -583,8 +588,9 @@ def build_payload(base, built_at=None):
     # ---- track record ----------------------------------------------------------------
     track = {
         "scorecard": props_store.get("scorecard") or {},
-        "buckets": journal.get("bucket_hit_rates") or {},
-        "buckets_7d": journal.get("bucket_hit_rates_7d") or {},
+        "engine_epoch": smith_core.ENGINE_EPOCH,
+        "buckets": _admitted["bucket_hit_rates"],
+        "buckets_7d": _admitted["bucket_hit_rates_7d"],
         "grades": grades,
         "journal_n": len(journal.get("journal_updates") or []),
         "stops": {
@@ -2377,38 +2383,55 @@ function tabConviction(){
 
 /* ================================================================ TAB: TRACK RECORD */
 function tabTrack(){
-  var H=[], S=D.track.scorecard||{}, byd=S.by_direction||{};
-
-  var rows=Object.keys(byd).map(function(key){
-    var v=byd[key];
-    return {label:key, v:v.accuracy_pct||0, vlabel:pct(v.accuracy_pct,1)+" (n="+v.n+")",
-      color:(v.accuracy_pct>=50?"var(--pos)":v.accuracy_pct>=35?"var(--warn)":"var(--neg)"),
-      title:key+": "+v.worked+" worked, "+v.missed+" missed, avg benefit "+
-        signed(v.avg_benefit_pct,2)}; });
-  H.push(panel("Proposal accuracy, 30 days",
-    "n="+(S.overall||{}).n+" scored · "+(S.excluded_dismissed_by_user||0)+
-    " excluded (dismissed by you) · "+(S.withdrawn_by_desk||0)+" withdrawn by the desk",
-    '<div class="pad">'+barsHChart(rows,{label:"accuracy by direction",ml:92})+"</div>"+
-    '<div class="pad" style="padding-top:0">'+
-    table([{h:"Direction"},{h:"n",n:1},{h:"Worked",n:1},{h:"Missed",n:1},{h:"Neutral",n:1},
-      {h:"Accuracy",n:1},{h:"Avg benefit",n:1}],
-      Object.keys(byd).map(function(key){ var v=byd[key];
-        return "<tr><td><b>"+esc(key)+'</b></td><td class="n">'+v.n+
-          '</td><td class="n pos">'+v.worked+'</td><td class="n neg">'+v.missed+
-          '</td><td class="n">'+v.neutral+'</td><td class="n">'+pct(v.accuracy_pct,1)+
-          '</td><td class="n '+cls(v.avg_benefit_pct)+'">'+signed(v.avg_benefit_pct,2)+
-          "</td></tr>"; }).concat([
-        '<tr><td><b>Overall</b></td><td class="n">'+(S.overall||{}).n+
-        '</td><td class="n pos">'+(S.overall||{}).worked+'</td><td class="n neg">'+
-        (S.overall||{}).missed+'</td><td class="n">'+(S.overall||{}).neutral+
-        '</td><td class="n"><b>'+pct((S.overall||{}).accuracy_pct,1)+
-        '</b></td><td class="n '+cls((S.overall||{}).avg_benefit_pct)+'">'+
-        signed((S.overall||{}).avg_benefit_pct,2)+"</td></tr>"]))+"</div>",
-    {span:true, sev:((S.overall||{}).accuracy_pct||0)<40?"warn":null}));
+  /* EVIDENCE WINDOW (user instruction 2026-09-21): the flat scorecard fields pool every graded
+     proposal and are legacy-dominated, so they are NEVER the headline. The current engine's record
+     is scorecard.since_epoch; the pre-rebuild record is scorecard.legacy, shown once, labelled as
+     history. A scorecard stored before the split (no since_epoch key) counts as all legacy. */
+  var H=[], S=D.track.scorecard||{}, EP=D.track.engine_epoch||"the engine epoch";
+  var SE=S.since_epoch||{}, LG=S.legacy||(S.since_epoch?null:{overall:S.overall,by_direction:S.by_direction});
+  function accPanel(title, blk, opts){
+    var byd=(blk||{}).by_direction||{}, O=(blk||{}).overall||{};
+    var rows=Object.keys(byd).filter(function(k){ return byd[k]; }).map(function(key){
+      var v=byd[key];
+      return {label:key, v:v.accuracy_pct||0, vlabel:pct(v.accuracy_pct,1)+" (n="+v.n+")",
+        color:(v.accuracy_pct>=50?"var(--pos)":v.accuracy_pct>=35?"var(--warn)":"var(--neg)"),
+        title:key+": "+v.worked+" worked, "+v.missed+" missed, avg benefit "+
+          signed(v.avg_benefit_pct,2)}; });
+    if(!O.n) return panel(title, opts.empty, '<div class="pad"><p class="note">'+opts.emptyNote+"</p></div>",
+      {span:true});
+    return panel(title, "n="+O.n+" scored · "+opts.sub,
+      '<div class="pad">'+barsHChart(rows,{label:"accuracy by direction",ml:92})+"</div>"+
+      '<div class="pad" style="padding-top:0">'+
+      table([{h:"Direction"},{h:"n",n:1},{h:"Worked",n:1},{h:"Missed",n:1},{h:"Neutral",n:1},
+        {h:"Accuracy",n:1},{h:"Avg benefit",n:1}],
+        Object.keys(byd).filter(function(k){ return byd[k]; }).map(function(key){ var v=byd[key];
+          return "<tr><td><b>"+esc(key)+'</b></td><td class="n">'+v.n+
+            '</td><td class="n pos">'+v.worked+'</td><td class="n neg">'+v.missed+
+            '</td><td class="n">'+v.neutral+'</td><td class="n">'+pct(v.accuracy_pct,1)+
+            '</td><td class="n '+cls(v.avg_benefit_pct)+'">'+signed(v.avg_benefit_pct,2)+
+            "</td></tr>"; }).concat([
+          '<tr><td><b>Overall</b></td><td class="n">'+O.n+
+          '</td><td class="n pos">'+O.worked+'</td><td class="n neg">'+O.missed+
+          '</td><td class="n">'+O.neutral+'</td><td class="n"><b>'+pct(O.accuracy_pct,1)+
+          '</b></td><td class="n '+cls(O.avg_benefit_pct)+'">'+signed(O.avg_benefit_pct,2)+
+          "</td></tr>"]))+"</div>",
+      {span:true, sev:opts.warn&&(O.accuracy_pct||0)<40?"warn":null});
+  }
+  H.push(accPanel("Proposal accuracy, 30 days — current engine (since "+EP+")", SE,
+    {sub:"proposals dated on/after "+EP+" · "+(S.excluded_dismissed_by_user||0)+
+      " excluded (dismissed by you) · "+(S.withdrawn_by_desk||0)+" withdrawn by the desk",
+     empty:"since "+EP, warn:true,
+     emptyNote:"No proposal from the rebuilt engine has been scored yet (n=0). The first reaches its "+
+       "30-day window about a month after "+EP+". Until then there is no current hit rate to show."}));
+  if(LG) H.push(accPanel("Legacy-engine history (proposals before "+EP+") — not current performance", LG,
+    {sub:"the pre-rebuild engine, kept as history only; never used to size or gate a proposal",
+     empty:"before "+EP, warn:false, emptyNote:"No legacy proposals scored."}));
 
   /* bucket hit rates */
   var B=D.track.buckets||{};
-  H.push(panel("Signal-bucket hit rates","n≥50 makes a rate trustworthy; below n=5 it is noise",
+  H.push(panel("Signal-bucket hit rates — signals fired since "+EP,
+    Object.keys(B).length?"n≥50 makes a rate trustworthy; below n=5 it is noise":
+      "no signal fired since "+EP+" has matured yet; earlier signals are legacy history, not shown",
     Object.keys(B).length? table([{h:"Bucket"},{h:"n",n:1},{h:"Hit rate",n:1},
       {h:"Payoff ratio",n:1},{h:"Weight it carries"}],
       Object.keys(B).sort(function(a,b){ return B[b].n-B[a].n; }).map(function(key){
@@ -2772,7 +2795,8 @@ function openTicker(t){
         '</span></td><td class="n">'+g.n+'</td><td class="n">'+pct(g.hit_rate_pct,0)+
         "</td></tr>"; }))+
     '<p class="note" style="margin-top:7px">Low n means low confidence — these grades '+
-    "describe how often a bucket has worked on this name, not a forecast.</p></div>";
+    "describe how often a bucket has worked on this name since "+(D.track.engine_epoch||"the engine epoch")+
+    ", not a forecast.</p></div>";
 
   if(lots) H+='<div class="sheet-sec"><h3>Tax lots</h3><pre class="mono" '+
     'style="font-size:11px;overflow-x:auto;margin:0">'+esc(JSON.stringify(lots,null,1))+

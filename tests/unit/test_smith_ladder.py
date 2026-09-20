@@ -426,6 +426,15 @@ from datetime import date          # noqa: E402  (kept beside the tests that use
 import smith_risk                  # noqa: E402
 
 TODAY = date(2026, 9, 8)
+# These fixtures pre-date smith_core.ENGINE_EPOCH (2026-09-21), and ladder_authority now counts only
+# scored calls made on/after the epoch (user instruction 2026-09-21). They pin the WITHDRAWAL logic
+# itself, so they run it under an epoch before their call dates; the epoch filter has its own tests
+# in test_smith_epoch_filter.py.
+FIXTURE_EPOCH = "2026-09-01"
+
+
+def _call(correct, scored=True, ladder_as_of="2026-09-05"):
+    return {"scored": scored, "correct": correct, "ladder_as_of": ladder_as_of}
 
 
 def _ladder(confidence="high", as_of="2026-09-06", order=("BEST", "MID", "WORST"),
@@ -470,26 +479,30 @@ class TestLadderAuthority:
     def test_a_failing_track_record_forces_low_and_withdraws_authority(self):
         """The agent does not grade its own homework. A ranking that is measured and failing
         must not keep sizing trades -- this is the condition the whole layer was allowed on."""
-        tr = [{"scored": True, "correct": False}] * 5 + [{"scored": True, "correct": True}]
-        auth, conf, why = smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY)
+        tr = [_call(False)] * 5 + [_call(True)]
+        auth, conf, why = smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY,
+                                                      epoch=FIXTURE_EPOCH)
         assert auth == "none" and conf == "low"
         assert "below coin-flip" in why[0]
 
     def test_a_small_failing_sample_is_reported_but_not_acted_on(self):
         # 2-of-3 is noise, and acting on it is the small-sample overreaction the journal's own
         # hit-rate machinery avoids.
-        tr = [{"scored": True, "correct": False}] * 2 + [{"scored": True, "correct": True}]
-        auth, conf, why = smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY)
+        tr = [_call(False)] * 2 + [_call(True)]
+        auth, conf, why = smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY,
+                                                      epoch=FIXTURE_EPOCH)
         assert auth == "full" and conf == "high"
         assert any("below the sample bar" in w for w in why)
 
     def test_exactly_coin_flip_keeps_authority(self):
-        tr = [{"scored": True, "correct": True}] * 3 + [{"scored": True, "correct": False}] * 3
-        assert smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY)[0] == "full"
+        tr = [_call(True)] * 3 + [_call(False)] * 3
+        assert smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY,
+                                           epoch=FIXTURE_EPOCH)[0] == "full"
 
     def test_unscoreable_calls_do_not_count_against_the_record(self):
-        tr = [{"scored": False}] * 10 + [{"scored": True, "correct": True}]
-        assert smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY)[0] == "full"
+        tr = [_call(None, scored=False)] * 10 + [_call(True)]
+        assert smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY,
+                                           epoch=FIXTURE_EPOCH)[0] == "full"
 
 
 class TestLadderDrivenRotation:

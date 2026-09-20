@@ -54,6 +54,15 @@ re-derive it once post-epoch scored ideas exist. Nothing here was tuned by looki
 rates. The shadow-journal source obeys the same rule: only entries whose trigger row was emitted
 on/after the epoch count.
 
+THE SAME RULE NOW COVERS EVERY OTHER PATH BY WHICH A LEGACY OUTCOME COULD MOVE A SIZE, PRIORITY, VOTE,
+RETIREMENT OR GATE (user instruction 2026-09-21: "correct this and any similar older hit-rate issue"):
+signal-bucket hit rates and per-name grades (cmd_journal tallies only firings on/after the epoch and
+stamps its output; admissible_bucket_tables is the one reader), the Kelly conviction tilt and priority
+penalty/reward and signal_conviction retirement that read them, cluster-ladder authority
+(smith_risk.ladder_authority counts only calls made on/after the epoch), the phase4.readiness counter,
+the shadow-journal hit_rate written to trigger_journal.json, and every reporting surface. All of them go
+inert until post-epoch outcomes mature; none was softened.
+
 HORIZON MIX (disclosed, not hidden): proposal rows are scored at 30d (alpha vs SMH where anchored);
 shadow-journal rows at 7d on the raw move. Both feed a family's n_eff -- a suppressed family can
 only earn its vote back through the shadow journal -- and `source_counts` on every table row says
@@ -585,29 +594,72 @@ def enforce_cash_invariant(cands, decisions, cash_above_band, clears=None):
 
 
 # ---------------------------------------------------------------------------
-# One reader for signal-bucket hit rates
+# One reader for signal-bucket hit rates -- EPOCH-FILTERED
 # ---------------------------------------------------------------------------
-def bucket_rate(journal, bucket):
-    """A signal bucket's measured hit rate, from ONE reader, with its source LABELLED.
+# THE USER'S INSTRUCTION (2026-09-20/21): "Don't use the earlier proposal hit data as the actual
+# performance data in the current redesign, as earlier proposals were too broken", then, told the
+# signal-bucket tables were not epoch-filtered: "correct this and any similar older hit-rate issue".
+# The bucket tables (journal.json / compute_journal.json `bucket_hit_rates`, `bucket_hit_rates_7d`,
+# `name_bucket_grades`) are built by cmd_journal from signal firings, and every firing before
+# ENGINE_EPOCH was sized, ranked and traded by the legacy engine -- the record the user ruled
+# inadmissible. cmd_journal now tallies only firings dated on/after the epoch and stamps its output
+# with BUCKET_RATES_EPOCH_KEY. This module is the ONE reader: a table whose stamp is missing or
+# differs from the live epoch is a legacy table (persisted before the filter, or built under an
+# older epoch) and is treated as EMPTY, so a stale journal.json can never leak legacy rates into a
+# size, a priority, a vote or a retirement. The effect is meant to be large and goes inert until
+# post-epoch signals mature (7d / 30d).
+BUCKET_RATES_EPOCH_KEY = "bucket_rates_epoch"
 
-    Two consumers used to disagree: smith_lifecycle's priority scorer read the interim 7d table
-    while smith_math's track-record lookup preferred the validated 30d table, so the same bucket
-    (MOMENTUM+VOLUME: 20% at 30d, 14.3% at 7d) could be scored two ways in one run. This prefers the
-    30d table when it has a reading for the bucket and falls back to 7d only then. Returns
-    {n, hit_rate_pct, payoff_ratio, source: '30d'|'7d', interim: bool} or None.
 
-    SCOPE: these are SIGNAL outcomes scored against price (journal.json), not proposal outcomes.
-    They were never produced by the legacy proposal engine, so the epoch exclusion does not apply."""
+def evidence_window(epoch=None):
+    """The label every bucket-rate consumer prints beside a number: what window the rate covers."""
+    return "since %s" % _epoch(epoch)
+
+
+def admissible_bucket_tables(journal, epoch=None):
+    """{bucket_hit_rates, bucket_hit_rates_7d, name_bucket_grades} a consumer may act on, from a
+    journal.json / compute_journal.json dict. Empty tables unless the dict carries the CURRENT
+    epoch's stamp; bucket-rate rows below BUCKET_RATE_MIN_N are dropped even then (grades keep their own low_confidence flag). Pure."""
+    j = journal or {}
+    empty = {"bucket_hit_rates": {}, "bucket_hit_rates_7d": {}, "name_bucket_grades": {}}
+    if j.get(BUCKET_RATES_EPOCH_KEY) != _epoch(epoch):
+        return empty
+
+    def floor(table):
+        return {b: r for b, r in (table or {}).items()
+                if isinstance(r, dict) and (r.get("n") or 0) >= smith_core.BUCKET_RATE_MIN_N}
+    # name_bucket_grades keep their thin (n<3, `low_confidence`) rows by design: they are DISPLAY
+    # only -- no size, priority or gate reads them -- and each states its own n.
+    return {"bucket_hit_rates": floor(j.get("bucket_hit_rates")),
+            "bucket_hit_rates_7d": floor(j.get("bucket_hit_rates_7d")),
+            "name_bucket_grades": dict(j.get("name_bucket_grades") or {})}
+
+
+def bucket_rate(journal, bucket, epoch=None):
+    """A signal bucket's measured hit rate, from ONE reader, with its source AND window LABELLED.
+
+    `journal` is a dict of already-admitted tables (admissible_bucket_tables output, or a
+    compute_journal.json stamped by cmd_journal). Prefers the validated 30d table when it has a
+    reading for the bucket and falls back to 7d only then. Returns {n, hit_rate_pct, payoff_ratio,
+    source: '30d'|'7d', interim: bool, window: 'since <epoch>'} or None -- None below
+    BUCKET_RATE_MIN_N, so a thin post-epoch sample never speaks. Two consumers used to disagree
+    (the priority scorer read 7d while the track-record lookup read 30d); this is the one reader.
+
+    SCOPE CORRECTION (2026-09-21): this docstring used to say the epoch exclusion does not apply
+    because these are signal outcomes, not proposal outcomes. The user ruled otherwise: signals
+    that fired under the legacy engine were graded on trades that engine sized and timed, and the
+    bucket tables now count only firings on/after ENGINE_EPOCH."""
     j = journal or {}
     for table, src in ((j.get("bucket_hit_rates") or {}, "30d"), (j.get("bucket_hit_rates_7d") or {}, "7d")):
         hr = table.get(bucket)
-        if hr and hr.get("n"):
+        if hr and (hr.get("n") or 0) >= smith_core.BUCKET_RATE_MIN_N:
             return {"n": hr["n"], "hit_rate_pct": hr.get("hit_rate_pct"),
-                    "payoff_ratio": hr.get("payoff_ratio"), "source": src, "interim": src == "7d"}
+                    "payoff_ratio": hr.get("payoff_ratio"), "source": src, "interim": src == "7d",
+                    "window": evidence_window(epoch)}
     return None
 
 
-def bucket_adjustment(journal, bullish_buckets):
+def bucket_adjustment(journal, bullish_buckets, epoch=None):
     """(points, reason) for a BUY from its bullish signal buckets' measured record.
 
     PENALTY: any bullish bucket below BUCKET_PENALTY_HIT_RATE_PCT over at least BUCKET_PENALTY_MIN_N
@@ -615,8 +667,10 @@ def bucket_adjustment(journal, bullish_buckets):
     TARGET GAP (36.8%, n=19) were ignored entirely -- the branch only ever rewarded. REWARD: as
     before, the best bucket above 55% earns +2 -- but only when no bullish bucket is in penalty,
     because a name is only as well-evidenced as its worst signal (the same conservative rule the
-    track-record multiplier uses)."""
-    rated = [(b, bucket_rate(journal, b)) for b in (bullish_buckets or [])]
+    track-record multiplier uses). Those two example rates were LEGACY-engine rates; since the
+    2026-09-21 epoch filter both branches read only post-epoch signals and stay silent (0, None)
+    until enough have matured. Every reason names its window."""
+    rated = [(b, bucket_rate(journal, b, epoch)) for b in (bullish_buckets or [])]
     rated = [(b, r) for b, r in rated if r and r.get("hit_rate_pct") is not None]
     bad = [(b, r) for b, r in rated
            if r["hit_rate_pct"] < BUCKET_PENALTY_HIT_RATE_PCT and r["n"] >= BUCKET_PENALTY_MIN_N]
@@ -624,14 +678,14 @@ def bucket_adjustment(journal, bullish_buckets):
         b, r = min(bad, key=lambda x: (x[1]["hit_rate_pct"], -x[1]["n"], x[0]))
         return (-BUCKET_PENALTY_POINTS,
                 f"bullish signal '{b}' has a {r['hit_rate_pct']:.0f}% {r['source']} hit rate "
-                f"(n={r['n']}) -- below {BUCKET_PENALTY_HIT_RATE_PCT:.0f}% over at least "
+                f"(n={r['n']}, {r['window']}) -- below {BUCKET_PENALTY_HIT_RATE_PCT:.0f}% over at least "
                 f"{BUCKET_PENALTY_MIN_N} scored signals in this book")
     good = [(b, r) for b, r in rated if r["hit_rate_pct"] > BUCKET_REWARD_HIT_RATE_PCT]
     if good:
         b, r = max(good, key=lambda x: (x[1]["hit_rate_pct"], x[0]))
         tag = " INTERIM (not yet 30d-validated)" if r["interim"] else ""
         return (2, f"bullish signal '{b}' has a {r['hit_rate_pct']:.0f}%{tag} {r['source']} hit rate "
-                   f"(n={r['n']}) in this book")
+                   f"(n={r['n']}, {r['window']}) in this book")
     return 0, None
 
 

@@ -183,8 +183,16 @@ def memory_summary(base_dir):
         pass
     props = [p for p in (props_file.get("proposals") or []) if isinstance(p, dict)
              and p.get("status") in OPEN_PROPOSAL_STATUSES]
-    scorecard = {k: v for k, v in (props_file.get("scorecard") or {}).items()
-                 if isinstance(v, (int, float, str)) and not isinstance(v, bool)}
+    # EVIDENCE WINDOW (user instruction 2026-09-21): the flat accuracy scalars pool every graded
+    # proposal and are legacy-dominated, so a resume summary must not carry them as the record. It
+    # carries the current engine's row count and says the legacy figures are history.
+    _sc = props_file.get("scorecard") or {}
+    scorecard = {k: v for k, v in _sc.items()
+                 if isinstance(v, (int, float, str)) and not isinstance(v, bool)
+                 and not k.endswith("_accuracy_30d")}
+    scorecard["current_engine_scored_rows"] = ((_sc.get("since_epoch") or {}).get("n_rows") or 0)
+    scorecard["legacy_accuracy_fields"] = ("omitted -- pre-ENGINE_EPOCH outcomes are legacy-engine "
+                                           "history, not current performance")
     us = state.get("us") or {}
     return {
         "state_ts": state.get("ts"), "mode": state.get("mode"),

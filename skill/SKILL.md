@@ -131,7 +131,7 @@ The Stage-1 tails reach it through its slice refs (`thesis_tail`, `signals_tail`
 
 **Run `smith_math.py score` BEFORE dispatching.** The strategist consumes the stored scorecard and no longer computes outcomes itself (corrected 2026-08-16 — it had been hand-producing figures the script already wrote, matching by luck; a divergence would have left the desk with two scorecards and no way to adjudicate). If `score` has not run, the strategist will correctly refuse to fill the gap by hand.
 
-Returns: sized proposals, risk-off status, macro-anchored stress table (deep), hit-rate readout, and its interpretation of the scorecard — plus a policy draft if bootstrapping.
+Returns: sized proposals, risk-off status, macro-anchored stress table (deep), hit-rate readout (signals fired since ENGINE_EPOCH only -- empty until they mature; never a legacy rate), and its interpretation of the scorecard — plus a policy draft if bootstrapping.
 
 **COMMIT STATE once the strategist's tail is merged AND the post-strategist desk loop has converged** (`merge-tails --agents strategist`, then §3.5 until `converged`): `python3 scripts/smith_math.py commit-state --base-dir . --run-dir runs/<run_id>`. SYNTHESIZE, the report and the dashboard all read committed state. It withholds price-derived keys (`us`, `holdings`, `changes`) by itself when `compute_book.json` says `persist_safe: false`, and reports what it withheld.
 

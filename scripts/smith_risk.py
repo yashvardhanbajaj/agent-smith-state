@@ -486,7 +486,7 @@ def derisk_override_for(state, ticker):
 # CLUSTER LADDER AUTHORITY (added 2026-09-08)
 # ---------------------------------------------------------------------------
 
-def ladder_authority(entry, today, ttl_days=14, min_scored=6):
+def ladder_authority(entry, today, ttl_days=14, min_scored=6, epoch=None):
     """Decide whether a cluster ladder may drive a LIVE rotation, and at what strength.
 
     Returns (authority, effective_confidence, reasons) where authority is one of:
@@ -507,6 +507,15 @@ def ladder_authority(entry, today, ttl_days=14, min_scored=6):
     ranking that is measured and failing must not keep sizing trades; this is the condition on
     which the whole layer was allowed near a trigger. Below `min_scored` the record is not yet
     evidence either way and is reported but not acted on -- a 2-of-3 record is noise.
+
+    EVIDENCE WINDOW (user instruction 2026-09-21: legacy-engine outcomes are inadmissible). Only
+    scored calls MADE on/after smith_core.ENGINE_EPOCH (`ladder_as_of`, the date of the ladder the
+    call scored; a call with no such date cannot be dated and is not admitted) count toward the
+    below-coin-flip withdrawal. Calls from before the epoch stay in `state.cluster_ladders[...]
+    .track_record` as history, and the reasons say how many were set aside. With no admissible
+    call, authority is exactly what it is with ZERO scored calls -- decided by age and the
+    agent's confidence alone (`medium` -> rank, `high` -> full, else none): the filter withdraws
+    nothing and grants nothing, it just stops legacy calls from voting either way.
     """
     reasons = []
     if not entry:
@@ -524,14 +533,19 @@ def ladder_authority(entry, today, ttl_days=14, min_scored=6):
         return "none", None, [f"ladder is {age}d old (TTL {ttl_days}d) -- ranking on price instead"]
 
     conf = (entry.get("confidence") or "").strip().lower()
-    scored = [t for t in (entry.get("track_record") or []) if t.get("scored")]
+    import smith_edge   # local: smith_edge -> smith_conviction -> smith_risk would cycle at top level
+    all_scored = [t for t in (entry.get("track_record") or []) if t.get("scored")]
+    scored = [t for t in all_scored if smith_edge.post_epoch(t.get("ladder_as_of"), epoch)]
+    if len(all_scored) > len(scored):
+        reasons.append(f"{len(all_scored) - len(scored)} scored ladder call(s) predate the engine epoch "
+                       f"({smith_edge._epoch(epoch)}) -- kept as history, not counted toward authority")
     hits = sum(1 for t in scored if t.get("correct"))
     if len(scored) >= min_scored and hits * 2 < len(scored):
         reasons.append(f"ladder track record {hits}/{len(scored)} is below coin-flip over a real "
                        f"sample -- confidence forced to low, authority withdrawn")
         return "none", "low", reasons
     if scored:
-        reasons.append(f"ladder track record {hits}/{len(scored)}"
+        reasons.append(f"ladder track record {hits}/{len(scored)} since {smith_edge._epoch(epoch)}"
                        + ("" if len(scored) >= min_scored else " (below the sample bar, reported not acted on)"))
 
     if conf == "high":

@@ -28,7 +28,7 @@
      strategist appends), or `validate` (a policy check, not a per-run compute). Run those explicitly, below.
    - Individual stages, for debugging one in isolation:
    - `python3 scripts/smith_math.py book --run-dir runs/<ts> --lots lots.json` → `compute_book.json`
-   - `python3 scripts/smith_math.py journal --run-dir runs/<ts>` → `compute_journal.json`
+   - `python3 scripts/smith_math.py journal --run-dir runs/<ts>` → `compute_journal.json` (scores/locks every entry; publishes `bucket_hit_rates`, `bucket_hit_rates_7d`, `name_bucket_grades` from signals fired on/after `ENGINE_EPOCH` only, stamped `bucket_rates_epoch`; `legacy_entries_excluded` counts the rest)
    - `python3 scripts/smith_math.py attribution --run-dir runs/<ts>` → `compute_attribution.json`
    - `python3 scripts/smith_math.py drift --run-dir runs/<ts>` → `compute_drift.json`
    - `python3 scripts/smith_math.py sentiment --base-dir . --market-inputs runs/<ts>/market_inputs.json` → `compute_sentiment.json`

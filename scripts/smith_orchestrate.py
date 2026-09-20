@@ -453,7 +453,10 @@ def _merge_journal(base_dir, run_dir, today):
                     if e.get(k) != v:
                         e[k] = v
                         updated += 1
-        for k in ("bucket_hit_rates", "bucket_hit_rates_7d", "name_bucket_grades"):
+        # The epoch stamp travels with the tables: smith_edge.admissible_bucket_tables refuses any
+        # persisted table that lacks the current epoch's stamp (legacy-engine evidence).
+        for k in ("bucket_hit_rates", "bucket_hit_rates_7d", "name_bucket_grades",
+                  "bucket_rates_epoch", "bucket_rates_window", "legacy_entries_excluded"):
             if k in cj:
                 j[k] = cj[k]
         j["last_updated"] = str(today)

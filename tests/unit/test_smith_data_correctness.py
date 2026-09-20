@@ -96,19 +96,25 @@ def _proposals(tmp_path, hot, archived=()):
     (tmp_path / "proposals-archive.json").write_text(json.dumps({"proposals": list(archived)}))
 
 
+POST = "2026-09-22"   # on/after smith_core.ENGINE_EPOCH
+
+
 def test_readiness_counts_distinct_scored_proposals_across_archive(tmp_path):
     _proposals(tmp_path,
-               [{"id": "P-1", "outcome_verdict": "worked"}, {"id": "P-2", "outcome_verdict": "missed"},
-                {"id": "P-3"}],
-               [{"id": "P-1", "outcome_verdict": "worked"}, {"id": "P-9", "outcome_verdict": "neutral"}])
+               # dated post-epoch: the readiness counter admits only proposals on/after ENGINE_EPOCH
+               # (user instruction 2026-09-21); the pre-epoch behaviour is in test_smith_epoch_filter.py
+               [{"id": "P-1", "outcome_verdict": "worked", "date": POST}, {"id": "P-2", "outcome_verdict": "missed", "date": POST},
+                {"id": "P-3", "date": POST}],
+               [{"id": "P-1", "outcome_verdict": "worked", "date": POST}, {"id": "P-9", "outcome_verdict": "neutral", "date": POST}])
     counts = lrn.update_phase4_readiness(str(tmp_path))
-    assert counts == {"scored": 3, "worked": 1, "missed": 1, "decided": 2}
+    assert (counts["scored"], counts["worked"], counts["missed"], counts["decided"]) == (3, 1, 1, 2)
+    assert counts["legacy_excluded"] == 0
     p = lrn.load_store(str(tmp_path))["parameters"]["phase4.readiness"]
     assert p["current"] == 3 and p["n_gate"] == 100
 
 
 def test_validate_flags_a_stale_readiness_counter(tmp_path):
-    _proposals(tmp_path, [{"id": "P-1", "outcome_verdict": "worked"}])
+    _proposals(tmp_path, [{"id": "P-1", "outcome_verdict": "worked", "date": POST}])
     (tmp_path / "learning.json").write_text(json.dumps({"observations": [], "lessons": [],
                                                         "parameters": {"phase4.readiness": {"current": 8}}}))
     assert any("LEARNING COUNTER" in d for d in sm.validate_learning_schema(str(tmp_path)))

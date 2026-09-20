@@ -271,8 +271,11 @@ def full_kelly(p, b):
     return (b * p - (1.0 - p)) / b
 
 
+TRACK_RECORD_MIN_N = 3          # == smith_core.BUCKET_RATE_MIN_N (no import: this module stays leaf)
+
+
 def track_record_multiplier(hit_rate_pct, n, max_effect=0.20, n_for_full_authority=20,
-                            payoff_ratio=None):
+                            payoff_ratio=None, window=None):
     """Bounded tilt, not a veto -- per user decision. A signal bucket with a measured hit rate
     nudges conviction up or down by at most `max_effect` (20%), and that ceiling itself scales
     with sample size so a bucket earns authority rather than being handed it: n=4 gets ~1/5 of
@@ -293,9 +296,20 @@ def track_record_multiplier(hit_rate_pct, n, max_effect=0.20, n_for_full_authori
     staged-tranche/ATR-cap discipline the rest of this sizing chain already enforces. Kelly
     here answers a narrower, safer question: GIVEN the existing +/-20% governance ceiling,
     should this bucket sit near the top of that band or the bottom? It informs the tilt's
-    shape, not its bound."""
-    if hit_rate_pct is None or not n:
-        return 1.0, None
+    shape, not its bound.
+
+    EVIDENCE WINDOW (user instruction 2026-09-21). The rate handed in must be a POST-ENGINE_EPOCH
+    rate (smith_edge.admissible_bucket_tables); a legacy-engine hit rate is inadmissible evidence.
+    With no rate, or fewer than TRACK_RECORD_MIN_N scored signals, the answer is NO TILT (1.0)
+    with a reason that says so and quotes no number. `window` ("since <epoch>") is printed beside
+    any tilt that does apply. The effect of the filter is large and deliberate: the -6.7% tilt
+    MOMENTUM+VOLUME's legacy 20% hit rate applied to every name carrying it is gone until post-epoch
+    signals mature."""
+    if hit_rate_pct is None or not n or n < TRACK_RECORD_MIN_N:
+        if window is None and (hit_rate_pct is None or not n):
+            return 1.0, None            # caller supplied no record and no window: nothing to explain
+        return 1.0, ("no post-epoch track record%s for this name's bullish signal (an admissible "
+                     "record needs at least %d scored signals since the epoch) -- no tilt" % (f" ({window})" if window else "", TRACK_RECORD_MIN_N))
     authority = min(1.0, n / n_for_full_authority)
     if payoff_ratio is not None and payoff_ratio > 0:
         p = hit_rate_pct / 100.0
@@ -309,7 +323,7 @@ def track_record_multiplier(hit_rate_pct, n, max_effect=0.20, n_for_full_authori
         basis = f"hit rate {hit_rate_pct:.0f}%"
     tilt = max(-max_effect, min(max_effect, tilt))
     mult = 1.0 + tilt
-    reason = (f"track record {hit_rate_pct:.0f}% (n={n}) via {basis} applies a {tilt:+.1%} "
+    reason = (f"track record {hit_rate_pct:.0f}% (n={n}{', ' + window if window else ''}) via {basis} applies a {tilt:+.1%} "
               f"tilt ({authority:.0%} authority at this sample size)")
     return mult, reason
 
@@ -369,7 +383,7 @@ def score_conviction(ctx):
     mult = 1.0
     if tr:
         mult, r = track_record_multiplier(tr.get("hit_rate_pct"), tr.get("n"),
-                                          payoff_ratio=tr.get("payoff_ratio"))
+                                          payoff_ratio=tr.get("payoff_ratio"), window=tr.get("window"))
         if r:
             reasons.append(r)
 

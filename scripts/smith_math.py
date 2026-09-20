@@ -838,6 +838,7 @@ def cmd_journal(args):
     # big looked identical to one that wins big and loses small -- this is the payoff-ratio
     # data Kelly's formula needs and the plain hit-rate tilt structurally can't use.
     bucket_score_magnitudes = {}
+    legacy_seen = 0      # entries dated before ENGINE_EPOCH: scored/locked, never tallied
     needs_price = set()  # tickers with an open entry and no price -- surfaced so the caller
                          # knows exactly which exited names to fetch and re-run with
 
@@ -849,6 +850,12 @@ def cmd_journal(args):
         days_old = (today - flag_date).days
         key = (e.get("date"), e.get("ticker"), e.get("bucket"))
         prior = prior_by_key.get(key, {})
+        # EVIDENCE WINDOW (user instruction 2026-09-21: legacy-engine outcomes are inadmissible).
+        # Every entry is still scored and LOCKED below, exactly as before -- history stays intact --
+        # but only a firing dated on/after ENGINE_EPOCH is TALLIED into the published rates/grades.
+        counts = smith_edge.post_epoch(e.get("date"))
+        if not counts:
+            legacy_seen += 1
 
         # LOCK ON FIRST SCORE (added 2026-08-25, fixes the "no scoring window" defect): once an
         # outcome has been scored, it is NEVER recomputed against a later price. Before this
@@ -889,8 +896,9 @@ def cmd_journal(args):
             # must keep counting even after the name later exits and this run can't re-price it.
             if prior.get("_verdict_7d"):
                 out["_verdict_7d"] = prior["_verdict_7d"]
-                bucket_scores_7d.setdefault(e["bucket"], []).append(prior["_verdict_7d"])
-            if out["verdict"] in ("worked", "failed", "neutral", "n/a"):
+                if counts:
+                    bucket_scores_7d.setdefault(e["bucket"], []).append(prior["_verdict_7d"])
+            if counts and out["verdict"] in ("worked", "failed", "neutral", "n/a"):
                 bucket_scores.setdefault(e["bucket"], []).append(out["verdict"])
                 name_bucket_scores.setdefault((e["ticker"], e["bucket"]), []).append(out["verdict"])
                 if out["verdict"] in ("worked", "failed") and out.get("outcome_30d_pct") is not None:
@@ -932,9 +940,10 @@ def cmd_journal(args):
             prior.get("_verdict_7d") if already_locked_7d else None)
         if v7_for_tally:
             out["_verdict_7d"] = v7_for_tally  # persisted so future runs can re-tally without price
-            bucket_scores_7d.setdefault(e["bucket"], []).append(v7_for_tally)
+            if counts:
+                bucket_scores_7d.setdefault(e["bucket"], []).append(v7_for_tally)
 
-        if out["verdict"] in ("worked", "failed", "neutral", "n/a"):
+        if counts and out["verdict"] in ("worked", "failed", "neutral", "n/a"):
             bucket_scores.setdefault(e["bucket"], []).append(out["verdict"])
             name_bucket_scores.setdefault((e["ticker"], e["bucket"]), []).append(out["verdict"])
             if out["verdict"] in ("worked", "failed") and out.get("outcome_30d_pct") is not None:
@@ -947,7 +956,7 @@ def cmd_journal(args):
     bucket_hit_rates = {}
     for bucket, verdicts in bucket_scores.items():
         scored = [v for v in verdicts if v in ("worked", "failed")]
-        if scored:
+        if len(scored) >= BUCKET_RATE_MIN_N:  # same floor as the 7d table (and every reader)
             row = {
                 "n": len(scored),
                 "hit_rate_pct": round(sum(1 for v in scored if v == "worked") / len(scored) * 100, 1),
@@ -968,7 +977,7 @@ def cmd_journal(args):
     bucket_hit_rates_7d = {}
     for bucket, verdicts in bucket_scores_7d.items():
         scored = [v for v in verdicts if v in ("worked", "failed")]
-        if len(scored) >= 3:  # same n>=3 floor as bucket_hit_rates -- don't publish on n=1
+        if len(scored) >= BUCKET_RATE_MIN_N:  # same floor as bucket_hit_rates -- don't publish on n=1
             bucket_hit_rates_7d[bucket] = {
                 "n": len(scored),
                 "hit_rate_pct": round(sum(1 for v in scored if v == "worked") / len(scored) * 100, 1),
@@ -1021,6 +1030,11 @@ def cmd_journal(args):
         "bucket_hit_rates": bucket_hit_rates,
         "bucket_hit_rates_7d": bucket_hit_rates_7d,
         "name_bucket_grades": name_bucket_grades,
+        # The stamp is what makes a persisted table admissible: smith_edge.admissible_bucket_tables
+        # treats a table without the CURRENT epoch's stamp as legacy and empty.
+        smith_edge.BUCKET_RATES_EPOCH_KEY: smith_edge._epoch(),
+        "bucket_rates_window": smith_edge.evidence_window(),
+        "legacy_entries_excluded": legacy_seen,
         "data_quality": dq,
     })
 
@@ -4115,13 +4129,18 @@ def worst_bullish_track_record(bullish, hit_rates_30d, hit_rates_7d):
 
     Prefers the validated 30d table; falls back to the interim 7d table only when no bullish
     bucket has a 30d reading (same preference the reader always had). Ties resolve to the
-    smaller n, then the name, so the pick is deterministic."""
+    smaller n, then the name, so the pick is deterministic. Reads ONLY admitted tables (post-epoch
+    firings, n >= BUCKET_RATE_MIN_N -- see smith_edge.admissible_bucket_tables); each row it
+    returns names its window, and the multiplier that consumes it states "no post-epoch record"
+    rather than a number when the tables are empty."""
     for table, interim in ((hit_rates_30d, False), (hit_rates_7d, True)):
-        cands = [(b, table[b]) for b in bullish if table.get(b) and table[b].get("n")]
+        cands = [(b, table[b]) for b in bullish
+                 if table.get(b) and (table[b].get("n") or 0) >= BUCKET_RATE_MIN_N]
         if cands:
             b, hr = min(cands, key=lambda c: (_bucket_expectancy_r(c[1]), c[1]["n"], c[0]))
             return {"hit_rate_pct": hr["hit_rate_pct"], "n": hr["n"], "interim": interim,
-                    "payoff_ratio": hr.get("payoff_ratio")}   # None if never lost -- fine
+                    "payoff_ratio": hr.get("payoff_ratio"),   # None if never lost -- fine
+                    "window": smith_edge.evidence_window()}
     return None
 
 
@@ -4816,6 +4835,8 @@ def cmd_triggers(args):
     # journal entry that carries one, rather than leaving valuation_component blind. This is a
     # read of already-computed numbers, not a new fetch or an estimate.
     journal = load_json(os.path.join(args.base_dir, "journal.json"), default={})
+    # The ONLY door to the signal-bucket tables in this command: post-epoch firings, stamped.
+    _admitted_buckets = smith_edge.admissible_bucket_tables(journal)
     target_by_ticker = {}
     for e in journal.get("entries", []) or []:
         tgt = e.get("analyst_target")
@@ -4926,8 +4947,15 @@ def cmd_triggers(args):
         # on the first bullish bucket with data, so a name carrying MOMENTUM+VOLUME (20% hit,
         # n=15) alongside OVERSOLD BOUNCE (66.7%, n=3) got whichever the classifier listed first.
         # A sizing multiplier should be conservative about a name's evidence.
-        tr = worst_bullish_track_record(polarity["bullish"], journal.get("bucket_hit_rates", {}),
-                                        journal.get("bucket_hit_rates_7d", {}))
+        # ADMITTED tables only (2026-09-21): post-epoch firings, current-epoch stamp. A name that
+        # carries bullish buckets but has no admissible record gets an explicit NO-TILT marker
+        # (n=0) so the conviction reasons say "no post-epoch track record" instead of silently
+        # omitting the line; a name with no bullish bucket at all still gets None, as before.
+        tr = worst_bullish_track_record(polarity["bullish"], _admitted_buckets["bucket_hit_rates"],
+                                        _admitted_buckets["bucket_hit_rates_7d"])
+        if tr is None and polarity["bullish"]:
+            return {"hit_rate_pct": None, "n": 0, "interim": False, "payoff_ratio": None,
+                    "window": smith_edge.evidence_window()}
         return tr
 
     def build_ctx(ticker, thesis_entry, buckets, price, rsi_val, rel_val, earnings_fact_ticker):

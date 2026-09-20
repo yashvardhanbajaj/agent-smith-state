@@ -151,11 +151,12 @@ def test_worst_bullish_bucket_is_chosen_not_the_first():
 
 def test_readiness_counter_excludes_ungraded_and_superseded(tmp_path):
     import smith_learning
-    props = [{"id": "P-1", "outcome_verdict": "worked"},
-             {"id": "P-2", "outcome_verdict": "needs_anchor_review"},
-             {"id": "P-3", "outcome_verdict": "unscoreable"},
-             {"id": "P-4", "outcome_verdict": "missed", "status": "superseded"},
-             {"id": "P-5", "outcome_verdict": "missed"}]
+    d = "2026-09-22"      # post-epoch: the counter admits only proposals on/after ENGINE_EPOCH
+    props = [{"id": "P-1", "outcome_verdict": "worked", "date": d},
+             {"id": "P-2", "outcome_verdict": "needs_anchor_review", "date": d},
+             {"id": "P-3", "outcome_verdict": "unscoreable", "date": d},
+             {"id": "P-4", "outcome_verdict": "missed", "status": "superseded", "date": d},
+             {"id": "P-5", "outcome_verdict": "missed", "date": d}]
     (tmp_path / "proposals.json").write_text(json.dumps({"proposals": props}))
     c = smith_learning.scored_proposal_counts(str(tmp_path))
     assert c["scored"] == 2 and c["decided"] == 2

@@ -393,7 +393,7 @@ def _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short,
         # 30d, and it only ever REWARDED -- MOMENTUM+VOLUME (20%, n=15) and TARGET GAP (36.8%,
         # n=19) cost a BUY nothing. bucket_adjustment adds the penalty (<45% over n>=8 -> -2).
         pts, why = smith_edge.bucket_adjustment(
-            {"bucket_hit_rates": hit_rates_30d or {}, "bucket_hit_rates_7d": hit_rates_7d},
+            {"bucket_hit_rates": hit_rates_30d or {}, "bucket_hit_rates_7d": hit_rates_7d or {}},
             rtk.get("bullish_buckets", []))
         if pts:
             score += pts
@@ -800,14 +800,19 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             tb = pr["trigger_bucket"]
             rtk = rotation_by_ticker.get(ticker, {}) if ticker else {}
             hr = smith_edge.bucket_rate({"bucket_hit_rates": hit_rates_30d or {},
-                                         "bucket_hit_rates_7d": hit_rates_7d}, tb)
+                                         "bucket_hit_rates_7d": hit_rates_7d or {}}, tb)
             if tb not in rtk.get("bullish_buckets", []):
                 cond = "signal_bucket_gone"
                 why = f"{ticker} no longer carries the '{tb}' signal -- the edge this buy was sized against is gone"
-            elif not hr or (hr.get("hit_rate_pct") or 0) <= BUCKET_REWARD_HIT_RATE_PCT:
+            elif hr is not None and (hr.get("hit_rate_pct") or 0) <= BUCKET_REWARD_HIT_RATE_PCT:
+                # Retire on a POST-EPOCH measured rate only. With no admissible rate (hr is None:
+                # nothing matured since ENGINE_EPOCH, or n below the floor) there is nothing to test
+                # the proposal against, so it stays open -- the same "cannot test -> keep open"
+                # rule the oversold branch below uses. Before 2026-09-21 a missing/legacy rate
+                # decided this; a legacy rate is inadmissible and absence of evidence is not evidence.
                 cond = "signal_bucket_gone"
-                why = (f"'{tb}'s {hr['source'] if hr else 'measured'} hit rate has fallen to "
-                       f"{hr.get('hit_rate_pct') if hr else 'unmeasured'}% (was >55% when proposed) "
+                why = (f"'{tb}'s {hr['source']} hit rate has fallen to {hr.get('hit_rate_pct')}% "
+                       f"(n={hr['n']}, {hr['window']}; was >55% when proposed) "
                        "-- the measured edge behind this buy no longer clears the bar")
         elif pr.get("trigger_type") in ("trend_entry", "conviction_average", "entry_setup", "reentry", "bench_diversifier"):
             # Conviction-driven BUY triggers (added 2026-08-24): tested on their own
@@ -1422,8 +1427,11 @@ def cmd_proposals(args):
     rotation = load_json(os.path.join(args.run_dir, "compute_rotation.json"), default={})
     rotation_by_ticker = rotation.get("tickers", {})
     journal = load_json(os.path.join(args.base_dir, "journal.json"), default={})
-    hit_rates_7d = journal.get("bucket_hit_rates_7d", {})
-    hit_rates_30d = journal.get("bucket_hit_rates", {})
+    # EPOCH-FILTERED (user instruction 2026-09-21): the ONLY door to the signal-bucket tables here.
+    # Legacy-engine hit rates no longer move a priority or retire a signal_conviction proposal.
+    _admitted = smith_edge.admissible_bucket_tables(journal)
+    hit_rates_7d = _admitted["bucket_hit_rates_7d"]
+    hit_rates_30d = _admitted["bucket_hit_rates"]
     # compute_triggers.json (added 2026-08-12): deterministic candidate lists for the five
     # non-ATR triggers. Only the LIVE ones score here -- a shadow trigger that somehow reached
     # a proposal is flagged, not rewarded, so the "earns its vote first" rule can't be bypassed
@@ -2161,12 +2169,24 @@ def cmd_score_shadow_journal(args):
         scored_count += 1
         updated.append(e)
 
-    scored = [e for e in updated if e.get("verdict") in ("worked", "failed")]
+    # EVIDENCE WINDOW (user instruction 2026-09-21: legacy-engine outcomes are inadmissible).
+    # Every entry is still scored and locked above; only rows EMITTED on/after ENGINE_EPOCH enter
+    # the published `hit_rate` / `hit_rate_by_key`. The pre-epoch record is kept, labelled, under
+    # `legacy_*` so nothing is lost and nothing reads as current performance. (smith_edge already
+    # filtered its own reader of these rows; the numbers written here were the unfiltered ones.)
+    graded = [e for e in updated if e.get("verdict") in ("worked", "failed")]
+    scored = [e for e in graded if smith_edge.post_epoch(e.get("date"))]
+    legacy_scored = [e for e in graded if not smith_edge.post_epoch(e.get("date"))]
     hit_rate = None
     if scored:
         hit_rate = {"n": len(scored),
                     "hit_rate_pct": round(sum(1 for e in scored if e["verdict"] == "worked")
                                           / len(scored) * 100, 1)}
+    legacy_hit_rate = None
+    if legacy_scored:
+        legacy_hit_rate = {"n": len(legacy_scored),
+                           "hit_rate_pct": round(sum(1 for e in legacy_scored if e["verdict"] == "worked")
+                                                 / len(legacy_scored) * 100, 1)}
 
     # per-trigger-type / per-file breakdown -- what a shadow->live promotion decision actually
     # needs: not one pooled number across laggard_rotation and scale_out_ladder, which measure
@@ -2181,10 +2201,21 @@ def cmd_score_shadow_journal(args):
         hit_rate_by_key[k] = {"n": len(verdicts),
                               "hit_rate_pct": round(sum(1 for v in verdicts if v == "worked")
                                                     / len(verdicts) * 100, 1)}
+    legacy_by_key = {}
+    for e in legacy_scored:
+        legacy_by_key.setdefault(e.get(key_field, "unknown"), []).append(e["verdict"])
+    legacy_hit_rate_by_key = {k: {"n": len(v), "hit_rate_pct": round(sum(1 for x in v if x == "worked")
+                                                                      / len(v) * 100, 1)}
+                              for k, v in legacy_by_key.items()}
 
     store["entries"] = updated
     store["hit_rate"] = hit_rate
     store["hit_rate_by_key"] = hit_rate_by_key
+    store["evidence_window"] = smith_edge.evidence_window()
+    store["legacy_hit_rate"] = legacy_hit_rate
+    store["legacy_hit_rate_by_key"] = legacy_hit_rate_by_key
+    store["legacy_note"] = ("LEGACY-ENGINE HISTORY (rows emitted before ENGINE_EPOCH) -- not current "
+                            "performance and never evidence for a size, gate or vote")
     store["last_scored"] = str(today)
 
     dq = []
@@ -2197,7 +2228,9 @@ def cmd_score_shadow_journal(args):
         safe_write(path, store)
 
     emit({"file": fname, "newly_scored": scored_count, "hit_rate": hit_rate,
-          "hit_rate_by_key": hit_rate_by_key, "written": not args.dry_run,
+          "hit_rate_by_key": hit_rate_by_key, "evidence_window": smith_edge.evidence_window(),
+          "legacy_hit_rate": legacy_hit_rate, "legacy_hit_rate_by_key": legacy_hit_rate_by_key,
+          "written": not args.dry_run,
           "data_quality": dq})
 
 

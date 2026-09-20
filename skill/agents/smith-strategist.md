@@ -87,7 +87,7 @@ For every TRIM/SELL you propose, read `compute_taxcalc.json` (slice ref `taxcalc
 
 ## TASK 5 — HIT-RATE READOUT
 
-From the signals tail's `bucket_hit_rates` / `name_bucket_grades`, **already computed by the journal script**. One line per bucket with ≥3 scored entries. Recommend de-emphasis only below 40% over ≥5 entries. Skip buckets under 3 entries. **Never recompute a hit rate.**
+From the signals tail's `bucket_hit_rates` / `name_bucket_grades`, **already computed by the journal script** and, since 2026-09-21 (user decision: legacy-engine outcomes are inadmissible), covering ONLY signals fired on/after `ENGINE_EPOCH` (the tables carry `bucket_rates_window`). They are empty until post-epoch signals mature: say so plainly, quote no hit rate you did not receive, and never recall a pre-epoch rate from memory or an earlier briefing -- that record is legacy-engine history, not performance. One line per bucket with ≥3 scored entries. Recommend de-emphasis only below 40% over ≥5 entries. Skip buckets under 3 entries. **Never recompute a hit rate.**
 
 ## TASK 6 — PROPOSAL OUTCOMES: CONSUME, DO NOT RECOMPUTE (corrected 2026-08-16)
 

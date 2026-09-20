@@ -50,7 +50,7 @@ The manifest is the `TABS` array at the bottom of the client JS. One list, five 
 | **Command** | the read, macro strip, sentiment gauge, open proposals (priority tiers + rotation pairs), accepted-awaiting-execution, all 13 trigger families, factor catalysts, week ahead |
 | **Book & risk** | allocation treemap, expandable clusters w/ substitution ladders, sortable/filterable positions table, risk-cap breaches, LTCG watch, de-risk queue, 4 charts |
 | **Conviction** | cycle position + falsifier, thesis map w/ evidence for and against, full cluster ladders + bench, signal history, quality audit, watchlist, diversifier bench, stress table |
-| **Track record** | proposal accuracy by direction, bucket hit rates, stop-loss efficacy (cascade vs deliberate), every proposal ever made (searchable), execution log, self-learning readiness |
+| **Track record** | proposal accuracy by direction (current engine since `ENGINE_EPOCH` first; legacy-engine record labelled as history), bucket hit rates (signals fired since the epoch), stop-loss efficacy (cascade vs deliberate), every proposal ever made (searchable), execution log, self-learning readiness |
 | **Diagnostics** | freshness contract, data-quality caveats, open gaps, run outages, attribution, run ledger |
 
 **Ticker sheet.** Every ticker anywhere on the page is a `<button class="tk" data-tk="X">`.
@@ -142,7 +142,7 @@ These are properties of HTML and the browsers, not of v1, so they still apply:
   because a cumulative line would mix deposits with returns. Only per-period relative
   performance is shown, and an all-null rolling window renders its own note rather than an
   empty panel.
-- Bucket hit rates below n=5 are labelled "too few to judge"; below 40% at n≥5 they are labelled
+- Bucket hit rates cover only signals fired since `ENGINE_EPOCH` (2026-09-21) and the panel says so; the table is empty until post-epoch signals mature. Rates below n=5 are labelled "too few to judge"; below 40% at n≥5 they are labelled
   de-emphasised. A rate without its n is not a rate.
 
 ## Verifying layout changes

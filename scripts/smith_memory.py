@@ -965,8 +965,9 @@ def validate_learning_schema(base_dir):
         n = smith_learning.scored_proposal_counts(base_dir)["scored"]
         cur = (((store.get("parameters") or {}).get("phase4.readiness") or {}).get("current"))
         if cur is not None and cur != n:
-            defects.append(f"LEARNING COUNTER: phase4.readiness.current is {cur} but {n} proposals "
-                           f"carry a graded outcome_verdict (not needs_anchor_review/unscoreable/superseded) -- run `score` (it recounts) before trusting "
+            defects.append(f"LEARNING COUNTER: phase4.readiness.current is {cur} but {n} post-epoch "
+                           f"proposals carry a graded outcome_verdict (not needs_anchor_review/unscoreable/superseded; "
+                           f"pre-ENGINE_EPOCH rows are excluded by the user's evidence rule) -- run `score` (it recounts) before trusting "
                            f"the Phase-4 gate.")
     except Exception:  # noqa: BLE001 -- a validator must not crash on an unreadable store
         pass
@@ -1972,7 +1973,11 @@ def cmd_merge_tails(args):
         # import: smith_learning pulls in smith_lifecycle, which this module does not otherwise
         # need, and a top-level import would make every `slices`/`gaps` call pay for it.
         _sc = (results[agent] or {}).get("scored_call") if isinstance(results[agent], dict) else None
-        if _sc and not getattr(args, "revision", False):
+        # ...but only a call made on/after ENGINE_EPOCH is an admissible observation (user
+        # instruction 2026-09-21): a legacy-engine call recorded here would put an inadmissible hit
+        # into the fleet-wide "is the cluster layer worth its cost" view.
+        import smith_edge
+        if _sc and not getattr(args, "revision", False) and smith_edge.post_epoch(_sc.get("ladder_as_of")):
             import smith_learning
             smith_learning.record_observation(
                 args.base_dir, "ladder.hit_rate", 1 if _sc.get("correct") else 0,
@@ -3910,14 +3915,32 @@ def _report_weekly(base_dir, run_dir, today, state, freshness_rows):
                  f"It is here so the trend is visible rather than assumed.")
         L.append("")
     sc = props.get("scorecard") or {}
-    if sc.get("overall"):
-        o = sc["overall"]
-        L.append(f"Scorecard (all-time, not just this week): **{o.get('accuracy_pct')}% over n={o.get('n')}** "
-                 f"— worked {o.get('worked')}, missed {o.get('missed')}, avg benefit "
-                 f"{_r_pct(o.get('avg_benefit_pct'))}. {sc.get('not_yet_30d', 0)} not yet in the 30d window.")
-        for d, row in (sc.get("by_direction") or {}).items():
-            L.append(f"  - {d}: {row.get('accuracy_pct')}% (n={row.get('n')})")
-        L.append("")
+    # EVIDENCE WINDOW (user instruction 2026-09-21): the flat top-level scorecard pools every graded
+    # row and is LEGACY-DOMINATED, so it is never printed as current performance. Lead with the
+    # rebuilt engine's `since_epoch` block; the legacy record follows, labelled as history. A
+    # scorecard stored before the split existed (no `since_epoch` key) is treated as all legacy.
+    import smith_edge
+    since = sc.get("since_epoch")
+    if since and (since.get("overall") or {}).get("n"):
+        o = since["overall"]
+        L.append(f"Scorecard, CURRENT engine (proposals since {smith_edge._epoch()}): "
+                 f"**{o.get('accuracy_pct')}% over n={o.get('n')}** — worked {o.get('worked')}, "
+                 f"missed {o.get('missed')}, avg benefit {_r_pct(o.get('avg_benefit_pct'))}.")
+        for d, row in ((since.get("by_direction") or {}).items()):
+            if row:
+                L.append(f"  - {d}: {row.get('accuracy_pct')}% (n={row.get('n')})")
+    else:
+        L.append(f"Scorecard, CURRENT engine (proposals since {smith_edge._epoch()}): **no post-rebuild "
+                 f"proposal has been scored yet (n=0)** — the first reaches its 30d window about a "
+                 f"month after the epoch. No current hit rate exists to quote.")
+    leg = sc.get("legacy") or ({"overall": sc.get("overall"), "by_direction": sc.get("by_direction")}
+                               if sc.get("overall") and "since_epoch" not in sc else None)
+    if leg and (leg.get("overall") or {}).get("n"):
+        o = leg["overall"]
+        L.append(f"LEGACY-ENGINE HISTORY (proposals before {smith_edge._epoch()}) — not current "
+                 f"performance, never a basis for sizing: {o.get('accuracy_pct')}% over n={o.get('n')}; "
+                 f"{sc.get('not_yet_30d', 0)} not yet in the 30d window.")
+    L.append("")
 
     # --- external contributions: track, never assume -------------------------
     # policy.json commits $1,000/month of new external cash from 2026-08 with a stated
@@ -3957,10 +3980,13 @@ def _report_weekly(base_dir, run_dir, today, state, freshness_rows):
 
     # --- signal hit rates, advisory only ------------------------------------
     j = load_json(os.path.join(base_dir, "journal.json"), default={})
-    rates = j.get("bucket_hit_rates") or {}
+    # Admitted tables only: post-epoch firings under the current epoch's stamp. A journal.json
+    # persisted before the filter reads as empty, so the "<40% over n>=5" line can never name a
+    # bucket on legacy data (it named MOMENTUM+VOLUME and TARGET GAP on 2026-09-20).
+    rates = smith_edge.admissible_bucket_tables(j)["bucket_hit_rates"]
+    L.append(f"## Signal hit rates (30d, advisory, signals fired {smith_edge.evidence_window()})")
+    L.append("")
     if rates:
-        L.append("## Signal hit rates (30d, advisory)")
-        L.append("")
         L.append("| bucket | hit rate | n |\n|---|---|---|")
         for b, r in sorted(rates.items(), key=lambda kv: -(kv[1].get("n") or 0)):
             L.append(f"| {b} | {r.get('hit_rate_pct')}% | {r.get('n')} |")
@@ -3970,7 +3996,11 @@ def _report_weekly(base_dir, run_dir, today, state, freshness_rows):
             L.append("")
             L.append(f"Below the strategist's own de-emphasis line (<40% over n>=5): **{', '.join(sorted(weak))}**. "
                      f"Reported, not suppressed — the measured record is advisory here by explicit choice.")
-        L.append("")
+    else:
+        L.append(f"No signal fired since {smith_edge._epoch()} has matured to a 30d verdict yet "
+                 f"(at least {BUCKET_RATE_MIN_N} needed per bucket). Signal hit rates from before the "
+                 f"rebuild are legacy-engine history and are not shown as current performance.")
+    L.append("")
 
     # --- stop-loss efficacy --------------------------------------------------
     stops = load_json(os.path.join(base_dir, "stops_analysis.json"), default={})

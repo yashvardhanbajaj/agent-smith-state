@@ -69,26 +69,41 @@ def canonical_agent(agent):
     return agent[len("smith-"):] if agent.startswith("smith-") else agent
 
 
-def scored_proposal_counts(base_dir):
-    """Distinct proposals carrying a GRADED outcome verdict, across the hot file and the archive.
+def scored_proposal_counts(base_dir, epoch=None):
+    """Distinct POST-EPOCH proposals carrying a GRADED outcome verdict, across the hot file and
+    the archive. This is the count behind `phase4.readiness`, the gate for letting the desk learn
+    from its own outcomes.
+
+    EVIDENCE WINDOW (user instruction 2026-09-21: "don't use the earlier proposal hit data as the
+    actual performance data in the current redesign, as earlier proposals were too broken"). It
+    used to count every graded proposal, so readiness read 22/100 -- progress toward calibration
+    made of exactly the legacy-engine outcomes the user ruled inadmissible. Only proposals dated
+    on/after smith_core.ENGINE_EPOCH count now (same comparison as the scorecard: smith_edge.
+    post_epoch), so the counter reads 0 until the rebuilt engine's first proposals are scored.
+    `legacy_excluded` reports how many graded rows were set aside, so the drop is visible rather
+    than silent.
 
     Deflated 2026-09-20: it counted any truthy verdict, including the 6 `needs_anchor_review`
     rows (quarantined, excluded from the scorecard), so phase4.readiness read 94 against a real
-    88. It now excludes UNGRADED_VERDICTS and `superseded` rows (a restatement is not a separate
-    observation; cmd_score stopped scoring them the same day, but older ones keep a stale
-    verdict), so the counter agrees with the scorecard's own scored_count."""
-    seen = {}
+    88. It excludes UNGRADED_VERDICTS and `superseded` rows (a restatement is not a separate
+    observation), so the counter agrees with the scorecard's own scored_count."""
+    import smith_edge
+    seen, legacy = {}, {}
     for name in ("proposals.json", "proposals-archive.json"):
         store = load_json(os.path.join(base_dir, name), default={}) or {}
         for p in store.get("proposals") or []:
             if (isinstance(p, dict) and p.get("outcome_verdict") and p.get("id")
                     and p["outcome_verdict"] not in UNGRADED_VERDICTS
                     and p.get("status") != "superseded"):
-                seen.setdefault(p["id"], p["outcome_verdict"])
+                if smith_edge.post_epoch(p.get("date"), epoch):
+                    seen.setdefault(p["id"], p["outcome_verdict"])
+                else:
+                    legacy.setdefault(p["id"], p["outcome_verdict"])
     verdicts = list(seen.values())
     return {"scored": len(verdicts), "worked": verdicts.count("worked"),
             "missed": verdicts.count("missed"),
-            "decided": verdicts.count("worked") + verdicts.count("missed")}
+            "decided": verdicts.count("worked") + verdicts.count("missed"),
+            "legacy_excluded": len(legacy), "counted_since": smith_edge._epoch(epoch)}
 
 
 def update_phase4_readiness(base_dir):
@@ -100,6 +115,8 @@ def update_phase4_readiness(base_dir):
         "history": []})
     param["current"] = counts["scored"]
     param["decided"] = counts["decided"]
+    param["legacy_excluded"] = counts["legacy_excluded"]
+    param["counted_since"] = counts["counted_since"]
     param["counted_on"] = str(desk_today())
     write_store(base_dir, store)
     return counts
