@@ -702,7 +702,7 @@ ROUND_TRIP_FEE_PCT = 0.30
 # A ticket must clear ALL of them -- see smith_ticket.materiality for the incident and arithmetic.
 MIN_TICKET_USD = 250.0           # below this a fill is a rounding error on a $42K book
 MIN_TICKET_PCT_OF_BOOK = 0.40    # % of total book: scales the floor as the book grows
-MIN_TICKET_R = 0.20              # a ticket must risk at least this many R_base
+MIN_TICKET_R = 0.10              # a ticket must risk at least this many R_base (0.20 demoted a legacy-sized 20% trim of a name at its cap, which removes only ~0.15-0.17R -- 5 of 7 live catalyst trims and every profit rotation; 0.10 still fails the $56 and $135 rotations the user called immaterial)
 FEE_COVER_MULT = 25.0            # ticket must be >= this many times its own round-trip fee
 # exit_or_hold: a trim removing more than this share of a position is a full exit in all but name
 TRIM_TO_EXIT_FRACTION = 0.60

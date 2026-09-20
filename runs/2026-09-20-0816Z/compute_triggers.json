@@ -52,7 +52,7 @@
       "materiality": {
         "min_ticket_usd": 250.0,
         "min_ticket_pct_of_book": 0.4,
-        "min_ticket_r": 0.2,
+        "min_ticket_r": 0.1,
         "fee_cover_mult": 25.0,
         "min_position_usd": 400.0,
         "confirmed": false,
@@ -76,7 +76,7 @@
   "live_counts": {
     "oversold_reversion": 0,
     "overbought_distribution": 0,
-    "catalyst_threat": 1,
+    "catalyst_threat": 5,
     "thesis_break": 0,
     "trend_entry": 2,
     "trend_breakdown": 0,
@@ -85,7 +85,7 @@
     "entry_setup": 0,
     "reentry": 0,
     "bench_diversifier": 0,
-    "profit_rotation": 0,
+    "profit_rotation": 2,
     "cluster_rotation": 3,
     "factor_threat": 1
   },
@@ -98,8 +98,8 @@
     "cluster_consolidation": 2
   },
   "below_materiality_counts": {
-    "catalyst_threat": 6,
-    "profit_rotation": 3,
+    "catalyst_threat": 2,
+    "profit_rotation": 1,
     "cluster_rotation": 1
   },
   "oversold_reversion": [],
@@ -116,7 +116,7 @@
       "market_value_usd": 2923.5,
       "trigger_type": "catalyst_threat",
       "direction": "TRIM",
-      "vote": "below_materiality",
+      "vote": "live",
       "events": [
         "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambrico (2026-09-01)"
       ],
@@ -130,10 +130,10 @@
       "trim_fraction": 0.2,
       "sizing_note": "20% of the position's $169.56 open risk (5.80% stop) = $584.70",
       "materiality": {
-        "ok": false,
-        "floor_usd": 733.48,
+        "ok": true,
+        "floor_usd": 366.74,
         "binding_term": "min_ticket_r",
-        "shortfall_usd": 148.78
+        "shortfall_usd": 0.0
       },
       "over_cap_independent": true,
       "catalyst_sources": [
@@ -143,10 +143,7 @@
       "reasons": [
         "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambricon (2026-09-01) -- ~1 year ahead of 2027 consensus timeline; risk-production/qualification stage, not volume -- HBM tracker 43d stale, unverified against consumer_view.json this run [carried forward, last confirmed 2026-09-16]"
       ],
-      "blockers": [
-        "below materiality: $584.70 vs a $733.48 floor (min_ticket_r) -- emitted, not shrunk to the floor and not dropped"
-      ],
-      "materiality_shortfall_usd": 148.78
+      "blockers": []
     },
     {
       "ticker": "MU",
@@ -159,7 +156,7 @@
       "market_value_usd": 2035.87,
       "trigger_type": "catalyst_threat",
       "direction": "TRIM",
-      "vote": "below_materiality",
+      "vote": "live",
       "events": [
         "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambrico (2026-09-01)"
       ],
@@ -173,10 +170,10 @@
       "trim_fraction": 0.2,
       "sizing_note": "20% of the position's $174.27 open risk (8.56% stop) = $407.17",
       "materiality": {
-        "ok": false,
-        "floor_usd": 496.99,
-        "binding_term": "min_ticket_r",
-        "shortfall_usd": 89.82
+        "ok": true,
+        "floor_usd": 250.0,
+        "binding_term": "min_ticket_usd",
+        "shortfall_usd": 0.0
       },
       "over_cap_independent": true,
       "catalyst_sources": [
@@ -186,10 +183,7 @@
       "reasons": [
         "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambricon (2026-09-01) -- ~1 year ahead of 2027 consensus timeline; risk-production/qualification stage, not volume -- HBM tracker 43d stale, unverified against consumer_view.json this run [carried forward, last confirmed 2026-09-16]"
       ],
-      "blockers": [
-        "below materiality: $407.17 vs a $496.99 floor (min_ticket_r) -- emitted, not shrunk to the floor and not dropped"
-      ],
-      "materiality_shortfall_usd": 89.82
+      "blockers": []
     },
     {
       "ticker": "TER",
@@ -202,7 +196,7 @@
       "market_value_usd": 1852.96,
       "trigger_type": "catalyst_threat",
       "direction": "TRIM",
-      "vote": "below_materiality",
+      "vote": "live",
       "events": [
         "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambrico (2026-09-01)"
       ],
@@ -216,10 +210,10 @@
       "trim_fraction": 0.2,
       "sizing_note": "20% of the position's $189.37 open risk (10.22% stop) = $370.59",
       "materiality": {
-        "ok": false,
-        "floor_usd": 416.26,
-        "binding_term": "min_ticket_r",
-        "shortfall_usd": 45.67
+        "ok": true,
+        "floor_usd": 250.0,
+        "binding_term": "min_ticket_usd",
+        "shortfall_usd": 0.0
       },
       "over_cap_independent": true,
       "catalyst_sources": [
@@ -229,10 +223,7 @@
       "reasons": [
         "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambricon (2026-09-01) -- ~1 year ahead of 2027 consensus timeline; risk-production/qualification stage, not volume -- HBM tracker 43d stale, unverified against consumer_view.json this run [carried forward, last confirmed 2026-09-16]"
       ],
-      "blockers": [
-        "below materiality: $370.59 vs a $416.26 floor (min_ticket_r) -- emitted, not shrunk to the floor and not dropped"
-      ],
-      "materiality_shortfall_usd": 45.67
+      "blockers": []
     },
     {
       "ticker": "AMAT",
@@ -245,7 +236,7 @@
       "market_value_usd": 1778.61,
       "trigger_type": "catalyst_threat",
       "direction": "TRIM",
-      "vote": "below_materiality",
+      "vote": "live",
       "events": [
         "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambrico (2026-09-01)"
       ],
@@ -259,10 +250,10 @@
       "trim_fraction": 0.2,
       "sizing_note": "20% of the position's $139.44 open risk (7.84% stop) = $355.72",
       "materiality": {
-        "ok": false,
-        "floor_usd": 542.63,
+        "ok": true,
+        "floor_usd": 271.31,
         "binding_term": "min_ticket_r",
-        "shortfall_usd": 186.91
+        "shortfall_usd": 0.0
       },
       "over_cap_independent": true,
       "catalyst_sources": [
@@ -272,10 +263,7 @@
       "reasons": [
         "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambricon (2026-09-01) -- ~1 year ahead of 2027 consensus timeline; risk-production/qualification stage, not volume -- HBM tracker 43d stale, unverified against consumer_view.json this run [carried forward, last confirmed 2026-09-16]"
       ],
-      "blockers": [
-        "below materiality: $355.72 vs a $542.63 floor (min_ticket_r) -- emitted, not shrunk to the floor and not dropped"
-      ],
-      "materiality_shortfall_usd": 186.91
+      "blockers": []
     },
     {
       "ticker": "GEV",
@@ -305,9 +293,9 @@
       "sizing_note": "20% of the position's $75.85 open risk (8.04% stop) = $188.69",
       "materiality": {
         "ok": false,
-        "floor_usd": 529.13,
+        "floor_usd": 264.56,
         "binding_term": "min_ticket_r",
-        "shortfall_usd": 340.44
+        "shortfall_usd": 75.87
       },
       "over_cap_independent": true,
       "catalyst_sources": [
@@ -318,9 +306,9 @@
         "GE Vernova (GEV) initiated Sell by GLJ Research, $470 PT (Street-low) (2026-09-14) -- 51% below GEV's 09-11 close of $957.27; citing 2027-vintage turbine margins; contested vs GEV's own guidance raise, still unresolved [carried forward, last confirmed 2026-09-16]"
       ],
       "blockers": [
-        "below materiality: $188.69 vs a $529.13 floor (min_ticket_r) -- emitted, not shrunk to the floor and not dropped"
+        "below materiality: $188.69 vs a $264.56 floor (min_ticket_r) -- emitted, not shrunk to the floor and not dropped"
       ],
-      "materiality_shortfall_usd": 340.44
+      "materiality_shortfall_usd": 75.87
     },
     {
       "ticker": "GLW",
@@ -351,8 +339,8 @@
       "sizing_note": "20% of the position's $45.39 open risk (10.08% stop) = $90.06; a $90.06 trim would leave $360.24, under the $400 minimum position -- converted to a full exit",
       "materiality": {
         "ok": true,
-        "floor_usd": 422.04,
-        "binding_term": "min_ticket_r",
+        "floor_usd": 250.0,
+        "binding_term": "min_ticket_usd",
         "shortfall_usd": 0.0,
         "exempt": "full_exit"
       },
@@ -392,9 +380,9 @@
       "sizing_note": "20% of the position's $17.44 open risk (9.28% stop) = $37.58; position $187.90 is already below the $400 minimum-position threshold -- a stub is a consolidation candidate, never partially trimmed",
       "materiality": {
         "ok": false,
-        "floor_usd": 458.43,
-        "binding_term": "min_ticket_r",
-        "shortfall_usd": 458.43
+        "floor_usd": 250.0,
+        "binding_term": "min_ticket_usd",
+        "shortfall_usd": 250.0
       },
       "over_cap_independent": true,
       "catalyst_sources": [
@@ -407,7 +395,7 @@
       "blockers": [
         "not a trim candidate: position $187.90 is already below the $400 minimum-position threshold -- a stub is a consolidation candidate, never partially trimmed"
       ],
-      "materiality_shortfall_usd": 458.43
+      "materiality_shortfall_usd": 250.0
     }
   ],
   "thesis_break": [],
@@ -487,8 +475,8 @@
       "blockers": [],
       "materiality": {
         "ok": true,
-        "floor_usd": 317.95,
-        "binding_term": "min_ticket_r",
+        "floor_usd": 250.0,
+        "binding_term": "min_ticket_usd",
         "shortfall_usd": 0.0
       }
     },
@@ -519,16 +507,13 @@
         "-12.6pp vs benchmark",
         "named by 8 independent source(s) this run"
       ],
-      "blockers": [
-        "below the materiality floor (advisory for single-leg buys): $504.51 vs $542.63 (min_ticket_r); vote unchanged -- buys are annotated, not demoted, until the floors are confirmed"
-      ],
+      "blockers": [],
       "materiality": {
-        "ok": false,
-        "floor_usd": 542.63,
+        "ok": true,
+        "floor_usd": 271.31,
         "binding_term": "min_ticket_r",
-        "shortfall_usd": 38.12
-      },
-      "materiality_shortfall_usd": 38.12
+        "shortfall_usd": 0.0
+      }
     }
   ],
   "trend_breakdown": [],
@@ -563,16 +548,13 @@
         "-12.6pp vs benchmark",
         "named by 8 independent source(s) this run"
       ],
-      "blockers": [
-        "below the materiality floor (advisory for single-leg buys): $504.51 vs $542.63 (min_ticket_r); vote unchanged -- buys are annotated, not demoted, until the floors are confirmed"
-      ],
+      "blockers": [],
       "materiality": {
-        "ok": false,
-        "floor_usd": 542.63,
+        "ok": true,
+        "floor_usd": 271.31,
         "binding_term": "min_ticket_r",
-        "shortfall_usd": 38.12
-      },
-      "materiality_shortfall_usd": 38.12
+        "shortfall_usd": 0.0
+      }
     },
     {
       "ticker": "KLAC",
@@ -603,16 +585,13 @@
         "-7.6pp vs benchmark",
         "named by 8 independent source(s) this run"
       ],
-      "blockers": [
-        "below the materiality floor (advisory for single-leg buys): $429.19 vs $515.04 (min_ticket_r); vote unchanged -- buys are annotated, not demoted, until the floors are confirmed"
-      ],
+      "blockers": [],
       "materiality": {
-        "ok": false,
-        "floor_usd": 515.04,
+        "ok": true,
+        "floor_usd": 257.52,
         "binding_term": "min_ticket_r",
-        "shortfall_usd": 85.85
-      },
-      "materiality_shortfall_usd": 85.85
+        "shortfall_usd": 0.0
+      }
     },
     {
       "ticker": "CIEN",
@@ -644,15 +623,15 @@
         "named by 7 independent source(s) this run"
       ],
       "blockers": [
-        "below the materiality floor (advisory for single-leg buys): $248.05 vs $310.53 (min_ticket_r); vote unchanged -- buys are annotated, not demoted, until the floors are confirmed"
+        "below the materiality floor (advisory for single-leg buys): $248.05 vs $250.00 (min_ticket_usd); vote unchanged -- buys are annotated, not demoted, until the floors are confirmed"
       ],
       "materiality": {
         "ok": false,
-        "floor_usd": 310.53,
-        "binding_term": "min_ticket_r",
-        "shortfall_usd": 62.48
+        "floor_usd": 250.0,
+        "binding_term": "min_ticket_usd",
+        "shortfall_usd": 1.95
       },
-      "materiality_shortfall_usd": 62.48
+      "materiality_shortfall_usd": 1.95
     }
   ],
   "conviction_exit": [],
@@ -799,7 +778,7 @@
     {
       "pair_id": "profit_rotation-MU-AMAT",
       "trigger_type": "profit_rotation",
-      "vote": "below_materiality",
+      "vote": "live",
       "sell_leg": {
         "ticker": "MU",
         "direction": "SELL",
@@ -813,8 +792,8 @@
         "sizing_note": "30% of the position's $174.27 open risk (8.56% stop) = $610.76",
         "materiality": {
           "ok": true,
-          "floor_usd": 496.99,
-          "binding_term": "min_ticket_r",
+          "floor_usd": 250.0,
+          "binding_term": "min_ticket_usd",
           "shortfall_usd": 0.0
         },
         "market_value_usd": 2035.87,
@@ -833,10 +812,10 @@
           "laggard (-12.6pp) with a strengthening thesis -- yet to rally"
         ],
         "materiality": {
-          "ok": false,
-          "floor_usd": 542.63,
+          "ok": true,
+          "floor_usd": 271.31,
           "binding_term": "min_ticket_r",
-          "shortfall_usd": 38.12
+          "shortfall_usd": 0.0
         }
       },
       "rotation_risk": {
@@ -851,19 +830,14 @@
         "heat_delta_final_usd": -12.73
       },
       "retires_when": "EITHER MU drops out of the stretched cohort OR AMAT's thesis leaves intact/strengthening",
-      "materiality_shortfall_usd": 38.12,
-      "materiality_legs_below": [
-        "buy"
-      ],
       "blockers": [
-        "below materiality (buy leg): the pair is emitted but not proposed -- short by $38.12. Not shrunk to the floor and not dropped: this is what a ticket too small to act on looks like.",
         "not risk-flat: the sell frees $52.28 of risk and the buy re-takes $39.55 (bound by buy_r_ticket); the difference goes to cash, not into the book"
       ]
     },
     {
       "pair_id": "profit_rotation-AMD-KLAC",
       "trigger_type": "profit_rotation",
-      "vote": "below_materiality",
+      "vote": "live",
       "sell_leg": {
         "ticker": "AMD",
         "direction": "SELL",
@@ -877,7 +851,7 @@
         "sizing_note": "30% of the position's $41.74 open risk (7.48% stop) = $167.39; a $167.39 trim would leave $390.59, under the $400 minimum position -- converted to a full exit",
         "materiality": {
           "ok": true,
-          "floor_usd": 568.74,
+          "floor_usd": 284.37,
           "binding_term": "min_ticket_r",
           "shortfall_usd": 0.0,
           "exempt": "full_exit"
@@ -898,10 +872,10 @@
           "laggard (-7.6pp) with a strengthening thesis -- yet to rally"
         ],
         "materiality": {
-          "ok": false,
-          "floor_usd": 515.04,
+          "ok": true,
+          "floor_usd": 257.52,
           "binding_term": "min_ticket_r",
-          "shortfall_usd": 85.85
+          "shortfall_usd": 0.0
         }
       },
       "rotation_risk": {
@@ -916,12 +890,7 @@
         "heat_delta_final_usd": -6.29
       },
       "retires_when": "EITHER AMD drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening",
-      "materiality_shortfall_usd": 85.85,
-      "materiality_legs_below": [
-        "buy"
-      ],
       "blockers": [
-        "below materiality (buy leg): the pair is emitted but not proposed -- short by $85.85. Not shrunk to the floor and not dropped: this is what a ticket too small to act on looks like.",
         "not risk-flat: the sell frees $41.74 of risk and the buy re-takes $35.45 (bound by buy_r_ticket); the difference goes to cash, not into the book"
       ]
     },
@@ -942,9 +911,9 @@
         "sizing_note": "30% of the position's $17.44 open risk (9.28% stop) = $56.37; position $187.90 is already below the $400 minimum-position threshold -- a stub is a consolidation candidate, never partially trimmed",
         "materiality": {
           "ok": false,
-          "floor_usd": 458.43,
-          "binding_term": "min_ticket_r",
-          "shortfall_usd": 458.43
+          "floor_usd": 250.0,
+          "binding_term": "min_ticket_usd",
+          "shortfall_usd": 250.0
         },
         "market_value_usd": 187.9,
         "reasons": [
@@ -975,13 +944,13 @@
         "heat_delta_final_usd": 0.0
       },
       "retires_when": "EITHER SKHY drops out of the stretched cohort OR CIEN's thesis leaves intact/strengthening",
-      "materiality_shortfall_usd": 458.43,
+      "materiality_shortfall_usd": 250.0,
       "materiality_legs_below": [
         "sell"
       ],
       "blockers": [
         "sell leg: position $187.90 is already below the $400 minimum-position threshold -- a stub is a consolidation candidate, never partially trimmed",
-        "below materiality (sell leg): the pair is emitted but not proposed -- short by $458.43. Not shrunk to the floor and not dropped: this is what a ticket too small to act on looks like."
+        "below materiality (sell leg): the pair is emitted but not proposed -- short by $250.00. Not shrunk to the floor and not dropped: this is what a ticket too small to act on looks like."
       ]
     }
   ],
@@ -1012,7 +981,7 @@
         "sizing_note": "30% of the position's $169.56 open risk (5.80% stop) = $877.05",
         "materiality": {
           "ok": true,
-          "floor_usd": 733.48,
+          "floor_usd": 366.74,
           "binding_term": "min_ticket_r",
           "shortfall_usd": 0.0
         },
@@ -1032,7 +1001,7 @@
         ],
         "materiality": {
           "ok": true,
-          "floor_usd": 928.86,
+          "floor_usd": 464.43,
           "binding_term": "min_ticket_r",
           "shortfall_usd": 0.0
         }
@@ -1077,9 +1046,9 @@
         "sizing_note": "30% of the position's $55.66 open risk (4.38% stop) = $381.22",
         "materiality": {
           "ok": false,
-          "floor_usd": 971.28,
+          "floor_usd": 485.64,
           "binding_term": "min_ticket_r",
-          "shortfall_usd": 590.06
+          "shortfall_usd": 104.42
         },
         "reasons": [
           "cluster ladder ranks AMZN #3 of 4 (laggard). Case against: The case FOR: AWS has accelerated for five straight quarters, mean target $328 vs $253.6 (~29% gap, the largest among majors), and a large non-AI retail business diversifies the AI-capex factor. The gap to GOOG is one axis; AWS at >=40% in Q3 would close it."
@@ -1097,9 +1066,9 @@
         ],
         "materiality": {
           "ok": false,
-          "floor_usd": 1037.61,
+          "floor_usd": 518.8,
           "binding_term": "min_ticket_r",
-          "shortfall_usd": 630.36
+          "shortfall_usd": 111.55
         }
       },
       "rotation_risk": {
@@ -1114,14 +1083,14 @@
         "heat_delta_final_usd": 0.0
       },
       "retires_when": "EITHER Compute/Hyperscaler's ladder no longer ranks MSFT above AMZN OR that ladder goes stale (>14d)",
-      "materiality_shortfall_usd": 630.36,
+      "materiality_shortfall_usd": 111.55,
       "materiality_legs_below": [
         "sell",
         "buy"
       ],
       "blockers": [
         "sell leg: 30% of the position's $55.66 open risk (4.38% stop) = $381.22",
-        "below materiality (sell+buy leg): the pair is emitted but not proposed -- short by $630.36. Not shrunk to the floor and not dropped: this is what a ticket too small to act on looks like."
+        "below materiality (sell+buy leg): the pair is emitted but not proposed -- short by $111.55. Not shrunk to the floor and not dropped: this is what a ticket too small to act on looks like."
       ]
     },
     {
@@ -1150,8 +1119,8 @@
         "sizing_note": "30% of the position's $45.39 open risk (10.08% stop) = $135.09; a $135.09 trim would leave $315.21, under the $400 minimum position -- converted to a full exit",
         "materiality": {
           "ok": true,
-          "floor_usd": 422.04,
-          "binding_term": "min_ticket_r",
+          "floor_usd": 250.0,
+          "binding_term": "min_ticket_usd",
           "shortfall_usd": 0.0,
           "exempt": "full_exit"
         },
@@ -1171,8 +1140,8 @@
         ],
         "materiality": {
           "ok": true,
-          "floor_usd": 317.95,
-          "binding_term": "min_ticket_r",
+          "floor_usd": 250.0,
+          "binding_term": "min_ticket_usd",
           "shortfall_usd": 0.0
         }
       },
@@ -1216,8 +1185,8 @@
         "sizing_note": "30% of the position's $164.19 open risk (10.98% stop) = $448.60",
         "materiality": {
           "ok": true,
-          "floor_usd": 387.45,
-          "binding_term": "min_ticket_r",
+          "floor_usd": 250.0,
+          "binding_term": "min_ticket_usd",
           "shortfall_usd": 0.0
         },
         "reasons": [
@@ -1236,8 +1205,8 @@
         ],
         "materiality": {
           "ok": true,
-          "floor_usd": 329.78,
-          "binding_term": "min_ticket_r",
+          "floor_usd": 250.0,
+          "binding_term": "min_ticket_usd",
           "shortfall_usd": 0.0
         }
       },
@@ -1278,7 +1247,7 @@
         "sizing_note": "30% of the position's $169.56 open risk (5.80% stop) = $877.05",
         "materiality": {
           "ok": true,
-          "floor_usd": 733.48,
+          "floor_usd": 366.74,
           "binding_term": "min_ticket_r",
           "shortfall_usd": 0.0
         },
@@ -1322,9 +1291,9 @@
         "sizing_note": "30% of the position's $55.66 open risk (4.38% stop) = $381.22",
         "materiality": {
           "ok": false,
-          "floor_usd": 971.28,
+          "floor_usd": 485.64,
           "binding_term": "min_ticket_r",
-          "shortfall_usd": 590.06
+          "shortfall_usd": 104.42
         },
         "reasons": [
           "cluster ladder ranks AMZN #3 of 4 (laggard). Case against: The case FOR: AWS has accelerated for five straight quarters, mean target $328 vs $253.6 (~29% gap, the largest among majors), and a large non-AI retail business diversifies the AI-capex factor. The gap to GOOG is one axis; AWS at >=40% in Q3 would close it."
@@ -1366,8 +1335,8 @@
         "sizing_note": "30% of the position's $164.19 open risk (10.98% stop) = $448.60",
         "materiality": {
           "ok": true,
-          "floor_usd": 387.45,
-          "binding_term": "min_ticket_r",
+          "floor_usd": 250.0,
+          "binding_term": "min_ticket_usd",
           "shortfall_usd": 0.0
         },
         "reasons": [
@@ -1425,8 +1394,8 @@
         ],
         "materiality": {
           "ok": true,
-          "floor_usd": 317.95,
-          "binding_term": "min_ticket_r",
+          "floor_usd": 250.0,
+          "binding_term": "min_ticket_usd",
           "shortfall_usd": 0.0
         }
       },
@@ -1477,9 +1446,9 @@
         ],
         "materiality": {
           "ok": false,
-          "floor_usd": 496.99,
-          "binding_term": "min_ticket_r",
-          "shortfall_usd": 293.29
+          "floor_usd": 250.0,
+          "binding_term": "min_ticket_usd",
+          "shortfall_usd": 46.3
         }
       },
       "rotation_risk": {
@@ -1519,8 +1488,8 @@
       "blockers": [],
       "materiality": {
         "ok": true,
-        "floor_usd": 310.53,
-        "binding_term": "min_ticket_r",
+        "floor_usd": 250.0,
+        "binding_term": "min_ticket_usd",
         "shortfall_usd": 0.0
       }
     },
@@ -1546,7 +1515,7 @@
       "blockers": [],
       "materiality": {
         "ok": true,
-        "floor_usd": 542.63,
+        "floor_usd": 271.31,
         "binding_term": "min_ticket_r",
         "shortfall_usd": 0.0
       }
@@ -1573,7 +1542,7 @@
       "blockers": [],
       "materiality": {
         "ok": true,
-        "floor_usd": 515.04,
+        "floor_usd": 257.52,
         "binding_term": "min_ticket_r",
         "shortfall_usd": 0.0
       }
@@ -1600,8 +1569,8 @@
       "blockers": [],
       "materiality": {
         "ok": true,
-        "floor_usd": 383.95,
-        "binding_term": "min_ticket_r",
+        "floor_usd": 250.0,
+        "binding_term": "min_ticket_usd",
         "shortfall_usd": 0.0
       }
     }
@@ -1646,8 +1615,8 @@
       "sizing_note": "33% of the position's $68.90 open risk (12.90% stop) = $178.03; a $178.03 trim would leave $356.07, under the $400 minimum position -- converted to a full exit",
       "materiality": {
         "ok": true,
-        "floor_usd": 329.78,
-        "binding_term": "min_ticket_r",
+        "floor_usd": 250.0,
+        "binding_term": "min_ticket_usd",
         "shortfall_usd": 0.0,
         "exempt": "full_exit"
       },
@@ -1867,8 +1836,8 @@
     "SKHY": 20.07
   },
   "data_quality": [
-    "policy.trade_materiality is UNCONFIRMED (confirmed:false) -- the engine uses these floors (min ticket $250 / 0.4% of book / 0.2R, dust $400) but the user has not signed them; treat every below_materiality verdict as provisional.",
-    "below_materiality (emitted, not proposed -- too small to act on): catalyst_threat ASML short $149; catalyst_threat MU short $90; catalyst_threat TER short $46; catalyst_threat AMAT short $187; catalyst_threat GEV short $340; catalyst_threat SKHY short $458; profit_rotation profit_rotation-MU-AMAT short $38; profit_rotation profit_rotation-AMD-KLAC short $86; profit_rotation profit_rotation-SKHY-CIEN short $458; cluster_rotation cluster_rotation-AMZN-MSFT short $630. Many of these are stubs: a book that generates tickets this small needs consolidating.",
+    "policy.trade_materiality is UNCONFIRMED (confirmed:false) -- the engine uses these floors (min ticket $250 / 0.4% of book / 0.1R, dust $400) but the user has not signed them; treat every below_materiality verdict as provisional.",
+    "below_materiality (emitted, not proposed -- too small to act on): catalyst_threat GEV short $76; catalyst_threat SKHY short $250; profit_rotation profit_rotation-SKHY-CIEN short $250; cluster_rotation cluster_rotation-AMZN-MSFT short $112. Many of these are stubs: a book that generates tickets this small needs consolidating.",
     "risk-sized sell legs, legacy -> new (family ticker: legacy$ -> new$ [action]; risk removed): catalyst_threat ASML: 584.7 -> 584.7 [trim] risk $33.91; catalyst_threat MU: 407.17 -> 407.17 [trim] risk $34.85; catalyst_threat TER: 370.59 -> 370.59 [trim] risk $37.87; catalyst_threat AMAT: 355.72 -> 355.72 [trim] risk $27.89; catalyst_threat GEV: 188.69 -> 188.69 [trim] risk $15.17; catalyst_threat GLW: 90.06 -> 450.3 [full_exit] risk $45.39; catalyst_threat SKHY: 37.58 -> 0.0 [hold] risk $0.0; scale_out_ladder BE: 178.03 -> 534.1 [full_exit] risk $68.9; profit_rotation MU: 610.76 -> 610.76 [trim] risk $52.28; profit_rotation AMD: 167.39 -> 557.98 [full_exit] risk $41.74; profit_rotation SKHY: 56.37 -> 0.0 [hold] risk $0.0; cluster_rotation ASML: 877.05 -> 877.05 [trim] risk $50.87; cluster_rotation AMZN: 381.22 -> 381.22 [trim] risk $16.7; cluster_rotation GLW: 135.09 -> 450.3 [full_exit] risk $45.39; cluster_rotation VRT: 448.6 -> 448.6 [trim] risk $49.26; cluster_bench_rotation ASML: 877.05 -> 877.05 [trim] risk $50.87; cluster_bench_rotation AMZN: 381.22 -> 381.22 [trim] risk $16.7; cluster_bench_rotation VRT: 448.6 -> 448.6 [trim] risk $49.26",
     "reentry: 45 alumni could not be JUDGED at all -- no state.thesis entry exists for them (AAPL, AIA, AMKR, ANET, ARM, AVGO, BABA, BX, CEG, CORZ...). state.thesis is seeded from CURRENT holdings, so an exited name is absent by construction and fails the conviction gate for lack of evidence, not on the evidence. These are not rejected candidates; they are unexamined ones."
   ]

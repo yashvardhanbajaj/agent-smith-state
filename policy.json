@@ -371,7 +371,7 @@
     "status": "PROPOSED FLOORS -- the engine uses them from 2026-09-20 but the user has not signed them. Every below_materiality verdict is provisional until confirmed:true.",
     "min_ticket_usd": 250,
     "min_ticket_pct_of_book": 0.4,
-    "min_ticket_r": 0.2,
+    "min_ticket_r": 0.1,
     "fee_cover_mult": 25,
     "min_position_usd": 400,
     "rule": "A ticket must clear ALL of: min_ticket_usd; min_ticket_pct_of_book % of total book; min_ticket_r x R_base / stop (R_base = stop_loss_framework.risk_per_position_pct_of_book % of book); fee_cover_mult x the round-trip fee. A sub-floor ticket is neither shrunk to the floor nor dropped: it is emitted with vote 'below_materiality'. A FULL EXIT is always permitted regardless of size.",

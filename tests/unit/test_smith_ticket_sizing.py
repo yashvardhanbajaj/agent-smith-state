@@ -177,8 +177,9 @@ class TestRotationLegs:
 class TestMateriality:
     def test_the_skhy_56_dollar_rotation_is_below_materiality(self):
         m = T.materiality(56.37, 14.0, BOOK, R_BASE, 56.37 * 0.003, None)
-        assert m["ok"] is False and m["shortfall_usd"] > 200
-        assert m["binding_term"] == "min_ticket_r"
+        assert m["ok"] is False and m["shortfall_usd"] > 190
+        # at MIN_TICKET_R 0.10 the dollar floor is what binds a $56 ticket on a 14% stop
+        assert m["binding_term"] == "min_ticket_usd"
         assert m["floor_usd"] >= 250
 
     def test_floor_is_the_max_of_the_terms(self):
@@ -186,7 +187,7 @@ class TestMateriality:
         assert m["floor_usd"] == max(m["terms"].values())
         assert m["terms"]["min_ticket_usd"] == 250.0
         assert m["terms"]["pct_of_book"] == pytest.approx(BOOK * 0.004, abs=0.01)
-        assert m["terms"]["min_ticket_r"] == pytest.approx(0.2 * R_BASE / 0.12, abs=0.01)
+        assert m["terms"]["min_ticket_r"] == pytest.approx(0.1 * R_BASE / 0.12, abs=0.01)
 
     def test_low_vol_names_have_higher_floors(self):
         lo = T.materiality(1.0, 4.58, BOOK, R_BASE, 0.0, None)["floor_usd"]
@@ -212,9 +213,9 @@ class TestMateriality:
 
     def test_sub_floor_sell_emits_below_materiality_not_shrunk_not_dropped(self):
         # a tiny severity on a big position: a genuine partial trim that is too small to matter
-        leg = T.size_sell_leg(0.02, 20000.0, 10.0, ctx())
+        leg = T.size_sell_leg(0.01, 20000.0, 10.0, ctx())
         assert leg["action"] == "trim" and leg["vote_hint"] == "below_materiality"
-        assert leg["size_usd"] == pytest.approx(0.02 * 20000.0, abs=0.01)             # NOT lifted to the floor
+        assert leg["size_usd"] == pytest.approx(0.01 * 20000.0, abs=0.01)             # NOT lifted to the floor
         assert leg["materiality"]["shortfall_usd"] > 0
 
     def test_full_exit_below_the_floor_is_still_permitted(self):
