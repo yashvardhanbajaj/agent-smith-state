@@ -97,6 +97,8 @@ So: quote the stored figures, **always with the n behind them** (an accuracy on 
 
 Write the full output to `output_file` AND return it (the orchestrator quotes proposals verbatim). Order: policy draft (if bootstrapping) · proposals (numbered, dated, with `price_at_proposal`) · risk-off line · stress table (deep) · hit-rate lines · **interpretation of the stored scorecard** · then the fenced JSON tail, nothing after its closing fence.
 
+**What `add-proposal` does with these fields (2026-09-20).** `size_wanted_usd`, `clamped_by`, `stop_price_usd`, `exited_on`, `trigger_bucket` and `evidence_quality` are validated and STORED on the proposal row — they are read downstream (the G58 evidence gate, the reentry expiry, the signal_conviction retirement, the dashboard stop display), so fill them honestly; a `null` means "not supplied". A wrongly typed value (e.g. a stop as a string, `evidence_quality` as prose) rejects the whole batch. Never put lifecycle-owned fields (`id`, `status`, `outcome_*`, `priority*`, `history`, ...) on a spec — that also rejects the batch. Fields outside the allowlist are kept under `spec_extras`, not dropped.
+
 ```json
 {"policy_draft":null,
  "stress_table":{"as_of":"YYYY-MM-DD",

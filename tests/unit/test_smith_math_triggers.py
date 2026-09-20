@@ -4,6 +4,8 @@ least one edge case (funding blocked, stale cache, boundary value) specific to t
 """
 from conftest import make_base
 
+import pytest
+
 import smith_math
 import smith_core
 
@@ -368,6 +370,26 @@ class TestConvictionHeld:
         assert trend_entry == []
 
 
+class TestConvictionAverageEmitsStop:
+    def test_row_carries_stop_price_usd_for_the_draft_leg(self, base):
+        """_draft_leg_spec reads `stop_price_usd`; the row only wrote `current_stop_usd`."""
+        trend_entry, trend_breakdown, conviction_average, conviction_exit, dq = [], [], [], [], []
+        thesis = {"AAA": "strengthening thesis|strengthening"}
+        smith_math._trigger_conviction_held(
+            base, "AAA", {"cluster": "Compute", "stop_price_usd": 80.0}, mv=1000.0, price=90.0,
+            rsi=45.0, rel_pp=-8.0, rsi_usable=True, healthy=True, over_cap=False, headroom=500.0,
+            thesis=thesis, signal_history={"AAA": ["BREAKOUT"]}, atr_vals={"AAA": 8.0},
+            total_book=100000.0, policy=POLICY, deployable_for_ideas=10000.0,
+            build_ctx=_ctx_builder(thesis), conviction_by_ticker={}, catalyst_threats_by_ticker={},
+            lots={"AAA": [{"qty": 10.0, "price_usd": 100.0}]}, trend_entry=trend_entry,
+            trend_breakdown=trend_breakdown, conviction_average=conviction_average,
+            conviction_exit=conviction_exit, dq=dq)
+        assert len(conviction_average) == 1, dq
+        row = conviction_average[0]
+        assert row["stop_price_usd"] == 80.0 == row["current_stop_usd"]
+        assert smith_math._draft_leg_spec("AAA", "conviction_average", "BUY", row)["stop_price_usd"] == 80.0
+
+
 # ---------------------------------------------------------------------------
 # L. entry_setup (watchlist scan)
 # ---------------------------------------------------------------------------
@@ -387,7 +409,50 @@ class TestEntrySetupScan:
             entry_setup=entry_setup)
         assert len(entry_setup) == 1
         assert entry_setup[0]["ticker"] == "ZZZ"
-        assert "no live price/ATR" in entry_setup[0]["blockers"][0]
+        assert entry_setup[0]["suggested_size_usd"] is None
+        assert any("no live ATR" in b for b in entry_setup[0]["blockers"])
+        assert any("no price_usd" in b for b in entry_setup[0]["blockers"])
+
+    def _scan(self, row, thesis, atr=8.0, deployable=10000.0, mentions=0):
+        entry_setup = []
+        smith_math._trigger_entry_setup_scan(
+            [row], risk_by_ticker={}, state={}, signal_history={}, thesis=thesis,
+            factor_catalysts=[], earnings_facts={}, mention_counts={"ZZZ": mentions},
+            track_record_for=self._track_record_for, atr_vals={"ZZZ": atr} if atr else {},
+            sector_map={}, entry_setup=entry_setup, total_book=100000.0, policy=POLICY,
+            deployable_for_ideas=deployable)
+        assert len(entry_setup) == 1
+        return entry_setup[0]
+
+    ROW = {"ticker": "ZZZ", "pos": 0.1, "type": "breakout", "upside_pct": 20.0, "price_usd": 50.0}
+
+    def test_thesis_present_with_atr_and_price_sizes_live(self):
+        """2026-09-20: size_final was never assigned, so entry_setup could not size at all."""
+        row = self._scan(self.ROW, {"ZZZ": "strengthening thesis|strengthening"})
+        assert row["vote"] == "live"
+        assert row["suggested_size_usd"] and row["suggested_size_usd"] > 0
+        assert row["size_wanted_usd"] and row["stop_price_usd"]
+        # stop = price * (1 - max(2*ATR, 3)/100) with ATR 8 -> 16% below $50
+        assert row["stop_price_usd"] == pytest.approx(42.0)
+        assert row["blockers"] == []
+
+    def test_deployable_cash_clamp_is_recorded(self):
+        row = self._scan(self.ROW, {"ZZZ": "strengthening thesis|strengthening"}, deployable=10.0)
+        assert row["suggested_size_usd"] == 10.0 and row["clamped_by"] == "deployable cash"
+
+    def test_no_thesis_entry_votes_shadow_with_named_blocker(self):
+        """The four 2026-09-20 candidates cleared the 'low' floor by 0.6-0.8 points on valuation
+        + RSI alone; sizing them live would cure the buy drought by lowering quality."""
+        # IONQ's live 2026-09-20 shape: +43.5% target upside, pos 0.23, no thesis entry.
+        row = self._scan({**self.ROW, "upside_pct": 43.5, "pos": 0.23}, {}, mentions=1)
+        assert row["vote"] == "shadow"
+        assert any("no state.thesis entry" in b for b in row["blockers"])
+        assert row["suggested_size_usd"] is not None  # still sized, so the shadow is scorable
+
+    def test_missing_price_keeps_size_none_with_blocker(self):
+        row = self._scan({**self.ROW, "price_usd": None}, {"ZZZ": "strengthening thesis|strengthening"})
+        assert row["suggested_size_usd"] is None and row["vote"] == "live"
+        assert any("price_usd" in b for b in row["blockers"])
 
     def test_already_held_ticker_is_skipped(self):
         entry_setup = []

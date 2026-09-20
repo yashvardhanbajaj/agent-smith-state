@@ -3038,6 +3038,11 @@ def _trigger_conviction_held(base, ticker, r, mv, price, rsi, rel_pp, rsi_usable
                                           "support_usd": round(support, 4), "size_wanted_usd": wanted,
                                           "suggested_size_usd": size_final, "clamped_by": clamped_by,
                                           "blended_entry_usd": round(blended, 4), "current_stop_usd": round(stop_now, 4),
+                                          # `stop_price_usd` is the name _draft_leg_spec and the
+                                          # proposal row read; this row emitted only
+                                          # `current_stop_usd`, so every conviction_average
+                                          # draft leg went out with stop_price_usd=None.
+                                          "stop_price_usd": round(stop_now, 4),
                                           "retires_when": f"{ticker} recovers above its support level or thesis leaves intact/strengthening",
                                           "reasons": conv["conviction_reasons"], "blockers": []})
             else:
@@ -3068,12 +3073,25 @@ def _trigger_conviction_held(base, ticker, r, mv, price, rsi, rel_pp, rsi_usable
 
 def _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_history, thesis,
                               factor_catalysts, earnings_facts, mention_counts, track_record_for,
-                              atr_vals, sector_map, entry_setup):
-    """Section L: entry_setup (BUY, live) -- smith-watchlist's setups, persisted to state.json
+                              atr_vals, sector_map, entry_setup, total_book=None, policy=None,
+                              deployable_for_ideas=None):
+    """Section L: entry_setup (BUY) -- smith-watchlist's setups, persisted to state.json
     this run for the first time (previously had NO code path into proposals at all -- 9 setups
-    found on 2026-08-24, 1 reached a proposal, hand-written narrative only). No live price is
-    persisted per setup, so this cannot be sized without a fetch this script cannot make --
-    degrades to suggested_size_usd=None with an explicit blocker rather than estimate one."""
+    found on 2026-08-24, 1 reached a proposal, hand-written narrative only).
+
+    SIZING (added 2026-09-20). `size_final = None` was initialised here and never assigned, so
+    entry_setup could not size on ANY input: the 2026-09-20 run had IONQ/QBTS/BABA with a usable
+    ATR and empty blockers yet `suggested_size_usd: null`. It now mirrors `reentry`'s three
+    lines. Price comes from the setup row's own `price_usd` (smith-watchlist has it when it
+    computes upside/pos); when the row lacks one, or ATR is missing, size stays None WITH a
+    blocker -- a missing input is never estimated.
+
+    THESIS GATE (same date, and it must ship WITH the sizing). The four live candidates that
+    day (IONQ/QBTS/RGTI/BABA) all had `thesis_status: null` and cleared the 'low' conviction
+    floor by 0.6-0.8 points on valuation + RSI alone. Sizing them live would cure the buy
+    drought by lowering quality. A setup with no state.thesis entry therefore votes `shadow`
+    (logged, never a ticket) with a blocker naming the missing thesis, until smith-thesis has
+    actually examined the name."""
     for row in watchlist_setups:
         ticker = row.get("ticker")
         if not ticker or ticker in risk_by_ticker:
@@ -3097,15 +3115,30 @@ def _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_hi
         if conv["conviction_tier"] == "none":
             continue
         atr_pct = atr_vals.get(ticker)
+        price = row.get("price_usd")
         blockers = []
-        size_final = None
         if not atr_pct:
-            blockers.append(f"no live price/ATR for {ticker} this run -- setup valid, sizing needs a fetch")
+            blockers.append(f"no live ATR for {ticker} this run -- setup valid, sizing needs a fetch")
+        if not price:
+            blockers.append(f"no price_usd on {ticker}'s watchlist setup row -- sizing needs a live price")
+        pmax = (smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy)
+                if (atr_pct and price) else None)
+        target, wanted = ((None, None) if not pmax else
+                          smith_conviction.conviction_size(conv["conviction_tier_pct"], pmax["max_position_usd"]))
+        size_final, clamped_by = ((None, None) if wanted is None else
+                                  smith_conviction.clamp_size(wanted, None, None, deployable_for_ideas))
+        vote = "live"
+        if thesis.get(ticker) is None:
+            vote = "shadow"
+            blockers.append(f"no state.thesis entry for {ticker} -- entry_setup may not vote live "
+                            "on valuation + RSI alone; smith-thesis must examine it first")
         entry_setup.append({"ticker": ticker, "cluster": sector_map.get(ticker), "thesis_status": conv["thesis_status"],
                             "watchlist_type": row.get("type"), "upside_pct": row.get("upside_pct"),
-                            "trigger_type": "entry_setup", "direction": "BUY", "vote": "live",
+                            "price_usd": price,
+                            "trigger_type": "entry_setup", "direction": "BUY", "vote": vote,
                             "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
-                            "suggested_size_usd": size_final,
+                            "size_wanted_usd": wanted, "suggested_size_usd": size_final, "clamped_by": clamped_by,
+                            "stop_price_usd": pmax.get("stop_price_usd") if pmax else None,
                             "retires_when": f"{ticker} drops off the watchlist setups list or conviction falls to 'none'",
                             "reasons": conv["conviction_reasons"], "blockers": blockers})
 
@@ -4228,7 +4261,8 @@ def cmd_triggers(args):
     # --- L. entry_setup (BUY, live) --------------------------------------------------------
     _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_history, thesis,
                               factor_catalysts, earnings_facts, mention_counts, _track_record_for,
-                              atr_vals, sector_map, entry_setup)
+                              atr_vals, sector_map, entry_setup, total_book, policy,
+                              deployable_for_ideas)
 
     # --- M. reentry (BUY, live) -----------------------------------------------------------
     _reentry_no_thesis, _reentry_judged_out = [], []
@@ -4299,11 +4333,12 @@ def cmd_triggers(args):
                    "catalyst_threat": len(catalyst_threat), "thesis_break": len(thesis_break),
                    "trend_entry": len(trend_entry), "trend_breakdown": len(trend_breakdown),
                    "conviction_average": len(conviction_average), "conviction_exit": len(conviction_exit),
-                   "entry_setup": len(entry_setup), "reentry": len(reentry),
-                   "bench_diversifier": len(bench_diversifier),
+                   "entry_setup": sum(1 for r in entry_setup if r.get("vote") == "live"),
+                   "reentry": len(reentry), "bench_diversifier": len(bench_diversifier),
                    "profit_rotation": len(profit_rotation), "cluster_rotation": len(cluster_rotation),
                    "factor_threat": len(factor_threat)}
-    shadow_counts = {"laggard_rotation": len(laggard), "profit_ratchet": len(ratchet),
+    shadow_counts = {"entry_setup": sum(1 for r in entry_setup if r.get("vote") == "shadow"),
+                     "laggard_rotation": len(laggard), "profit_ratchet": len(ratchet),
                      "scale_out_ladder": len(ladder),
                      "cluster_bench_rotation": len(cluster_bench_rotation),
                      "cluster_consolidation": len(cluster_consolidation)}

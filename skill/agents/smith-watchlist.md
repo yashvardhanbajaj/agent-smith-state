@@ -24,11 +24,13 @@ OUTPUT — WRITE the full output below to the given output_file (≤100 lines), 
 2. Earnings list (confirmed/unconfirmed).
 3. Fenced JSON tail:
 ```json
-{"watchlist_setups":[{"ticker":"","type":"","upside_pct":0,"pos":0}],
+{"watchlist_setups":[{"ticker":"","type":"","upside_pct":0,"pos":0,"price_usd":0}],
  "earnings_calendar_updates":{"TICKER":{"date":"","confirmed":true,"source":""}},
  "watchlist_scan_cursor":0,
  "data_quality":[]}
 ```
+`price_usd` is the live price you already used to compute `upside_pct`/`pos` — include it on every setup. `entry_setup` cannot be sized without it (added 2026-09-20: the compute layer refuses to estimate a price, so a setup without one carries a blocker and no size). Also note that a setup whose ticker has no `state.thesis` entry votes shadow only, so a clean setup on an un-examined name is a prompt for smith-thesis, not a ticket.
+
 Cap data_quality at 6 bullets — durable gaps go to the orchestrator's known_gaps registry instead of being re-explained every run. Never invent a setup or an earnings date.
 
 **You own earnings DATES, not earnings VERDICTS (added 2026-08-15, G75).** Your "earnings highlights" line reports *when* a name reports and whether the date is confirmed. Do not characterise a past print as a beat or a miss — that belongs to smith-earnings, and inferring it from a price move is how smith-catalyst reported Coherent's beat as a miss on 2026-08-13. If a date's source article mentions a result, pass the date through and leave the verdict alone.

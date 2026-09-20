@@ -2664,6 +2664,139 @@ def _check_anchor(pr, field, ref, ticker, checks):
     return rec
 
 
+# ---------------------------------------------------------------------------
+# add-proposal field contract (added 2026-09-20, proposal-engine rebuild Phase 1)
+#
+# cmd_add_proposal used to build the row from a fixed dict and silently DROP every other field
+# on the spec. Measured against proposals.json on 2026-09-20: `stop_price_usd` survived on 9 of
+# 323 rows, `evidence_quality` was last persisted 2026-08-25, `trigger_bucket` 2026-08-25,
+# `exited_on` 2026-08-24, `clamped_by`/`size_wanted_usd` 2026-08-26 -- while the strategist
+# was supplying stop_price_usd and evidence_quality on every leg of its 2026-09-20 specs. The
+# consequence was worse than missing data: the G58 evidence gate (cmd_proposals), the
+# signal_conviction retirement and the reentry 20-day expiry all read those fields and had
+# become unreachable code, so three safety branches were dead without any test noticing.
+#
+# The fix is an explicit contract, not a blind `pr.update(spec)` (which would let a caller
+# overwrite `status` or `outcome_verdict`): PASSTHROUGH fields are copied after validation,
+# RESERVED fields belong to the lifecycle and reject the whole batch, and anything else is kept
+# under `spec_extras` rather than lost.
+# ---------------------------------------------------------------------------
+_ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_EVIDENCE_COUNT_KEYS = ("verified", "computed", "unverified")
+
+
+def _is_num(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool)
+
+
+def _v_positive(v):
+    return _is_num(v) and v > 0
+
+
+def _v_non_negative(v):
+    return _is_num(v) and v >= 0
+
+
+def _v_pct_open(v):
+    """A percentage strictly between 0 and 100 (a stop distance of 0 or 100+ is not a stop)."""
+    return _is_num(v) and 0 < v < 100
+
+
+def _v_probability(v):
+    return _is_num(v) and 0 <= v <= 1
+
+
+def _v_positive_int(v):
+    return isinstance(v, int) and not isinstance(v, bool) and v > 0
+
+
+def _v_iso_date(v):
+    if not (isinstance(v, str) and _ISO_DATE_RE.match(v)):
+        return False
+    try:
+        date.fromisoformat(v)
+    except ValueError:
+        return False
+    return True
+
+
+def _v_nonempty_str(v):
+    return isinstance(v, str) and bool(v.strip())
+
+
+def _v_evidence_quality(v):
+    """The typed claim counts the G58 gate reads -- a dict of non-negative ints, never prose."""
+    return (isinstance(v, dict) and set(v) <= set(_EVIDENCE_COUNT_KEYS) and bool(v)
+            and all(isinstance(n, int) and not isinstance(n, bool) and n >= 0 for n in v.values()))
+
+
+def _v_gate(v):
+    return _v_nonempty_str(v) or isinstance(v, dict)
+
+
+# field -> validator. None is never validated: a spec that says `"stop_price_usd": null`
+# (every drafted SELL leg does) means "not supplied" and is simply not written.
+PASSTHROUGH = {
+    "stop_price_usd": _v_positive,
+    "stop_distance_pct": _v_pct_open,
+    "target_price_usd": _v_positive,
+    "size_wanted_usd": _v_non_negative,
+    "clamped_by": _v_nonempty_str,
+    "risk_usd": _v_non_negative,
+    "r_multiple": _is_num,
+    "ev_r": _is_num,
+    "p_win": _v_probability,
+    "horizon_days": _v_positive_int,
+    "expires_on": _v_iso_date,
+    "invalidation": _v_nonempty_str,
+    "evidence_quality": _v_evidence_quality,
+    "trigger_bucket": _v_nonempty_str,
+    "exited_on": _v_iso_date,
+    "conviction_score": _is_num,
+    "gate": _v_gate,
+}
+
+# Fields the lifecycle owns. A spec naming one is rejected, not ignored: a caller that thinks it
+# can set `status` or `outcome_verdict` has a wrong model of the system, and the whole batch
+# aborts (the same blast radius as every other spec rejection here).
+RESERVED = frozenset({
+    "id", "status", "date", "created_utc", "outcome_pct", "outcome_verdict", "outcome_window",
+    "outcome_scored_on", "priority", "priority_score", "history", "repeat_count",
+    "superseded_by", "retired_on", "retired_reason", "dismissed_by",
+})
+
+# Spec keys this command already consumes explicitly (built into the row above, or read by
+# support-anchored sizing). Everything not here, not PASSTHROUGH and not RESERVED is unknown.
+_SPEC_CONSUMED = frozenset({
+    "direction", "ticker", "size_usd", "price_at_proposal", "rationale", "trigger_type",
+    "pair_id", "pair_role", "cluster", "action", "benchmark_price_at_proposal",
+    "benchmark_ticker", "supersedes", "support_usd",
+})
+
+
+def _apply_spec_passthrough(pr, spec):
+    """Copy validated PASSTHROUGH fields onto `pr`, stash unknown ones in `spec_extras`.
+
+    Returns (rejection_reason_or_None, unknown_field_names). Never mutates `pr` when it returns
+    a rejection, and never lets a RESERVED field through."""
+    reserved = sorted(k for k in spec if k in RESERVED)
+    if reserved:
+        return (f"spec sets lifecycle-owned field(s) {reserved} -- these are assigned by the "
+                "lifecycle and may not be supplied"), []
+    bad = sorted(k for k, v in spec.items()
+                 if k in PASSTHROUGH and v is not None and not PASSTHROUGH[k](v))
+    if bad:
+        return "spec has invalid value(s) for " + ", ".join(f"{k}={spec[k]!r}" for k in bad), []
+    for k in PASSTHROUGH:
+        if spec.get(k) is not None:
+            pr[k] = spec[k]
+    unknown = sorted(k for k in spec if k not in PASSTHROUGH and k not in _SPEC_CONSUMED)
+    extras = {k: spec[k] for k in unknown if spec[k] is not None}
+    if extras:
+        pr["spec_extras"] = extras
+    return None, sorted(extras)
+
+
 def cmd_add_proposal(args):
     """The ONLY sanctioned way to append new proposals to proposals.json (added 2026-08-29,
     same-day incident). Before this command existed, a new batch of proposals was appended by
@@ -2691,6 +2824,11 @@ def cmd_add_proposal(args):
        SMH instead of the stock's raw move), "benchmark_ticker": "SMH" (optional, defaults to
        SMH if benchmark_price_at_proposal is given), "supersedes": ["P-263"] (optional -- open ids
        this spec replaces; cmd_proposals retires them, see _apply_declared_supersessions)}
+    Typed passthrough (2026-09-20): the PASSTHROUGH fields (stop_price_usd, evidence_quality,
+    trigger_bucket, exited_on, ...) are validated and persisted; a spec naming a RESERVED
+    lifecycle field (id, status, outcome_*, ...) or carrying a mistyped passthrough value is
+    rejected and nothing is written; any other unknown field is kept under `spec_extras` with a
+    data_quality line. See the block above PASSTHROUGH for the incident.
 
     Does NOT assign `id` -- that stays cmd_proposals' job (it already assigns ids to any
     freshly-appended proposal missing one, "once, never reused"), so ids stay allocated from
@@ -2718,6 +2856,7 @@ def cmd_add_proposal(args):
     run_dir = getattr(args, "run_dir", None)
     refs, bench_ref = _run_reference_prices(run_dir) if run_dir else ({}, None)
     price_checks, unchecked = [], []
+    unknown_seen = {}
 
     built = []
     rejected = []
@@ -2761,6 +2900,14 @@ def cmd_add_proposal(args):
         for optional in ("pair_id", "pair_role", "cluster"):
             if spec.get(optional) is not None:
                 pr[optional] = spec[optional]
+        # Typed passthrough BEFORE support-anchored sizing below, so a computed stop/size from
+        # `_size_support_anchored` overrides a caller-supplied one rather than the reverse.
+        why, unknown = _apply_spec_passthrough(pr, spec)
+        if why:
+            rejected.append({"index": i, "reason": why})
+            continue
+        for k in unknown:
+            unknown_seen.setdefault(k, []).append(ticker)
         # `supersedes` (added 2026-09-15): ids this spec replaces, retired by cmd_proposals.
         if spec.get("supersedes"):
             sup = spec["supersedes"] if isinstance(spec["supersedes"], list) else [spec["supersedes"]]
@@ -2817,6 +2964,10 @@ def cmd_add_proposal(args):
                  ["prices not checked: pass --run-dir so price_at_proposal is checked against this run's quotes"])
     if unchecked:
         dq_prices.append(f"no reference price in the run for {sorted(set(unchecked))} -- price_at_proposal kept as supplied")
+    for field, tickers in sorted(unknown_seen.items()):
+        dq_prices.append(f"spec field {field!r} is not in PASSTHROUGH -- kept under spec_extras on "
+                         f"{sorted(set(t for t in tickers if t))} rather than dropped; add it to "
+                         "PASSTHROUGH with a validator if it should be a first-class field")
     emit({"added": len(built), "tickers": [p["ticker"] for p in built], "written": True,
           "price_checks": price_checks, "unchecked": sorted(set(unchecked)), "data_quality": dq_prices,
           "next_step": "run smith_math.py proposals to assign ids, dedup and prioritize"})
