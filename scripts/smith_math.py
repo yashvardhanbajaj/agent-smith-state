@@ -2906,8 +2906,8 @@ def _trigger_overbought_distribution(base, ticker, rsi_usable, rsi, rel_usable, 
     booking profit on a name that ran is the point, and gating it on a risk-cap breach is
     precisely what made every trim an ATR trim.
 
-    SIZED IN RISK (2026-09-20): SEVERITY_R["overbought_distribution"] x R_base / stop, not a
-    quarter of market value -- see smith_core's SEVERITY_R block."""
+    SIZED IN RISK (2026-09-20): SEVERITY_R["overbought_distribution"] of the position's own open risk -- see
+    smith_core's SEVERITY_R block."""
     sizing = sizing or _no_sizing()
     if rsi_usable and rsi is not None and rsi > RSI_OVERBOUGHT:
         genuinely_up = (abs_pct is not None and abs_pct > 0) if rel_usable else None
@@ -3062,8 +3062,8 @@ def _trigger_thesis_break(base, ticker, status, mv, thesis, thesis_break, sizing
     constants-file note (the "why live from day one" comment in smith_core.py above
     FUNDAMENTAL_HEADWIND_BUCKETS).
 
-    SIZED IN RISK (2026-09-20): SEVERITY_R["thesis_break"] = 2R, which on most names clamps to the
-    whole position -- a confirmed break is usually a full exit, and now says so."""
+    SIZED IN RISK (2026-09-20): SEVERITY_R["thesis_break"] (40% of open risk); exit_or_hold turns a
+    trim that would leave a stub into a full exit and says so."""
     sizing = sizing or _no_sizing()
     if status == "broken":
         ev_for, ev_against, verified = smith_risk.thesis_evidence(thesis.get(ticker))
@@ -3257,7 +3257,7 @@ def _trigger_conviction_held(base, ticker, r, mv, price, rsi, rel_pp, rsi_usable
     ])
     if smith_conviction.convergence_exit_score(neg_count) and not over_cap:
         # convergence of negatives is the strongest sell signal this engine has -> the heaviest rung
-        # of SEVERITY_R (2R, which for most names clamps to the whole position)
+        # of SEVERITY_R (50% of the position's open risk)
         sized = _size_sell("conviction_exit", ticker, mv, sizing)
         reasons = list(conv["conviction_reasons"])
         reasons.insert(0, f"{neg_count} independent negative signals converged (thesis/catalyst/trend/technical)")
@@ -4735,7 +4735,8 @@ def cmd_triggers(args):
                            "r_base_usd": round(sizing["r_base_usd"], 2),
                            "r_base_rule": "policy.stop_loss_framework.risk_per_position_pct_of_book x total book",
                            "stop_pct_rule": "max(2 x atr20_pct, 3.0)",
-                           "size_usd_rule": "severity_r x r_base_usd / (stop_pct / 100), min(., market value)",
+                           "size_usd_rule": "min(severity_r x market value, market value); i.e. risk_removed = severity_r x R_open, R_open = mv x stop_pct/100",
+                           "severity_unit": "fraction of the position's OWN open risk (R_base is the unit for entries and trim_risk_cap only)",
                            "severity_r": dict(SEVERITY_R),
                            "severity_r_computed": {
                                "trim_risk_cap": "(R_open - R_base) / R_base -- trims exactly to the ATR cap",

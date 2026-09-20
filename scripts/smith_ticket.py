@@ -18,9 +18,12 @@ NOTATION (from smith_risk.stop_and_cap):
     R_base   = risk_per_position_pct_of_book / 100 * total_book        (0.5% -> ~$212.71)
     size_usd = risk_usd / (stop_pct / 100)
 
-A severity is a multiple of R_base (smith_core.SEVERITY_R). A 3%-ATR name therefore gets a
-LARGER dollar trim than a 12%-ATR name for the same severity -- equal risk removed, which a
-market-value fraction cannot express.
+SELLS: a severity (smith_core.SEVERITY_R) is a FRACTION OF THE POSITION'S OWN OPEN RISK,
+R_open = mv * stop_pct/100, so sell_size = min(severity * mv, mv). (The first version used R_base
+as the unit and turned 20% catalyst trims into full liquidations -- see smith_core.SEVERITY_R.)
+R_base remains the unit for ENTRIES, for rotation buys' risk conservation, for materiality's R
+term, and for trim_risk_cap, whose severity (R_open - R_base)/R_base is measured against the
+budget the position was sized to.
 
 WHAT IS NOT HERE. No heat budget and no expected-value gate: those are Phases 3 and 4. This
 module sizes one ticket, or one rotation, at a time.
@@ -66,12 +69,29 @@ def trim_risk_cap_severity(r_open_usd, r_base_usd_):
     return max(0.0, (r_open_usd - r_base_usd_) / r_base_usd_)
 
 
+def sell_size_from_open_risk(severity, mv, stop_pct):
+    """Dollar size of a sell that removes `severity` x the position's OWN open risk.
+
+    R_open = mv * stop_pct/100; risk_removed = severity * R_open; size = risk_removed / (stop/100)
+    = severity * mv, clamped to mv. `clamped_by_mv` is true only for a severity >= 1.
+    """
+    if severity is None or mv is None or not stop_pct or stop_pct <= 0:
+        return {"size_usd": None, "clamped_by_mv": False, "risk_removed_usd": None,
+                "r_open_usd": None, "reason": "missing stop, severity or market value"}
+    r_open = mv * stop_pct / 100.0
+    size = min(severity * mv, mv)
+    return {"size_usd": round(size, 2), "clamped_by_mv": severity * mv >= mv,
+            "r_open_usd": round(r_open, 2),
+            "risk_removed_usd": round(size * stop_pct / 100.0, 2), "reason": None}
+
+
 def sell_size_from_risk(severity_r, r_base, stop_pct, mv):
     """Dollar size of a sell that removes `severity_r` x R_base of risk, clamped to the position.
+    R_base units: used by trim_risk_cap (whose severity is computed against R_base), not by the
+    SEVERITY_R table, which is in fractions of the position's own open risk.
 
-    min(severity_r * r_base / (stop_pct/100), mv). `clamped_by_mv` says the SIGNAL asked for at
-    least the whole position -- which is how thesis_break / conviction_exit (2.0R) usually end up
-    a full exit on a high-volatility name, and why that is not a bug.
+    min(severity_r * r_base / (stop_pct/100), mv). `clamped_by_mv` says the request was for at
+    least the whole position.
     """
     raw = size_from_risk(severity_r * r_base if (severity_r is not None and r_base) else None, stop_pct)
     if raw is None or mv is None:
@@ -233,24 +253,25 @@ def sizing_context(total_book_usd, policy, stop_pct_by_ticker=None):
 
 
 def size_sell_leg(severity_r, mv, stop_pct, ctx):
-    """One sell leg, end to end: risk-sized -> exit-or-hold -> materiality.
+    """One sell leg, end to end: severity x open risk -> exit-or-hold -> materiality.
 
     Returns the fields a trigger row carries: size_usd, action, severity_r, stop_pct,
     risk_removed_usd, clamped_by_mv, sizing_note, materiality, and `vote_hint` -- "ok" or
     "below_materiality" (a full exit is never below materiality; a hold is, with a zero size).
     A missing stop or book yields size None / vote_hint "unsized" -- never an estimate.
     """
-    r_base = ctx["r_base_usd"]
+    r_base = ctx["r_base_usd"]     # still needed by materiality's R term
     if stop_pct is None or not r_base or mv is None:
         return {"size_usd": None, "action": UNSIZED, "severity_r": severity_r, "stop_pct": stop_pct,
                 "risk_removed_usd": None, "clamped_by_mv": False,
                 "sizing_note": "no stop distance (ATR20 missing) or no book value -- a risk-sized "
                                "sell cannot be computed and is never estimated",
                 "materiality": None, "vote_hint": UNSIZED}
-    raw = sell_size_from_risk(severity_r, r_base, stop_pct, mv)
+    raw = sell_size_from_open_risk(severity_r, mv, stop_pct)
     eoh = exit_or_hold(mv, raw["size_usd"], ctx["min_position_usd"])
     size = eoh["size_usd"]
-    note = [f"{severity_r:g}R x ${r_base:,.2f} / {stop_pct:.2f}% stop = ${raw['unclamped_usd']:,.2f}"
+    note = [f"{severity_r:.0%} of the position's ${raw['r_open_usd']:,.2f} open risk "
+            f"({stop_pct:.2f}% stop) = ${raw['size_usd']:,.2f}"
             + (f", clamped to the ${mv:,.2f} position" if raw["clamped_by_mv"] else "")]
     if eoh["reason"]:
         note.append(eoh["reason"])

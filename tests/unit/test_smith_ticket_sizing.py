@@ -74,6 +74,32 @@ class TestSellSizeProperty:
                     assert r["size_usd"] <= mv + 1e-9
         assert checked > 50 and clamped > 20      # the grid actually exercises both branches
 
+    def test_open_risk_property_size_x_stop_equals_severity_x_R_open(self):
+        """risk_removed == severity * R_open(t), R_open = mv * stop/100 (the unit SEVERITY_R uses)."""
+        for atr in self.ATRS:
+            stop = T.stop_pct_from_atr(atr)
+            for mv in self.MVS:
+                for sev in (0.2, 0.25, 0.3, 0.4, 0.5, 1.0):
+                    r = T.sell_size_from_open_risk(sev, mv, stop)
+                    r_open = mv * stop / 100
+                    if sev >= 1.0:
+                        assert r["clamped_by_mv"] and r["size_usd"] == pytest.approx(mv, abs=0.005)
+                    else:
+                        assert not r["clamped_by_mv"]
+                        assert r["size_usd"] * stop / 100 == pytest.approx(sev * r_open, abs=0.005 * stop / 100 + 1e-9)
+                        assert r["risk_removed_usd"] == pytest.approx(sev * r_open, abs=0.01)
+
+    def test_same_severity_removes_the_same_fraction_of_every_position(self):
+        """Severity is relative to the position, so a 3%-ATR and a 12%-ATR name of equal size lose
+        the same dollars but the volatile one sheds proportionally more absolute risk."""
+        calm = T.sell_size_from_open_risk(0.2, 3000.0, T.stop_pct_from_atr(3.0))
+        loud = T.sell_size_from_open_risk(0.2, 3000.0, T.stop_pct_from_atr(12.0))
+        assert calm["size_usd"] == loud["size_usd"] == 600.0
+        assert loud["risk_removed_usd"] > calm["risk_removed_usd"]
+
+    def test_r_base_units_are_still_available_for_trim_risk_cap(self):
+        assert T.sell_size_from_risk(0.5, R_BASE, 12.0, 100000.0)["size_usd"] == pytest.approx(886.29, abs=0.01)
+
     def test_low_atr_name_gets_larger_dollar_trim_for_same_severity(self):
         calm = T.sell_size_from_risk(0.5, R_BASE, T.stop_pct_from_atr(3.0), 100000.0)["size_usd"]
         loud = T.sell_size_from_risk(0.5, R_BASE, T.stop_pct_from_atr(12.0), 100000.0)["size_usd"]
@@ -188,11 +214,11 @@ class TestMateriality:
         # a tiny severity on a big position: a genuine partial trim that is too small to matter
         leg = T.size_sell_leg(0.02, 20000.0, 10.0, ctx())
         assert leg["action"] == "trim" and leg["vote_hint"] == "below_materiality"
-        assert leg["size_usd"] == pytest.approx(0.02 * R_BASE / 0.10, abs=0.01)      # NOT lifted to the floor
+        assert leg["size_usd"] == pytest.approx(0.02 * 20000.0, abs=0.01)             # NOT lifted to the floor
         assert leg["materiality"]["shortfall_usd"] > 0
 
     def test_full_exit_below_the_floor_is_still_permitted(self):
-        leg = T.size_sell_leg(1.0, 187.9, 14.0, ctx())
+        leg = T.size_sell_leg(1.0, 187.9, 14.0, ctx())           # a severity of 1.0 asks for everything
         assert leg["action"] == "full_exit" and leg["size_usd"] == 187.9
         assert leg["vote_hint"] == "ok" and leg["materiality"]["exempt"] == "full_exit"
         assert leg["materiality"]["floor_usd"] > 187.9         # it IS below the floor, and is allowed anyway
@@ -246,11 +272,34 @@ class TestExitOrHold:
 # SEVERITY_R replaces every sell fraction
 # ---------------------------------------------------------------------------
 class TestSeverityTable:
-    def test_table_matches_the_plan(self):
+    def test_table_is_fractions_of_the_positions_own_open_risk(self):
+        """The first table (0.5/1.0/2.0 in R_base units) turned 20% catalyst trims into 100%
+        liquidations. The unit is now the position's own open risk, at the legacy magnitudes."""
         assert smith_core.SEVERITY_R == {
-            "overbought_distribution": 0.5, "catalyst_threat": 0.5, "scale_out_ladder": 0.5,
-            "profit_rotation": 1.0, "cluster_rotation": 1.0, "cluster_bench_rotation": 1.0,
-            "trend_breakdown": 1.0, "thesis_break": 2.0, "conviction_exit": 2.0}
+            "overbought_distribution": 0.25, "catalyst_threat": 0.20, "scale_out_ladder": 1.0 / 3.0,
+            "profit_rotation": 0.30, "cluster_rotation": 0.30, "cluster_bench_rotation": 0.30,
+            "trend_breakdown": 0.30, "thesis_break": 0.40, "conviction_exit": 0.50}
+        assert all(0 < v < 1 for v in smith_core.SEVERITY_R.values())    # a trim, never a liquidation
+
+    def test_unclamped_sells_agree_with_the_legacy_numbers(self):
+        for fam, sev in smith_core.SEVERITY_R.items():
+            assert sev == pytest.approx(smith_core.LEGACY_SELL_FRACTION[fam])
+
+    def test_no_uncapped_catalyst_trim_exceeds_40pct_of_the_position(self):
+        """REGRESSION GUARD. At the ATR cap (where this book's positions sit) a catalyst_threat
+        trim must stay a ~20% trim across volatilities and position sizes -- never the 50-100%
+        liquidation the R_base-unit table produced on the live 2026-09-20 run."""
+        for atr in (1.5, 2.29, 3.92, 6.0, 8.56, 12.0):
+            stop = T.stop_pct_from_atr(atr)
+            max_pos = R_BASE / (stop / 100)                       # a position sitting exactly at its cap
+            for mult in (1.0, 1.15):
+                mv = max_pos * mult
+                if mv < 2 * smith_core.DUST_USD_DEFAULT:
+                    continue                                       # sub-scale positions may legitimately exit
+                leg = T.size_sell_leg(smith_core.SEVERITY_R["catalyst_threat"], mv, stop, ctx())
+                assert leg["action"] == "trim", (atr, mult, leg["sizing_note"])
+                assert leg["size_usd"] <= 0.40 * mv
+                assert leg["size_usd"] == pytest.approx(0.20 * mv, abs=0.01)
 
     def test_the_old_fraction_constants_are_gone(self):
         for name in ("OVERBOUGHT_TRIM_FRACTION", "CATALYST_THREAT_TRIM_FRACTION",
@@ -326,18 +375,18 @@ class TestWiredTriggers:
         smith_math._trigger_catalyst_threat(
             _base("SKHY", 187.9), "SKHY", 187.9, cats, {}, "watch", out, self.sizing(BOOK, {"SKHY": 14.0}))
         row = out[0]
-        assert row["legacy_size_usd"] == 37.58 and row["suggested_size_usd"] == 187.9
-        assert row["sell_action"] == "full_exit" and row["vote"] == "live"
+        # 20% of a $187.90 stub is the old $37.58 -- and a stub is never partially trimmed
+        assert row["legacy_size_usd"] == 37.58 and row["suggested_size_usd"] == 0.0
+        assert row["sell_action"] == "hold" and row["vote"] == "below_materiality"
 
     def test_sub_floor_live_sell_is_demoted_but_still_emitted(self):
         out = []
         cats = {"AAA": [{"headline": "x", "date": "2026-09-01", "magnitude": "m", "source": "s"}]}
-        # a $2M position on a 2% book -> a 0.5R trim of ~$1.3K on a $2M name is a real trim, but tiny
-        sz = T.sizing_context(100.0, POLICY, {"AAA": 8.0})       # R_base $0.50 -> a ~$3 trim
-        smith_math._trigger_catalyst_threat(_base(mv=5000.0), "AAA", 5000.0, cats, {}, "intact", out, sz)
+        # a $1,000 position: 20% = $200, a genuine partial trim (residual $800) but under the $250 floor
+        smith_math._trigger_catalyst_threat(_base(mv=1000.0), "AAA", 1000.0, cats, {}, "intact", out, self.sizing())
         row = out[0]
-        assert row["vote"] == "below_materiality" and row["materiality_shortfall_usd"] > 0
-        assert row["suggested_size_usd"] < 10                     # not lifted to the floor
+        assert row["vote"] == "below_materiality" and row["materiality_shortfall_usd"] == 50.0
+        assert row["suggested_size_usd"] == 200.0 and row["sell_action"] == "trim"   # not lifted to the floor
         assert any("below materiality" in b for b in row["blockers"])
 
     def test_no_stop_means_no_size_and_a_blocker(self):
@@ -355,9 +404,9 @@ class TestWiredTriggers:
             _base(mv=1300.0), "AAA", {"stop_price_usd": 100.0}, 1300.0, 130.0, 55.0,
             {"AAA": [{"qty": 10, "price_usd": 100.0}]}, set(), ratchet, ladder, dq, self.sizing())
         t0 = ladder[0]["tiers"][0]
-        assert t0["slice_usd"] == 312.5 and t0["legacy_slice_usd"] == round(1300 / 3, 2)
+        assert t0["slice_usd"] == t0["legacy_slice_usd"] == round(1300 / 3, 2)
 
-    def test_profit_rotation_skhy_cien_is_below_materiality_with_stub_sell_a_full_exit(self):
+    def test_profit_rotation_skhy_cien_is_below_materiality_with_the_stub_never_partially_trimmed(self):
         out = []
         conv = {
             "SKHY": {"market_value_usd": 187.9, "cluster": "Mem", "rel_pp": 10.0, "over_cap": False,
@@ -370,10 +419,10 @@ class TestWiredTriggers:
             {"SKHY"}, conv, {"SKHY": "x|watch", "CIEN": "y|strengthening"}, BOOK, POLICY, out)
         pair = out[0]
         assert pair["sell_leg"]["legacy_size_usd"] == 56.37
-        assert pair["sell_leg"]["sell_action"] == "full_exit"           # NOT a partial trim of a stub
-        assert pair["sell_leg"]["suggested_size_usd"] == 187.9
-        assert pair["vote"] == "below_materiality" and pair["materiality_legs_below"] == ["buy"]
-        assert pair["materiality_shortfall_usd"] > 0
+        # 30% of a $187.90 stub is the old $56.37 -- it is now NO partial trim of a stub at all
+        assert pair["sell_leg"]["sell_action"] == "hold"
+        assert pair["sell_leg"]["suggested_size_usd"] == 0.0 and pair["buy_leg"]["suggested_size_usd"] == 0.0
+        assert pair["vote"] == "below_materiality" and "sell" in pair["materiality_legs_below"]
 
     def test_live_counts_exclude_below_materiality_rows(self, tmp_path):
         out = _run_triggers("triggers_case1", tmp_path)

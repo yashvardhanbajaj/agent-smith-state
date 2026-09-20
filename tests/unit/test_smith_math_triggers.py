@@ -10,9 +10,9 @@ import smith_math
 import smith_core
 import smith_ticket
 
-# Sizing context shared by the risk-sized sell tests (Phase 2, 2026-09-20). A $10K book makes
-# R_base $50; AAA's 8% stop then puts one R at $625 -- and 0.5R at $312.50, a genuine partial
-# trim of a $1,000 position (31% removed, $687.50 left, above the $400 minimum position).
+# Sizing context shared by the risk-sized sell tests (Phase 2, 2026-09-20). A $10K book, AAA at
+# an 8% stop. Severity is a fraction of the position's OWN open risk, so an un-clamped sell is
+# severity x market value (the legacy sizes) and risk_removed is severity x mv x 8%.
 SIZING = smith_ticket.sizing_context(10000.0, {"stop_loss_framework": {"risk_per_position_pct_of_book": 0.5}},
                                      {"AAA": 8.0})
 
@@ -81,10 +81,9 @@ class TestOverboughtDistribution:
         assert len(overbought) == 1
         row = overbought[0]
         assert row["direction"] == "TRIM" and row["over_cap_independent"] is True
-        # CHANGED 2026-09-20 (deliberately): was 25% of market value (=$250). Now
-        # 0.5R x $50 / 8% stop = $312.50 -- equal risk removed regardless of the name's volatility.
-        assert row["suggested_size_usd"] == 312.5 and row["sell_action"] == "trim"
-        assert row["severity_r"] == 0.5 and row["risk_removed_usd"] == 25.0
+        # Phase 2: 25% of the position's open risk = $250 = the legacy figure (un-clamped sells agree)
+        assert row["suggested_size_usd"] == 250.0 and row["sell_action"] == "trim"
+        assert row["severity_r"] == 0.25 and row["risk_removed_usd"] == 20.0
         assert row["legacy_size_usd"] == 250.0
         assert row["cluster_tension"] is False
 
@@ -179,8 +178,9 @@ class TestCatalystThreat:
         assert len(catalyst_threat) == 1
         row = catalyst_threat[0]
         assert row["direction"] == "TRIM" and row["over_cap_independent"] is True
-        # CHANGED 2026-09-20 (deliberately): was 20% of market value (=$200).
-        assert row["suggested_size_usd"] == 312.5 and row["legacy_size_usd"] == 200.0
+        # 20% of open risk = $200 = legacy; below the $250 floor on this $10K book, so demoted
+        assert row["suggested_size_usd"] == 200.0 and row["legacy_size_usd"] == 200.0
+        assert row["vote"] == "below_materiality"
 
     def test_no_catalyst_does_nothing(self, base):
         catalyst_threat = []
@@ -201,7 +201,7 @@ class TestCatalystThreat:
             status="intact", catalyst_threat=catalyst_threat, sizing=SIZING)
         assert len(catalyst_threat) == 1
         row = catalyst_threat[0]
-        assert row["suggested_size_usd"] == 312.5   # same as an un-carried threat: age never discounts
+        assert row["suggested_size_usd"] == 200.0   # same as an un-carried threat: age never discounts
         assert "carried forward, last confirmed 2026-09-07" in row["reasons"][0]
 
     def test_flags_tension_with_accumulate_rotation(self, base):
@@ -228,9 +228,8 @@ class TestThesisBreak:
         assert len(thesis_break) == 1
         row = thesis_break[0]
         assert row["direction"] == "TRIM" and row["evidence_verified"] == "primary"
-        # CHANGED 2026-09-20 (deliberately): was 40% of market value (=$400). 2R is
-        # $1,250 at this stop, more than the position -> clamped to a full exit.
-        assert row["suggested_size_usd"] == 1000.0 and row["sell_action"] == "full_exit"
+        # 40% of open risk = $400 = legacy; residual $600 clears the $400 minimum position
+        assert row["suggested_size_usd"] == 400.0 and row["sell_action"] == "trim"
         assert row["legacy_size_usd"] == 400.0
 
     def test_not_broken_does_nothing(self, base):
