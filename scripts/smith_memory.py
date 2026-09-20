@@ -903,7 +903,7 @@ def validate_learning_schema(base_dir):
         cur = (((store.get("parameters") or {}).get("phase4.readiness") or {}).get("current"))
         if cur is not None and cur != n:
             defects.append(f"LEARNING COUNTER: phase4.readiness.current is {cur} but {n} proposals "
-                           f"carry an outcome_verdict -- run `score` (it recounts) before trusting "
+                           f"carry a graded outcome_verdict (not needs_anchor_review/unscoreable/superseded) -- run `score` (it recounts) before trusting "
                            f"the Phase-4 gate.")
     except Exception:  # noqa: BLE001 -- a validator must not crash on an unreadable store
         pass

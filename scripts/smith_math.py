@@ -30,7 +30,7 @@ Per-run stages (all run by `pipeline`; invoke individually only to debug one):
   triggers    --base-dir DIR --run-dir DIR [--today ...]        oversold/overbought/ratchet triggers
 
 Stages the pipeline deliberately does NOT run (each needs something it cannot supply itself):
-  score       --base-dir DIR --prices-json P.json [--today ...] [--dry-run]
+  score       --base-dir DIR --prices-json P.json [--run-dir R] [--rebase-scorecard] [--today ...] [--dry-run]
               proposal outcome scoring, 30d/90d. Needs prices -> run with --prices-json /dev/null
               first and it will NAME the tickers it wants.
   stops       --base-dir DIR --prices-json P.json [--today ...] stop-loss efficacy; same price rule
@@ -3774,6 +3774,33 @@ def cmd_buckets(args):
     # writers for one artefact, which is how they drift.
     emit(out)
 
+def _bucket_expectancy_r(hr):
+    """Per-trade expectancy in R for one bucket hit-rate row: p * payoff - (1 - p).
+
+    payoff_ratio is None when the bucket has never lost; it then defaults to 1.0 (an honest
+    "unknown, assume symmetric") rather than infinity, so an unbeaten small-n bucket is not
+    ranked above a proven one."""
+    p = float(hr.get("hit_rate_pct") or 0.0) / 100.0
+    payoff = hr.get("payoff_ratio")
+    payoff = 1.0 if payoff is None else float(payoff)
+    return p * payoff - (1.0 - p)
+
+
+def worst_bullish_track_record(bullish, hit_rates_30d, hit_rates_7d):
+    """The LOWEST-expectancy bullish bucket with data, as a track_record dict (or None).
+
+    Prefers the validated 30d table; falls back to the interim 7d table only when no bullish
+    bucket has a 30d reading (same preference the reader always had). Ties resolve to the
+    smaller n, then the name, so the pick is deterministic."""
+    for table, interim in ((hit_rates_30d, False), (hit_rates_7d, True)):
+        cands = [(b, table[b]) for b in bullish if table.get(b) and table[b].get("n")]
+        if cands:
+            b, hr = min(cands, key=lambda c: (_bucket_expectancy_r(c[1]), c[1]["n"], c[0]))
+            return {"hit_rate_pct": hr["hit_rate_pct"], "n": hr["n"], "interim": interim,
+                    "payoff_ratio": hr.get("payoff_ratio")}   # None if never lost -- fine
+    return None
+
+
 def cmd_triggers(args):
     """Deterministic candidate generation for the seven non-ATR proposal triggers.
 
@@ -4090,21 +4117,13 @@ def cmd_triggers(args):
         simply the higher-confidence one when it has data, since it requires the full 30-day
         maturation window per VERDICT_THRESHOLD_PCT rather than the 7-day interim proxy. Falls
         back to 7d only when a bucket has no 30d-matured reading yet."""
-        tr = None
-        hit_rates_30d = journal.get("bucket_hit_rates", {})
-        hit_rates_7d = journal.get("bucket_hit_rates_7d", {})
         polarity = smith_risk.classify_signal_polarity(buckets)
-        for b in polarity["bullish"]:
-            hr30 = hit_rates_30d.get(b)
-            if hr30 and hr30.get("n"):
-                tr = {"hit_rate_pct": hr30["hit_rate_pct"], "n": hr30["n"], "interim": False,
-                     "payoff_ratio": hr30.get("payoff_ratio")}  # None if never lost yet -- fine
-                break
-            hr7 = hit_rates_7d.get(b)
-            if hr7 and hr7.get("n"):
-                tr = {"hit_rate_pct": hr7["hit_rate_pct"], "n": hr7["n"], "interim": True,
-                     "payoff_ratio": hr7.get("payoff_ratio")}
-                break
+        # WORST bullish bucket, not the first enumerated (2026-09-20). The loop used to `break`
+        # on the first bullish bucket with data, so a name carrying MOMENTUM+VOLUME (20% hit,
+        # n=15) alongside OVERSOLD BOUNCE (66.7%, n=3) got whichever the classifier listed first.
+        # A sizing multiplier should be conservative about a name's evidence.
+        tr = worst_bullish_track_record(polarity["bullish"], journal.get("bucket_hit_rates", {}),
+                                        journal.get("bucket_hit_rates_7d", {}))
         return tr
 
     def build_ctx(ticker, thesis_entry, buckets, price, rsi_val, rel_val, earnings_fact_ticker):
@@ -5088,6 +5107,13 @@ def main():
                     help='{"TICKER":price_usd} for tickers with a closed, unscored proposal. '
                          'Run with /dev/null first to have the tool NAME which tickers it needs.')
     sp.add_argument("--today", default=None)
+    sp.add_argument("--run-dir", default=None,
+                    help="optional: read the SMH benchmark price from RUN_DIR/market_inputs.json "
+                         "when --prices-json lacks it, so alpha grading is reachable")
+    sp.add_argument("--rebase-scorecard", action="store_true",
+                    help="one-time: permit the scored_count to shrink when a definitional fix "
+                         "explains it (superseded no longer scored, HOLD unscoreable); a larger "
+                         "drop is still refused as the empty-prices probe")
     sp.add_argument("--dry-run", action="store_true",
                     help="compute and print the scorecard without writing proposals.json")
 

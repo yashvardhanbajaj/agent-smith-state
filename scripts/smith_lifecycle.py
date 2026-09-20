@@ -1508,6 +1508,19 @@ def cmd_proposals(args):
           "stacking_warnings": sorted(stack_warnings,
                                       key=lambda w: -(w.get("combined_pct_of_position") or 0))})
 
+def idea_key(pr):
+    """(ticker, direction bucket, trigger type, month) -- what makes two proposals the SAME idea.
+
+    Added 2026-09-20. 88 scored rows were 43 distinct ideas (QCOM BUY x6, MU TRIM x5, DRAM TRIM
+    x5): the same idea is re-proposed each run until it works, so counting rows both inflated n
+    and biased the record negative. The month bucket means a restatement inside one calendar
+    month is one idea while a fresh call a month later is an independent observation. Used for
+    the aggregate denominator only; individual rows are still graded one by one."""
+    direction = pr.get("direction_bucket") or _proposal_direction(pr.get("action"))
+    return (pr.get("ticker"), direction, pr.get("trigger_type"),
+            str(pr.get("date") or "")[:IDEA_MONTH_PREFIX_LEN])
+
+
 def cmd_score(args):
     """Score past proposals on price outcome. The strategist's accountability loop.
 
@@ -1546,7 +1559,12 @@ def cmd_score(args):
         the record -- but the count of exclusions is reported so the omission is visible.
       * `superseded` proposals are excluded as individual rows (the surviving row carries the
         idea) but their `history` is not double-counted, mirroring the dedup rule in
-        cmd_proposals: one idea counts once.
+        cmd_proposals: one idea counts once. (Enforced only from 2026-09-20; until then the
+        code scored them and 88 rows were 43 ideas.) The scorecard reports n_rows AND n_ideas.
+      * `--run-dir` lets the SMH benchmark price come from that run's market_inputs.json, so
+        alpha grading does not depend on the caller remembering to fetch SMH.
+      * `--rebase-scorecard` permits the record to shrink ONCE, when a definitional fix (not a
+        missing-prices probe) legitimately lowers the count; see the guard below.
       * A HOLD with size_usd 0 still scores -- "do nothing" is a real call with a real outcome.
     """
     p_path = os.path.join(args.base_dir, "proposals.json")
@@ -1554,9 +1572,16 @@ def cmd_score(args):
     props = proposals.get("proposals", [])
     prices = load_json(args.prices_json, default={}) if args.prices_json else {}
     today = (resolve_today(args.today))
+    run_dir = getattr(args, "run_dir", None)
+    rebase = bool(getattr(args, "rebase_scorecard", False))
+    mi = load_json(os.path.join(run_dir, "market_inputs.json"), default={}) if run_dir else {}
+    bench_unpriced = set()   # benchmark tickers some row needed and nobody supplied
 
     # statuses that represent a real, closed recommendation worth grading
-    SCOREABLE = {"executed", "fulfilled", "filled", "auto_retired", "superseded", "deferred", "watch"}
+    # `superseded` is deliberately ABSENT (2026-09-20). This docstring always said superseded rows
+    # are excluded so one idea counts once, but the set contained it: 58 of 88 scored rows were
+    # superseded restatements, and 88 rows were only 43 distinct ideas.
+    SCOREABLE = {"executed", "fulfilled", "filled", "auto_retired", "deferred", "watch"}
     EXCLUDED = {"dismissed_by_user"}
     # A DESK withdrawal is excluded from ACCURACY too -- the trade never happened, so there is
     # no outcome to grade -- but it is counted and reported separately rather than folded into
@@ -1607,23 +1632,42 @@ def cmd_score(args):
         # framework doesn't fit any better than it fits profit_ratchet's stop management.
         bench_ticker = pr.get("benchmark_ticker") or "SMH"
         b0 = pr.get("benchmark_price_at_proposal")
+        # --prices-json wins; otherwise read SMH from the run's market_inputs.json, the same
+        # source smith_validity.build_context uses. Before 2026-09-20 the benchmark was never
+        # added to the "unpriced" list, so the sanctioned "probe with {} and it names what it
+        # needs" workflow structurally guaranteed SMH was never fetched: SMH appeared in zero
+        # score_prices.json files and alpha_scored_count sat at 0 of 88.
         bnow = prices.get(bench_ticker)
+        if bnow is None and bench_ticker == "SMH":
+            bnow = mi.get("smh")
         bench_move = None
-        scored_vs = "absolute (no benchmark anchor)"
-        if direction in ("BUY", "TRIM", "SELL") and b0 and bnow:
+        scored_vs = "absolute (no anchor)" if not b0 else "absolute (benchmark price not supplied)"
+        if b0 and bnow:
             bench_move = (bnow - b0) / b0 * 100.0
             scored_vs = f"alpha vs {bench_ticker}"
+        elif b0 and not bnow:
+            bench_unpriced.add(bench_ticker)
 
         # direction-aware: the same move is a win or a loss depending on what was advised
+        hold_unscoreable = False
         if direction == "BUY":
             signed = (move - bench_move) if bench_move is not None else move
         elif direction in ("TRIM", "SELL"):
             # a TRIM/SELL worked if the stock fell MORE than the benchmark -- avoiding a
             # drawdown worse than the market's own is the actual claim being graded
             signed = (bench_move - move) if bench_move is not None else -move
-        else:  # HOLD -- the claim is "no action needed", so small moves vindicate it
-            signed = VERDICT_THRESHOLD_PCT - abs(move)
-            scored_vs = "absolute (HOLD)"
+        else:  # HOLD -- "no action needed": worked unless it lagged the benchmark
+            # 2026-09-20: the old |move| < 2% rule was near-unwinnable here (0 for 10). A HOLD
+            # is vindicated if the name did not UNDERPERFORM its benchmark by more than
+            # HOLD_UNDERPERFORM_PCT. With no benchmark price for the row it is unscoreable --
+            # never graded on the absolute rule it was just retired for.
+            if bench_move is None:
+                hold_unscoreable = True
+                signed = 0.0
+                scored_vs = "unscoreable (HOLD needs a benchmark)"
+            else:
+                signed = move - bench_move
+                scored_vs = f"alpha vs {bench_ticker} (HOLD)"
         # ANCHOR PLAUSIBILITY GUARD (added 2026-08-15, first run of this scorer).
         # The very first scoring pass produced a "TRIM TSM missed by 39.4%" row off a
         # price_at_proposal of $305.87 dated 2026-07-14. TSM traded $386-$448 that week and
@@ -1639,8 +1683,12 @@ def cmd_score(args):
         # A benchmark anchor gets the same guard -- SMH itself does not move 60% in a quarter,
         # so an implausible bench_move means a corrupt benchmark_price_at_proposal, not a real
         # regime shift, and must not silently poison the alpha figure.
-        if abs(move) > ANCHOR_REVIEW_PCT or (bench_move is not None and abs(bench_move) > ANCHOR_REVIEW_PCT):
+        if hold_unscoreable:
+            verdict = "unscoreable"
+        elif abs(move) > ANCHOR_REVIEW_PCT or (bench_move is not None and abs(bench_move) > ANCHOR_REVIEW_PCT):
             verdict = "needs_anchor_review"
+        elif direction == "HOLD":
+            verdict = "missed" if signed < -HOLD_UNDERPERFORM_PCT else "worked"
         else:
             verdict = ("worked" if signed > VERDICT_THRESHOLD_PCT
                        else "missed" if signed < -VERDICT_THRESHOLD_PCT else "neutral")
@@ -1651,9 +1699,10 @@ def cmd_score(args):
                "scored_vs": scored_vs,
                "signed_benefit_pct": round(signed, 2), "verdict": verdict,
                "size_usd": pr.get("size_usd"),      # expectancy weights by capital asked for
+               "idea": "|".join(str(x) for x in idea_key(pr)),
                "window": "90d" if age >= 90 else "30d"}
         rows.append(row)
-        pr["outcome_pct"] = None if verdict == "needs_anchor_review" else round(signed, 2)
+        pr["outcome_pct"] = None if verdict in UNGRADED_VERDICTS else round(signed, 2)
         pr["outcome_verdict"] = verdict
         pr["outcome_window"] = row["window"]
         pr["outcome_scored_on"] = str(today)
@@ -1664,7 +1713,8 @@ def cmd_score(args):
             return None
         w = sum(1 for r in subset if r["verdict"] == "worked")
         m = sum(1 for r in subset if r["verdict"] == "missed")
-        out = {"n": n, "worked": w, "missed": m, "neutral": n - w - m,
+        out = {"n": n, "n_rows": n, "n_ideas": len({r["idea"] for r in subset}),
+               "worked": w, "missed": m, "neutral": n - w - m,
                "accuracy_pct": round(w / n * 100, 1),
                "avg_benefit_pct": round(sum(r["signed_benefit_pct"] for r in subset) / n, 2)}
         out.update(expectancy(subset))
@@ -1721,20 +1771,27 @@ def cmd_score(args):
         return out
 
     # quarantined rows are reported but never counted -- see the anchor guard above
-    graded = [r for r in rows if r["verdict"] != "needs_anchor_review"]
+    graded = [r for r in rows if r["verdict"] not in UNGRADED_VERDICTS]
     review = [r for r in rows if r["verdict"] == "needs_anchor_review"]
+    hold_unscored = [r for r in rows if r["verdict"] == "unscoreable"]
     trims = [r for r in graded if r["direction"] in ("TRIM", "SELL")]
     buys = [r for r in graded if r["direction"] == "BUY"]
     holds = [r for r in graded if r["direction"] == "HOLD"]
+    # HEADLINE excludes HOLD: it is a different kind of claim ("nothing needed doing") and its
+    # rule was retired as broken; it is still reported under by_direction.
+    headline = [r for r in graded if r["direction"] != "HOLD"]
     alpha_scored = [r for r in graded if r["scored_vs"].startswith("alpha vs")]
     scorecard = {
         "as_of": str(today),
         "trim_accuracy_30d": (agg(trims) or {}).get("accuracy_pct"),
         "add_accuracy_30d": (agg(buys) or {}).get("accuracy_pct"),
-        "overall_accuracy_30d": (agg(graded) or {}).get("accuracy_pct"),
+        "overall_accuracy_30d": (agg(headline) or {}).get("accuracy_pct"),
         "by_direction": {"TRIM/SELL": agg(trims), "BUY": agg(buys), "HOLD": agg(holds)},
-        "overall": agg(graded),
+        "overall": agg(headline),
         "scored_count": len(graded),
+        "n_rows": len(graded),
+        "n_ideas": len({r["idea"] for r in graded}),
+        "unscoreable_hold": len(hold_unscored),
         "alpha_scored_count": len(alpha_scored),
         "quarantined_anchor_review": len(review),
         "excluded_dismissed_by_user": excluded_n,
@@ -1742,13 +1799,19 @@ def cmd_score(args):
         "withdrawn_by_desk_detail": desk_withdrawn,
         "not_yet_30d": too_young,
         "note": ("Direction-aware: a TRIM 'worked' if the price FELL after it, a BUY if it ROSE, "
-                 "a HOLD if the move stayed inside the +/-%.1f%% noise band. Threshold shared with "
+                 "a HOLD if it did not lag its benchmark. The %.1f%% threshold is shared with "
                  "the journal scorer so 'worked' means the same magnitude in both. BUY/TRIM/SELL "
                  "are graded on ALPHA VS SMH when the proposal carries a benchmark anchor -- "
                  "%d of %d graded rows this run -- not the stock's raw move, so a trim that "
                  "'missed' only because the whole factor sold off together isn't scored as a "
                  "strategist error. dismissed_by_user proposals are excluded -- a user override "
-                 "is not a strategist error." % (VERDICT_THRESHOLD_PCT, len(alpha_scored), len(graded))),
+                 "is not a strategist error. n_rows counts graded proposals; n_ideas counts "
+                 "distinct (ticker, direction, trigger, month) ideas, because a restated idea is "
+                 "one idea, not several -- superseded restatements are not scored. HOLD is "
+                 "graded on alpha (worked unless it lagged its benchmark by more than %.1f%%), "
+                 "is unscoreable without a benchmark price, and is EXCLUDED from the headline "
+                 "accuracy/expectancy (`overall`, `overall_accuracy_30d`); see by_direction.HOLD."
+                 % (VERDICT_THRESHOLD_PCT, len(alpha_scored), len(graded), HOLD_UNDERPERFORM_PCT)),
     }
     # REFUSE TO SHRINK THE RECORD (added 2026-08-30, found live).
     #
@@ -1765,19 +1828,57 @@ def cmd_score(args):
     # was learned once, for one subcommand, and never generalised to its sibling -- which is how
     # a documented, sanctioned procedure became a landmine.
     prior = (proposals.get("scorecard") or {}).get("scored_count")
+    rebase_note = None
     if prior and len(graded) < prior:
-        emit({"refused": True, "reason": (
-                  f"scoring produced {len(graded)} graded rows against {prior} already on record "
-                  f"-- refusing to shrink the scorecard. This is almost always the empty-prices "
-                  f"probe: supply the tickers named in needs_prices and re-run."),
-              "needs_prices": sorted(unpriced),
-              "scorecard_preserved": proposals.get("scorecard", {}).get("as_of"),
-              "prior_scored_count": prior, "would_have_written": len(graded)})
-        return
+        # REBASE (2026-09-20). Dropping `superseded` from SCOREABLE and retiring the absolute
+        # HOLD rule legitimately lowers the count (88 -> ~43). The guard must not be weakened --
+        # it exists to catch the empty-prices probe -- so `--rebase-scorecard` permits the shrink
+        # only up to what those definitional fixes EXPLAIN: superseded rows that used to carry a
+        # verdict, plus HOLD rows that are now unscoreable. Any larger drop is still the probe
+        # landmine (rows lost to missing prices) and is refused even with the flag.
+        explained = (sum(1 for pr in props if pr.get("status") == "superseded"
+                         and pr.get("outcome_verdict") and pr.get("outcome_verdict") not in UNGRADED_VERDICTS)
+                     + len(hold_unscored))
+        if rebase and len(graded) >= prior - explained:
+            rebase_note = {"from_scored_count": prior, "to_scored_count": len(graded),
+                           "rebased_on": str(today),
+                           "explained_by": {"superseded_no_longer_scored": explained - len(hold_unscored),
+                                            "hold_now_unscoreable": len(hold_unscored)}}
+        else:
+            emit({"refused": True, "reason": (
+                      f"scoring produced {len(graded)} graded rows against {prior} already on record "
+                      f"-- refusing to shrink the scorecard. This is almost always the empty-prices "
+                      f"probe: supply the tickers named in needs_prices and re-run."
+                      + (f" --rebase-scorecard was given but only {explained} rows of the "
+                         f"{prior - len(graded)}-row drop are explained by the definitional change "
+                         f"(superseded no longer scored, HOLD unscoreable); the rest is missing "
+                         f"prices." if rebase else "")),
+                  "needs_prices": sorted(set(unpriced) | bench_unpriced),
+                  "scorecard_preserved": proposals.get("scorecard", {}).get("as_of"),
+                  "prior_scored_count": prior, "would_have_written": len(graded)})
+            return
+    elif (proposals.get("scorecard") or {}).get("rebase"):
+        scorecard["rebase"] = proposals["scorecard"]["rebase"]   # the provenance outlives the run
 
+    if rebase_note:
+        scorecard["rebase"] = rebase_note
     proposals["scorecard"] = scorecard
 
     dq = []
+    if rebase_note:
+        dq.append(f"SCORECARD REBASED {rebase_note['from_scored_count']} -> "
+                  f"{rebase_note['to_scored_count']} graded rows (one-time, --rebase-scorecard). "
+                  f"The drop is a DEFINITIONAL correction, not lost data: "
+                  f"{rebase_note['explained_by']['superseded_no_longer_scored']} superseded "
+                  f"restatement(s) are no longer scored as separate rows (cmd_score's own "
+                  f"docstring always said one idea counts once; the code contradicted it), and "
+                  f"{rebase_note['explained_by']['hold_now_unscoreable']} HOLD row(s) with no "
+                  f"benchmark anchor are now unscoreable instead of graded on the retired "
+                  f"absolute rule. Accuracy/expectancy before and after are NOT comparable.")
+    if bench_unpriced:
+        dq.append(f"benchmark price not supplied for {', '.join(sorted(bench_unpriced))}: rows "
+                  f"with a benchmark anchor fell back to absolute grading. Pass --run-dir (reads "
+                  f"SMH from market_inputs.json) or add the ticker to --prices-json.")
     if unpriced:
         u = sorted(set(unpriced))
         dq.append(f"{len(u)} ticker(s) had no price supplied and stay unscored until a later run "
@@ -1785,14 +1886,30 @@ def cmd_score(args):
                   f"{'...' if len(u) > 12 else ''}")
     if too_young:
         dq.append(f"{too_young} proposal(s) are under 30 days old -- not yet in the scoring window.")
-    absolute_fallback = [r for r in graded if r["direction"] in ("BUY", "TRIM", "SELL")
-                         and r["scored_vs"] == "absolute (no benchmark anchor)"]
-    if absolute_fallback:
-        dq.append(f"{len(absolute_fallback)} BUY/TRIM/SELL row(s) graded on absolute move, not "
-                  f"alpha vs SMH -- no benchmark_price_at_proposal on the proposal (pre-2026-09-07 "
-                  f"history, or a caller that omitted it): "
-                  + ", ".join(r["id"] for r in absolute_fallback[:12])
-                  + ("..." if len(absolute_fallback) > 12 else "") + ".")
+    # Two different causes that used to share one message, blaming the proposal for what is
+    # usually a missing fetch: the ANCHOR is missing (a proposal property) vs the benchmark PRICE
+    # is missing (a caller property).
+    no_anchor = [r for r in graded if r["direction"] in ("BUY", "TRIM", "SELL")
+                 and r["scored_vs"] == "absolute (no anchor)"]
+    no_bench_price = [r for r in graded if r["direction"] in ("BUY", "TRIM", "SELL")
+                      and r["scored_vs"] == "absolute (benchmark price not supplied)"]
+    if no_anchor:
+        dq.append(f"{len(no_anchor)} BUY/TRIM/SELL row(s) graded on absolute move, not alpha -- "
+                  f"no benchmark_price_at_proposal on the proposal (pre-2026-09-07 history, or a "
+                  f"caller that omitted it): "
+                  + ", ".join(r["id"] for r in no_anchor[:12])
+                  + ("..." if len(no_anchor) > 12 else "") + ".")
+    if no_bench_price:
+        dq.append(f"{len(no_bench_price)} BUY/TRIM/SELL row(s) carry a benchmark anchor but the "
+                  f"benchmark's CURRENT price was not supplied, so they fell back to absolute "
+                  f"grading (a fetch gap, not a proposal defect): "
+                  + ", ".join(r["id"] for r in no_bench_price[:12])
+                  + ("..." if len(no_bench_price) > 12 else "") + ".")
+    if hold_unscored:
+        dq.append(f"{len(hold_unscored)} HOLD row(s) unscoreable -- HOLD is graded on alpha and "
+                  f"these have no benchmark anchor or no benchmark price: "
+                  + ", ".join(r["id"] for r in hold_unscored[:12])
+                  + ("..." if len(hold_unscored) > 12 else "") + ".")
     if review:
         dq.append("QUARANTINED pending anchor review, excluded from the scorecard: "
                   + "; ".join(f"{r['id']} {r['direction']} {r['ticker']} implies {r['move_pct']:+.1f}% "
@@ -1813,7 +1930,8 @@ def cmd_score(args):
         except Exception as e:  # noqa: BLE001 -- a counter must never fail scoring
             dq.append(f"phase4.readiness not updated: {type(e).__name__}: {e}")
 
-    emit({"scored_count": len(rows), "scorecard": scorecard, "rows": rows,
+    emit({"scored_count": len(rows), "needs_prices": sorted(set(unpriced) | bench_unpriced),
+          "scorecard": scorecard, "rows": rows,
           "written": (not args.dry_run) and p_path or None, "data_quality": dq})
 
 # ---------------------------------------------------------------------------

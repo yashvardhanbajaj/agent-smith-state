@@ -93,6 +93,25 @@ VERDICT_THRESHOLD_PCT = 2.0  # move must exceed this to call worked/failed vs ne
 
 ANCHOR_REVIEW_PCT = 35.0  # |move| beyond this quarantines a proposal score pending anchor review
 
+# IDEA DE-DUPLICATION WINDOW (2026-09-20). An idea is restated every run it has not yet worked, so
+# scoring every restatement counts one idea several times AND biases the record negative (the
+# restatements are exactly the ideas that had not worked yet). 88 scored rows were only 43
+# distinct ideas -- QCOM BUY six times, MU TRIM five. The month bucket is the length of the
+# ISO-date prefix ("2026-09"): the same (ticker, direction, trigger) restated inside one calendar
+# month is one idea; a fresh thesis a month later is a new, independent observation.
+IDEA_MONTH_PREFIX_LEN = 7
+
+# A HOLD's verdict is ALPHA-relative (2026-09-20): it worked unless the name UNDERPERFORMED its
+# benchmark by more than this. The old rule (|30d move| < 2%) is near-unwinnable on a book whose
+# names routinely move 10%+ a month -- it scored 0 for 10, a broken metric rather than a desk
+# failure. Reuses the shared verdict threshold so "worked/missed" means one magnitude everywhere.
+HOLD_UNDERPERFORM_PCT = VERDICT_THRESHOLD_PCT
+
+# Verdicts that a proposal may carry but that are NOT a graded outcome. Shared by the scorecard
+# and the phase-4 readiness counter so the two cannot disagree about what "scored" means (the
+# counter read 94 against a real 88 because it counted quarantined anchors as scored).
+UNGRADED_VERDICTS = frozenset({"needs_anchor_review", "unscoreable"})
+
 # ---------------------------------------------------------------------------
 # Trigger thresholds (added 2026-08-12, user-reported: "still most of the proposals are based
 # on ATR risk-cap... I prefer oversold/overbought proposals to catch a bounce back for the good

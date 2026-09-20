@@ -35,7 +35,7 @@ overwritten, only shadowed by `current` in the parameter record.
 import os
 from datetime import date, datetime
 
-from smith_core import load_json, emit, fail, safe_write, desk_today
+from smith_core import load_json, emit, fail, safe_write, desk_today, UNGRADED_VERDICTS
 from smith_lifecycle import _proposal_parse_date  # `import *` skips underscore names
 
 STORE_FILENAME = "learning.json"
@@ -69,12 +69,20 @@ def canonical_agent(agent):
 
 
 def scored_proposal_counts(base_dir):
-    """Distinct proposals carrying an outcome verdict, across the hot file and the archive."""
+    """Distinct proposals carrying a GRADED outcome verdict, across the hot file and the archive.
+
+    Deflated 2026-09-20: it counted any truthy verdict, including the 6 `needs_anchor_review`
+    rows (quarantined, excluded from the scorecard), so phase4.readiness read 94 against a real
+    88. It now excludes UNGRADED_VERDICTS and `superseded` rows (a restatement is not a separate
+    observation; cmd_score stopped scoring them the same day, but older ones keep a stale
+    verdict), so the counter agrees with the scorecard's own scored_count."""
     seen = {}
     for name in ("proposals.json", "proposals-archive.json"):
         store = load_json(os.path.join(base_dir, name), default={}) or {}
         for p in store.get("proposals") or []:
-            if isinstance(p, dict) and p.get("outcome_verdict") and p.get("id"):
+            if (isinstance(p, dict) and p.get("outcome_verdict") and p.get("id")
+                    and p["outcome_verdict"] not in UNGRADED_VERDICTS
+                    and p.get("status") != "superseded"):
                 seen.setdefault(p["id"], p["outcome_verdict"])
     verdicts = list(seen.values())
     return {"scored": len(verdicts), "worked": verdicts.count("worked"),
