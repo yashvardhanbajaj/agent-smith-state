@@ -4216,7 +4216,7 @@ def _apply_heat_budget(fams, pair_fams, sell_fams, risk, drift, policy, corr, to
                           "sell_cluster": scl, "sell_is_ai": scl in ai_clusters})
             index[cid] = ("pair", row)
 
-    # ---- credit: live, above-materiality standalone sells (they will actually execute) ---------
+    # ---- credit: standalone sells -- OFF by default, a proposed sell has not freed anything -------
     # Per ticker, never more than the risk the position actually carries: two sell rows on one name
     # (a catalyst trim AND a rotation's sell leg) cannot free more than R_open between them.
     ropen_by = {p["ticker"]: (p.get("position_open_risk_usd") or 0.0) for p in positions}
@@ -4235,6 +4235,9 @@ def _apply_heat_budget(fams, pair_fams, sell_fams, risk, drift, policy, corr, to
                 credit_rows.append(f"{fam}:{row.get('ticker')}")
     credit = sum(min(v, max(0.0, ropen_by.get(t, 0.0) - pair_freed_by.get(t, 0.0)))
                  for t, v in sold_by.items())
+    if not STANDALONE_SELL_CREDIT_ENABLED:
+        # see smith_core.STANDALONE_SELL_CREDIT_ENABLED: a proposed sell has not freed anything yet
+        credit, credit_rows = 0.0, []
 
     # ---- static rooms: single position, AI capex, cluster risk -----------------------------------
     rooms = {"single_position_usd": {}, "ai_capex_usd": None, "cluster_risk_usd": {}}
@@ -5034,7 +5037,7 @@ def cmd_triggers(args):
                                              "smith_ticket.allocation_priority; a partial fit is sized to the remaining room only if it "
                                              "still clears materiality, else the ticket is DEFERRED (vote 'deferred', never dropped)",
                                "over_cap": "H > H_eff_max -> zero new net-risk buys; sells and net<=0 rotations still emit; no sell credit is taken",
-                               "sell_credit": "live above-materiality standalone sells raise the run's budget; below_materiality / shadow / deferred never do",
+                               "sell_credit": "OFF: a proposed standalone sell has not freed anything (STANDALONE_SELL_CREDIT_ENABLED); only a rotation's own sell leg offsets its own buy",
                                "static_clamps": ["single_position", "ai_capex", "cluster_risk_budget"]},
                            "legacy_fractions_for_one_release": {k: round(v, 4) for k, v in LEGACY_SELL_FRACTION.items()},
                        }},

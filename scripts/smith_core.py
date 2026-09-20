@@ -723,6 +723,15 @@ TRIM_TO_EXIT_FRACTION = 0.60
 # correlation case, so even a fully correlated book is being held against the conservative number;
 # the correlation term only decides how much of the cap it is safe to actually fill. 0.70 is the
 # plan's figure, unconfirmed (policy.heat_budget.confirmed is false until the user signs it).
+# A proposed standalone sell is NOT a sold position. The user decided 2026-09-20 that acceptance is
+# agreement with the reasoning at that time, never an order -- and a proposal that has not even been
+# accepted is weaker still. Crediting it against the heat budget lets buys spend risk that has not
+# actually been freed, which is the opposite of what a gate meant to stop overdraw should do (policy
+# records the 10% cap breached at 11.9% and 13.0% while sizing continued). A rotation's own legs are
+# still netted against each other, because they are proposed as one unit; only sells that stand alone
+# are excluded. Live effect when this was on: $134.52 of a $1,132.96 budget.
+STANDALONE_SELL_CREDIT_ENABLED = False
+
 HEAT_FLOOR_AT_FULL_CORRELATION = 0.70
 # A correlation estimate older than this is not "measured" for today's book: the estimate is a
 # 250-session window that barely moves in a week, so a week is generous -- past it the price feed

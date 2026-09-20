@@ -66,7 +66,7 @@
         "unmeasured_correlation": "rho treated as 1.0 (conservative bound), never as 0",
         "allocation": "pairs first (net = buy risk - the risk their own sell frees), then singles greedily by smith_ticket.allocation_priority; a partial fit is sized to the remaining room only if it still clears materiality, else the ticket is DEFERRED (vote 'deferred', never dropped)",
         "over_cap": "H > H_eff_max -> zero new net-risk buys; sells and net<=0 rotations still emit; no sell credit is taken",
-        "sell_credit": "live above-materiality standalone sells raise the run's budget; below_materiality / shadow / deferred never do",
+        "sell_credit": "OFF: a proposed standalone sell has not freed anything (STANDALONE_SELL_CREDIT_ENABLED); only a rotation's own sell leg offsets its own buy",
         "static_clamps": [
           "single_position",
           "ai_capex",
@@ -140,17 +140,11 @@
       "age_days": 2,
       "reason": null
     },
-    "sell_credit_usd": 134.52,
-    "sell_credit_from": [
-      "catalyst_threat:ASML",
-      "catalyst_threat:MU",
-      "catalyst_threat:TER",
-      "catalyst_threat:AMAT",
-      "catalyst_threat:GLW"
-    ],
-    "r_available_usd": 1132.96,
-    "r_remaining_after_allocation_usd": 959.21,
-    "book_heat_after_allocation_usd": 2783.21,
+    "sell_credit_usd": 0.0,
+    "sell_credit_from": [],
+    "r_available_usd": 998.44,
+    "r_remaining_after_allocation_usd": 824.69,
+    "book_heat_after_allocation_usd": 2917.73,
     "ordering_key": "smith_ticket.allocation_priority (conviction_score desc; Phase 4 swaps in EV per marginal risk)",
     "allocated": [
       {
@@ -622,9 +616,9 @@
       ],
       "blockers": [],
       "risk_usd": 44.23,
-      "book_heat_before_usd": 2590.44,
-      "book_heat_after_usd": 2634.67,
-      "heat_room_remaining_usd": 1107.75,
+      "book_heat_before_usd": 2724.96,
+      "book_heat_after_usd": 2769.19,
+      "heat_room_remaining_usd": 973.23,
       "heat_status": "fit",
       "materiality": {
         "ok": true,
@@ -662,9 +656,9 @@
       ],
       "blockers": [],
       "risk_usd": 39.55,
-      "book_heat_before_usd": 2674.22,
-      "book_heat_after_usd": 2713.77,
-      "heat_room_remaining_usd": 1028.65,
+      "book_heat_before_usd": 2808.74,
+      "book_heat_after_usd": 2848.29,
+      "heat_room_remaining_usd": 894.13,
       "heat_status": "fit",
       "learned_stop": {
         "atr_multiple": 2.249,
@@ -715,9 +709,9 @@
       ],
       "blockers": [],
       "risk_usd": 39.55,
-      "book_heat_before_usd": 2634.67,
-      "book_heat_after_usd": 2674.22,
-      "heat_room_remaining_usd": 1068.2,
+      "book_heat_before_usd": 2769.19,
+      "book_heat_after_usd": 2808.74,
+      "heat_room_remaining_usd": 933.68,
       "heat_status": "fit",
       "learned_stop": {
         "atr_multiple": 2.249,
@@ -764,9 +758,9 @@
       ],
       "blockers": [],
       "risk_usd": 35.45,
-      "book_heat_before_usd": 2713.77,
-      "book_heat_after_usd": 2749.22,
-      "heat_room_remaining_usd": 993.2,
+      "book_heat_before_usd": 2848.29,
+      "book_heat_after_usd": 2883.74,
+      "heat_room_remaining_usd": 858.68,
       "heat_status": "fit",
       "learned_stop": {
         "atr_multiple": 2.249,
@@ -815,9 +809,9 @@
         "below the materiality floor (advisory for single-leg buys): $248.05 vs $250.00 (min_ticket_usd); vote unchanged -- buys are annotated, not demoted, until the floors are confirmed"
       ],
       "risk_usd": 33.98,
-      "book_heat_before_usd": 2749.22,
-      "book_heat_after_usd": 2783.21,
-      "heat_room_remaining_usd": 959.21,
+      "book_heat_before_usd": 2883.74,
+      "book_heat_after_usd": 2917.73,
+      "heat_room_remaining_usd": 824.69,
       "heat_status": "fit",
       "materiality": {
         "ok": false,
@@ -1020,9 +1014,9 @@
           "shortfall_usd": 0.0
         },
         "risk_usd": 39.55,
-        "book_heat_before_usd": 2609.46,
-        "book_heat_after_usd": 2596.73,
-        "heat_room_remaining_usd": 1145.69,
+        "book_heat_before_usd": 2743.98,
+        "book_heat_after_usd": 2731.25,
+        "heat_room_remaining_usd": 1011.17,
         "heat_status": "fit"
       },
       "rotation_risk": {
@@ -1085,9 +1079,9 @@
           "shortfall_usd": 0.0
         },
         "risk_usd": 35.45,
-        "book_heat_before_usd": 2596.73,
-        "book_heat_after_usd": 2590.44,
-        "heat_room_remaining_usd": 1151.98,
+        "book_heat_before_usd": 2731.25,
+        "book_heat_after_usd": 2724.96,
+        "heat_room_remaining_usd": 1017.46,
         "heat_status": "fit"
       },
       "rotation_risk": {
@@ -1220,9 +1214,9 @@
           "shortfall_usd": 0.0
         },
         "risk_usd": 50.87,
-        "book_heat_before_usd": 2590.44,
-        "book_heat_after_usd": 2590.44,
-        "heat_room_remaining_usd": 1151.98,
+        "book_heat_before_usd": 2724.96,
+        "book_heat_after_usd": 2724.96,
+        "heat_room_remaining_usd": 1017.46,
         "heat_status": "fit"
       },
       "rotation_risk": {
@@ -1366,9 +1360,9 @@
           "shortfall_usd": 0.0
         },
         "risk_usd": 45.39,
-        "book_heat_before_usd": 2609.46,
-        "book_heat_after_usd": 2609.46,
-        "heat_room_remaining_usd": 1132.96,
+        "book_heat_before_usd": 2743.98,
+        "book_heat_after_usd": 2743.98,
+        "heat_room_remaining_usd": 998.44,
         "heat_status": "fit"
       },
       "rotation_risk": {
@@ -1436,9 +1430,9 @@
           "shortfall_usd": 0.0
         },
         "risk_usd": 49.26,
-        "book_heat_before_usd": 2609.46,
-        "book_heat_after_usd": 2609.46,
-        "heat_room_remaining_usd": 1132.96,
+        "book_heat_before_usd": 2743.98,
+        "book_heat_after_usd": 2743.98,
+        "heat_room_remaining_usd": 998.44,
         "heat_status": "fit"
       },
       "rotation_risk": {

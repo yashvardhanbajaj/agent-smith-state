@@ -444,7 +444,18 @@ class TestAdapter:
         assert pr["vote"] == "live" and pr["buy_leg"]["suggested_size_usd"] == 800.0
         assert buy["vote"] == "deferred"
 
-    def test_below_materiality_and_shadow_sells_do_not_free_heat(self):
+    def test_a_proposed_standalone_sell_frees_no_heat_by_default(self):
+        """A proposed sell has not freed anything: the user decided 2026-09-20 that even an accepted
+        proposal is agreement, never an order. Crediting it lets buys spend risk that was never freed."""
+        assert smith_core.STANDALONE_SELL_CREDIT_ENABLED is False
+        rows = {"catalyst_threat": [_sell("catalyst_threat", "SELL1", 90.0)]}
+        block, _ = _run(sells=rows, positions=[{"ticker": "SELL1", "position_open_risk_usd": 120.0, "cluster": "X"}],
+                        stops=STOPS)
+        assert block["sell_credit_usd"] == 0.0 and block["sell_credit_from"] == []
+
+    def test_below_materiality_and_shadow_sells_do_not_free_heat(self, monkeypatch):
+        # these exercise the credit MECHANISM, which is off by default (see the default-off test)
+        monkeypatch.setattr(smith_math, "STANDALONE_SELL_CREDIT_ENABLED", True)
         # R_free is ~$0 here; one live sell would free $100, two junk sells claim $500 each
         h = 3742.42
         live = _sell("catalyst_threat", "SELL1", 100.0)
@@ -474,7 +485,9 @@ class TestAdapter:
         assert pr["vote"] == "below_materiality" and pr["buy_leg"]["heat_status"].startswith("not_allocated")
         assert block["allocated"] == [] and block["deferred"] == []
 
-    def test_credit_per_ticker_is_capped_at_the_position_own_open_risk(self):
+    def test_credit_per_ticker_is_capped_at_the_position_own_open_risk(self, monkeypatch):
+        # these exercise the credit MECHANISM, which is off by default (see the default-off test)
+        monkeypatch.setattr(smith_math, "STANDALONE_SELL_CREDIT_ENABLED", True)
         # two live sell rows on one name cannot free more than the position carries
         rows = {"catalyst_threat": [_sell("catalyst_threat", "SELL1", 90.0)],
                 "overbought_distribution": [_sell("overbought_distribution", "SELL1", 90.0)]}
