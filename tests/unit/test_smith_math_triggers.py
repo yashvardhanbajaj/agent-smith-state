@@ -408,6 +408,13 @@ class TestConvictionAverageEmitsStop:
 # L. entry_setup (watchlist scan)
 # ---------------------------------------------------------------------------
 
+def bar_ok(ticker="ZZZ", price=50.0, atr=8.0, state=None):
+    """Universe-bar inputs for a name that HAS this run's price, ATR and computed indicators."""
+    return {"prices": {ticker: {"price": price, "source": "live_quotes.json"}},
+            "atr_this_run": {ticker: atr}, "rsi_this_run": {ticker}, "computed": {ticker},
+            "state": state or {}}
+
+
 class TestEntrySetupScan:
     def _track_record_for(self, buckets):
         return None
@@ -427,14 +434,14 @@ class TestEntrySetupScan:
         assert any("no live ATR" in b for b in entry_setup[0]["blockers"])
         assert any("no price_usd" in b for b in entry_setup[0]["blockers"])
 
-    def _scan(self, row, thesis, atr=8.0, deployable=10000.0, mentions=0):
+    def _scan(self, row, thesis, atr=8.0, deployable=10000.0, mentions=0, bar=True):
         entry_setup = []
         smith_math._trigger_entry_setup_scan(
             [row], risk_by_ticker={}, state={}, signal_history={}, thesis=thesis,
             factor_catalysts=[], earnings_facts={}, mention_counts={"ZZZ": mentions},
             track_record_for=self._track_record_for, atr_vals={"ZZZ": atr} if atr else {},
             sector_map={}, entry_setup=entry_setup, total_book=100000.0, policy=POLICY,
-            deployable_for_ideas=deployable)
+            deployable_for_ideas=deployable, bar_inputs=bar_ok() if bar else None)
         assert len(entry_setup) == 1
         return entry_setup[0]
 
@@ -460,13 +467,14 @@ class TestEntrySetupScan:
         # IONQ's live 2026-09-20 shape: +43.5% target upside, pos 0.23, no thesis entry.
         row = self._scan({**self.ROW, "upside_pct": 43.5, "pos": 0.23}, {}, mentions=1)
         assert row["vote"] == "shadow"
-        assert any("no state.thesis entry" in b for b in row["blockers"])
+        assert any("no thesis entry for ZZZ" in b for b in row["blockers"])
         assert row["suggested_size_usd"] is not None  # still sized, so the shadow is scorable
 
     def test_missing_price_keeps_size_none_with_blocker(self):
-        row = self._scan({**self.ROW, "price_usd": None}, {"ZZZ": "strengthening thesis|strengthening"})
-        assert row["suggested_size_usd"] is None and row["vote"] == "live"
+        row = self._scan({**self.ROW, "price_usd": None}, {"ZZZ": "strengthening thesis|strengthening"}, bar=False)
+        assert row["suggested_size_usd"] is None
         assert any("price_usd" in b for b in row["blockers"])
+        assert row["vote"] == "shadow" and "no_live_price" in row["universe_bar"]["failed"]
 
     def test_already_held_ticker_is_skipped(self):
         entry_setup = []

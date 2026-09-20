@@ -339,6 +339,9 @@ class TestEndToEnd:
                 {"mean_target_usd": target, "as_of": "2026-09-01"} if target else {})
             json.dump(st, open(dst / "base" / "state.json", "w"))
             json.dump({"CORZ": {"price": 15.25}}, open(dst / "rundir" / "live_quotes.json", "w"))
+            # Phase 6 universe bar: an unheld name needs an ATR/RSI computed from THIS run's bars
+            json.dump({"atr20_pct": {"CORZ": 7.0}, "rsi14": {"CORZ": 40.0}},
+                      open(dst / "rundir" / "compute_indicators.json", "w"))
             json.dump({"as_of": "2026-09-01", "window": {"to": "2026-08-28"},
                        "stop_risk": {"avg_pairwise_correlation": 0.0}},
                       open(dst / "rundir" / "compute_correlation.json", "w"))

@@ -1704,8 +1704,31 @@
       ],
       "blockers": [
         "no price_usd on IONQ's watchlist setup row and none in live_quotes.json/bars.json -- sizing needs a fetched price",
-        "no state.thesis entry for IONQ -- entry_setup may not vote live on valuation + RSI alone; smith-thesis must examine it first"
+        "universe bar: no price for IONQ fetched this run (live_quotes.json / bars.json) -- a setup-row price or an old exit fill is not a live price",
+        "universe bar: no ATR for IONQ computed from this run's bars (compute_indicators.json) -- the cached value's date does not vouch for the name",
+        "universe bar: no verified or computed source for IONQ -- unverified/reported claims alone do not clear the G58 evidence gate",
+        "universe bar: no thesis entry for IONQ and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
       ],
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_live_price",
+          "no_atr_this_run",
+          "no_verified_or_computed_source",
+          "no_thesis"
+        ],
+        "checks": {
+          "price": null,
+          "price_source": null,
+          "atr_pct": null,
+          "sources": [
+            "price_action:unverified",
+            "valuation:reported",
+            "agent_corroboration:unverified"
+          ],
+          "thesis": null
+        }
+      },
       "risk_usd": null,
       "heat_status": "not_allocated (shadow)"
     },
@@ -1734,8 +1757,31 @@
       ],
       "blockers": [
         "no price_usd on QBTS's watchlist setup row and none in live_quotes.json/bars.json -- sizing needs a fetched price",
-        "no state.thesis entry for QBTS -- entry_setup may not vote live on valuation + RSI alone; smith-thesis must examine it first"
+        "universe bar: no price for QBTS fetched this run (live_quotes.json / bars.json) -- a setup-row price or an old exit fill is not a live price",
+        "universe bar: no ATR for QBTS computed from this run's bars (compute_indicators.json) -- the cached value's date does not vouch for the name",
+        "universe bar: no verified or computed source for QBTS -- unverified/reported claims alone do not clear the G58 evidence gate",
+        "universe bar: no thesis entry for QBTS and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
       ],
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_live_price",
+          "no_atr_this_run",
+          "no_verified_or_computed_source",
+          "no_thesis"
+        ],
+        "checks": {
+          "price": null,
+          "price_source": null,
+          "atr_pct": null,
+          "sources": [
+            "price_action:unverified",
+            "valuation:reported",
+            "agent_corroboration:unverified"
+          ],
+          "thesis": null
+        }
+      },
       "risk_usd": null,
       "heat_status": "not_allocated (shadow)"
     },
@@ -1765,8 +1811,31 @@
       "blockers": [
         "no live ATR for RGTI this run -- setup valid, sizing needs a fetch",
         "no price_usd on RGTI's watchlist setup row and none in live_quotes.json/bars.json -- sizing needs a fetched price",
-        "no state.thesis entry for RGTI -- entry_setup may not vote live on valuation + RSI alone; smith-thesis must examine it first"
+        "universe bar: no price for RGTI fetched this run (live_quotes.json / bars.json) -- a setup-row price or an old exit fill is not a live price",
+        "universe bar: no ATR for RGTI computed from this run's bars (compute_indicators.json) -- the cached value's date does not vouch for the name",
+        "universe bar: no verified or computed source for RGTI -- unverified/reported claims alone do not clear the G58 evidence gate",
+        "universe bar: no thesis entry for RGTI and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
       ],
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_live_price",
+          "no_atr_this_run",
+          "no_verified_or_computed_source",
+          "no_thesis"
+        ],
+        "checks": {
+          "price": null,
+          "price_source": null,
+          "atr_pct": null,
+          "sources": [
+            "price_action:unverified",
+            "valuation:reported",
+            "agent_corroboration:unverified"
+          ],
+          "thesis": null
+        }
+      },
       "risk_usd": null,
       "heat_status": "not_allocated (shadow)"
     },
@@ -1796,14 +1865,515 @@
       ],
       "blockers": [
         "no price_usd on BABA's watchlist setup row and none in live_quotes.json/bars.json -- sizing needs a fetched price",
-        "no state.thesis entry for BABA -- entry_setup may not vote live on valuation + RSI alone; smith-thesis must examine it first"
+        "universe bar: no price for BABA fetched this run (live_quotes.json / bars.json) -- a setup-row price or an old exit fill is not a live price",
+        "universe bar: no ATR for BABA computed from this run's bars (compute_indicators.json) -- the cached value's date does not vouch for the name",
+        "universe bar: no thesis entry for BABA and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
       ],
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_live_price",
+          "no_atr_this_run",
+          "no_thesis"
+        ],
+        "checks": {
+          "price": null,
+          "price_source": null,
+          "atr_pct": null,
+          "sources": [
+            "price_action:unverified",
+            "valuation:reported",
+            "earnings:verified",
+            "agent_corroboration:unverified"
+          ],
+          "thesis": null
+        }
+      },
       "risk_usd": null,
       "heat_status": "not_allocated (shadow)"
     }
   ],
-  "reentry": [],
+  "reentry": [
+    {
+      "ticker": "NVDA",
+      "cluster": null,
+      "thesis_status": "strengthening",
+      "exited_on": "2026-09-10",
+      "price_usd": 210.23,
+      "trigger_type": "reentry",
+      "direction": "BUY",
+      "vote": "shadow",
+      "conviction_score": 30.7,
+      "conviction_tier": "low",
+      "size_wanted_usd": 522.72,
+      "suggested_size_usd": 522.72,
+      "clamped_by": null,
+      "stop_price_usd": 191.8979,
+      "retires_when": "NVDA's thesis leaves intact/strengthening",
+      "reasons": [
+        "exited 2026-09-10 at $210.23",
+        "thesis strengthening CARRIED FROM EXIT (stale, x0.5; last reviewed 2026-09-10, exited 2026-09-10, from exited-holdings-archive.json) -- not re-examined since the exit",
+        "signal polarity net +1 (STRONG UPTREND)",
+        "reported: beat",
+        "RSI14 70 overbought; +6.3pp vs benchmark",
+        "no post-epoch track record (since 2026-09-21) for this name's bullish signal (an admissible record needs at least 3 scored signals since the epoch) -- no tilt"
+      ],
+      "blockers": [
+        "thesis is CARRIED from NVDA's exit (2026-09-10), stale and discounted -- smith-thesis has not re-examined it since the position closed",
+        "universe bar: no price for NVDA fetched this run (live_quotes.json / bars.json) -- a setup-row price or an old exit fill is not a live price",
+        "universe bar: no ATR for NVDA computed from this run's bars (compute_indicators.json) -- the cached value's date does not vouch for the name"
+      ],
+      "thesis_carried": true,
+      "thesis_carried_from": "exited-holdings-archive.json",
+      "thesis_last_reviewed_on": "2026-09-10",
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_live_price",
+          "no_atr_this_run"
+        ],
+        "checks": {
+          "price": null,
+          "price_source": null,
+          "atr_pct": null,
+          "sources": [
+            "thesis:unverified",
+            "price_action:unverified",
+            "earnings:verified"
+          ],
+          "thesis": "carried"
+        }
+      },
+      "risk_usd": 45.58,
+      "heat_status": "not_allocated (shadow)",
+      "learned_stop": {
+        "atr_multiple": 2.249,
+        "stop_distance_pct": 9.806,
+        "stop_price_usd": 189.6156,
+        "wider_by_pp": 1.086,
+        "status": "advisory -- policy stop above is the operative one"
+      },
+      "materiality": {
+        "ok": true,
+        "floor_usd": 250.0,
+        "binding_term": "min_ticket_usd",
+        "shortfall_usd": 0.0
+      }
+    }
+  ],
   "bench_diversifier": [],
+  "reentry_audit": [
+    {
+      "ticker": "AAPL",
+      "exited_on": "2025-06-11",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "AIA",
+      "exited_on": "2026-07-13",
+      "thesis_status": "intact",
+      "thesis_carried": true,
+      "conviction_score": 6.3,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "AMKR",
+      "exited_on": "2026-08-31",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 2.2,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "ANET",
+      "exited_on": "2026-07-13",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "ARM",
+      "exited_on": "2026-08-18",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": -1.3,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "AVGO",
+      "exited_on": "2026-09-16",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 29.0,
+      "conviction_tier": "low",
+      "outcome": "judged_out: thesis watch"
+    },
+    {
+      "ticker": "BABA",
+      "exited_on": "2026-08-31",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 5.8,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "BX",
+      "exited_on": "2026-09-01",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 0.6,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "CEG",
+      "exited_on": "2026-09-01",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 0.4,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "CORZ",
+      "exited_on": "2025-10-10",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "CQQQ",
+      "exited_on": "2026-07-17",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "CRDO",
+      "exited_on": "2026-07-15",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "CRWV",
+      "exited_on": "2026-06-23",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "DELL",
+      "exited_on": "2026-07-13",
+      "thesis_status": "strengthening",
+      "thesis_carried": true,
+      "conviction_score": 10.5,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "DLR",
+      "exited_on": "2026-07-13",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "DRAM",
+      "exited_on": "2026-08-18",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": -1.3,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "ETN",
+      "exited_on": "2026-07-13",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "EWT",
+      "exited_on": "2026-07-02",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "EWY",
+      "exited_on": "2026-08-06",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": -12.9,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "FCG",
+      "exited_on": "2026-04-08",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "FLNG",
+      "exited_on": "2026-04-01",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "FLTW",
+      "exited_on": "2026-08-31",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 2.3,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "FSLR",
+      "exited_on": "2026-09-09",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": -11.1,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "GOOGL",
+      "exited_on": "2026-08-11",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 2.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "HOOD",
+      "exited_on": "2026-08-28",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 15.1,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "INTC",
+      "exited_on": "2026-09-10",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 14.9,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "IONQ",
+      "exited_on": "2026-08-18",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 2.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "IREN",
+      "exited_on": "2026-09-08",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": -7.8,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "LLY",
+      "exited_on": "2026-05-28",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 6.5,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "LRCX",
+      "exited_on": "2026-09-10",
+      "thesis_status": "strengthening",
+      "thesis_carried": true,
+      "conviction_score": 10.5,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "META",
+      "exited_on": "2026-09-10",
+      "thesis_status": "strengthening",
+      "thesis_carried": true,
+      "conviction_score": 13.8,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "MKSI",
+      "exited_on": "2026-08-06",
+      "thesis_status": "intact",
+      "thesis_carried": true,
+      "conviction_score": 6.3,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "MP",
+      "exited_on": "2026-08-11",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "NVDA",
+      "exited_on": "2026-09-10",
+      "thesis_status": "strengthening",
+      "thesis_carried": true,
+      "conviction_score": 30.7,
+      "conviction_tier": "low",
+      "outcome": "candidate: vote shadow",
+      "size_usd": 522.72,
+      "bar_failed": [
+        "no_live_price",
+        "no_atr_this_run"
+      ]
+    },
+    {
+      "ticker": "ORCL",
+      "exited_on": "2026-08-18",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 2.7,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "P",
+      "exited_on": "2026-02-27",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "PENG",
+      "exited_on": "2025-06-16",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "PLTR",
+      "exited_on": "2026-08-15",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "QBTS",
+      "exited_on": "2026-08-06",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 3.1,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "RMBS",
+      "exited_on": "2026-02-27",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "SMCI",
+      "exited_on": "2026-09-14",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 1.6,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "SNDK",
+      "exited_on": "2026-08-26",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": -2.3,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "SPCX",
+      "exited_on": "2026-06-16",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "TXN",
+      "exited_on": "2026-08-28",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": -13.7,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "VST",
+      "exited_on": "2026-09-09",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 3.1,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    }
+  ],
   "rebound": {
     "correction_state": "none",
     "reasons": [],
@@ -2669,10 +3239,34 @@
           "entry condition: Reclaims $50 after the 2026-09-16 FOMC (the prior $50 floor was broken on 09-14 at $47.12) AND TSMC keeps the CoWoS path on 2026-10-15"
         ],
         "blockers": [
-          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized."
+          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized.",
+          "universe bar: no price for AMKR fetched this run (live_quotes.json / bars.json) -- a setup-row price or an old exit fill is not a live price",
+          "universe bar: no ATR for AMKR computed from this run's bars (compute_indicators.json) -- the cached value's date does not vouch for the name",
+          "universe bar: 1/2 independent evidence source(s) for AMKR (cluster_ladder_bench)",
+          "universe bar: no verified or computed source for AMKR -- unverified/reported claims alone do not clear the G58 evidence gate",
+          "universe bar: no thesis entry for AMKR and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
         ]
       },
-      "retires_when": "EITHER AI Semis/Fabs's ladder drops AMKR from its bench OR ASML leaves the bottom of that ladder"
+      "retires_when": "EITHER AI Semis/Fabs's ladder drops AMKR from its bench OR ASML leaves the bottom of that ladder",
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_live_price",
+          "no_atr_this_run",
+          "evidence_sources",
+          "no_verified_or_computed_source",
+          "no_thesis"
+        ],
+        "checks": {
+          "price": null,
+          "price_source": null,
+          "atr_pct": null,
+          "sources": [
+            "cluster_ladder_bench:unverified"
+          ],
+          "thesis": null
+        }
+      }
     },
     {
       "pair_id": "cluster_bench_rotation-AMZN-META",
@@ -2713,10 +3307,34 @@
           "entry condition: Late-Oct Q3 print with 2027 capex guide AND FCF back to positive; mean target $754.77 (as of 09-10)"
         ],
         "blockers": [
-          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized."
+          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized.",
+          "universe bar: no price for META fetched this run (live_quotes.json / bars.json) -- a setup-row price or an old exit fill is not a live price",
+          "universe bar: no ATR for META computed from this run's bars (compute_indicators.json) -- the cached value's date does not vouch for the name",
+          "universe bar: 1/2 independent evidence source(s) for META (cluster_ladder_bench)",
+          "universe bar: no verified or computed source for META -- unverified/reported claims alone do not clear the G58 evidence gate",
+          "universe bar: no thesis entry for META and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
         ]
       },
-      "retires_when": "EITHER Compute/Hyperscaler's ladder drops META from its bench OR AMZN leaves the bottom of that ladder"
+      "retires_when": "EITHER Compute/Hyperscaler's ladder drops META from its bench OR AMZN leaves the bottom of that ladder",
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_live_price",
+          "no_atr_this_run",
+          "evidence_sources",
+          "no_verified_or_computed_source",
+          "no_thesis"
+        ],
+        "checks": {
+          "price": null,
+          "price_source": null,
+          "atr_pct": null,
+          "sources": [
+            "cluster_ladder_bench:unverified"
+          ],
+          "thesis": null
+        }
+      }
     },
     {
       "pair_id": "cluster_bench_rotation-VRT-ETN",
@@ -2757,10 +3375,34 @@
           "entry condition: holds the 09-14 low of $387 through the 09-16 FOMC, or ETN Q3 (date TBD, cache stale) shows data-center orders growth with price realization"
         ],
         "blockers": [
-          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized."
+          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized.",
+          "universe bar: no price for ETN fetched this run (live_quotes.json / bars.json) -- a setup-row price or an old exit fill is not a live price",
+          "universe bar: no ATR for ETN computed from this run's bars (compute_indicators.json) -- the cached value's date does not vouch for the name",
+          "universe bar: 1/2 independent evidence source(s) for ETN (cluster_ladder_bench)",
+          "universe bar: no verified or computed source for ETN -- unverified/reported claims alone do not clear the G58 evidence gate",
+          "universe bar: no thesis entry for ETN and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
         ]
       },
-      "retires_when": "EITHER AI Power/Cooling/DC Infra's ladder drops ETN from its bench OR VRT leaves the bottom of that ladder"
+      "retires_when": "EITHER AI Power/Cooling/DC Infra's ladder drops ETN from its bench OR VRT leaves the bottom of that ladder",
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_live_price",
+          "no_atr_this_run",
+          "evidence_sources",
+          "no_verified_or_computed_source",
+          "no_thesis"
+        ],
+        "checks": {
+          "price": null,
+          "price_source": null,
+          "atr_pct": null,
+          "sources": [
+            "cluster_ladder_bench:unverified"
+          ],
+          "thesis": null
+        }
+      }
     }
   ],
   "cluster_consolidation": [
@@ -3311,6 +3953,7 @@
     "policy.heat_budget is UNCONFIRMED (confirmed:false) -- the engine uses a 70% floor on the aggregate-risk cap at full correlation and the cluster sub-budget ON, but the user has not signed them; treat every deferred/heat_room verdict as provisional.",
     "below_materiality (emitted, not proposed -- too small to act on): catalyst_threat GEV short $76; catalyst_threat SKHY short $250; profit_rotation profit_rotation-SKHY-CIEN short $250; cluster_rotation cluster_rotation-AMZN-MSFT short $112. Many of these are stubs: a book that generates tickets this small needs consolidating.",
     "risk-sized sell legs, legacy -> new (family ticker: legacy$ -> new$ [action]; risk removed): catalyst_threat ASML: 584.7 -> 584.7 [trim] risk $33.91; catalyst_threat MU: 407.17 -> 407.17 [trim] risk $34.85; catalyst_threat TER: 370.59 -> 370.59 [trim] risk $37.87; catalyst_threat AMAT: 355.72 -> 355.72 [trim] risk $27.89; catalyst_threat GEV: 188.69 -> 188.69 [trim] risk $15.17; catalyst_threat GLW: 90.06 -> 450.3 [full_exit] risk $45.39; catalyst_threat SKHY: 37.58 -> 0.0 [hold] risk $0.0; scale_out_ladder BE: 178.03 -> 534.1 [full_exit] risk $68.9; profit_rotation MU: 610.76 -> 610.76 [trim] risk $52.28; profit_rotation AMD: 167.39 -> 557.98 [full_exit] risk $41.74; profit_rotation SKHY: 56.37 -> 0.0 [hold] risk $0.0; cluster_rotation ASML: 877.05 -> 877.05 [trim] risk $50.87; cluster_rotation AMZN: 381.22 -> 381.22 [trim] risk $16.7; cluster_rotation GLW: 135.09 -> 450.3 [full_exit] risk $45.39; cluster_rotation VRT: 448.6 -> 448.6 [trim] risk $49.26; cluster_bench_rotation ASML: 877.05 -> 877.05 [trim] risk $50.87; cluster_bench_rotation AMZN: 381.22 -> 381.22 [trim] risk $16.7; cluster_bench_rotation VRT: 448.6 -> 448.6 [trim] risk $49.26",
-    "reentry: 45 alumni could not be JUDGED at all -- no state.thesis entry exists for them (AAPL, AIA, AMKR, ANET, ARM, AVGO, BABA, BX, CEG, CORZ...). state.thesis is seeded from CURRENT holdings, so an exited name is absent by construction and fails the conviction gate for lack of evidence, not on the evidence. These are not rejected candidates; they are unexamined ones."
+    "reentry: 12 alumni could not be JUDGED at all -- no state.thesis entry exists for them (AAPL, CORZ, CRWV, EWT, FCG, FLNG, LLY, P, PENG, PLTR...). state.thesis is seeded from CURRENT holdings, so an exited name is absent by construction and fails the conviction gate for lack of evidence, not on the evidence. These are not rejected candidates; they are unexamined ones.",
+    "reentry: 32 alumni judged and rejected on a real thesis/conviction read (AIA, AMKR, ANET, ARM, AVGO, BABA, BX, CEG, CQQQ, CRDO)."
   ]
 }

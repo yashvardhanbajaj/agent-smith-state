@@ -72,6 +72,8 @@ Reconcile by one of: volume/demand offsets ASP; thesis status change; or **(c) t
 
 Output: thesis_tensions list with {metric, current_value, basis, trend_within_basis, verdict_conflict, direction (upgrade|downgrade|no_action), reconciliation, corrections_checked}. Also carry the profitability crossover (DDR5 > HBM3E, 2026-04-21 TrendForce) and the forward forecast (2027 HBM contract prices expected multiples higher / 80-150%) as context.
 
+**EXITED NAMES (added 2026-09-21, Phase 6).** When a name leaves the book its LAST thesis is carried forward by the scripts as a stale record (`carried: true`, `exited_as_of`, `carried_from`, `last_reviewed_on`; `status` is left as your last verdict -- `cmd_compact` archives it, the reentry scan reads it at half weight with verification capped at `unverified`). You do not write it and must never invent a status for an exited name; the only valid statuses stay intact/strengthening/broken/watch. If you are handed a carried entry (an alumnus a trigger wants to re-enter), it is STALE: re-examine it like a new position -- fresh evidence, and a fresh `verified` tier if a discrete event backs it -- and your new entry replaces the carried one. A name with no thesis at all stays `shadow` until you have examined it or the user records `no_thesis_acknowledged`.
+
 Note: your thesis statuses feed the strategist's trade proposals (BROKEN names lead trim candidates and are never add candidates) and the signal journal — keep verdicts honest and evidence-dated.
 
 OUTPUT — WRITE the full output below to the given output_file (≤100 lines), then RETURN a ≤8-line prose summary (status changes, factor % headline) PLUS your fenced JSON tail verbatim and the file path as a fallback. Full output:

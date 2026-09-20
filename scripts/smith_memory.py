@@ -226,7 +226,8 @@ def cmd_compact(args):
             cfg = RETENTION[key]
             arch = _archive_load(os.path.join(base, cfg["archive"])).get(cfg["payload"], {}) or {}
             live = state.setdefault(key, {})
-            back = {t: v for t, v in arch.items() if t in held and t not in live}
+            back = {t: (smith_risk.uncarry_thesis(v) if key == "thesis" else v)
+                    for t, v in arch.items() if t in held and t not in live}
             if back:
                 live.update(back)
                 restored[key] = sorted(back)
@@ -249,6 +250,13 @@ def cmd_compact(args):
                 state[key] = {t: v for t, v in m.items() if t in held}
                 writes.setdefault(cfg["archive"],
                                   _archive_load(os.path.join(base, cfg["archive"])))
+                if key == "thesis":
+                    # CARRY, DON'T JUST FILE (Phase 6): the exited name's last held thesis goes into the
+                    # archive as an explicit STALE `exited` record (status untouched, `carried` marker,
+                    # carried_from/carried_on) so the reentry scan can judge the alumnus later without
+                    # mistaking an exit-time read for a fresh one. Idempotent.
+                    gone = {t: (smith_risk.carry_thesis_forward(v, None, "state.thesis", today) or v)
+                            for t, v in gone.items()}
                 _archive_merge(writes[cfg["archive"]], cfg["payload"], gone)
 
     # --- proposals: evict terminal rows past the scoring window --------------

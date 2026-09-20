@@ -2562,7 +2562,7 @@ def _parse_as_of(raw):
 
 
 def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
-                    rel_usable=True, rel_age=None, support=None):
+                    rel_usable=True, rel_age=None, support=None, bar_inputs=None, alumni_thesis=None):
     """Measure whether the book is in a broad correction, and if so which names have fallen
     far enough — and are volatile enough — to be worth watching for a relief rally.
 
@@ -2709,6 +2709,17 @@ def _rebound_screen(book, risk, policy, dc, universe, thesis, today,
             "window": window,
             "last_held_date": row.get("last_held_date"),
         })
+        if row["tier"] != "T1_HELD":
+            # An alumnus / watchlist name is an UNHELD name: it may only vote live through the shared
+            # universe bar (Phase 6). A held name already has a price, a stop and a thesis.
+            cand = out["candidates"][-1]
+            cand["vote"] = "live"
+            _gate_on_universe_bar(
+                cand, t, {"ticker": t, "thesis_entry": (alumni_thesis or {}).get(t) or thesis.get(t)},
+                bar_inputs,
+                extra_evidence=([{"source": "price_action", "quality": "computed",
+                                  "detail": f"{window} fall from this run's bars"}]
+                                if t in (bar_inputs or {}).get("computed", ()) else []))
     out["candidates"].sort(key=lambda c: -c["rebound_score"])
     ordinary = [c["ticker"] for c in out["candidates"] if c["fall_atr_mult"] < 1.5]
     if ordinary:
@@ -3298,10 +3309,58 @@ def _trigger_conviction_held(base, ticker, r, mv, price, rsi, rel_pp, rsi_usable
                                "reasons": reasons, "blockers": []}, sized))
 
 
+# ---------------------------------------------------------------------------
+# UNIVERSE BAR wiring (Phase 6) -- ONE call site every unheld-name family goes through
+# ---------------------------------------------------------------------------
+def _universe_bar_inputs(market_prices, run_dir, state, thesis_carry=None):
+    """The this-run facts the universe bar needs, gathered once by cmd_triggers.
+
+    `atr_this_run` / `computed`: ONLY compute_indicators.json's atr20_pct / rsi14 keys count -- the
+    per-ticker result of THIS run's bars. state.data_cache.atr20 is deliberately not used: its
+    `as_of` is refreshed whenever any ticker updates, so a name's own value can be weeks old under
+    a current-looking date (IONQ's 08-17 value under a 09-18 as_of on the live book). Absent file
+    -> empty dicts -> every unheld name fails `no_atr_this_run` by name: fail closed, never guess."""
+    ind = load_json(os.path.join(run_dir, "compute_indicators.json"), default={}) or {}
+    atr = {t: v for t, v in (ind.get("atr20_pct") or {}).items() if v}
+    rsi = {t for t, v in (ind.get("rsi14") or {}).items() if v is not None}
+    return {"prices": market_prices or {}, "atr_this_run": atr, "rsi_this_run": rsi,
+            "computed": rsi | set(atr), "state": state or {}}
+
+
+def _gate_on_universe_bar(row, ticker, ctx, bar_inputs, leg=None, extra_evidence=None, atr_hint=None):
+    """Run the universe bar (smith_conviction.universe_bar) on one unheld candidate and fold the
+    verdict into `row`. THE ONE CALL SITE for entry_setup, reentry, bench_diversifier,
+    cluster_bench_rotation's buy leg and the rebound entries -- a test greps every family for it,
+    so a sixth family cannot quietly grow its own private idea of 'enough evidence'.
+
+    `bar_inputs=None` (a direct caller that did not supply this run's facts) FAILS CLOSED: an empty
+    input set, so the row shadows with every missing input named. It never skips the bar."""
+    bi = bar_inputs or {"prices": {}, "atr_this_run": {}, "rsi_this_run": set(), "computed": set(), "state": {}}
+    px = bi["prices"].get(ticker) or {}
+    evidence = smith_conviction.evidence_sources(ctx, computed_this_run=ticker in bi["computed"])
+    evidence = evidence + list(extra_evidence or [])
+    if ticker in bi["rsi_this_run"]:
+        # A real RSI14 computed from THIS run's bars is one `computed` price_action source. It merges
+        # INTO an existing price_action entry (signal buckets, the watchlist proxy) rather than adding
+        # a second, so the price series is still counted once.
+        pa = next((e for e in evidence if e["source"] == "price_action"), None)
+        if pa is not None:
+            pa.update(quality="computed", detail=pa["detail"].split(" (not computed")[0] + " + RSI14 from this run's bars")
+        else:
+            evidence.append({"source": "price_action", "quality": "computed", "detail": "RSI14 from this run's bars"})
+    bar = smith_conviction.universe_bar(
+        ticker, price=px.get("price"), price_source=px.get("source"),
+        atr_this_run=bi["atr_this_run"].get(ticker), evidence=evidence,
+        thesis_entry=ctx.get("thesis_entry"),
+        no_thesis_ack=smith_risk.no_thesis_acknowledged(bi["state"], ticker))
+    return smith_conviction.apply_universe_bar(row, bar, leg=leg)
+
+
 def _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_history, thesis,
                               factor_catalysts, earnings_facts, mention_counts, track_record_for,
                               atr_vals, sector_map, entry_setup, total_book=None, policy=None,
-                              deployable_for_ideas=None, market_prices=None, cluster_rows=None):
+                              deployable_for_ideas=None, market_prices=None, cluster_rows=None,
+                              bar_inputs=None):
     """Section L: entry_setup (BUY) -- smith-watchlist's setups, persisted to state.json
     this run for the first time (previously had NO code path into proposals at all -- 9 setups
     found on 2026-08-24, 1 reached a proposal, hand-written narrative only).
@@ -3313,7 +3372,10 @@ def _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_hi
     computes upside/pos); when the row lacks one, or ATR is missing, size stays None WITH a
     blocker -- a missing input is never estimated.
 
-    THESIS GATE (same date, and it must ship WITH the sizing). The four live candidates that
+    THESIS GATE (same date, and it must ship WITH the sizing) -- since Phase 6 (2026-09-21) this is
+    one part of the shared UNIVERSE BAR (smith_conviction.universe_bar via _gate_on_universe_bar):
+    price + ATR fetched this run, two independent evidence sources with one verified/computed, and a
+    thesis entry or no_thesis_acknowledged. Original reasoning kept below. The four live candidates that
     day (IONQ/QBTS/RGTI/BABA) all had `thesis_status: null` and cleared the 'low' conviction
     floor by 0.6-0.8 points on valuation + RSI alone. Sizing them live would cure the buy
     drought by lowering quality. A setup with no state.thesis entry therefore votes `shadow`
@@ -3343,6 +3405,7 @@ def _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_hi
                "buckets": buckets_for_ticker, "upside_pct": row.get("upside_pct"),
                "earnings_fact": earnings_facts.get(ticker),
                "rsi": (pos * 100 if pos is not None else None), "rsi_usable": pos is not None,
+               "rsi_proxy": True,
                "rel_pp": None, "rel_usable": False, "mention_count": mention_counts.get(ticker, 0),
                "track_record": track_record_for(buckets_for_ticker)}
         conv = smith_conviction.score_conviction(ctx)
@@ -3368,10 +3431,6 @@ def _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_hi
                                       wanted, None, _cluster_room_for(cluster_rows, sector_map.get(ticker)),
                                       deployable_for_ideas))
         vote = "live"
-        if thesis.get(ticker) is None:
-            vote = "shadow"
-            blockers.append(f"no state.thesis entry for {ticker} -- entry_setup may not vote live "
-                            "on valuation + RSI alone; smith-thesis must examine it first")
         entry_setup.append({"ticker": ticker, "cluster": sector_map.get(ticker), "thesis_status": conv["thesis_status"],
                             "watchlist_type": row.get("type"), "upside_pct": row.get("upside_pct"),
                             "price_usd": price, "price_source": price_source,
@@ -3381,19 +3440,55 @@ def _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_hi
                             "stop_price_usd": pmax.get("stop_price_usd") if pmax else None,
                             "retires_when": f"{ticker} drops off the watchlist setups list or conviction falls to 'none'",
                             "reasons": conv["conviction_reasons"], "blockers": blockers})
+        _gate_on_universe_bar(entry_setup[-1], ticker, ctx, bar_inputs)
+
+
+def _alumni_thesis_map(recently_exited, thesis, base_dir, today):
+    """{alumnus: carried thesis record} for every exited name that has a LAST HELD thesis anywhere:
+    state.thesis (an unheld name's entry that cmd_compact has not archived yet) or
+    exited-holdings-archive.json (where cmd_compact moves it on exit, ARCHIVE-NEVER-DELETE). Both are
+    wrapped by smith_risk.carry_thesis_forward, so every one reaches the scorer marked stale -- the
+    same call whether the entry is a day or six weeks old. A name in neither is simply absent."""
+    archive = ((load_json(os.path.join(base_dir, "exited-holdings-archive.json"), default={}) or {})
+               .get("thesis") or {})
+    out = {}
+    for t, exited_on in (recently_exited or {}).items():
+        if thesis.get(t):
+            entry, src = thesis[t], "state.thesis"
+        elif archive.get(t):
+            entry, src = archive[t], "exited-holdings-archive.json"
+        else:
+            continue
+        rec = smith_risk.carry_thesis_forward(entry, exited_on, src, today)
+        if rec:
+            if not rec.get("exited_as_of") and exited_on:
+                rec = dict(rec, exited_as_of=str(exited_on))   # cmd_compact archives it without a date
+            out[t] = rec
+    return out
 
 
 def _trigger_reentry_scan(trades, recently_exited, signal_history, thesis, factor_catalysts,
                           earnings_facts, upside_pct_for, rsi_vals, rsi_usable, rel_vals,
                           rel_usable, mention_counts, track_record_for, atr_vals, total_book,
                           policy, deployable_for_ideas, sector_map, reentry, reentry_no_thesis,
-                          reentry_judged_out, cluster_rows=None):
+                          reentry_judged_out, cluster_rows=None, alumni_thesis=None, bar_inputs=None, audit=None):
     """Section M: reentry (BUY, live) -- the direct fix for "an exited name has no headroom row,
     so the engine sizes its re-entry at $0": recently_exited tickers, priced from the last known
     fill (trades.json), sized via policy_max_position_usd at qty=0 (works for unheld names by
     construction -- see smith_conviction's module note). Appends ticker names into
     reentry_no_thesis/reentry_judged_out (both caller-supplied lists) for the G72-shaped
-    dq message the caller writes after this returns."""
+    dq message the caller writes after this returns.
+
+    THESIS FOR AN ALUMNUS (Phase 6). `alumni_thesis` {ticker: carried record} is each alumnus's LAST
+    HELD thesis carried forward as STALE evidence (smith_risk.carry_thesis_forward: status
+    unchanged, `carried` marker, discounted by smith_conviction.thesis_component and named in the
+    ticket). Before it, `thesis` (seeded from current holdings) had no entry for an exited name, so
+    all 45 alumni failed the gate for absence of evidence rather than on the evidence. A name with
+    no carried record either is still counted as "could not be JUDGED". The row is then subject to
+    the shared universe bar -- a stale thesis is a thesis entry, but it is never a verified source,
+    and the price is this run's fetched quote, not the old exit fill.
+    """
+    alumni_thesis = alumni_thesis or {}
     last_exit_price = {}
     for tr in sorted(trades.get("trades", []), key=lambda r: r.get("date") or ""):
         # Chronological, so the LAST priced fill wins -- and keyed on the ticker being in the
@@ -3402,9 +3497,14 @@ def _trigger_reentry_scan(trades, recently_exited, signal_history, thesis, facto
         if tr.get("ticker") in recently_exited and tr.get("price_at_trade"):
             last_exit_price[tr["ticker"]] = tr.get("price_at_trade")
     for ticker, exit_date in recently_exited.items():
-        price = last_exit_price.get(ticker)
+        # Price to size on: this run's fetched quote when there is one, else the last exit fill (which
+        # the universe bar then refuses to call a live price). Never the reverse -- an old fill must
+        # not silently price a new entry when a live quote exists.
+        price = (((bar_inputs or {}).get("prices") or {}).get(ticker) or {}).get("price") \
+            or last_exit_price.get(ticker)
         buckets_for_ticker = signal_history.get(ticker) or []
-        ctx = {"ticker": ticker, "thesis_entry": thesis.get(ticker), "factor_catalysts": factor_catalysts,
+        t_entry = alumni_thesis.get(ticker) or thesis.get(ticker)
+        ctx = {"ticker": ticker, "thesis_entry": t_entry, "factor_catalysts": factor_catalysts,
                "buckets": buckets_for_ticker, "upside_pct": upside_pct_for(ticker, price),
                "earnings_fact": earnings_facts.get(ticker), "rsi": rsi_vals.get(ticker), "rsi_usable": rsi_usable,
                "rel_pp": rel_vals.get(ticker), "rel_usable": rel_usable, "mention_count": mention_counts.get(ticker, 0),
@@ -3417,7 +3517,16 @@ def _trigger_reentry_scan(trades, recently_exited, signal_history, thesis, facto
             # fails this gate for absence of evidence rather than on the evidence. That is the
             # G72 shape again -- a name is silent in a file that cannot represent it. Count both
             # so the gap is visible instead of looking like "no candidates today".
-            (reentry_no_thesis if thesis.get(ticker) is None else reentry_judged_out).append(ticker)
+            (reentry_no_thesis if t_entry is None else reentry_judged_out).append(ticker)
+            if audit is not None:
+                audit.append({"ticker": ticker, "exited_on": exit_date.isoformat(),
+                              "thesis_status": conv["thesis_status"],
+                              "thesis_carried": smith_risk.is_carried_thesis(t_entry),
+                              "conviction_score": conv["conviction_score"],
+                              "conviction_tier": conv["conviction_tier"],
+                              "outcome": ("no_thesis_entry" if t_entry is None else
+                                          "judged_out: conviction none" if conv["conviction_tier"] == "none"
+                                          else f"judged_out: thesis {conv['thesis_status']}")})
             continue
         atr_pct = atr_vals.get(ticker)
         pmax = smith_conviction.policy_max_position_usd(atr_pct, price, total_book, policy) if (atr_pct and price) else None
@@ -3432,15 +3541,31 @@ def _trigger_reentry_scan(trades, recently_exited, signal_history, thesis, facto
                         "size_wanted_usd": wanted, "suggested_size_usd": size_final, "clamped_by": clamped_by,
                         "stop_price_usd": pmax.get("stop_price_usd") if pmax else None,
                         "retires_when": f"{ticker}'s thesis leaves intact/strengthening",
-                        "reasons": [f"exited {exit_date.isoformat()} at ${price:.2f}" if price else f"exited {exit_date.isoformat()}"]
+                        "reasons": [f"exited {exit_date.isoformat()} at ${last_exit_price[ticker]:.2f}"
+                                    if last_exit_price.get(ticker) else f"exited {exit_date.isoformat()}"]
                                   + conv["conviction_reasons"],
                         "blockers": ([] if pmax else [f"no live ATR for {ticker} -- exit price is last-known, not live"])})
+        if smith_risk.is_carried_thesis(t_entry):
+            reentry[-1].update({"thesis_carried": True, "thesis_carried_from": t_entry.get("carried_from"),
+                                "thesis_last_reviewed_on": t_entry.get("last_reviewed_on")})
+            reentry[-1]["blockers"].append(
+                f"thesis is CARRIED from {ticker}'s exit ({t_entry.get('exited_as_of') or 'date unknown'}), "
+                "stale and discounted -- smith-thesis has not re-examined it since the position closed")
+        _gate_on_universe_bar(reentry[-1], ticker, ctx, bar_inputs)
+        if audit is not None:
+            audit.append({"ticker": ticker, "exited_on": exit_date.isoformat(),
+                          "thesis_status": conv["thesis_status"],
+                          "thesis_carried": smith_risk.is_carried_thesis(t_entry),
+                          "conviction_score": conv["conviction_score"], "conviction_tier": conv["conviction_tier"],
+                          "outcome": f"candidate: vote {reentry[-1]['vote']}",
+                          "size_usd": reentry[-1].get("suggested_size_usd"),
+                          "bar_failed": reentry[-1]["universe_bar"]["failed"]})
 
 
 def _trigger_bench_diversifier_scan(diversifier_candidates, risk_by_ticker, state, mention_counts,
                                     track_record_for, atr_vals, total_book, policy,
                                     deployable_for_ideas, bench_diversifier, market_prices=None,
-                                    cluster_rows=None, sector_map=None):
+                                    cluster_rows=None, sector_map=None, bar_inputs=None):
     """Section N: bench_diversifier (BUY, live) -- smith-scout's diversifier bench, sized for the
     first time. VST's 63.9% modelled upside had never once been referenced by any proposal.
     Honest limit: these names carry no thesis, no factor_catalysts, and no pos/RSI proxy in
@@ -3486,6 +3611,7 @@ def _trigger_bench_diversifier_scan(diversifier_candidates, risk_by_ticker, stat
                                   "retires_when": f"{ticker} leaves the diversifier bench or its upside falls below 10%",
                                   "reasons": conv["conviction_reasons"],
                                   "blockers": ([] if pmax else [f"no live ATR for {ticker} this run"])})
+        _gate_on_universe_bar(bench_diversifier[-1], ticker, ctx, bar_inputs)
 
 
 def _pair_cluster_room_usd(cluster_rows, sell_cluster, buy_cluster, sell_size):
@@ -3512,7 +3638,8 @@ def _pair_cluster_room_usd(cluster_rows, sell_cluster, buy_cluster, sell_size):
 
 
 def _trigger_cluster_bench_rotation(cluster_ladders, conviction_by_ticker, thesis,
-                                    risk_by_ticker, today, cluster_bench_rotation, sizing=None):
+                                    risk_by_ticker, today, cluster_bench_rotation, sizing=None,
+                                    bar_inputs=None):
     """Section Q: cluster_bench_rotation (PAIRED, SHADOW). Sell the ladder's laggard, buy a name
     the book does NOT own.
 
@@ -3574,6 +3701,14 @@ def _trigger_cluster_bench_rotation(cluster_ladders, conviction_by_ticker, thesi
             "retires_when": (f"EITHER {cluster}'s ladder drops {buy_t} from its bench "
                              f"OR {sell_t} leaves the bottom of that ladder")}
         row["sell_leg"]["materiality"] = _compact_materiality(sold["res"]["materiality"])
+        # The buy leg is a never-held name: run the shared universe bar so its blockers are NAMED
+        # (the row stays shadow regardless -- the bar only ever demotes). Its only evidence is the
+        # ladder agent's own bench judgment, which is an assertion, not a source that anchors.
+        _gate_on_universe_bar(
+            row, buy_t, {"ticker": buy_t, "thesis_entry": thesis.get(buy_t)}, bar_inputs,
+            leg=row["buy_leg"],
+            extra_evidence=[{"source": "cluster_ladder_bench", "quality": "unverified",
+                             "detail": f"{cluster} ladder bench (agent judgment)"}])
         cluster_bench_rotation.append(row)
 
 
@@ -4829,6 +4964,10 @@ def cmd_triggers(args):
         if _px:
             market_prices[_t] = {"price": round(float(_px), 4), "source": "live_quotes.json"}
 
+    # UNIVERSE BAR inputs (Phase 6): this run's price/ATR/indicator facts, gathered ONCE for every
+    # unheld-name family below. See _universe_bar_inputs for why the atr20 cache is not consulted.
+    _bar_inputs = _universe_bar_inputs(market_prices, args.run_dir, state)
+
     # analyst_targets (added 2026-08-24, closes the standing gap: data_cache.analyst_targets has
     # been empty since it was reserved -- the real numbers live scattered in journal.json's
     # per-flag analyst_target field instead). Derive a per-ticker proxy from the MOST RECENT
@@ -5061,21 +5200,22 @@ def cmd_triggers(args):
     _trigger_entry_setup_scan(watchlist_setups, risk_by_ticker, state, signal_history, thesis,
                               factor_catalysts, earnings_facts, mention_counts, _track_record_for,
                               atr_vals, sector_map, entry_setup, total_book, policy,
-                              deployable_for_ideas, market_prices, cluster_rows)
+                              deployable_for_ideas, market_prices, cluster_rows, _bar_inputs)
 
     # --- M. reentry (BUY, live) -----------------------------------------------------------
-    _reentry_no_thesis, _reentry_judged_out = [], []
+    _alumni_thesis = _alumni_thesis_map(recently_exited, thesis, args.base_dir, today)
+    _reentry_no_thesis, _reentry_judged_out, _reentry_audit = [], [], []
     _trigger_reentry_scan(trades, recently_exited, signal_history, thesis, factor_catalysts,
                           earnings_facts, upside_pct_for, rsi_vals, rsi_usable, rel_vals,
                           rel_usable, mention_counts, _track_record_for, atr_vals, total_book,
                           policy, deployable_for_ideas, sector_map, reentry, _reentry_no_thesis,
-                          _reentry_judged_out, cluster_rows)
+                          _reentry_judged_out, cluster_rows, _alumni_thesis, _bar_inputs, _reentry_audit)
 
     # --- N. bench_diversifier (BUY, live) --------------------------------------------------
     _trigger_bench_diversifier_scan(diversifier_candidates, risk_by_ticker, state, mention_counts,
                                     _track_record_for, atr_vals, total_book, policy,
                                     deployable_for_ideas, bench_diversifier, market_prices,
-                                    cluster_rows, sector_map)
+                                    cluster_rows, sector_map, _bar_inputs)
 
     # --- O/P. profit_rotation + cluster_rotation (PAIRED, live) ---------------------------
     _trigger_profit_rotation(names_stretched, conviction_by_ticker, thesis, total_book, policy,
@@ -5086,7 +5226,8 @@ def cmd_triggers(args):
 
     # --- Q/R. cluster_bench_rotation + cluster_consolidation (PAIRED, SHADOW) --------------
     _trigger_cluster_bench_rotation(_cluster_ladders, conviction_by_ticker, thesis,
-                                    risk_by_ticker, today, cluster_bench_rotation, sizing)
+                                    risk_by_ticker, today, cluster_bench_rotation, sizing,
+                                    _bar_inputs)
     _trigger_cluster_consolidation(_cluster_ladders, conviction_by_ticker, risk_by_ticker,
                                    today, cluster_consolidation, sizing, cluster_rows)
 
@@ -5228,7 +5369,8 @@ def cmd_triggers(args):
     _rebound_bars = load_json(os.path.join(args.run_dir, "bars.json"), default={}) or {}
     _rebound_support = smith_marketdata.support_levels(_rebound_bars, _rebound_pool) if _rebound_bars else {}
     rebound = _rebound_screen(book, risk, policy, dc, universe, thesis, today,
-                              rel_usable=rel_usable, rel_age=rel_age, support=_rebound_support)
+                              rel_usable=rel_usable, rel_age=rel_age, support=_rebound_support,
+                              bar_inputs=_bar_inputs, alumni_thesis=_alumni_thesis)
 
     if rebound.get("stale_warning"):
         dq.append(rebound["stale_warning"])
@@ -5375,6 +5517,7 @@ def cmd_triggers(args):
         "trend_entry": trend_entry, "trend_breakdown": trend_breakdown,
         "conviction_average": conviction_average, "conviction_exit": conviction_exit,
         "entry_setup": entry_setup, "reentry": reentry, "bench_diversifier": bench_diversifier,
+        "reentry_audit": _reentry_audit,
         "rebound": rebound, "correction_state": rebound["correction_state"],
         "profit_rotation": profit_rotation, "cluster_rotation": cluster_rotation,
         "cluster_bench_rotation": cluster_bench_rotation,

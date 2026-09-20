@@ -319,7 +319,19 @@ def _tickers(base_dir, snapshot_json, extra):
 MAX_CANDIDATES = 60
 
 
-def candidate_tickers(state):
+def judgeable_alumni(archive_thesis, held=()):
+    """Exited names whose carried last-held thesis reads intact/strengthening -- the only alumni
+    the reentry scan can act on (smith_risk.carry_thesis_forward), so the only ones worth a quote
+    and bars. Fetching all ~45 alumni would spend the 120s budget on names that a `watch`/`exited`/
+    absent thesis already rules out; fetching none leaves reentry with no live price or ATR and the
+    universe bar (Phase 6) shadows every one of them by name. Pure."""
+    import smith_risk
+    held = set(held)
+    return sorted(str(t).strip().upper() for t, v in (archive_thesis or {}).items()
+                  if t not in held and smith_risk.thesis_status(v) in ("intact", "strengthening"))
+
+
+def candidate_tickers(state, alumni=()):
     """Names that can VOTE on a proposal without being held: the watchlist setups smith-watchlist
     surfaced, the scout's diversifier bench, and each cluster ladder's bench.
 
@@ -330,7 +342,11 @@ def candidate_tickers(state):
     an analyst target and an upside percentage -- that would be inventing the very input the
     risk-sized ticket depends on.
 
-    Pure: takes the parsed state dict, returns a sorted, de-duplicated list of upper-case tickers.
+    Phase 6: `alumni` (judgeable_alumni) are appended AFTER the other three sources, so the
+    MAX_CANDIDATES cap can only ever trim alumni, never a watchlist / bench name.
+
+    Pure: takes the parsed state dict, returns a de-duplicated list of upper-case tickers: the three
+    sources sorted, then the alumni sorted.
     """
     out = set()
     for row in (state.get("watchlist_setups") or []):
@@ -342,7 +358,7 @@ def candidate_tickers(state):
         for b in ((entry or {}).get("bench") or []):
             if isinstance(b, dict) and b.get("ticker"):
                 out.add(str(b["ticker"]).strip().upper())
-    return sorted(out)[:MAX_CANDIDATES]
+    return (sorted(out) + [t for t in sorted({str(a).strip().upper() for a in alumni}) if t not in out])[:MAX_CANDIDATES]
 
 
 def run_all(args, source):
@@ -356,7 +372,9 @@ def run_all(args, source):
     held, peers = _tickers(args.base_dir, args.snapshot_json, args.tickers)
     try:
         state_for_cands = _load_json(os.path.join(args.base_dir, "state.json"), {}) or {}
-        cands = [t for t in candidate_tickers(state_for_cands) if t not in set(held)]
+        _arch = (_load_json(os.path.join(args.base_dir, "exited-holdings-archive.json"), {}) or {}).get("thesis") or {}
+        cands = [t for t in candidate_tickers(state_for_cands, judgeable_alumni(_arch, held))
+                 if t not in set(held)]
     except Exception as e:  # noqa: BLE001 -- the contract: nothing here may stop the held-book fetch
         cands = []
         report["errors"]["candidates"] = f"{type(e).__name__}: {e}"[:200]

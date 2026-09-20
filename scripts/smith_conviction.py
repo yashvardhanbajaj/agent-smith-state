@@ -116,14 +116,34 @@ def _tier_label_for(score):
     return "none"
 
 
+# A CARRIED thesis (an exited name's last held entry, smith_risk.carry_thesis_forward) is STALE
+# evidence: the desk last looked while it still held the name and has not examined it since the
+# exit. It scores at half weight and its verification tier is capped at `unverified` (a `primary`
+# check made before the exit says nothing about today). Only a POSITIVE base is discounted: a
+# carried `broken` / `watch` keeps its full weight, because softening old bad news is the
+# wrong-direction error. 0.5 puts a carried unverified `strengthening` at 10.5 and `intact` at
+# 6.3 of the 28-point thesis weight -- it can support a re-entry but never carry one alone
+# (the `low` tier floor is 20 on the TOTAL score).
+CARRIED_THESIS_MULT = 0.5
+
+
 def thesis_component(thesis_entry):
     """+WEIGHTS['thesis'] scaled by status and evidence quality. `broken` scores negative --
     conviction to ADD should fall through zero for a broken thesis, not just stop climbing;
-    a negative thesis component is what lets conviction_exit outrank a merely-lukewarm holding."""
+    a negative thesis component is what lets conviction_exit outrank a merely-lukewarm holding.
+
+    A CARRIED entry (smith_risk.is_carried_thesis) is discounted by CARRIED_THESIS_MULT with its
+    verification tier capped, and the reason string says so -- the ticket must never present an
+    exit-time thesis as a fresh read (Phase 6)."""
     status = smith_risk.thesis_status(thesis_entry)
     ev_for, ev_against, verified = smith_risk.thesis_evidence(thesis_entry)
     base = {"strengthening": 1.0, "intact": 0.6, "watch": 0.1, "broken": -1.0, "exited": 0.0,
             None: 0.0}.get(status, 0.0)
+    carried = smith_risk.is_carried_thesis(thesis_entry)
+    if carried:
+        verified = "unverified"
+        if base > 0:
+            base *= CARRIED_THESIS_MULT
     # Evidence quality modulates magnitude, not direction -- a verified strengthening thesis
     # counts more than an unverified one, but an unverified watch still counts as a mild watch.
     ev_mult = {"primary": 1.15, "secondary": 1.0, "unverified": 0.75}.get(verified, 0.75)
@@ -131,6 +151,11 @@ def thesis_component(thesis_entry):
     reason = None
     if status is not None:
         reason = f"thesis {status} ({verified}, {len(ev_for)} for / {len(ev_against)} against)"
+        if carried:
+            reason = (f"thesis {status} CARRIED FROM EXIT (stale, x{CARRIED_THESIS_MULT:g}; last reviewed "
+                      f"{thesis_entry.get('last_reviewed_on') or 'unknown'}, exited "
+                      f"{thesis_entry.get('exited_as_of') or 'unknown'}, from "
+                      f"{thesis_entry.get('carried_from') or 'unknown'}) -- not re-examined since the exit")
     return score, reason, status, verified
 
 
@@ -399,6 +424,145 @@ def score_conviction(ctx):
         "conviction_reasons": reasons,
         "thesis_status": thesis_status,
     }
+
+
+# ---------------------------------------------------------------------------
+# UNIVERSE BAR (Phase 6) -- which UNHELD names may produce a LIVE ticket
+# ---------------------------------------------------------------------------
+# THE PROBLEM. The universe is held + alumni + watchlist + benches (compute_universe.json tiers),
+# and until Phase 6 each family that proposes an unheld name applied its own idea of "enough
+# evidence": entry_setup had a thesis check (Phase 1), reentry a conviction gate that alumni failed
+# for absence, bench_diversifier nothing at all, the bench rotation a hard-coded shadow. The
+# 2026-09-20 entry_setup candidates (IONQ/QBTS/RGTI/BABA) cleared the `low` floor by 0.6-0.8 points
+# on valuation + a 52-week-position RSI proxy alone. ONE bar, ONE function, every family.
+#
+# A name may vote `live` only with ALL of:
+#   (1) a price AND an ATR fetched THIS RUN -- not an exit fill, not a setup row's stale
+#       price_usd, not the atr20 cache (its `as_of` is refreshed by any ticker's update, so a
+#       name's own value can be weeks old under a fresh-looking date);
+#   (2) >= UNIVERSE_MIN_SOURCES INDEPENDENT evidence sources, at least one `verified` or
+#       `computed` (the G58 evidence gate: two unverified claims are two claims, not evidence);
+#   (3) a thesis entry, or the user's explicit no_thesis_acknowledged flag.
+# Anything else votes `shadow` with a NAMED blocker. A held name is never touched (it has a live
+# price, a stop and a thesis by construction). A missing input is a blocker, never an estimate.
+
+UNIVERSE_MIN_SOURCES = 2
+EVIDENCE_QUALITIES_THAT_ANCHOR = ("verified", "computed")
+
+
+def evidence_sources(ctx, computed_this_run=False):
+    """The INDEPENDENT evidence sources behind one candidate, from the same typed ctx
+    score_conviction reads -> [{"source", "quality", "detail"}]. quality is one of
+      verified   -- a primary/secondary-checked thesis, a VERIFIED earnings print
+      computed   -- arithmetic on this run's own price bars (RSI / relative strength / signal buckets)
+      reported   -- a third-party published figure (analyst target, an unverified print)
+      unverified -- an agent's assertion (an unverified or CARRIED thesis, a sourced-but-unchecked
+                    catalyst, another agent naming the ticker)
+    Independence: RSI, relative strength and signal buckets are all derived from the same price
+    series, so they are ONE `price_action` source, not three -- counting them separately would let
+    a single price move satisfy the two-source bar by itself. Only `verified`/`computed` anchor the
+    bar (EVIDENCE_QUALITIES_THAT_ANCHOR). `price_action` is `computed` only when this run really
+    computed indicators for the name (`computed_this_run`); the watchlist's 52-week-position RSI
+    proxy (ctx `rsi_proxy`) is an agent-supplied number, never counted as computed -- a real RSI14
+    from this run's bars is added by the caller (smith_math._gate_on_universe_bar)."""
+    out = []
+    thesis = ctx.get("thesis_entry")
+    status = smith_risk.thesis_status(thesis)
+    if status is not None:
+        if smith_risk.is_carried_thesis(thesis):
+            q, why = "unverified", "carried from exit (stale)"
+        else:
+            _f, _a, ver = smith_risk.thesis_evidence(thesis)
+            q, why = ("verified" if ver in ("primary", "secondary") else "unverified"), f"thesis {status}, {ver}"
+        out.append({"source": "thesis", "quality": q, "detail": why})
+    ticker = ctx.get("ticker")
+    hits = [c for c in (ctx.get("factor_catalysts") or []) if ticker and ticker in (c.get("affects") or [])]
+    if hits:
+        out.append({"source": "catalyst", "quality": "unverified",
+                    "detail": f"{len(hits)} factor catalyst(s) naming {ticker}"})
+    computed_bits, proxy_bits = [], []
+    if ctx.get("buckets"):
+        computed_bits.append("signal buckets")
+    if ctx.get("rsi_usable") and ctx.get("rsi") is not None:
+        (proxy_bits if ctx.get("rsi_proxy") else computed_bits).append(
+            "52-week-position RSI proxy" if ctx.get("rsi_proxy") else "RSI")
+    if ctx.get("rel_usable") and ctx.get("rel_pp") is not None:
+        computed_bits.append("relative strength")
+    if computed_bits or proxy_bits:
+        is_computed = bool(computed_bits) and computed_this_run
+        out.append({"source": "price_action", "quality": "computed" if is_computed else "unverified",
+                    "detail": "+".join(computed_bits + proxy_bits)
+                              + ("" if is_computed else " (not computed from this run's bars)")})
+    if ctx.get("upside_pct") is not None:
+        out.append({"source": "valuation", "quality": "reported", "detail": "analyst target upside"})
+    ef = ctx.get("earnings_fact")
+    if ef and (ef.get("quarter_verdict") or ef.get("avg_surprise_pct") is not None):
+        checked = ef.get("status") == "VERIFIED" or bool(ef.get("verified_on"))
+        out.append({"source": "earnings", "quality": "verified" if checked else "reported",
+                    "detail": "earnings print" + (" (verified)" if checked else "")})
+    if ctx.get("mention_count"):
+        out.append({"source": "agent_corroboration", "quality": "unverified",
+                    "detail": f"named by {ctx['mention_count']} agent(s) this run"})
+    return out
+
+
+def universe_bar(ticker, *, price=None, price_source=None, atr_this_run=None, evidence=None,
+                 thesis_entry=None, no_thesis_ack=None, held=False):
+    """THE ONE universe-bar function every unheld-name family calls (grep-guarded by a test).
+
+    -> {"ticker", "passes", "vote", "failed": [codes], "blockers": [named text], "checks": {...}}.
+    `price`/`price_source`: this run's fetched price (live_quotes.json / bars.json) or None.
+    `atr_this_run`: the ATR% computed from THIS run's bars, or None (unknowable counts as missing).
+    `evidence`: evidence_sources(...). `held=True` exempts a held name (checked by the caller only
+    for tests; families that propose held names simply never call this)."""
+    if held:
+        return {"ticker": ticker, "passes": True, "vote": "live", "failed": [], "blockers": [],
+                "checks": {"exempt": "held"}}
+    evidence = evidence or []
+    failed, blockers = [], []
+    if not price:
+        failed.append("no_live_price")
+        blockers.append(f"universe bar: no price for {ticker} fetched this run (live_quotes.json / bars.json) "
+                        "-- a setup-row price or an old exit fill is not a live price")
+    if not atr_this_run:
+        failed.append("no_atr_this_run")
+        blockers.append(f"universe bar: no ATR for {ticker} computed from this run's bars "
+                        "(compute_indicators.json) -- the cached value's date does not vouch for the name")
+    anchors = [e for e in evidence if e["quality"] in EVIDENCE_QUALITIES_THAT_ANCHOR]
+    if len(evidence) < UNIVERSE_MIN_SOURCES:
+        failed.append("evidence_sources")
+        blockers.append(f"universe bar: {len(evidence)}/{UNIVERSE_MIN_SOURCES} independent evidence source(s) "
+                        f"for {ticker} ({', '.join(e['source'] for e in evidence) or 'none'})")
+    if not anchors:
+        failed.append("no_verified_or_computed_source")
+        blockers.append(f"universe bar: no verified or computed source for {ticker} -- unverified/reported "
+                        "claims alone do not clear the G58 evidence gate")
+    if not thesis_entry and not no_thesis_ack:
+        failed.append("no_thesis")
+        blockers.append(f"universe bar: no thesis entry for {ticker} and no no_thesis_acknowledged flag -- "
+                        "smith-thesis must examine it, or the user must acknowledge it has none")
+    return {"ticker": ticker, "passes": not failed, "vote": "shadow" if failed else "live",
+            "failed": failed, "blockers": blockers,
+            "checks": {"price": price, "price_source": price_source, "atr_pct": atr_this_run,
+                       "sources": [f"{e['source']}:{e['quality']}" for e in evidence],
+                       "thesis": ("carried" if smith_risk.is_carried_thesis(thesis_entry) else
+                                  "entry" if thesis_entry else "acknowledged" if no_thesis_ack else None)}}
+
+
+def apply_universe_bar(row, bar, leg=None):
+    """Fold a universe_bar verdict into a candidate row IN PLACE. A failing bar demotes a `live`
+    vote to `shadow` and appends its named blockers (a row that is already shadow / below_materiality
+    keeps its vote -- the bar never promotes anything). The verdict rides on `row["universe_bar"]`
+    for the dashboard and the ticket. `leg` is the dict whose blockers to extend (a paired row's
+    buy_leg); default the row itself."""
+    target = leg if leg is not None else row
+    row["universe_bar"] = {k: bar[k] for k in ("passes", "failed", "checks")}
+    if bar["passes"]:
+        return row
+    if row.get("vote") == "live":
+        row["vote"] = "shadow"
+    target.setdefault("blockers", []).extend(bar["blockers"])
+    return row
 
 
 # ---------------------------------------------------------------------------

@@ -523,6 +523,9 @@ class TestCandidatePrices:
             st.setdefault("thesis", {})["CORZ"] = "AI hosting|strengthening"
             json.dump(st, open(dst / "base" / "state.json", "w"))
             json.dump({"CORZ": {"price": 15.25}}, open(dst / "rundir" / "live_quotes.json", "w"))
+            # Phase 6 universe bar: an unheld name needs an ATR/RSI computed from THIS run's bars
+            json.dump({"atr20_pct": {"CORZ": 7.0}, "rsi14": {"CORZ": 40.0}},
+                      open(dst / "rundir" / "compute_indicators.json", "w"))
             # Phase 4: a buy needs a fresh analyst target or the EV gate shadows it (payoff unknown)
             st["data_cache"].setdefault("analyst_targets", {})["CORZ"] = {"mean_target_usd": 30.0, "as_of": "2026-09-01"}
             json.dump(st, open(dst / "base" / "state.json", "w"))

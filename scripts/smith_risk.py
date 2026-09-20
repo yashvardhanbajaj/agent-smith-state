@@ -333,6 +333,83 @@ def thesis_evidence(entry):
     return ([], [], "unverified")
 
 
+# ---------------------------------------------------------------------------
+# CARRIED THESIS -- an exited name's LAST HELD thesis, kept as STALE evidence (Phase 6)
+# ---------------------------------------------------------------------------
+# THE INCIDENT. `_trigger_reentry_scan` reported 45 alumni "could not be JUDGED at all": state.thesis
+# is seeded from CURRENT holdings and cmd_compact archives the entry of every name no longer held,
+# so an exited name is absent from the very map the conviction gate reads. It failed the gate for
+# absence of evidence, not for weak evidence -- the G72 shape (silent because the file cannot
+# represent it). The last held thesis was never lost (exited-holdings-archive.json keeps it); it was
+# just unreadable by the scorer, and when it IS read it must not be mistaken for a fresh call.
+#
+# THE CONTRACT (ONE FIELD, ONE READER). `status` is NEVER rewritten and no new status string is
+# invented: thesis_status() still whitelists against KNOWN_STATUSES. The record is the last entry
+# plus explicit markers -- `carried: True`, `exited: True`, `held: False`, `exited_as_of`,
+# `carried_from`, `carried_on`, `last_status`, `last_reviewed_on` -- and smith_conviction's
+# thesis_component reads `carried` to discount it (half weight, evidence capped at unverified) and
+# to say so in the ticket. A carried `strengthening` is therefore never scored like a fresh one.
+
+def is_carried_thesis(entry):
+    """True for an exited name's carried (stale) thesis record."""
+    return isinstance(entry, dict) and bool(entry.get("carried"))
+
+
+def carry_thesis_forward(entry, exited_on, carried_from, today):
+    """The LAST held thesis of an exited name, as a stale `exited` record. Pure; idempotent (an
+    already-carried record keeps its ORIGINAL carried_from / last_status / exited_as_of, so
+    re-carrying never launders a stale entry into a fresh-looking one). Returns None when there is
+    no entry to carry -- a name that was never examined is a missing input, not a thesis to invent.
+
+    A legacy bare string becomes a dict WITHOUT inventing anything: `status` is set only when the
+    string encodes a known one (normalize_thesis_entry would default it to 'watch', which for an
+    alumnus is an invented verdict), evidence arrays are explicitly empty, verified is unverified."""
+    if not entry:
+        return None
+    if is_carried_thesis(entry):
+        return entry
+    if isinstance(entry, dict):
+        rec = dict(entry)
+    else:
+        rec = {"thesis": thesis_text(entry), "evidence_for": [], "evidence_against": [],
+               "verified": "unverified"}
+        st = thesis_status(entry)
+        if st:
+            rec["status"] = st
+    last = thesis_status(entry)
+    rec.update({
+        "carried": True, "exited": True, "held": False,
+        "exited_as_of": str(exited_on) if exited_on else rec.get("exited_as_of"),
+        "carried_from": carried_from, "carried_on": str(today),
+        "last_status": last,
+        "last_reviewed_on": (entry.get("reviewed_on") if isinstance(entry, dict) else None),
+    })
+    return rec
+
+
+CARRIED_MARKER_KEYS = ("carried", "exited", "held", "exited_as_of", "carried_from", "carried_on",
+                       "last_status", "last_reviewed_on")
+
+
+def uncarry_thesis(entry):
+    """Inverse of carry_thesis_forward for a name that is HELD AGAIN (cmd_compact's restore-on-return):
+    drops the stale markers so the restored entry is an ordinary thesis that smith-thesis will
+    re-review, not a permanently discounted one. `reviewed_on` is left as it was, so the ordinary
+    staleness clock already reflects how old the read is. Non-carried entries pass through."""
+    if not is_carried_thesis(entry):
+        return entry
+    return {k: v for k, v in entry.items() if k not in CARRIED_MARKER_KEYS}
+
+
+def no_thesis_acknowledged(state, ticker):
+    """The user's explicit 'I know this name has no thesis and want it eligible anyway' flag, from
+    state.no_thesis_acknowledged {"TICKER": {"date", "reason"}} -- the same shape as the other
+    suppression/override maps above. Returns the record or None. Read by the Phase 6 universe bar
+    as the alternative to a thesis entry; it is never inferred and never written by a script."""
+    rec = ((state or {}).get("no_thesis_acknowledged") or {}).get(ticker)
+    return rec if rec else None
+
+
 def is_legacy_thesis(entry):
     """True for a bare-string entry that has not been migrated to the evidence schema."""
     return entry is not None and not isinstance(entry, dict)
