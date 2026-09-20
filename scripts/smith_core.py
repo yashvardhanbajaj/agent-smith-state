@@ -856,9 +856,192 @@ DEEMPH_MAX_AGE_DAYS = 7
 # below this rate over at least this many scored signals costs a BUY 2 priority points.
 BUCKET_PENALTY_HIT_RATE_PCT, BUCKET_PENALTY_MIN_N, BUCKET_PENALTY_POINTS = 45.0, 8, 2
 BUCKET_REWARD_HIT_RATE_PCT = 55.0
-# proposal statuses that represent a real closed recommendation worth grading (shared by
-# cmd_score and smith_edge so both read the same set). `superseded` is absent on purpose.
-SCOREABLE_STATUSES = frozenset({"executed", "fulfilled", "filled", "auto_retired", "deferred", "watch"})
+# ---------------------------------------------------------------------------
+# PROPOSAL STATUSES -- one vocabulary, translated ON READ (Phase 5, 2026-09-21)
+# ---------------------------------------------------------------------------
+# Measured on 2026-09-21, 323 rows carry 11 distinct statuses, and FIVE of them
+# (executed, fulfilled, filled, deferred, watch) had ZERO writers in scripts/ -- the orchestrator
+# LLM hand-wrote them in July/August. Consequences: `fulfilled` and `filled` mean exactly what
+# `executed` means but each reader hand-listed a different subset of the three; and `deferred` /
+# `watch` were counted as open by smith_runlife, smith_memory and the dashboard yet excluded from
+# smith_validity.RECHECKED_STATUSES, cmd_proposals' retirement pass and the terminal-status set,
+# so five rows dated 2026-07-29 sat permanently un-retired, un-archived and un-rechecked.
+#
+# The vocabulary is now:  open | accepted_by_user | executed | auto_retired | superseded |
+# dismissed_by_user | dismissed_by_desk.  The old spellings are ALIASES, translated when a row is
+# READ (canonical_status) and never rewritten in storage: 323 historical rows keep loading,
+# rendering and scoring exactly as before, and no history is edited. A reader that compares a row's
+# status goes through canonical_status()/stored_forms(), never a hand-listed tuple (a test greps
+# for the old literals).
+STATUS_ALIASES = {
+    "fulfilled": "executed",   # identical to executed: a ledger-confirmed fill
+    "filled": "executed",
+    "deferred": "open",        # "not now" IS an open proposal; defer_until says when to look again
+    "watch": "open",
+}
+LIVE_PROPOSAL_STATUSES = ("open", "accepted_by_user")   # canonical: rechecked every run
+LEGACY_DEFERRED_STATUSES = frozenset(a for a, c in STATUS_ALIASES.items() if c == "open")
+
+
+def canonical_status(row_or_status):
+    """A proposal's status in the current vocabulary. Accepts a row or a bare status string."""
+    st = row_or_status.get("status") if isinstance(row_or_status, dict) else row_or_status
+    return STATUS_ALIASES.get(st, st)
+
+
+def stored_forms(*canonical):
+    """Every STORED spelling that reads as one of these canonical statuses (the canonical names
+    first, then their aliases). For code that must compare against raw text -- a SQL-ish filter,
+    a JS regex -- without hand-listing the historical spellings."""
+    want = set(canonical)
+    return tuple(list(canonical) + sorted(a for a, c in STATUS_ALIASES.items() if c in want))
+
+
+def is_status(row, *canonical):
+    """True when the row's status (alias-translated) is one of the canonical names given."""
+    return canonical_status(row) in canonical
+
+
+# Statuses that represent a real closed recommendation worth grading (shared by cmd_score and
+# smith_edge so both read the same set). `superseded` is absent on purpose.
+# LEGACY EXCEPTION, stated rather than hidden: a stored `deferred`/`watch` row is an alias of
+# `open` for LIVENESS (it is rechecked and retirable) but has ALWAYS been scored as a closed
+# not-taken recommendation, and three of the five carry a graded verdict inside the published
+# scorecard. Dropping them from SCOREABLE would shrink the record and trip cmd_score's
+# refuse-to-shrink guard on the next real run, so the alias is deliberately NOT applied to
+# scoring. They stay scoreable by stored spelling until the lifecycle retires them, after which
+# `auto_retired` (scoreable) carries them with their verdict intact.
+SCOREABLE_STATUSES = frozenset(stored_forms("executed", "auto_retired")) | LEGACY_DEFERRED_STATUSES
+# Statuses no lifecycle pass will touch again (archived by smith_memory once old enough).
+TERMINAL_PROPOSAL_STATUSES = frozenset(stored_forms(
+    "superseded", "auto_retired", "dismissed_by_user", "dismissed_by_desk", "executed"))
+
+# ---------------------------------------------------------------------------
+# TRADE TICKET (Phase 5)
+# ---------------------------------------------------------------------------
+TICKET_VERSION = 1
+
+# Which script-owned ticket fields each direction must carry before add-proposal will write it
+# (behind --require-ticket for one release). A BUY is entered at a level and needs a STOP; a
+# SELL/TRIM is an exit from a position that already exists -- it has no entry-style stop, its
+# risk is the RISK IT REMOVES, and a stop on an exit is a category error (the "stop" of a sell is
+# the price at which you were wrong to sell, which is what `invalidation` states). HOLD and
+# ticker-less cash proposals are outside the gate: their escape hatch predates the ticket.
+TICKET_REQUIRED_FIELDS = {
+    "BUY": ("stop_price_usd", "size_usd", "risk_usd", "invalidation", "horizon_days", "expires_on",
+            "rationale"),
+    "SELL": ("size_usd", "risk_removed_usd", "invalidation", "horizon_days", "expires_on",
+             "rationale"),
+    "TRIM": ("size_usd", "risk_removed_usd", "invalidation", "horizon_days", "expires_on",
+             "rationale"),
+}
+# Fields the strategist may NOT change: a spec that disagrees with the ticket the script built
+# from the trigger row is rejected (see smith_ticket.script_owned_conflicts and add-proposal).
+TICKET_SCRIPT_OWNED_FIELDS = ("size_usd", "size_wanted_usd", "clamped_by", "stop_price_usd",
+                              "stop_distance_pct", "target_price_usd", "r_multiple", "risk_usd",
+                              "risk_removed_usd", "ev_r", "p_win", "horizon_days", "expires_on",
+                              "invalidation")
+
+# Ticket horizon (days from the proposal date to `expires_on`), per trigger family. THESE ARE
+# ENGINEERING ASSUMPTIONS, NOT MEASUREMENTS -- no post-ENGINE_EPOCH outcome exists to calibrate
+# them, so each carries the reasoning it was chosen on, and smith_edge's per-family record should
+# replace them once n_eff supports it. The one derivation used throughout: a stop at k x ATR20 is
+# reached by a random walk in ~k^2 sessions, so a 2xATR stop is ~4 sessions (~6 calendar days)
+# of typical movement -- an EXIT whose edge is risk avoided over that span is stale after about
+# a week, while an ENTRY that needs a k-R target needs several times longer.
+HORIZON_DAYS_BY_FAMILY = {
+    "trend_entry": (14, "an entry on a 1-month trend/relative-strength signal; the signal that fired "
+                        "it rolls off over ~2 weeks, and a random walk needs ~k^2 sessions to cover k "
+                        "ATRs, so a multi-R target is weeks away, not days"),
+    "conviction_average": (14, "an average-down add on a thesis that is being re-tested each run; "
+                               "two weeks is one full earnings/news cycle for the thesis to confirm"),
+    "entry_setup": (14, "a watchlist entry trigger; the setup's own 1-month window is the ceiling"),
+    "reentry": (14, "a re-entry after an exit; replaces the legacy 20-day exited_on clock, which ran "
+                    "from the exit -- a proposal is written days after the exit, so 14 from the "
+                    "proposal reaches the same ceiling"),
+    "bench_diversifier": (14, "a bench name earning its first position; unhurried by design"),
+    "oversold_reversion": (7, "a mean-reversion timing setup: RSI hysteresis (exit above "
+                              "RSI_OVERSOLD_EXIT) mean-reverts within about a week or the dip was not one"),
+    "overbought_distribution": (7, "a profit-take on an RSI extreme; the extreme cools within about a "
+                                   "week (RSI_OVERBOUGHT_EXIT hysteresis), after which the reason is gone"),
+    "catalyst_threat": (5, "an event-driven exit; a structural catalyst is priced within days, so an "
+                           "unacted exit past a week is a stale read of the event"),
+    "thesis_break": (7, "a protective exit on a broken thesis; ~4 sessions of 2xATR diffusion plus slack"),
+    "trend_breakdown": (7, "a protective exit on a trend break; same 2xATR diffusion argument"),
+    "conviction_exit": (7, "a protective exit when conviction collapses; same 2xATR diffusion argument"),
+    "profit_rotation": (10, "a paired swap: both legs must be executed while the ladder that ranked them "
+                            "is fresh (stale after 14 days in retires_when)"),
+    "cluster_rotation": (10, "a paired swap driven by the cluster ladder, which goes stale after 14 days"),
+    "rebound": (5, "a relief-rally entry after a broad correction; the bounce is a matter of days"),
+}
+DEFAULT_HORIZON_DAYS = 7      # a family with no entry above gets this and SAYS SO (basis "default")
+TICKET_REVIEW_FRACTION = 0.5  # review_on = proposal date + this fraction of the horizon (>= 1 day)
+
+
+def horizon_for(trigger_type):
+    """(days, basis) for a trigger family. An unknown family gets DEFAULT_HORIZON_DAYS with a basis
+    that says it is a default -- never a silent invention."""
+    hit = HORIZON_DAYS_BY_FAMILY.get(trigger_type)
+    if hit:
+        return hit[0], f"family table ({trigger_type}): {hit[1]}"
+    return DEFAULT_HORIZON_DAYS, (f"DEFAULT {DEFAULT_HORIZON_DAYS}d -- no horizon basis is recorded "
+                                  f"for trigger family {trigger_type!r}")
+
+
+# ---------------------------------------------------------------------------
+# RETIREMENT OWNERSHIP (Phase 5)
+# ---------------------------------------------------------------------------
+# WHY. Three mechanisms judged "is this proposal still worth attention?" with overlapping tests:
+# cmd_proposals (writes auto_retired), smith_validity (per-run verdict, never edits) and the
+# 7-day auto-expiry. Two of them could act on the same fact -- and the user's rule is that a
+# desk RETIRE verdict waits for their click while a mechanical fact may retire on its own. So
+# every condition has exactly ONE owner, and the owner decides what may be done about it:
+#   cmd_proposals   OBJECTIVE, ticker-level facts the run can verify -> writes auto_retired
+#   smith_validity  JUDGMENTAL / cross-source evidence                -> verdict only; the user clicks
+#   reconcile       a matching broker fill in trades.json             -> writes executed
+# tests/unit/test_smith_retirement_owners.py asserts each module emits only its own conditions and
+# that no condition string is used by both.
+OWNER_LIFECYCLE, OWNER_VALIDITY, OWNER_RECONCILE = "cmd_proposals", "smith_validity", "reconcile-proposals"
+RETIREMENT_OWNERS = {
+    # -- mechanical: cmd_proposals may auto-retire ------------------------------------------------
+    "trigger_no_longer_fires": (OWNER_LIFECYCLE, "the trigger family the proposal rests on no longer lists this ticker in this run's compute_triggers"),
+    "pair_not_live": (OWNER_LIFECYCLE, "the rotation pairing is no longer live -- both legs retire together"),
+    "rsi_condition_cleared": (OWNER_LIFECYCLE, "RSI14 left the overbought/oversold zone the trigger was sized against"),
+    "position_gone": (OWNER_LIFECYCLE, "a TRIM/SELL/HOLD presupposes a position that is no longer held"),
+    "position_dust": (OWNER_LIFECYCLE, "the remaining position is under the dust threshold"),
+    "position_shrunk": (OWNER_LIFECYCLE, "the proposed trim now exceeds half of what remains of the position"),
+    "cap_cluster_breach_cleared": (OWNER_LIFECYCLE, "neither the ATR risk cap nor the cluster band justifies the trim any more"),
+    "cluster_band_cleared": (OWNER_LIFECYCLE, "the cluster a fill-buy topped up is back inside its band"),
+    "cash_band_cleared": (OWNER_LIFECYCLE, "cash is back inside its normal band"),
+    "thesis_state_cleared": (OWNER_LIFECYCLE, "the thesis status the trigger required (or forbade) no longer holds"),
+    "stretch_cohort_left": (OWNER_LIFECYCLE, "the name left compute_derisk's stretched cohort"),
+    "signal_bucket_gone": (OWNER_LIFECYCLE, "the measured signal bucket behind a signal_conviction buy is gone or no longer beats its bar"),
+    "position_already_opened": (OWNER_LIFECYCLE, "an initiating buy whose position now exists"),
+    "hold_age_out": (OWNER_LIFECYCLE, "tactical HOLD advice is time-bound"),
+    "ticket_expired": (OWNER_LIFECYCLE, "the ticket's own expires_on has passed (replaces the reentry 20-day clock for ticket rows)"),
+    "ticket_invalidation_met": (OWNER_LIFECYCLE, "the machine-checkable part of the ticket's invalidation is met (price through the stop, thesis outside its allowed set)"),
+    "reentry_window_expired": (OWNER_LIFECYCLE, "LEGACY rows only: 20 days since exited_on, for a reentry with no ticket expiry"),
+    "declared_supersession": (OWNER_LIFECYCLE, "a newer spec declared it supersedes this row"),
+    "weaker_conflict": (OWNER_LIFECYCLE, "an opposite-direction proposal on the same ticker won the conflict"),
+    "legacy_7day_expiry": (OWNER_LIFECYCLE, "LEGACY rows only (no expires_on): the blunt 7-calendar-day expiry, status superseded"),
+    # -- judgmental: smith_validity gives a verdict, the user clicks ------------------------------
+    "alpha_against_proposal": (OWNER_VALIDITY, "the stock moved against the call relative to SMH since it was proposed"),
+    "trigger_gone_alpha_against": (OWNER_VALIDITY, "the trigger has stopped firing AND the market moved against the call (a compound, cross-source read)"),
+    "own_trade_contradicts": (OWNER_VALIDITY, "you traded the opposite way after the proposal"),
+    "own_trade_same_direction": (OWNER_VALIDITY, "you traded the same way after the proposal -- already acted on (looser than a reconcile match)"),
+    "strategist_retire_list": (OWNER_VALIDITY, "the strategist's stale_proposal_retirements names it"),
+    "thesis_conflict": (OWNER_VALIDITY, "a BUY on a watch/broken thesis, or a TRIM/SELL on a strengthening one"),
+    "desk_unresolved": (OWNER_VALIDITY, "an unresolved desk disagreement on this name"),
+    "earnings_proximity": (OWNER_VALIDITY, "a print inside ~10 sessions"),
+    "age_sessions": (OWNER_VALIDITY, "old enough that its premise deserves a fresh look (a soft signal, not an expiry)"),
+    # -- a fact in trades.json: reconcile-proposals marks it executed -----------------------------
+    "fill_matched": (OWNER_RECONCILE, "trades.json holds a matching fill (same ticker and direction, +/-10 days, size within 50%)"),
+}
+
+
+def retirement_conditions(owner):
+    """The condition codes one owner may act on."""
+    return frozenset(k for k, (o, _) in RETIREMENT_OWNERS.items() if o == owner)
 
 # ---------------------------------------------------------------------------
 # lots -- deterministic FIFO with corporate-action support

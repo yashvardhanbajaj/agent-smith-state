@@ -565,6 +565,13 @@ def postflight_commit(args):
     out = {"phase": "commit", "mode": args.mode}
     out["staged"] = _stage_run_block(base, rd, args.mode, today)
     out["commit"] = ss.commit_state(base, rd, persist_safe=None)
+    # EXECUTED has exactly one writer: a matching fill in trades.json (smith_ledger.reconcile_proposals).
+    # Runs every commit, never from acceptance alone; idempotent, so a re-run changes nothing.
+    try:
+        from smith_ledger import cmd_reconcile_proposals
+        out["proposals_reconciled"] = _capture(cmd_reconcile_proposals, base_dir=base, today=str(today))
+    except Exception as e:  # noqa: BLE001 -- never blocks a commit
+        out["proposals_reconciled"] = {"error": f"{type(e).__name__}: {e}"}
     out.update(_merge_journal(base, rd, today))
     out.update(_append_shadow_triggers(base, rd, today))
     if args.mode in ("deep", "quick"):

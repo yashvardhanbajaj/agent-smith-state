@@ -35,7 +35,8 @@ overwritten, only shadowed by `current` in the parameter record.
 import os
 from datetime import date, datetime
 
-from smith_core import load_json, emit, fail, safe_write, desk_today, UNGRADED_VERDICTS
+from smith_core import (load_json, emit, fail, safe_write, desk_today, UNGRADED_VERDICTS,
+                        stored_forms, LEGACY_DEFERRED_STATUSES)
 from smith_lifecycle import _proposal_parse_date  # `import *` skips underscore names
 
 STORE_FILENAME = "learning.json"
@@ -551,7 +552,7 @@ def cmd_usage_audit(args):
 # from the start, structurally -- there is no code path that produces one flattened number
 # spanning multiple months, because that code path is exactly what produced the false result.
 
-ACTED_STATUSES = {"executed", "fulfilled", "filled"}
+ACTED_STATUSES = set(stored_forms("executed"))
 IGNORED_STATUSES = {"auto_retired"}
 DISMISSED_STATUSES = {"dismissed_by_user"}
 # A DESK withdrawal is not a revealed preference. Added 2026-08-31: `dismiss` stamped
@@ -561,7 +562,9 @@ DISMISSED_STATUSES = {"dismissed_by_user"}
 # were on record as the USER rejecting those ideas. This module measures what the user prefers;
 # feeding it the desk's own retractions teaches it a preference the user never expressed.
 DESK_WITHDRAWN_STATUSES = {"dismissed_by_desk"}
-DEFERRED_STATUSES = {"deferred", "watch"}
+# the legacy spellings of `open` -- a stored "not now" is a revealed preference even though it now
+# reads as open for liveness (smith_core.STATUS_ALIASES)
+DEFERRED_STATUSES = set(LEGACY_DEFERRED_STATUSES)
 # Deliberately excluded from every profile: "open" (outcome not yet known), "superseded"
 # (a mechanical dedup merge into a restated duplicate, not a user decision about the idea),
 # and "dismissed_by_desk" (the desk withdrawing its own proposal -- not a user decision at all).

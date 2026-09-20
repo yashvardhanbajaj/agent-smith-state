@@ -65,7 +65,7 @@ from smith_validity import cmd_validity
 from smith_valuation import cmd_valuation
 from smith_memory import cmd_compact, cmd_gaps, cmd_validate, cmd_slices, validate_policy, cmd_append_ledger, cmd_merge_tails, cmd_freshness, cmd_report, cmd_runs, cmd_crosscheck
 from smith_lifecycle import (cmd_proposals, cmd_score, cmd_stops, cmd_dismiss, cmd_add_proposal,
-                             cmd_score_shadow_journal, dismiss_proposal_core)
+                             cmd_score_shadow_journal, dismiss_proposal_core, build_ticket_context)
 from smith_learning import (load_store as learn_load_store, write_store as learn_write_store,
                             record_observation, user_force_approve,
                             cmd_learn_status, cmd_learn_lessons, cmd_learn_add_lesson,
@@ -76,7 +76,7 @@ from smith_learning import (load_store as learn_load_store, write_store as learn
 from smith_core import _prior_run_prices
 from smith_ledger import _avg_cost_from_lots, _months_between, policy_ltcg_months, months_until_ltcg
 from smith_lifecycle import _proposal_parse_date
-from smith_ledger import cmd_trade_rationale  # noqa: E402
+from smith_ledger import cmd_trade_rationale, cmd_reconcile_proposals  # noqa: E402
 import smith_marketdata  # noqa: E402
 from smith_marketdata import cmd_indicators, cmd_normalize_bars, cmd_session_gate  # noqa: E402
 from smith_orchestrate import cmd_dispatch_plan, cmd_triggers_diff, cmd_postflight  # noqa: E402
@@ -5368,14 +5368,26 @@ def cmd_triggers(args):
 # efficiency pass item 5: "the triggers already size every candidate; let a script draft the
 # specs and the fixed sections, leaving the strategist to accept, reject and explain")
 # ---------------------------------------------------------------------------
-_DRAFT_SINGLE_LEG_KEYS = ("oversold_reversion", "overbought_distribution", "catalyst_threat",
-                          "thesis_break", "trend_entry", "trend_breakdown", "conviction_average",
-                          "conviction_exit", "entry_setup", "reentry", "bench_diversifier")
-_DRAFT_PAIRED_KEYS = ("profit_rotation", "cluster_rotation")
+# DERIVED from smith_core, not hand-listed (Phase 5). These two tuples used to be typed out and
+# silently duplicated smith_core.PAIRED_TRIGGERS -- the file's own comment says adding a paired
+# trigger without updating every hand-written list reintroduces the orphaned-leg bug. A trigger is
+# draftable when it can vote LIVE; the shadow paired families (cluster_bench_rotation,
+# cluster_consolidation) are in PAIRED_TRIGGERS but never live, so `& LIVE_TRIGGERS` excludes them by
+# the same declaration that makes them shadow. Sorted, so the draft order is deterministic.
+_DRAFT_PAIRED_KEYS = tuple(sorted(PAIRED_TRIGGERS & LIVE_TRIGGERS))
+_DRAFT_SINGLE_LEG_KEYS = tuple(sorted(LIVE_TRIGGERS - PAIRED_TRIGGERS))
 
 
-def _draft_leg_spec(ticker, trigger_type, direction, row, pair_id=None, pair_role=None):
-    return {"direction": direction, "ticker": ticker, "trigger_type": trigger_type,
+def _draft_leg_spec(ticker, trigger_type, direction, row, pair_id=None, pair_role=None,
+                    triggers=None, ctx=None):
+    """One drafted spec. With `ctx` (the real path) the trade TICKET is built here, by the same
+    smith_ticket.build_ticket and the same leg_view add-proposal will check it against, and its flat
+    fields are copied onto the spec so the strategist sees size/stop/risk/invalidation/horizon rather
+    than four numbers. Measured 2026-09-20: this function used to carry size, size_wanted, clamped_by,
+    price and stop and DROP risk_usd, edge, gate, heat, severity, materiality and retires_when -- and
+    a rotation's buy leg has no stop_price_usd on its trigger row at all, so it was drafted stopless.
+    """
+    spec = {"direction": direction, "ticker": ticker, "trigger_type": trigger_type,
             "pair_id": pair_id, "pair_role": pair_role,
             "size_usd": row.get("suggested_size_usd"),
             "size_wanted_usd": row.get("size_wanted_usd"), "clamped_by": row.get("clamped_by"),
@@ -5383,9 +5395,20 @@ def _draft_leg_spec(ticker, trigger_type, direction, row, pair_id=None, pair_rol
             "draft_reasons": row.get("reasons"), "blockers": row.get("blockers"),
             # Left for the strategist to write -- this is judgment, never scripted:
             "rationale": None, "evidence_quality": None}
+    if ctx is not None:
+        view = smith_ticket.leg_view(triggers, trigger_type, ticker, pair_id, pair_role)
+        if view is not None:
+            ticket = smith_ticket.build_ticket(view, ctx)
+            flat = smith_ticket.flatten_ticket(ticket)
+            flat.pop("ticket_version", None)
+            spec.update({k: None for k in TICKET_SCRIPT_OWNED_FIELDS})   # a stale draft value must not survive
+            spec.update(flat)
+            spec["price_at_proposal"] = (ticket.get("entry") or {}).get("price_usd") or spec["price_at_proposal"]
+            spec["ticket"] = ticket
+    return spec
 
 
-def _draft_proposal_specs(triggers, open_keys):
+def _draft_proposal_specs(triggers, open_keys, ctx=None):
     specs, skipped = [], []
     for key in _DRAFT_SINGLE_LEG_KEYS:
         for row in triggers.get(key) or []:
@@ -5395,7 +5418,8 @@ def _draft_proposal_specs(triggers, open_keys):
             if (ticker, ttype) in open_keys:
                 skipped.append(f"{ticker}/{ttype} already open")
                 continue
-            specs.append(_draft_leg_spec(ticker, ttype, row.get("direction"), row))
+            specs.append(_draft_leg_spec(ticker, ttype, row.get("direction"), row,
+                                         triggers=triggers, ctx=ctx))
     for key in _DRAFT_PAIRED_KEYS:
         for row in triggers.get(key) or []:
             if row.get("vote") != "live":
@@ -5407,9 +5431,11 @@ def _draft_proposal_specs(triggers, open_keys):
                 skipped.append(f"pair {pair_id} already open ({sell.get('ticker')}/{buy.get('ticker')})")
                 continue
             specs.append(_draft_leg_spec(sell.get("ticker"), ttype, sell.get("direction"),
-                                         sell, pair_id=pair_id, pair_role="sell"))
+                                         sell, pair_id=pair_id, pair_role="sell",
+                                         triggers=triggers, ctx=ctx))
             specs.append(_draft_leg_spec(buy.get("ticker"), ttype, buy.get("direction"),
-                                         buy, pair_id=pair_id, pair_role="buy"))
+                                         buy, pair_id=pair_id, pair_role="buy",
+                                         triggers=triggers, ctx=ctx))
     return specs, skipped
 
 
@@ -5476,8 +5502,9 @@ def cmd_draft_specs(args):
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
     open_keys = {(pr.get("ticker"), pr.get("trigger_type"))
                  for pr in (props.get("proposals") or [])
-                 if pr.get("status") in ("open", "accepted_by_user")}
-    specs, skipped = _draft_proposal_specs(triggers, open_keys)
+                 if canonical_status(pr) in LIVE_PROPOSAL_STATUSES}
+    ctx = build_ticket_context(args.base_dir, args.run_dir, resolve_today(getattr(args, "today", None)))
+    specs, skipped = _draft_proposal_specs(triggers, open_keys, ctx=ctx)
     out = {"as_of": triggers.get("as_of"), "proposal_specs": specs, "skipped_already_open": skipped,
            "stress_table_anchor": _draft_stress_anchor(market_inputs, state.get("fomc_cache")),
            "scorecard_quote": _draft_scorecard_quote(props.get("scorecard"))}
@@ -5576,7 +5603,7 @@ def cmd_sync_decisions(args):
                     skipped.append({"surface": surface, "element_id": element_id, "why": "no such proposal"})
                     continue
                 if decision == "reject":
-                    if pr.get("status") != "open":
+                    if canonical_status(pr) != "open":
                         skipped.append({"surface": surface, "element_id": element_id, "why": f"already {pr.get('status')}"})
                         continue
                     dismiss_proposal_core(props, element_id, reason, actor="user (dashboard)")
@@ -5587,7 +5614,7 @@ def cmd_sync_decisions(args):
                     # `retire`) -- so it is recorded as dismissed_by_desk, which the scorecard
                     # counts as a strategist miss. Filing it as a user override would hide the
                     # desk's own stale calls inside the exclusion meant for the user's taste.
-                    if pr.get("status") != "open":
+                    if canonical_status(pr) != "open":
                         skipped.append({"surface": surface, "element_id": element_id, "why": f"already {pr.get('status')}"})
                         continue
                     dismiss_proposal_core(props, element_id,
@@ -5595,7 +5622,7 @@ def cmd_sync_decisions(args):
                                           actor="desk (retire recommendation, confirmed by user)")
                     proposals_dirty = True
                 elif decision == "accept":
-                    if pr.get("status") != "open":
+                    if canonical_status(pr) != "open":
                         skipped.append({"surface": surface, "element_id": element_id, "why": f"already {pr.get('status')}"})
                         continue
                     # Deliberately NOT "executed"/"fulfilled"/"filled" -- those mean a
@@ -5607,7 +5634,7 @@ def cmd_sync_decisions(args):
                     pr["accepted_reason"] = reason
                     proposals_dirty = True
                 elif decision == "hold":
-                    if pr.get("status") != "open":
+                    if canonical_status(pr) != "open":
                         skipped.append({"surface": surface, "element_id": element_id, "why": f"already {pr.get('status')}"})
                         continue
                     # Same-day dedup: the decisions blob is CUMULATIVE -- every republish of
@@ -5649,6 +5676,14 @@ def cmd_sync_decisions(args):
                 pr = prop_by_id(element_id)
                 if pr is None or pr.get("status") != "auto_retired":
                     skipped.append({"surface": surface, "element_id": element_id, "why": "not auto_retired"})
+                    continue
+                if decision == "revive" and pr.get("retired_condition") == "ticket_expired":
+                    # Reviving an EXPIRED ticket would be undone by the next cmd_proposals (same
+                    # expires_on, same rule) -- a click that silently does nothing. A still-valid idea
+                    # is re-proposed on today's numbers, which is a new ticket with a new horizon.
+                    skipped.append({"surface": surface, "element_id": element_id,
+                                    "why": f"ticket expired {pr.get('expires_on')}; revive would be re-retired "
+                                           "next run -- re-propose on current numbers instead"})
                     continue
                 if decision == "revive":
                     pr["status"] = "open"
@@ -5936,7 +5971,13 @@ def main():
     sp = sub.add_parser("add-proposal", help="the only sanctioned way to append new proposals -- builds `action` from ticker+direction so it can't be a bare direction word")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--proposals-json", required=True, help="path to a JSON array of proposal specs (see cmd_add_proposal docstring)")
-    sp.add_argument("--run-dir", default=None, help="check price_at_proposal / SMH anchor against this run's quotes (replaced when >3%% off)")
+    sp.add_argument("--run-dir", default=None, help="check price_at_proposal / SMH anchor against this run's quotes (replaced when >3%% off); ALSO where the trade ticket is built from -- this run's compute_triggers.json")
+    sp.add_argument("--today", default=None)
+    sp.add_argument("--require-ticket", action="store_true",
+                    help="REJECT the whole batch when a BUY lacks stop/size/risk/invalidation/horizon/rationale, a SELL/TRIM lacks size/risk_removed/invalidation/horizon/rationale, or a spec changes a script-owned ticket field. DEFAULT OFF for one release so the agent fleet can migrate (specs without a ticket are written legacy-shaped with a data_quality line naming what was missing); flip the default in cmd_add_proposal once a full run has gone through clean")
+
+    sp = sub.add_parser("reconcile-proposals", help="mark live proposals `executed` ONLY where trades.json holds a matching fill (same ticker+side, +/-10 days, size within 50%%); never from acceptance alone; idempotent")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--today", default=None)
 
     sp = sub.add_parser("append-ledger", help="the only sanctioned way to append a ledger.csv row -- short summary in the CSV, full narrative in a separate briefing file")
@@ -6101,6 +6142,7 @@ def main():
     sp = sub.add_parser("draft-specs", help="script-draft the strategist's proposal specs from compute_triggers.json's sized live candidates")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--run-dir", required=True)
+    sp.add_argument("--today", default=None, help="the date the tickets are built on (their review_on/expires_on count from it); default today")
 
     sp = sub.add_parser("gaps", help="look up known_gaps across BOTH state.json and the archive")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
@@ -6367,6 +6409,7 @@ def main():
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "freshness": cmd_freshness, "report": cmd_report, "runs": cmd_runs,
          "dismiss": cmd_dismiss, "add-proposal": cmd_add_proposal,
+         "reconcile-proposals": cmd_reconcile_proposals,
          "append-ledger": cmd_append_ledger, "merge-tails": cmd_merge_tails, "stops": cmd_stops,
          "score-shadow-journal": cmd_score_shadow_journal, "learn-status": cmd_learn_status,
          "learn-lessons": cmd_learn_lessons, "learn-add-lesson": cmd_learn_add_lesson,

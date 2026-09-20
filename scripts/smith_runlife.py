@@ -21,7 +21,8 @@ BAD_RUN_VERDICTS = ("MISSING", "FIRED_BUT_NO_LEDGER_ROW", "LEDGER_ROW_WITHOUT_RU
                     "WEEKLY_NO_DEEP_RUN")
 LEDGER_SILENCE_H = 96          # Friday evening -> Monday pre-market is ~70h; 96h is a real gap
 WATCHDOG_HOUR_IST = 16   # launchd com.agentsmith.health fires weekdays 16:00 local (IST)
-OPEN_PROPOSAL_STATUSES = ("open", "accepted_by_user", "deferred", "watch")
+# every stored spelling that reads as a LIVE proposal (deferred/watch are aliases of open)
+OPEN_PROPOSAL_STATUSES = stored_forms(*LIVE_PROPOSAL_STATUSES)
 
 
 def _capture(fn, **kw):

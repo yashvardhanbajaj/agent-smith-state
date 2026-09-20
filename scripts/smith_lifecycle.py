@@ -11,8 +11,10 @@ import os
 from datetime import date, datetime, timezone
 
 import smith_edge
+import smith_ledger
 import smith_marketdata
 import smith_risk
+import smith_ticket
 from smith_core import *  # noqa: F401,F403 -- shared constants and IO helpers
 from smith_core import load_json, emit, fail
 
@@ -149,6 +151,11 @@ def _dedupe_expire_void_proposals(props, today_date, current_tickers, direction,
     to_supersede = set()
 
     for i, pr in enumerate(props):
+        # RAW status on purpose, not canonical_status: this pass merges restatements and applies the
+        # LEGACY 7-day expiry (status superseded, no revive path). The five hand-written
+        # `deferred`/`watch` rows of July are aliases of `open` everywhere ELSE (rechecked, retirable,
+        # clickable) but must stay out of this pass -- superseding them would drop three graded
+        # verdicts from the scorecard and trip cmd_score's refuse-to-shrink guard on the next run.
         if pr.get("status") != "open":
             continue
         prop_date = parse_date(pr.get("date", ""))
@@ -239,7 +246,14 @@ def _dedupe_expire_void_proposals(props, today_date, current_tickers, direction,
         else:
             seen[key] = i
 
-        if prop_date and (today_date - prop_date).days > 7:
+        # TWO EXPIRY MECHANISMS, NOW ONE RULE (Phase 5). A ticket row carries its own `expires_on`
+        # (smith_core.HORIZON_DAYS_BY_FAMILY, per trigger family) and cmd_proposals retires it
+        # THERE, as auto_retired (a scoreable status). This blunt 7-calendar-day rule predates
+        # condition-based retirement, knows nothing about a family's horizon, and lands on
+        # `superseded` -- a harder terminal state with no revive path that also drops the idea out of
+        # the scorecard -- so it survives ONLY for pre-ticket rows, which have no expires_on to
+        # consult. It dies of old age: once the last legacy open row is gone this branch never runs.
+        if prop_date and (today_date - prop_date).days > 7 and not pr.get("expires_on"):
             to_supersede.add(i)
             if "auto-expired" not in pr.get("note", ""):
                 pr["note"] = (pr.get("note", "") + " | auto-expired after 7 calendar days").strip(" |")
@@ -301,8 +315,8 @@ def _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short,
     """Deterministic priority score for one open proposal (G47): over-cap position (+2),
     directional cluster breach (+2), directional cash-band breach (+2), genuine stretch on a
     TRIM (+2), a measured bullish signal on a BUY (+2), a live non-ATR trigger (+3 flat, or a
-    conviction-proportional bonus for CONVICTION_TRIGGERS), a restatement about to auto-retire
-    (+1), SELL over TRIM (+1), and a penalty for a BUY with no supporting evidence at all (-1).
+    conviction-proportional bonus for CONVICTION_TRIGGERS), a proposal restated exactly twice
+    (+1; restatement count alone retires nothing since 2026-09-15), SELL over TRIM (+1), and a penalty for a BUY with no supporting evidence at all (-1).
     HIGH is capped to MEDIUM unless a live trigger (a price-moving criterion, not portfolio
     mechanics) backs it. Mutates `pr` in place: priority_score/priority/priority_reasons/
     proposal_class/cluster, plus the "honest sizing" full_cure_usd/cure_basis/cure_pct/
@@ -436,13 +450,15 @@ def _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short,
         reasons.append(f"{tt} was the stated trigger but {ticker} is not in this run's "
                        f"{tt} candidate list -- condition is no longer live")
 
-    # Repeat bonus (lowered 2026-08-24: restatement auto-retirement now fires at rc>=3, see
-    # the retirement pass below, so a proposal never reaches this scoring pass carrying rc>=3
-    # from a PRIOR run -- this branch only still sees rc==2 on the run where it's about to
-    # cross the retirement line, one run ahead of that pass).
+    # Repeat bonus. History: 2026-08-24 lowered restatement auto-retirement to rc>=3, and this branch
+    # then only saw rc==2 "one run ahead of the retirement line". That retirement was REMOVED on
+    # 2026-09-15 (user decision -- repeat count is evidence the idea was not acted on, not that it
+    # stopped making sense), so nothing retires at rc>=3 any more and the old reason text ("one more
+    # restatement auto-retires it") became a false statement shown to the user. The +1 stays as a
+    # visible signal; the text now says only what is true.
     if rc == 2:
         score += 1
-        reasons.append(f"recommended {rc}x, still unactioned -- one more restatement auto-retires it")
+        reasons.append(f"recommended {rc}x, still unactioned (restating alone never retires a proposal)")
     if bucket == "SELL":
         score += 1
     # The old penalty fired on any BUY with score==0, which punished precisely the trade this
@@ -514,11 +530,49 @@ def _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short,
                                       f"cures {pr['cure_pct']:.0f}% of the {basis} excess (${cure_usd:,.0f})")
 
 
+def _ticket_retirement(pr, today_date, prices_now, state_thesis):
+    """(why, condition) when a proposal's OWN ticket says it is over, else (None, None).
+
+    Two mechanical facts, both ticker-level and both stated on the ticket at proposal time:
+      * `expires_on` has passed -- the horizon the ticket was written with (smith_core's per-family
+        table, or one the spec carried). An acceptance does not stop this clock: it is agreement with
+        the reasoning at that time, never a standing order (user principle, 2026-09-20).
+      * a machine-checkable `invalidation_checks` entry is met: price through the stop for a BUY, or
+        the thesis outside the set the trigger required. A check that cannot be evaluated (no price
+        for a name that is not held, no thesis entry) is skipped -- an unknown never retires.
+    The prose half of `invalidation` (the trigger leaving its live list, the pairing going stale) is
+    tested by the family branches and the orphan pass, which own those conditions.
+    """
+    exp = pr.get("expires_on")
+    if _v_iso_date(exp) and today_date > date.fromisoformat(exp):
+        days = pr.get("horizon_days")
+        return (f"the ticket expired on {exp}" + (f" (a {days}-day horizon)" if days else "")
+                + " -- it was never acted on inside the window it was written for, and a proposal is "
+                  "not a standing order; a still-valid idea is re-proposed on the current numbers",
+                "ticket_expired")
+    t = pr.get("ticket") if isinstance(pr.get("ticket"), dict) else None
+    ticker = pr.get("ticker")
+    for chk in ((t or {}).get("invalidation_checks") or []):
+        if chk.get("type") == "price_below":
+            px, lvl = prices_now.get(ticker), chk.get("price_usd")
+            if isinstance(px, (int, float)) and isinstance(lvl, (int, float)) and px < lvl:
+                return (f"{ticker} trades at ${px:,.2f}, below the ticket's ${lvl:,.2f} stop -- the entry is "
+                        "invalid: the level it was sized against no longer holds", "ticket_invalidation_met")
+        elif chk.get("type") == "thesis_not_in":
+            th = smith_risk.thesis_status(state_thesis.get(ticker))
+            allowed = chk.get("allowed") or []
+            if th is not None and allowed and th not in allowed:
+                return (f"{ticker}'s thesis is now '{th}', outside {'/'.join(allowed)} -- the premise the "
+                        "ticket's invalidation named has failed", "ticket_invalidation_met")
+    return None, None
+
+
 def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directional_breach,
                                       current_tickers, drift, trig_rsi, trig_abs,
                                       trigger_live_sets, state_thesis, derisk, cluster_breach,
                                       rotation_by_ticker, hit_rates_7d, parse_date,
-                                      hold_max_age_days, is_accepted=False, hit_rates_30d=None):
+                                      hold_max_age_days, is_accepted=False, hit_rates_30d=None,
+                                      prices_now=None):
     """Retires one open (or accepted-but-unexecuted) proposal in place (status/retired_on/
     retired_reason/note) the moment its OWN objective trigger is verifiably gone -- reusing the
     same typed structural signals the priority scorer computes (over_cap, directional
@@ -532,9 +586,11 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
     current setup no longer remains supportive"). Accepting is a stated intention, not proof
     the trade happened -- see the dashboard's own "Accepted -- awaiting execution" panel note --
     so a row can sit there for days while its cap/cluster/trigger/thesis premise quietly
-    reverses. `is_accepted` gates OUT the two retirement paths that measure INACTION rather
-    than a cleared condition (tactical HOLD age-out, restatement-count decay): acceptance is
-    itself the opposite of inaction, so neither should fire on an accepted row. Every objective
+    reverses. `is_accepted` gates OUT the retirement path that measures INACTION rather than a
+    cleared condition (the tactical HOLD age-out; a restatement-count decay once sat beside it and
+    was removed 2026-09-15): acceptance is itself the opposite of inaction, so it should not fire
+    on an accepted row. (A ticket's own `expires_on` DOES fire on an accepted row: an acceptance is
+    agreement with the reasoning at that time, never a standing order -- see ticket_expired.) Every objective
     condition check below (cap cleared, cluster back in band, trigger no longer live, thesis
     resolved, position exited or gone to dust) still runs exactly as it does for an open row."""
     ticker = pr.get("ticker")
@@ -553,6 +609,7 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
     over_cap = bool(rpos and rpos.get("over_cap")) and not exempted
     age = (today_date - (parse_date(pr.get("date", "")) or today_date)).days
     why = None
+    cond = None
 
     action_l = (pr.get("action") or "").lower()
     is_cash_proposal = ticker is None and ("cash" in action_l)
@@ -563,6 +620,7 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
         cash_pct = drift.get("cash_pct")
         band = drift.get("cash_band_normal_pct") or drift.get("cash_band_pct") or [None, None]
         if cash_pct is not None and band[0] is not None and cash_pct >= band[0]:
+            cond = "cash_band_cleared"
             why = (f"cash is {cash_pct:.2f}% vs a normal band of [{band[0]},{band[1]}]% -- "
                    "the buffer this proposed to rebuild is already rebuilt")
     elif bucket in ("TRIM", "SELL"):
@@ -586,10 +644,12 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             if rsi_now is None:
                 pass  # cannot test (cache stale/absent) -- keep open rather than guess
             elif rsi_now < RSI_OVERBOUGHT_EXIT:
+                cond = "rsi_condition_cleared"
                 why = (f"{ticker} RSI14 has cooled to {rsi_now:.1f} (below the "
                        f"{RSI_OVERBOUGHT_EXIT:g} exit) -- the overbought condition this "
                        "profit-take was sized against has cleared")
             elif abs_now is not None and abs_now <= 0:
+                cond = "rsi_condition_cleared"
                 why = (f"{ticker} is no longer up on the month ({abs_now:+.1f}%) -- there is no "
                        "longer a gain to protect, so this is not a profit-take any more")
         # catalyst_threat and thesis_break (added 2026-08-17, retirement corrected 2026-08-24):
@@ -608,6 +668,7 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
         elif pr.get("trigger_type") == "catalyst_threat":
             catalyst_ok = ticker in trigger_live_sets.get("catalyst_threat", set())
             if not catalyst_ok and not over_cap and not cl:
+                cond = "trigger_no_longer_fires"
                 why = (f"{ticker} no longer appears in a structural-threat factor catalyst, "
                        f"and neither the ATR cap nor cluster band independently justifies "
                        "this trim any more -- the structural reason has cleared")
@@ -618,6 +679,7 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             if th_now is None:
                 pass  # cannot test (no usable status) -- keep open rather than guess
             elif th_now != "broken" and not over_cap and not cl:
+                cond = "thesis_state_cleared"
                 why = (f"{ticker}'s thesis is now '{th_now}', no longer 'broken', and "
                        "neither the ATR cap nor cluster band independently justifies this "
                        "trim any more -- the structural reason has cleared")
@@ -632,6 +694,7 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             # generically (see cmd_triggers), so this is one branch for both trigger types.
             tt_now = pr.get("trigger_type")
             if ticker not in trigger_live_sets.get(tt_now, set()):
+                cond = "trigger_no_longer_fires"
                 why = (f"{ticker} no longer appears in this run's live {tt_now} list -- the "
                        "condition this trim/exit was sized against has cleared")
         elif pr.get("trigger_type") in PAIRED_TRIGGERS:
@@ -659,15 +722,18 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             # which needs a stored pre-proposal baseline this schema doesn't carry yet and is
             # deliberately left for a future pass rather than guessed at here.
             if ticker and ticker not in current_tickers:
+                cond = "position_gone"
                 why = (f"{ticker} is no longer held -- the shadow-scored "
                        f"{pr.get('trigger_type')} this proposed has nothing left to act on")
             elif rpos is not None and rpos.get("market_value_usd") is not None:
                 remaining = rpos["market_value_usd"]
                 if remaining < DUST_USD_DEFAULT:
+                    cond = "position_dust"
                     why = (f"{ticker}'s remaining position (${remaining:,.0f}) is under the "
                            f"${DUST_USD_DEFAULT:g} dust threshold -- too small for this "
                            f"shadow-scored {pr.get('trigger_type')} to still apply")
                 elif pr.get("size_usd") and pr["size_usd"] > 0.5 * remaining:
+                    cond = "position_shrunk"
                     why = (f"the proposed ${pr['size_usd']:,.0f} trim now exceeds half of "
                            f"{ticker}'s remaining ${remaining:,.0f} position -- resize or "
                            "re-propose against the current position")
@@ -676,6 +742,7 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             stretch_ok = (ticker in (derisk.get("names_stretched") or [])) if is_stretch_trigger else True
             if not over_cap and not cl and (not is_stretch_trigger or not stretch_ok):
                 if is_stretch_trigger:
+                    cond = "stretch_cohort_left"
                     why = (f"{ticker} is no longer in the stretched cohort (ahead of sector AND "
                            "up) -- the profit-taking rationale for this trim has cleared")
                 else:
@@ -692,15 +759,18 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
                         cluster_note = f" and {cluster} is inside its policy band"
                     else:
                         cluster_note = ""
+                    cond = "cap_cluster_breach_cleared"
                     why = (f"neither trigger is live: {ticker} is within its ATR risk cap"
                            + cluster_note + " -- the structural reason for this trim has cleared")
     elif bucket == "BUY":
         # An "initiate"/"new position" buy is self-evidently done once the name is held.
         if ticker and ticker in current_tickers and any(
                 w in action_l for w in ("initiate", "new position", "open a position")):
+            cond = "position_already_opened"
             why = f"{ticker} is now held -- this proposed initiating a position that already exists"
         # A cluster-fill buy is done once the cluster is back inside its band.
         elif cluster and not cl and any(w in action_l for w in ("top up", "fill", "stage", "deploy")):
+            cond = "cluster_band_cleared"
             why = f"{cluster} is back inside its policy band -- the underweight this filled has cleared"
         # A signal-conviction buy (added 2026-08-06, pair-trade proposals) retires once the
         # measured edge that justified it is gone -- either the signal no longer fires on
@@ -716,11 +786,13 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             rsi_now = trig_rsi.get(ticker)
             th_now = smith_risk.thesis_status(state_thesis.get(ticker))
             if th_now is not None and th_now not in HEALTHY_THESIS:
+                cond = "thesis_state_cleared"
                 why = (f"{ticker}'s thesis is now '{th_now}' -- an oversold entry is only a dip-buy "
                        "while the thesis is intact; without that it is a falling knife")
             elif rsi_now is None:
                 pass  # cannot test (cache stale/absent) -- keep open rather than guess
             elif rsi_now > RSI_OVERSOLD_EXIT:
+                cond = "rsi_condition_cleared"
                 why = (f"{ticker} RSI14 has recovered to {rsi_now:.1f} (above the "
                        f"{RSI_OVERSOLD_EXIT:g} exit) -- the oversold setup this buy was timed "
                        "against has been consumed")
@@ -730,8 +802,10 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             hr = smith_edge.bucket_rate({"bucket_hit_rates": hit_rates_30d or {},
                                          "bucket_hit_rates_7d": hit_rates_7d}, tb)
             if tb not in rtk.get("bullish_buckets", []):
+                cond = "signal_bucket_gone"
                 why = f"{ticker} no longer carries the '{tb}' signal -- the edge this buy was sized against is gone"
             elif not hr or (hr.get("hit_rate_pct") or 0) <= BUCKET_REWARD_HIT_RATE_PCT:
+                cond = "signal_bucket_gone"
                 why = (f"'{tb}'s {hr['source'] if hr else 'measured'} hit rate has fallen to "
                        f"{hr.get('hit_rate_pct') if hr else 'unmeasured'}% (was >55% when proposed) "
                        "-- the measured edge behind this buy no longer clears the bar")
@@ -743,15 +817,19 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             # stale read of the exit event, not a standing idea.
             tt_now = pr.get("trigger_type")
             if ticker not in trigger_live_sets.get(tt_now, set()):
+                cond = "trigger_no_longer_fires"
                 why = (f"{ticker} no longer appears in this run's live {tt_now} list -- the "
                        "condition this buy was sized against has cleared")
-            elif tt_now == "reentry" and pr.get("exited_on"):
+            elif tt_now == "reentry" and pr.get("exited_on") and not pr.get("expires_on"):
+                # LEGACY rows only (Phase 5). A ticket row's `expires_on` (14d for reentry) is the one
+                # general clock; `exited_on` was never written by any script and stays for old rows.
                 # Structured field, never parsed from rationale prose -- parsing free text is
                 # exactly what made the 2026-07-29 breach-cleared voider false-positive and
                 # get disabled (see this file's cmd_proposals docstring). `exited_on` must be
                 # set explicitly when a reentry proposal is created.
                 exited_on = _proposal_parse_date(pr["exited_on"])
                 if exited_on and (today_date - exited_on).days > 20:
+                    cond = "reentry_window_expired"
                     why = f"{ticker}'s exit was {(today_date - exited_on).days} days ago -- past the 20-day reentry window"
     elif bucket == "HOLD":
         # A STOP instruction is not hold-fire advice (found 2026-08-17). P-094 "Set hard stop
@@ -763,6 +841,7 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
         is_stop = bool(re.search(r"\bstop\b", str(pr.get("action") or ""), re.I)) or \
                   (pr.get("trigger_type") == "profit_ratchet")
         if ticker and ticker not in current_tickers:
+            cond = "position_gone"
             why = (f"{ticker} is no longer held -- the "
                    + ("stop this proposed has nothing left to protect"
                       if is_stop else "position this advised holding on is gone"))
@@ -775,6 +854,7 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             why = None
             if rpos is not None and rpos.get("market_value_usd") is not None \
                     and rpos["market_value_usd"] < DUST_USD_DEFAULT:
+                cond = "position_dust"
                 why = (f"{ticker}'s remaining position (${rpos['market_value_usd']:,.0f}) is "
                        f"under the ${DUST_USD_DEFAULT:g} dust threshold -- this stop "
                        "instruction has nothing material left to protect")
@@ -782,6 +862,7 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
             # Age-out measures INACTION -- days spent unacted on. An accepted HOLD has already
             # been acted on (mentally, if not yet in the ledger), so its clock is irrelevant;
             # gated out for accepted rows rather than retiring something the user just approved.
+            cond = "hold_age_out"
             why = (f"tactical HOLD is {age} days old -- hold-fire advice is time-bound by nature "
                    "and is not carried forward as standing guidance")
 
@@ -800,6 +881,12 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
     # used to sit here (added 2026-09-08 to stop this same rule from orphaning a rotation's other
     # leg) -- with the rule itself gone, there is nothing left for that exemption to guard against.
 
+    # THE TICKET'S OWN CLOCK AND INVALIDATION (Phase 5) outrank the family-specific branches: they are
+    # the proposal's own stated terms, and one general rule replaces the reentry-specific 20-day clock.
+    t_why, t_cond = _ticket_retirement(pr, today_date, prices_now or {}, state_thesis)
+    if t_why:
+        why, cond = t_why, t_cond
+
     if why:
         if is_accepted:
             why = f"(accepted, never executed) {why}"
@@ -807,7 +894,9 @@ def _check_condition_based_retirement(pr, today_date, risk_by_ticker, directiona
         pr["retired_on"] = str(today_date)
         pr["retired_reason"] = why
         pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {why}").strip(" |")
-        return {"id": pr.get("id"), "action": pr.get("action"), "reason": why, "was_accepted": is_accepted}
+        pr["retired_condition"] = cond
+        return {"id": pr.get("id"), "action": pr.get("action"), "reason": why, "condition": cond,
+                "was_accepted": is_accepted}
     return None
 
 
@@ -850,7 +939,7 @@ def _retire_orphaned_rotation_legs(props, trigger_pairs, today_date, retired):
         return
     by_pair_id = {}
     for pr in props:
-        if pr.get("status") not in ("open", "accepted_by_user"):
+        if canonical_status(pr) not in LIVE_PROPOSAL_STATUSES:
             continue
         for pid in _proposal_pair_ids(pr):
             by_pair_id.setdefault(pid, []).append(pr)
@@ -865,9 +954,9 @@ def _retire_orphaned_rotation_legs(props, trigger_pairs, today_date, retired):
                                                   + ["consolidated_pairing_partially_stale"]))
             continue
         for pr in legs:
-            if pr.get("status") not in ("open", "accepted_by_user"):
+            if canonical_status(pr) not in LIVE_PROPOSAL_STATUSES:
                 continue  # already retired via another one of its pairings this same pass
-            was_accepted = pr.get("status") == "accepted_by_user"
+            was_accepted = canonical_status(pr) == "accepted_by_user"
             why = (f"the {pid.split('-')[0]} pairing this leg belongs to is no longer live "
                    "this run -- both legs of a rotation retire together, never one alone")
             if was_accepted:
@@ -875,8 +964,10 @@ def _retire_orphaned_rotation_legs(props, trigger_pairs, today_date, retired):
             pr["status"] = "auto_retired"
             pr["retired_on"] = str(today_date)
             pr["retired_reason"] = why
+            pr["retired_condition"] = "pair_not_live"
             pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {why}").strip(" |")
-            retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": why, "was_accepted": was_accepted})
+            retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": why,
+                            "condition": "pair_not_live", "was_accepted": was_accepted})
 
 
 def _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directional_breach, today_date,
@@ -930,6 +1021,15 @@ def _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directi
     # both read the same rpos/cl/bucket signals rather than being independently authored.
     # This is what makes the automation legible instead of mysterious: the reader can see
     # the actual bar a proposal has to clear, not just that "the system decides".
+    #
+    # ONE AUTHOR (Phase 5). `retires_when` used to be authored in three places -- the trigger row,
+    # this function, and smith_validity's re-derivation -- and could disagree. A TICKET row carries
+    # its own `invalidation` (smith_ticket.build_invalidation, built once, from the ticket's own
+    # stop, the trigger's condition and the thesis premise) and every reader takes it from there,
+    # so this function must not write a second, competing sentence over it. Pre-ticket rows have
+    # no invalidation and keep the derivation below.
+    if pr.get("ticket_version"):
+        return
     ticker = pr.get("ticker")
     bucket = pr.get("direction_bucket", "HOLD")  # NOT the leaked loop var from the scorer above
     rpos = risk_by_ticker.get(ticker) if ticker else None
@@ -1032,7 +1132,7 @@ def _compute_stacking_warnings(props, risk_by_ticker):
     # every row the field can appear on, not every row the recompute happens to visit.
     for pr in props:
         pr.pop("stacks_on", None)
-    live = [pr for pr in props if pr.get("status") in ("open", "accepted_by_user")]
+    live = [pr for pr in props if canonical_status(pr) in LIVE_PROPOSAL_STATUSES]
 
     groups = {}
     for pr in live:
@@ -1049,14 +1149,14 @@ def _compute_stacking_warnings(props, risk_by_ticker):
         pct = round(100.0 * combined / mv, 1) if mv else None
         sev = ("high" if (side == "REDUCE" and pct is not None and pct >= STACK_WARN_PCT)
                else "note")
-        accepted = [m for m in members if m.get("status") == "accepted_by_user"]
+        accepted = [m for m in members if canonical_status(m) == "accepted_by_user"]
         info = {
             # back-compat: the first accepted member, or None when the stack is all-open.
             # Kept because smith_dashboard.stacks_badge and the golden fixtures read these.
             "accepted_id": accepted[0].get("id") if accepted else None,
             "accepted_size_usd": accepted[0].get("size_usd") if accepted else None,
             "member_ids": [m.get("id") for m in members],
-            "open_ids": [m.get("id") for m in members if m.get("status") == "open"],
+            "open_ids": [m.get("id") for m in members if canonical_status(m) == "open"],
             "accepted_ids": [m.get("id") for m in accepted],
             # the raw buckets that got grouped -- makes a Trim+Sell merge visible rather than
             # silently collapsed, which is the defect this rebuild exists to fix
@@ -1111,7 +1211,7 @@ def _proposals_conflict(a, b):
     return True
 
 
-def _retire_with_partner_legs(props, loser, winner, why, today_date, retired):
+def _retire_with_partner_legs(props, loser, winner, why, today_date, retired, condition):
     """Retires `loser` and every other still-open leg of its rotation pairing(s) -- legs retire
     together, never one alone (see _retire_orphaned_rotation_legs). The winner, and any leg that
     shares one of the winner's own pairings, is never touched."""
@@ -1119,20 +1219,21 @@ def _retire_with_partner_legs(props, loser, winner, why, today_date, retired):
     victims = [loser]
     for pid in _proposal_pair_ids(loser):
         for pr in props:
-            if (pr is not loser and pr is not winner and pr.get("status") == "open"
+            if (pr is not loser and pr is not winner and canonical_status(pr) == "open"
                     and pid in _proposal_pair_ids(pr) and not (winner_pairs & set(_proposal_pair_ids(pr)))):
                 victims.append(pr)
     for pr in victims:
-        if pr.get("status") != "open":
+        if canonical_status(pr) != "open":
             continue
         reason = why if pr is loser else f"rotation partner {loser.get('id')} was retired -- {why}"
         pr["status"] = "auto_retired"
         pr["retired_on"] = str(today_date)
         pr["retired_reason"] = reason
         pr["superseded_by"] = winner.get("id")
+        pr["retired_condition"] = condition
         pr["note"] = (pr.get("note", "") + f" | auto-retired {today_date}: {reason}").strip(" |")
         retired.append({"id": pr.get("id"), "action": pr.get("action"), "reason": reason,
-                        "was_accepted": False})
+                        "condition": condition, "was_accepted": False})
 
 
 def _apply_declared_supersessions(props, today_date, retired):
@@ -1144,21 +1245,21 @@ def _apply_declared_supersessions(props, today_date, retired):
     reopening text parsing. Accepted rows are the user's decision: flagged, never retired."""
     by_id = {pr.get("id"): pr for pr in props if pr.get("id")}
     for pr in props:
-        if pr.get("status") != "open":
+        if canonical_status(pr) != "open":
             continue
         for target_id in pr.get("supersedes") or []:
             tgt = by_id.get(target_id)
             if tgt is None or tgt is pr:
                 continue
-            if tgt.get("status") == "accepted_by_user":
+            if canonical_status(tgt) == "accepted_by_user":
                 tgt["review_flags"] = sorted(set((tgt.get("review_flags") or [])
                                                   + [f"declared_superseded_by_{pr.get('id')}"]))
                 continue
-            if tgt.get("status") != "open":
+            if canonical_status(tgt) != "open":
                 continue
             why = (f"superseded by {pr.get('id')} ({pr.get('action')}), declared in that "
                    "proposal's `supersedes` field")
-            _retire_with_partner_legs(props, tgt, pr, why, today_date, retired)
+            _retire_with_partner_legs(props, tgt, pr, why, today_date, retired, "declared_supersession")
 
 
 def _retire_weaker_conflicts(props, today_date, retired, parse_datetime):
@@ -1178,19 +1279,19 @@ def _retire_weaker_conflicts(props, today_date, retired, parse_datetime):
     guard's job. Typed fields only -- direction_bucket, pair_id, priority_score, timestamps."""
     groups = {}
     for pr in props:
-        if (pr.get("status") in ("open", "accepted_by_user") and pr.get("ticker")
+        if (canonical_status(pr) in LIVE_PROPOSAL_STATUSES and pr.get("ticker")
                 and SIDE_GROUP.get(pr.get("direction_bucket"))):
             groups.setdefault(pr["ticker"], []).append(pr)
     for ticker in sorted(groups, key=str):
         rows = groups[ticker]
         if len(rows) < 2:
             continue
-        accepted = [r for r in rows if r.get("status") == "accepted_by_user"]
-        open_rows = sorted((r for r in rows if r.get("status") == "open"),
+        accepted = [r for r in rows if canonical_status(r) == "accepted_by_user"]
+        open_rows = sorted((r for r in rows if canonical_status(r) == "open"),
                            key=lambda r: _strength_key(r, parse_datetime), reverse=True)
         kept = []
         for r in open_rows:
-            if r.get("status") != "open":
+            if canonical_status(r) != "open":
                 continue  # already retired this pass as another loser's rotation partner
             winner = next((k for k in kept if _proposals_conflict(r, k)), None)
             if winner is None:
@@ -1204,9 +1305,9 @@ def _retire_weaker_conflicts(props, today_date, retired, parse_datetime):
                        else "larger size")
             why = (f"weaker of two conflicting {ticker} proposals ({kind}): kept "
                    f"{winner.get('id')} {winner.get('action')} because {because}")
-            _retire_with_partner_legs(props, r, winner, why, today_date, retired)
+            _retire_with_partner_legs(props, r, winner, why, today_date, retired, "weaker_conflict")
         for r in kept:
-            if r.get("status") != "open":
+            if canonical_status(r) != "open":
                 continue
             flags = [f"contradicts_accepted_{a.get('id')}" for a in accepted
                      if SIDE_GROUP[a["direction_bucket"]] != SIDE_GROUP[r["direction_bucket"]]]
@@ -1270,6 +1371,14 @@ def cmd_proposals(args):
 
     _assign_stable_proposal_ids(props)
     _backfill_proposal_ticker_and_bucket(props, infer_ticker, direction)
+
+    # A filled proposal is EXECUTED before anything can retire it. postflight also runs
+    # reconcile-proposals, but that is AFTER this pass: an accepted ticket that was filled and then
+    # crossed its expires_on would otherwise be retired here as "accepted, never executed" -- a false
+    # statement -- one run before postflight could correct it.
+    reconciled = smith_ledger.reconcile_proposals(
+        props, (load_json(os.path.join(args.base_dir, "trades.json"), default={}) or {}).get("trades") or [],
+        today_date)
 
     to_supersede = _dedupe_expire_void_proposals(props, today_date, current_tickers, direction,
                                                  parse_date, parse_datetime)
@@ -1388,7 +1497,7 @@ def cmd_proposals(args):
         return None
 
     for pr in props:
-        if pr.get("status") != "open":
+        if canonical_status(pr) != "open":
             continue
         _score_proposal_priority(pr, risk_by_ticker, directional_breach, cash_short, cash_excess,
                                  _cash_pct, _cash_band, stretch_by_ticker, derisk, rotation_by_ticker,
@@ -1421,26 +1530,30 @@ def cmd_proposals(args):
     # a duplicate) and from `dismissed_by_user` (terminal, user's own call) so the audit trail
     # shows who retired what -- and so a genuinely re-emerging condition is free to be proposed
     # afresh under a new id rather than being permanently suppressed.
+    _refs, _ = _run_reference_prices(args.run_dir)
+    prices_now = {t: v[0] for t, v in _refs.items()}
     HOLD_MAX_AGE_DAYS = 2  # HOLDs are tactical ("hold fire until tonight's print") and go off fast
     # RETIREMENT-ELIGIBLE STATUSES (extended 2026-09-09, user: "once accepted, the proposal stay
     # forever. however i want it to go if the underlying reason is gone or the current setup no
     # longer remains supportive"). `accepted_by_user` is a stated intention, not proof the trade
     # happened -- see the "Accepted -- awaiting execution" panel -- so it can go just as stale as
     # an open one while sitting unexecuted. `is_accepted` tells the checker which row it's
-    # looking at so it can gate out the two decay paths (HOLD age-out, restatement count) that
-    # measure inaction rather than a cleared condition -- see that function's own docstring.
-    RETIREMENT_ELIGIBLE_STATUSES = ("open", "accepted_by_user")
+    # looking at so it can gate out the decay path (HOLD age-out) that measures inaction rather than
+    # a cleared condition -- see that function's own docstring. (A restatement-count path used to
+    # sit beside it and was removed 2026-09-15.)
+    RETIREMENT_ELIGIBLE_STATUSES = LIVE_PROPOSAL_STATUSES
     retired = []
     for pr in props:
-        if pr.get("status") not in RETIREMENT_ELIGIBLE_STATUSES:
+        if canonical_status(pr) not in RETIREMENT_ELIGIBLE_STATUSES:
             continue
         result = _check_condition_based_retirement(pr, today_date, risk_by_ticker, directional_breach,
                                                     current_tickers, drift, trig_rsi, trig_abs,
                                                     trigger_live_sets, state_thesis, derisk, cluster_breach,
                                                     rotation_by_ticker, hit_rates_7d, parse_date,
                                                     HOLD_MAX_AGE_DAYS,
-                                                    is_accepted=(pr.get("status") == "accepted_by_user"),
-                                                    hit_rates_30d=hit_rates_30d)
+                                                    is_accepted=(canonical_status(pr) == "accepted_by_user"),
+                                                    hit_rates_30d=hit_rates_30d,
+                                                    prices_now=prices_now)
         if result:
             retired.append(result)
 
@@ -1471,7 +1584,7 @@ def cmd_proposals(args):
             price_now_by_ticker[h["ticker"]] = h["price_usd"]
 
     for pr in props:
-        if pr.get("status") != "open":
+        if canonical_status(pr) != "open":
             continue
         _apply_live_rejustification(pr, price_now_by_ticker, risk_by_ticker, directional_breach, today_date,
                                    rotation_by_ticker)
@@ -1499,7 +1612,7 @@ def cmd_proposals(args):
     proposals["proposals"] = props
     safe_write(p_path, proposals)
 
-    open_now = [pr for pr in props if pr.get("status") == "open"]
+    open_now = [pr for pr in props if canonical_status(pr) == "open"]
     priority_counts = {"HIGH": 0, "MEDIUM": 0, "LOW": 0}
     for pr in open_now:
         priority_counts[pr.get("priority", "LOW")] += 1
@@ -1507,6 +1620,7 @@ def cmd_proposals(args):
     emit({"proposals_count": len(props), "superseded_count": len(to_supersede), "changes_made": len(to_supersede),
           "auto_retired_count": len(retired), "auto_retired": retired,
           "open_count": len(open_now), "priority_counts": priority_counts, "written": True,
+          **({"reconciled_executed": reconciled} if reconciled else {}),
           "auto_voided_created_this_run": voided_today,
           "auto_voided_stale": voided_stale,
           "reconciliation_warnings": recon_warnings,
@@ -2522,7 +2636,7 @@ def dismiss_proposal_core(props, proposal_id, reason, actor="user"):
     if `proposal_id` doesn't exist or isn't open. Caller owns loading/writing proposals.json."""
     for pr in props:
         if pr.get("id") == proposal_id:
-            if pr.get("status") not in ("open",):
+            if canonical_status(pr) != "open":
                 return None
             # WHO dismissed this is now STRUCTURAL, not prose. `actor` has existed since this
             # function was extracted, but it only ever reached the free-text `note` -- the
@@ -2769,6 +2883,8 @@ PASSTHROUGH = {
     "size_wanted_usd": _v_non_negative,
     "clamped_by": _v_nonempty_str,
     "risk_usd": _v_non_negative,
+    "risk_removed_usd": _v_non_negative,    # a SELL/TRIM's risk figure: what the exit removes
+    "defer_until": _v_iso_date,             # what `deferred`/`watch` meant: open, look again on this date
     "r_multiple": _is_num,
     "ev_r": _is_num,
     "p_win": _v_probability,
@@ -2788,7 +2904,8 @@ PASSTHROUGH = {
 RESERVED = frozenset({
     "id", "status", "date", "created_utc", "outcome_pct", "outcome_verdict", "outcome_window",
     "outcome_scored_on", "priority", "priority_score", "history", "repeat_count",
-    "superseded_by", "retired_on", "retired_reason", "dismissed_by",
+    "superseded_by", "retired_on", "retired_reason", "retired_condition", "dismissed_by",
+    "filled_date", "filled_price", "filled_usd", "filled_qty", "fill_refs", "executed_source",
 })
 
 # Spec keys this command already consumes explicitly (built into the row above, or read by
@@ -2797,6 +2914,9 @@ _SPEC_CONSUMED = frozenset({
     "direction", "ticker", "size_usd", "price_at_proposal", "rationale", "trigger_type",
     "pair_id", "pair_role", "cluster", "action", "benchmark_price_at_proposal",
     "benchmark_ticker", "supersedes", "support_usd",
+    # Phase 5: `ticket` is an INPUT compared against the script-built one (never stored as sent);
+    # the draft's advisory prose is reproducible from the trigger row and was pure spec_extras noise.
+    "ticket", "ticket_version", "draft_reasons", "blockers",
 })
 
 
@@ -2821,6 +2941,97 @@ def _apply_spec_passthrough(pr, spec):
     if extras:
         pr["spec_extras"] = extras
     return None, sorted(extras)
+
+
+def build_ticket_context(base_dir, run_dir, today):
+    """Everything smith_ticket.build_ticket needs that is not on the trigger row, read once.
+
+    The ONLY I/O in the ticket path (smith_ticket itself is pure). Shared by draft-specs and
+    add-proposal so the ticket a strategist is shown and the ticket the writer checks it against
+    are built from identical inputs. Every read degrades to an empty value -- a missing lots.json
+    means no ltcg_note, never a crash and never a guess.
+    """
+    def ld(path):
+        return (load_json(path, default={}) or {}) if path and os.path.exists(path) else {}
+
+    policy = ld(os.path.join(base_dir, "policy.json"))
+    state = ld(os.path.join(base_dir, "state.json"))
+    triggers = ld(os.path.join(run_dir, "compute_triggers.json")) if run_dir else {}
+    risk = ld(os.path.join(run_dir, "compute_risk.json")) if run_dir else {}
+    book = ld(os.path.join(run_dir, "compute_book.json")) if run_dir else {}
+    total_book = (risk.get("total_book_usd") or book.get("total_book_usd")
+                  or (state.get("us", {}) or {}).get("total_book_usd"))
+    refs = _run_reference_prices(run_dir)[0] if run_dir else {}
+    atr = ((state.get("data_cache", {}) or {}).get("atr20", {}) or {}).get("values_pct", {}) or {}
+    return {"today": today, "total_book_usd": total_book,
+            "r_base_usd": smith_ticket.r_base_usd(total_book, policy) if total_book else None,
+            "prices": {t: v[0] for t, v in refs.items()}, "atr20_pct": atr, "triggers": triggers,
+            "lots": ld(os.path.join(base_dir, "lots.json")),
+            "ltcg_months": smith_ledger.policy_ltcg_months(policy),
+            "prefer_ltcg": bool(policy.get("prefer_ltcg"))}
+
+
+def _attach_ticket(pr, spec, ctx, require_ticket):
+    """Build the ticket for one BUY/SELL/TRIM proposal and write it through the ONE writer.
+
+    Returns (rejection_reason_or_None, data_quality_lines). Two sources, one builder:
+      * the trigger row this run still carries for (family, ticker[, pair_id, role]) -- the ticket is
+        BUILT FROM IT and any script-owned field the spec disagrees with is a conflict: rejected under
+        --require-ticket, otherwise the ticket's value wins and the line says so. The strategist adds
+        `rationale` + `evidence_quality` and accepts/rejects; it does not re-size a trade. Chosen over
+        a named-override path deliberately: an override is a second, unmeasured sizing engine, and the
+        record (smith_edge, cmd_score) grades the ticket AS TAKEN -- an edited size would be graded as
+        the engine's. If the strategist thinks a size is wrong, dropping the row is the lever and the
+        disagreement belongs in its notes, where the engine's owner can act on it.
+      * no trigger row (a judgment proposal, a rebound): the ticket is built from the spec's own flat
+        fields and marked `source: spec`. It says it could not be checked against the engine.
+    A ticket missing a required field is NOT stamped (no ticket_version): the row is written
+    legacy-shaped and a data_quality line lists what was missing -- unless --require-ticket, which
+    rejects the whole batch (nothing half-written).
+    """
+    direction, ticker, tt = pr.get("direction_bucket"), pr.get("ticker"), pr.get("trigger_type")
+    dq = []
+    canon = smith_ticket.leg_view(ctx["triggers"], tt, ticker, pr.get("pair_id"), pr.get("pair_role")) if tt else None
+    if canon is not None:
+        # The ticket reads the trigger row's own price. Only a price the run's quotes CORRECTED
+        # (_check_anchor: missing or >3% off) overrides it -- passing the spec's rounded price through
+        # unconditionally would make the write-time ticket differ from the drafted one by a cent.
+        corrected = (pr.get("price_check") or {}).get("corrected")
+        ticket = smith_ticket.build_ticket(canon, ctx,
+                                           price_override=pr.get("price_at_proposal") if corrected else None)
+        conflicts = smith_ticket.script_owned_conflicts(smith_ticket.flatten_ticket(ticket), spec)
+        if conflicts:
+            desc = "; ".join(f"{k}: spec {sv!r} vs ticket {cv!r}" for k, sv, cv in conflicts)
+            if require_ticket:
+                return (f"{direction} {ticker}: spec changes script-owned ticket field(s) -- {desc}. Size, stop, "
+                        "risk, horizon and invalidation belong to the script; the strategist adds rationale + "
+                        "evidence_quality and accepts or rejects (drop the spec to disagree)"), dq
+            dq.append(f"{direction} {ticker}: spec disagreed with the script-built ticket on {desc} -- the "
+                      "ticket's values were written (script-owned fields)")
+    else:
+        # A spec-only ticket: a nested spec ticket fills any flat field the spec left out.
+        if isinstance(spec.get("ticket"), dict):
+            for k, v in smith_ticket.flatten_ticket(spec["ticket"]).items():
+                if k != "ticket_version" and pr.get(k) is None:
+                    pr[k] = v
+        ticket = smith_ticket.build_ticket(smith_ticket.row_from_flat(pr), ctx)
+        dq.append(f"{direction} {ticker}: no live {tt or 'trigger'} row in this run's compute_triggers -- "
+                  "ticket assembled from the spec's own fields (source: spec), not verifiable against the engine")
+    flat = smith_ticket.flatten_ticket(ticket)
+    missing = smith_ticket.ticket_missing(direction, flat, pr.get("rationale"))
+    if missing and require_ticket:
+        return f"{direction} {ticker}: missing required ticket field(s) {missing} (--require-ticket)", dq
+    ticket_missing_only = [f for f in missing if f != "rationale"]
+    if ticket_missing_only:
+        dq.append(f"{direction} {ticker}: NOT a complete ticket -- missing {ticket_missing_only}; written as a "
+                  "legacy-shaped row (no ticket_version). Non-ticket specs are accepted for one release; "
+                  "run with --require-ticket to reject them")
+        return None, dq
+    smith_ticket.apply_ticket(pr, ticket)
+    if "rationale" in missing:
+        dq.append(f"{direction} {ticker}: EMPTY rationale -- the strategist wrote no `rationale` for this row "
+                  "(it used to default to '' silently, which is how a whole batch shipped with none)")
+    return None, dq
 
 
 def cmd_add_proposal(args):
@@ -2856,6 +3067,21 @@ def cmd_add_proposal(args):
     rejected and nothing is written; any other unknown field is kept under `spec_extras` with a
     data_quality line. See the block above PASSTHROUGH for the incident.
 
+    THE TRADE TICKET (Phase 5, 2026-09-21). Every BUY/SELL/TRIM with a ticker gets a nested `ticket`
+    block plus `ticket_version: 1`, built by smith_ticket.build_ticket from the run's own
+    compute_triggers row (`--run-dir`) and written by smith_ticket.apply_ticket, the single writer of
+    the flat fields (size_usd, stop_price_usd, risk_usd, ...) -- so flat and nested cannot diverge.
+    The strategist supplies `rationale` and `evidence_quality` and accepts/rejects; a spec that
+    disagrees with the ticket on a script-owned field (smith_core.TICKET_SCRIPT_OWNED_FIELDS) is
+    rejected under --require-ticket and corrected (with a data_quality line) otherwise.
+    `--require-ticket` (DEFAULT OFF for one release, so the agent fleet can migrate) additionally
+    rejects the whole batch when a BUY lacks stop/size/risk/invalidation/horizon/rationale or a
+    SELL/TRIM lacks size/risk_removed/invalidation/horizon/rationale (smith_core.TICKET_REQUIRED_FIELDS;
+    a sell has no entry-style stop -- it needs the risk it removes). HOLD and ticker-less cash
+    proposals are exempt. With the flag off, an incomplete spec is written legacy-shaped and a
+    data_quality line lists what it was missing. A PAIRED_TRIGGERS proposal without a pair_id is
+    rejected in both modes. Pre-ticket rows are never backfilled.
+
     Does NOT assign `id` -- that stays cmd_proposals' job (it already assigns ids to any
     freshly-appended proposal missing one, "once, never reused"), so ids stay allocated from
     one place. Run `smith_math.py proposals` next to dedup/retire/prioritize as usual.
@@ -2883,6 +3109,9 @@ def cmd_add_proposal(args):
     refs, bench_ref = _run_reference_prices(run_dir) if run_dir else ({}, None)
     price_checks, unchecked = [], []
     unknown_seen = {}
+    require_ticket = bool(getattr(args, "require_ticket", False))
+    ticket_ctx = build_ticket_context(args.base_dir, run_dir, resolve_today(args.today))
+    ticket_dq = []
 
     built = []
     rejected = []
@@ -2909,7 +3138,11 @@ def cmd_add_proposal(args):
             "direction_bucket": direction,
             "size_usd": spec.get("size_usd"),
             "price_at_proposal": spec.get("price_at_proposal"),
-            "rationale": spec.get("rationale", ""),
+            # `or ""`: a draft spec carries `"rationale": None` for the strategist to fill, and
+            # `.get(key, "")` returns that None. The empty string IS the defect (2026-09-20: a whole
+            # batch of ten shipped with `"rationale": ""` because specs_strategist.json had no such
+            # key); _attach_ticket now says so in data_quality and rejects it under --require-ticket.
+            "rationale": spec.get("rationale") or "",
             "trigger_type": spec.get("trigger_type"),
             "date": ts, "created_utc": created_utc,
             "status": "open",
@@ -2923,6 +3156,16 @@ def cmd_add_proposal(args):
         if spec.get("benchmark_price_at_proposal") is not None:
             pr["benchmark_price_at_proposal"] = spec["benchmark_price_at_proposal"]
             pr["benchmark_ticker"] = spec.get("benchmark_ticker") or "SMH"
+        # INVARIANT (Phase 5, found on P-352): a paired proposal MUST carry the pair_id that ties its
+        # legs together. P-352 was written as a cluster_rotation with no pair_id and the dashboard told
+        # the user "the cluster_rotation pairing None ..."; with no id the orphan-retirement pass
+        # cannot see it, so the leg lives or dies alone -- the exact bug pairs exist to prevent.
+        if spec.get("trigger_type") in PAIRED_TRIGGERS and not (
+                isinstance(spec.get("pair_id"), str) and spec["pair_id"].startswith(PAIRED_TRIGGER_PREFIXES)):
+            rejected.append({"index": i, "reason": f"trigger_type {spec.get('trigger_type')!r} is a PAIRED trigger "
+                             f"but pair_id is {spec.get('pair_id')!r} -- it must be a '<trigger>-<sell>-<buy>' id "
+                             "shared by both legs"})
+            continue
         for optional in ("pair_id", "pair_role", "cluster"):
             if spec.get(optional) is not None:
                 pr[optional] = spec[optional]
@@ -2968,6 +3211,18 @@ def cmd_add_proposal(args):
             if sized["rejected"]:
                 rejected.append({"index": i, "reason": sized["rejected"]})
                 continue
+        if pr.get("defer_until") and pr.get("expires_on") and pr["defer_until"] > pr["expires_on"]:
+            rejected.append({"index": i, "reason": f"defer_until {pr['defer_until']} is after expires_on "
+                             f"{pr['expires_on']} -- a proposal cannot be deferred past its own expiry"})
+            continue
+        # --- THE TRADE TICKET (Phase 5) ------------------------------------------------------------
+        # After price anchoring and support-anchored sizing so the ticket reads the FINAL numbers.
+        if ticker and direction in ("BUY", "SELL", "TRIM"):
+            why, tdq = _attach_ticket(pr, spec, ticket_ctx, require_ticket)
+            ticket_dq.extend(tdq)
+            if why:
+                rejected.append({"index": i, "reason": why})
+                continue
         # belt-and-braces: re-run the exact same shape check the schema validator uses, on
         # THIS proposal, before it ever touches the file. A future caller passing a malformed
         # spec (e.g. a ticker that isn't actually in a hand-supplied `action`) gets rejected
@@ -2990,6 +3245,7 @@ def cmd_add_proposal(args):
                  ["prices not checked: pass --run-dir so price_at_proposal is checked against this run's quotes"])
     if unchecked:
         dq_prices.append(f"no reference price in the run for {sorted(set(unchecked))} -- price_at_proposal kept as supplied")
+    dq_prices.extend(ticket_dq)
     for field, tickers in sorted(unknown_seen.items()):
         dq_prices.append(f"spec field {field!r} is not in PASSTHROUGH -- kept under spec_extras on "
                          f"{sorted(set(t for t in tickers if t))} rather than dropped; add it to "

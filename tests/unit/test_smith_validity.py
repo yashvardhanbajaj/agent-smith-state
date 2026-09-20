@@ -72,13 +72,18 @@ def test_a_trade_before_the_proposal_is_not_evidence_about_it(tmp_path):
     assert not rows(base)["P-346"]["contradicting_trades"]
 
 
-def test_trigger_gone_weakens_and_steps_priority_down(tmp_path):
+def test_trigger_gone_alone_is_reported_not_judged(tmp_path):
+    """Phase 5 ownership split. "The trigger no longer fires on this ticker" is an objective,
+    ticker-level fact, so cmd_proposals owns it (trigger_no_longer_fires -> auto_retired, and where it
+    deliberately keeps a row open, e.g. a catalyst trim whose position is still over cap, validity must
+    not second-guess that design). smith_validity still SHOWS the fact and that its drop-off condition
+    is met; it only judges the compound built on it (see the next test)."""
     p = dict(P346, price_at_proposal=1017.75, benchmark_price_at_proposal=573.0)  # flat vs SMH
     base = setup(tmp_path, p, triggers={"catalyst_threat": [{"ticker": "TSM"}]})
     r = rows(base)["P-346"]
-    assert r["trigger_state"] == "not_firing"
-    assert r["verdict"] == "weakened" and r["effective_priority"] == "MEDIUM"
-    assert r["drops_off_met"] is True
+    assert r["trigger_state"] == "not_firing" and r["drops_off_met"] is True
+    assert r["verdict"] == "valid" and r["effective_priority"] == "HIGH"
+    assert r["weakened_conditions"] == [] and r["retire_conditions"] == []
 
 
 def test_a_clean_live_proposal_stays_valid(tmp_path):

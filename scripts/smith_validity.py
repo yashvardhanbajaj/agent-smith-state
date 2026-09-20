@@ -31,7 +31,8 @@ import os
 import re
 from datetime import date
 
-from smith_core import emit, load_json, atomic_write_json, resolve_today
+from smith_core import (LIVE_PROPOSAL_STATUSES, OWNER_VALIDITY, canonical_status, emit, load_json,
+                        atomic_write_json, resolve_today, retirement_conditions)
 
 # WHICH PROPOSALS GET RE-CHECKED (widened 2026-09-20, on the user's correction).
 # `accepted_by_user` used to be exempt, because "accepted" was read as a standing instruction to
@@ -42,9 +43,17 @@ from smith_core import emit, load_json, atomic_write_json, resolve_today
 # not less. The case that proved it: P-186 (Sell CIEN, accepted 2026-08-31) rested on a weak-guide
 # overhang; CIEN reported a clean beat+raise on 2026-09-03 and its thesis flipped to
 # `strengthening`. The premise died three days after acceptance and nothing re-asked for 20 days.
-# `deferred` and `watch` stay out: those are explicitly "not now" states that already re-decide
-# themselves each run, not positions the user has agreed with.
-RECHECKED_STATUSES = ("open", "accepted_by_user")
+# `deferred` and `watch` USED to stay out ("explicitly 'not now' states that re-decide themselves
+# each run"). Nothing re-decided them: five hand-written rows from July sat unchecked for two
+# months. Phase 5 folded both into `open` (smith_core.STATUS_ALIASES) with `defer_until` carrying the
+# "not now", so they are rechecked like any open row -- the comparison is by CANONICAL status.
+RECHECKED_STATUSES = LIVE_PROPOSAL_STATUSES
+
+# WHICH CONDITIONS THIS MODULE MAY ACT ON (smith_core.RETIREMENT_OWNERS). Judgmental or cross-source
+# evidence only; it yields a VERDICT and never edits a proposal -- the user clicks. The mechanical
+# facts (trigger no longer fires, expires_on passed, position gone, invalidation met) belong to
+# cmd_proposals, which may auto-retire on them; a test asserts no condition is owned by both.
+VERDICT_CONDITIONS = retirement_conditions(OWNER_VALIDITY)
 
 ALPHA_AGAINST_PP = 3.0        # the market has moved this far against the proposal -> weakened
 ALPHA_AGAINST_RETIRE_PP = 3.0  # ... and the trigger is gone too -> retire
@@ -101,10 +110,20 @@ def _sessions_between(d0, d1):
     return n
 
 
+def _drops_off_when(p):
+    """What retires this proposal, READ from the row -- never re-derived here. A ticket row's own
+    `invalidation` is the single author (smith_ticket.build_invalidation); a pre-ticket row has only
+    the legacy `retires_when` sentence cmd_proposals derived for it. Before Phase 5 this module, the
+    trigger row and cmd_proposals each authored their own version of that sentence."""
+    t = p.get("ticket") if isinstance(p.get("ticket"), dict) else {}
+    return t.get("invalidation") or p.get("invalidation") or p.get("retires_when")
+
+
 def check_one(p, ctx):
     tk = p.get("ticker")
     direction = (p.get("direction_bucket") or "").upper()
     reasons_retire, reasons_weak, against, notes = [], [], [], []
+    cond_retire, cond_weak = [], []      # smith_core.RETIREMENT_OWNERS codes, parallel to the reasons
     try:
         d0 = date.fromisoformat(str(p.get("date") or "")[:10])
     except ValueError:
@@ -120,7 +139,11 @@ def check_one(p, ctx):
     else:
         trigger_state = "n/a"      # a judgment proposal with no trigger family behind it
     if trigger_state == "not_firing":
-        reasons_weak.append(f"its {fam.replace('_', ' ')} trigger no longer fires on {tk}")
+        # INFORMATIONAL here, not a verdict reason (Phase 5). "The trigger no longer fires on this
+        # ticker" is an objective, ticker-level fact -- cmd_proposals owns it and retires on it
+        # (trigger_no_longer_fires). It used to ALSO count as a `weakened` reason in this module, so
+        # one fact was judged twice by two owners. What stays here is the judgment built ON it: the
+        # compound below (trigger gone AND the market moved against the call).
         against.append(f"{fam.replace('_', ' ')} no longer fires on {tk} (recomputed this run)")
 
     # --- alpha since proposed -------------------------------------------------------
@@ -134,10 +157,12 @@ def check_one(p, ctx):
         agree_pp = rel if direction in BUY_DIRS else -rel if direction in SELL_DIRS else None
     if agree_pp is not None and agree_pp <= -ALPHA_AGAINST_PP:
         reasons_weak.append(f"the market moved {abs(agree_pp):.1f}pp against it relative to SMH")
+        cond_weak.append("alpha_against_proposal")
         against.append(f"{tk} {stock_pct:+.1f}% vs SMH {bench_pct:+.1f}% since proposed "
                        f"({abs(agree_pp):.1f}pp against the proposal)")
         if trigger_state == "not_firing" and agree_pp <= -ALPHA_AGAINST_RETIRE_PP:
             reasons_retire.append("trigger gone and the market has moved against it")
+            cond_retire.append("trigger_gone_alpha_against")
 
     # --- contradicted by your own trade --------------------------------------------
     contra, acted = [], []
@@ -160,22 +185,27 @@ def check_one(p, ctx):
         # SAME direction after the proposal: you already did (some of) this. Not a contradiction
         # and not a desk miss -- but it is no longer a thing to decide.
         reasons_retire.append(acted[-1] + " -- already acted on")
+        cond_retire.append("own_trade_same_direction")
     if contra:
         reasons_retire.append(contra[-1] + " -- the opposite of this proposal")
+        cond_retire.append("own_trade_contradicts")
         against += contra[-2:]
 
     # --- the strategist's retirement list ------------------------------------------
     desk = ctx["retire"].get(p.get("id"))
     if desk:
         reasons_retire.append("the strategist recommends retiring it: " + desk[:300])
+        cond_retire.append("strategist_retire_list")
 
     # --- thesis direction -----------------------------------------------------------
     th = ctx["thesis"].get(tk) if isinstance(ctx["thesis"].get(tk), dict) else {}
     status = th.get("status")
     if direction in BUY_DIRS and status in ("watch", "broken"):
         reasons_weak.append(f"buying into a `{status}` thesis")
+        cond_weak.append("thesis_conflict")
     if direction in SELL_DIRS and status == "strengthening":
         reasons_weak.append("trimming a `strengthening` thesis")
+        cond_weak.append("thesis_conflict")
     side = "evidence_against" if direction in BUY_DIRS else "evidence_for"
     for e in (th.get(side) or [])[:2]:
         if isinstance(e, dict) and e.get("claim"):
@@ -189,6 +219,7 @@ def check_one(p, ctx):
         desk_line = f"{d['debate'].split('|')[0].replace('_', ' ')}: {d['outcome']}"
         if d["outcome"] == "unresolved":
             reasons_weak.append("an unresolved desk disagreement on this name")
+            cond_weak.append("desk_unresolved")
     unresolved = [u for u in ctx["unresolved"] if u.get("ticker") == tk]
     if unresolved and not desk_line:
         desk_line = f"{len(unresolved)} unresolved desk question(s)"
@@ -209,6 +240,7 @@ def check_one(p, ctx):
     age = _sessions_between(d0, today) if d0 else None
     if age is not None and age >= STALE_SESSIONS:
         reasons_weak.append(f"{age} sessions old")
+        cond_weak.append("age_sessions")
 
     # --- what the trade does -------------------------------------------------------
     pos = ctx["positions"].get(tk) or {}
@@ -244,6 +276,8 @@ def check_one(p, ctx):
     return {"id": p.get("id"), "ticker": tk, "direction": direction,
             "verdict": verdict, "effective_priority": eff, "priority": prio,
             "retire_because": reasons_retire, "weakened_because": reasons_weak,
+            "retire_conditions": sorted(set(cond_retire)), "weakened_conditions": sorted(set(cond_weak)),
+            "informational_conditions": (["earnings_proximity"] if earn else []),
             "trigger_state": trigger_state, "trigger": fam,
             "since": {"stock_pct": round(stock_pct, 2) if stock_pct is not None else None,
                       "smh_pct": round(bench_pct, 2) if bench_pct is not None else None,
@@ -252,7 +286,8 @@ def check_one(p, ctx):
             "against": against[:6], "contradicting_trades": contra, "acted_on": acted,
             "desk_retire_reason": desk, "thesis_status": status, "desk": desk_line,
             "earnings": earn, "age_sessions": age, "after_trade": after,
-            "drops_off_when": p.get("retires_when"), "drops_off_met": drops_met}
+            "drops_off_when": _drops_off_when(p), "drops_off_met": drops_met,
+            "ticket": bool(p.get("ticket_version"))}
 
 
 def build_context(base_dir, run_dir=None, today=None):
@@ -301,7 +336,7 @@ def build_context(base_dir, run_dir=None, today=None):
 def check_all(base_dir, run_dir=None, today=None):
     ctx = build_context(base_dir, run_dir, today)
     props = ((_read(os.path.join(base_dir, "proposals.json"), {}) or {}).get("proposals") or [])
-    rows = [check_one(p, ctx) for p in props if p.get("status") in RECHECKED_STATUSES]
+    rows = [check_one(p, ctx) for p in props if canonical_status(p) in RECHECKED_STATUSES]
     counts = {}
     for r in rows:
         counts[r["verdict"]] = counts.get(r["verdict"], 0) + 1

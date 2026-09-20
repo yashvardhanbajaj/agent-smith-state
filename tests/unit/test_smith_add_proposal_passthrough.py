@@ -21,6 +21,8 @@ PASSTHROUGH_SAMPLE = {
     "evidence_quality": {"verified": 1, "computed": 2, "unverified": 0},
     "trigger_bucket": "idea", "exited_on": "2026-08-01", "conviction_score": 26.0,
     "gate": "passed",
+    # Phase 5 additions: the exit-side risk figure, and what `deferred`/`watch` used to mean
+    "risk_removed_usd": 33.9, "defer_until": "2026-10-10",
 }
 
 
@@ -58,6 +60,12 @@ def test_twelve_plus_passthrough_fields_round_trip_onto_the_row(tmp_path):
     out, rows = _run(tmp_path, [_spec(**PASSTHROUGH_SAMPLE)])
     assert out["added"] == 1
     for k, v in PASSTHROUGH_SAMPLE.items():
+        if k == "risk_removed_usd":
+            # a BUY removes no risk: the ticket (single writer of the flat risk fields) does not carry
+            # it, so a stale spec value must not survive on the row. The SELL side is covered in
+            # test_smith_ticket_schema.
+            assert k not in rows[0]
+            continue
         assert rows[0][k] == v, k
     assert "spec_extras" not in rows[0]
 
@@ -97,7 +105,9 @@ def test_validators_reject_bad_values(tmp_path, field, bad):
 
 def test_unknown_field_is_kept_under_spec_extras_with_a_data_quality_line(tmp_path):
     out, rows = _run(tmp_path, [_spec(catalyst_note="CXMT sampling", draft_reasons=["a"])])
-    assert rows[0]["spec_extras"] == {"catalyst_note": "CXMT sampling", "draft_reasons": ["a"]}
+    # draft_reasons/blockers are draft-specs' advisory prose, reproducible from the trigger row: consumed
+    # (not stored) since Phase 5 rather than left as noise under spec_extras on every drafted row
+    assert rows[0]["spec_extras"] == {"catalyst_note": "CXMT sampling"}
     assert any("catalyst_note" in d and "spec_extras" in d for d in out["data_quality"])
 
 

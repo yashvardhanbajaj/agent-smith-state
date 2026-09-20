@@ -60,6 +60,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from smith_clock import desk_today  # noqa: E402
 import smith_risk  # noqa: E402
+from smith_core import LIVE_PROPOSAL_STATUSES, canonical_status  # noqa: E402
 
 # --------------------------------------------------------------------------------------
 # loading
@@ -402,11 +403,37 @@ def build_payload(base, built_at=None):
     # ---- proposals -------------------------------------------------------------------
     all_props = props_store.get("proposals") or []
 
+    def ticket_lite(p):
+        """The nested trade ticket, flattened for the card -- or None for a pre-ticket row, which the
+        card renders as LEGACY. Never synthesised: a row with no ticket_version has no stop to show."""
+        t = p.get("ticket")
+        if not p.get("ticket_version") or not isinstance(t, dict):
+            return None
+        g = lambda d, k: (d.get(k) if isinstance(d, dict) else None)   # noqa: E731
+        stop, tgt, size, risk = (t.get("stop") or {}), (t.get("target") or {}), (t.get("size") or {}), (t.get("risk") or {})
+        edge, hz = (t.get("edge") or {}), (t.get("horizon") or {})
+        return {
+            "entry": num(g(t.get("entry"), "price_usd")), "stop": num(g(stop, "price_usd")),
+            "stop_pct": num(g(stop, "distance_pct")), "target": num(g(tgt, "price_usd")),
+            "target_r": num(g(tgt, "r_multiple")), "size": num(g(size, "usd")),
+            "shares": num(g(size, "shares")), "pct_book": num(g(size, "pct_of_book")),
+            "wanted": num(g(size, "wanted_usd")), "clamped_by": g(size, "clamped_by"),
+            "kind": g(risk, "kind"), "risk": num(g(risk, "usd")), "removed": num(g(risk, "removed_usd")),
+            "r_ticket": num(g(risk, "r_ticket")), "ev_r": num(g(edge, "ev_r")), "p_win": num(g(edge, "p_win")),
+            "invalidation": clip(t.get("invalidation"), 500), "expires_on": g(hz, "expires_on"),
+            "review_on": g(hz, "review_on"), "days": g(hz, "days"), "horizon_basis": clip(g(hz, "basis"), 220),
+            "ltcg": clip(g(t.get("lots"), "ltcg_note"), 300), "source": t.get("source"),
+        }
+
     def prop_lite(p):
         return {
             "id": p.get("id"), "date": (p.get("date") or "")[:10], "t": p.get("ticker"),
             "action": p.get("action"), "dir": p.get("direction_bucket"),
             "size": num(p.get("size_usd")), "status": p.get("status"),
+            # the status in the CURRENT vocabulary (smith_core.STATUS_ALIASES): the pill colour keys
+            # off this, so `filled`/`fulfilled` still read as executed and `deferred`/`watch` as open
+            # without the client hand-listing the historical spellings. `status` stays raw for display.
+            "cstatus": canonical_status(p),
             "priority": p.get("priority"), "trigger": p.get("trigger_type"),
             "cluster": p.get("cluster"), "cls": p.get("proposal_class"),
             "rationale": clip(p.get("rationale"), 700),
@@ -422,7 +449,10 @@ def build_payload(base, built_at=None):
             "reasons": [clip(x, 480) for x in (p.get("priority_reasons") or [])],
             "valid": [clip(x, 480) for x in (p.get("still_valid_because") or [])],
             "flags": p.get("review_flags") or [],
-            "retires": clip(p.get("retires_when"), 300),
+            "retires": clip(((p.get("ticket") or {}).get("invalidation") if isinstance(p.get("ticket"), dict) else None)
+                            or p.get("retires_when"), 300),
+            "tk": ticket_lite(p),                       # None => a LEGACY (pre-ticket) proposal
+            "defer_until": p.get("defer_until"),
             "revalidated": p.get("revalidated_on"),
             "pair_id": p.get("pair_id"),
             "stacks": p.get("stacks_on") or [],
@@ -431,9 +461,8 @@ def build_payload(base, built_at=None):
         })
         return d
 
-    open_props = [prop_full(p) for p in all_props if p.get("status") == "open"]
-    accepted = [prop_full(p) for p in all_props
-                if p.get("status") in ("accepted_by_user", "deferred", "watch")]
+    open_props = [prop_full(p) for p in all_props if canonical_status(p) == "open"]
+    accepted = [prop_full(p) for p in all_props if canonical_status(p) == "accepted_by_user"]
     # IS IT STILL TRUE? (added 2026-09-19, smith_validity). Every open card carries today's
     # re-check -- trigger still firing, alpha since proposed, your contradicting trades, the
     # strategist's retire list -- so the card leads with the verdict instead of a paragraph of
@@ -1791,6 +1820,32 @@ function propCardInner(p){
     '<div><span class="k">Thesis</span><span class="v">'+esc(v.thesis_status||"—")+"</span>"+
       (v.earnings?'<span class="s warnc">earnings '+esc(v.earnings)+"</span>":"")+"</div>"+
     "</div>";
+  /* THE TRADE TICKET (Phase 5). A ticket row shows the terms it was taken on; a row with no ticket
+     (all 323 historical ones) says LEGACY instead of implying a stop that was never recorded. */
+  var tkt=p.tk, ticketHtml;
+  if(!tkt){
+    ticketHtml='<p class="meta pc-legacy"><span class="pill">Legacy</span> Pre-ticket proposal — no stop, '+
+      "risk, target or expiry on record"+(p.defer_until?" · deferred until "+esc(p.defer_until):"")+"</p>";
+  } else {
+    var isBuy=tkt.kind!=="removed";
+    ticketHtml='<div class="pc-tiles pc-ticket">'+
+      '<div><span class="k">Entry</span><span class="v">'+usd(tkt.entry,2)+'</span><span class="s">limit or better</span></div>'+
+      (isBuy?'<div><span class="k">Stop</span><span class="v">'+usd(tkt.stop,2)+'</span><span class="s">'+
+        (tkt.stop_pct!=null?n(tkt.stop_pct,1)+"% away":"")+"</span></div>"+
+        '<div><span class="k">Target</span><span class="v">'+(tkt.target!=null?usd(tkt.target,2):"—")+
+        '</span><span class="s">'+(tkt.target_r!=null?n(tkt.target_r,1)+"R":"")+"</span></div>":"")+
+      '<div><span class="k">Size</span><span class="v">'+usd(tkt.size)+'</span><span class="s">'+
+        (tkt.shares!=null?n(tkt.shares,2)+" sh":"")+(tkt.pct_book!=null?" · "+n(tkt.pct_book,2)+"% of book":"")+"</span></div>"+
+      '<div><span class="k">'+(isBuy?"Risk":"Risk removed")+'</span><span class="v">'+
+        usd(isBuy?tkt.risk:tkt.removed,2)+'</span><span class="s">'+(tkt.r_ticket!=null?n(tkt.r_ticket,2)+"R":"")+"</span></div>"+
+      (tkt.ev_r!=null?'<div><span class="k">EV</span><span class="v">'+signed(tkt.ev_r,2)+"R</span>"+
+        '<span class="s">'+(tkt.p_win!=null?"p(win) "+n(tkt.p_win*100,0)+"%":"")+"</span></div>":"")+
+      '<div><span class="k">Expires</span><span class="v">'+esc(tkt.expires_on||"—")+'</span><span class="s">review '+
+        esc(tkt.review_on||"—")+"</span></div></div>"+
+      (tkt.clamped_by?'<p class="meta warnc">Wanted '+usd(tkt.wanted)+", clamped by "+esc(tkt.clamped_by)+"</p>":"")+
+      (tkt.ltcg?'<p class="meta">Tax lots: '+esc(tkt.ltcg)+"</p>":"")+
+      (tkt.source==="spec"?'<p class="meta warnc">Ticket assembled from the spec, not verified against the engine</p>':"");
+  }
   var forList=(p.valid&&p.valid.length?p.valid:p.reasons||[]).slice(0,3);
   var againstList=(v.against||[]).slice(0,3);
   var clip1=function(t){ t=String(t||""); return t.length>150?t.slice(0,147)+"…":t; };
@@ -1812,7 +1867,7 @@ function propCardInner(p){
     (p.px0!=null?'<p class="meta">Proposed at '+usd(p.px0,2)+(since.price_now!=null?" · now "+usd(since.price_now,2):"")+"</p>":"")+
     "</div></details>";
   var pick = verdict==="retire" ? "retire" : verdict==="valid" ? "accept" : null;
-  return '<div class="pc">'+head+banner+tiles+fa+desk+drops+full+
+  return '<div class="pc">'+head+banner+tiles+ticketHtml+fa+desk+drops+full+
     '<div class="pc-decide">'+tk(p.t)+decideBox("proposal",p.id,"",pick)+"</div></div>";
 }
 function propCard(p){ return '<div class="card">'+propCardInner(p)+"</div>"; }
@@ -2454,9 +2509,9 @@ function historyTable(){
         esc(p.date||"")+"</td><td>"+tk(p.t)+"</td><td>"+dirPill(p.dir)+" "+
         esc(p.action||"")+'</td><td class="n">'+usd(p.size)+"</td><td>"+
         (p.trigger?'<span class="pill info">'+esc(p.trigger)+"</span>":"")+"</td><td>"+
-        '<span class="pill '+(p.status==="open"?"acc":
-          /executed|filled|fulfilled|accepted/.test(p.status||"")?"buy":
-          /dismissed|retired|superseded/.test(p.status||"")?"":"hold")+'">'+
+        '<span class="pill '+((p.cstatus||p.status)==="open"?"acc":
+          /executed|accepted/.test(p.cstatus||p.status||"")?"buy":
+          /dismissed|retired|superseded/.test(p.cstatus||p.status||"")?"":"hold")+'">'+
         esc((p.status||"").replace(/_/g," "))+'</span></td><td class="n '+cls(p.drift)+'">'+
         signed(p.drift,1)+"</td></tr>"; }))+
     (rows.length>=300?'<p class="note pad">Showing the first 300 matches — narrow the filter.</p>':"");
@@ -2689,7 +2744,7 @@ function openTicker(t){
     props.slice(0,25).map(function(p2){
       return '<tr><td class="mono">'+esc(p2.date||"")+"</td><td>"+esc(p2.action||"")+
         '</td><td class="n">'+usd(p2.size)+"</td><td>"+
-        '<span class="pill '+(p2.status==="open"?"acc":"")+'">'+
+        '<span class="pill '+((p2.cstatus||p2.status)==="open"?"acc":"")+'">'+
         esc((p2.status||"").replace(/_/g," "))+"</span></td></tr>"; }))+"</div>";
 
   if(trades.length) H+='<div class="sheet-sec"><h3>Fills · '+trades.length+"</h3>"+

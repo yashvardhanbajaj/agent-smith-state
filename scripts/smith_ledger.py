@@ -7,7 +7,7 @@ per-run compute stages, the pipeline runner and the CLI, and imports these.
 
 import json
 import os
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import smith_risk
 from smith_core import *  # noqa: F401,F403 -- shared constants and IO helpers
@@ -1087,7 +1087,7 @@ def cmd_taxcalc(args):
     qty_now = {r.get("ticker"): r.get("qty") for r in (holdings.get("holdings_inr") or [])}
 
     rows = props.get("proposals", props if isinstance(props, list) else [])
-    open_trims = [p for p in rows if isinstance(p, dict) and p.get("status") == "open"
+    open_trims = [p for p in rows if isinstance(p, dict) and canonical_status(p) == "open"
                   and (p.get("direction_bucket") in ("TRIM", "SELL")
                        or any(w in str(p.get("action", "")).lower() for w in ("trim", "sell")))]
 
@@ -1258,3 +1258,138 @@ def cmd_trade_rationale(args):
     emit({"updated": len(open_hits), "reason": args.reason,
           "trades": [{"ticker": t.get("ticker"), "date": str(t.get("date"))[:10],
                       "message_id": t.get("message_id")} for t in open_hits]})
+
+
+# ---------------------------------------------------------------------------
+# reconcile-proposals -- the ONLY writer of `executed` (Phase 5, 2026-09-21)
+# ---------------------------------------------------------------------------
+# WHY. Measured 2026-09-21: `executed`, `fulfilled` and `filled` had zero writers in scripts/. The
+# orchestrator LLM hand-wrote them from memory in July and August, nine rows, three spellings, and
+# five of them carry no fill date or price -- the status asserted a trade that nothing verified.
+# Every status writer must be driven by a FACT the code can check (user principle, 2026-09-21), and
+# for "executed" the fact is a fill in trades.json.
+#
+# WHAT IT NEVER DOES. It never marks a proposal executed from ACCEPTANCE alone: a click is agreement
+# with the reasoning at that time, never an order, and never proof of a trade (user principle of
+# 2026-09-20). An accepted row with no matching fill stays accepted and is re-checked like any other.
+#
+# THE MATCH (deliberately conservative -- an unmatched fill leaves a proposal live, a wrong match
+# would write a false trade into the scorecard): same ticker; same side (the fill's qty_change sign
+# against the proposal's direction); fill date inside [first statement, proposal date + RECONCILE_WINDOW_DAYS];
+# fill dollars within RECONCILE_SIZE_TOLERANCE of the proposed size. A fill is consumed by ONE
+# proposal (its ref is stored on the row), so one buy cannot execute two restatements. A row with no
+# dollar size (HOLD, the legacy `deferred` rows sized 0) cannot be size-checked and is skipped rather
+# than guessed at.
+RECONCILE_WINDOW_DAYS = 10
+# THE PLAN'S "+/-10 DAYS" IS WRONG ON THE BEFORE SIDE. The first scratch run of this command matched
+# three brand-new tickets (P-358/359/362) to fills made 2, 9 and 4 days BEFORE the proposal existed:
+# a trade that predates a proposal cannot be its execution. The window therefore opens at the row's
+# FIRST statement (the earliest `history` date of a restated row, else its own date -- a user who acted
+# on the first statement of an idea restated later is legitimately earlier than the row's current
+# date) and closes RECONCILE_WINDOW_DAYS after the row's date.
+RECONCILE_SIZE_TOLERANCE = 0.5
+
+
+def _fill_facts(t):
+    """(date, ticker, signed_qty, price, usd, ref) for a trades.json row, or None when it is not a
+    plain fill (a corporate action, a zero-quantity row, an unparseable date)."""
+    if not isinstance(t, dict) or t.get("ca_type") or t.get("type") == "corporate_action":
+        return None
+    qty = t.get("qty_change")
+    if not isinstance(qty, (int, float)) or isinstance(qty, bool) or qty == 0:
+        return None
+    try:
+        d = date.fromisoformat(str(t.get("date"))[:10])
+    except ValueError:
+        return None
+    px = t.get("price_at_trade") if t.get("price_at_trade") is not None else t.get("price_usd")
+    usd = abs(t["amount_usd"]) if isinstance(t.get("amount_usd"), (int, float)) else (
+        abs(qty) * px if isinstance(px, (int, float)) else None)
+    if usd is None:
+        return None
+    ref = t.get("message_id") or f"{d}|{t.get('ticker')}|{qty}"
+    return d, t.get("ticker"), qty, px, usd, ref
+
+
+def _match_fills(pr, fills, used):
+    """The best group of fills (a single fill, or one day's fills summed) that satisfies the match
+    for `pr`, or None. Closest in date first, then closest in size."""
+    ticker, size, bucket = pr.get("ticker"), pr.get("size_usd"), pr.get("direction_bucket")
+    pdate = _proposal_parse_date_ledger(pr.get("date"))
+    if not (ticker and isinstance(size, (int, float)) and size > 0 and pdate):
+        return None
+    want_buy = bucket == "BUY"
+    first = min([pdate] + [d for d in (_proposal_parse_date_ledger(h.get("date"))
+                                       for h in (pr.get("history") or []) if isinstance(h, dict)) if d])
+    pool = [f for f in fills if f[1] == ticker and (f[2] > 0) == want_buy and f[5] not in used
+            and first <= f[0] <= pdate + timedelta(days=RECONCILE_WINDOW_DAYS)]
+    groups = [[f] for f in pool]
+    by_day = {}
+    for f in pool:
+        by_day.setdefault(f[0], []).append(f)
+    groups += [g for g in by_day.values() if len(g) > 1]
+    best = None
+    for g in groups:
+        usd = sum(f[4] for f in g)
+        if not (size * (1 - RECONCILE_SIZE_TOLERANCE) <= usd <= size * (1 + RECONCILE_SIZE_TOLERANCE)):
+            continue
+        key = (min(abs((f[0] - pdate).days) for f in g), abs(usd / size - 1), -len(g))
+        if best is None or key < best[0]:
+            best = (key, g)
+    return best[1] if best else None
+
+
+def _proposal_parse_date_ledger(raw):
+    try:
+        return date.fromisoformat(str(raw)[:10])
+    except ValueError:
+        return None
+
+
+def reconcile_proposals(props, trades, today):
+    """Mark live proposals `executed` where trades.json holds a matching fill. Mutates `props`;
+    returns the list of what it reconciled. Idempotent: an executed row is no longer a candidate and
+    its fill refs stay consumed, so a second pass over the same data changes nothing."""
+    fills = [f for f in (_fill_facts(t) for t in (trades or [])) if f]
+    used = {r for p in props if isinstance(p, dict) for r in (p.get("fill_refs") or [])}
+    done = []
+    live = [p for p in props if isinstance(p, dict) and canonical_status(p) in LIVE_PROPOSAL_STATUSES
+            and p.get("direction_bucket") in ("BUY", "SELL", "TRIM")]
+    for pr in sorted(live, key=lambda p: str(p.get("date") or "")):
+        g = _match_fills(pr, fills, used)
+        if not g:
+            continue
+        usd, qty = sum(f[4] for f in g), sum(abs(f[2]) for f in g)
+        was_accepted = canonical_status(pr) == "accepted_by_user"
+        pr["status"] = "executed"
+        pr["filled_date"] = str(max(f[0] for f in g))
+        pr["filled_price"] = round(usd / qty, 4) if qty else None
+        pr["filled_usd"], pr["filled_qty"] = round(usd, 2), round(qty, 6)
+        pr["fill_refs"] = sorted(f[5] for f in g)
+        pr["executed_source"] = "reconcile-proposals"
+        pr["note"] = ((pr.get("note") or "") + f" | reconciled {today}: matched a fill in trades.json "
+                      f"({len(g)} fill(s), ${usd:,.2f} vs the ${pr['size_usd']:,.2f} proposed)").strip(" |")
+        used.update(pr["fill_refs"])
+        done.append({"id": pr.get("id"), "ticker": pr.get("ticker"), "direction": pr.get("direction_bucket"),
+                     "filled_date": pr["filled_date"], "filled_price": pr["filled_price"],
+                     "filled_usd": pr["filled_usd"], "was_accepted": was_accepted,
+                     "condition": "fill_matched"})
+    return done
+
+
+def cmd_reconcile_proposals(args):
+    """`smith_math.py reconcile-proposals`: apply reconcile_proposals to proposals.json against
+    trades.json. Wired into postflight (every run) and run at the top of cmd_proposals so an accepted
+    ticket that WAS filled is marked executed before its own expiry can retire it as never-executed.
+    Writes nothing when there is nothing to reconcile."""
+    from smith_core import file_lock, safe_write
+    p_path = os.path.join(args.base_dir, "proposals.json")
+    with file_lock(args.base_dir):
+        store = load_json(p_path, default={"proposals": [], "scorecard": {}})
+        trades = (load_json(os.path.join(args.base_dir, "trades.json"), default={}) or {}).get("trades") or []
+        props = store.get("proposals") or []
+        done = reconcile_proposals(props, trades, resolve_today(getattr(args, "today", None)))
+        if done:
+            store["proposals"] = props
+            safe_write(p_path, store)
+    emit({"reconciled": done, "count": len(done), "written": bool(done)})

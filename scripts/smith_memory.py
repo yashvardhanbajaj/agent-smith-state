@@ -129,9 +129,8 @@ NESTED_TICKER_MAPS = (("atr20", "values_pct"), ("rsi14", "values"), ("rel_streng
 _TICKER_RE = re.compile(r"^[A-Z][A-Z0-9.\-]{0,9}$")
 _DATE_RE = re.compile(r"20\d\d-\d\d-\d\d")
 
-TERMINAL_PROPOSAL_STATUSES = ("superseded", "auto_retired", "dismissed_by_user",
-                              "dismissed_by_desk",
-                              "executed", "fulfilled", "filled")
+# one declaration, in smith_core (Phase 5): the alias table decides which spellings are `executed`
+from smith_core import TERMINAL_PROPOSAL_STATUSES  # noqa: E402,F401
 
 def _archive_load(path):
     # default=None returns None on a first-ever archive write (smith_core._NO_DEFAULT); the
@@ -431,7 +430,7 @@ def _protected_tickers(state, held, base):
     prot = set(held) | {"SMH"}
     props = (load_json(os.path.join(base, "proposals.json"), default={}) or {}).get("proposals") or []
     prot |= {p.get("ticker") for p in props if isinstance(p, dict)
-             and p.get("status") in ("open", "accepted_by_user", "deferred", "watch")}
+             and canonical_status(p) in LIVE_PROPOSAL_STATUSES}
     for w in state.get("watchlist_setups") or []:
         if isinstance(w, dict):
             prot.add(w.get("ticker"))
@@ -1003,7 +1002,7 @@ def validate_proposals_schema(base_dir):
     bad_size = []
     no_ticker = []
     for pr in props:
-        if pr.get("status") not in ("open", "accepted_by_user"):
+        if canonical_status(pr) not in LIVE_PROPOSAL_STATUSES:
             # terminal/historical rows are never re-rendered as a live row's label; don't
             # force a schema fix on history that will never be displayed this way again.
             continue
@@ -2511,7 +2510,7 @@ def _open_trims_sig(base_dir):
         props = load_json(os.path.join(base_dir, "proposals.json"), default={}) or {}
         rows = props.get("proposals", props if isinstance(props, list) else [])
         ids = sorted(r.get("id") for r in rows
-                     if isinstance(r, dict) and r.get("status") == "open"
+                     if isinstance(r, dict) and canonical_status(r) == "open"
                      and (r.get("direction_bucket") in ("TRIM", "SELL")
                           or any(w in str(r.get("action", "")).lower() for w in ("trim", "sell")))
                      and r.get("id"))
@@ -2648,7 +2647,7 @@ def _thesis_tiers(thesis, state, base_dir):
     evidence as absence of evidence.
     """
     props = load_json(os.path.join(base_dir, "proposals.json"), default={}).get("proposals", [])
-    open_tickers = {p.get("ticker") for p in props if p.get("status") == "open"}
+    open_tickers = {p.get("ticker") for p in props if canonical_status(p) == "open"}
     # "anything in this run's signal buckets" (SKILL.md 3's wording) does not discriminate on
     # this book: TARGET GAP alone fires on ~28 of 31 names, so ANY-bucket qualified 30 of 31
     # and the tiering saved nothing. The intent behind the wording is "names likely to be acted
@@ -3754,7 +3753,7 @@ def _report_daily(base_dir, run_dir, today, state, freshness_rows):
 
     # --- 5. open proposals ---------------------------------------------------
     props = load_json(os.path.join(base_dir, "proposals.json"), default={}).get("proposals", [])
-    open_props = [p for p in props if p.get("status") == "open"]
+    open_props = [p for p in props if canonical_status(p) == "open"]
     L.append("## Open proposals")
     L.append("")
     if not open_props:
@@ -3892,7 +3891,7 @@ def _report_weekly(base_dir, run_dir, today, state, freshness_rows):
     opened = [p for p in plist if in_week(p.get("date"))]
     retired = [p for p in plist if in_week(p.get("retired_on"))]
     accepted = [p for p in plist if in_week(p.get("accepted_on"))]
-    acted = [p for p in plist if p.get("status") in ("executed", "fulfilled", "filled")
+    acted = [p for p in plist if canonical_status(p) == "executed"
              and in_week(p.get("filled_date") or p.get("fulfilled_date") or p.get("date"))]
     L.append("## Proposals")
     L.append("")
@@ -3901,7 +3900,7 @@ def _report_weekly(base_dir, run_dir, today, state, freshness_rows):
     L.append(f"| Accepted (dashboard/chat) | {len(accepted)} |")
     L.append(f"| Executed / filled | {len(acted)} |")
     L.append(f"| Auto-retired untouched | {len(retired)} |")
-    L.append(f"| Open right now | {sum(1 for p in plist if p.get('status') == 'open')} |")
+    L.append(f"| Open right now | {sum(1 for p in plist if canonical_status(p) == 'open')} |")
     L.append("")
     if opened:
         engaged = len(accepted) + len(acted)

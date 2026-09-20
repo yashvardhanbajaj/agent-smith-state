@@ -595,3 +595,360 @@ def allocate_heat(candidates, budget, rooms=None, standalone_credit_usd=0.0, key
                  heat_room_remaining_usd=_r2(max(0.0, budget["h_eff_max_usd"] - h_run)))
     return {"decisions": decisions, "remaining_usd": _r2(remaining), "h_after_usd": _r2(h_run),
             "credit_usd": _r2(credit)}
+
+
+# =====================================================================================================
+# THE TRADE TICKET (Phase 5, 2026-09-21)
+# =====================================================================================================
+# THE INCIDENT. Of 323 proposals ever written, 9 carried a stop. The trigger rows already knew the
+# stop, the risk in dollars, the EV and the size they were clamped from -- `cmd_draft_specs` copied
+# four of those numbers onto the strategist's draft and dropped the rest, and `cmd_add_proposal`
+# dropped what remained. The proposal that reached the dashboard was a size and a sentence: nothing
+# said where the trade is wrong, how much it risks, when it lapses, or what would make it stop
+# being true -- so nothing could be scored on the terms it was taken on.
+#
+# The ticket is the answer, and it has ONE builder (`build_ticket`) so it is never hand-assembled.
+# It is TWO-LAYER and additive: the nested `ticket` block is the truth; the legacy flat fields
+# (`size_usd`, `stop_price_usd`, `risk_usd`, ...) keep their exact names and positions so the
+# dashboard, cmd_score, cmd_proposals, smith_validity and all 323 historical rows work untouched,
+# and they are WRITTEN FROM the ticket by one function (`apply_ticket`) so the two layers cannot
+# diverge. Nothing is ever backfilled: a row with no `ticket_version` is LEGACY and every
+# ticket-aware consumer must say so rather than guess a stop.
+#
+# What the strategist may touch: `rationale`, `evidence_quality`, and accept/reject. Every field in
+# smith_core.TICKET_SCRIPT_OWNED_FIELDS belongs to the script; `script_owned_conflicts` is how
+# add-proposal notices an edit.
+from smith_core import (HEALTHY_THESIS, PAIRED_TRIGGERS, TICKET_REQUIRED_FIELDS, TICKET_REVIEW_FRACTION,
+                        TICKET_SCRIPT_OWNED_FIELDS, TICKET_VERSION, horizon_for)
+
+EDGE_KEYS = ("ev_r", "p_win", "payoff_r", "fee_r", "p_win_basis")
+# BUY families whose trigger requires a healthy thesis at generation: the ticket's invalidation
+# then also fires when the thesis leaves the healthy set (the same premise the trigger tested).
+THESIS_GATED_BUY_FAMILIES = frozenset({"trend_entry", "conviction_average", "entry_setup",
+                                       "oversold_reversion", "reentry", "bench_diversifier"})
+# Families whose retires_when merely restates "off the live list (+ thesis)" for a BUY -- repeating
+# it verbatim beside the structured clauses would say everything twice.
+_GENERIC_BUY_RETIRES = THESIS_GATED_BUY_FAMILIES
+
+
+def _num(x):
+    return x if isinstance(x, (int, float)) and not isinstance(x, bool) else None
+
+
+def _round(x, n=2):
+    x = _num(x)
+    return None if x is None else round(x, n)
+
+
+def leg_view(triggers, trigger_type, ticker, pair_id=None, pair_role=None):
+    """The trigger row a proposal spec came from, as one flat view (pair-level fields folded into
+    the leg), or None when this run's compute_triggers no longer carries it. Never raises."""
+    rows = (triggers or {}).get(trigger_type)
+    if not isinstance(rows, list):
+        return None
+    if trigger_type in PAIRED_TRIGGERS:
+        for r in rows:
+            if not isinstance(r, dict) or r.get("pair_id") != pair_id or pair_role not in ("sell", "buy"):
+                continue
+            leg = r.get(f"{pair_role}_leg")
+            if not isinstance(leg, dict) or leg.get("ticker") != ticker:
+                continue
+            v = dict(leg)
+            v.update(trigger_type=trigger_type, pair_id=pair_id, pair_role=pair_role, vote=r.get("vote"),
+                     pair_retires_when=r.get("retires_when"), rotation_risk=r.get("rotation_risk"),
+                     cluster=leg.get("cluster") or r.get("cluster"))
+            return v
+        return None
+    for r in rows:
+        if isinstance(r, dict) and r.get("ticker") == ticker:
+            v = dict(r)
+            v.setdefault("trigger_type", trigger_type)
+            return v
+    return None
+
+
+def _ltcg_note(ticker, direction, size_usd, price, ctx):
+    """FIFO tax-lot read for an exit, from lots.json -- or None. Never a guess: no lots, no price or
+    no size means no note, and shares drawn from an undated lot are reported as UNKNOWN."""
+    if direction not in ("SELL", "TRIM") or not size_usd or not price:
+        return None
+    lots = [l for l in ((ctx.get("lots") or {}).get(ticker) or []) if isinstance(l, dict)]
+    if not lots:
+        return None
+    from smith_ledger import ltcg_eligible_on
+    months, today = ctx.get("ltcg_months") or 24, ctx["today"]
+    need, lt, st, unknown, first_st = size_usd / price, 0.0, 0.0, 0.0, None
+    for lot in sorted(lots, key=lambda l: (l.get("date") is None, str(l.get("date") or ""))):
+        if need <= 1e-9:
+            break
+        take = min(need, float(lot.get("qty") or 0))
+        if take <= 0:
+            continue
+        need -= take
+        try:
+            elig = ltcg_eligible_on(_dt.date.fromisoformat(str(lot.get("date"))[:10]), months)
+        except (ValueError, TypeError):
+            unknown += take
+            continue
+        if elig <= today:
+            lt += take
+        else:
+            st += take
+            first_st = elig if first_st is None or elig < first_st else first_st
+    bits = [f"FIFO on this exit: {lt:.4f} sh long-term, {st:.4f} sh short-term"]
+    if unknown:
+        bits.append(f"{unknown:.4f} sh from undated lots (holding period UNKNOWN, not guessed)")
+    if first_st:
+        bits.append(f"earliest short-term lot turns long-term {first_st} ({months}-month boundary; "
+                    f"policy prefer_ltcg={'on' if ctx.get('prefer_ltcg') else 'off'})")
+    if need > 1e-6:
+        bits.append(f"{need:.4f} sh exceeds the lots on record")
+    return "; ".join(bits)
+
+
+def build_invalidation(direction, ticker, trigger_type, stop_price, row, thesis_gated):
+    """(text, checks). One statement of what makes the ticket wrong. The `checks` list is the
+    MACHINE-CHECKABLE part cmd_proposals evaluates each run; the text is what the reader sees.
+    Built from the ticket's own stop, the trigger's own condition and the thesis premise -- never
+    re-derived from prose elsewhere (retires_when used to be authored in three places)."""
+    parts, checks = [], []
+    if direction == "BUY" and stop_price:
+        parts.append(f"price trades below ${stop_price:,.2f} (the stop)")
+        checks.append({"type": "price_below", "price_usd": stop_price})
+    if direction == "BUY" and thesis_gated:
+        allowed = sorted(HEALTHY_THESIS)
+        parts.append("thesis leaves " + "/".join(allowed))
+        checks.append({"type": "thesis_not_in", "allowed": allowed})
+    pair_id = row.get("pair_id")
+    if trigger_type in PAIRED_TRIGGERS and pair_id:
+        parts.append(f"the {trigger_type} pairing {pair_id} stops being live this run (both legs retire together)")
+        checks.append({"type": "pair_not_live", "pair_id": pair_id})
+    elif trigger_type:
+        parts.append(f"{ticker} drops out of this run's live {trigger_type} list")
+        checks.append({"type": "leaves_live_list", "family": trigger_type, "ticker": ticker})
+    rw = row.get("pair_retires_when") or row.get("retires_when")
+    if rw and not (direction == "BUY" and trigger_type in _GENERIC_BUY_RETIRES):
+        parts.append(f"trigger condition: {rw}")
+    if not parts:
+        return None, []
+    return " OR ".join(parts), checks
+
+
+def _edge_block(row, direction):
+    e = row.get("edge") if isinstance(row.get("edge"), dict) else {}
+    if _num(e.get("ev_r")) is None:
+        why = e.get("why") if direction != "BUY" else None
+        return {"ev_r": None, "p_win": None, "payoff_r": None, "fee_r": None,
+                "p_win_basis": ("n/a: " + why) if why else None}
+    return {k: e.get(k) for k in EDGE_KEYS}
+
+
+def _gate_block(row):
+    g = row.get("gate") if isinstance(row.get("gate"), dict) else {}
+    return {"family_verdict": g.get("verdict"), "family_multiplier": g.get("multiplier"),
+            "family_basis": g.get("basis"), "n_eff": g.get("n_eff"),
+            "mean_ev_net_pct": g.get("mean_ev_net_pct")}
+
+
+def build_ticket(row, ctx, price_override=None):
+    """THE one place a ticket is built. `row` is a trigger row/leg view (`leg_view`) or a view of a
+    spec (`row_from_flat`); `ctx` carries today, total_book_usd, r_base_usd, prices, atr20_pct, lots,
+    ltcg_months, prefer_ltcg. Pure: no I/O, no clock. Missing inputs become None -- never an
+    estimate -- and `ticket_missing` reports them.
+
+    BUY  : entry, stop (the row's stop, else entry x (1 - stop_pct)), target from the edge block
+           (capped at TARGET_CAP_R -- the capped price is stored, the analyst target is named in
+           the basis), size, risk ADDED, edge, gate, invalidation, horizon.
+    SELL/TRIM: no stop (a sell exits a position that already exists), no target; risk is the risk
+           REMOVED, and `lots.ltcg_note` says what the exit does to tax lots.
+    """
+    direction = str(row.get("direction") or "").upper()
+    ticker, tt = row.get("ticker"), row.get("trigger_type")
+    today, book = ctx["today"], _num(ctx.get("total_book_usd"))
+    r_base = _num(ctx.get("r_base_usd"))
+    is_buy = direction == "BUY"
+    edge = row.get("edge") if isinstance(row.get("edge"), dict) else {}
+    price = _num(price_override) or _num(row.get("price_usd")) or _num(edge.get("entry_usd")) \
+        or _num((ctx.get("prices") or {}).get(ticker))
+    size = _num(row.get("suggested_size_usd"))
+    stop_pct = _num(row.get("stop_pct")) or _num(edge.get("stop_pct"))
+
+    stop_price = None
+    if is_buy:
+        stop_price = _num(row.get("stop_price_usd"))
+        if stop_price is None and price and stop_pct:
+            stop_price = price * (1 - stop_pct / 100.0)
+        stop_price = _round(stop_price)
+    if _num(row.get("stop_distance_pct")):        # a spec-only ticket keeps the distance its author stated
+        stop_dist = _round(row["stop_distance_pct"])
+    else:
+        stop_dist = (_round((price - stop_price) / price * 100) if (is_buy and price and stop_price)
+                     else _round(stop_pct))
+    stop = None
+    if is_buy and stop_price is not None:
+        stop = {"price_usd": stop_price, "distance_pct": stop_dist,
+                "basis": row.get("stop_basis") or "policy 2xATR20, floor 3% (smith_risk.stop_and_cap)",
+                "atr20_pct": _round((ctx.get("atr20_pct") or {}).get(ticker), 2)}
+
+    target = None
+    if is_buy:
+        tgt = _num(edge.get("target_usd")) if _num(edge.get("target_usd")) is not None else _num(row.get("target_price_usd"))
+        payoff = _num(edge.get("payoff_r"))
+        if tgt is not None:
+            eff = tgt
+            basis = (f"{edge.get('target_source') or 'analyst target'} as of {edge.get('target_as_of')}"
+                     if edge.get("target_source") else "target supplied on the spec")
+            if payoff is not None and edge.get("target_capped") and price and stop_pct:
+                eff = price * (1 + payoff * stop_pct / 100.0)
+                basis = (f"capped at {payoff:g}R (a {_num(edge.get('payoff_r_uncapped'))}R analyst target of "
+                         f"${tgt:,.2f} is not a plan); source {edge.get('target_source')}")
+            target = {"price_usd": _round(eff), "basis": basis, "r_multiple": _round(payoff, 2)}
+
+    risk_usd = _num(row.get("risk_usd"))
+    risk_basis = None
+    if is_buy and risk_usd is None and size and stop_pct:
+        risk_usd, risk_basis = size * stop_pct / 100.0, "size x stop distance (no allocated risk on the trigger row)"
+    removed = None if is_buy else _num(row.get("risk_removed_usd"))
+    r_val = risk_usd if is_buy else removed
+
+    def pct_book(x):
+        return _round(x / book * 100, 3) if (x is not None and book) else None
+
+    hb, ha = _num(row.get("book_heat_before_usd")), _num(row.get("book_heat_after_usd"))
+    heat_room = _num(row.get("heat_room_remaining_usd"))
+    wanted = _num(row.get("size_wanted_usd")) if is_buy else None
+
+    text, checks = build_invalidation(direction, ticker, tt, stop_price, row,
+                                      is_buy and tt in THESIS_GATED_BUY_FAMILIES
+                                      and row.get("thesis_status") in HEALTHY_THESIS)
+    if row.get("invalidation"):        # a spec-only path where the caller stated its own
+        text = row["invalidation"]
+
+    days = row.get("horizon_days")
+    days, hbasis = (days, "supplied on the spec") if _num(days) else horizon_for(tt)
+    review = max(1, int(days * TICKET_REVIEW_FRACTION))
+    expires = row.get("expires_on") or (today + _dt.timedelta(days=int(days))).isoformat()
+
+    pair = None
+    if tt in PAIRED_TRIGGERS:
+        rr = row.get("rotation_risk") if isinstance(row.get("rotation_risk"), dict) else {}
+        pair = {"pair_id": row.get("pair_id"), "role": row.get("pair_role"),
+                "r_freed_usd": rr.get("r_freed_usd"), "buy_risk_usd": rr.get("buy_risk_final_usd"),
+                "heat_delta_usd": rr.get("heat_delta_final_usd")}
+
+    ticket = {
+        "ticker": ticker, "direction": direction, "trigger_type": tt,
+        "source": row.get("_ticket_source") or "trigger_row", "built_on": today.isoformat(),
+        "entry": {"price_usd": _round(price), "type": "limit_or_better", "valid_until": expires},
+        "stop": stop, "target": target,
+        "size": {"usd": _round(size), "shares": (round(size / price, 4) if (size and price) else None),
+                 "pct_of_book": pct_book(size), "wanted_usd": _round(wanted) if wanted is not None else _round(size),
+                 "clamped_by": row.get("clamped_by")},
+        "risk": {"kind": "added" if is_buy else "removed", "usd": _round(risk_usd),
+                 "removed_usd": _round(removed), "pct_of_book": pct_book(r_val), "basis": risk_basis,
+                 "r_base_usd": _round(r_base), "r_ticket": _round(r_val / r_base, 3) if (r_val is not None and r_base) else None,
+                 "book_heat_before_pct": pct_book(hb), "book_heat_after_pct": pct_book(ha),
+                 "heat_budget_remaining_usd": _round(heat_room)},
+        "edge": _edge_block(row, direction),
+        "invalidation": text, "invalidation_checks": checks,
+        "horizon": {"days": int(days), "review_on": (today + _dt.timedelta(days=review)).isoformat(),
+                    "expires_on": expires, "basis": hbasis},
+        "gate": _gate_block(row),
+        "lots": {"ltcg_note": _ltcg_note(ticker, direction, size, price, ctx)},
+        "pair": pair,
+    }
+    return ticket
+
+
+def row_from_flat(pr, trigger_type=None):
+    """A build_ticket row from a proposal's FLAT fields -- the spec-only path (no trigger row).
+    The result is marked `_ticket_source: spec` so the ticket says it could not be verified against
+    the engine's own numbers."""
+    edge = {}
+    if _num(pr.get("ev_r")) is not None:
+        edge = {"ev_r": pr.get("ev_r"), "p_win": pr.get("p_win"), "payoff_r": pr.get("r_multiple")}
+    return {"ticker": pr.get("ticker"), "direction": pr.get("direction_bucket"),
+            "trigger_type": trigger_type or pr.get("trigger_type"), "price_usd": pr.get("price_at_proposal"),
+            "suggested_size_usd": pr.get("size_usd"), "size_wanted_usd": pr.get("size_wanted_usd"),
+            "clamped_by": pr.get("clamped_by"), "stop_price_usd": pr.get("stop_price_usd"),
+            "stop_distance_pct": pr.get("stop_distance_pct"), "target_price_usd": pr.get("target_price_usd"),
+            "risk_usd": pr.get("risk_usd"),
+            "risk_removed_usd": pr.get("risk_removed_usd"), "edge": edge,
+            "horizon_days": pr.get("horizon_days"), "expires_on": pr.get("expires_on"),
+            "invalidation": pr.get("invalidation"), "pair_id": pr.get("pair_id"),
+            "pair_role": pr.get("pair_role"), "_ticket_source": "spec"}
+
+
+def flatten_ticket(ticket):
+    """The legacy flat fields, derived from a ticket. Only non-null values are emitted, so a SELL
+    never grows a `stop_price_usd`."""
+    t = ticket or {}
+    stop, tgt, size, risk = t.get("stop") or {}, t.get("target") or {}, t.get("size") or {}, t.get("risk") or {}
+    edge, hz = t.get("edge") or {}, t.get("horizon") or {}
+    flat = {"ticket_version": TICKET_VERSION, "size_usd": size.get("usd"),
+            "size_wanted_usd": size.get("wanted_usd"), "clamped_by": size.get("clamped_by"),
+            "stop_price_usd": stop.get("price_usd"), "stop_distance_pct": stop.get("distance_pct"),
+            "target_price_usd": tgt.get("price_usd"), "r_multiple": tgt.get("r_multiple"),
+            "risk_usd": risk.get("usd"), "risk_removed_usd": risk.get("removed_usd"),
+            "ev_r": edge.get("ev_r"), "p_win": edge.get("p_win"),
+            "horizon_days": hz.get("days"), "expires_on": hz.get("expires_on"),
+            "invalidation": t.get("invalidation")}
+    return {k: v for k, v in flat.items() if v is not None}
+
+
+def apply_ticket(pr, ticket):
+    """THE ONLY WRITER of ticket-owned flat fields onto a proposal row. The nested block goes on
+    unchanged and every flat field is derived from it, so `stop_price_usd` and `ticket.stop.price_usd`
+    cannot diverge. A flat field the ticket does not carry is REMOVED from the row -- a stale
+    spec-supplied stop must not outlive a ticket that has none."""
+    flat = flatten_ticket(ticket)
+    for k in TICKET_SCRIPT_OWNED_FIELDS:
+        if k not in flat:
+            pr.pop(k, None)
+    pr["ticket"] = ticket
+    pr.update(flat)
+    return pr
+
+
+def ticket_divergences(pr):
+    """Flat fields that disagree with the row's nested ticket (empty for a legacy row or a consistent
+    ticket). The invariant `apply_ticket` exists to make impossible; tests and `validate` read it."""
+    t = pr.get("ticket")
+    if not isinstance(t, dict):
+        return []
+    flat = flatten_ticket(t)
+    out = [(k, pr.get(k), v) for k, v in flat.items() if pr.get(k) != v]
+    out += [(k, pr.get(k), None) for k in TICKET_SCRIPT_OWNED_FIELDS
+            if k not in flat and pr.get(k) is not None]
+    return out
+
+
+def ticket_missing(direction, pr, rationale=None):
+    """Required field names (TICKET_REQUIRED_FIELDS) that `pr` (flat view) lacks for this direction.
+    HOLD and unknown directions require nothing."""
+    need = TICKET_REQUIRED_FIELDS.get(str(direction or "").upper(), ())
+    out = []
+    for f in need:
+        v = rationale if f == "rationale" else pr.get(f)
+        if v is None or (isinstance(v, str) and not v.strip()):
+            out.append(f)
+    return out
+
+
+def _same(a, b):
+    if _num(a) is not None and _num(b) is not None:
+        return abs(a - b) <= 0.011 + 1e-9 * abs(b)      # a cent: drafts and writes round independently
+    return a == b
+
+
+def script_owned_conflicts(canonical_flat, spec):
+    """(field, spec_value, canonical_value) for every script-owned field the spec sets to something
+    the ticket does not say. A spec value where the ticket has none also conflicts -- the strategist
+    may not add a stop to a sell or a target to a hold. Also reads a nested `spec.ticket`."""
+    supplied = {k: spec.get(k) for k in TICKET_SCRIPT_OWNED_FIELDS if spec.get(k) is not None}
+    if isinstance(spec.get("ticket"), dict):
+        for k, v in flatten_ticket(spec["ticket"]).items():
+            if k in TICKET_SCRIPT_OWNED_FIELDS:
+                supplied.setdefault(k, v)
+    return [(k, v, canonical_flat.get(k)) for k, v in supplied.items()
+            if not _same(v, canonical_flat.get(k))]
