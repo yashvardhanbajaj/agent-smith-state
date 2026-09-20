@@ -437,8 +437,15 @@ def _call(correct, scored=True, ladder_as_of="2026-09-05"):
     return {"scored": scored, "correct": correct, "ladder_as_of": ladder_as_of}
 
 
+EARNED = [{"scored": True, "correct": True, "ladder_as_of": "2026-09-25"} for _ in range(6)]
+
+
 def _ladder(confidence="high", as_of="2026-09-06", order=("BEST", "MID", "WORST"),
             track_record=None, reads=True, case_against=False):
+    # A `high` ladder gets `full` only with a real post-epoch record (Phase 6, ladder authority
+    # must be earned); fixtures that are not ABOUT that gate get one so they keep exercising `full`.
+    if track_record is None and confidence == "high":
+        track_record = EARNED
     return {"as_of": as_of, "confidence": confidence,
             "leader": order[0], "laggard": order[-1],
             "track_record": track_record or [],
@@ -491,7 +498,7 @@ class TestLadderAuthority:
         tr = [_call(False)] * 2 + [_call(True)]
         auth, conf, why = smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY,
                                                       epoch=FIXTURE_EPOCH)
-        assert auth == "full" and conf == "high"
+        assert auth == "rank" and conf == "high"     # not withdrawn, but 3 calls cannot earn full
         assert any("below the sample bar" in w for w in why)
 
     def test_exactly_coin_flip_keeps_authority(self):
@@ -500,9 +507,29 @@ class TestLadderAuthority:
                                            epoch=FIXTURE_EPOCH)[0] == "full"
 
     def test_unscoreable_calls_do_not_count_against_the_record(self):
-        tr = [_call(None, scored=False)] * 10 + [_call(True)]
+        tr = [_call(None, scored=False)] * 10 + [_call(True)] * 6
         assert smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY,
                                            epoch=FIXTURE_EPOCH)[0] == "full"
+
+    def test_high_confidence_with_no_admissible_calls_is_capped_at_rank(self):
+        """Part C: confidence alone never earns `full` -- the record after the epoch is empty."""
+        auth, conf, why = smith_risk.ladder_authority(
+            {**_ladder("high"), "track_record": []}, TODAY)
+        assert auth == "rank" and conf == "high"
+        assert "capped at rank" in " ".join(why)
+
+    def test_legacy_calls_do_not_earn_full_either(self):
+        tr = [_call(True, ladder_as_of="2026-09-05")] * 8          # all pre-epoch under the default
+        auth, _, why = smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY)
+        assert auth == "rank" and any("predate the engine epoch" in w for w in why)
+
+    def test_enough_correct_post_epoch_calls_unlock_full(self):
+        tr = [_call(True, ladder_as_of="2026-09-25")] * 6
+        auth, _, why = smith_risk.ladder_authority(_ladder("high", track_record=tr), TODAY)
+        assert auth == "full" and "earned" in " ".join(why)
+
+    def test_medium_confidence_is_unchanged_by_the_cap(self):
+        assert smith_risk.ladder_authority(_ladder("medium"), TODAY)[0] == "rank"
 
 
 class TestLadderDrivenRotation:

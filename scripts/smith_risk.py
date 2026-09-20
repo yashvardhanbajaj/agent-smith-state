@@ -513,9 +513,9 @@ def ladder_authority(entry, today, ttl_days=14, min_scored=6, epoch=None):
     call scored; a call with no such date cannot be dated and is not admitted) count toward the
     below-coin-flip withdrawal. Calls from before the epoch stay in `state.cluster_ladders[...]
     .track_record` as history, and the reasons say how many were set aside. With no admissible
-    call, authority is exactly what it is with ZERO scored calls -- decided by age and the
-    agent's confidence alone (`medium` -> rank, `high` -> full, else none): the filter withdraws
-    nothing and grants nothing, it just stops legacy calls from voting either way.
+    call the below-coin-flip withdrawal cannot fire, and `high` confidence is CAPPED AT `rank`:
+    `full` (the sell-leg relaxation) requires at least `min_scored` admissible calls that did not
+    fail the coin-flip bar. Confidence alone never earns `full`.
     """
     reasons = []
     if not entry:
@@ -549,7 +549,19 @@ def ladder_authority(entry, today, ttl_days=14, min_scored=6, epoch=None):
                        + ("" if len(scored) >= min_scored else " (below the sample bar, reported not acted on)"))
 
     if conf == "high":
-        reasons.append(f"ladder is {age}d old with high confidence")
+        if len(scored) < min_scored:
+            # AUTHORITY MUST BE EARNED (Phase 6 follow-up, 2026-09-21). After the epoch cut every
+            # ladder has zero admissible scored calls, and `high` used to mean `full` on the
+            # agent's own say-so -- the sell-leg relaxation (sell an INTACT name) granted with no
+            # track record at all, contradicting the rule that legacy history is not evidence and
+            # nothing earns authority without post-epoch evidence. `rank` is the ceiling until the
+            # ladder has `min_scored` admissible calls (and the withdrawal check above has passed).
+            reasons.append(f"ladder is {age}d old with high confidence but only {len(scored)}/{min_scored} "
+                           f"post-epoch scored call(s) -- capped at rank until it earns a track record; "
+                           f"the sell leg still requires a watch thesis")
+            return "rank", conf, reasons
+        reasons.append(f"ladder is {age}d old with high confidence and a {hits}/{len(scored)} "
+                       f"post-epoch track record -- full authority earned")
         return "full", conf, reasons
     if conf == "medium":
         reasons.append(f"ladder is {age}d old with medium confidence -- ordering used, but the "

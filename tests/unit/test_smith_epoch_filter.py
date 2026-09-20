@@ -252,7 +252,7 @@ def _call(correct, day):
 class TestLadderAuthorityEpoch:
     TODAY = date(2026, 9, 21)
 
-    @pytest.mark.parametrize("conf,expected", [("high", "full"), ("medium", "rank"), ("low", "none"), ("", "none")])
+    @pytest.mark.parametrize("conf,expected", [("high", "rank"), ("medium", "rank"), ("low", "none"), ("", "none")])
     def test_only_pre_epoch_calls_equal_no_calls_at_every_confidence(self, conf, expected):
         losing_legacy = [_call(False, "2026-09-08")] * 8            # 0/8: withdrawn before the filter
         with_calls = smith_risk.ladder_authority(_ladder(conf, losing_legacy), self.TODAY)
@@ -276,7 +276,7 @@ class TestLadderAuthorityEpoch:
 
     def test_a_small_post_epoch_sample_is_reported_not_acted_on(self):
         auth, _, why = smith_risk.ladder_authority(_ladder("high", [_call(False, POST)] * 2), self.TODAY)
-        assert auth == "full" and any("below the sample bar" in w for w in why)
+        assert auth == "rank" and any("below the sample bar" in w for w in why)   # capped: too few to earn full
 
     def test_mixed_calls_count_only_the_post_epoch_ones(self):
         calls = [_call(False, "2026-09-08")] * 10 + [_call(True, POST)] * 2
@@ -285,7 +285,7 @@ class TestLadderAuthorityEpoch:
 
     def test_an_undated_call_cannot_be_admitted(self):
         auth = smith_risk.ladder_authority(_ladder("high", [{"scored": True, "correct": False}] * 8), self.TODAY)
-        assert auth[0] == "full"
+        assert auth[0] == "rank"                                    # undated calls neither withdraw nor earn full
 
     def test_epoch_moves_with_the_argument(self):
         calls = [_call(False, "2026-09-08")] * 6
