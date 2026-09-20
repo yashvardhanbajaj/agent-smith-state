@@ -146,9 +146,27 @@ def _dedupe_expire_void_proposals(props, today_date, current_tickers, direction,
     `also_funds_pair_ids` list so the pairing stays traceable (and so
     _retire_orphaned_rotation_legs can see it -- see that function's docstring). A collision
     where either side lacks a pair_id, or both share one, still merges the old way: that is
-    exactly the "same idea, restated" case this function was built for."""
-    seen = {}  # (ticker, direction) -> index of the current running survivor
+    exactly the "same idea, restated" case this function was built for.
+
+    A PAIR LEG IS NEVER MERGED INTO A STANDALONE PROPOSAL (fixed 2026-09-21, found in Phase 5's
+    scratch run). The rule above still let a paired row collide with an UNPAIRED one -- the
+    scratch run merged the KLAC BUY leg of profit_rotation-AMD-KLAC into a separate standalone
+    KLAC buy, the pair_id went with whichever row lost, and the AMD SELL leg was left open and
+    unpaired: half a rotation survived, the exact failure paired triggers exist to prevent ("19
+    pairs attempted, 0 survived"). The key is therefore (ticker, direction, is_paired): a paired
+    row only ever meets another paired row (same pair_id -> restatement; different -> the
+    consolidation above), a standalone only another standalone, so both rows survive as distinct
+    ideas with the pair intact. Different pair_ids keep the consolidation (sizes summed, both ids
+    kept in `also_funds_pair_ids`) rather than being split, because two independently-funded
+    rotations buying one ticker is ONE position to build, and that behaviour has its own tests.
+
+    A PAIR DIES TOGETHER. The expiry and exited-position void below act on one row at a time; a
+    paired row they kill would leave its partner leg open, unpaired. Whatever they supersede
+    drags every still-open leg of the same pairing(s) with it (a merge-fold does not: the
+    survivor carries the pair_id forward)."""
+    seen = {}  # (ticker, direction, is_paired) -> index of the current running survivor
     to_supersede = set()
+    killed_alone = set()   # indices superseded by expiry/void (not by a merge-fold)
 
     for i, pr in enumerate(props):
         # RAW status on purpose, not canonical_status: this pass merges restatements and applies the
@@ -159,7 +177,7 @@ def _dedupe_expire_void_proposals(props, today_date, current_tickers, direction,
         if pr.get("status") != "open":
             continue
         prop_date = parse_date(pr.get("date", ""))
-        key = (pr.get("ticker"), direction(pr.get("action")))
+        key = (pr.get("ticker"), direction(pr.get("action")), bool(pr.get("pair_id")))
         if key in seen and key[0] is not None:
             j = seen[key]
             # Full datetime precision here (2026-08-24 fix), not just date -- this desk runs
@@ -255,6 +273,7 @@ def _dedupe_expire_void_proposals(props, today_date, current_tickers, direction,
         # consult. It dies of old age: once the last legacy open row is gone this branch never runs.
         if prop_date and (today_date - prop_date).days > 7 and not pr.get("expires_on"):
             to_supersede.add(i)
+            killed_alone.add(i)
             if "auto-expired" not in pr.get("note", ""):
                 pr["note"] = (pr.get("note", "") + " | auto-expired after 7 calendar days").strip(" |")
 
@@ -275,8 +294,22 @@ def _dedupe_expire_void_proposals(props, today_date, current_tickers, direction,
         holds_presupposed = direction(pr.get("action")) in ("TRIM", "SELL", "HOLD")
         if holds_presupposed and pr.get("ticker") and pr.get("ticker") not in current_tickers:
             to_supersede.add(i)
+            killed_alone.add(i)
             if "auto-voided" not in pr.get("note", ""):
                 pr["note"] = (pr.get("note", "") + " | auto-voided -- position exited").strip(" |")
+
+    # A PAIR DIES TOGETHER: drag the still-open partner legs of anything expiry/void just killed.
+    for i in sorted(killed_alone):
+        ids = set(_proposal_pair_ids(props[i]))
+        if not ids:
+            continue
+        for j, other in enumerate(props):
+            if j in to_supersede or other.get("status") != "open" or not (ids & set(_proposal_pair_ids(other))):
+                continue
+            to_supersede.add(j)
+            other["note"] = (other.get("note", "") + f" | auto-superseded {today_date} -- its rotation "
+                             f"partner {props[i].get('id')} expired/voided; both legs of a rotation die "
+                             "together, never one alone").strip(" |")
 
     return to_supersede
 

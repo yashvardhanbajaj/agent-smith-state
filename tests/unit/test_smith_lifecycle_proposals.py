@@ -160,24 +160,79 @@ class TestDedupeExpireVoidProposals:
         assert "also_funds_pair_ids" not in survivor
         assert "recommended 2x" in survivor["note"]
 
-    def test_collision_with_pair_id_on_only_one_side_still_merges_as_a_repeat(self):
-        """Only two DIFFERENT, non-empty pair_ids is a consolidation signal -- one side
-        missing a pair_id (e.g. a manually-added proposal colliding with an automated
-        rotation leg) isn't enough evidence these are two independently-funded trades."""
-        props = [
-            make_proposal(id="P-001", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
-                          date="2026-09-14T00:00:00Z", size_usd=100.0),
-            make_proposal(id="P-002", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
-                          date="2026-09-14T01:00:00Z", pair_id="cluster_rotation-AMD-KLAC",
-                          size_usd=309.68),
-        ]
-        sl._dedupe_expire_void_proposals(
-            props, today_date=date(2026, 9, 14), current_tickers={"KLAC"},
+    def _dedupe(self, props, today=date(2026, 9, 14), tickers=("KLAC", "AMD")):
+        return sl._dedupe_expire_void_proposals(
+            props, today_date=today, current_tickers=set(tickers),
             direction=sl._proposal_direction, parse_date=sl._proposal_parse_date,
             parse_datetime=sl._proposal_parse_datetime)
-        survivor = props[1]
-        assert survivor["size_usd"] == 309.68
-        assert "also_funds_pair_ids" not in survivor
+
+    def test_a_pair_leg_is_never_merged_into_a_standalone_proposal(self):
+        """Phase 6 follow-up (Phase 5 scratch run): a paired KLAC buy collided with a standalone
+        KLAC buy, the fresher standalone won, the pair_id was dropped and the AMD SELL leg was
+        left open and unpaired -- half a rotation. Both KLAC rows must now survive, pair intact."""
+        props = [
+            make_proposal(id="P-001", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T00:00:00Z", size_usd=100.0),                    # standalone, older
+            make_proposal(id="P-002", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T01:00:00Z", pair_id="profit_rotation-AMD-KLAC",
+                          size_usd=309.68),
+            make_proposal(id="P-003", ticker="AMD", action="Sell AMD", direction_bucket="SELL",
+                          date="2026-09-14T01:00:00Z", pair_id="profit_rotation-AMD-KLAC"),
+        ]
+        assert self._dedupe(props) == set()                       # nothing superseded
+        assert [p["status"] for p in props] == ["open"] * 3
+        assert props[1]["pair_id"] == "profit_rotation-AMD-KLAC" and props[1]["size_usd"] == 309.68
+        assert props[0].get("pair_id") in (None, "") and props[0]["size_usd"] == 100.0
+        assert "history" not in props[0] and "history" not in props[1]
+
+    def test_the_standalone_loses_nothing_when_it_is_the_fresher_row(self):
+        props = [
+            make_proposal(id="P-002", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T00:00:00Z", pair_id="profit_rotation-AMD-KLAC", size_usd=309.68),
+            make_proposal(id="P-001", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T05:00:00Z", size_usd=100.0),
+        ]
+        assert self._dedupe(props) == set()
+        assert props[0]["pair_id"] == "profit_rotation-AMD-KLAC"
+
+    def test_standalone_rows_still_merge_with_each_other(self):
+        props = [make_proposal(id="P-001", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                               date="2026-09-14T00:00:00Z", size_usd=100.0),
+                 make_proposal(id="P-002", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                               date="2026-09-14T01:00:00Z", size_usd=120.0)]
+        assert self._dedupe(props) == {0}
+
+    def test_a_legacy_expired_leg_takes_its_partner_with_it(self):
+        props = [
+            make_proposal(id="P-001", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-01T00:00:00Z", pair_id="profit_rotation-AMD-KLAC"),
+            make_proposal(id="P-002", ticker="AMD", action="Sell AMD", direction_bucket="SELL",
+                          date="2026-09-13T00:00:00Z", pair_id="profit_rotation-AMD-KLAC"),
+            make_proposal(id="P-003", ticker="ZZZ", action="Buy ZZZ", direction_bucket="BUY",
+                          date="2026-09-13T00:00:00Z"),
+        ]
+        assert self._dedupe(props, tickers=("KLAC", "AMD", "ZZZ")) == {0, 1}
+        assert "die together" in props[1]["note"]
+
+    def test_a_voided_sell_leg_takes_its_buy_partner_with_it(self):
+        props = [
+            make_proposal(id="P-001", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T00:00:00Z", pair_id="profit_rotation-AMD-KLAC"),
+            make_proposal(id="P-002", ticker="AMD", action="Sell AMD", direction_bucket="SELL",
+                          date="2026-09-14T00:00:00Z", pair_id="profit_rotation-AMD-KLAC"),
+        ]
+        assert self._dedupe(props, tickers=("KLAC",)) == {0, 1}    # AMD already exited
+
+    def test_a_same_pair_restatement_does_not_drag_its_partner(self):
+        props = [
+            make_proposal(id="P-001", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-13T00:00:00Z", pair_id="profit_rotation-AMD-KLAC"),
+            make_proposal(id="P-002", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T00:00:00Z", pair_id="profit_rotation-AMD-KLAC"),
+            make_proposal(id="P-003", ticker="AMD", action="Sell AMD", direction_bucket="SELL",
+                          date="2026-09-14T00:00:00Z", pair_id="profit_rotation-AMD-KLAC"),
+        ]
+        assert self._dedupe(props) == {0}
 
 
 # ---------------------------------------------------------------------------
@@ -550,6 +605,27 @@ class TestRetireOrphanedRotationLegs:
             props, trigger_pairs={}, today_date=date(2026, 9, 14), retired=retired)
         assert {r["id"] for r in retired} == {"P-285", "P-284", "P-286"}
         assert all(p["status"] == "auto_retired" for p in props)
+
+
+class TestOrphanedLegsSurviveDedupeThenRetireTogether:
+    def test_paired_and_standalone_klac_survive_then_the_pair_retires_together(self):
+        props = [
+            make_proposal(id="P-001", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T00:00:00Z", size_usd=100.0),
+            make_proposal(id="P-002", ticker="KLAC", action="Buy KLAC", direction_bucket="BUY",
+                          date="2026-09-14T01:00:00Z", pair_id="profit_rotation-AMD-KLAC"),
+            make_proposal(id="P-003", ticker="AMD", action="Sell AMD", direction_bucket="SELL",
+                          date="2026-09-14T01:00:00Z", pair_id="profit_rotation-AMD-KLAC"),
+        ]
+        sl._dedupe_expire_void_proposals(
+            props, today_date=date(2026, 9, 14), current_tickers={"KLAC", "AMD"},
+            direction=sl._proposal_direction, parse_date=sl._proposal_parse_date,
+            parse_datetime=sl._proposal_parse_datetime)
+        retired = []
+        sl._retire_orphaned_rotation_legs(props, trigger_pairs={}, today_date=date(2026, 9, 15),
+                                          retired=retired)
+        assert {r["id"] for r in retired} == {"P-002", "P-003"}     # the pair, together
+        assert props[0]["status"] == "open"                          # the standalone is untouched
 
 
 # ---------------------------------------------------------------------------
