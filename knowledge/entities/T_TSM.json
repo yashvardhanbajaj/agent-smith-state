@@ -1,6 +1,7 @@
 {
  "entity": "T:TSM",
  "live_facts": [
+  "[3c089142fe36] fact TSM (2026-09-06 x2) [secondary]: [analyst targets] mean target None (n None), gap None",
   "[8b533c4e51b3] event ASML,CLS,COHR (2026-09-16) [secondary]: AMBIGUOUS/immediate: FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental AI-infra selloff follows -- SMH closes +0.64% vs Monday's -4.75%, NDX -0.01%, SPX -0.45%, Dow -1.2% (broad-market laggard, not semis-led)",
   "[145428c2e2f5] event ALAB,AMAT,ASML (2026-09-15) [secondary]: THREAT/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC sit at 84.1% as of 2026-09-14; SEP dot-plot lands alongside the decision Wed 09-16",
   "[2bd26e19c0b3] relation/pair ASML,TSM =distinct (2026-09-08) [secondary]: TSM/ASML: distinct -- Not one bet -- they are vendor and customer. ASML sells EUV/DUV tools TO TSM. Their dominant risks are opposed, not shared: ASML's is US/NL export policy (MATCH Act, ~20% China sales), TSM's is geographic concentration and packaging pricing power. A MATCH Act passage is a direct ASML negative and neutral-to-mildly-positive for TSM. The near-identical one-month move (0.63pp gap) and volatility (0.47pp) is coincidence of a shared tailwind, exactly what the screen warns about. (keep both, drop None)",
@@ -8,13 +9,12 @@
   "[4f3e28f96677] event ALAB,AMAT,ASML (2026-09-14) [secondary]: THREAT/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, up from ~57% cited in the 09:29Z pre-market review, with Brent near $107/bbl sustaining the inflation-fear channel",
   "[b6c48ada2c39] fact ASML,COHR,KLAC (2026-09-16) [secondary]: [catalyst] FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental AI-infra selloff follows -- SMH closes +0.64% vs Monday's -4.75%, NDX -0.01%, SPX -0.45%, Dow -1.2% (broad-market laggard, not semis-led) -- magnitude: SMH post-close +0.64% (545.56 vs prev close 542.11) same session as the hawkish decision -- relief that an already-priced event did not trigger a second leg down, not …",
   "[880f29091fcb] event ALAB,ASML,CLS (2026-09-11) [secondary]: TAILWIND/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC, easing hike-fear from hot August CPI -- broad relief rally across the entire risk-on book, not an AI-capex-specific tailwind",
+  "[0b26e143f63f] fact TSM (2026-09-15) [secondary]: [watchlist setup] {\"ticker\": \"TSM\", \"type\": \"target_gap\", \"upside_pct\": 24.2, \"pos\": 0.72}",
   "[82b52c46ddce] fact AMAT,ASML,EWY (2026-09-15) [secondary]: [catalyst] CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC sit at 84.1% as of 2026-09-14; SEP dot-plot lands alongside the decision Wed 09-16 -- magnitude: 84.1% CME print (09-14) vs 88.5% cited in the prior run's source and vs Kalshi 57%/Polymarket 49% same day -- material cross-venue dispersion, CME is the standard reference but not unanimous. This run's own US10Y print is flat (4.961%, -0…",
   "[12f4b2a7e47c] fact TSM (2026-09-15) [secondary]: [thesis] strengthening -- Foundry monopoly manufacturing leading-edge AI chips; July revenue +45% YoY reinforces pricing power narrative",
-  "[0b26e143f63f] fact TSM (2026-09-15) [secondary]: [watchlist setup] {\"ticker\": \"TSM\", \"type\": \"target_gap\", \"upside_pct\": 24.2, \"pos\": 0.72}",
   "[4ed8c21903d7] fact AMAT,ASML,EWY (2026-09-14) [secondary]: [catalyst] KOSPI -3.26% (Samsung/SK Hynix -5 to -6.4%) on Fed-hawkish repricing (Warsh Jackson Hole address, 57% odds of a 25bp hike at Sept 15-16 FOMC) plus Strait of Hormuz oil spike (crude +3%, Saudi pipeline attack) and renewed 'AI-slowdown' sentiment -- broad macro risk-off, not a new memory-specific fundamental catalyst; directly reverses the 09-11 Waller-hold tailwind carried in factor_catalysts -- m…",
   "[ef9532bb1d9c] fact AMAT,ASML,EWY (2026-09-14) [secondary]: [catalyst] CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, up from ~57% cited in the 09:29Z pre-market review, with Brent near $107/bbl sustaining the inflation-fear channel -- magnitude: Hike-odds move (57pp->88.5pp) is the largest single change since the AM review, but this run's own primary US10Y print is +/-flat on the session (4.955%, -0.02pts) -- the mechanism is probab…",
   "[51054d7d07ac] fact TSM (2026-09-07) [secondary]: [analyst targets] mean target None (n 8), gap None",
-  "[3c089142fe36] fact TSM (2026-09-06) [secondary]: [analyst targets] mean target None (n None), gap None",
   "[3af1ec0485a7] fact TSM (2026-09-03) [secondary]: [watchlist setup] {\"ticker\": \"TSM\", \"type\": \"target_gap\", \"upside_pct\": 25.1, \"pos\": 0.75}",
   "[f0c3a474bc3f] fact TSM (2026-09-01) [secondary]: [watchlist setup] {\"ticker\": \"TSM\", \"type\": \"target_gap\", \"upside_pct\": 25.2, \"pos\": 0.75}",
   "[74e5c2de5c0f] fact TSM (2026-08-30) [secondary]: [analyst targets] mean target None (n 7), gap None",
@@ -42,7 +42,7 @@
    {
     "as_of": "2026-09-14",
     "id": "e4138cfb69c4",
-    "status": "live",
+    "status": "superseded",
     "text": "rank 1 (leader). Case against: Taiwan geopolitical tail; a ~25% AI-wafer price hike could meet customer pushback; Q3 print 2026-10-15 is the next test, and mon…",
     "value": 1
    },
@@ -93,7 +93,7 @@
    {
     "as_of": "2026-09-16",
     "id": "f4cfe20230f9",
-    "status": "live",
+    "status": "superseded",
     "text": "BUY $1604.0 (cluster_rotation): Housekeeping resize of P-345 to its remaining un-filled balance after today's 3sh fill ($1,252.76 of $2,857 target). No thesis …",
     "value": "BUY"
    },

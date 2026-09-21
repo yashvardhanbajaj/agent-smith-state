@@ -1,6 +1,7 @@
 {
  "entity": "T:MSFT",
  "live_facts": [
+  "[7544850a87d3] fact MSFT (2026-09-06 x2) [secondary]: [analyst targets] mean target None (n None), gap None",
   "[8b533c4e51b3] event ASML,CLS,COHR (2026-09-16) [secondary]: AMBIGUOUS/immediate: FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental AI-infra selloff follows -- SMH closes +0.64% vs Monday's -4.75%, NDX -0.01%, SPX -0.45%, Dow -1.2% (broad-market laggard, not semis-led)",
   "[4e3e4a246af8] relation/pair GOOG,MSFT =distinct (2026-09-15) [secondary]: MSFT/GOOG: distinct -- Screen candidate only (1m return gap 1.21pp, ATR gap 0.04). On business grounds they are distinct. MSFT is enterprise software/Copilot plus OpenAI-linked Azure and still self-funds; GOOG is ad-funded, has a mature TPU and the fastest cloud share gain, and is now FCF-negative. They share enterprise cloud customers, but their accelerator strategy, funding state and end-market mix differ. The near-identical price action comes from the same 'quality mega-cap in a semis selloff' factor, not the same business bet. (keep both, drop )",
   "[ebf6477749cd] relation/pair MSFT,NBIS =distinct (2026-09-15) [secondary]: MSFT/NBIS: distinct -- Partial overlap: MSFT is an NBIS customer, so part of NBIS revenue is MSFT capex rented out. NBIS layers a financing and rate factor MSFT lacks. Carried from 09-14 and unchanged. (keep both, drop )",
@@ -11,7 +12,6 @@
   "[4e87ff40ad7b] fact MSFT (2026-09-14) [secondary]: [thesis evidence AGAINST] still no independent Azure segment valuation view",
   "[9bdd9c68eb16] fact MSFT (2026-09-09) [secondary]: [thesis evidence FOR] plans to triple datacenter capacity to ~38GW by 2032, reportedly turning away AI/cloud business on compute shortage",
   "[788dd6b38570] fact MSFT (2026-09-07) [secondary]: [analyst targets] mean target None (n 33), gap None",
-  "[7544850a87d3] fact MSFT (2026-09-06) [secondary]: [analyst targets] mean target None (n None), gap None",
   "[7fa15bbccaa9] fact MSFT (2026-08-30) [secondary]: [analyst targets] mean target None (n 34), gap None",
   "[51f1099bb1c3] event AMZN,AVGO,GOOG (2026-08-27) [secondary]: THREAT/structural: Credit-default swaps on Oracle, SpaceX, Alphabet, Amazon, Meta, Broadcom and Nvidia hit record highs, per LSEG data, as market prices AI-financing/vendor-credit risk into the same week as the SMH selloff",
   "[487acec3a7b0] event AMZN,AVGO,GOOG (2026-08-27) [secondary]: THREAT/structural: CDS on Oracle/SpaceX/Alphabet/Amazon/Meta/Broadcom/Nvidia hit record highs (LSEG) -- AI-financing/vendor-credit risk repricing",
@@ -42,7 +42,7 @@
    {
     "as_of": "2026-09-14",
     "id": "13d11309f7fa",
-    "status": "live",
+    "status": "superseded",
     "text": "rank 1 (leader). Case against: No independent Azure segment figure verified this run; tripling capacity means capex/OCF keeps rising; OpenAI-linked commitments…",
     "value": 1
    },
@@ -93,7 +93,7 @@
    {
     "as_of": "2026-09-15",
     "id": "ce2cbacbd4d3",
-    "status": "live",
+    "status": "superseded",
     "text": "BUY $963.51 (conviction_average): Amends P-301 down to today's re-scored conviction_average. Ladder rank #1, only FCF-positive hyperscaler. FOMC-staged (size o…",
     "value": "BUY"
    },
@@ -109,7 +109,7 @@
    {
     "as_of": "2026-08-12",
     "id": "53b4bb0563ba",
-    "status": "live",
+    "status": "superseded",
     "text": "WATCH: First researched thesis (two prior uncaptured buys: 08-06 2sh@$495.97, 08-10 +1sh@$509.86, now 3sh). Azure/OpenAI-linked hyperscaler capex spender, Comp…",
     "value": "watch"
    },

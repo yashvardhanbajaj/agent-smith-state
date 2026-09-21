@@ -114,3 +114,13 @@ def test_run_batches_orders_revision_rounds_not_mtimes(tmp_path):
     os.utime(rd / "out_thesis.r2.json", (9e9, 9e9))                                        # newest mtime, lowest round after base
     names = [n for _, _, n in H.run_batches(str(tmp_path), str(rd), "run", "2026-09-21")]
     assert names == ["thesis", "thesis.r2", "thesis.r4"]
+
+
+def test_batch_done_markers_make_a_rerun_a_noop(tmp_path):
+    b = str(tmp_path)
+    assert K.done_keys(K.read_events(b)) == set()
+    K.mark_done(b, "run:2026-09-21-0632Z")
+    assert "run:2026-09-21-0632Z" in K.done_keys(K.read_events(b))
+    o = mk(b, [K.T("MU")], "fact", "some fact", as_of="2026-09-01", run="r")
+    K.add_observations(b, [o])
+    assert len(K.replay(K.read_events(b))) == 1                       # batch_done events never appear as observations

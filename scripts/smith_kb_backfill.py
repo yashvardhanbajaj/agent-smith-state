@@ -127,10 +127,17 @@ def backfill_all(base, use_git=True):
         batches += list(_batches_state(base)) + list(_batches_findings(base)) + list(_batches_git_runs(base))
     batches += list(_batches_local_runs(base))
     batches.sort(key=lambda b: (b[0], b[1], b[3]))         # time, then tails-before-state within a commit
-    kb = K.replay(K.read_events(base))
-    rep = {"batches": len(batches), "added_by_source": {}}
+    events = K.read_events(base)
+    kb = K.replay(events)
+    done = K.done_keys(events)
+    rep = {"batches": len(batches), "skipped_already_done": 0, "added_by_source": {}}
     for ts, _, obs, label in batches:
+        bkey = f"{ts}|{label}"
+        if bkey in done:
+            rep["skipped_already_done"] += 1
+            continue
         r = K.add_observations(base, obs, kb, reinforce=False)
+        K.mark_done(base, bkey)
         src = label.split("/")[-1] if "/" in label else label
         rep["added_by_source"][src.split(".")[0] if src.startswith("out_") else src] = \
             rep["added_by_source"].get(src.split(".")[0] if src.startswith("out_") else src, 0) + r["added"]

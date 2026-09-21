@@ -6230,8 +6230,12 @@ def cmd_kb(args):
     elif op == "harvest":
         run_dir = args.run_dir
         run_id = os.path.basename(run_dir.rstrip("/"))
+        if f"run:{run_id}" in K.done_keys(K.read_events(base)):
+            emit({"skipped": f"run {run_id} already harvested", "added": 0})
+            return
         obs, files = H.harvest_run(base, run_dir, run_id, run_id[:10] or str(today))
         rep = K.add_observations(base, obs, kb, reinforce=True)
+        K.mark_done(base, f"run:{run_id}")
         rep.update(files=len(files), pages=K.rebuild_pages(base, today))
         emit(rep)
     elif op == "rebuild":

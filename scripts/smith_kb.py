@@ -298,6 +298,15 @@ def _apply(kb, evs):
     return kb
 
 
+def done_keys(events):
+    """Batches already folded in (op `batch_done`): re-running a backfill or a run harvest is a no-op."""
+    return {e.get("key") for e in events if e.get("op") == "batch_done"}
+
+
+def mark_done(base, key):
+    append_events(base, [{"op": "batch_done", "key": key, "on": str(_today())}])
+
+
 def refute(base, obs_ids, reason, by=None, on=None):
     kb = replay(read_events(base))
     evs = [{"op": "refute", "id": i, "reason": cap_text(reason, 300), "by": by, "on": str(on or _today())}
