@@ -37,14 +37,16 @@ import re
 KB_DIR = "knowledge"
 OBS_FILE = "observations.jsonl"
 CFG_FILE = "config.json"
-KINDS = ("fact", "verdict", "event", "lesson", "relation", "tension", "correction")
+KINDS = ("fact", "verdict", "event", "lesson", "relation", "tension", "correction", "brief")
 CONFIDENCE_WEIGHT = {"primary": 1.0, "verified": 1.0, "computed": 1.0, "secondary": 0.8, "unverified": 0.5}
 # retrieval half-lives (days): how fast a memory quiets, NOT when it is forgotten
 # how much a kind matters when memories compete for a token budget (analysis outranks bookkeeping)
-KIND_WEIGHT = {"verdict": 1.3, "correction": 1.3, "lesson": 1.0, "event": 1.0, "fact": 0.85, "relation": 0.9, "tension": 1.0}
+KIND_WEIGHT = {"verdict": 1.3, "correction": 1.3, "lesson": 1.0, "event": 1.0, "fact": 0.85, "relation": 0.9, "tension": 1.0,
+               "brief": 1.7}
 TOPIC_WEIGHT = {"signal": 0.3, "member": 0.25}
 HALF_LIFE_DAYS = {"fact": 60, "verdict": 45, "event": 30, "lesson": 365, "relation": 180, "tension": 30,
-                  "correction": 365}
+                  "correction": 365, "brief": 75}
+BRIEF_CAP = 1700
 DEFAULT_CONFIG = {"default_tokens": 5000, "per_agent": {}, "recent_change_days": 14,
                   "max_text_chars": 700, "neighbour_weight": 0.4, "cluster_weight": 0.6}
 TEXT_CAP = 700
@@ -115,7 +117,8 @@ def make_obs(entities, kind, text, *, topic=None, value=None, source=None, as_of
     if not ents or not str(text or "").strip():
         raise ValueError("an observation needs at least one entity and some text")
     ev = {"op": "add", "id": obs_id(ents, kind, topic, text if value is None else f"{text}|{json.dumps(value, sort_keys=True)}"),
-          "entities": ents, "kind": kind, "text": cap_text(text), "as_of": clean_date(as_of),
+          "entities": ents, "kind": kind, "text": cap_text(text, BRIEF_CAP if kind == "brief" else TEXT_CAP),
+          "as_of": clean_date(as_of),
           "confidence": confidence if confidence in CONFIDENCE_WEIGHT else "unverified"}
     if topic:
         ev["topic"] = topic
@@ -207,6 +210,8 @@ def replay(events):
                 o["last_confirmed"] = max(str(o["last_confirmed"]), str(e.get("on") or o["last_confirmed"]))
                 if e.get("run"):
                     o["runs"].append(e["run"])
+        elif op == "close_slot":
+            _close_slot(kb, e)
         elif op == "revive" and i in kb:
             kb[i]["status"], kb[i]["superseded_by"] = "live", None
             kb[i]["last_confirmed"] = max(str(kb[i]["last_confirmed"]), str(e.get("on") or ""))
@@ -222,6 +227,22 @@ def replay(events):
     return kb
 
 
+def _close_slot(kb, e):
+    """A complete snapshot (e.g. a full cluster ladder) that no longer lists an entity closes that entity's live
+    entries in the slot: every live obs on `topic` mentioning `entity` but NONE of `keep` is superseded."""
+    keep, keep_ids = set(e.get("keep") or []), set(e.get("keep_ids") or [])
+    for o in kb.values():
+        if (o["status"] == "live" and o.get("topic") == e.get("topic") and e.get("entity") in o["entities"]
+                and not (keep & set(o["entities"])) and o["id"] not in keep_ids
+                and str(o["as_of"]) <= str(e.get("on") or "9999")):
+            o["status"], o["superseded_by"], o["superseded_on"] = "superseded", f"omitted:{e.get('topic')}", e.get("on")
+
+
+def close_slot_event(topic, entity, keep_entities, on, keep_ids=()):
+    return {"op": "close_slot", "topic": topic, "entity": entity, "keep": sorted(keep_entities), "keep_ids": sorted(keep_ids),
+            "on": str(on)}
+
+
 # ------------------------------------------------------------------------------------ write helpers
 def plan_add(kb, ev):
     """Events to append for one add: the add itself, plus a supersede for the live verdict it replaces
@@ -229,7 +250,7 @@ def plan_add(kb, ev):
     evs = []
     existing = kb.get(ev["id"])
     run = ev.get("run")
-    slot_verdict = ev["kind"] == "verdict" and ev.get("topic")
+    slot_verdict = ev["kind"] in ("verdict", "brief") and ev.get("topic")
     revive = bool(existing and slot_verdict and existing["status"] == "superseded")
     if existing and not revive and run and run in existing["runs"]:
         return []
@@ -238,11 +259,16 @@ def plan_add(kb, ev):
     else:
         evs.append(ev)
     if slot_verdict and (not existing or revive):
+        newer = None
         for o in kb.values():
-            if (o["status"] == "live" and o["kind"] == "verdict" and o.get("topic") == ev["topic"]
-                    and o["entities"] == ev["entities"] and o["id"] != ev["id"]
-                    and str(o["as_of"]) <= str(ev["as_of"])):
-                evs.append({"op": "supersede", "id": o["id"], "by": ev["id"], "on": ev["as_of"]})
+            if (o["status"] == "live" and o["kind"] == ev["kind"] and o.get("topic") == ev["topic"]
+                    and o["entities"] == ev["entities"] and o["id"] != ev["id"]):
+                if str(o["as_of"]) <= str(ev["as_of"]):
+                    evs.append({"op": "supersede", "id": o["id"], "by": ev["id"], "on": ev["as_of"]})
+                elif newer is None or str(o["as_of"]) > str(newer["as_of"]):
+                    newer = o
+        if newer is not None:                 # history arriving late: this reading is already out of date
+            evs.append({"op": "supersede", "id": ev["id"], "by": newer["id"], "on": newer["as_of"]})
     return evs
 
 
@@ -253,6 +279,10 @@ def add_observations(base, observations, kb=None, reinforce=True):
     kb = kb if kb is not None else replay(read_events(base))
     out, added, reinforced = [], 0, 0
     for ev in observations:
+        if ev.get("op") == "close_slot":
+            out.append(ev)
+            _apply(kb, [ev])
+            continue
         if not reinforce and ev["id"] in kb and not (ev["kind"] == "verdict" and ev.get("topic")
                                                       and kb[ev["id"]]["status"] == "superseded"):
             continue
@@ -287,6 +317,8 @@ def _apply(kb, evs):
                          "first_seen": e.get("as_of"), "last_confirmed": e.get("as_of"),
                          "runs": [e["run"]] if e.get("run") else [], "superseded_by": None, "refuted": None,
                          "uses": 0}
+        elif op == "close_slot":
+            _close_slot(kb, e)
         elif op == "revive" and i in kb:
             kb[i]["status"], kb[i]["superseded_by"] = "live", None
             kb[i]["last_confirmed"] = max(str(kb[i]["last_confirmed"]), str(e.get("on") or ""))
@@ -382,6 +414,7 @@ def retrieve(kb, entities, budget_tokens, today, *, focus=(), cfg=None, exclude_
             weight.setdefault(n, cfg["neighbour_weight"])
     focus = set(focus or ())
     scored = []
+    rel_rec = reliability(kb)
     for o in kb.values():
         if o["id"] in exclude_ids:
             continue
@@ -394,6 +427,8 @@ def retrieve(kb, entities, budget_tokens, today, *, focus=(), cfg=None, exclude_
         s = salience(o, today) * rel * (1.5 if focus & set(o["entities"]) else 1.0)
         if o["kind"] in ("tension", "correction"):
             s *= 1.3                     # unresolved disagreements and corrections matter more than their age
+        if (rel_rec.get(o.get("agent")) or {}).get("status") == "weak":
+            s *= WEAK_RANK_FACTOR        # an agent whose scored calls (post-epoch, n >= N_MIN) mostly missed
         scored.append((s, o))
     scored.sort(key=lambda x: -x[0])
     used, items, ids = 0, [], []
@@ -431,9 +466,11 @@ def entity_page(kb, entity, today):
         if o["kind"] == "verdict" and o.get("topic"):
             topics.setdefault(o["topic"], []).append({"as_of": o["as_of"], "value": o.get("value"),
                                                       "status": o["status"], "id": o["id"], "text": cap_text(o["text"], 160)})
-    live = sorted((o for o in obs if o["status"] == "live" and o["kind"] != "verdict"),
+    live = sorted((o for o in obs if o["status"] == "live" and o["kind"] not in ("verdict", "brief")),
                   key=lambda o: -salience(o, today))
+    briefs = sorted((o for o in obs if o["kind"] == "brief" and o["status"] == "live"), key=lambda o: str(o["as_of"]))
     return {"entity": entity, "as_of": str(_today(today)), "n_observations": len(obs),
+            "brief": ({"as_of": briefs[-1]["as_of"], "text": briefs[-1]["text"], "id": briefs[-1]["id"]} if briefs else None),
             "timelines": topics,
             "live_facts": [render_line(o) for o in live[:25]],
             "open_tensions": [render_line(o) for o in obs if o["kind"] == "tension" and o["status"] == "live"][:10],
@@ -472,3 +509,142 @@ def search(kb, text, today, limit=15):
     hits = [o for o in kb.values() if q in _norm(o["text"]) or q in _norm(" ".join(o["entities"]))]
     hits.sort(key=lambda o: (o["status"] != "live", -salience(o, today)))
     return [{"status": o["status"], "line": render_line(o)} for o in hits[:limit]]
+
+
+# ============================================================================== LIBRARIAN (consolidation)
+# Entity pages are derived by code. The LIBRARIAN is an agent that reads, per entity, the previous brief plus
+# what is NEW since it, and writes the next brief: what the desk believes, why, what changed, what is still
+# open. Briefs are ordinary observations (kind `brief`, one live per entity, older ones superseded, never
+# deleted) and outrank everything else in retrieval, so they are the compressed memory each run starts from.
+
+def briefs_plan(kb, today, *, min_new=3, max_entities=14, held=(), per_entity_obs=40):
+    """Entities that have learned enough since their last brief to deserve a new one, with the evidence packs the
+    librarian needs. Priority: new observations x (1.5 if held). Pure."""
+    today = _today(today)
+    held = set(held)
+    by_ent = {}
+    for o in kb.values():
+        for e in o["entities"]:
+            by_ent.setdefault(e, []).append(o)
+    plans = []
+    for e, obs in by_ent.items():
+        if e.startswith("TH:") and len(obs) < 3:
+            continue
+        briefs = sorted((o for o in obs if o["kind"] == "brief"), key=lambda o: (str(o["as_of"]), o["id"]))
+        last = briefs[-1] if briefs else None
+        cutoff = str(last["as_of"]) if last else ""
+        new = [o for o in obs if o["kind"] != "brief" and o["status"] in ("live", "superseded", "refuted")
+               and (str(o.get("first_seen") or o["as_of"]) > cutoff or str(o.get("last_confirmed") or "") > cutoff)]
+        if len(new) < min_new:
+            continue
+        page = entity_page(kb, e, today)
+        weight = len(new) * (1.5 if e in held else 1.0)
+        new.sort(key=lambda o: -salience(o, today))
+        plans.append({"entity": e, "priority": round(weight, 2), "n_new": len(new),
+                      "previous_brief": ({"as_of": last["as_of"], "text": last["text"]} if last else None),
+                      "timelines": {t: [{"as_of": x["as_of"], "value": x["value"], "status": x["status"]} for x in tl[-6:]]
+                                    for t, tl in page["timelines"].items()},
+                      "new_observations": [{"id": o["id"], "status": o["status"], "line": render_line(o)[:560]}
+                                           for o in new[:per_entity_obs]],
+                      "open_tensions": page["open_tensions"][:6], "refuted": page["refuted"][:5]})
+    plans.sort(key=lambda p: -p["priority"])
+    return plans[:max_entities]
+
+
+def briefs_apply(base, tail, run, as_of):
+    """Fold the librarian's output into the log as `brief` observations. Returns a small report."""
+    obs, tensions = [], 0
+    for b in (tail.get("briefs") or []) if isinstance(tail, dict) else []:
+        ent = b.get("entity")
+        text = str(b.get("brief") or "").strip()
+        if not ent or len(text) < 40:
+            continue
+        pts = "; ".join(str(x) for x in (b.get("key_points") or [])[:5])
+        opn = "; ".join(str(x) for x in (b.get("open_questions") or [])[:4])
+        full = text + (f" KEY: {pts}." if pts else "") + (f" OPEN: {opn}." if opn else "")
+        obs.append(make_obs([ent], "brief", full, topic="brief", value=len(b.get("obs_ids") or []), as_of=as_of,
+                            confidence="secondary", agent="librarian", run=run))
+        for c in (b.get("contradictions") or [])[:3]:
+            obs.append(make_obs([ent], "tension", f"[librarian] {c}", as_of=as_of, confidence="unverified",
+                                agent="librarian", run=run))
+            tensions += 1
+    rep = add_observations(base, obs, reinforce=True) if obs else {"added": 0, "reinforced": 0, "events": 0}
+    rep["briefs"] = sum(1 for o in obs if o["kind"] == "brief")
+    rep["tensions"] = tensions
+    return rep
+
+
+# ================================================================================ OUTCOMES + RELIABILITY
+# Which of the desk's own calls proved right? Only proposals CREATED ON/AFTER ENGINE_EPOCH count (the legacy
+# engine's outcomes are not evidence -- user, 2026-09-20). Until an agent has N_MIN scored calls its record is
+# `unproven` and changes nothing; a weak record (>= N_MIN and hit rate < 40%) lowers its memories' rank.
+RELIABILITY_N_MIN = 12
+RELIABILITY_WEAK_BELOW = 0.40
+WEAK_RANK_FACTOR = 0.8
+
+
+def outcome_observations(proposals, epoch, as_of, run=None):
+    """One `event` observation (topic outcome) per proposal created on/after `epoch` that has been scored.
+    `meta.hit` is 1/0 from the proposal's own outcome verdict; `meta.agent` is who proposed it."""
+    out = []
+    for p in proposals or []:
+        created = str(p.get("created_utc") or p.get("created_on") or p.get("date") or "")[:10]
+        verdict = str(p.get("outcome_verdict") or "").lower()
+        # scored, decisive outcomes only: neutral / unscoreable / needs_anchor_review say nothing about the call
+        if not created or created < str(epoch) or verdict not in ("worked", "missed"):
+            continue
+        tk = p.get("ticker") or (p.get("sell_leg") or {}).get("ticker")
+        if not tk:
+            continue
+        hit = 1 if verdict == "worked" else 0
+        out.append(make_obs([T(tk)], "event",
+                            f"[outcome {p.get('id')}] {p.get('action')} scored {verdict}"
+                            f"{(' (' + str(p.get('outcome_pct')) + '%)') if p.get('outcome_pct') is not None else ''}",
+                            topic="outcome", value=hit, as_of=as_of, confidence="computed", agent="strategist", run=run,
+                            meta={"hit": hit, "proposal": p.get("id"), "agent": p.get("source_agent") or "strategist"}))
+    return out
+
+
+def reliability(kb):
+    """{agent: {n, hits, hit_rate, status}} from outcome observations. status: unproven | ok | weak."""
+    rec = {}
+    for o in kb.values():
+        if o.get("topic") != "outcome" or not o.get("meta"):
+            continue
+        a = o["meta"].get("agent") or o.get("agent") or "unknown"
+        r = rec.setdefault(a, {"n": 0, "hits": 0})
+        r["n"] += 1
+        r["hits"] += int(o["meta"].get("hit") or 0)
+    for a, r in rec.items():
+        r["hit_rate"] = round(r["hits"] / r["n"], 3) if r["n"] else None
+        r["status"] = ("unproven" if r["n"] < RELIABILITY_N_MIN else
+                       "weak" if r["hit_rate"] < RELIABILITY_WEAK_BELOW else "ok")
+    return rec
+
+
+# ================================================================================== DASHBOARD PAYLOAD
+def dashboard_payload(kb, entities, today, *, max_entities=45):
+    """Compact per-entity view for the dashboard's Knowledge tab. Pure."""
+    today = _today(today)
+    rows = []
+    for e in entities:
+        pg = entity_page(kb, e, today)
+        if not pg["n_observations"]:
+            continue
+        obs = [o for o in kb.values() if e in o["entities"]]
+        recent = sorted((o for o in obs if o["status"] in ("superseded", "refuted") or o["kind"] in ("correction",)),
+                        key=lambda o: -(_today(o.get("superseded_on") or (o.get("refuted") or {}).get("on") or o["as_of"]).toordinal()))
+        rows.append({"entity": e, "kind": e.split(":")[0], "n": pg["n_observations"],
+                     "last": max((str(o.get("last_confirmed") or o["as_of"]) for o in obs), default=""),
+                     "brief": pg["brief"],
+                     "timelines": {t: tl[-6:] for t, tl in pg["timelines"].items()},
+                     "facts": pg["live_facts"][:5], "tensions": pg["open_tensions"][:4],
+                     "changes": [render_line(o)[:260] for o in recent[:3]]})
+    rows.sort(key=lambda r: (r["brief"] is None, -r["n"]))
+    stats = {"observations": len(kb), "live": sum(1 for o in kb.values() if o["status"] == "live"),
+             "superseded": sum(1 for o in kb.values() if o["status"] == "superseded"),
+             "refuted": sum(1 for o in kb.values() if o["status"] == "refuted"),
+             "briefs": sum(1 for o in kb.values() if o["kind"] == "brief" and o["status"] == "live"),
+             "entities": len({e for o in kb.values() for e in o["entities"]}),
+             "edges": len(graph(kb, today))}
+    return {"as_of": str(today), "stats": stats, "reliability": reliability(kb), "entities": rows[:max_entities]}

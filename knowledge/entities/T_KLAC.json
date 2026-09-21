@@ -1,15 +1,24 @@
 {
+ "brief": {
+  "as_of": "2026-09-21",
+  "id": "73c733ed1b6b",
+  "text": "Thesis STRENGTHENING (live 2026-09-10; first set 08-25 as a new holding). Ladder rank 2 in AI Semis/Fabs as of 09-15 (was 3 on 09-14, 2 on 09-08). Position 10sh / 5.25% of equity (09-19). For: Q4 FY26 revenue $3.66B and EPS $1.05 at/above guide high, $7B buyback, Stifel PT $191->$270. Against: two beat-and-fall reactions in a row, -19.2% 1m, beta 1.31, no dated datapoint newer than late July, China share not quantified. AMAT/KLAC pair judged distinct (different process step, KLAC relatively insulated on China). Reorder: KLAC falls below TER if 10-29 print shows China above 30% or guide below consensus. All sources secondary. KEY: Thesis strengthening, live 2026-09-10 [secondary]; Ladder rank 2 (2026-09-15); Q4 FY26 beat; $7B buyback; Beat-and-fall pattern; -19.2% 1m; Falsifier: 10-29 print, China above 30% or guide below consensus. OPEN: China revenue share is not quantified; Will the beat-and-fall pattern recur at the next print?."
+ },
  "entity": "T:KLAC",
  "live_facts": [
-  "[230ee98ffd76] fact KLAC (2026-09-06 x2) [secondary]: [analyst targets] mean target None (n None), gap None",
+  "[c59cc8a1b870] event/proposal KLAC (2026-09-21) [secondary]: [proposal] BUY $429.25 (profit_rotation): profit_rotation buy leg (paired with AMD SELL): KLAC is a laggard (-7.6pp vs benchmark) with a strengthening thesis, yet to rally -- 'back the performer with intact thesis'. Script ticket: $429 sized by R_ticket (its own conviction tranche), stop $162.51, risk $35.46, buy EV 0.92R (p_win 0.40 UNCALIBRATED prior, payoff 3.87R), heat budget allocation first in EV order, leaves R_free ~$560. No engine verdict yet (BUY unproven, n=0) so no multiplier. Only live buy-side ticket this run. policy.heat_budget is confirmed=true per compute_triggers; trade_materiality unconfirmed. Not to be read as a proven edge.",
   "[e4adbbb112c8] lesson KLAC (2026-09-16) [secondary]: [rebound excluded] too_quiet_atr",
   "[f53bd3cc541b] lesson KLAC (2026-09-15) [secondary]: [rebound excluded] too_quiet",
+  "[7c9f74313043] event/proposal KLAC (2026-09-20) [secondary]: [proposal] BUY $167.39 (profit_rotation): Laggard (-7.6pp), strengthening thesis, reported beat, blended entry clears stop.",
   "[8b533c4e51b3] event ASML,CLS,COHR (2026-09-16) [secondary]: AMBIGUOUS/immediate: FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental AI-infra selloff follows -- SMH closes +0.64% vs Monday's -4.75%, NDX -0.01%, SPX -0.45%, Dow -1.2% (broad-market laggard, not semis-led)",
   "[708049242488] relation/pair AMAT,KLAC =distinct (2026-09-15) [secondary]: KLAC/AMAT: distinct -- Business screen (compute flagged near-identical 1m move/ATR): both are US front-end semicap names with the same foundry/memory customers and the same China controls, but at different process steps (process control vs dep/etch) and with different China intensity (AMAT ~30%, quantified -$600-710M; KLAC relatively insulated). Near-identical price is a shared macro factor, not the same bet. (keep KLAC, drop AMAT)",
   "[305f3553b1de] relation/pair AMAT,KLAC =distinct (2026-09-14) [secondary]: AMAT/KLAC: distinct -- Business screen, not a correlation (the compute screen returned none): both are US front-end semicap names facing the same China controls and the same foundry/memory customers, but at different process steps (dep/etch vs process control) (keep KLAC, drop AMAT)",
   "[145428c2e2f5] event ALAB,AMAT,ASML (2026-09-15) [secondary]: THREAT/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC sit at 84.1% as of 2026-09-14; SEP dot-plot lands alongside the decision Wed 09-16",
+  "[e252125360b8] event/proposal KLAC (2026-09-14) [secondary]: [proposal] BUY $444.41 (profit_rotation): consolidated buy leg funding BOTH profit_rotation-NBIS-KLAC ($134.73) and cluster_rotation-AMD-KLAC ($309.68) -- manually merged after a dedup bug dropped the pair_id link on one of two same-day KLAC buys",
   "[13fce78e2109] event AMAT,ASML,EWY (2026-09-14) [secondary]: THREAT/immediate: KOSPI -3.26% (Samsung/SK Hynix -5 to -6.4%) on Fed-hawkish repricing (Warsh Jackson Hole address, 57% odds of a 25bp hike at Sept 15-16 FOMC) plus Strait of Hormuz oil spike (crude +3%, Saudi pipeline attack) and renewed 'AI-slowdown' sentiment -- broad macro risk-off, not a new memory-specific fundamental catalyst; directly reverses the 09-11 Waller-hold tailwind carried in factor_catalysts",
+  "[9bb5db4e0ed5] event/proposal KLAC (2026-09-14) [secondary]: [proposal] BUY $277.56 (profit_rotation): Laggard (-10.5pp) with strengthening thesis -- yet to rally. Funded by MU sell proceeds (self-funding pair). Not clamped.",
   "[4f3e28f96677] event ALAB,AMAT,ASML (2026-09-14) [secondary]: THREAT/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, up from ~57% cited in the 09:29Z pre-market review, with Brent near $107/bbl sustaining the inflation-fear channel",
+  "[59caa657f35e] event/proposal KLAC (2026-09-14) [secondary]: [proposal] BUY $442.77 (conviction_average): conviction_average, thesis strengthening (verified secondary, SEC 8-K/10-Q 2026-08-24 beat), RSI14 38.1, -18.99% 1m / -11.6pp vs SMH, no company-specific negative catalyst. Cash-funded alternative to P-295's consolidated $721.97 (which assumes AMD+NBIS sell legs both execute -- both deferred here). Execute now (Tranche 1).",
   "[340807cdfaac] fact KLAC (2026-09-19) [secondary]: [thesis] position 10sh / 5.25% of equity",
   "[b6c48ada2c39] fact ASML,COHR,KLAC (2026-09-16) [secondary]: [catalyst] FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental AI-infra selloff follows -- SMH closes +0.64% vs Monday's -4.75%, NDX -0.01%, SPX -0.45%, Dow -1.2% (broad-market laggard, not semis-led) -- magnitude: SMH post-close +0.64% (545.56 vs prev close 542.11) same session as the hawkish decision -- relief that an already-priced event did not trigger a second leg down, not …",
   "[880f29091fcb] event ALAB,ASML,CLS (2026-09-11) [secondary]: TAILWIND/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC, easing hike-fear from hot August CPI -- broad relief rally across the entire risk-on book, not an AI-capex-specific tailwind",
@@ -17,18 +26,16 @@
   "[2892e3753ee3] fact KLAC (2026-09-15) [secondary]: [thesis] strengthening -- Semicap process-control/inspection (AI Semis/Fabs); position now 8sh (3.48%) after 09-09 add",
   "[4ed8c21903d7] fact AMAT,ASML,EWY (2026-09-14) [secondary]: [catalyst] KOSPI -3.26% (Samsung/SK Hynix -5 to -6.4%) on Fed-hawkish repricing (Warsh Jackson Hole address, 57% odds of a 25bp hike at Sept 15-16 FOMC) plus Strait of Hormuz oil spike (crude +3%, Saudi pipeline attack) and renewed 'AI-slowdown' sentiment -- broad macro risk-off, not a new memory-specific fundamental catalyst; directly reverses the 09-11 Waller-hold tailwind carried in factor_catalysts -- m…",
   "[ef9532bb1d9c] fact AMAT,ASML,EWY (2026-09-14) [secondary]: [catalyst] CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, up from ~57% cited in the 09:29Z pre-market review, with Brent near $107/bbl sustaining the inflation-fear channel -- magnitude: Hike-odds move (57pp->88.5pp) is the largest single change since the AM review, but this run's own primary US10Y print is +/-flat on the session (4.955%, -0.02pts) -- the mechanism is probab…",
-  "[ca20cf730d87] fact KLAC (2026-09-10) [secondary]: [thesis evidence AGAINST] pulled back -3.21% the day after the 09-09 add (now $182.91 vs $181.98 buy, essentially flat) -- continues the beat-but-sells-off pattern; no negative company news found",
-  "[52c6e91d7295] event AVGO,COHR,KLAC (2026-09-04) [secondary]: TAILWIND/mechanical: Nvidia agrees to pay $12.9bn for Hugging Face, driving AI-silicon complex-wide read-through rally (NVDA, MRVL +6.3%, KLAC +4.4%, AVGO, COHR at record high) though none of these names reported anything that day",
-  "[5599b4343664] event AVGO,COHR,KLAC (2026-09-04) [secondary]: TAILWIND/mechanical: Nvidia agrees to pay $12.9bn for Hugging Face, driving AI-silicon complex-wide sympathy rally (NVDA, MRVL +6.3%, KLAC +7% per Seeking Alpha, AVGO, COHR record high) with no own-name fundamental change",
-  "[971c6c85c8bf] fact KLAC (2026-08-31) [secondary]: [analyst targets] mean target None (n 21), gap None",
-  "[35ed6366983b] fact KLAC (2026-08-24) [secondary]: [thesis evidence FOR] Stifel raised PT $191->$270 citing AI-driven memory/processor demand; consensus PT $231.78 (+28% upside), 29 analysts rated Buy, accelerating 2026-2027 growth guide",
-  "[a71efeb84504] fact KLAC (2026-08-24) [secondary]: [thesis evidence FOR] Stifel raised PT $191->$270; consensus PT $231.78 (+28% upside), accelerating 2026-2027 growth guide",
-  "[a5b574a37cd2] event AMAT,AMD,INTC (2026-08-28) [secondary]: THREAT/immediate: Broad chip-sector unwind: Philadelphia Semiconductor Index (SMH proxy) hit a two-month low; Intel -6%, AMD -8.1%, Applied Materials -6.5%, SK Hynix ADR -6.8%, SMCI -7.1% in the session cluster around Aug 27-28, described as profit-taking after SMH's >75% H1 2026 rally and survey data showing 82% of fund managers calling semis the most crowded trade in history",
-  "[c0da79e9a41c] event AMAT,AMD,INTC (2026-08-28) [secondary]: THREAT/immediate: Broad semis unwind: Philadelphia Semi Index 2-month low; Intel -6%, AMD -8.1%, AMAT -6.5%, SKHY -6.8%, SMCI -7.1% -- crowded-trade unwind after SMH +75% H1 2026 (82% of fund managers call semis most-crowded trade)",
-  "[33961f00685d] event AMAT,AMD,AVGO (2026-08-25) [secondary]: AMBIGUOUS/immediate: Sector-wide pre-market green is SMH +14% over 4 sessions heading into binary earnings week (NVDA 8/26, MRVL 8/27, AVGO 9/2) -- not book-specific news"
+  "[43f6fa20d94e] event/proposal KLAC (2026-09-10) [secondary]: [proposal] BUY $468.99 (cluster_rotation): REFRESH of open P-253. cluster_rotation buy leg, fully funded by the AMD sell leg. Ladder ranks KLAC #2/10 (leader): process-control/metrology intensity scales fastest with GAA + advanced packaging. conviction_score 60.8 (medium tier).",
+  "[fdafd0ee0646] event/proposal KLAC (2026-09-10) [secondary]: [proposal] BUY $0.0 (profit_rotation): REFRESH of open P-258 buy leg. Clamped to $0.00 by cluster ceiling room (AI Semis/Fabs breached, $0 room per compute_drift.json). Conviction case (60.8, medium tier) is unaffected by the funding gap -- stays open pending cluster room freeing up (e.g. if the catalyst TRIMs above execute).",
+  "[e77299f00cbc] event/proposal KLAC (2026-09-09) [secondary]: [proposal] BUY $455.17 (cluster_rotation): Cluster ladder ranks KLAC #2/10 -- process-control/metrology intensity rising fastest at GAA/advanced packaging. Thesis strengthening (secondary), STRONG UPTREND, conviction_score 61.4 (medium). Funded entirely by the AMD sell leg, not by wallet cash.",
+  "[8111f156ce9e] event/proposal KLAC (2026-09-09) [secondary]: [proposal] BUY $147.88 (profit_rotation): Laggard (-5.7pp) with strengthening thesis, funded by MSFT profit_rotation sell leg -- the one BUY idea actually fundable given the cash breach.",
+  "[40dbcca37096] fact/thesis_evidence KLAC (2026-09-10) [secondary]: [thesis evidence AGAINST] pulled back -3.21% the day after the 09-09 add (now $182.91 vs $181.98 buy, essentially flat) -- continues the beat-but-sells-off pattern; no negative company news found"
  ],
  "n_observations": 52,
- "open_tensions": [],
+ "open_tensions": [
+  "[ccf665003ea3] tension KLAC (2026-09-21) [unverified]: [librarian] Ranked 2 on process-mix intensity while price is a laggard (-7.6pp vs benchmark) and no data newer than late July supports it."
+ ],
  "refuted": [],
  "timelines": {
   "ladder_rank": [
@@ -52,85 +59,6 @@
     "status": "live",
     "text": "rank 2 (middle). Case against: Two beat-and-fall reactions in a row; -19.2% 1m; beta 1.31 makes it a hawkish-FOMC casualty; no dated datapoint newer than late …",
     "value": 2
-   }
-  ],
-  "proposal": [
-   {
-    "as_of": "2026-09-01",
-    "id": "9bfc300ac0c0",
-    "status": "superseded",
-    "text": "BUY $152.66 (profit_rotation): profit_rotation buy leg: laggard (-5.7pp rel. strength) with thesis strengthening (secondary, 2 for/1 against -- verified), repo…",
-    "value": "BUY"
-   },
-   {
-    "as_of": "2026-09-03",
-    "id": "30a59734d244",
-    "status": "superseded",
-    "text": "BUY $779.38 (conviction_average): conviction_average: highest conviction score this run (50.3, medium tier). Thesis strengthening (secondary, 2 for/1 against),…",
-    "value": "BUY"
-   },
-   {
-    "as_of": "2026-09-09",
-    "id": "5e68ec40393e",
-    "status": "superseded",
-    "text": "BUY $147.88 (profit_rotation): Laggard (-5.7pp) with strengthening thesis, funded by MSFT profit_rotation sell leg -- the one BUY idea actually fundable given …",
-    "value": "BUY"
-   },
-   {
-    "as_of": "2026-09-09",
-    "id": "d8b2a5f69c1c",
-    "status": "superseded",
-    "text": "BUY $455.17 (cluster_rotation): Cluster ladder ranks KLAC #2/10 -- process-control/metrology intensity rising fastest at GAA/advanced packaging. Thesis strengt…",
-    "value": "BUY"
-   },
-   {
-    "as_of": "2026-09-10",
-    "id": "2a53e2331ae4",
-    "status": "superseded",
-    "text": "BUY $0.0 (profit_rotation): REFRESH of open P-258 buy leg. Clamped to $0.00 by cluster ceiling room (AI Semis/Fabs breached, $0 room per compute_drift.json). C…",
-    "value": "BUY"
-   },
-   {
-    "as_of": "2026-09-10",
-    "id": "4e5e2a237380",
-    "status": "superseded",
-    "text": "BUY $468.99 (cluster_rotation): REFRESH of open P-253. cluster_rotation buy leg, fully funded by the AMD sell leg. Ladder ranks KLAC #2/10 (leader): process-co…",
-    "value": "BUY"
-   },
-   {
-    "as_of": "2026-09-14",
-    "id": "5ac7e26d4af4",
-    "status": "superseded",
-    "text": "BUY $277.56 (profit_rotation): Laggard (-10.5pp) with strengthening thesis -- yet to rally. Funded by MU sell proceeds (self-funding pair). Not clamped.",
-    "value": "BUY"
-   },
-   {
-    "as_of": "2026-09-14",
-    "id": "5b5137c8416a",
-    "status": "superseded",
-    "text": "BUY $442.77 (conviction_average): conviction_average, thesis strengthening (verified secondary, SEC 8-K/10-Q 2026-08-24 beat), RSI14 38.1, -18.99% 1m / -11.6pp…",
-    "value": "BUY"
-   },
-   {
-    "as_of": "2026-09-14",
-    "id": "8759e9b47c5e",
-    "status": "superseded",
-    "text": "BUY $444.41 (profit_rotation): consolidated buy leg funding BOTH profit_rotation-NBIS-KLAC ($134.73) and cluster_rotation-AMD-KLAC ($309.68) -- manually merged…",
-    "value": "BUY"
-   },
-   {
-    "as_of": "2026-09-20",
-    "id": "32ef3512dcd2",
-    "status": "superseded",
-    "text": "BUY $167.39 (profit_rotation): Laggard (-7.6pp), strengthening thesis, reported beat, blended entry clears stop.",
-    "value": "BUY"
-   },
-   {
-    "as_of": "2026-09-21",
-    "id": "87e8dbbbaa84",
-    "status": "live",
-    "text": "BUY $429.25 (profit_rotation): profit_rotation buy leg (paired with AMD SELL): KLAC is a laggard (-7.6pp vs benchmark) with a strengthening thesis, yet to rall…",
-    "value": "BUY"
    }
   ],
   "thesis": [

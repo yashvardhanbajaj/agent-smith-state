@@ -1,33 +1,34 @@
 {
+ "brief": null,
  "entity": "T:MSFT",
  "live_facts": [
-  "[7544850a87d3] fact MSFT (2026-09-06 x2) [secondary]: [analyst targets] mean target None (n None), gap None",
+  "[0ea08aa30337] event/proposal MSFT (2026-09-16) [secondary]: [proposal] BUY $316.66 (cluster_rotation): Cluster ladder ranks MSFT #1 of 4: sole FCF-positive hyperscaler in the set (Q4 FCF $19.6B after $41B capex). Note: MSFT already carries a separate open conviction_average BUY (P-316) from the prior run's FOMC desk plan -- this rotation-pair leg is funded by the NBIS sell leg rather than fresh cash, a distinct mechanism, but nets the same direction as P-316; treat as one decision, not two.",
   "[8b533c4e51b3] event ASML,CLS,COHR (2026-09-16) [secondary]: AMBIGUOUS/immediate: FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental AI-infra selloff follows -- SMH closes +0.64% vs Monday's -4.75%, NDX -0.01%, SPX -0.45%, Dow -1.2% (broad-market laggard, not semis-led)",
   "[4e3e4a246af8] relation/pair GOOG,MSFT =distinct (2026-09-15) [secondary]: MSFT/GOOG: distinct -- Screen candidate only (1m return gap 1.21pp, ATR gap 0.04). On business grounds they are distinct. MSFT is enterprise software/Copilot plus OpenAI-linked Azure and still self-funds; GOOG is ad-funded, has a mature TPU and the fastest cloud share gain, and is now FCF-negative. They share enterprise cloud customers, but their accelerator strategy, funding state and end-market mix differ. The near-identical price action comes from the same 'quality mega-cap in a semis selloff' factor, not the same business bet. (keep both, drop )",
   "[ebf6477749cd] relation/pair MSFT,NBIS =distinct (2026-09-15) [secondary]: MSFT/NBIS: distinct -- Partial overlap: MSFT is an NBIS customer, so part of NBIS revenue is MSFT capex rented out. NBIS layers a financing and rate factor MSFT lacks. Carried from 09-14 and unchanged. (keep both, drop )",
   "[3e660e16f967] relation/pair MSFT,NBIS =distinct (2026-09-14) [secondary]: MSFT/NBIS: distinct -- Partial overlap only -- MSFT is an NBIS customer, so NBIS revenue is partly MSFT capex rented out; but NBIS adds financing/rate risk MSFT lacks (keep both, drop )",
+  "[212777891591] event/proposal MSFT (2026-09-15) [secondary]: [proposal] BUY $963.51 (conviction_average): Amends P-301 down to today's re-scored conviction_average. Ladder rank #1, only FCF-positive hyperscaler. FOMC-staged (size only, not idea quality).",
+  "[a9e66e09cb86] event/proposal MSFT (2026-09-14) [secondary]: [proposal] SELL $148.69 (profit_rotation): profit_rotation: stretched cohort; note MSFT thesis upgraded strengthening intra-run, treat as partial not full profit-take",
+  "[2aba8f0d007e] event/proposal MSFT (2026-09-14) [secondary]: [proposal] BUY $2151.39 (conviction_average): No open proposal currently covers MSFT. conviction_average, highest conviction score in the book today (59.5, medium), thesis strengthening (verified secondary), +9.6pp vs SMH, +2.17% 1m -- one of the few names actually up. STAGE: hold until after the 2026-09-16 FOMC decision given size and the imminent rate outcome, not because of any weakness in the idea.",
   "[b6c48ada2c39] fact ASML,COHR,KLAC (2026-09-16) [secondary]: [catalyst] FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental AI-infra selloff follows -- SMH closes +0.64% vs Monday's -4.75%, NDX -0.01%, SPX -0.45%, Dow -1.2% (broad-market laggard, not semis-led) -- magnitude: SMH post-close +0.64% (545.56 vs prev close 542.11) same session as the hawkish decision -- relief that an already-priced event did not trigger a second leg down, not …",
   "[ae09447ec748] fact MSFT (2026-09-15) [secondary]: [thesis] strengthening -- Azure/OpenAI-linked hyperscaler capex spender; confirmed compute-capacity buildout to ~38GW by 2032 (>3x current) amid demand outstripping supply",
-  "[9964f3db6453] fact MSFT (2026-09-14) [secondary]: [thesis evidence AGAINST] the '$90.01B Q4 revenue' figure in the 09-11 news headline is a RECYCLED FY26 Q4 print; next earnings is 2026-10-28, not a new beat",
-  "[4e87ff40ad7b] fact MSFT (2026-09-14) [secondary]: [thesis evidence AGAINST] still no independent Azure segment valuation view",
-  "[9bdd9c68eb16] fact MSFT (2026-09-09) [secondary]: [thesis evidence FOR] plans to triple datacenter capacity to ~38GW by 2032, reportedly turning away AI/cloud business on compute shortage",
-  "[788dd6b38570] fact MSFT (2026-09-07) [secondary]: [analyst targets] mean target None (n 33), gap None",
-  "[7fa15bbccaa9] fact MSFT (2026-08-30) [secondary]: [analyst targets] mean target None (n 34), gap None",
+  "[dfc41586e262] fact/thesis_evidence MSFT (2026-09-14) [secondary]: [thesis evidence AGAINST] the '$90.01B Q4 revenue' figure in the 09-11 news headline is a RECYCLED FY26 Q4 print; next earnings is 2026-10-28, not a new beat",
+  "[1138d5ce5928] fact/thesis_evidence MSFT (2026-09-14) [secondary]: [thesis evidence AGAINST] still no independent Azure segment valuation view",
+  "[edaddd5298f0] event/proposal MSFT (2026-09-10) [secondary]: [proposal] SELL $147.49 (profit_rotation): REFRESH of open P-258. profit_rotation sell leg: MSFT in names_stretched (compute_derisk.json) with a watch thesis -- real profit to book. Buy leg (KLAC) stays clamped to $0.00 by AI Semis/Fabs's $0 cluster ceiling room; sell leg stands on its own merits regardless.",
+  "[1cadf3a6eace] event/proposal MSFT (2026-09-09) [secondary]: [proposal] SELL $147.88 (profit_rotation): Stretched cohort, watch thesis -- profit_rotation sell leg funding the KLAC buy leg.",
+  "[97e82079df22] fact/thesis_evidence MSFT (2026-09-09) [secondary]: [thesis evidence FOR] plans to triple datacenter capacity to ~38GW by 2032, reportedly turning away AI/cloud business on compute shortage",
+  "[b5644980c537] event/proposal MSFT (2026-09-01) [secondary]: [proposal] SELL $152.66 (profit_rotation): profit_rotation sell leg: stretched (in names_stretched, +24.7% on month, +15.7pp rel. strength) with a watch thesis -- real profit to book. Independently reinforced by a live catalyst_threat hit this run (NVDA/Oracle CDS-widening contagion read; single-source, self-flagged as lacking an absolute bp level for MSFT specifically).",
   "[51f1099bb1c3] event AMZN,AVGO,GOOG (2026-08-27) [secondary]: THREAT/structural: Credit-default swaps on Oracle, SpaceX, Alphabet, Amazon, Meta, Broadcom and Nvidia hit record highs, per LSEG data, as market prices AI-financing/vendor-credit risk into the same week as the SMH selloff",
   "[487acec3a7b0] event AMZN,AVGO,GOOG (2026-08-27) [secondary]: THREAT/structural: CDS on Oracle/SpaceX/Alphabet/Amazon/Meta/Broadcom/Nvidia hit record highs (LSEG) -- AI-financing/vendor-credit risk repricing",
   "[eda3e53d788f] event AMZN,AVGO,GOOG (2026-08-27) [secondary]: THREAT/structural: Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: 'CDS, not EPS'",
-  "[027d797e77c7] fact MSFT (2026-08-10) [secondary]: [thesis evidence FOR] averaged up 08-10 (+2.8% vs first entry), not averaging down, same window GOOGL was stopped out",
-  "[3799f7c5569a] fact MSFT (2026-08-10) [unverified]: [thesis evidence FOR] averaged up on second buy (+2.8% vs first entry), not averaging down",
-  "[327818510b6b] fact MSFT (2026-08-10) [unverified]: [thesis evidence FOR] added to, not trimmed, during the same window GOOGL was stopped out -- relative conviction signal",
+  "[137c6fb8e0d2] fact/thesis_evidence MSFT (2026-08-10) [secondary]: [thesis evidence FOR] averaged up 08-10 (+2.8% vs first entry), not averaging down, same window GOOGL was stopped out",
   "[cd90b74a216d] fact/signal MSFT (2026-09-16): [signals] TARGET GAP",
   "[e9d71db958b2] fact/signal MSFT (2026-09-16): [signals] PEER LEADER, TARGET GAP",
   "[e7302ab859a3] fact/signal MSFT (2026-09-14): [signals] TARGET GAP, NEW TAILWINDS",
   "[5a774a6ecf99] fact/signal MSFT (2026-09-14): [signals] PEER LEADER",
-  "[19c0a49a345b] fact/signal MSFT (2026-09-07): [signals] PEER_LEADER_OVERRIDDEN_FALSE_vs_XLK",
-  "[aee0f339c8a2] fact/signal MSFT (2026-09-06): [signals] NEW TAILWINDS, PEER LEADER",
-  "[2a00243c96ea] fact/signal MSFT (2026-09-01): [signals] NEW TAILWINDS"
+  "[19c0a49a345b] fact/signal MSFT (2026-09-07): [signals] PEER_LEADER_OVERRIDDEN_FALSE_vs_XLK"
  ],
- "n_observations": 39,
+ "n_observations": 36,
  "open_tensions": [],
  "refuted": [],
  "timelines": {
@@ -52,57 +53,6 @@
     "status": "live",
     "text": "rank 1 (leader). Case against: The accounting change lowers reported capex and depreciation, so part of MSFT's 'self-funding' lead is presentation: operating-l…",
     "value": 1
-   }
-  ],
-  "proposal": [
-   {
-    "as_of": "2026-09-01",
-    "id": "5303f5a10cac",
-    "status": "superseded",
-    "text": "SELL $152.66 (profit_rotation): profit_rotation sell leg: stretched (in names_stretched, +24.7% on month, +15.7pp rel. strength) with a watch thesis -- real pr…",
-    "value": "SELL"
-   },
-   {
-    "as_of": "2026-09-09",
-    "id": "3de3920006cf",
-    "status": "superseded",
-    "text": "SELL $147.88 (profit_rotation): Stretched cohort, watch thesis -- profit_rotation sell leg funding the KLAC buy leg.",
-    "value": "SELL"
-   },
-   {
-    "as_of": "2026-09-10",
-    "id": "841d24c1f4a2",
-    "status": "superseded",
-    "text": "SELL $147.49 (profit_rotation): REFRESH of open P-258. profit_rotation sell leg: MSFT in names_stretched (compute_derisk.json) with a watch thesis -- real prof…",
-    "value": "SELL"
-   },
-   {
-    "as_of": "2026-09-14",
-    "id": "7f3e1d95d8a5",
-    "status": "superseded",
-    "text": "SELL $148.69 (profit_rotation): profit_rotation: stretched cohort; note MSFT thesis upgraded strengthening intra-run, treat as partial not full profit-take",
-    "value": "SELL"
-   },
-   {
-    "as_of": "2026-09-14",
-    "id": "e9287e87826c",
-    "status": "superseded",
-    "text": "BUY $2151.39 (conviction_average): No open proposal currently covers MSFT. conviction_average, highest conviction score in the book today (59.5, medium), thesi…",
-    "value": "BUY"
-   },
-   {
-    "as_of": "2026-09-15",
-    "id": "ce2cbacbd4d3",
-    "status": "superseded",
-    "text": "BUY $963.51 (conviction_average): Amends P-301 down to today's re-scored conviction_average. Ladder rank #1, only FCF-positive hyperscaler. FOMC-staged (size o…",
-    "value": "BUY"
-   },
-   {
-    "as_of": "2026-09-16",
-    "id": "ab65ede33a20",
-    "status": "live",
-    "text": "BUY $316.66 (cluster_rotation): Cluster ladder ranks MSFT #1 of 4: sole FCF-positive hyperscaler in the set (Q4 FCF $19.6B after $41B capex). Note: MSFT alread…",
-    "value": "BUY"
    }
   ],
   "thesis": [

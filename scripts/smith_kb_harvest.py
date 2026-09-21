@@ -54,9 +54,14 @@ def thesis_obs(ticker, entry, as_of, agent="thesis", run=None):
             if not claim or len(str(claim)) < 12 or str(claim).lower().startswith("none found"):
                 continue
             src = ev.get("source") if isinstance(ev, dict) else None
-            _mk(out, [K.T(ticker)], "fact", f"[thesis evidence {label}] {claim}", source=src,
+            _mk(out, [K.T(ticker)], "fact", f"[thesis evidence {label}] {claim}", topic="thesis_evidence", source=src,
                 as_of=(ev.get("date") if isinstance(ev, dict) and ev.get("date") else as_of), confidence=_conf(entry.get("verified")),
                 agent=agent, run=run)
+    # a thesis review REPLACES its evidence arrays: evidence from an earlier review that this one no longer cites
+    # is stale, not live knowledge (it stays in the log, superseded).
+    if status and text:
+        keep = [o["id"] for o in out if o.get("topic") == "thesis_evidence"]
+        out.append(K.close_slot_event("thesis_evidence", K.T(ticker), (), as_of, keep_ids=keep))
     return out
 
 
@@ -92,8 +97,14 @@ def from_cluster_tail(tail, as_of, run, agent="cluster"):
             as_of=as_of, confidence="secondary", agent=agent, run=run,
             source="; ".join(str(e.get("source")) for e in _list(mp.get("evidence"))[:2] if isinstance(e, dict)))
     rank = [r for r in _list(tail.get("ranking")) if isinstance(r, dict)]
-    if rank:
+    # A desk-round REVISION carries only the rows that changed. Treat the ladder as complete only when it is a full
+    # tail (>= 4 ranked names) or the revision states the whole order itself; a partial ranking must never be stored
+    # as the ladder order, and must never close the ranks of names it simply did not mention.
+    full = len(rank) >= 4
+    order = tail.get("order") if isinstance(tail.get("order"), str) else None
+    if rank and full:
         order = " > ".join(r.get("ticker", "?") for r in sorted(rank, key=lambda r: r.get("rank", 99)))
+    if order:
         _mk(out, [ce], "verdict", f"Ladder order {order}; leader {tail.get('leader')}, laggard {tail.get('laggard')}",
             topic="ladder_order", value=order, as_of=as_of, confidence="secondary", agent=agent, run=run)
     for r in rank:
@@ -103,6 +114,8 @@ def from_cluster_tail(tail, as_of, run, agent="cluster"):
         _mk(out, [K.T(t), ce], "verdict",
             f"rank {r.get('rank')} ({r.get('verdict')}). Case against: {r.get('case_against') or 'n/a'}",
             topic="ladder_rank", value=r.get("rank"), as_of=as_of, confidence="secondary", agent=agent, run=run)
+    if full:                                   # names absent from a complete ladder are no longer ranked
+        out.append(K.close_slot_event("ladder_rank", ce, {K.T(r["ticker"]) for r in rank if r.get("ticker")}, as_of))
     for p in _list(tail.get("redundant_pairs")):
         if isinstance(p, dict) and len(_list(p.get("pair"))) == 2:
             a, b = p["pair"]
@@ -187,7 +200,7 @@ def from_scout_tail(tail, as_of, run):
 def from_signals_tail(tail, as_of, run):
     out = []
     for t, u in (tail.get("analyst_targets_updates") or {}).items():
-        if isinstance(u, dict):
+        if isinstance(u, dict) and (u.get("mean_target") or u.get("mean")):
             _mk(out, [K.T(t)], "fact", f"[analyst targets] mean target {u.get('mean_target') or u.get('mean')} "
                 f"(n {u.get('n_analysts')}), gap {u.get('gap_pct')}", as_of=as_of, confidence="secondary", agent="signals", run=run)
     for t, buckets in ((tail.get("signal_history") or {}).get("changed") or {}).items():
@@ -200,11 +213,11 @@ def from_strategist_tail(tail, as_of, run):
     out = []
     for p in _list(tail.get("proposals")):
         if isinstance(p, dict) and p.get("ticker") and p.get("rationale"):
-            _mk(out, [K.T(p["ticker"])], "verdict", f"{p.get('direction')} ${p.get('size_usd')} ({p.get('trigger_type')}): {p.get('rationale')}",
-                topic="proposal", value=f"{p.get('direction')}", as_of=as_of, confidence="secondary", agent="strategist", run=run)
+            _mk(out, [K.T(p["ticker"])], "event", f"[proposal] {p.get('direction')} ${p.get('size_usd')} ({p.get('trigger_type')}): {p.get('rationale')}",
+                topic="proposal", as_of=as_of, confidence="secondary", agent="strategist", run=run)
     if tail.get("scorecard_read"):
-        _mk(out, [K.entity_key("M", "desk")], "lesson", f"[scorecard] {tail['scorecard_read']}", as_of=as_of,
-            confidence="secondary", agent="strategist", run=run)
+        _mk(out, [K.entity_key("M", "desk")], "event", f"[scorecard read] {tail['scorecard_read']}", topic="scorecard_read",
+            as_of=as_of, confidence="secondary", agent="strategist", run=run)
     return out
 
 

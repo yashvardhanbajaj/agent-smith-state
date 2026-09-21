@@ -2487,6 +2487,9 @@ AGENT_SLICES = {
                    "refs": ["ladder", "risk", "drift", "catalyst_tail", "signals_tail",
                             "quality_tail", "earnings_tail"],
                    "holdings": "trim", "shared": ["hbm_tracker"]},
+    # librarian (2026-09-21): reads runs/<run>/kb_brief_inputs.<n>.json, produced by `kb briefs-plan` from the
+    # knowledge base itself -- no state slice of its own, so the spec is deliberately empty.
+    "librarian":  {"state": [], "cache": [], "refs": [], "holdings": "trim"},
     "strategist": {"state": ["thesis", "sector_map", "preferences", "open_flags"], "cache": [],
                    # "crosscheck" added 2026-09-07 -- crosscheck now runs after WAVE 2 (see
                    # cmd_crosscheck's docstring), specifically so its findings reach the

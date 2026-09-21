@@ -6240,6 +6240,41 @@ def cmd_kb(args):
         emit(rep)
     elif op == "rebuild":
         emit(K.rebuild_pages(base, today))
+    elif op == "briefs-plan":
+        st = load_json(os.path.join(base, "state.json"), default={})
+        held = [K.T(t) for t in (st.get("sector_map") or {}) if t in {h.get("ticker") for h in (st.get("holdings") or [])}]
+        plans = K.briefs_plan(kb, today, held=held, max_entities=args.limit or 14)
+        chunk = 6                                        # a librarian reads ~15KB per entity: keep one agent to ~6
+        files = []
+        for i in range(0, len(plans), chunk):
+            path = os.path.join(args.run_dir, f"kb_brief_inputs.{i // chunk + 1}.json")
+            safe_write(path, {"as_of": str(today), "chunk": i // chunk + 1, "n": len(plans[i:i + chunk]),
+                              "entities": plans[i:i + chunk]})
+            files.append(path)
+        emit({"written": files, "entities": [p["entity"] for p in plans], "n_new": [p["n_new"] for p in plans]})
+    elif op == "briefs-apply":
+        import glob as _glob
+        run_id = os.path.basename(args.run_dir.rstrip("/"))
+        merged = {"briefs": []}
+        for pth in sorted(_glob.glob(os.path.join(args.run_dir, "out_librarian*.json"))):
+            t = load_json(pth, default=None)
+            if isinstance(t, dict):
+                merged["briefs"] += t.get("briefs") or []
+        if not merged["briefs"]:
+            fail("no briefs in out_librarian*.json in the run dir")
+        rep = K.briefs_apply(base, merged, run_id, str(today))
+        rep["pages"] = K.rebuild_pages(base, today)
+        emit(rep)
+    elif op == "outcomes":
+        import smith_core
+        props = (load_json(os.path.join(base, "proposals.json"), default={}) or {}).get("proposals") or []
+        obs = K.outcome_observations(props, smith_core.ENGINE_EPOCH, str(today), run="outcomes")
+        rep = K.add_observations(base, obs, kb, reinforce=False)
+        rep["reliability"] = K.reliability(K.replay(K.read_events(base)))
+        rep["epoch"] = smith_core.ENGINE_EPOCH
+        emit(rep)
+    elif op == "reliability":
+        emit(K.reliability(kb))
 
 
 def main():
@@ -6346,7 +6381,8 @@ def main():
     sp.add_argument("--retired-on", default=None)
     sp.add_argument("--today", default=None)
     sp = sub.add_parser("kb", help="knowledge base: stats|show|timeline|query|harvest|backfill|rebuild")
-    sp.add_argument("op", choices=("stats", "show", "timeline", "query", "harvest", "backfill", "rebuild"))
+    sp.add_argument("op", choices=("stats", "show", "timeline", "query", "harvest", "backfill", "rebuild",
+                                    "briefs-plan", "briefs-apply", "outcomes", "reliability"))
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--entity", default=None)
     sp.add_argument("--text", default=None)

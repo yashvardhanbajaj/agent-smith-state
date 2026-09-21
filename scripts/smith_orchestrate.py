@@ -602,6 +602,13 @@ def postflight_commit(args):
             smith_kb.mark_done(base, f"run:{_run_id}")
         _st = _j(os.path.join(base, "state.json"), {}) or {}
         _rep2 = smith_kb.add_observations(base, _H.from_state_snapshot(_st, str(today), run=_run_id), reinforce=False)
+        try:                                            # outcomes of post-epoch proposals -> reliability (n=0 until they mature)
+            import smith_core as _sc
+            _props = (_j(os.path.join(base, "proposals.json"), {}) or {}).get("proposals") or []
+            smith_kb.add_observations(base, smith_kb.outcome_observations(_props, _sc.ENGINE_EPOCH, str(today), run="outcomes"),
+                                      reinforce=False)
+        except Exception:  # noqa: BLE001
+            pass
         out["knowledge"] = {"tails": len(_files), "added": _rep["added"] + _rep2["added"], "reinforced": _rep["reinforced"],
                             "pages": smith_kb.rebuild_pages(base, str(today))}
     except Exception as e:  # noqa: BLE001

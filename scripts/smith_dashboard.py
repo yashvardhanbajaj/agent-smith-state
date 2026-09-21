@@ -240,6 +240,20 @@ def _command_catalysts(st):
     return cats[:COMMAND_CATALYSTS_MAX]
 
 
+def _knowledge_payload(base, st):
+    """Compact per-entity memory for the Knowledge tab; an empty knowledge base yields stats only."""
+    try:
+        import smith_kb as K
+        kb = K.replay(K.read_events(base))
+        held = [h.get("ticker") for h in (st.get("holdings") or []) if isinstance(h, dict) and h.get("ticker")]
+        smap = st.get("sector_map") or {}
+        ents = ([K.T(t) for t in held] + [K.C(c) for c in sorted({smap[t] for t in held if isinstance(smap.get(t), str)})]
+                + [K.entity_key("M", "macro"), K.entity_key("M", "desk"), K.entity_key("M", "ai-capex-cycle")])
+        return K.dashboard_payload(kb, ents, __import__("datetime").date.today())
+    except Exception as e:  # noqa: BLE001 -- a memory panel must never break the dashboard
+        return {"error": f"{type(e).__name__}: {e}", "stats": {}, "entities": [], "reliability": {}}
+
+
 def build_payload(base, built_at=None):
     st = load(os.path.join(base, "state.json"), {}) or {}
     policy = load(os.path.join(base, "policy.json"), {}) or {}
@@ -897,6 +911,8 @@ def build_payload(base, built_at=None):
         },
         # THE DESK CONVERSATION (added 2026-09-19): debates the analysts settled with each other,
         # revisions they made because of it, and what is still unresolved.
+        # THE KNOWLEDGE BASE (2026-09-21): the desk's long-term memory, per held name / cluster / macro topic.
+        "knowledge": _knowledge_payload(base, st),
         "desk": {"debates": (desk.get("debates") or [])[:20],
                  "revisions": (desk.get("revisions") or [])[:20],
                  "unresolved": (desk.get("unresolved") or [])[:20],
@@ -2541,6 +2557,41 @@ function historyTable(){
     (rows.length>=300?'<p class="note pad">Showing the first 300 matches — narrow the filter.</p>':"");
 }
 
+/* ================================================================= TAB: KNOWLEDGE */
+function tabKnowledge(){
+  var K=D.knowledge||{}, S=K.stats||{}, H=[];
+  if(!S.observations){
+    return panel("Knowledge base","",'<p class="empty">Empty. Run <code>smith_math.py kb backfill</code>.</p>',{span:true});
+  }
+  var rel=K.reliability||{}, relKeys=Object.keys(rel);
+  H.push(panel("The desk's memory","append-only \u00b7 nothing is ever deleted \u00b7 knowledge is context, never a gate",
+    '<div class="pad"><dl class="kv">'
+    +"<dt>Observations</dt><dd>"+esc(String(S.observations))+" ("+esc(String(S.live))+" live, "+esc(String(S.superseded))+" superseded, "+esc(String(S.refuted))+" refuted)</dd>"
+    +"<dt>Entities</dt><dd>"+esc(String(S.entities))+" \u00b7 "+esc(String(S.edges))+" connections</dd>"
+    +"<dt>Briefs written</dt><dd>"+esc(String(S.briefs))+"</dd>"
+    +"<dt>Agent track record</dt><dd>"+(relKeys.length? relKeys.map(function(a){var r=rel[a];return esc(a)+" "+esc(String(r.hits))+"/"+esc(String(r.n))+" ("+esc(r.status)+")";}).join(" \u00b7 ")
+        : "unproven \u2014 no post-rebuild proposal has been scored yet, so nothing is weighted by it")+"</dd>"
+    +"</dl></div>"));
+  var rows=(K.entities||[]).map(function(e){
+    var name=String(e.entity||"").replace(/^[A-Z]+:/,"");
+    var tl=e.timelines||{}, heads=Object.keys(tl).filter(function(t){return t==="thesis"||t==="cluster_thesis"||t==="ladder_rank"||t==="cycle_position";}).map(function(t){
+      var last=tl[t][tl[t].length-1]; return esc(t.replace(/_/g," "))+": <b>"+esc(String(last.value))+"</b>"; }).join(" \u00b7 ");
+    var body="";
+    if(e.brief) body+='<div class="pad"><p>'+esc(e.brief.text)+'</p><p class="note">brief of '+esc(e.brief.as_of)+"</p></div>";
+    var tls=Object.keys(tl).map(function(t){
+      return "<p><b>"+esc(t.replace(/_/g," "))+"</b> "+tl[t].map(function(x){
+        return (x.status==="live"?"<b>":"")+esc(String(x.value))+(x.status==="live"?"</b>":"")+' <span class="note">'+esc(x.as_of)+"</span>";}).join(" \u2192 ")+"</p>"; }).join("");
+    if(tls) body+='<div class="dbody">'+tls+"</div>";
+    if((e.facts||[]).length) body+='<div class="dbody"><p class="note"><b>Live knowledge</b></p>'+e.facts.map(function(f){return "<p>"+esc(f)+"</p>";}).join("")+"</div>";
+    if((e.tensions||[]).length) body+='<div class="dbody"><p class="note"><b>Open tensions</b></p>'+e.tensions.map(function(f){return "<p>"+esc(f)+"</p>";}).join("")+"</div>";
+    if((e.changes||[]).length) body+='<div class="dbody"><p class="note"><b>Recently changed or corrected</b></p>'+e.changes.map(function(f){return "<p>"+esc(f)+"</p>";}).join("")+"</div>";
+    return '<details><summary><div class="srow"><span class="caret">\u25b8</span><b>'+esc(name)+'</b> <span class="pill hold">'+esc(e.kind==="T"?"stock":e.kind==="C"?"cluster":"topic")+"</span> "
+      +(e.brief?'<span class="pill info">brief</span> ':"")+'<span class="note">'+esc(String(e.n))+" observations \u00b7 last "+esc(e.last||"")+"</span> "+heads+"</div></summary>"+body+"</details>";
+  }).join("");
+  H.push(panel("What the desk knows, by name",(K.entities||[]).length+" names, clusters and topics \u00b7 briefed first",rows||"",{span:true}));
+  return H.join("");
+}
+
 /* ================================================================= TAB: DIAGNOSTICS */
 function tabDiag(){
   var H=[], F=D.freshness||{};
@@ -2823,6 +2874,8 @@ var TABS=[
    count:function(){ return Object.keys(D.ladders||{}).length; }},
   {id:"track", label:"Track record", render:tabTrack,
    count:function(){ return (D.proposals.history||[]).length; }},
+  {id:"knowledge", label:"Knowledge", render:tabKnowledge,
+   count:function(){ return ((D.knowledge||{}).stats||{}).entities||0; }},
   {id:"diag", label:"Diagnostics", render:tabDiag,
    count:function(){ return (D.dq||[]).length+(D.gaps||[]).length; }}
 ];

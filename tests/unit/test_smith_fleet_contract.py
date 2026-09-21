@@ -23,7 +23,7 @@ def test_registries_name_no_retired_agent():
 def test_every_sliced_agent_has_a_prompt_file_and_every_prompt_is_sliced():
     files = {os.path.basename(p)[len("smith-"):-3] for p in glob.glob(os.path.join(AGENTS, "smith-*.md"))}
     assert set(sm.AGENT_SLICES) == files
-    assert len(files) == 12
+    assert len(files) == 13          # +librarian (2026-09-21)
 
 
 def test_freshness_agent_owners_have_prompt_files():

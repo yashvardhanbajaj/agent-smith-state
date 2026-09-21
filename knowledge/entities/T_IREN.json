@@ -1,33 +1,31 @@
 {
+ "brief": null,
  "entity": "T:IREN",
  "live_facts": [
   "[d84fb593fc36] relation/pair IREN,NBIS =distinct (2026-09-08) [secondary]: NBIS/IREN: distinct -- Both are GPU neoclouds whose equity is a levered call on the same AI-rental demand, both dependent on external financing (converts, GPU collateral, vendor capital), and both repriced by the same move in rates and AI-credit spreads -- a single CPI or FOMC print moves them together. But the financing STRUCTURE differs materially (vendor/asset-anchored vs convert-and-dilute) and counterparty disclosure differs, so they are not interchangeable. (keep IREN, drop NBIS)",
   "[72d13b63355a] fact IREN (2026-09-20) [secondary]: [watchlist setup] {\"ticker\": \"IREN\", \"type\": \"target_gap\", \"upside_pct\": 40.9, \"pos\": 0.37}",
-  "[bffa01ad9617] fact IREN (2026-09-07) [secondary]: [analyst targets] mean target None (n 10), gap None",
   "[76fedb0c1fb6] fact IREN (2026-09-07) [secondary]: [watchlist setup] {\"ticker\": \"IREN\", \"type\": \"target_gap\", \"upside_pct\": 42.6, \"pos\": 0.37}",
   "[242d6e2f5d46] fact IREN (2026-09-06) [secondary]: [quality flag] {\"finding\": \"Debt and dilution accelerating far faster than revenue; EBITDA swing >2x\", \"metric\": \"total_debt_yoy_and_ebitda_swing\", \"magnitude\": \"total debt ~8x YoY ($965M to $7.84B); EBITDA -$555M vs +$16.8M in comp quarter\", \"evidence_for\": [{\"claim\": \"Financing cash inflow $5.71B this quarter funding capex-heavy build-out; operating loss widened to -$140.6M\", \"date\": \"2026-09-06\", \"source\": \"y",
   "[b8c909960d42] fact IREN (2026-09-06) [secondary]: [quality financials] {\"latest_period_end\": \"2026-06-30\", \"fetched_at\": \"2026-09-06\", \"quarters\": [{\"period_end\": \"2026-06-30\", \"revenue\": 137230000, \"ocf\": 1810000000, \"capex\": -1980000000, \"net_income\": -684000000, \"op_income\": -140620000, \"interest_expense\": 24470000, \"total_debt\": 7840000000, \"sbc\": 42900000, \"diluted_shares\": 333730000}]}",
-  "[fef695df1de0] fact IREN (2026-09-06) [secondary]: [analyst targets] mean target None (n None), gap None",
   "[3f2dffdcb12a] fact IREN (2026-09-06) [secondary]: [watchlist setup] {\"ticker\": \"IREN\", \"type\": \"target_gap\", \"upside_pct\": 42.6, \"pos\": 0.38}",
-  "[dffcc30da693] fact IREN (2026-08-31) [secondary]: [analyst targets] mean target None (n 9), gap None",
-  "[299a4c283fdd] fact IREN (2026-08-29) [secondary]: [thesis evidence AGAINST] Third entry into this name after two prior stop-outs -- repeat-volatility pattern",
-  "[e91cc018d9c6] fact IREN (2026-08-28) [secondary]: [thesis evidence FOR] H.C. Wainwright and Citizens characterized the post-earnings decline as a buying opportunity",
-  "[8a3f909a111d] fact IREN (2026-08-28) [secondary]: [thesis evidence AGAINST] Stock fell 12.53% on earnings day, $40.53 to $35.45",
-  "[04a0ee2a139a] fact IREN (2026-08-27) [secondary]: [thesis evidence FOR] Q4 FY26 revenue $137.2M vs $135.6M consensus",
-  "[dc5bdf1147be] fact IREN (2026-08-27) [secondary]: [thesis evidence FOR] Blue Owl-led $2.4B compute-equipment financing; contracted ARR $4B FY26 capacity, $1B operating ARR; FY27 capex guide $25-30B",
-  "[06e2d8afe9ed] fact IREN (2026-08-27) [secondary]: [thesis evidence AGAINST] GAAP EPS -$2.06, net loss -$702.6M this quarter; cause not verified this run",
+  "[0d4bc141bd5d] fact/thesis_evidence IREN (2026-08-29) [secondary]: [thesis evidence AGAINST] Third entry into this name after two prior stop-outs -- repeat-volatility pattern",
+  "[a9815ca35b71] fact/thesis_evidence IREN (2026-08-28) [secondary]: [thesis evidence FOR] H.C. Wainwright and Citizens characterized the post-earnings decline as a buying opportunity",
+  "[584c4ee1825c] fact/thesis_evidence IREN (2026-08-28) [secondary]: [thesis evidence AGAINST] Stock fell 12.53% on earnings day, $40.53 to $35.45",
+  "[4309ec285e8f] fact/thesis_evidence IREN (2026-08-27) [secondary]: [thesis evidence FOR] Q4 FY26 revenue $137.2M vs $135.6M consensus",
+  "[3f60b46cd45f] fact/thesis_evidence IREN (2026-08-27) [secondary]: [thesis evidence FOR] Blue Owl-led $2.4B compute-equipment financing; contracted ARR $4B FY26 capacity, $1B operating ARR; FY27 capex guide $25-30B",
+  "[02d78d80e0c1] fact/thesis_evidence IREN (2026-08-27) [secondary]: [thesis evidence AGAINST] GAAP EPS -$2.06, net loss -$702.6M this quarter; cause not verified this run",
   "[9fe79bdbce27] fact IREN (2026-08-27) [secondary]: [earnings] Q4 FY2026 reported 2026-08-27: revenue 137200000 vs 135600000; EPS -2.06 vs None (None); next-quarter guide FY27 capex $25-30B",
+  "[08fd9e79fa52] event/proposal IREN (2026-08-30) [secondary]: [proposal] None $212.7 (trend_breakdown): STRONG DOWNTREND signal polarity (computed), conviction_score -4.0 tier none (computed); thesis is watch not broken -- sized off the technical trigger given the thesis is genuinely contested (3-for/3-against) and this is IREN's third stop-out-prone entry.",
   "[0a1c7e5d9713] event IREN (2026-08-28) [secondary]: AMBIGUOUS/structural: IREN FY26: $638.8M noncash bitcoin-rig impairment flips $86.9M profit to $702.6M GAAP loss as AI-cloud pivot accelerates",
   "[f00dc26b97e2] event ASML,BE,CIEN (2026-08-18) [secondary]: THREAT/immediate: Semis-specific rout: SMH -4.09% vs SPX -0.69%/NDX -1.33%; high-multiple AI-hardware names repriced hardest while mega-cap compute barely moved",
-  "[be62f9b28ff6] fact IREN (2026-08-15) [unverified]: [thesis evidence FOR] largest TARGET GAP in the book at 46.1% upside",
-  "[76a78ee7854a] fact IREN (2026-08-13) [unverified]: [thesis evidence FOR] first AI datacenter delivered to Microsoft; Nvidia Exemplar Cloud status; $2.8B contracted AI cloud revenue reaffirmed",
   "[0e9e25687eb5] fact/signal IREN (2026-09-08): [signals] PEER_LEADER_OVERRIDDEN_FALSE_vs_XLK, TARGET GAP, NEW HEADWINDS",
   "[c3d5830f412a] fact/signal IREN (2026-09-07): [signals] PEER LEADER, TARGET GAP, NEW HEADWINDS",
   "[740c957938c9] fact/signal IREN (2026-09-06): [signals] PEER LEADER, TARGET GAP",
   "[2debd35762b0] event GEV,IREN,NBIS (2026-07-24) [secondary]: THREAT/None: Nebius asset-light infra pivot reignites AI-financing-structure skepticism",
-  "[35c62fd431f5] fact/signal IREN (2026-09-01): [signals] OVERSOLD BOUNCE, TARGET GAP"
+  "[35c62fd431f5] fact/signal IREN (2026-09-01): [signals] OVERSOLD BOUNCE, TARGET GAP",
+  "[839eae808458] relation/member Compute/Hyperscaler,IREN =Compute/Hyperscaler (2026-07-18): IREN is classified in Compute/Hyperscaler"
  ],
- "n_observations": 30,
+ "n_observations": 27,
  "open_tensions": [],
  "refuted": [],
  "timelines": {
@@ -35,25 +33,16 @@
    {
     "as_of": "2026-09-08",
     "id": "837ec21d36d1",
-    "status": "live",
+    "status": "superseded",
     "text": "rank 3 (middle). Case against: FY27 capex guide of $25-30B against a $17.6B market cap is a financing requirement, not a plan, and it lands into a rising-10-yr…",
     "value": 3
-   }
-  ],
-  "proposal": [
-   {
-    "as_of": "2026-08-30",
-    "id": "b8132d84ef00",
-    "status": "live",
-    "text": "None $212.7 (trend_breakdown): STRONG DOWNTREND signal polarity (computed), conviction_score -4.0 tier none (computed); thesis is watch not broken -- sized off…",
-    "value": "None"
    }
   ],
   "thesis": [
    {
     "as_of": "2026-08-15",
     "id": "a9a82d1d3326",
-    "status": "live",
+    "status": "superseded",
     "text": "STRENGTHENING: Bitcoin-mining infra pivoted to AI/GPU cloud; 3rd re-entry (20sh) on continued execution",
     "value": "strengthening"
    },

@@ -1,4 +1,9 @@
 {
+ "brief": {
+  "as_of": "2026-09-21",
+  "id": "50fda8e83114",
+  "text": "Cluster thesis STRENGTHENING (early), live 2026-09-21, restored from intact (09-14). Reason: 800G->1.6T is supply-constrained at the laser; LITE and COHR ship 1.6T now, and NVDA invests in laser/photonics capacity. Ladder LITE > COHR > ALAB > APH > MRVL > CIEN > GLW (APH promoted above MRVL; CIEN 6, GLW laggard). Margin pool is moving toward laser/EML supply, away from module assembly and passive materials. Falsifier: a 1.6T module order cut or laser build pause, or EML lead times shortening into November prints. Reorder triggers: COHR volume 200G/lane by 11-06; GLW ATM use 10-27; APH AI above ~35% on 10-28; MRVL 12-02. KEY: Strengthening (early), 2026-09-21 [secondary]; Ladder LITE > COHR > ALAB > APH > MRVL > CIEN > GLW; Margin pool toward laser/EML supply; Any named in-house NIC/switch ASIC lowers MRVL and ALAB together; Bench: AVGO, CRDO versus MRVL. OPEN: Does COHR disclose volume 200G/lane EML shipments by 2026-11-06?; Does GLW disclose ATM usage above ~$500M on 10-27?; Does APH disclose AI above ~35% of revenue on 10-28?."
+ },
  "entity": "C:AI Networking/Optics",
  "live_facts": [
   "[0561f4c0213e] fact AI Networking/Optics (2026-09-21) [secondary]: [falsifier] A hyperscaler or NVDA disclosing a 1.6T module order cut or a laser-capacity build pause; OR LITE/COHR reporting 200G/lane EML lead times SHORTENING materially into the Nov-2026 prints, which would say the binding constraint has cleared and the pricing power with it.",
@@ -27,8 +32,10 @@
   "[3233bd38d428] fact AI Networking/Optics,ANET (2026-09-14) [secondary]: [bench, better than CIEN] Below $180 (08-Sep ref $191.44, not re-priced); note it is in the systems layer",
   "[b79616aaad6e] fact AI Networking/Optics (2026-09-08) [secondary]: [falsifier] Two consecutive quarters of module-maker gross-margin compression while revenue still grows, or a credible supply study showing EML demand/supply crossing into balance before end-2027."
  ],
- "n_observations": 76,
- "open_tensions": [],
+ "n_observations": 77,
+ "open_tensions": [
+  "[9743ddf94af1] tension AI Networking/Optics (2026-09-21) [unverified]: [librarian] APH rank 4 rests on 62% IT-datacom share, which the desk says overstates AI exposure by an unknown amount; half its segment growth is the CommScope acquisition."
+ ],
  "refuted": [],
  "timelines": {
   "cluster_thesis": [
@@ -78,15 +85,8 @@
    },
    {
     "as_of": "2026-09-21",
-    "id": "e61f2ce44f30",
-    "status": "live",
-    "text": "Ladder order APH > MRVL; leader LITE, laggard GLW",
-    "value": "APH > MRVL"
-   },
-   {
-    "as_of": "2026-09-21",
     "id": "efc89b535818",
-    "status": "superseded",
+    "status": "live",
     "text": "Ladder order LITE > COHR > ALAB > APH > MRVL > CIEN > GLW; leader LITE, laggard GLW",
     "value": "LITE > COHR > ALAB > APH > MRVL > CIEN > GLW"
    }
@@ -144,7 +144,7 @@
    {
     "as_of": "2026-09-14",
     "id": "4454ab79a342",
-    "status": "live",
+    "status": "superseded",
     "text": "rank 5 (middle). Case against: (This is the case FOR.) It is the share incumbent with the largest AI revenue base, trading at 0.22x cap with an $533 mean targe…",
     "value": 5
    },
