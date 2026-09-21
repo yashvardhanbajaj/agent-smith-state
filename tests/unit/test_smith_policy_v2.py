@@ -119,3 +119,39 @@ def test_superseded_dust_flag_closes_only_on_a_measured_real_position():
     st2 = {"open_flags": [dict(flag)]}
     M._compact_flags_and_notes(st2, {"TER"}, datetime.date(2026, 9, 21), "/nonexistent", [], {}, None)
     assert len(st2["open_flags"]) == 1
+
+
+def test_retired_and_aged_out_catalysts_are_archived_not_lost():
+    import smith_memory as M
+    state = {"factor_catalysts": [
+        {"headline": "Bloom S&P inclusion", "date": "2026-09-08", "horizon": "immediate", "direction": "tailwind",
+         "affects": ["BE"], "first_seen": "2026-09-08"},
+        {"headline": "old noise", "date": "2026-08-01", "horizon": "noise", "direction": "threat", "affects": ["MU"],
+         "first_seen": "2026-08-01"},
+        {"headline": "keeps", "date": "2026-09-19", "horizon": "structural", "direction": "threat", "affects": ["MU"],
+         "first_seen": "2026-09-19"}]}
+    out = {"catalysts": [], "retired_catalysts": [
+        {"headline": "Bloom S&P inclusion", "date": "2026-09-08", "reason": "executed 09-21; index leg realized"}]}
+    res = M._merge_catalyst(out, state, "2026-09-21")
+    live = {c["headline"] for c in state["factor_catalysts"]}
+    assert live == {"keeps"}
+    arch = {a["headline"]: a for a in state["catalyst_archive"]}
+    assert set(arch) == {"Bloom S&P inclusion", "old noise"}
+    assert arch["Bloom S&P inclusion"]["affects"] == ["BE"] and "realized" in arch["Bloom S&P inclusion"]["retired_reason"]
+    assert arch["old noise"]["retired_kind"] == "aged_out" and res["catalyst_archived"] == 2
+    # idempotent add
+    again = M.add_to_catalyst_archive(state["catalyst_archive"], list(arch.values()))
+    assert len(again) == 2
+
+
+def test_catalyst_scope_carries_exited_names_and_recent_retirements():
+    import smith_memory as M
+    uni = {"tickers": [{"ticker": "AVGO", "tier": "T2_ALUMNI", "cluster": "Optics", "last_held_date": "2026-09-16"},
+                       {"ticker": "OLD", "tier": "T2_ALUMNI", "last_held_date": "2024-01-01"},
+                       {"ticker": "TSM", "tier": "T1_HELD"}]}
+    state = {"thesis": {"AVGO": {"last_status": "intact", "carried": True}},
+             "catalyst_archive": [{"headline": "a", "retired_on": "2026-09-10", "affects": ["AVGO"]},
+                                  {"headline": "b", "retired_on": "2026-01-01"}]}
+    x = M.catalyst_scope_extras(state, uni, "2026-09-21")
+    assert [e["ticker"] for e in x["exited_names"]] == ["AVGO"] and x["exited_names"][0]["last_thesis_status"] == "intact"
+    assert [r["headline"] for r in x["recent_retired_catalysts"]] == ["a"]

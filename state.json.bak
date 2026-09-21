@@ -1213,14 +1213,7 @@
       "TARGET GAP"
     ]
   },
-  "open_flags": [
-    {
-      "ticker": "TER",
-      "opened": "2026-08-19",
-      "flag": "DUST POSITION -- 0.00273sh / ~$1.10 after the 2026-08-18 stop sold 3 of 3.0027sh. Excluded from all signal buckets and weight math. Needs a user decision: sell the residue to zero, or hold it as an inert rounding artifact. P-117 (STOP_RAISE TER) is open against it and is meaningless at this size (see G80).",
-      "kind": "user_decision"
-    }
-  ],
+  "open_flags": [],
   "data_cache": {
     "ticker_map": {
       "Sandisk Corporation Common Stock": "SNDK",
@@ -8272,5 +8265,37 @@
   "strategist_deemphasis": {
     "buckets": [],
     "as_of": "2026-09-21"
-  }
+  },
+  "catalyst_archive": [
+    {
+      "headline": "Bloom Energy confirmed for S&P 500 inclusion effective 2026-09-21; Clear Street/UBS price-target raises to $330/$325",
+      "date": "2026-09-08",
+      "reason": "Event executes at today's open (replaces Molson Coors, Trade Desk, Builders FirstSource); index-demand leg is now realized, not pending. Source: https://press.spglobal.com/2026-09-04-Bloom-Energy,-Illumina,-and-Everpure-Set-to-Join-S-P-500-Others-to-Join-S-P-100,-S-P-MidCap-400,-and-S-P-SmallCap-600",
+      "retired_on": "2026-09-21",
+      "retired_kind": "retired",
+      "retired_reason": "Event executes at today's open (replaces Molson Coors, Trade Desk, Builders FirstSource); index-demand leg is now realized, not pending. Source: https://press.spglobal.com/2026-09-04-Bloom-Energy,-Illumina,-and-Everpure-Set-to-Join-S-P-500-Others-to-Join-S-P-100,-S-P-MidCap-400,-and-S-P-SmallCap-600",
+      "affects": [
+        "BE"
+      ],
+      "direction": "tailwind",
+      "horizon": "immediate",
+      "backfilled_note": "affects/direction restored from findings.json (the retirement tail carried no affects list)"
+    },
+    {
+      "headline": "CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC sit at 84.1% as of 2026-09-14; SEP dot-plot lands alongside the decision Wed 09-16",
+      "date": "2026-09-15",
+      "reason": "Resolved: FOMC hiked 25bp 09-16 (12-0); forward Dec-hike odds tracked in macro:fomc. Source: https://finance.yahoo.com/markets/live/stock-market-today-wednesday-september-16-dow-sp-500-nasdaq-fed-meeting-decision-080356525.html",
+      "retired_on": "2026-09-21",
+      "retired_kind": "retired",
+      "retired_reason": "Resolved: FOMC hiked 25bp 09-16 (12-0); forward Dec-hike odds tracked in macro:fomc. Source: https://finance.yahoo.com/markets/live/stock-market-today-wednesday-september-16-dow-sp-500-nasdaq-fed-meeting-decision-080356525.html"
+    },
+    {
+      "headline": "CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, up from ~57% cited in the 09:29Z pre-market review, with Brent near $107/bbl sustaining the inflation-fear channel",
+      "date": "2026-09-14",
+      "reason": "Resolved: FOMC hiked 25bp 09-16 as priced. Source: https://finance.yahoo.com/markets/live/stock-market-today-wednesday-september-16-dow-sp-500-nasdaq-fed-meeting-decision-080356525.html",
+      "retired_on": "2026-09-21",
+      "retired_kind": "retired",
+      "retired_reason": "Resolved: FOMC hiked 25bp 09-16 as priced. Source: https://finance.yahoo.com/markets/live/stock-market-today-wednesday-september-16-dow-sp-500-nasdaq-fed-meeting-decision-080356525.html"
+    }
+  ]
 }

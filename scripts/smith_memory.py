@@ -1543,6 +1543,60 @@ def _as_date(today):
     return today if isinstance(today, date) else date.fromisoformat(str(today)[:10])
 
 
+CATALYST_ARCHIVE_CAP = 400
+
+
+def archive_record(c, today, kind, reason):
+    """The FULL catalyst record plus why and when it left the live array."""
+    rec = {k: v for k, v in dict(c).items() if k not in ("carried_forward",)}
+    rec.setdefault("headline", rec.get("claim"))
+    rec.update(retired_on=str(today), retired_kind=kind, retired_reason=reason)
+    return rec
+
+
+def add_to_catalyst_archive(existing, new_records, cap=CATALYST_ARCHIVE_CAP):
+    """Append, de-duplicating on (headline, date); newest last; capped (oldest fall off the end)."""
+    out = list(existing or [])
+    have = {(r.get("headline"), r.get("date")) for r in out}
+    for r in new_records:
+        key = (r.get("headline"), r.get("date"))
+        if key not in have:
+            out.append(r)
+            have.add(key)
+    return out[-cap:]
+
+
+def catalyst_scope_extras(state, universe, today, retired_days=45, exited_days=365):
+    """What the catalyst agent must ALSO watch (2026-09-21): exited names it may want to re-buy (T2_ALUMNI
+    within `exited_days`) and the catalysts retired in the last `retired_days`, so nothing it knew drops out
+    of sight. Pure."""
+    import datetime as _d
+    td = _d.date.fromisoformat(str(today)[:10])
+    exited = []
+    for t in (universe or {}).get("tickers") or []:
+        if t.get("tier") != "T2_ALUMNI":
+            continue
+        try:
+            ld = _d.date.fromisoformat(str(t.get("last_held_date"))[:10])
+            if (td - ld).days > exited_days:
+                continue
+        except (TypeError, ValueError):
+            pass
+        th = (state.get("thesis") or {}).get(t["ticker"])
+        exited.append({"ticker": t["ticker"], "cluster": t.get("cluster"), "last_held_date": t.get("last_held_date"),
+                       "last_thesis_status": (th.get("last_status") or th.get("status")) if isinstance(th, dict) else None})
+    recent = []
+    for a in state.get("catalyst_archive") or []:
+        try:
+            if (td - _d.date.fromisoformat(str(a.get("retired_on"))[:10])).days <= retired_days:
+                recent.append({k: a.get(k) for k in ("headline", "date", "horizon", "direction", "affects",
+                                                      "retired_on", "retired_kind", "retired_reason", "source")})
+        except (TypeError, ValueError):
+            continue
+    return {"exited_names": sorted(exited, key=lambda x: str(x["last_held_date"]), reverse=True),
+            "recent_retired_catalysts": recent}
+
+
 def _merge_catalyst(out, state, today):
     """CARRY-FORWARD merge (rewritten 2026-09-08; the full incident is in
     `smith_risk`'s FACTOR-CATALYST FRESHNESS block).
@@ -1598,17 +1652,21 @@ def _merge_catalyst(out, state, today):
         fresh_n += 1
 
     carried, dropped_retired, dropped_stale = [], [], []
+    archived = []
     for e in existing:
         k = smith_risk.catalyst_key(e)
         if k in fresh_by_key:
             continue
         if k in retired:
             dropped_retired.append({"headline": k[0], "date": k[1], "reason": retired[k]})
+            archived.append(archive_record(e, today, "retired", retired[k]))
             continue
         if smith_risk.catalyst_is_expired(e, _as_date(today)):
             dropped_stale.append({"headline": k[0], "date": k[1],
                                   "horizon": e.get("horizon"),
                                   "ttl_days": smith_risk.catalyst_ttl_days(e)})
+            archived.append(archive_record(e, today, "aged_out",
+                                           f"aged out: {e.get('horizon')} horizon, ttl {smith_risk.catalyst_ttl_days(e)}d"))
             continue
         e = dict(e)
         e.setdefault("first_seen", e.get("date") or today)
@@ -1617,6 +1675,18 @@ def _merge_catalyst(out, state, today):
         merged.append(e)
 
     state["factor_catalysts"] = merged
+    # RETIRING LOSES NOTHING (user, 2026-09-21): a retired or aged-out catalyst leaves the LIVE array
+    # (it no longer scores) but is kept in state.catalyst_archive with its full record and the reason,
+    # so the desk can still see what it knew, and what happened, about a name it may want to re-buy.
+    # Retired entries with no live record (a retirement naming an item state no longer holds) are
+    # archived from the tail itself.
+    for r in (out.get("retired_catalysts") or []):
+        if not any(a["headline"] == r.get("headline") and a["date"] == r.get("date") for a in archived):
+            if not any(smith_risk.catalyst_key(e) == smith_risk.catalyst_key(r) for e in existing):
+                archived.append(archive_record(r, today, "retired", r.get("reason") or "retired by smith-catalyst"))
+    if archived:
+        state["catalyst_archive"] = add_to_catalyst_archive(state.get("catalyst_archive"), archived)
+        result["catalyst_archived"] = len(archived)
     result.update({"factor_catalysts_fresh": fresh_n,
                    "factor_catalysts_carried": len(carried),
                    "factor_catalysts_retired": dropped_retired,
@@ -2875,6 +2945,13 @@ def cmd_slices(args):
         sl["agent_key"] = agent
         sl["output_file"] = os.path.join(rd, f"smith-{agent}-output.md")
         sl["holdings_path"] = os.path.join(rd, "holdings.json")
+        if agent == "catalyst":
+            sl.update(catalyst_scope_extras(state, load_json(os.path.join(rd, "compute_universe.json"), default={}),
+                                            today_d.isoformat()))
+            sl["exited_names_rule"] = ("EXITED NAMES ARE IN SCOPE. The user sells high and re-buys low, so a catalyst "
+                                       "that touches a name we no longer hold is still a catalyst: list exited tickers "
+                                       "in `affects` (the reentry scorer reads them). Nothing retired is lost -- "
+                                       "`recent_retired_catalysts` is what already left the live array and why.")
         sl["read_these_files"] = {}
         # Persist the markers the NEXT run's domain check reads back. `_lots_digest` was read at
         # the top of this function but never actually written into any slice, so `lots_changed`

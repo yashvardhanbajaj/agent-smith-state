@@ -6176,6 +6176,24 @@ def cmd_confirm_policy(args):
     emit({"owner_layer_hash": h, "confirmed_on": gov["confirmed_on"], "written": True})
 
 
+def cmd_archive_catalysts(args):
+    """Fold retired catalysts from an agent tail into state.catalyst_archive (backfill for retirements made
+    before the archive existed). Idempotent; never touches the live factor_catalysts array."""
+    import smith_memory
+    tail = load_json(args.tail, default=None)
+    if not isinstance(tail, dict):
+        fail(f"cannot read tail {args.tail}")
+    st_path = os.path.join(args.base_dir, "state.json")
+    state = load_json(st_path, default={})
+    day = args.retired_on or str(resolve_today(args.today))
+    recs = [smith_memory.archive_record(r, day, "retired", r.get("reason") or "retired by smith-catalyst")
+            for r in (tail.get("retired_catalysts") or [])]
+    before = len(state.get("catalyst_archive") or [])
+    state["catalyst_archive"] = smith_memory.add_to_catalyst_archive(state.get("catalyst_archive"), recs)
+    safe_write(st_path, state)
+    emit({"archived": len(state["catalyst_archive"]) - before, "archive_size": len(state["catalyst_archive"])})
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -6273,6 +6291,11 @@ def main():
     sp = sub.add_parser("confirm-policy", help="record the user's confirmation of the owner layer (hash + date)")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--note", default=None)
+    sp.add_argument("--today", default=None)
+    sp = sub.add_parser("archive-catalysts", help="backfill state.catalyst_archive from an agent tail's retired_catalysts")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--tail", required=True)
+    sp.add_argument("--retired-on", default=None)
     sp.add_argument("--today", default=None)
     sp = sub.add_parser("assign-cluster", help="point a ticker at a cluster (created implicitly)")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
@@ -6733,7 +6756,7 @@ def main():
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "freshness": cmd_freshness, "report": cmd_report, "runs": cmd_runs,
          "dismiss": cmd_dismiss, "add-proposal": cmd_add_proposal,
-         "set-cluster": cmd_set_cluster, "confirm-policy": cmd_confirm_policy, "assign-cluster": cmd_assign_cluster,
+         "set-cluster": cmd_set_cluster, "archive-catalysts": cmd_archive_catalysts, "confirm-policy": cmd_confirm_policy, "assign-cluster": cmd_assign_cluster,
          "reconcile-proposals": cmd_reconcile_proposals,
          "append-ledger": cmd_append_ledger, "merge-tails": cmd_merge_tails, "stops": cmd_stops,
          "score-shadow-journal": cmd_score_shadow_journal, "learn-status": cmd_learn_status,
