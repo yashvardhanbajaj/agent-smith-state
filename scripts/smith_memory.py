@@ -178,9 +178,14 @@ def cmd_compact(args):
     moves, writes = [], {}
 
     held = set()
+    mv_usd = {}
     if args.holdings:
         h = load_json(args.holdings, default={})
         held = {r.get("ticker") for r in (h.get("holdings_inr") or []) if r.get("ticker")}
+        _fx = h.get("usdinr")
+        if _fx:
+            mv_usd = {r["ticker"]: (r.get("market_value_inr") or 0.0) / _fx
+                      for r in (h.get("holdings_inr") or []) if r.get("ticker")}
     if not held:
         held = {r.get("ticker") for r in (state.get("holdings") or []) if r.get("ticker")}
 
@@ -261,7 +266,7 @@ def cmd_compact(args):
 
     # --- proposals: evict terminal rows past the scoring window --------------
     mode = getattr(args, "mode", None) or "full"
-    _compact_flags_and_notes(state, held, today, base, moves, writes)
+    _compact_flags_and_notes(state, held, today, base, moves, writes, mv_usd)
     _compact_data_cache(state, held, today, base, moves, writes)
     if mode == "cheap":
         return _compact_finish(args, state, before, moves, writes, {}, restored)
@@ -395,7 +400,7 @@ def _as_day(value):
         return None
 
 
-def _compact_flags_and_notes(state, held, today, base, moves, writes):
+def _compact_flags_and_notes(state, held, today, base, moves, writes, mv_usd=None):
     """Close stale open_flags and expire dated data_quality notes (archive, never delete)."""
     flags = state.get("open_flags")
     if isinstance(flags, list) and flags:
@@ -404,6 +409,16 @@ def _compact_flags_and_notes(state, held, today, base, moves, writes):
             if not isinstance(f, dict):
                 keep.append(f)
                 continue
+            # SUPERSEDED DUST FLAG (2026-09-21): a "DUST POSITION" flag is a statement about SIZE. Once the
+            # named ticker holds a real position again (>= the dust floor) the flag is false whatever its
+            # kind -- it survived as a user_decision on a name held at 5.5% of the book and told two agents
+            # the position was a $1.10 rounding artifact. Closes only on a measured value, never on absence.
+            if (not f.get("closed_on") and mv_usd and re.match(r"\s*dust\b", str(f.get("flag") or ""), re.I)):
+                _t = _flag_tickers(f)
+                if _t and all((mv_usd.get(x) or 0.0) >= DUST_USD_DEFAULT for x in _t):
+                    f["closed_on"] = str(today)
+                    f["closed_reason"] = ("auto: superseded -- " + ", ".join(
+                        f"{x} is now ${mv_usd[x]:,.0f}" for x in _t) + f" (>= the ${DUST_USD_DEFAULT:,.0f} dust floor)")
             if not f.get("closed_on") and f.get("kind") != "user_decision":
                 opened = _as_day(f.get("opened"))
                 tickers = _flag_tickers(f)

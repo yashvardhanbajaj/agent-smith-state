@@ -101,3 +101,21 @@ def test_consolidation_ranks_lowest_conviction_sub_scale_names_only_when_over_ta
     ok = T.consolidation_candidates(pos[:3], conv, {}, 10000.0, dict(pol, target_position_count=[2, 5]))
     assert ok["candidates"] == [] and ok["excess_over_target"] == 0
     assert T.min_position_effective_usd(10000.0, {}) == 400.0
+
+
+def test_superseded_dust_flag_closes_only_on_a_measured_real_position():
+    import datetime
+    flag = {"ticker": "TER", "opened": "2026-08-19", "kind": "user_decision",
+            "flag": "DUST POSITION -- 0.00273sh / ~$1.10 after the stop"}
+    other = {"ticker": "CIEN", "opened": "2026-09-01", "kind": "user_decision", "flag": "DUST POSITION -- tiny"}
+    unrelated = {"ticker": "TER", "opened": "2026-09-01", "kind": "user_decision", "flag": "Something else about TER"}
+    st = {"open_flags": [dict(flag), dict(other), dict(unrelated)]}
+    moves, writes = [], {}
+    M._compact_flags_and_notes(st, {"TER", "CIEN"}, datetime.date(2026, 9, 21), "/nonexistent", moves, writes,
+                               {"TER": 1852.96, "CIEN": 2.98})
+    kept = {f["ticker"] + f["flag"][:4] for f in st["open_flags"]}
+    assert kept == {"CIENDUST", "TERSome"}                        # TER dust closed; CIEN (still dust) and the non-dust flag stay
+    # with no measured values nothing is closed
+    st2 = {"open_flags": [dict(flag)]}
+    M._compact_flags_and_notes(st2, {"TER"}, datetime.date(2026, 9, 21), "/nonexistent", [], {}, None)
+    assert len(st2["open_flags"]) == 1
