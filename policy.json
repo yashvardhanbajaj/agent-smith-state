@@ -108,7 +108,7 @@
         5
       ],
       "added": "2026-08-06",
-      "rationale": "Created by the MP Materials entry 2026-08-05 (10sh @ $47.47, dca-into-diversification). Banded 0%/[0,5] mirroring Enterprise Software's treatment -- a satellite non-AI-capex diversifier with room to grow but no target obligation. User-selected 2026-08-06 over a larger 5%/[0,10] sleeve."
+      "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'."
     },
     "Analog/Industrial Semis": {
       "target_pct": 4,
@@ -117,7 +117,7 @@
         8
       ],
       "added": "2026-08-30",
-      "rationale": "Held but absent from cluster_targets until now, so cmd_drift emitted it with a null target and breach:false -- reported, but structurally unable to breach. Two of the three (Financials/Alt-Asset, China Internet) exist under these names only because compact archived their classification on exit and smith-thesis re-derived it from scratch on re-entry under a different label (BX was 'Alternative Asset Manager/Diversifier', BABA was 'China Consumer/Cloud'). These are now the canonical names; agents reuse policy cluster strings, so re-derivation will match from here."
+      "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'."
     },
     "Financials/Alt-Asset Diversifier": {
       "target_pct": 4,
@@ -126,7 +126,7 @@
         8
       ],
       "added": "2026-08-30",
-      "rationale": "Held but absent from cluster_targets until now, so cmd_drift emitted it with a null target and breach:false -- reported, but structurally unable to breach. Two of the three (Financials/Alt-Asset, China Internet) exist under these names only because compact archived their classification on exit and smith-thesis re-derived it from scratch on re-entry under a different label (BX was 'Alternative Asset Manager/Diversifier', BABA was 'China Consumer/Cloud'). These are now the canonical names; agents reuse policy cluster strings, so re-derivation will match from here."
+      "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'."
     },
     "China Internet/Diversifier": {
       "target_pct": 1,
@@ -135,7 +135,7 @@
         5
       ],
       "added": "2026-08-30",
-      "rationale": "Held but absent from cluster_targets until now, so cmd_drift emitted it with a null target and breach:false -- reported, but structurally unable to breach. Two of the three (Financials/Alt-Asset, China Internet) exist under these names only because compact archived their classification on exit and smith-thesis re-derived it from scratch on re-entry under a different label (BX was 'Alternative Asset Manager/Diversifier', BABA was 'China Consumer/Cloud'). These are now the canonical names; agents reuse policy cluster strings, so re-derivation will match from here."
+      "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'."
     },
     "AI Storage/HDD": {
       "target_pct": 3,
@@ -144,7 +144,7 @@
         8
       ],
       "added": "2026-09-21",
-      "rationale": "User-selected 2026-09-21 (option 1). WDC is pure nearline HDD since the SanDisk separation (thesis: zero DRAM/NAND/HBM revenue, high confidence); it was mis-ranked as a Memory laggard, which drove false sell pressure (P-149). Different cycle from memory. 3pt carved from AI Memory/Storage (10->7) so targets still sum to 100 and AI-capex stays 89%. Single-name cluster: no substitution ladder until a peer (e.g. STX) is added."
+      "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'."
     }
   },
   "ai_capex_clusters": [
@@ -208,7 +208,7 @@
       "rationale": "Risk-off: freeze new deployments, rotate to cash. Sits 5pt inside the 25% risk budget to absorb gap overshoot."
     }
   ],
-  "cluster_targets_rationale": "REVISED 2026-08-30 on explicit user instruction, after an audit found 14.53% of equity in clusters that could never breach a band. Targets previously summed to 100% of invested equity while three held clusters had no entry at all and four held tickers had no sector_map entry, so the six AI clusters were structurally forced ~14.5pt below target and BOTH live breaches were UNCURABLE FLOOR breaches (AI Memory/Storage, Compute/Hyperscaler) -- a standing source of proposals nobody could action. The three diversifier clusters now carry real targets and the AI targets step down so the sum is honest rather than aspirational. Targets are anchored to post-restore actuals, so the book starts COMPLIANT (zero breaches) instead of in manufactured breach. AI-capex clusters target 89% against 89.4% actual: the concentration remains fully intentional, the arithmetic just stops lying about it. PRIOR (2026-07-27) allocation and its reasoning are preserved in POLICY-DECISIONS.md.",
+  "cluster_targets_rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'.",
   "stop_loss_framework": {
     "confirmed_by_user": "2026-07-27",
     "method": "volatility-scaled stop with constant dollar-risk position sizing",
@@ -216,7 +216,7 @@
     "risk_per_position_pct_of_book": 0.5,
     "position_size_formula": "max_position_usd = (0.005 * total_book_usd) / stop_distance_pct",
     "aggregate_open_risk_cap_pct_of_book": 10,
-    "rationale": "The user runs tight, large-quantum stops by design and will continue to (confirmed 2026-07-27); the stops are an emotional-tolerance control, not a technical signal. The prior failure mode was stop distance set without reference to a name's volatility -- a 3% stop on a name that ranges 8-9% intraday is a near-certain whipsaw. Constant-risk sizing resolves the apparent tension between 'wide stops' and 'small losses': a wider stop automatically produces a SMALLER position, so the dollar loss stays capped at 0.5% of book either way. DESIGN INTENT: worst case with every stop firing sits inside the -15% drawdown_warn rung, so the stop system can never by itself trigger the de-risking ladder. CORRECTED 2026-08-30 -- this file asserted that worst case was '~7.4% of book' as though it were a standing property. It is not; it is an OUTCOME of how much is deployed and at what volatility, and it drifts. Measured 11.947% on 2026-08-30 and 13.028% on 08-26, against the 10% aggregate_open_risk_cap_pct_of_book below -- i.e. the cap has been BREACHED, not merely approached. `smith_math.py validate` now fails on aggregate_over_cap so this can never again run for weeks as an unread line in a table. Any new position competes for a budget that is currently overdrawn and must be funded by reducing risk elsewhere.",
+    "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'.",
     "review_note": "Daily-range inputs should be refreshed from a trailing 20-day window, not a single session; the 2026-07-27 seeding used Friday 07-24 ranges only.",
     "support_anchored_exception": {
       "confirmed_by_user": "2026-08-30",
@@ -226,12 +226,12 @@
       ],
       "rule": "For a REBOUND ENTRY only, and only when a real support level below spot is supplied and cited, size off the actual stop -- just under that support -- instead of 2xATR below spot. stop_distance_pct = max(distance_to_support, 0.5 x atr20_pct, 3.0).",
       "risk_per_position_pct_of_book": 0.5,
-      "risk_is_unchanged": "This does NOT loosen the risk budget. The same 0.5% of book is at risk if the stop fires; it is simply measured where the stop actually sits rather than at an arbitrary 2xATR. Verified: risk-at-cap is identical to the standard rule for every volatility tier.",
+      "risk_is_unchanged": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'.",
       "atr_floor_mult": 0.5,
-      "why_the_floor": "A 4% stop on a 14%-ATR name is exactly the whipsaw this framework's main rationale was written to prevent. The support-anchored stop may be tighter than 2x the noise band because it rests on a real level, but never inside HALF a day's normal movement. The floor doubles as the uplift bound and is why no separate cap is needed: standard is 2xATR and the tightest permitted is 0.5xATR, so the exception can never size more than 4x the standard cap.",
-      "aggregate_cap_still_binds": "aggregate_open_risk_cap_pct_of_book applies unchanged. As of 2026-08-30 it is BREACHED (13.2% vs 10%), so a rebound entry must be FUNDED by reducing risk elsewhere -- typically the buy leg of a paired rotation -- not added on top. The sizing path stamps the funding shortfall on the proposal.",
+      "why_the_floor": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'.",
+      "aggregate_cap_still_binds": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'.",
       "max_single_position_pct_still_binds": true,
-      "rationale": "Added 2026-08-30 on explicit user instruction, after modelling showed the standard rule structurally penalises exactly the names a rebound mandate wants. Constant-dollar-risk sizing makes max_position inversely proportional to ATR, so a 14%-ATR name gets ~1/7th the allowance of a 1.9%-ATR name and is flagged over-cap 38% of the time against 11% for low-vol names. That is correct for an entry with no view on where the name holds, and wrong for one bought AT a level. smith-rebound already computes support_usd; this makes the sizing consume it."
+      "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'."
     },
     "gap_allowance": {
       "base": 1.15,
@@ -239,7 +239,7 @@
       "event_window_sessions": 5,
       "confirmed_by_user": "2026-09-21",
       "rule": "Each position's open risk is multiplied by base (event when earnings fall inside event_window_sessions) before it is summed against aggregate_open_risk_cap_pct_of_book and the heat budget. Per-position sizing (0.5% of book) is unchanged.",
-      "rationale": "Stops are not guaranteed fills. Replaying 12 months of prices against the book's own stop distances: a stop-breach day cost ~1.12x the planned distance on average (p90 1.40x, p95 1.55x), 44% of breaches closed beyond the stop, and 19 days had 5+ names breach together. base 1.15 rounds up the mean; event 1.5 is ~p95. Proxy (no opening prices in perf_bars): replace with measured slippage once >= 10 real stop fills exist."
+      "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'."
     }
   },
   "monthly_contribution_usd": 1000,
@@ -264,21 +264,21 @@
       "trigger_cash_pct": 20,
       "window_sessions": 15
     },
-    "rationale": "REVISED 2026-07-28 on explicit user instruction. The prior single [3,15]% band was an inherited default -- policy.json's own notes flagged it as not derived from this book's behaviour. It is incompatible with the user's confirmed stop-loss method, which has now twice liquidated a large fraction of the book in one session (2026-07-24: cash to 45.8%; 2026-07-28: cash to 60.5%). Under the old band, every post-stop-event day reported a severe breach the desk could not cure without violating the position-risk framework -- a false alarm that trained the reader to ignore a real control. The two-regime band separates 'cash is high because stops fired' (expected, tolerated to 40%) from 'cash is high because we are not deploying' (a genuine breach). Above 40% remains a real breach requiring action in either regime."
+    "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'."
   },
   "cluster_denominator_conditional": {
     "enabled": false,
     "confirmed_by_user": "2026-07-28",
     "rule": "While cash exceeds the NORMAL band top (15%), cluster CEILINGS are tested on TOTAL BOOK; cluster FLOORS are always tested on INVESTED EQUITY. Below that cash level both edges use invested equity.",
-    "rationale": "User-raised 2026-07-28 and accepted. Rebuilding a book from a large cash position takes weeks, and cluster percentages computed on a shrunken equity base manufacture breaches that cannot be cured without violating the position-risk framework -- the third instance of the same denominator defect this week (Power floor binding at $29,870; cash band reporting an uncurable breach; now cluster ceilings). Cash is genuinely uncorrelated, so total book is the honest measure of factor risk while it is elevated. WHAT THIS DOES NOT DO: it does not relax per-position risk caps. A name at 1.6x its 0.5%-risk cap is oversized on either denominator -- SNDK on 2026-07-28 is the live example.",
+    "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'.",
     "both_emitted": "cmd_drift always emits actual_pct_of_equity and actual_pct_of_total_book regardless of basis tested.",
-    "why_split": "A ceiling asks 'am I over-exposed to this factor?' -- idle cash is uncorrelated, so total book is the honest denominator. A floor asks 'is the invested portfolio the right shape?' -- that is a construction question, and 'hold 10% of TOTAL BOOK in Power' is incoherent while deliberately holding 48% cash. Testing both edges on one denominator was tried first and manufactured five phantom floor breaches.",
+    "why_split": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'.",
     "retired": "2026-09-21: one denominator (total book) for cluster targets, AI-capex and cash; the conditional switch is no longer needed"
   },
   "confirmed_date": "2026-09-21",
-  "confirmation_note": "Top-level confirmation given by the user 2026-08-06 in an interactive Agent Smith session. Individual components had already been confirmed separately on their own dates (mandate 2026-07-26; stop_loss_framework 2026-07-27; monthly_contribution 2026-07-27; cash_regimes 2026-07-28); this flips the whole document from draft to binding, so drift/breach analysis is no longer provisional. Per the desk's standing rule, a confirmed policy is never modified again without an explicit user instruction.",
+  "confirmation_note": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'.",
   "ai_capex_factor_flag_note": "OBSERVATION ONLY on TOTAL BOOK (2026-09-21; was 90 of invested equity, ~80 of total book at the time). The binding control is stress_limit.",
-  "cluster_playbooks_note": "Added 2026-09-08 with cmd_ladder and smith-cluster. ONE agent definition is dispatched once per cluster; the cluster-specific knowledge -- the axes that actually decide which name wins inside THIS cluster -- lives here as DATA rather than in seven agent prompt files that would drift apart and each re-derive the shared output contract. Editable without touching a prompt. `slug` becomes the agent key (cluster_<slug>) and the slice/tail filename, so it must be unique and stable; changing one orphans that cluster's dispatch for a run. `differentiators` are the ranking axes the agent must actually rank on -- a ladder that re-states price is the thing this whole layer exists to replace. `read_throughs` are the cross-member inferences a per-name agent structurally cannot make.",
+  "cluster_playbooks_note": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'.",
   "cluster_playbooks": {
     "AI Semis/Fabs": {
       "slug": "semis",
@@ -400,7 +400,9 @@
     "min_position_usd": 400,
     "rule": "A ticket must clear ALL of: min_ticket_usd; min_ticket_pct_of_book % of total book; min_ticket_r x R_base / stop (R_base = stop_loss_framework.risk_per_position_pct_of_book % of book); fee_cover_mult x the round-trip fee. A sub-floor ticket is neither shrunk to the floor nor dropped: it is emitted with vote 'below_materiality'. A FULL EXIT is always permitted regardless of size.",
     "min_position_usd_note": "A position below this is a stub -- never partially trimmed, only exited or left (consolidation candidate). It is the SAME number as smith_core.DUST_USD_DEFAULT ($400), which cmd_derisk's friction term and smith_lifecycle's shadow-trigger retirement already use; validate_policy fails if the two diverge.",
-    "rationale": "Added 2026-09-20 after the engine proposed rotating $56.37 of SKHY into CIEN on a $42.5K book (a correct 10-point call earns $5.64). Market-value sizing on a sell could not express 'too small to matter'. ADDITIVE: no stop_loss_framework, mandate or cluster_targets value was touched."
+    "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'.",
+    "min_position_pct_of_book": 1.5,
+    "min_position_pct_note": "2026-09-21: effective minimum position = max(min_position_usd, 1.5% of book) ~ $638 on a $42.5K book. Drives position_consolidation candidates only (advisory); min_position_usd ($400, the dust constant) still governs exit_or_hold."
   },
   "heat_budget": {
     "confirmed": true,
@@ -411,16 +413,16 @@
     "cluster_sub_budget": true,
     "rule": "H_eff_max = H_max x (heat_floor + (1 - heat_floor) x (1 - rho)), H_max = stop_loss_framework.aggregate_open_risk_cap_pct_of_book x total book, rho = compute_correlation.stop_risk.avg_pairwise_correlation; R_free = max(0, H_eff_max - H), H = aggregate_open_risk_usd. All live buys of a run share R_free (plus the risk freed by live, above-materiality sells), allocated by smith_ticket.allocation_priority; a ticket that does not fit is emitted with vote 'deferred', never dropped. A missing or stale correlation is treated as 1.0 (budget = cap x heat_floor), never as 0. cluster_sub_budget additionally caps each cluster's open risk at H_eff_max x its band ceiling.",
     "heat_floor_note": "The share of the aggregate cap that survives at full correlation. It is a floor, not zero, because aggregate_open_risk_usd is already the all-fire (perfect-correlation) sum.",
-    "rationale": "Added 2026-09-20 (Phase 3). stop_loss_framework records the 10% aggregate cap breached at 13.028% (08-26) and 11.947% (08-30) while sizing continued at the full per-position formula: the cap only ever printed a warning. ADDITIVE: no stop_loss_framework, mandate or cluster_targets value was touched."
+    "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'."
   },
   "cluster_targets_mode": "fluid",
-  "cluster_targets_mode_note": "2026-09-21, user: clusters exist to group holdings and show exposure; no predefined target required. cluster_targets here are SEEDS. The desk creates/modifies/retires any cluster and its target via `set-cluster` / `assign-cluster` (state.cluster_book, rationale mandatory). A cluster with no target is exposure-only and cannot breach.",
+  "cluster_targets_mode_note": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'.",
   "drawdown_measure": "peak-to-trough of TOTAL BOOK value (cash included); contributions raise the peak and never read as gains",
   "stress_limit": {
     "shock_pct": -35,
     "max_loss_pct_of_book": 20,
     "mode": "advisory",
-    "rationale": "A -35% shock to the whole AI-capex sleeve must not cost more than 20% of the book (5pt inside the 25% risk budget). Advisory: reported every run with the AI-capex share that would satisfy it; it never forces a trade by itself."
+    "rationale": "Archived 2026-09-21: see POLICY-DECISIONS.md, section 'Narrative archived out of policy.json'."
   },
   "target_position_count": [
     15,
@@ -465,9 +467,9 @@
       ]
     },
     "rule": "Owner layer changes need the user's confirmation (hash recorded by confirm-policy). Desk layer is tuned by the desk with a rationale and disclosure.",
-    "owner_layer_hash": "a36db1ec708dcf8a",
+    "owner_layer_hash": "b0289af3c3dc9666",
     "confirmed_on": "2026-09-21",
     "confirmed_by": "user",
-    "note": "gap allowance approved by user 2026-09-21"
+    "note": "narrative archived + min position added at user request 2026-09-21; values unchanged"
   }
 }

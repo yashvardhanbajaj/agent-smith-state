@@ -1020,3 +1020,56 @@ def net_conflicts(single_buys, pair_rows, sell_rows):
             shadow(fam, row, t, f"duplicate buy into {t}: the {win[0]} ticket already carries it",
                    kept=win[0])
     return out
+
+
+# ---------------------------------------------------------------------------
+# POSITION CONSOLIDATION (2026-09-21)
+# ---------------------------------------------------------------------------
+# A "conviction bet" book should hold few enough names that each can carry real risk. Policy states a
+# target position count and a minimum position (trade_materiality.min_position_pct_of_book of the
+# book, never below the dust floor). When the book holds more names than the target, the smallest,
+# lowest-conviction names below the minimum are the CANDIDATES to fold into larger positions or exit.
+# Advisory: this ranks candidates and does not size or vote a ticket -- the strategist decides.
+
+def min_position_effective_usd(total_book_usd, policy):
+    from smith_core import dust_usd
+    pct = ((policy or {}).get("trade_materiality") or {}).get("min_position_pct_of_book")
+    floor = dust_usd(policy)
+    if pct is None or not total_book_usd:
+        return round(floor, 2)
+    return round(max(floor, pct / 100.0 * total_book_usd), 2)
+
+
+def consolidation_candidates(positions, conviction_by_ticker, thesis, total_book_usd, policy):
+    """positions: [{ticker, market_value_usd, cluster}]. Returns the advisory block."""
+    tpc = (policy or {}).get("target_position_count")
+    min_pos = min_position_effective_usd(total_book_usd, policy)
+    held = [p for p in positions if (p.get("market_value_usd") or 0) > 0]
+    n = len(held)
+    block = {"mode": "advisory", "n_positions": n, "target_range": tpc, "min_position_usd": min_pos,
+             "min_position_pct_of_book": ((policy or {}).get("trade_materiality") or {}).get("min_position_pct_of_book"),
+             "excess_over_target": None, "sub_scale": [], "candidates": []}
+    sub = []
+    for p in held:
+        mv = p["market_value_usd"]
+        if mv >= min_pos:
+            continue
+        t = p["ticker"]
+        conv = (conviction_by_ticker.get(t) or {}).get("conviction_score")
+        th = (thesis or {}).get(t)
+        status = th.get("status") if isinstance(th, dict) else (th if isinstance(th, str) else None)
+        sub.append({"ticker": t, "market_value_usd": round(mv, 2), "pct_of_book": round(mv / total_book_usd * 100, 2) if total_book_usd else None,
+                    "cluster": p.get("cluster"), "conviction_score": conv, "thesis_status": status})
+    sub.sort(key=lambda r: (r["conviction_score"] if r["conviction_score"] is not None else -1.0, r["market_value_usd"]))
+    block["sub_scale"] = sub
+    if tpc and len(tpc) == 2:
+        excess = n - tpc[1]
+        block["excess_over_target"] = max(0, excess)
+        if excess > 0:
+            for r in sub[:excess]:
+                r = dict(r)
+                r["why"] = (f"${r['market_value_usd']:,.0f} is below the ${min_pos:,.0f} minimum position and the book holds "
+                            f"{n} names vs a {tpc[0]}-{tpc[1]} target; lowest conviction first. Fold into a larger "
+                            f"position in the same cluster or exit -- a full exit is never blocked by materiality.")
+                block["candidates"].append(r)
+    return block

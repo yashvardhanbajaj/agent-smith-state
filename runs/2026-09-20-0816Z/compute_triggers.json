@@ -117,6 +117,123 @@
     "profit_rotation": 1,
     "cluster_rotation": 1
   },
+  "position_consolidation": {
+    "mode": "advisory",
+    "n_positions": 27,
+    "target_range": [
+      15,
+      20
+    ],
+    "min_position_usd": 638.13,
+    "min_position_pct_of_book": 1.5,
+    "excess_over_target": 7,
+    "sub_scale": [
+      {
+        "ticker": "GLW",
+        "market_value_usd": 450.3,
+        "pct_of_book": 1.06,
+        "cluster": "AI Networking/Optics",
+        "conviction_score": -1.5,
+        "thesis_status": "watch"
+      },
+      {
+        "ticker": "SKHY",
+        "market_value_usd": 187.9,
+        "pct_of_book": 0.44,
+        "cluster": "AI Memory/Storage",
+        "conviction_score": 5.0,
+        "thesis_status": "watch"
+      },
+      {
+        "ticker": "AMD",
+        "market_value_usd": 557.98,
+        "pct_of_book": 1.31,
+        "cluster": "AI Semis/Fabs",
+        "conviction_score": 9.2,
+        "thesis_status": "watch"
+      },
+      {
+        "ticker": "COHR",
+        "market_value_usd": 634.6,
+        "pct_of_book": 1.49,
+        "cluster": "AI Networking/Optics",
+        "conviction_score": 15.3,
+        "thesis_status": "strengthening"
+      },
+      {
+        "ticker": "CIEN",
+        "market_value_usd": 2.98,
+        "pct_of_book": 0.01,
+        "cluster": "AI Networking/Optics",
+        "conviction_score": 21.6,
+        "thesis_status": "strengthening"
+      },
+      {
+        "ticker": "BE",
+        "market_value_usd": 534.1,
+        "pct_of_book": 1.26,
+        "cluster": "AI Power/Cooling/DC Infra",
+        "conviction_score": 25.4,
+        "thesis_status": "strengthening"
+      }
+    ],
+    "candidates": [
+      {
+        "ticker": "GLW",
+        "market_value_usd": 450.3,
+        "pct_of_book": 1.06,
+        "cluster": "AI Networking/Optics",
+        "conviction_score": -1.5,
+        "thesis_status": "watch",
+        "why": "$450 is below the $638 minimum position and the book holds 27 names vs a 15-20 target; lowest conviction first. Fold into a larger position in the same cluster or exit -- a full exit is never blocked by materiality."
+      },
+      {
+        "ticker": "SKHY",
+        "market_value_usd": 187.9,
+        "pct_of_book": 0.44,
+        "cluster": "AI Memory/Storage",
+        "conviction_score": 5.0,
+        "thesis_status": "watch",
+        "why": "$188 is below the $638 minimum position and the book holds 27 names vs a 15-20 target; lowest conviction first. Fold into a larger position in the same cluster or exit -- a full exit is never blocked by materiality."
+      },
+      {
+        "ticker": "AMD",
+        "market_value_usd": 557.98,
+        "pct_of_book": 1.31,
+        "cluster": "AI Semis/Fabs",
+        "conviction_score": 9.2,
+        "thesis_status": "watch",
+        "why": "$558 is below the $638 minimum position and the book holds 27 names vs a 15-20 target; lowest conviction first. Fold into a larger position in the same cluster or exit -- a full exit is never blocked by materiality."
+      },
+      {
+        "ticker": "COHR",
+        "market_value_usd": 634.6,
+        "pct_of_book": 1.49,
+        "cluster": "AI Networking/Optics",
+        "conviction_score": 15.3,
+        "thesis_status": "strengthening",
+        "why": "$635 is below the $638 minimum position and the book holds 27 names vs a 15-20 target; lowest conviction first. Fold into a larger position in the same cluster or exit -- a full exit is never blocked by materiality."
+      },
+      {
+        "ticker": "CIEN",
+        "market_value_usd": 2.98,
+        "pct_of_book": 0.01,
+        "cluster": "AI Networking/Optics",
+        "conviction_score": 21.6,
+        "thesis_status": "strengthening",
+        "why": "$3 is below the $638 minimum position and the book holds 27 names vs a 15-20 target; lowest conviction first. Fold into a larger position in the same cluster or exit -- a full exit is never blocked by materiality."
+      },
+      {
+        "ticker": "BE",
+        "market_value_usd": 534.1,
+        "pct_of_book": 1.26,
+        "cluster": "AI Power/Cooling/DC Infra",
+        "conviction_score": 25.4,
+        "thesis_status": "strengthening",
+        "why": "$534 is below the $638 minimum position and the book holds 27 names vs a 15-20 target; lowest conviction first. Fold into a larger position in the same cluster or exit -- a full exit is never blocked by materiality."
+      }
+    ]
+  },
   "heat_budget": {
     "enabled": true,
     "h_usd": 3155.58,

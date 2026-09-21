@@ -86,3 +86,18 @@ def test_sub_floor_single_leg_buy_is_demoted_but_shadow_and_unfunded_are_not():
     big = {"ticker": "CIEN", "vote": "live", "suggested_size_usd": 5000.0}
     SM._apply_buy_materiality(big, sizing)
     assert big["vote"] == "live"
+
+
+def test_consolidation_ranks_lowest_conviction_sub_scale_names_only_when_over_target():
+    import smith_ticket as T
+    pol = {"target_position_count": [2, 3], "trade_materiality": {"min_position_pct_of_book": 2.0}}
+    pos = [{"ticker": t, "market_value_usd": mv, "cluster": "c"} for t, mv in
+           (("A", 5000.0), ("B", 300.0), ("C", 200.0), ("D", 100.0), ("E", 4000.0))]
+    conv = {"B": {"conviction_score": 30}, "C": {"conviction_score": 5}, "D": {"conviction_score": 50}}
+    b = T.consolidation_candidates(pos, conv, {}, 10000.0, pol)
+    assert b["min_position_usd"] == 400.0 and b["excess_over_target"] == 2
+    assert [c["ticker"] for c in b["candidates"]] == ["C", "B"]            # lowest conviction first, capped at the excess
+    assert {r["ticker"] for r in b["sub_scale"]} == {"B", "C", "D"}
+    ok = T.consolidation_candidates(pos[:3], conv, {}, 10000.0, dict(pol, target_position_count=[2, 5]))
+    assert ok["candidates"] == [] and ok["excess_over_target"] == 0
+    assert T.min_position_effective_usd(10000.0, {}) == 400.0

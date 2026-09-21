@@ -5584,6 +5584,8 @@ def cmd_triggers(args):
         "deployable_cash_for_ideas_usd": round(deployable_for_ideas, 2),
         "live_counts": live_counts, "shadow_counts": shadow_counts,
         "below_materiality_counts": below_materiality_counts,
+        "position_consolidation": smith_ticket.consolidation_candidates(
+            risk.get("positions") or [], conviction_by_ticker, thesis, sizing["total_book_usd"], policy),
         "heat_budget": _heat,
         "edge": smith_edge.explain(today.isoformat(), _edge_table, _edge_ctx["tickets"], _invariant),
         "deferred_counts": {fam: n for fam, n in (
