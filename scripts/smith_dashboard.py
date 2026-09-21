@@ -908,7 +908,7 @@ def build_payload(base, built_at=None):
             "window": corr.get("window") or {},
         },
         "lots": lots if isinstance(lots, dict) else {},
-        "policy_targets": (policy.get("cluster_targets")
+        "policy_targets": (__import__("smith_clusters").overlay(policy, st).get("cluster_targets")
                            or policy.get("targets") or {}),
     }
     assert_payload_complete(payload)

@@ -399,5 +399,7 @@
     "rule": "H_eff_max = H_max x (heat_floor + (1 - heat_floor) x (1 - rho)), H_max = stop_loss_framework.aggregate_open_risk_cap_pct_of_book x total book, rho = compute_correlation.stop_risk.avg_pairwise_correlation; R_free = max(0, H_eff_max - H), H = aggregate_open_risk_usd. All live buys of a run share R_free (plus the risk freed by live, above-materiality sells), allocated by smith_ticket.allocation_priority; a ticket that does not fit is emitted with vote 'deferred', never dropped. A missing or stale correlation is treated as 1.0 (budget = cap x heat_floor), never as 0. cluster_sub_budget additionally caps each cluster's open risk at H_eff_max x its band ceiling.",
     "heat_floor_note": "The share of the aggregate cap that survives at full correlation. It is a floor, not zero, because aggregate_open_risk_usd is already the all-fire (perfect-correlation) sum.",
     "rationale": "Added 2026-09-20 (Phase 3). stop_loss_framework records the 10% aggregate cap breached at 13.028% (08-26) and 11.947% (08-30) while sizing continued at the full per-position formula: the cap only ever printed a warning. ADDITIVE: no stop_loss_framework, mandate or cluster_targets value was touched."
-  }
+  },
+  "cluster_targets_mode": "fluid",
+  "cluster_targets_mode_note": "2026-09-21, user: clusters exist to group holdings and show exposure; no predefined target required. cluster_targets here are SEEDS. The desk creates/modifies/retires any cluster and its target via `set-cluster` / `assign-cluster` (state.cluster_book, rationale mandatory). A cluster with no target is exposure-only and cannot breach."
 }

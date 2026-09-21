@@ -52,6 +52,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import smith_risk
 import smith_conviction
 import smith_ticket
+import smith_clusters
 import smith_edge
 from smith_core import *  # noqa: F401,F403
 from smith_core import load_json, emit, fail, clamp
@@ -1248,7 +1249,7 @@ def _realized_block(base_dir):
 def cmd_drift(args):
     holdings = load_json(os.path.join(args.run_dir, "holdings.json"))
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
-    policy = load_json(os.path.join(args.base_dir, "policy.json"), default=None)
+    policy = smith_clusters.overlay(load_json(os.path.join(args.base_dir, "policy.json"), default=None), state)
 
     if policy is None:
         emit({"policy_present": False, "note": "no policy.json -- strategist must bootstrap a draft"})
@@ -1275,10 +1276,15 @@ def cmd_drift(args):
         actual = round(cluster_actual.get(cluster, 0.0), 3)
         lo, hi = target.get("band_pct", [None, None])
         breach = (lo is not None and actual < lo) or (hi is not None and actual > hi)
+        # FLUID CLUSTERS (2026-09-21): a cluster nothing is held in is an empty group, not a floor
+        # breach -- the desk regroups freely and a stale target must not raise a phantom proposal.
+        empty = cluster not in cluster_actual
+        if empty:
+            breach = False
         cluster_table.append({
             "cluster": cluster, "actual_pct": actual, "target_pct": target.get("target_pct"),
             "band_pct": target.get("band_pct"), "drift_pt": round(actual - target.get("target_pct", 0), 3),
-            "breach": breach,
+            "breach": breach, **({"note": "empty cluster -- no held members; floor not tested"} if empty else {}),
         })
     unpoliced_pct = 0.0
     unpoliced_clusters = []
@@ -1288,7 +1294,7 @@ def cmd_drift(args):
             unpoliced_clusters.append(cluster)
             cluster_table.append({"cluster": cluster, "actual_pct": round(actual, 3),
                                    "target_pct": None, "band_pct": None, "drift_pt": None,
-                                   "breach": False, "note": "no policy target for this cluster"})
+                                   "breach": False, "note": "exposure only -- no target set (fluid clusters: the desk may set one)"})
     # SURFACE THE HOLE AS A NUMBER (added 2026-08-30). A reader had to notice `target_pct: null`
     # on individual rows and add them up to discover that 8% of equity could not breach anything;
     # nobody did, for weeks. A cluster with no policy target is not merely untargeted, it is
@@ -1671,7 +1677,7 @@ def cmd_ladder(args):
     drift = load_json(os.path.join(args.run_dir, "compute_drift.json"), default={})
     rotation = load_json(os.path.join(args.run_dir, "compute_rotation.json"), default={})
     state = load_json(os.path.join(args.base_dir, "state.json"), default={})
-    policy = load_json(os.path.join(args.base_dir, "policy.json"), default={})
+    policy = smith_clusters.overlay(load_json(os.path.join(args.base_dir, "policy.json"), default={}), state)
 
     if risk is None:
         emit({"clusters": {}, "dispatch": [], "dispatch_selected": [],
@@ -4771,7 +4777,7 @@ def cmd_triggers(args):
     from smith_state import load_state as _load_staged
     state = _load_staged(args.base_dir, args.run_dir) or {}
     lots = load_json(os.path.join(args.base_dir, "lots.json"), default={})
-    policy = load_json(os.path.join(args.base_dir, "policy.json"), default={})
+    policy = smith_clusters.overlay(load_json(os.path.join(args.base_dir, "policy.json"), default={}), state)
     # Cluster state, for the overbought cluster-tension check further down. Both default to empty so
     # a missing/failed drift step degrades to "no tension detected" rather than raising -- consistent
     # with how rsi_usable / rel_usable degrade elsewhere in this function.
@@ -6061,6 +6067,35 @@ def cmd_sync_decisions(args):
           "proposals_written": proposals_dirty, "state_written": state_dirty})
 
 
+def cmd_set_cluster(args):
+    """Create/modify/retire a cluster's live target on the desk's own authority (fluid clusters,
+    2026-09-21). Writes state.cluster_book; policy.json's cluster_targets are only seeds."""
+    st_path = os.path.join(args.base_dir, "state.json")
+    state = load_json(st_path, default={})
+    try:
+        rec = smith_clusters.set_cluster(
+            state, args.cluster, resolve_today(args.today), args.rationale,
+            target_pct=args.target, band_pct=args.band, ai_capex=args.ai_capex,
+            remove_target=args.remove_target, by=args.by)
+    except ValueError as e:
+        fail(str(e))
+    safe_write(st_path, state)
+    emit({"cluster": args.cluster, "record": {k: v for k, v in rec.items() if k != "history"}, "written": True})
+
+
+def cmd_assign_cluster(args):
+    """Point a ticker at a cluster (the cluster is created implicitly). Fluid clusters, 2026-09-21."""
+    st_path = os.path.join(args.base_dir, "state.json")
+    state = load_json(st_path, default={})
+    try:
+        prev = smith_clusters.assign_ticker(state, args.ticker.upper(), args.cluster,
+                                            resolve_today(args.today), args.rationale)
+    except ValueError as e:
+        fail(str(e))
+    safe_write(st_path, state)
+    emit({"ticker": args.ticker.upper(), "from": prev, "to": args.cluster, "written": True})
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -6143,6 +6178,24 @@ def main():
     sp.add_argument("--run-dir", required=True, help="this run's directory containing compute_drift.json and holdings.json")
     sp.add_argument("--today", default=None, help="reference date for expiry (YYYY-MM-DD); default today")
 
+    sp = sub.add_parser("set-cluster", help="create/modify/retire a cluster target on the desk's own authority (fluid clusters)")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--cluster", required=True)
+    sp.add_argument("--target", type=float, default=None, help="target %% of the cluster denominator")
+    sp.add_argument("--band", type=float, nargs=2, default=None, metavar=("LO", "HI"),
+                    help="band; default = target +/- max(3pt, half the target)")
+    sp.add_argument("--remove-target", action="store_true", help="retire the target: exposure-only from now on")
+    sp.add_argument("--ai-capex", dest="ai_capex", action="store_true", default=None)
+    sp.add_argument("--no-ai-capex", dest="ai_capex", action="store_false")
+    sp.add_argument("--rationale", required=True)
+    sp.add_argument("--by", default="desk")
+    sp.add_argument("--today", default=None)
+    sp = sub.add_parser("assign-cluster", help="point a ticker at a cluster (created implicitly)")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--ticker", required=True)
+    sp.add_argument("--cluster", required=True)
+    sp.add_argument("--rationale", required=True)
+    sp.add_argument("--today", default=None)
     sp = sub.add_parser("dismiss")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--id", required=True, help="stable proposal id, e.g. P-014")
@@ -6594,6 +6647,7 @@ def main():
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "freshness": cmd_freshness, "report": cmd_report, "runs": cmd_runs,
          "dismiss": cmd_dismiss, "add-proposal": cmd_add_proposal,
+         "set-cluster": cmd_set_cluster, "assign-cluster": cmd_assign_cluster,
          "reconcile-proposals": cmd_reconcile_proposals,
          "append-ledger": cmd_append_ledger, "merge-tails": cmd_merge_tails, "stops": cmd_stops,
          "score-shadow-journal": cmd_score_shadow_journal, "learn-status": cmd_learn_status,

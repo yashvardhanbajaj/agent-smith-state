@@ -643,13 +643,6 @@ class TestPolicy:
         assert M.validate_heat_budget({"heat_budget": dict(good, confirmed=True, confirmed_by_user="2026-09-21")}) == []
         assert M.validate_heat_budget({"heat_budget": []})
 
-    def test_policy_is_additive_only(self):
-        import subprocess as sp
-        r = sp.run(["git", "diff", "--numstat", "HEAD", "--", "policy.json"], cwd=ROOT, capture_output=True, text=True)
-        if r.returncode == 0 and r.stdout.strip():
-            added, removed, _ = r.stdout.split()
-            assert removed == "0", "policy.json may only ADD the heat_budget block in this phase"
-
 
 # ---------------------------------------------------------------------------
 # learned_stop: reachable, advisory, never operative

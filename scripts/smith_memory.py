@@ -696,6 +696,7 @@ def validate_policy(policy, state=None):
     if not targets:
         return ["cluster_targets missing or empty -- no drift analysis possible"]
 
+    fluid = policy.get("cluster_targets_mode") == "fluid"
     tsum = sum(t.get("target_pct", 0) for t in targets.values())
     denom = policy.get("cluster_target_denominator")
     if denom not in ("invested_equity", "total_book"):
@@ -707,7 +708,9 @@ def validate_policy(policy, state=None):
 
     # Targets must sum to 100 of whatever base they are declared against, except that a
     # total_book basis must leave room for the cash target.
-    if denom == "total_book":
+    if fluid:
+        pass        # targets are desk-set and partial by design: no sum-to-100 / joint-band check
+    elif denom == "total_book":
         cash_band = policy.get("cash_band_pct") or [0, 0]
         cash_mid = (cash_band[0] + cash_band[1]) / 2 if None not in cash_band else 0
         expected = 100 - cash_mid
@@ -745,16 +748,16 @@ def validate_policy(policy, state=None):
                 f"was never restored on re-entry; `compact` now restores these.")
         live_clusters = {sm[t] for t in held if t in sm}
         orphan = sorted(live_clusters - set(targets))
-        if orphan:
+        if orphan and not fluid:
             defects.append(
                 f"cluster(s) held but absent from cluster_targets: {', '.join(orphan)} -- "
                 f"cmd_drift matches policy by EXACT STRING, so these are reported with a null "
                 f"target and can never breach. Either give each a target/band or reclassify "
                 f"the holdings into an existing cluster.")
 
-    if lo_sum > 100:
+    if lo_sum > 100 and not fluid:
         defects.append(f"band floors sum to {lo_sum:g}% (>100%) -- no allocation can satisfy every floor at once.")
-    if hi_sum < 100:
+    if hi_sum < 100 and not fluid:
         defects.append(f"band ceilings sum to {hi_sum:g}% (<100%) -- no allocation can reach 100% within every ceiling.")
 
     for name, t in targets.items():
@@ -777,7 +780,7 @@ def validate_policy(policy, state=None):
         )
 
     unknown = [c for c in policy.get("ai_capex_clusters", []) if c not in targets]
-    if unknown:
+    if unknown and not fluid:
         defects.append(f"ai_capex_clusters names clusters with no target defined: {unknown}")
 
     defects.extend(validate_trade_materiality(policy))
@@ -2150,7 +2153,7 @@ def validate_cluster_playbooks(policy, state):
     clusters = ({smap[t] for t in held if t in smap} if held else set(smap.values()))
     defects = []
     missing = sorted(c for c in clusters if c and c not in pbs)
-    if missing:
+    if missing and policy.get("cluster_targets_mode") != "fluid":
         defects.append(f"CLUSTER PLAYBOOKS: held cluster(s) with no policy.cluster_playbooks entry: "
                        f"{', '.join(missing)} -- smith-cluster cannot build a ladder for them")
     slugs = [v.get("slug") for v in pbs.values() if isinstance(v, dict)]
@@ -2172,6 +2175,8 @@ def cmd_validate(args):
     if policy is None:
         policy_defects = ["no policy.json"]
     else:
+        import smith_clusters
+        policy = smith_clusters.overlay(policy, state)
         policy_defects = validate_policy(policy, state)
 
     cache_defects = validate_cache_events(state)

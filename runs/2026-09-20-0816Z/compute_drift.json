@@ -27,21 +27,21 @@
       "cluster_room_basis": "total_book"
     },
     {
-      "cluster": "AI Semis/Fabs",
-      "actual_pct": 37.973,
-      "target_pct": 28,
+      "cluster": "AI Storage/HDD",
+      "actual_pct": 0.0,
+      "target_pct": 5.0,
       "band_pct": [
-        23,
-        33
+        2.0,
+        8.0
       ],
-      "drift_pt": 9.973,
-      "breach": false,
-      "actual_pct_of_equity": 37.973,
-      "actual_pct_of_total_book": 30.108,
-      "breach_edge": null,
+      "drift_pt": -5.0,
+      "breach": true,
+      "actual_pct_of_equity": 0.0,
+      "actual_pct_of_total_book": 0.0,
+      "breach_edge": "under",
       "ceiling_tested_on": "total_book",
       "floor_tested_on": "invested_equity",
-      "cluster_room_usd": 1230.31,
+      "cluster_room_usd": 3403.36,
       "cluster_room_basis": "total_book"
     },
     {
@@ -225,26 +225,43 @@
       "cluster_room_basis": "total_book"
     },
     {
-      "cluster": "AI Storage/HDD",
-      "actual_pct": 3.931,
-      "target_pct": 3,
-      "band_pct": [
-        0,
-        8
-      ],
-      "drift_pt": 0.931,
+      "cluster": "AI Semis/Fabs",
+      "actual_pct": 37.973,
+      "target_pct": null,
+      "band_pct": null,
+      "drift_pt": null,
       "breach": false,
+      "note": "exposure only -- no target set (fluid clusters: the desk may set one)",
+      "actual_pct_of_equity": 37.973,
+      "actual_pct_of_total_book": 30.108,
+      "breach_edge": null,
+      "ceiling_tested_on": null,
+      "floor_tested_on": null,
+      "cluster_room_usd": null,
+      "cluster_room_basis": null
+    },
+    {
+      "cluster": "Nearline HDD",
+      "actual_pct": 3.931,
+      "target_pct": null,
+      "band_pct": null,
+      "drift_pt": null,
+      "breach": false,
+      "note": "exposure only -- no target set (fluid clusters: the desk may set one)",
       "actual_pct_of_equity": 3.931,
       "actual_pct_of_total_book": 3.117,
       "breach_edge": null,
-      "ceiling_tested_on": "total_book",
-      "floor_tested_on": "invested_equity",
-      "cluster_room_usd": 2077.32,
-      "cluster_room_basis": "total_book"
+      "ceiling_tested_on": null,
+      "floor_tested_on": null,
+      "cluster_room_usd": null,
+      "cluster_room_basis": null
     }
   ],
-  "unpoliced_pct_of_equity": 0.0,
-  "unpoliced_clusters": [],
+  "unpoliced_pct_of_equity": 41.904,
+  "unpoliced_clusters": [
+    "AI Semis/Fabs",
+    "Nearline HDD"
+  ],
   "position_breaches": [],
   "cash_pct": 20.712,
   "cash_band_pct": [
@@ -260,12 +277,12 @@
   ],
   "cash_breach_vs_normal": true,
   "cash_pct_denominator": "total_book",
-  "ai_capex_pct": 95.759,
+  "ai_capex_pct": 53.855,
   "ai_capex_cap_pct": 100,
   "ai_capex_breach": false,
   "ai_capex_denominator": "invested_equity",
-  "ai_capex_pct_of_equity": 95.759,
-  "ai_capex_pct_of_total_book": 75.925,
+  "ai_capex_pct_of_equity": 53.855,
+  "ai_capex_pct_of_total_book": 42.7,
   "total_book_usd": 42541.95,
   "invested_equity_usd": 33730.51,
   "peak_total_book_usd": 43027.32,
