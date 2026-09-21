@@ -48,9 +48,11 @@ def overlay(policy, state):
         if not isinstance(rec, dict):
             continue
         if rec.get("removed"):
-            targets.pop(name, None)
-            if name in ai and rec.get("ai_capex") is not True:
+            targets.pop(name, None)      # retiring a target never changes factor membership
+            if rec.get("ai_capex") is False and name in ai:
                 ai.remove(name)
+            elif rec.get("ai_capex") is True and name not in ai:
+                ai.append(name)
             continue
         if rec.get("target_pct") is not None:
             band = rec.get("band_pct") or default_band(rec["target_pct"])

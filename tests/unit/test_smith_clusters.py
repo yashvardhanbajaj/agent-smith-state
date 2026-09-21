@@ -59,3 +59,12 @@ def test_fluid_mode_relaxes_fence_checks():
     assert not any("sum to" in x or "absent from cluster_targets" in x for x in d)
     fence = dict(pol); fence.pop("cluster_targets_mode")
     assert any("sum to" in x for x in M.validate_policy(C.overlay(fence, st), st))
+
+
+def test_removing_a_target_keeps_ai_capex_membership():
+    st = {}
+    C.set_cluster(st, "A", "2026-09-21", "exposure only", remove_target=True)
+    out = C.overlay(POLICY, st)
+    assert "A" not in out["cluster_targets"] and "A" in out["ai_capex_clusters"]
+    C.set_cluster(st, "A", "2026-09-22", "not AI", ai_capex=False)
+    assert "A" not in C.overlay(POLICY, st)["ai_capex_clusters"]
