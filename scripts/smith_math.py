@@ -3471,7 +3471,7 @@ def _trigger_reentry_scan(trades, recently_exited, signal_history, thesis, facto
                           earnings_facts, upside_pct_for, rsi_vals, rsi_usable, rel_vals,
                           rel_usable, mention_counts, track_record_for, atr_vals, total_book,
                           policy, deployable_for_ideas, sector_map, reentry, reentry_no_thesis,
-                          reentry_judged_out, cluster_rows=None, alumni_thesis=None, bar_inputs=None, audit=None):
+                          reentry_judged_out, cluster_rows=None, alumni_thesis=None, bar_inputs=None, audit=None, today=None):
     """Section M: reentry (BUY, live) -- the direct fix for "an exited name has no headroom row,
     so the engine sizes its re-entry at $0": recently_exited tickers, priced from the last known
     fill (trades.json), sized via policy_max_position_usd at qty=0 (works for unheld names by
@@ -3504,7 +3504,7 @@ def _trigger_reentry_scan(trades, recently_exited, signal_history, thesis, facto
             or last_exit_price.get(ticker)
         buckets_for_ticker = signal_history.get(ticker) or []
         t_entry = alumni_thesis.get(ticker) or thesis.get(ticker)
-        ctx = {"ticker": ticker, "thesis_entry": t_entry, "factor_catalysts": factor_catalysts,
+        ctx = {"ticker": ticker, "thesis_entry": t_entry, "factor_catalysts": factor_catalysts, "today": today,
                "buckets": buckets_for_ticker, "upside_pct": upside_pct_for(ticker, price),
                "earnings_fact": earnings_facts.get(ticker), "rsi": rsi_vals.get(ticker), "rsi_usable": rsi_usable,
                "rel_pp": rel_vals.get(ticker), "rel_usable": rel_usable, "mention_count": mention_counts.get(ticker, 0),
@@ -5209,7 +5209,7 @@ def cmd_triggers(args):
                           earnings_facts, upside_pct_for, rsi_vals, rsi_usable, rel_vals,
                           rel_usable, mention_counts, _track_record_for, atr_vals, total_book,
                           policy, deployable_for_ideas, sector_map, reentry, _reentry_no_thesis,
-                          _reentry_judged_out, cluster_rows, _alumni_thesis, _bar_inputs, _reentry_audit)
+                          _reentry_judged_out, cluster_rows, _alumni_thesis, _bar_inputs, _reentry_audit, today)
 
     # --- N. bench_diversifier (BUY, live) --------------------------------------------------
     _trigger_bench_diversifier_scan(diversifier_candidates, risk_by_ticker, state, mention_counts,

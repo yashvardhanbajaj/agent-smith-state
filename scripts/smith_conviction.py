@@ -125,9 +125,24 @@ def _tier_label_for(score):
 # 6.3 of the 28-point thesis weight -- it can support a re-entry but never carry one alone
 # (the `low` tier floor is 20 on the TOTAL score).
 CARRIED_THESIS_MULT = 0.5
+# Age term (2026-09-21): a carried read also decays with the time since the desk last reviewed it,
+# linearly to CARRIED_AGE_FLOOR at CARRIED_AGE_FULL_DAYS. Unknown age gets the floor (an undated read
+# is presumed old). Only applied when the caller supplies `today`, so the pure scorer stays deterministic.
+CARRIED_AGE_FULL_DAYS = 180
+CARRIED_AGE_FLOOR = 0.25
 
 
-def thesis_component(thesis_entry):
+def carried_age_factor(thesis_entry, today):
+    import datetime as _d
+    ref = thesis_entry.get("last_reviewed_on") or thesis_entry.get("exited_as_of")
+    try:
+        age = (_d.date.fromisoformat(str(today)[:10]) - _d.date.fromisoformat(str(ref)[:10])).days
+    except (TypeError, ValueError):
+        return CARRIED_AGE_FLOOR, None
+    return max(CARRIED_AGE_FLOOR, min(1.0, 1.0 - max(age, 0) / CARRIED_AGE_FULL_DAYS)), age
+
+
+def thesis_component(thesis_entry, today=None):
     """+WEIGHTS['thesis'] scaled by status and evidence quality. `broken` scores negative --
     conviction to ADD should fall through zero for a broken thesis, not just stop climbing;
     a negative thesis component is what lets conviction_exit outrank a merely-lukewarm holding.
@@ -142,8 +157,9 @@ def thesis_component(thesis_entry):
     carried = smith_risk.is_carried_thesis(thesis_entry)
     if carried:
         verified = "unverified"
+        age_f, age_d = (carried_age_factor(thesis_entry, today) if today else (1.0, None))
         if base > 0:
-            base *= CARRIED_THESIS_MULT
+            base *= CARRIED_THESIS_MULT * age_f
     # Evidence quality modulates magnitude, not direction -- a verified strengthening thesis
     # counts more than an unverified one, but an unverified watch still counts as a mild watch.
     ev_mult = {"primary": 1.15, "secondary": 1.0, "unverified": 0.75}.get(verified, 0.75)
@@ -152,7 +168,10 @@ def thesis_component(thesis_entry):
     if status is not None:
         reason = f"thesis {status} ({verified}, {len(ev_for)} for / {len(ev_against)} against)"
         if carried:
-            reason = (f"thesis {status} CARRIED FROM EXIT (stale, x{CARRIED_THESIS_MULT:g}; last reviewed "
+            reason = (f"thesis {status} CARRIED FROM EXIT (stale, x{CARRIED_THESIS_MULT:g}"
+                      + (f" x{age_f:.2f} for age {age_d}d" if today and age_d is not None else
+                         f" x{age_f:.2f} undated read" if today else "")
+                      + f"; last reviewed "
                       f"{thesis_entry.get('last_reviewed_on') or 'unknown'}, exited "
                       f"{thesis_entry.get('exited_as_of') or 'unknown'}, from "
                       f"{thesis_entry.get('carried_from') or 'unknown'}) -- not re-examined since the exit")
@@ -367,7 +386,7 @@ def score_conviction(ctx):
     reasons = []
     total = 0.0
 
-    s, r, thesis_status, verified = thesis_component(ctx.get("thesis_entry"))
+    s, r, thesis_status, verified = thesis_component(ctx.get("thesis_entry"), ctx.get("today"))
     total += s
     if r:
         reasons.append(r)

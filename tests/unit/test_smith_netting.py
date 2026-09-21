@@ -44,3 +44,16 @@ def test_pair_sell_leg_nets_other_buys_but_not_its_own():
     p, other = pair("AMD", "KLAC"), buy("AMD")
     T.net_conflicts([("trend_entry", other)], [("profit_rotation", p)], [])
     assert other["vote"] == "shadow" and p["vote"] == "live"
+
+
+def test_carried_thesis_decays_with_age():
+    import smith_conviction as C
+    e = {"status": "strengthening", "carried": True, "exited": True, "held": False,
+         "last_reviewed_on": "2026-09-01", "exited_as_of": "2026-09-02", "carried_from": "x",
+         "verified": "primary", "evidence_for": [], "evidence_against": []}
+    fresh, *_ = C.thesis_component(e, "2026-09-05")
+    old, *_ = C.thesis_component(dict(e, last_reviewed_on="2026-03-01"), "2026-09-05")
+    nodate, *_ = C.thesis_component({k: v for k, v in e.items() if k not in ("last_reviewed_on", "exited_as_of")}, "2026-09-05")
+    assert fresh > old > 0 and abs(nodate - old) < 1e-9 or nodate <= old
+    legacy, *_ = C.thesis_component(e)              # no today -> unchanged legacy behaviour
+    assert legacy >= fresh
