@@ -1312,7 +1312,8 @@ def cmd_drift(args):
     _norm = (_regs.get("normal") or {}).get("band_pct") or policy.get("cash_band_pct") or [0, 100]
     equity_share_pre = (value_usd / total_book_usd) if total_book_usd else 1.0
     _cond = policy.get("cluster_denominator_conditional", {}).get("enabled", False)
-    use_total_book = bool(_cond and _norm[1] is not None and cash_pct_pre > _norm[1])
+    _declared_total = policy.get("cluster_target_denominator") == "total_book"
+    use_total_book = bool(_declared_total or (_cond and _norm[1] is not None and cash_pct_pre > _norm[1]))
     cluster_basis = "total_book" if use_total_book else "invested_equity"
     # The two denominators answer different questions, so they govern different edges of the band:
     #   CEILING ("am I over-exposed to this factor?") -> TOTAL BOOK when cash is elevated. Idle cash is
@@ -1338,15 +1339,15 @@ def cmd_drift(args):
             continue
         _lo, _hi = c["band_pct"]
         ceil_val = c["actual_pct_of_total_book"] if use_total_book else c["actual_pct_of_equity"]
-        floor_val = c["actual_pct_of_equity"]
+        floor_val = c["actual_pct_of_total_book"] if _declared_total else c["actual_pct_of_equity"]
         over = ceil_val > _hi
         under = floor_val < _lo
         c["breach"] = bool(over or under)
         c["breach_edge"] = "over" if over else ("under" if under else None)
         c["ceiling_tested_on"] = "total_book" if use_total_book else "invested_equity"
-        c["floor_tested_on"] = "invested_equity"
-        c["actual_pct"] = c["actual_pct_of_equity"]
-        c["drift_pt"] = round(c["actual_pct_of_equity"] - c["target_pct"], 3)
+        c["floor_tested_on"] = "total_book" if _declared_total else "invested_equity"
+        c["actual_pct"] = c["actual_pct_of_total_book"] if _declared_total else c["actual_pct_of_equity"]
+        c["drift_pt"] = round(c["actual_pct"] - c["target_pct"], 3)
 
     # CLUSTER CEILING ROOM IN DOLLARS (added 2026-09-08). smith_conviction.clamp_size has taken a
     # `cluster_room_usd` argument since it was written, and EVERY caller passes None -- so "never
@@ -1431,6 +1432,11 @@ def cmd_drift(args):
     cash_band = band_src or policy.get("cash_band_pct", [None, None])
     cash_breach = (cash_band[0] is not None and cash_pct < cash_band[0]) or \
                   (cash_band[1] is not None and cash_pct > cash_band[1])
+    # ADVISORY CASH (user, 2026-09-21): cash is an outcome of risk headroom, not a second control. The
+    # band is still measured and reported, but sitting outside it is an observation, never a breach.
+    cash_outside_band = cash_breach
+    if policy.get("cash_band_mode") == "advisory":
+        cash_breach = False
     normal_band = (regimes.get("normal") or {}).get("band_pct") or policy.get("cash_band_pct", [None, None])
     cash_breach_vs_normal = (normal_band[1] is not None and cash_pct > normal_band[1]) or \
                             (normal_band[0] is not None and cash_pct < normal_band[0])
@@ -1477,11 +1483,37 @@ def cmd_drift(args):
         if abs(drawdown_pct) >= abs(rung.get("drawdown_pct", 0)):
             drawdown_action = rung
 
+    # ladder rungs may carry `aggregate_cap_pct`: the deepest rung reached sets the effective
+    # aggregate open-risk cap that the heat budget spends against (None when no rung is reached).
+    _cap_steps = [r for r in sorted(trim_ladder, key=lambda r: abs(r.get("drawdown_pct", 0)))
+                  if abs(drawdown_pct) >= abs(r.get("drawdown_pct", 0)) and r.get("aggregate_cap_pct") is not None]
+    effective_cap = _cap_steps[-1]["aggregate_cap_pct"] if _cap_steps else None
+
+    stress = policy.get("stress_limit") or {}
+    stress_block = None
+    if stress.get("shock_pct") and stress.get("max_loss_pct_of_book"):
+        _loss = round(ai_capex_pct_total_book * abs(stress["shock_pct"]) / 100.0, 3)
+        stress_block = {
+            "shock_pct": stress["shock_pct"], "max_loss_pct_of_book": stress["max_loss_pct_of_book"],
+            "ai_capex_pct_of_total_book": ai_capex_pct_total_book, "stressed_loss_pct_of_book": _loss,
+            "max_ai_capex_pct_of_total_book": round(stress["max_loss_pct_of_book"] / abs(stress["shock_pct"]) * 100, 2),
+            "over_limit": _loss > stress["max_loss_pct_of_book"],
+            "mode": stress.get("mode", "advisory"),
+            "assumes": "the whole AI-capex sleeve falls by shock_pct together (beta 1 to the factor); cash and non-AI names unchanged"}
+    tpc = policy.get("target_position_count")
+    n_pos = len(rows)
+    position_count = {"n": n_pos, "target_range": tpc,
+                      "status": (None if not tpc else "above" if n_pos > tpc[1] else "below" if n_pos < tpc[0] else "within"),
+                      "mode": "advisory"}
+
     output = {
+        "stress_limit": stress_block, "position_count": position_count,
+        "effective_aggregate_cap_pct": effective_cap,
         "policy_present": True, "policy_confirmed": policy.get("confirmed", False),
         "policy_defects": policy_defects,
         "policy_valid": not policy_defects,
-        "cluster_target_denominator": "split: ceiling=%s, floor=invested_equity" % cluster_basis,
+        "cluster_target_denominator": ("total_book" if _declared_total else
+                                      "split: ceiling=%s, floor=invested_equity" % cluster_basis),
         "cluster_denominator_declared": policy.get("cluster_target_denominator", "UNDECLARED"),
         "cluster_denominator_switched": use_total_book,
         "cluster_denominator_reason": (
@@ -1494,6 +1526,7 @@ def cmd_drift(args):
         "unpoliced_clusters": sorted(unpoliced_clusters),
         "position_breaches": position_breaches,
         "cash_pct": cash_pct, "cash_band_pct": cash_band, "cash_breach": cash_breach,
+        "cash_band_mode": policy.get("cash_band_mode", "enforced"), "cash_outside_band": bool(cash_outside_band),
         "cash_regime": cash_regime, "cash_regime_reason": regime_reason,
         "cash_band_normal_pct": normal_band, "cash_breach_vs_normal": cash_breach_vs_normal,
         "cash_pct_denominator": "total_book",
@@ -4517,6 +4550,11 @@ def _apply_heat_budget(fams, pair_fams, sell_fams, risk, drift, policy, corr, to
     "deferred", deferred_by and would_be_size_usd -- never dropped.
     """
     cap_pct = risk.get("aggregate_open_risk_cap_pct")
+    _eff = (drift or {}).get("effective_aggregate_cap_pct")
+    if cap_pct is not None and _eff is not None and _eff < cap_pct:
+        dq.append(f"DRAWDOWN LADDER: aggregate open-risk cap stepped down {cap_pct:g}% -> {_eff:g}% "
+                  f"(drawdown {(drift or {}).get('drawdown_pct')}%); new buys spend against the lower cap")
+        cap_pct = _eff
     if cap_pct is None:
         dq.append("heat budget DISABLED: policy carries no aggregate_open_risk_cap_pct_of_book")
         return {"enabled": False, "reason": "no aggregate_open_risk_cap_pct_of_book in policy"}
@@ -6096,6 +6134,23 @@ def cmd_assign_cluster(args):
     emit({"ticker": args.ticker.upper(), "from": prev, "to": args.cluster, "written": True})
 
 
+def cmd_confirm_policy(args):
+    """Record the user's confirmation of the OWNER layer of policy.json (content hash + date).
+    Run only after the user has said so in chat."""
+    import smith_memory
+    path = os.path.join(args.base_dir, "policy.json")
+    pol = load_json(path, default=None)
+    if pol is None:
+        fail("no policy.json")
+    h = smith_memory.owner_hash(pol)
+    gov = pol.setdefault("governance", {})
+    gov.update(owner_layer_hash=h, confirmed_on=str(resolve_today(args.today)), confirmed_by="user",
+               note=args.note or gov.get("note"))
+    pol["confirmed"], pol["confirmed_date"] = True, str(resolve_today(args.today))
+    safe_write(path, pol)
+    emit({"owner_layer_hash": h, "confirmed_on": gov["confirmed_on"], "written": True})
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -6189,6 +6244,10 @@ def main():
     sp.add_argument("--no-ai-capex", dest="ai_capex", action="store_false")
     sp.add_argument("--rationale", required=True)
     sp.add_argument("--by", default="desk")
+    sp.add_argument("--today", default=None)
+    sp = sub.add_parser("confirm-policy", help="record the user's confirmation of the owner layer (hash + date)")
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--note", default=None)
     sp.add_argument("--today", default=None)
     sp = sub.add_parser("assign-cluster", help="point a ticker at a cluster (created implicitly)")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
@@ -6647,7 +6706,7 @@ def main():
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "freshness": cmd_freshness, "report": cmd_report, "runs": cmd_runs,
          "dismiss": cmd_dismiss, "add-proposal": cmd_add_proposal,
-         "set-cluster": cmd_set_cluster, "assign-cluster": cmd_assign_cluster,
+         "set-cluster": cmd_set_cluster, "confirm-policy": cmd_confirm_policy, "assign-cluster": cmd_assign_cluster,
          "reconcile-proposals": cmd_reconcile_proposals,
          "append-ledger": cmd_append_ledger, "merge-tails": cmd_merge_tails, "stops": cmd_stops,
          "score-shadow-journal": cmd_score_shadow_journal, "learn-status": cmd_learn_status,

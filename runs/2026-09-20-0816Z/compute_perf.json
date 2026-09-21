@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-20",
+  "as_of": "2026-09-21",
   "ok": true,
   "basis": "position-level reconstruction from the trade ledger, priced at daily closes",
   "twr": {
@@ -32,6 +32,14 @@
     "benchmark_pct": 0.09,
     "excess_pp": 0.16
   },
+  "objective_check": {
+    "window_months": 12,
+    "tolerance_pp": 10,
+    "n_sessions": 89,
+    "min_sessions": 200,
+    "status": "insufficient_history",
+    "note": "89 material-capital sessions in the last 12m; 200 needed before a rolling result is quoted"
+  },
   "material_book_floor_usd": 10000.0,
   "money_weighted": {
     "as_of": "2026-09-18",
@@ -41,12 +49,149 @@
     "selection_cost_usd": 497.94,
     "basis": "every equity flow redirected into SMH at that session's close"
   },
+  "by_month": [
+    {
+      "period": "2025-05",
+      "sessions": 16,
+      "book_pct": 7.69,
+      "benchmark_pct": 8.02,
+      "excess_pp": -0.33,
+      "end_value_usd": 2835.68
+    },
+    {
+      "period": "2025-06",
+      "sessions": 20,
+      "book_pct": 10.7,
+      "benchmark_pct": 14.62,
+      "excess_pp": -3.93,
+      "end_value_usd": 3828.42
+    },
+    {
+      "period": "2025-07",
+      "sessions": 22,
+      "book_pct": 8.16,
+      "benchmark_pct": 4.69,
+      "excess_pp": 3.47,
+      "end_value_usd": 4773.67
+    },
+    {
+      "period": "2025-08",
+      "sessions": 21,
+      "book_pct": -1.23,
+      "benchmark_pct": 2.23,
+      "excess_pp": -3.46,
+      "end_value_usd": 5070.66
+    },
+    {
+      "period": "2025-09",
+      "sessions": 21,
+      "book_pct": 13.69,
+      "benchmark_pct": 13.92,
+      "excess_pp": -0.23,
+      "end_value_usd": 6679.66
+    },
+    {
+      "period": "2025-10",
+      "sessions": 23,
+      "book_pct": 11.74,
+      "benchmark_pct": 8.79,
+      "excess_pp": 2.95,
+      "end_value_usd": 7433.4
+    },
+    {
+      "period": "2025-11",
+      "sessions": 19,
+      "book_pct": -11.02,
+      "benchmark_pct": -3.77,
+      "excess_pp": -7.25,
+      "end_value_usd": 6689.15
+    },
+    {
+      "period": "2025-12",
+      "sessions": 22,
+      "book_pct": 1.06,
+      "benchmark_pct": 2.03,
+      "excess_pp": -0.97,
+      "end_value_usd": 6670.32
+    },
+    {
+      "period": "2026-01",
+      "sessions": 20,
+      "book_pct": -1.2,
+      "benchmark_pct": 8.08,
+      "excess_pp": -9.28,
+      "end_value_usd": 6453.8
+    },
+    {
+      "period": "2026-02",
+      "sessions": 19,
+      "book_pct": -12.3,
+      "benchmark_pct": -0.39,
+      "excess_pp": -11.91,
+      "end_value_usd": 3759.62
+    },
+    {
+      "period": "2026-03",
+      "sessions": 22,
+      "book_pct": -2.41,
+      "benchmark_pct": -5.66,
+      "excess_pp": 3.25,
+      "end_value_usd": 4048.77
+    },
+    {
+      "period": "2026-04",
+      "sessions": 21,
+      "book_pct": 23.52,
+      "benchmark_pct": 29.28,
+      "excess_pp": -5.75,
+      "end_value_usd": 4965.0
+    },
+    {
+      "period": "2026-05",
+      "sessions": 20,
+      "book_pct": 15.42,
+      "benchmark_pct": 17.48,
+      "excess_pp": -2.06,
+      "end_value_usd": 28976.27
+    },
+    {
+      "period": "2026-06",
+      "sessions": 21,
+      "book_pct": 6.7,
+      "benchmark_pct": 7.91,
+      "excess_pp": -1.21,
+      "end_value_usd": 31857.83
+    },
+    {
+      "period": "2026-07",
+      "sessions": 22,
+      "book_pct": -19.58,
+      "benchmark_pct": -12.88,
+      "excess_pp": -6.7,
+      "end_value_usd": 42285.74
+    },
+    {
+      "period": "2026-08",
+      "sessions": 21,
+      "book_pct": 3.25,
+      "benchmark_pct": 2.05,
+      "excess_pp": 1.21,
+      "end_value_usd": 40267.64
+    },
+    {
+      "period": "2026-09",
+      "sessions": 13,
+      "book_pct": 6.08,
+      "benchmark_pct": 5.1,
+      "excess_pp": 0.99,
+      "end_value_usd": 33566.62
+    }
+  ],
   "positions_final_count": 30,
   "adjustment_flow_usd": 5393.93,
   "data_quality": [
     "$5,393.93 of position arrived via `adjustment` rows (phantom-short/broker reconciliations, basis unknown). Priced at session close and booked as flow so they contribute no return, but the position history before 2026-08-15 rests on 13 such corrections.",
     "5 early session(s) excluded: prior book below $500, where percentage returns are arithmetically unstable.",
     "Reconstructed from trades.json, NOT from ledger.csv snapshots -- the ledger's value_usd is not consistent with fills on heavy-trading days (2026-07-28)."
-  ],
-  "written": "runs/2026-09-20-0816Z/compute_perf.json"
+  ]
 }

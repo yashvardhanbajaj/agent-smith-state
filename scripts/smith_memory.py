@@ -785,7 +785,66 @@ def validate_policy(policy, state=None):
 
     defects.extend(validate_trade_materiality(policy))
     defects.extend(validate_heat_budget(policy))
+    defects.extend(validate_risk_envelope(policy))
+    defects.extend(validate_governance(policy))
     return defects
+
+
+OWNER_POLICY_KEYS = (
+    "mandate", "max_single_position_pct", "drawdown_warn_pct", "drawdown_risk_off_pct",
+    "drawdown_trim_ladder", "stress_limit", "target_position_count", "cash_band_mode", "cash_band_pct",
+    "cash_regimes", "stop_loss_framework", "monthly_contribution_usd", "cluster_target_denominator",
+    "ai_capex_denominator", "max_ai_capex_factor_pct", "concentration_is_intentional", "tax_stance")
+
+
+def owner_hash(policy):
+    """Content hash of the OWNER layer (2026-09-21). Desk-layer keys (cluster targets, materiality,
+    heat budget, sizing) are tuned by the desk with disclosure and are deliberately not in it."""
+    import hashlib, json as _j
+    blob = _j.dumps({k: policy.get(k) for k in OWNER_POLICY_KEYS}, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(blob.encode()).hexdigest()[:16]
+
+
+def validate_governance(policy):
+    gov = policy.get("governance")
+    if not isinstance(gov, dict):
+        return []
+    want = gov.get("owner_layer_hash")
+    if want is None:
+        return ["GOVERNANCE: no owner_layer_hash recorded -- run `smith_math.py confirm-policy` after the user signs"]
+    if owner_hash(policy) != want:
+        return [f"GOVERNANCE: owner-layer policy changed since the user confirmed it on "
+                f"{gov.get('confirmed_on')} (hash {want} -> {owner_hash(policy)}); the desk may change only "
+                f"the desk layer -- get the user's confirmation, then `smith_math.py confirm-policy`"]
+    return []
+
+
+def validate_risk_envelope(policy):
+    """Coherence checks on the risk envelope (2026-09-21)."""
+    out = []
+    budget = (policy.get("mandate") or {}).get("risk_budget_pct")
+    ro = policy.get("drawdown_risk_off_pct")
+    if budget is not None and ro is not None and ro >= budget:
+        out.append(f"drawdown_risk_off_pct {ro} is not inside risk_budget_pct {budget}: risk-off would fire "
+                   f"at or beyond the loss ceiling, after the loss")
+    prev = None
+    for r in policy.get("drawdown_trim_ladder") or []:
+        d = abs(r.get("drawdown_pct", 0))
+        if prev is not None and d < prev:
+            out.append("drawdown_trim_ladder rungs are not in increasing drawdown order")
+        prev = d
+        cap = r.get("aggregate_cap_pct")
+        top = ((policy.get("stop_loss_framework") or {}).get("aggregate_open_risk_cap_pct_of_book"))
+        if cap is not None and top is not None and cap > top:
+            out.append(f"ladder rung {r.get('drawdown_pct')} raises the aggregate cap ({cap}) above the base cap ({top})")
+    sl = policy.get("stress_limit")
+    if sl:
+        if budget is not None and sl.get("max_loss_pct_of_book", 0) > budget:
+            out.append("stress_limit.max_loss_pct_of_book exceeds the risk budget")
+    tpc = policy.get("target_position_count")
+    if tpc and (len(tpc) != 2 or tpc[0] > tpc[1]):
+        out.append("target_position_count must be [min, max]")
+    return out
 
 
 def validate_heat_budget(policy):

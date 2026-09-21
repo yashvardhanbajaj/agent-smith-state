@@ -94,3 +94,22 @@ Percentages are a first cut, not user-negotiated — revisit if they fire.
 - **Drawdown/cash-band thresholds** (warn -15%/risk-off -25%, cash [3,15]%): still
   defaults, not derived from this book's actual behavior. No drawdown history
   existed at draft time; revisit once the book has a real volatility track record.
+
+
+## 2026-09-21 — Policy v2 (user decisions after the policy review)
+
+Decided by the user: risk-off -20% (ladder now steps the AGGREGATE OPEN-RISK CAP: -15 -> 8%, -17 -> 5%, -18.5 -> 3%, -20 risk-off); stress limit kept as proposed (-35% AI-capex shock, max 20% of book loss, advisory); target 15-20 positions (advisory); aggregate cap stays 10%; cash band advisory; evaluation window rolling 12 months vs SMH (tolerance 10pp is the desk's proposal, review flag only); tax stance retired.
+
+Structural (desk, disclosed): one denominator (total book) for cluster targets, AI-capex and cash; conditional-denominator rule retired; owner/desk layers with a hash confirmation.
+
+Observed when written: AI-capex 95.8% of equity / 75.9% of total book, so a -35% shock ~= -26.6% of book (over the 20% limit, advisory); trailing TWR history since 2025-05: 64.84% vs SMH 158.17%; max observed drawdown -29.4% (beyond the 25% budget, before this ladder existed).
+
+### Notes moved out of policy.json (verbatim)
+- Full decision rationale (cluster targets, denominators, AI-capex cap history, risk-control set) moved to POLICY-DECISIONS.md 2026-07-26 to keep this file to live values. Read that file before proposing any change to a value below.
+- AI-capex concentration is INTENTIONAL (user decision, 2026-07-25) -- do not treat max_ai_capex_factor_pct=100 as a bug or re-flag the concentration as drift.
+- 2026-07-27: cluster_targets revised (Memory 20->15, Optics 20->15, Hyperscaler 10->20) and stop_loss_framework added, both on explicit user instruction. See cluster_targets_rationale and stop_loss_framework.
+- 2026-07-28: cash band replaced with a two-regime rule (normal [5,15]%, post-stop-event [5,40]%) on user instruction. See cash_regimes.
+- 2026-07-28: Power/DC cluster floor was found to cap total deployable equity at ~$30,010 with only GEV+VRT in the cluster -- breadth, not capital, is the binding constraint. A third Power/DC name was screened and proposed (CEG) to relieve it.
+- 2026-07-28: cluster denominator made conditional on cash regime (user-raised). See cluster_denominator_conditional.
+- 2026-08-30: cluster_targets revised (three diversifier clusters given real targets, AI targets stepped down to keep the sum at 100%); ai_capex_factor_flag_threshold_pct set to 90 as an OBSERVATION threshold only; stale LTCG note removed -- lots.json now carries 74 lots with zero null dates, so G1 is closed and prefer_ltcg is applicable name-by-name.
+- 2026-08-30: stop_loss_framework.support_anchored_exception added on user instruction -- rebound entries size off their real stop (floored at 0.5x ATR and 3%), same 0.5% risk budget, uplift bounded to 4x by the floor. Aggregate open-risk cap unchanged and still binding.

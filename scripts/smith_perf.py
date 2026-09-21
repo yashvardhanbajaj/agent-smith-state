@@ -286,6 +286,33 @@ def by_period(series, bars, bench=BENCH, key=lambda d: d[:7]):
 # CLI
 # ---------------------------------------------------------------------------
 
+def objective_check(series, bars, bench, policy, today, material_floor):
+    """Rolling-window test of the mandate objective (beat the benchmark), 2026-09-21. Advisory: a
+    `review_flag` asks for a mandate REVIEW, never for trades. Only sessions when the book was
+    material count, and the window must be substantially covered or the status is insufficient_history
+    (a 4-month record is not a 12-month result)."""
+    ev = ((policy.get("mandate") or {}).get("evaluation")) or {}
+    months, tol = ev.get("window_months", 12), ev.get("underperformance_tolerance_pp")
+    if tol is None:
+        return {"status": "not_configured", "note": "mandate.evaluation absent"}
+    import datetime as _d
+    end = _d.date.fromisoformat(today)
+    start = end - _d.timedelta(days=int(months * 30.4375))
+    win = [r for r in series if r["value_usd"] >= material_floor and _d.date.fromisoformat(r["d"]) > start]
+    need = int(ev.get("min_sessions", months * 21 * 0.8))
+    if len(win) < need:
+        return {"window_months": months, "tolerance_pp": tol, "n_sessions": len(win), "min_sessions": need,
+                "status": "insufficient_history",
+                "note": f"{len(win)} material-capital sessions in the last {months}m; {need} needed before a "
+                        f"rolling result is quoted"}
+    st = chain(win, bars, bench=bench)
+    ex = st.get("excess_pp")
+    return {"window_months": months, "tolerance_pp": tol, "n_sessions": len(win), "from": win[0]["d"],
+            "to": win[-1]["d"], "twr_pct": st.get("twr_pct"), "benchmark_pct": st.get("benchmark_pct"),
+            "excess_pp": ex, "status": "review_flag" if ex is not None and ex < -abs(tol) else "within_tolerance",
+            "action": "review the mandate and edge (never a trade instruction)"}
+
+
 def cmd_perf(args):
     """Realized performance of the actual book, reconstructed from trades.json + daily closes.
 
@@ -321,6 +348,9 @@ def cmd_perf(args):
     material = [r for r in series if r["value_usd"] >= args.material_book]
     material_stats = chain(material, bars, bench=args.bench) if material else None
 
+    objective = objective_check(series, bars, args.bench, load_json(os.path.join(base, "policy.json"), default={}) or {},
+                                str(resolve_today(args.today)), args.material_book)
+
     dq = []
     if recon["unpriced_trades"]:
         dq.append(f"{len(recon['unpriced_trades'])} trade(s) could not be priced and were "
@@ -338,7 +368,7 @@ def cmd_perf(args):
 
     out = {"as_of": str(resolve_today(args.today)), "ok": True,
            "basis": "position-level reconstruction from the trade ledger, priced at daily closes",
-           "twr": stats, "twr_material_capital": material_stats,
+           "twr": stats, "twr_material_capital": material_stats, "objective_check": objective,
            "material_book_floor_usd": args.material_book,
            "money_weighted": money, "by_month": months,
            "positions_final_count": len(recon["positions_final"]),
