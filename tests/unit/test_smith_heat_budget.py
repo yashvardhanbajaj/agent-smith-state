@@ -624,11 +624,11 @@ class TestFixtureBooks:
 # policy.heat_budget + validate
 # ---------------------------------------------------------------------------
 class TestPolicy:
-    def test_live_policy_block_is_unconfirmed_and_valid(self):
+    def test_live_policy_block_is_confirmed_and_valid(self):
         import smith_memory
         pol = json.load(open(os.path.join(ROOT, "policy.json")))
         hb = pol["heat_budget"]
-        assert hb["confirmed"] is False and hb["heat_floor_at_full_correlation"] == 0.70 and hb["cluster_sub_budget"] is True
+        assert hb["confirmed"] is True and hb["heat_floor_at_full_correlation"] == 0.70 and hb["cluster_sub_budget"] is True
         assert smith_memory.validate_heat_budget(pol) == []
 
     def test_validate_rejects_bad_blocks_and_accepts_absence(self):

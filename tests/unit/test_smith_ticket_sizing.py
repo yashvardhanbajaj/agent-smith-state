@@ -178,15 +178,15 @@ class TestMateriality:
     def test_the_skhy_56_dollar_rotation_is_below_materiality(self):
         m = T.materiality(56.37, 14.0, BOOK, R_BASE, 56.37 * 0.003, None)
         assert m["ok"] is False and m["shortfall_usd"] > 190
-        # at MIN_TICKET_R 0.10 the dollar floor is what binds a $56 ticket on a 14% stop
-        assert m["binding_term"] == "min_ticket_usd"
+        # 2026-09-21: the 0.75% of book term ($319 on this book) now binds a $56 ticket
+        assert m["binding_term"] == "pct_of_book"
         assert m["floor_usd"] >= 250
 
     def test_floor_is_the_max_of_the_terms(self):
         m = T.materiality(10000.0, 12.0, BOOK, R_BASE, 30.0, None)
         assert m["floor_usd"] == max(m["terms"].values())
         assert m["terms"]["min_ticket_usd"] == 250.0
-        assert m["terms"]["pct_of_book"] == pytest.approx(BOOK * 0.004, abs=0.01)
+        assert m["terms"]["pct_of_book"] == pytest.approx(BOOK * 0.0075, abs=0.01)
         assert m["terms"]["min_ticket_r"] == pytest.approx(0.1 * R_BASE / 0.12, abs=0.01)
 
     def test_low_vol_names_have_higher_floors(self):
@@ -612,9 +612,9 @@ class TestPolicyBlock:
     def _policy(self):
         return json.load(open(os.path.join(ROOT, "policy.json")))
 
-    def test_block_present_unconfirmed_and_complete(self):
+    def test_block_present_confirmed_and_complete(self):
         tm = self._policy()["trade_materiality"]
-        assert tm["confirmed"] is False
+        assert tm["confirmed"] is True and tm["min_ticket_pct_of_book"] == 0.75
         for k in ("min_ticket_usd", "min_ticket_pct_of_book", "min_ticket_r", "fee_cover_mult", "min_position_usd"):
             assert tm[k] > 0
         assert tm["min_position_usd"] == smith_core.DUST_USD_DEFAULT

@@ -69,3 +69,20 @@ def test_accepted_card_retires_only_with_explicit_flag():
     props = [{"id": "P-1", "status": "accepted_by_user"}]
     assert L.dismiss_proposal_core(props, "P-1", "r") is None and props[0]["status"] == "accepted_by_user"
     assert L.dismiss_proposal_core(props, "P-1", "r", actor="user", allow_accepted=True)["status"] == "dismissed_by_user"
+
+
+def test_sub_floor_single_leg_buy_is_demoted_but_shadow_and_unfunded_are_not():
+    import smith_math as SM, smith_ticket as T
+    sizing = T.sizing_context(42000.0, {}, {"CIEN": 8.0})
+    live = {"ticker": "CIEN", "vote": "live", "suggested_size_usd": 100.0}
+    SM._apply_buy_materiality(live, sizing)
+    assert live["vote"] == "below_materiality" and live["materiality_shortfall_usd"] > 0
+    shadow = {"ticker": "CIEN", "vote": "shadow", "suggested_size_usd": 100.0}
+    SM._apply_buy_materiality(shadow, sizing)
+    assert shadow["vote"] == "shadow"
+    unfunded = {"ticker": "CIEN", "vote": "live", "suggested_size_usd": 0}
+    SM._apply_buy_materiality(unfunded, sizing)
+    assert unfunded["vote"] == "live"
+    big = {"ticker": "CIEN", "vote": "live", "suggested_size_usd": 5000.0}
+    SM._apply_buy_materiality(big, sizing)
+    assert big["vote"] == "live"

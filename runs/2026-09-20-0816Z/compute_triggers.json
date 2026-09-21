@@ -51,11 +51,11 @@
       "rotation_buy_rule": "buy = min(buy R_ticket, R_freed) / buy stop, then headroom / cluster room / deployable cash; rotation_risk names the bound",
       "materiality": {
         "min_ticket_usd": 250.0,
-        "min_ticket_pct_of_book": 0.4,
+        "min_ticket_pct_of_book": 0.75,
         "min_ticket_r": 0.1,
         "fee_cover_mult": 25.0,
         "min_position_usd": 400.0,
-        "confirmed": false,
+        "confirmed": true,
         "rule": "ticket >= max(min_ticket_usd, min_ticket_pct_of_book% x book, min_ticket_r x r_base / stop, fee_cover_mult x round-trip fee); sub-floor -> vote below_materiality; full exits exempt"
       },
       "round_trip_fee_pct": 0.3,
@@ -94,7 +94,7 @@
     "thesis_break": 0,
     "trend_entry": 0,
     "trend_breakdown": 0,
-    "conviction_average": 1,
+    "conviction_average": 0,
     "conviction_exit": 0,
     "entry_setup": 0,
     "reentry": 0,
@@ -113,6 +113,7 @@
   },
   "below_materiality_counts": {
     "catalyst_threat": 2,
+    "conviction_average": 1,
     "profit_rotation": 1,
     "cluster_rotation": 1
   },
@@ -130,7 +131,7 @@
     "r_free_usd": 586.84,
     "over_cap": false,
     "over_cap_by_usd": 0.0,
-    "confirmed": false,
+    "confirmed": true,
     "cluster_sub_budget": true,
     "correlation": {
       "rho": 0.401,
@@ -678,8 +679,8 @@
       "sizing_note": "20% of the position's $174.27 open risk (8.56% stop) = $407.17",
       "materiality": {
         "ok": true,
-        "floor_usd": 250.0,
-        "binding_term": "min_ticket_usd",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0
       },
       "over_cap_independent": true,
@@ -738,8 +739,8 @@
       "sizing_note": "20% of the position's $189.37 open risk (10.22% stop) = $370.59",
       "materiality": {
         "ok": true,
-        "floor_usd": 250.0,
-        "binding_term": "min_ticket_usd",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0
       },
       "over_cap_independent": true,
@@ -798,8 +799,8 @@
       "sizing_note": "20% of the position's $139.44 open risk (7.84% stop) = $355.72",
       "materiality": {
         "ok": true,
-        "floor_usd": 271.31,
-        "binding_term": "min_ticket_r",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0
       },
       "over_cap_independent": true,
@@ -860,9 +861,9 @@
       "sizing_note": "20% of the position's $75.85 open risk (8.04% stop) = $188.69",
       "materiality": {
         "ok": false,
-        "floor_usd": 264.56,
-        "binding_term": "min_ticket_r",
-        "shortfall_usd": 75.87
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 130.37
       },
       "over_cap_independent": true,
       "catalyst_sources": [
@@ -873,9 +874,9 @@
         "GE Vernova (GEV) initiated Sell by GLJ Research, $470 PT (Street-low) (2026-09-14) -- 51% below GEV's 09-11 close of $957.27; citing 2027-vintage turbine margins; contested vs GEV's own guidance raise, still unresolved [carried forward, last confirmed 2026-09-16]"
       ],
       "blockers": [
-        "below materiality: $188.69 vs a $264.56 floor (min_ticket_r) -- emitted, not shrunk to the floor and not dropped"
+        "below materiality: $188.69 vs a $319.06 floor (pct_of_book) -- emitted, not shrunk to the floor and not dropped"
       ],
-      "materiality_shortfall_usd": 75.87
+      "materiality_shortfall_usd": 130.37
     },
     {
       "ticker": "GLW",
@@ -906,8 +907,8 @@
       "sizing_note": "20% of the position's $45.39 open risk (10.08% stop) = $90.06; a $90.06 trim would leave $360.24, under the $400 minimum position -- converted to a full exit",
       "materiality": {
         "ok": true,
-        "floor_usd": 250.0,
-        "binding_term": "min_ticket_usd",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0,
         "exempt": "full_exit"
       },
@@ -967,9 +968,9 @@
       "sizing_note": "20% of the position's $17.44 open risk (9.28% stop) = $37.58; position $187.90 is already below the $400 minimum-position threshold -- a stub is a consolidation candidate, never partially trimmed",
       "materiality": {
         "ok": false,
-        "floor_usd": 250.0,
-        "binding_term": "min_ticket_usd",
-        "shortfall_usd": 250.0
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 319.06
       },
       "over_cap_independent": true,
       "catalyst_sources": [
@@ -982,7 +983,7 @@
       "blockers": [
         "not a trim candidate: position $187.90 is already below the $400 minimum-position threshold -- a stub is a consolidation candidate, never partially trimmed"
       ],
-      "materiality_shortfall_usd": 250.0
+      "materiality_shortfall_usd": 319.06
     }
   ],
   "thesis_break": [],
@@ -1068,8 +1069,8 @@
       "heat_status": "not_allocated (shadow)",
       "materiality": {
         "ok": true,
-        "floor_usd": 250.0,
-        "binding_term": "min_ticket_usd",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0
       }
     },
@@ -1116,8 +1117,8 @@
       },
       "materiality": {
         "ok": true,
-        "floor_usd": 271.31,
-        "binding_term": "min_ticket_r",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0
       }
     }
@@ -1170,8 +1171,8 @@
       },
       "materiality": {
         "ok": true,
-        "floor_usd": 271.31,
-        "binding_term": "min_ticket_r",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0
       }
     },
@@ -1219,8 +1220,8 @@
       },
       "materiality": {
         "ok": true,
-        "floor_usd": 257.52,
-        "binding_term": "min_ticket_r",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0
       }
     },
@@ -1235,7 +1236,7 @@
       "market_value_usd": 2.98,
       "trigger_type": "conviction_average",
       "direction": "BUY",
-      "vote": "live",
+      "vote": "below_materiality",
       "conviction_score": 21.6,
       "conviction_tier": "low",
       "support_usd": 325.5593,
@@ -1254,7 +1255,7 @@
         "named by 7 independent source(s) this run"
       ],
       "blockers": [
-        "below the materiality floor (advisory for single-leg buys): $248.05 vs $250.00 (min_ticket_usd); vote unchanged -- buys are annotated, not demoted, until the floors are confirmed"
+        "below materiality: $248.05 vs a $319.06 floor (pct_of_book) -- emitted, not shrunk to the floor and not dropped"
       ],
       "gate": {
         "verdict": "unproven",
@@ -1308,11 +1309,11 @@
       "heat_status": "fit",
       "materiality": {
         "ok": false,
-        "floor_usd": 250.0,
-        "binding_term": "min_ticket_usd",
-        "shortfall_usd": 1.95
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 71.01
       },
-      "materiality_shortfall_usd": 1.95
+      "materiality_shortfall_usd": 71.01
     }
   ],
   "conviction_exit": [],
@@ -1593,8 +1594,8 @@
       },
       "materiality": {
         "ok": true,
-        "floor_usd": 250.0,
-        "binding_term": "min_ticket_usd",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0
       }
     }
@@ -2051,8 +2052,8 @@
         "sizing_note": "30% of the position's $174.27 open risk (8.56% stop) = $610.76",
         "materiality": {
           "ok": true,
-          "floor_usd": 250.0,
-          "binding_term": "min_ticket_usd",
+          "floor_usd": 319.06,
+          "binding_term": "pct_of_book",
           "shortfall_usd": 0.0
         },
         "market_value_usd": 2035.87,
@@ -2072,8 +2073,8 @@
         ],
         "materiality": {
           "ok": true,
-          "floor_usd": 271.31,
-          "binding_term": "min_ticket_r",
+          "floor_usd": 319.06,
+          "binding_term": "pct_of_book",
           "shortfall_usd": 0.0
         },
         "risk_usd": 39.55,
@@ -2114,8 +2115,8 @@
         "sizing_note": "30% of the position's $41.74 open risk (7.48% stop) = $167.39; a $167.39 trim would leave $390.59, under the $400 minimum position -- converted to a full exit",
         "materiality": {
           "ok": true,
-          "floor_usd": 284.37,
-          "binding_term": "min_ticket_r",
+          "floor_usd": 319.06,
+          "binding_term": "pct_of_book",
           "shortfall_usd": 0.0,
           "exempt": "full_exit"
         },
@@ -2136,8 +2137,8 @@
         ],
         "materiality": {
           "ok": true,
-          "floor_usd": 257.52,
-          "binding_term": "min_ticket_r",
+          "floor_usd": 319.06,
+          "binding_term": "pct_of_book",
           "shortfall_usd": 0.0
         },
         "gate": {
@@ -2248,9 +2249,9 @@
         "sizing_note": "30% of the position's $17.44 open risk (9.28% stop) = $56.37; position $187.90 is already below the $400 minimum-position threshold -- a stub is a consolidation candidate, never partially trimmed",
         "materiality": {
           "ok": false,
-          "floor_usd": 250.0,
-          "binding_term": "min_ticket_usd",
-          "shortfall_usd": 250.0
+          "floor_usd": 319.06,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 319.06
         },
         "market_value_usd": 187.9,
         "reasons": [
@@ -2283,13 +2284,13 @@
         "heat_delta_final_usd": 0.0
       },
       "retires_when": "EITHER SKHY drops out of the stretched cohort OR CIEN's thesis leaves intact/strengthening",
-      "materiality_shortfall_usd": 250.0,
+      "materiality_shortfall_usd": 319.06,
       "materiality_legs_below": [
         "sell"
       ],
       "blockers": [
         "sell leg: position $187.90 is already below the $400 minimum-position threshold -- a stub is a consolidation candidate, never partially trimmed",
-        "below materiality (sell leg): the pair is emitted but not proposed -- short by $250.00. Not shrunk to the floor and not dropped: this is what a ticket too small to act on looks like."
+        "below materiality (sell leg): the pair is emitted but not proposed -- short by $319.06. Not shrunk to the floor and not dropped: this is what a ticket too small to act on looks like."
       ]
     }
   ],
@@ -2529,8 +2530,8 @@
         "sizing_note": "30% of the position's $45.39 open risk (10.08% stop) = $135.09; a $135.09 trim would leave $315.21, under the $400 minimum position -- converted to a full exit",
         "materiality": {
           "ok": true,
-          "floor_usd": 250.0,
-          "binding_term": "min_ticket_usd",
+          "floor_usd": 319.06,
+          "binding_term": "pct_of_book",
           "shortfall_usd": 0.0,
           "exempt": "full_exit"
         },
@@ -2550,8 +2551,8 @@
         ],
         "materiality": {
           "ok": true,
-          "floor_usd": 250.0,
-          "binding_term": "min_ticket_usd",
+          "floor_usd": 319.06,
+          "binding_term": "pct_of_book",
           "shortfall_usd": 0.0
         },
         "gate": {
@@ -2664,8 +2665,8 @@
         "sizing_note": "30% of the position's $164.19 open risk (10.98% stop) = $448.60",
         "materiality": {
           "ok": true,
-          "floor_usd": 250.0,
-          "binding_term": "min_ticket_usd",
+          "floor_usd": 319.06,
+          "binding_term": "pct_of_book",
           "shortfall_usd": 0.0
         },
         "reasons": [
@@ -2684,8 +2685,8 @@
         ],
         "materiality": {
           "ok": true,
-          "floor_usd": 250.0,
-          "binding_term": "min_ticket_usd",
+          "floor_usd": 319.06,
+          "binding_term": "pct_of_book",
           "shortfall_usd": 0.0
         },
         "gate": {
@@ -2931,8 +2932,8 @@
         "sizing_note": "30% of the position's $164.19 open risk (10.98% stop) = $448.60",
         "materiality": {
           "ok": true,
-          "floor_usd": 250.0,
-          "binding_term": "min_ticket_usd",
+          "floor_usd": 319.06,
+          "binding_term": "pct_of_book",
           "shortfall_usd": 0.0
         },
         "reasons": [
@@ -3014,8 +3015,8 @@
         ],
         "materiality": {
           "ok": true,
-          "floor_usd": 250.0,
-          "binding_term": "min_ticket_usd",
+          "floor_usd": 319.06,
+          "binding_term": "pct_of_book",
           "shortfall_usd": 0.0
         }
       },
@@ -3066,9 +3067,9 @@
         ],
         "materiality": {
           "ok": false,
-          "floor_usd": 250.0,
-          "binding_term": "min_ticket_usd",
-          "shortfall_usd": 46.3
+          "floor_usd": 319.06,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 115.36
         }
       },
       "rotation_risk": {
@@ -3108,8 +3109,8 @@
       "blockers": [],
       "materiality": {
         "ok": true,
-        "floor_usd": 250.0,
-        "binding_term": "min_ticket_usd",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0
       }
     },
@@ -3135,8 +3136,8 @@
       "blockers": [],
       "materiality": {
         "ok": true,
-        "floor_usd": 271.31,
-        "binding_term": "min_ticket_r",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0
       }
     },
@@ -3162,8 +3163,8 @@
       "blockers": [],
       "materiality": {
         "ok": true,
-        "floor_usd": 257.52,
-        "binding_term": "min_ticket_r",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0
       }
     },
@@ -3189,8 +3190,8 @@
       "blockers": [],
       "materiality": {
         "ok": true,
-        "floor_usd": 250.0,
-        "binding_term": "min_ticket_usd",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0
       }
     }
@@ -3235,8 +3236,8 @@
       "sizing_note": "33% of the position's $68.90 open risk (12.90% stop) = $178.03; a $178.03 trim would leave $356.07, under the $400 minimum position -- converted to a full exit",
       "materiality": {
         "ok": true,
-        "floor_usd": 250.0,
-        "binding_term": "min_ticket_usd",
+        "floor_usd": 319.06,
+        "binding_term": "pct_of_book",
         "shortfall_usd": 0.0,
         "exempt": "full_exit"
       },
@@ -3495,12 +3496,10 @@
     "SKHY": 20.07
   },
   "data_quality": [
-    "policy.trade_materiality is UNCONFIRMED (confirmed:false) -- the engine uses these floors (min ticket $250 / 0.4% of book / 0.1R, dust $400) but the user has not signed them; treat every below_materiality verdict as provisional.",
     "NETTED per ticker (shadowed, recorded, scored): trend_entry AMAT: AMAT carries a live catalyst_threat sell; never buy what the desk is selling this run; conviction_average AMAT: AMAT carries a live catalyst_threat sell; never buy what the desk is selling this run; profit_rotation AMAT: AMAT carries a live catalyst_threat sell; never buy what the desk is selling this run; trend_entry LITE: duplicate buy into LITE: the cluster_rotation ticket already carries it; conviction_average KLAC: duplicate buy into KLAC: the profit_rotation ticket already carries it",
     "EDGE GATE refused (emitted as shadow, recorded, scored): cluster_rotation TSM: rotation edge +0.00R (buy EV 0.80R minus holding 0.80R) below the 0.25R bar; cluster_rotation LITE: EV 0.12R below the 0.15R bar (p_win 0.41, payoff 1.8R, fee 0.02R); cluster_rotation BE: EV -0.46R below the 0.15R bar (p_win 0.41, payoff 0.4R, fee 0.02R)",
     "edge gate: every family/direction verdict is UNPROVEN (n_eff < 12; the legacy engine's record before ENGINE_EPOCH 2026-09-21 is excluded) -- multiplier 1.00, p_win is the UNCALIBRATED 0.45 prior shrunk only by conviction.",
-    "policy.heat_budget is UNCONFIRMED (confirmed:false) -- the engine uses a 70% floor on the aggregate-risk cap at full correlation and the cluster sub-budget ON, but the user has not signed them; treat every deferred/heat_room verdict as provisional.",
-    "below_materiality (emitted, not proposed -- too small to act on): catalyst_threat GEV short $76; catalyst_threat SKHY short $250; profit_rotation profit_rotation-SKHY-CIEN short $250; cluster_rotation cluster_rotation-AMZN-MSFT short $112. Many of these are stubs: a book that generates tickets this small needs consolidating.",
+    "below_materiality (emitted, not proposed -- too small to act on): catalyst_threat GEV short $130; catalyst_threat SKHY short $319; conviction_average CIEN short $71; profit_rotation profit_rotation-SKHY-CIEN short $319; cluster_rotation cluster_rotation-AMZN-MSFT short $112. Many of these are stubs: a book that generates tickets this small needs consolidating.",
     "risk-sized sell legs, legacy -> new (family ticker: legacy$ -> new$ [action]; risk removed): catalyst_threat ASML: 584.7 -> 584.7 [trim] risk $33.91; catalyst_threat MU: 407.17 -> 407.17 [trim] risk $34.85; catalyst_threat TER: 370.59 -> 370.59 [trim] risk $37.87; catalyst_threat AMAT: 355.72 -> 355.72 [trim] risk $27.89; catalyst_threat GEV: 188.69 -> 188.69 [trim] risk $15.17; catalyst_threat GLW: 90.06 -> 450.3 [full_exit] risk $45.39; catalyst_threat SKHY: 37.58 -> 0.0 [hold] risk $0.0; scale_out_ladder BE: 178.03 -> 534.1 [full_exit] risk $68.9; profit_rotation MU: 610.76 -> 610.76 [trim] risk $52.28; profit_rotation AMD: 167.39 -> 557.98 [full_exit] risk $41.74; profit_rotation SKHY: 56.37 -> 0.0 [hold] risk $0.0; cluster_rotation ASML: 877.05 -> 877.05 [trim] risk $50.87; cluster_rotation AMZN: 381.22 -> 381.22 [trim] risk $16.7; cluster_rotation GLW: 135.09 -> 450.3 [full_exit] risk $45.39; cluster_rotation VRT: 448.6 -> 448.6 [trim] risk $49.26; cluster_bench_rotation ASML: 877.05 -> 877.05 [trim] risk $50.87; cluster_bench_rotation AMZN: 381.22 -> 381.22 [trim] risk $16.7; cluster_bench_rotation VRT: 448.6 -> 448.6 [trim] risk $49.26",
     "reentry: 12 alumni could not be JUDGED at all -- no state.thesis entry exists for them (AAPL, CORZ, CRWV, EWT, FCG, FLNG, LLY, P, PENG, PLTR...). state.thesis is seeded from CURRENT holdings, so an exited name is absent by construction and fails the conviction gate for lack of evidence, not on the evidence. These are not rejected candidates; they are unexamined ones.",
     "reentry: 32 alumni judged and rejected on a real thesis/conviction read (AIA, AMKR, ANET, ARM, AVGO, BABA, BX, CEG, CQQQ, CRDO)."

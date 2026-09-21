@@ -2916,26 +2916,25 @@ def _buy_leg_verdict(size, ticker, sizing):
 
 
 def _apply_buy_materiality(row, sizing, size_key="suggested_size_usd"):
-    """Attach a materiality verdict to a single-leg BUY row -- ANNOTATE ONLY, never demote.
-
-    Sells and rotation legs are demoted to vote "below_materiality" (that is the $56 fix). A
-    single-leg buy is deliberately NOT: the desk's standing complaint is zero fresh buy ideas while
-    cash sits above its band, most single-leg buys are FIRST TRANCHES (smith_conviction's
-    STAGE_FRACTION 0.5) that sit just under the floor by construction (AMAT's $504.51 tranche vs a
-    $543 floor on the live 2026-09-20 run), and the floors are still unconfirmed. Demoting them
-    would cure the small-ticket problem by deepening the buy drought. So the verdict rides along in
-    `materiality` / `materiality_shortfall_usd` with an advisory blocker, and the vote is
-    untouched until the user signs the floors and decides buys should be held to them."""
+    """Attach a materiality verdict to a single-leg BUY row. A LIVE sub-floor buy is demoted to vote
+    "below_materiality" exactly like a sell or a rotation leg (user, 2026-09-21: floors confirmed and
+    buys held to them). It is neither shrunk to the floor nor dropped -- it is emitted, sized as
+    computed, so "the desk had a buy idea too small to act on" stays visible. Shadow rows keep their
+    vote (their job is to be scored). Unfunded rows (size 0/None) are not tickets and are skipped.
+    History: until 2026-09-21 this only ANNOTATED, because the floors were unconfirmed and demotion
+    was feared to deepen the buy drought; the drought was cured at its source (entry_setup, thesis
+    gate), not by letting sub-floor buys through."""
     m = _buy_leg_verdict(row.get(size_key), row.get("ticker"), sizing)
     if m is None:
         return row
     row["materiality"] = _compact_materiality(m)
     if not m["ok"]:
         row["materiality_shortfall_usd"] = m["shortfall_usd"]
+        if row.get("vote") == "live":
+            row["vote"] = "below_materiality"
         row.setdefault("blockers", []).append(
-            f"below the materiality floor (advisory for single-leg buys): ${row[size_key]:,.2f} vs "
-            f"${m['floor_usd']:,.2f} ({m['binding_term']}); vote unchanged -- buys are annotated, not "
-            f"demoted, until the floors are confirmed")
+            f"below materiality: ${row[size_key]:,.2f} vs a ${m['floor_usd']:,.2f} floor "
+            f"({m['binding_term']}) -- emitted, not shrunk to the floor and not dropped")
     return row
 
 

@@ -389,12 +389,12 @@
     }
   },
   "trade_materiality": {
-    "confirmed": false,
-    "confirmed_by_user": null,
-    "as_of": "2026-09-20",
-    "status": "PROPOSED FLOORS -- the engine uses them from 2026-09-20 but the user has not signed them. Every below_materiality verdict is provisional until confirmed:true.",
+    "confirmed": true,
+    "confirmed_by_user": "2026-09-21",
+    "as_of": "2026-09-21",
+    "status": "CONFIRMED by the user 2026-09-21 (desk layer: tunable by the desk with a rationale and disclosure). min_ticket_pct_of_book 0.4 -> 0.75 (about $320 on a $42.5K book: a 15-20 name book averages $2.1-2.8K per position). Sub-floor single-leg buys are now demoted like sells. fee_cover_mult is an inert guard at a 0.30% fee (25 x fee = 7.5% of the ticket).",
     "min_ticket_usd": 250,
-    "min_ticket_pct_of_book": 0.4,
+    "min_ticket_pct_of_book": 0.75,
     "min_ticket_r": 0.1,
     "fee_cover_mult": 25,
     "min_position_usd": 400,
@@ -403,10 +403,10 @@
     "rationale": "Added 2026-09-20 after the engine proposed rotating $56.37 of SKHY into CIEN on a $42.5K book (a correct 10-point call earns $5.64). Market-value sizing on a sell could not express 'too small to matter'. ADDITIVE: no stop_loss_framework, mandate or cluster_targets value was touched."
   },
   "heat_budget": {
-    "confirmed": false,
-    "confirmed_by_user": null,
-    "as_of": "2026-09-20",
-    "status": "PROPOSED -- the engine uses these from 2026-09-20 but the user has not signed them. Every deferred / heat_room / cluster_risk_budget verdict is provisional until confirmed:true.",
+    "confirmed": true,
+    "confirmed_by_user": "2026-09-21",
+    "as_of": "2026-09-21",
+    "status": "CONFIRMED by the user 2026-09-21 (desk layer). heat_floor 0.70 kept deliberately: the trailing-year replay shows stops fire together (19 days with 5+ breaches; 15 of 27 names on the worst day), so the correlation discount is earned and does not double-count the gap allowance (which covers slippage).",
     "heat_floor_at_full_correlation": 0.7,
     "cluster_sub_budget": true,
     "rule": "H_eff_max = H_max x (heat_floor + (1 - heat_floor) x (1 - rho)), H_max = stop_loss_framework.aggregate_open_risk_cap_pct_of_book x total book, rho = compute_correlation.stop_risk.avg_pairwise_correlation; R_free = max(0, H_eff_max - H), H = aggregate_open_risk_usd. All live buys of a run share R_free (plus the risk freed by live, above-materiality sells), allocated by smith_ticket.allocation_priority; a ticket that does not fit is emitted with vote 'deferred', never dropped. A missing or stale correlation is treated as 1.0 (budget = cap x heat_floor), never as 0. cluster_sub_budget additionally caps each cluster's open risk at H_eff_max x its band ceiling.",
