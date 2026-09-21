@@ -610,7 +610,8 @@ def postflight_commit(args):
         except Exception:  # noqa: BLE001
             pass
         out["knowledge"] = {"tails": len(_files), "added": _rep["added"] + _rep2["added"], "reinforced": _rep["reinforced"],
-                            "pages": smith_kb.rebuild_pages(base, str(today))}
+                            "pages": smith_kb.rebuild_pages(base, str(today)),
+                            "memory_contract": _H.memory_contract(rd)}
     except Exception as e:  # noqa: BLE001
         out["knowledge"] = {"error": f"{type(e).__name__}: {e}"}
 

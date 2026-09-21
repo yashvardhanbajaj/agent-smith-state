@@ -6231,12 +6231,13 @@ def cmd_kb(args):
         run_dir = args.run_dir
         run_id = os.path.basename(run_dir.rstrip("/"))
         if f"run:{run_id}" in K.done_keys(K.read_events(base)):
-            emit({"skipped": f"run {run_id} already harvested", "added": 0})
+            emit({"skipped": f"run {run_id} already harvested", "added": 0,
+                  "memory_contract": H.memory_contract(run_dir)})
             return
         obs, files = H.harvest_run(base, run_dir, run_id, run_id[:10] or str(today))
         rep = K.add_observations(base, obs, kb, reinforce=True)
         K.mark_done(base, f"run:{run_id}")
-        rep.update(files=len(files), pages=K.rebuild_pages(base, today))
+        rep.update(files=len(files), pages=K.rebuild_pages(base, today), memory_contract=H.memory_contract(run_dir))
         emit(rep)
     elif op == "rebuild":
         emit(K.rebuild_pages(base, today))

@@ -414,6 +414,39 @@ def run_batches(base, run_dir, run_id, as_of, apply_refute=False):
     return batches
 
 
+def memory_contract(run_dir):
+    """Did each agent honour the memory contract (2026-09-21)? For every base tail of a run: how many `learned`,
+    `memory_used` and `memory_refuted` entries it returned, and whether its slice actually carried memory items.
+    `silent` = agents that were handed memory and returned none of the three -- visible non-compliance, never a gate:
+    knowledge is context, so a silent agent degrades the memory's growth, not the run."""
+    rows, silent = {}, []
+    for path in sorted(glob.glob(os.path.join(run_dir, "out_*.json"))):
+        name = os.path.basename(path)[4:-5]
+        if "." in name or name == "desk":              # revisions (.rN, .r0_orig), desk replies, librarian batches
+            continue
+        try:
+            tail = json.load(open(path))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(tail, dict):
+            continue
+        try:
+            sl = json.load(open(os.path.join(run_dir, f"slice_{name}.json")))
+            mem = sl.get("memory")
+            handed = len(mem.get("items") or []) if isinstance(mem, dict) else 0
+        except (OSError, ValueError):
+            handed = None
+        row = {k: len(_list(tail.get(k))) for k in ("learned", "memory_used", "memory_refuted")}
+        row["memory_handed"] = handed
+        rows[name] = row
+        if handed and not any(row[k] for k in ("learned", "memory_used", "memory_refuted")):
+            silent.append(name)
+    eligible = [n for n, r in rows.items() if r["memory_handed"]]
+    return {"agents": rows, "silent": silent,
+            "adoption": (f"{len(eligible) - len(silent)}/{len(eligible)} agents handed memory used the contract"
+                         if eligible else "no agent was handed memory this run")}
+
+
 def harvest_run(base, run_dir, run_id, as_of):
     """All observations of one run, in chronological order, plus the file names read."""
     obs, files = [], []
