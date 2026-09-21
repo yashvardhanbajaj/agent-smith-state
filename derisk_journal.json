@@ -72,10 +72,7 @@
       "verdict": "failed"
     }
   ],
-  "hit_rate": {
-    "n": 3,
-    "hit_rate_pct": 0.0
-  },
+  "hit_rate": null,
   "note": "Shadow log for the De-risk Queue (added 2026-07-31). Every deep run records the top-ranked names WITHOUT acting on them; each entry is scored at 30d/90d on what the name actually did afterwards. The queue does NOT feed strategist proposals until it has a real hit rate -- the desk's existing signal buckets still have zero scored entries, so a new signal class earns its vote before it gets one.",
   "last_run": "2026-07-31",
   "queue_state_history": [
@@ -89,11 +86,18 @@
       "band": "greed"
     }
   ],
-  "hit_rate_by_key": {
+  "hit_rate_by_key": {},
+  "last_scored": "2026-09-21",
+  "evidence_window": "since 2026-09-21",
+  "legacy_hit_rate": {
+    "n": 3,
+    "hit_rate_pct": 0.0
+  },
+  "legacy_hit_rate_by_key": {
     "narrow_stretch": {
       "n": 3,
       "hit_rate_pct": 0.0
     }
   },
-  "last_scored": "2026-08-25"
+  "legacy_note": "LEGACY-ENGINE HISTORY (rows emitted before ENGINE_EPOCH) -- not current performance and never evidence for a size, gate or vote"
 }

@@ -1,0 +1,694 @@
+{
+  "as_of": "2026-09-21",
+  "proposal_specs": [
+    {
+      "direction": "TRIM",
+      "ticker": "ASML",
+      "trigger_type": "catalyst_threat",
+      "pair_id": null,
+      "pair_role": null,
+      "size_usd": 584.7,
+      "size_wanted_usd": 584.7,
+      "clamped_by": null,
+      "price_at_proposal": 1670.57,
+      "stop_price_usd": null,
+      "draft_reasons": [
+        "CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged (2026-09-20) -- trial/risk production only, no volume or yield disclosed; HBM4 already mass-produced by Samsung/SK hynix/Micron, so CXMT is one generation behind; mass production not before 2027. No HBM % figure cited (tracker HBM3E contract quote publication date 2026-07-12; freshness-illusion finding orchestrator:00ba4bd6c3 stands)",
+        "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambricon (2026-09-01) -- ~1 year ahead of 2027 consensus timeline; risk-production/qualification stage, not volume -- HBM tracker 43d stale, unverified against consumer_view.json this run [carried forward, last confirmed 2026-09-16]"
+      ],
+      "blockers": [],
+      "rationale": null,
+      "evidence_quality": null,
+      "stop_distance_pct": null,
+      "target_price_usd": null,
+      "r_multiple": null,
+      "risk_usd": null,
+      "risk_removed_usd": 33.91,
+      "ev_r": null,
+      "p_win": null,
+      "horizon_days": 5,
+      "expires_on": "2026-09-26",
+      "invalidation": "ASML drops out of this run's live catalyst_threat list OR trigger condition: ASML no longer appears in a structural-threat factor catalyst",
+      "ticket": {
+        "ticker": "ASML",
+        "direction": "TRIM",
+        "trigger_type": "catalyst_threat",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 1670.57,
+          "type": "limit_or_better",
+          "valid_until": "2026-09-26"
+        },
+        "stop": null,
+        "target": null,
+        "size": {
+          "usd": 584.7,
+          "shares": 0.35,
+          "pct_of_book": 1.374,
+          "wanted_usd": 584.7,
+          "clamped_by": null
+        },
+        "risk": {
+          "kind": "removed",
+          "usd": null,
+          "removed_usd": 33.91,
+          "pct_of_book": 0.08,
+          "basis": null,
+          "r_base_usd": 212.74,
+          "r_ticket": 0.159,
+          "book_heat_before_pct": null,
+          "book_heat_after_pct": null,
+          "heat_budget_remaining_usd": null
+        },
+        "edge": {
+          "ev_r": null,
+          "p_win": null,
+          "payoff_r": null,
+          "fee_r": null,
+          "p_win_basis": "n/a: sells are never EV-gated (an EV bar at a 1R payoff would refuse every sell, protective exits included); only the family verdict applies"
+        },
+        "invalidation": "ASML drops out of this run's live catalyst_threat list OR trigger condition: ASML no longer appears in a structural-threat factor catalyst",
+        "invalidation_checks": [
+          {
+            "type": "leaves_live_list",
+            "family": "catalyst_threat",
+            "ticker": "ASML"
+          }
+        ],
+        "horizon": {
+          "days": 5,
+          "review_on": "2026-09-23",
+          "expires_on": "2026-09-26",
+          "basis": "family table (catalyst_threat): an event-driven exit; a structural catalyst is priced within days, so an unacted exit past a week is a stale read of the event"
+        },
+        "gate": {
+          "family_verdict": "unproven",
+          "family_multiplier": 1.0,
+          "family_basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": "FIFO on this exit: 0.0000 sh long-term, 0.3500 sh short-term; earliest short-term lot turns long-term 2028-08-24 (24-month boundary; policy prefer_ltcg=off)"
+        },
+        "pair": null
+      }
+    },
+    {
+      "direction": "TRIM",
+      "ticker": "MU",
+      "trigger_type": "catalyst_threat",
+      "pair_id": null,
+      "pair_role": null,
+      "size_usd": 407.17,
+      "size_wanted_usd": 407.17,
+      "clamped_by": null,
+      "price_at_proposal": 1017.75,
+      "stop_price_usd": null,
+      "draft_reasons": [
+        "CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged (2026-09-20) -- trial/risk production only, no volume or yield disclosed; HBM4 already mass-produced by Samsung/SK hynix/Micron, so CXMT is one generation behind; mass production not before 2027. No HBM % figure cited (tracker HBM3E contract quote publication date 2026-07-12; freshness-illusion finding orchestrator:00ba4bd6c3 stands)",
+        "CXMT announces G5 DRAM platform (11.95nm half-pitch) with two 24Gb LPDDR5X products in volume production; 9.5% global DRAM revenue share in Q2 (4th place) (2026-09-20) -- 9.5% Q2 global DRAM revenue share vs ~90% held by Samsung/SK hynix/Micron; LPDDR5X mobile-class, not HBM or server DDR5; yield and monthly output undisclosed; node metric not comparable to rivals' 12nm-class naming; sedaily makes no mention of DUV/EUV/ASML, so a secondary outlet's 'built without ASML machines' framing is unverified and NOT carried as an ASML threat",
+        "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambricon (2026-09-01) -- ~1 year ahead of 2027 consensus timeline; risk-production/qualification stage, not volume -- HBM tracker 43d stale, unverified against consumer_view.json this run [carried forward, last confirmed 2026-09-16]"
+      ],
+      "blockers": [],
+      "rationale": null,
+      "evidence_quality": null,
+      "stop_distance_pct": null,
+      "target_price_usd": null,
+      "r_multiple": null,
+      "risk_usd": null,
+      "risk_removed_usd": 34.85,
+      "ev_r": null,
+      "p_win": null,
+      "horizon_days": 5,
+      "expires_on": "2026-09-26",
+      "invalidation": "MU drops out of this run's live catalyst_threat list OR trigger condition: MU no longer appears in a structural-threat factor catalyst",
+      "ticket": {
+        "ticker": "MU",
+        "direction": "TRIM",
+        "trigger_type": "catalyst_threat",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 1017.75,
+          "type": "limit_or_better",
+          "valid_until": "2026-09-26"
+        },
+        "stop": null,
+        "target": null,
+        "size": {
+          "usd": 407.17,
+          "shares": 0.4001,
+          "pct_of_book": 0.957,
+          "wanted_usd": 407.17,
+          "clamped_by": null
+        },
+        "risk": {
+          "kind": "removed",
+          "usd": null,
+          "removed_usd": 34.85,
+          "pct_of_book": 0.082,
+          "basis": null,
+          "r_base_usd": 212.74,
+          "r_ticket": 0.164,
+          "book_heat_before_pct": null,
+          "book_heat_after_pct": null,
+          "heat_budget_remaining_usd": null
+        },
+        "edge": {
+          "ev_r": null,
+          "p_win": null,
+          "payoff_r": null,
+          "fee_r": null,
+          "p_win_basis": "n/a: sells are never EV-gated (an EV bar at a 1R payoff would refuse every sell, protective exits included); only the family verdict applies"
+        },
+        "invalidation": "MU drops out of this run's live catalyst_threat list OR trigger condition: MU no longer appears in a structural-threat factor catalyst",
+        "invalidation_checks": [
+          {
+            "type": "leaves_live_list",
+            "family": "catalyst_threat",
+            "ticker": "MU"
+          }
+        ],
+        "horizon": {
+          "days": 5,
+          "review_on": "2026-09-23",
+          "expires_on": "2026-09-26",
+          "basis": "family table (catalyst_threat): an event-driven exit; a structural catalyst is priced within days, so an unacted exit past a week is a stale read of the event"
+        },
+        "gate": {
+          "family_verdict": "unproven",
+          "family_multiplier": 1.0,
+          "family_basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": "FIFO on this exit: 0.0000 sh long-term, 0.4001 sh short-term; earliest short-term lot turns long-term 2028-08-24 (24-month boundary; policy prefer_ltcg=off)"
+        },
+        "pair": null
+      }
+    },
+    {
+      "direction": "TRIM",
+      "ticker": "TER",
+      "trigger_type": "catalyst_threat",
+      "pair_id": null,
+      "pair_role": null,
+      "size_usd": 370.59,
+      "size_wanted_usd": 370.59,
+      "clamped_by": null,
+      "price_at_proposal": 370.39,
+      "stop_price_usd": null,
+      "draft_reasons": [
+        "CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged (2026-09-20) -- trial/risk production only, no volume or yield disclosed; HBM4 already mass-produced by Samsung/SK hynix/Micron, so CXMT is one generation behind; mass production not before 2027. No HBM % figure cited (tracker HBM3E contract quote publication date 2026-07-12; freshness-illusion finding orchestrator:00ba4bd6c3 stands)",
+        "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambricon (2026-09-01) -- ~1 year ahead of 2027 consensus timeline; risk-production/qualification stage, not volume -- HBM tracker 43d stale, unverified against consumer_view.json this run [carried forward, last confirmed 2026-09-16]"
+      ],
+      "blockers": [],
+      "rationale": null,
+      "evidence_quality": null,
+      "stop_distance_pct": null,
+      "target_price_usd": null,
+      "r_multiple": null,
+      "risk_usd": null,
+      "risk_removed_usd": 37.87,
+      "ev_r": null,
+      "p_win": null,
+      "horizon_days": 5,
+      "expires_on": "2026-09-26",
+      "invalidation": "TER drops out of this run's live catalyst_threat list OR trigger condition: TER no longer appears in a structural-threat factor catalyst",
+      "ticket": {
+        "ticker": "TER",
+        "direction": "TRIM",
+        "trigger_type": "catalyst_threat",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 370.39,
+          "type": "limit_or_better",
+          "valid_until": "2026-09-26"
+        },
+        "stop": null,
+        "target": null,
+        "size": {
+          "usd": 370.59,
+          "shares": 1.0005,
+          "pct_of_book": 0.871,
+          "wanted_usd": 370.59,
+          "clamped_by": null
+        },
+        "risk": {
+          "kind": "removed",
+          "usd": null,
+          "removed_usd": 37.87,
+          "pct_of_book": 0.089,
+          "basis": null,
+          "r_base_usd": 212.74,
+          "r_ticket": 0.178,
+          "book_heat_before_pct": null,
+          "book_heat_after_pct": null,
+          "heat_budget_remaining_usd": null
+        },
+        "edge": {
+          "ev_r": null,
+          "p_win": null,
+          "payoff_r": null,
+          "fee_r": null,
+          "p_win_basis": "n/a: sells are never EV-gated (an EV bar at a 1R payoff would refuse every sell, protective exits included); only the family verdict applies"
+        },
+        "invalidation": "TER drops out of this run's live catalyst_threat list OR trigger condition: TER no longer appears in a structural-threat factor catalyst",
+        "invalidation_checks": [
+          {
+            "type": "leaves_live_list",
+            "family": "catalyst_threat",
+            "ticker": "TER"
+          }
+        ],
+        "horizon": {
+          "days": 5,
+          "review_on": "2026-09-23",
+          "expires_on": "2026-09-26",
+          "basis": "family table (catalyst_threat): an event-driven exit; a structural catalyst is priced within days, so an unacted exit past a week is a stale read of the event"
+        },
+        "gate": {
+          "family_verdict": "unproven",
+          "family_multiplier": 1.0,
+          "family_basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": "FIFO on this exit: 0.0000 sh long-term, 1.0005 sh short-term; earliest short-term lot turns long-term 2028-08-20 (24-month boundary; policy prefer_ltcg=off)"
+        },
+        "pair": null
+      }
+    },
+    {
+      "direction": "TRIM",
+      "ticker": "AMAT",
+      "trigger_type": "catalyst_threat",
+      "pair_id": null,
+      "pair_role": null,
+      "size_usd": 355.72,
+      "size_wanted_usd": 355.72,
+      "clamped_by": null,
+      "price_at_proposal": 443.75,
+      "stop_price_usd": null,
+      "draft_reasons": [
+        "CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged (2026-09-20) -- trial/risk production only, no volume or yield disclosed; HBM4 already mass-produced by Samsung/SK hynix/Micron, so CXMT is one generation behind; mass production not before 2027. No HBM % figure cited (tracker HBM3E contract quote publication date 2026-07-12; freshness-illusion finding orchestrator:00ba4bd6c3 stands)",
+        "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambricon (2026-09-01) -- ~1 year ahead of 2027 consensus timeline; risk-production/qualification stage, not volume -- HBM tracker 43d stale, unverified against consumer_view.json this run [carried forward, last confirmed 2026-09-16]"
+      ],
+      "blockers": [],
+      "rationale": null,
+      "evidence_quality": null,
+      "stop_distance_pct": null,
+      "target_price_usd": null,
+      "r_multiple": null,
+      "risk_usd": null,
+      "risk_removed_usd": 27.89,
+      "ev_r": null,
+      "p_win": null,
+      "horizon_days": 5,
+      "expires_on": "2026-09-26",
+      "invalidation": "AMAT drops out of this run's live catalyst_threat list OR trigger condition: AMAT no longer appears in a structural-threat factor catalyst",
+      "ticket": {
+        "ticker": "AMAT",
+        "direction": "TRIM",
+        "trigger_type": "catalyst_threat",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 443.75,
+          "type": "limit_or_better",
+          "valid_until": "2026-09-26"
+        },
+        "stop": null,
+        "target": null,
+        "size": {
+          "usd": 355.72,
+          "shares": 0.8016,
+          "pct_of_book": 0.836,
+          "wanted_usd": 355.72,
+          "clamped_by": null
+        },
+        "risk": {
+          "kind": "removed",
+          "usd": null,
+          "removed_usd": 27.89,
+          "pct_of_book": 0.066,
+          "basis": null,
+          "r_base_usd": 212.74,
+          "r_ticket": 0.131,
+          "book_heat_before_pct": null,
+          "book_heat_after_pct": null,
+          "heat_budget_remaining_usd": null
+        },
+        "edge": {
+          "ev_r": null,
+          "p_win": null,
+          "payoff_r": null,
+          "fee_r": null,
+          "p_win_basis": "n/a: sells are never EV-gated (an EV bar at a 1R payoff would refuse every sell, protective exits included); only the family verdict applies"
+        },
+        "invalidation": "AMAT drops out of this run's live catalyst_threat list OR trigger condition: AMAT no longer appears in a structural-threat factor catalyst",
+        "invalidation_checks": [
+          {
+            "type": "leaves_live_list",
+            "family": "catalyst_threat",
+            "ticker": "AMAT"
+          }
+        ],
+        "horizon": {
+          "days": 5,
+          "review_on": "2026-09-23",
+          "expires_on": "2026-09-26",
+          "basis": "family table (catalyst_threat): an event-driven exit; a structural catalyst is priced within days, so an unacted exit past a week is a stale read of the event"
+        },
+        "gate": {
+          "family_verdict": "unproven",
+          "family_multiplier": 1.0,
+          "family_basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": "FIFO on this exit: 0.0000 sh long-term, 0.8016 sh short-term; earliest short-term lot turns long-term 2028-08-19 (24-month boundary; policy prefer_ltcg=off)"
+        },
+        "pair": null
+      }
+    },
+    {
+      "direction": "TRIM",
+      "ticker": "GLW",
+      "trigger_type": "catalyst_threat",
+      "pair_id": null,
+      "pair_role": null,
+      "size_usd": 450.3,
+      "size_wanted_usd": 450.3,
+      "clamped_by": null,
+      "price_at_proposal": 150.1,
+      "stop_price_usd": null,
+      "draft_reasons": [
+        "Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LITE +3%, GLW +3%); no program-usage disclosure found (2026-09-18) -- GLW -12% to $145.61 on 09-14; ATM sells gradually, realized dilution a fraction of $2bn; Q3 core sales guide $4.9-5.0bn intact; only a usage disclosure would re-escalate. Fri rebound recovers only part of the drop (not sized: no prints fetched)",
+        "Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 2026-09-11); GLW fell ~12-14% Monday with direct optics-peer contagion -- Coherent -11%, Lumentum -9%, Fabrinet -6% (not held) (2026-09-14) -- ATM programs sell shares gradually and opportunistically, not $2bn upfront, so realized dilution will be a fraction of the headline over time -- but the stated purpose is 'general corporate purposes,' not a named project, which is what drove the -12-14% single-day reaction. Was one of the four items in Monday's desk narrative but had NOT yet been logged as its own catalyst; added this run. Peer contagion (COHR/LITE) is a read-through, not a COHR/LITE-specific fundamental event. [carried forward, last confirmed 2026-09-15]"
+      ],
+      "blockers": [],
+      "rationale": null,
+      "evidence_quality": null,
+      "stop_distance_pct": null,
+      "target_price_usd": null,
+      "r_multiple": null,
+      "risk_usd": null,
+      "risk_removed_usd": 45.39,
+      "ev_r": null,
+      "p_win": null,
+      "horizon_days": 5,
+      "expires_on": "2026-09-26",
+      "invalidation": "GLW drops out of this run's live catalyst_threat list OR trigger condition: GLW no longer appears in a structural-threat factor catalyst",
+      "ticket": {
+        "ticker": "GLW",
+        "direction": "TRIM",
+        "trigger_type": "catalyst_threat",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 150.1,
+          "type": "limit_or_better",
+          "valid_until": "2026-09-26"
+        },
+        "stop": null,
+        "target": null,
+        "size": {
+          "usd": 450.3,
+          "shares": 3.0,
+          "pct_of_book": 1.058,
+          "wanted_usd": 450.3,
+          "clamped_by": null
+        },
+        "risk": {
+          "kind": "removed",
+          "usd": null,
+          "removed_usd": 45.39,
+          "pct_of_book": 0.107,
+          "basis": null,
+          "r_base_usd": 212.74,
+          "r_ticket": 0.213,
+          "book_heat_before_pct": null,
+          "book_heat_after_pct": null,
+          "heat_budget_remaining_usd": null
+        },
+        "edge": {
+          "ev_r": null,
+          "p_win": null,
+          "payoff_r": null,
+          "fee_r": null,
+          "p_win_basis": "n/a: sells are never EV-gated (an EV bar at a 1R payoff would refuse every sell, protective exits included); only the family verdict applies"
+        },
+        "invalidation": "GLW drops out of this run's live catalyst_threat list OR trigger condition: GLW no longer appears in a structural-threat factor catalyst",
+        "invalidation_checks": [
+          {
+            "type": "leaves_live_list",
+            "family": "catalyst_threat",
+            "ticker": "GLW"
+          }
+        ],
+        "horizon": {
+          "days": 5,
+          "review_on": "2026-09-23",
+          "expires_on": "2026-09-26",
+          "basis": "family table (catalyst_threat): an event-driven exit; a structural catalyst is priced within days, so an unacted exit past a week is a stale read of the event"
+        },
+        "gate": {
+          "family_verdict": "unproven",
+          "family_multiplier": 1.0,
+          "family_basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": "FIFO on this exit: 0.0000 sh long-term, 3.0000 sh short-term; earliest short-term lot turns long-term 2028-08-26 (24-month boundary; policy prefer_ltcg=off)"
+        },
+        "pair": null
+      }
+    },
+    {
+      "direction": "SELL",
+      "ticker": "AMD",
+      "trigger_type": "profit_rotation",
+      "pair_id": "profit_rotation-AMD-KLAC",
+      "pair_role": "sell",
+      "size_usd": 557.98,
+      "size_wanted_usd": 557.98,
+      "clamped_by": null,
+      "price_at_proposal": 557.98,
+      "stop_price_usd": null,
+      "draft_reasons": [
+        "stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "blockers": null,
+      "rationale": null,
+      "evidence_quality": null,
+      "stop_distance_pct": null,
+      "target_price_usd": null,
+      "r_multiple": null,
+      "risk_usd": null,
+      "risk_removed_usd": 41.74,
+      "ev_r": null,
+      "p_win": null,
+      "horizon_days": 10,
+      "expires_on": "2026-10-01",
+      "invalidation": "the profit_rotation pairing profit_rotation-AMD-KLAC stops being live this run (both legs retire together) OR trigger condition: EITHER AMD drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening",
+      "ticket": {
+        "ticker": "AMD",
+        "direction": "SELL",
+        "trigger_type": "profit_rotation",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 557.98,
+          "type": "limit_or_better",
+          "valid_until": "2026-10-01"
+        },
+        "stop": null,
+        "target": null,
+        "size": {
+          "usd": 557.98,
+          "shares": 1.0,
+          "pct_of_book": 1.311,
+          "wanted_usd": 557.98,
+          "clamped_by": null
+        },
+        "risk": {
+          "kind": "removed",
+          "usd": null,
+          "removed_usd": 41.74,
+          "pct_of_book": 0.098,
+          "basis": null,
+          "r_base_usd": 212.74,
+          "r_ticket": 0.196,
+          "book_heat_before_pct": null,
+          "book_heat_after_pct": null,
+          "heat_budget_remaining_usd": null
+        },
+        "edge": {
+          "ev_r": null,
+          "p_win": null,
+          "payoff_r": null,
+          "fee_r": null,
+          "p_win_basis": null
+        },
+        "invalidation": "the profit_rotation pairing profit_rotation-AMD-KLAC stops being live this run (both legs retire together) OR trigger condition: EITHER AMD drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening",
+        "invalidation_checks": [
+          {
+            "type": "pair_not_live",
+            "pair_id": "profit_rotation-AMD-KLAC"
+          }
+        ],
+        "horizon": {
+          "days": 10,
+          "review_on": "2026-09-26",
+          "expires_on": "2026-10-01",
+          "basis": "family table (profit_rotation): a paired swap: both legs must be executed while the ladder that ranked them is fresh (stale after 14 days in retires_when)"
+        },
+        "gate": {
+          "family_verdict": null,
+          "family_multiplier": null,
+          "family_basis": null,
+          "n_eff": null,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": "FIFO on this exit: 0.0000 sh long-term, 1.0000 sh short-term; earliest short-term lot turns long-term 2028-09-04 (24-month boundary; policy prefer_ltcg=off)"
+        },
+        "pair": {
+          "pair_id": "profit_rotation-AMD-KLAC",
+          "role": "sell",
+          "r_freed_usd": 41.74,
+          "buy_risk_usd": 35.46,
+          "heat_delta_usd": -6.28
+        }
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "KLAC",
+      "trigger_type": "profit_rotation",
+      "pair_id": "profit_rotation-AMD-KLAC",
+      "pair_role": "buy",
+      "size_usd": 429.25,
+      "size_wanted_usd": 429.25,
+      "clamped_by": "buy R_ticket (its own conviction tranche)",
+      "price_at_proposal": 177.14,
+      "stop_price_usd": 162.51,
+      "draft_reasons": [
+        "laggard (-7.6pp) with a strengthening thesis -- yet to rally"
+      ],
+      "blockers": null,
+      "rationale": null,
+      "evidence_quality": null,
+      "stop_distance_pct": 8.26,
+      "target_price_usd": 233.77,
+      "r_multiple": 3.87,
+      "risk_usd": 35.46,
+      "risk_removed_usd": null,
+      "ev_r": 0.9169,
+      "p_win": 0.401,
+      "horizon_days": 10,
+      "expires_on": "2026-10-01",
+      "invalidation": "price trades below $162.51 (the stop) OR the profit_rotation pairing profit_rotation-AMD-KLAC stops being live this run (both legs retire together) OR trigger condition: EITHER AMD drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening",
+      "ticket": {
+        "ticker": "KLAC",
+        "direction": "BUY",
+        "trigger_type": "profit_rotation",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 177.14,
+          "type": "limit_or_better",
+          "valid_until": "2026-10-01"
+        },
+        "stop": {
+          "price_usd": 162.51,
+          "distance_pct": 8.26,
+          "basis": "policy 2xATR20, floor 3% (smith_risk.stop_and_cap)",
+          "atr20_pct": 4.13
+        },
+        "target": {
+          "price_usd": 233.77,
+          "basis": "data_cache.analyst_targets as of 2026-09-21",
+          "r_multiple": 3.87
+        },
+        "size": {
+          "usd": 429.25,
+          "shares": 2.4232,
+          "pct_of_book": 1.009,
+          "wanted_usd": 429.25,
+          "clamped_by": "buy R_ticket (its own conviction tranche)"
+        },
+        "risk": {
+          "kind": "added",
+          "usd": 35.46,
+          "removed_usd": null,
+          "pct_of_book": 0.083,
+          "basis": null,
+          "r_base_usd": 212.74,
+          "r_ticket": 0.167,
+          "book_heat_before_pct": 7.417,
+          "book_heat_after_pct": 7.402,
+          "heat_budget_remaining_usd": 593.58
+        },
+        "edge": {
+          "ev_r": 0.9169,
+          "p_win": 0.401,
+          "payoff_r": 3.8703,
+          "fee_r": 0.0363,
+          "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 22.8"
+        },
+        "invalidation": "price trades below $162.51 (the stop) OR the profit_rotation pairing profit_rotation-AMD-KLAC stops being live this run (both legs retire together) OR trigger condition: EITHER AMD drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening",
+        "invalidation_checks": [
+          {
+            "type": "price_below",
+            "price_usd": 162.51
+          },
+          {
+            "type": "pair_not_live",
+            "pair_id": "profit_rotation-AMD-KLAC"
+          }
+        ],
+        "horizon": {
+          "days": 10,
+          "review_on": "2026-09-26",
+          "expires_on": "2026-10-01",
+          "basis": "family table (profit_rotation): a paired swap: both legs must be executed while the ladder that ranked them is fresh (stale after 14 days in retires_when)"
+        },
+        "gate": {
+          "family_verdict": "unproven",
+          "family_multiplier": 1.0,
+          "family_basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": null
+        },
+        "pair": {
+          "pair_id": "profit_rotation-AMD-KLAC",
+          "role": "buy",
+          "r_freed_usd": 41.74,
+          "buy_risk_usd": 35.46,
+          "heat_delta_usd": -6.28
+        }
+      }
+    }
+  ],
+  "skipped_already_open": [],
+  "stress_table_anchor": {
+    "us10y_pct": 4.998,
+    "vix": 14.81,
+    "dxy": 100.336,
+    "fed_rate_pct": 3.875,
+    "fed_stance": "hawkish"
+  },
+  "scorecard_quote": "Stored scorecard (as_of 2026-09-20); CURRENT ENGINE: no post-rebuild proposals scored yet (n=0); LEGACY-ENGINE HISTORY, not current performance -- overall: net expectancy 0.525%, size-weighted 1.009%, $107.17 total, payoff 1.02:1, accuracy 45.5%, n=22 rows / 20 ideas;   legacy TRIM/SELL: net expectancy 3.267%, size-weighted 5.216%, $186.74 total, payoff 0.74:1, accuracy 55.6%, n=9 rows / 9 ideas;   legacy BUY: net expectancy -1.372%, size-weighted -1.131%, $-79.58 total, payoff 1.14:1, accuracy 38.5%, n=13 rows / 11 ideas"
+}

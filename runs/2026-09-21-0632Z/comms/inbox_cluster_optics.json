@@ -1,0 +1,200 @@
+{
+  "agent": "cluster_optics",
+  "round": 7,
+  "messages": [],
+  "answers_to_your_questions": [
+    {
+      "your_message": "M2.3",
+      "to": "thesis",
+      "question": "APH's thesis is status-only and carries verified=unverified while being the largest position in AI Networking/Optics (4.61%). What share of APH revenue is AI/datacenter today, and what is the evidence_for that supports `strengthening`?",
+      "position": "revised",
+      "answer": "I cannot give APH's AI/datacenter revenue share: my only support is a single untagged orchestrator note (2026-09-06) that IT Datacom is APH's largest and fastest-growing segment, with no percentage, no filing and verified=unverified. No mix figure was fetched this run (INDmoney unauthenticated; XBRL via smith_edgar does not carry segment mix). So 'strengthening' was under-supported: the only dated, sourced evidence in the record is against (-5.78% on 2026-09-14 in a -8.28% cluster de-rating, no name-specific catalyst). I revise APH from strengthening to intact (no fundamental deterioration found, no fundamental improvement evidenced). Consequence for your ranking: do not rest rank-5 on 'lowest AI torque' as a fact, nor move APH above MRVL/ALAB on my verdict; the AI share needs a primary source (APH 10-Q segment table, IT Datacom % of sales) before the CRDO why_better_than APH line is either kept or dropped. Ask desk for the 10-Q segment lookup.",
+      "evidence": [
+        {
+          "claim": "IT Datacom described as largest and fastest-growing segment; no % given, unverified",
+          "source": "orchestrator holdings note",
+          "date": "2026-09-06"
+        },
+        {
+          "claim": "APH -5.78% close in -8.28% optics/networking de-rating on Amodei pacing sentiment plus Fed hike odds; no name-specific negative catalyst",
+          "source": "smith-signals/smith-catalyst",
+          "date": "2026-09-14"
+        }
+      ],
+      "confidence": "low",
+      "revision_applied": [
+        "thesis.changed.APH.status: \"strengthening\" -> \"intact\"",
+        "thesis.changed.APH.thesis: \"High-speed interconnect/cable-assembly supplier for AI serv -> \"High-speed interconnect/cable-assembly for AI servers and d",
+        "thesis.changed.APH.evidence_for: [{\"claim\": \"IT Datacom segment is APH's largest and fastest- -> [{\"claim\": \"IT Datacom is APH's largest and fastest-growing ",
+        "thesis.changed.APH.evidence_against: [{\"claim\": \"-5.78% close today (deeper than the 18:23Z snaps -> [{\"claim\": \"-5.78% close within a -8.28% cluster de-rating o",
+        "thesis.changed.APH.note: \"Status unchanged; the 'none found' placeholder from earlier -> \"Status moved strengthening->intact for thin evidence, not d"
+      ]
+    },
+    {
+      "your_message": "M2.4",
+      "to": "catalyst",
+      "question": "Did any GLW filing after 2026-09-11 (10-Q, 8-K or prospectus supplement amendment) disclose shares actually sold under the $2bn ATM programme, or is the absence of a usage disclosure simply that nothing has been filed yet?",
+      "position": "cannot_answer",
+      "answer": "No GLW filing after 2026-09-11 discloses ATM usage. An EDGAR company-feed fetch (summarised by the fetch tool, not a raw read) lists only the 8-K (0001193125-26-389321) and 424B5 (0001193125-26-389313), both filed 2026-09-11, plus a Form 4 dated 2026-09-08 (before the programme); no 10-Q or later 8-K/424B5. So the absence is 'nothing filed yet', not a disclosed zero. I cannot establish zero versus de-minimis usage: the programme sets no share count or price and Corning has no obligation to sell any shares, and usage is normally first quantified in the next 10-Q (Q3 10-Q not filed as of this check; I have not verified the due date). Your ordering GLW above CIEN needs a 10-Q or a company statement; today's evidence supports neither 'unused' nor 'in use'. I would keep the ATM leg as an unresolved overhang (weakened after the 09-18 optics rebound), not remove it.",
+      "evidence": [
+        {
+          "claim": "8-K and 424B5 both filed 2026-09-11; no later GLW filing seen in EDGAR feed",
+          "source": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000024741&type=&dateb=&owner=include&count=20&output=atom",
+          "date": "2026-09-21"
+        },
+        {
+          "claim": "$2bn ATM with Goldman as sales agent; no fixed price or share count; no obligation to sell",
+          "source": "https://finance.yahoo.com/markets/stocks/articles/glw-stock-drops-premarket-corning-085405425.html",
+          "date": "2026-09-14"
+        }
+      ],
+      "confidence": "medium",
+      "revision_applied": null
+    },
+    {
+      "your_message": "M2.5",
+      "to": "strategist",
+      "question": "CIEN is $2.98 / 0.009% weight with a `strengthening` thesis and a 09-03 beat-and-raise (EPS $2.11 vs $1.73, guide above). Is this a deliberate residual or the same dust pathology as the open TER flag, and does it need a re-establish-or-zero decision?",
+      "position": "held",
+      "answer": "CIEN is dust ($2.98, 0.009%), a real residual, not a position. The engine's conviction_average CIEN ticket (EV 0.67R) is below the $319 materiality floor by $71, so it is not a proposal. It needs a user decision: re-establish at >= floor or zero. Not forced here. Treat optics as a 6-name problem for the 15-20 target; only COHR->LITE is a measured redundancy.",
+      "evidence": [],
+      "confidence": null,
+      "revision_applied": null
+    },
+    {
+      "your_message": "M2.6",
+      "to": "desk",
+      "question": "Can a script pull LITE and COHR one-month daily returns and report their pairwise correlation? The deterministic redundancy screen returned redundancy_candidates: [] for this cluster, but the two names moved together on both legs of the September event (-9%/-11% on 09-14, +3%/+5% on 09-18).",
+      "position": "held",
+      "answer": "Measured from perf_bars daily closes through 2026-09-18: LITE/COHR pairwise return correlation is 0.843 over the last 21 sessions and 0.891 over 63. For reference, LITE vs SMH is 0.789 and COHR vs SMH 0.819 (63 sessions), and LITE vs GLW 0.791, COHR vs GLW 0.821. The pair correlates more with each other than either does with the benchmark or with GLW, so the business-grounds 'redundant' verdict for LITE/COHR is supported by data; the deterministic screen returning no candidates does not contradict it.",
+      "evidence": "script: Pearson correlation of daily close-to-close returns from perf_bars.json (n=21 and n=63 sessions)",
+      "confidence": null,
+      "revision_applied": null
+    },
+    {
+      "your_message": "M2.7",
+      "to": "catalyst",
+      "question": "CIEN's 2026-09-03 FQ3 print was a large beat with a guide above consensus (revenue $1.67bn vs $1.64bn, EPS $2.11 vs $1.73, next-quarter guide $6.42bn vs $6.33bn consensus) and the stock is nonetheless -12.68% over the following month, the worst in this cluster. Per the cluster playbook, a CIEN print leads LITE and COHR component demand with a lag -- so this is a positive demand read-through to two held names that has not been reflected in any catalyst item.",
+      "position": "revised",
+      "answer": "Acknowledged and partly accepted. The CIEN print is verified from the company release: FQ3 revenue $1.67bn (+37% y/y), adjusted EPS $2.11, backlog +$800m sequentially to $8.5bn with book-to-bill well above 1, FY26 guide raised to $6.42bn +/- $50m. One correction to your message: $6.42bn is the FULL-YEAR FY26 guide; the next-quarter (FQ4) guide is $1.75bn +/- $50m. Any 'guide $6.42bn vs $6.33bn' comparison is therefore year vs consensus year, and I have not established the consensus figure it is compared with. I am adding CIEN's print as a tailwind catalyst for LITE and COHR. Scale limits: the LITE/COHR lead-lag is the cluster playbook's claim, and I found no source (company or analyst) tying CIEN's backlog to LITE/COHR orders, so I classify it ambiguous-to-tailwind, not structural. CIEN's -12.68% post-print move is a price outcome and says nothing about the quarter's quality; it is also the same window as the 09-14 GLW ATM and Amodei sell-offs, so it is not attributable to CIEN's print. CIEN itself is 0.01% of holdings; the read-through touches LITE 2.76% + COHR 1.88% = 4.64% of holdings (weights from holdings_trim, not script-computed).",
+      "evidence": [
+        {
+          "claim": "FQ3 rev $1.67bn +37% y/y, adj EPS $2.11, FQ4 guide $1.75bn +/-$50m, FY26 guide $6.42bn, backlog $8.5bn (+$800m q/q), book-to-bill well above 1",
+          "source": "https://investor.ciena.com/news/news-details/2026/Ciena-Reports-Fiscal-Third-Quarter-2026-Financial-Results/default.aspx",
+          "date": "2026-09-03"
+        }
+      ],
+      "confidence": "medium",
+      "revision_applied": null
+    },
+    {
+      "your_message": "M2.8",
+      "to": "thesis",
+      "question": "Lumentum is the only supplier shipping 200G-per-lane EMLs at volume -- the binding component for every 1.6T module in the industry, including modules assembled by its own competitors -- and NVDA has invested directly into LITE and COHR laser capacity rather than into module capacity. This is a sole-source structural argument for LITE that is stronger than the sector-beta case its status-only `strengthening` verdict implies.",
+      "position": "noted",
+      "answer": "Accepted as context, LITE stays STRENGTHENING. The sole-source 200G/lane EML argument is consistent with the existing evidence (FQ4 beat, FQ1 guide above the just-reported quarter) and I add it to evidence_for tagged secondary (the NVDA investment magnitude is secondary-sourced, so I do not carry a number). I also fill the previously empty evidence_against: LITE fell in the 09-14 optics de-rating (GLW ATM contagion, LITE -9%, src catalyst:9744ffb8fe) and the 09-01 exit rationale after ~1 day is uncaptured.",
+      "evidence": [
+        {
+          "claim": "only supplier shipping 200G/lane EMLs at volume (company release; NVDA laser-capacity investment secondary-sourced)",
+          "source": "investor.lumentum.com OFC 2026 release; techtimes.com",
+          "date": "2026-03-18"
+        }
+      ],
+      "confidence": "medium",
+      "revision_applied": null
+    },
+    {
+      "your_message": "M4.18",
+      "to": "desk",
+      "question": "Answer to your M3.12 (Answer to your M2.6 (Can a script pull LITE and COHR one-month daily returns and report their pairwise correlation? The deterministic redundancy screen returned): [held] Verdict unchanged and now measured rather than argued: LITE/COHR stays `redundant`, keep LITE, drop COHR. Your numbers strengthen it on the right test -- the pair correlates more tightly with each other (0.843 / 21s, 0.891 / 63s) than either does with SMH (0.789 / 0.819) or with the third optics name GLW (0.791 / 0.821), so this is pair-specific co-movement, not shared sector beta being double-counted. I will state the caveat honestly rather than overclaim: the excess over sector beta is roughly 7-10pp, not the 40-50pp you would see in a share-class pair, so LITE/COHR is a high-overlap pair sitting on top of an already high common factor, not a duplicate listing. That is exactly the business",
+      "position": "held",
+      "answer": "Acknowledged: LITE/COHR redundant, keep LITE; nothing further owed from the desk on the correlation.",
+      "evidence": "out_desk.r2.json",
+      "confidence": null,
+      "revision_applied": null
+    },
+    {
+      "your_message": "M4.19",
+      "to": "thesis",
+      "question": "Answer to your M3.13 (Answer to your M2.3 (APH's thesis is status-only and carries verified=unverified while being the largest position in AI Networking/Optics (4.61%). What share of): [revised] You were right to refuse the mix figure and right to tell me not to rest rank-5 on it -- and the desk then supplied the primary source you asked for. APH's 10-Q for the quarter ended 2026-06-30 shows Communications Solutions at ~62% of net sales growing 85% in USD and 42% ORGANICALLY y/y, attributed to outsized organic growth in IT datacom with particular strength in AI-related. That kills my rank-5 premise outright: 'lowest AI torque per dollar in the cluster' is not merely unevidenced, it is contradicted. I am moving APH from rank 5 to rank 4, above MRVL. I am NOT moving it above ALAB, and I want to be precise about why: 62% is Communications Solutions, which also contains mobile networks ",
+      "position": "noted",
+      "answer": "Agree with rank 4, above MRVL and below ALAB. My verdict is now strengthening on the same 10-Q, with the caveat that 62% is the whole Communications Solutions segment, not stand-alone IT datacom, so it should not be read as a 62% AI share. Rank vs ALAB is yours to set.",
+      "evidence": [],
+      "confidence": "medium",
+      "revision_applied": null
+    },
+    {
+      "your_message": "M4.21",
+      "to": "desk",
+      "question": "data_cache.earnings_facts.CIEN records guide_next_q = 6,420,000,000 against guide_consensus 6,330,000,000. Per Ciena's own release that $6.42bn is the FULL-YEAR FY26 guide; the FQ4 guide is $1.75bn +/- $50m. Can the cache field be corrected, and can you check whether any other agent has consumed the 6.42bn figure as a next-quarter number this run?",
+      "position": "held",
+      "answer": "Confirmed by reading state.data_cache.earnings_facts.CIEN: guide_next_q = 6,420,000,000 with guide_consensus 6,330,000,000, source stockanalysis.com/stocks/cien, verified_on 2026-09-03, while revenue_actual is 1,670,000,000 for FQ3. A next-quarter guide of $6.42bn against a $1.67bn quarter is not a quarterly figure: it is the FULL-YEAR FY26 guide, as catalyst read from Ciena's own release (FQ4 guide $1.75bn +/- $50m). The cache field is mislabelled at source. Correction path: a smith-earnings VERIFY-ONLY pass on CIEN (dispatched this round) rewrites the field; the desk does not hand-edit state. Whether another agent consumed the 6.42bn as a next-quarter number this run: the only agent tails that mention it are cluster_optics (round 1, corrected in round 3) and catalyst (caught it); no proposal or trigger has consumed it (guide_verdict 'guide_above_consensus' is directionally unaffected).",
+      "evidence": "state.data_cache.earnings_facts.CIEN",
+      "confidence": null,
+      "revision_applied": null
+    },
+    {
+      "your_message": "M4.22",
+      "to": "desk",
+      "question": "Does the APH 10-Q for the quarter ended 2026-06-30 break out IT Datacom as a stand-alone line within Communications Solutions, or is ~62% of net sales the finest available cut?",
+      "position": "held",
+      "answer": "No. The APH 10-Q text (quarter ended 2026-06-30) gives the segment split only: Communications Solutions ~62% of Q2 net sales (~60% for six months), Harsh Environment Solutions ~22%, Interconnect and Sensor Systems the remainder; IT datacom is named as the driver of Communications Solutions growth but is not quantified as a share of total sales in the filing text. The end-market mix is a press-release disclosure, not in the 10-Q. So the stand-alone IT-datacom share stays NOT established from primary filed text; APH stays at rank 4 on the rank-4 conditions the ladder already states.",
+      "evidence": "APH Form 10-Q 2026-06-30, text search for 'datacom' (9 mentions, none with a share of total sales)",
+      "confidence": null,
+      "revision_applied": null
+    },
+    {
+      "your_message": "M4.23",
+      "to": "strategist",
+      "question": "Re-asking my M2.5 with the TER premise corrected: CIEN is $2.98 / 0.009% of the book with an `intact-to-strengthening` thesis and a verified 09-03 beat (FQ3 rev $1.67bn, adj EPS $2.11, backlog $8.5bn +$800m q/q, book-to-bill well above 1). Does it need a re-establish-or-zero decision?",
+      "position": "held",
+      "answer": "Same as M2.5. Strategist does not rank CIEN as a position; TER premise correction accepted (TER $1,852.96, 5.5%).",
+      "evidence": [],
+      "confidence": null,
+      "revision_applied": null
+    },
+    {
+      "your_message": "M4.25",
+      "to": "thesis",
+      "question": "The primary source you said was needed exists and the desk has it: APH's Form 10-Q for the quarter ended 2026-06-30 shows Communications Solutions at ~62% of net sales, +85% USD / +42% organic y/y, attributed to outsized organic growth in IT datacom with particular strength in AI-related. That is dated, filed, primary evidence_for that post-dates the untagged 2026-09-06 orchestrator note you were relying on, and it is stronger than the sector-beta case your `intact` verdict now implies. It also carries its own evidence_against, which should go in with it: the 85%-vs-42% gap means roughly half that growth is the term-loan-funded CommScope Connectivity and Cable Solutions acquisition (closed 2026-01-09), not underlying demand.",
+      "position": "revised",
+      "answer": "Agreed. Primary, filed, dated evidence supersedes the untagged 2026-09-06 note I relied on. I move APH intact -> STRENGTHENING. Weighed: Communications Solutions ~62% of Q2 net sales, +42% ORGANIC y/y (+85% USD), attributed to IT datacom with AI strength. A 42% organic rate on the majority of the company is real underlying demand, not the acquisition. Against: (1) roughly half of the 85% is the CommScope CCS acquisition (closed 2026-01-09); (2) the segment also holds non-datacom lines, so a stand-alone IT-datacom share is NOT established by the 10-Q text; (3) term-loan funding adds leverage (desk: DDTL draws of $1,534.1M each; leverage ratio not checked by me); (4) the print is for the quarter ended 2026-06-30, filed 2026-07-31, so it is ~3 months old; (5) -5.78% on 2026-09-14 was sentiment, no name-specific catalyst. What would change my view: next 10-Q showing organic growth below ~20% or datacom decelerating (down to intact); net debt/EBITDA rising materially or covenant language (to watch); a segment disclosure giving IT-datacom share materially below the segment majority (soften the AI-torque claim); a hyperscaler capex cut (to watch).",
+      "evidence": [
+        {
+          "claim": "Communications Solutions ~62% of Q2-2026 net sales, +85% USD / +42% organic, 'outsized organic growth in IT datacom, particular strength in AI-related'",
+          "source": "APH Form 10-Q, quarter ended 2026-06-30, filed 2026-07-31, accn 0001104659-26-089194 (via desk)",
+          "date": "2026-07-31"
+        }
+      ],
+      "confidence": "medium",
+      "revision_applied": [
+        "thesis.changed.APH.status: \"intact\" -> \"strengthening\"",
+        "thesis.changed.APH.thesis: \"High-speed interconnect/cable-assembly for AI servers and d -> \"High-speed interconnect for AI servers/datacenter; Communic",
+        "thesis.changed.APH.evidence_for: [{\"claim\": \"IT Datacom is APH's largest and fastest-growing  -> [{\"claim\": \"Communications Solutions ~62% of net sales, +42%",
+        "thesis.changed.APH.evidence_against: [{\"claim\": \"-5.78% close within a -8.28% cluster de-rating o -> [{\"claim\": \"About half of the +85% USD growth is acquired (8",
+        "thesis.changed.APH.verified: \"unverified\" -> \"primary\"",
+        "thesis.changed.APH.verified_against: \"\" -> \"APH Form 10-Q, quarter ended 2026-06-30, accn 0001104659-26"
+      ]
+    },
+    {
+      "your_message": "M4.26",
+      "to": "strategist",
+      "question": "Correcting an error I propagated from my own slice: slice_cluster_optics.json open_flags carries TER as a DUST POSITION at 0.00273sh / ~$1.10. The desk reports TER is actually $1,852.96, about 5.5% of the book. I used the stale flag as an analogy in my round-1 position_count_note and in my CIEN question; both now read CIEN-only. If the stale open_flags entry is being served to other agents' slices this run, a 5.5% position is being described to them as a rounding artifact.",
+      "position": "held",
+      "answer": "Acknowledged: stale TER dust flag not used; TER real 5.5% position. Stale open_flags entry should be cleared by orchestrator.",
+      "evidence": [],
+      "confidence": null,
+      "revision_applied": null
+    },
+    {
+      "your_message": "M4.28",
+      "to": "strategist",
+      "question": "cluster_optics REVISED its output (1 change set(s), on APH). after M3.13 (APH): ranking.[MRVL].rank: 4 -> 5; ranking.[MRVL].differentiator_reads: [{\"axis\": \"merchant switch silicon share vs in-hou -> [{\"axis\": \"merchant switch silicon share vs in-hou; ranking.[MRVL].case_against: \"The case FOR is real and I am not pricing it at z -> \"Demoted from 4 to 5 on APH's promotion, not on ne; ranking.[APH].rank: 5 -> 4. Reason: You were right to refuse the mix figure and right to tell me not to rest rank-5 on it -- and the desk then supplied the primary source you asked for. APH's 10-Q for the quarter ended 2026-06-30 shows Communications Solutions at ~62% of net sales growing 85% in USD and 42% ORGANICALLY y/y, attributed",
+      "position": "held",
+      "answer": "Acknowledged. APH rank 4; no proposal touches APH.",
+      "evidence": [],
+      "confidence": null,
+      "revision_applied": null
+    }
+  ]
+}

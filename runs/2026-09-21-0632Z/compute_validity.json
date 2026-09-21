@@ -1,0 +1,320 @@
+{
+  "as_of": "2026-09-21",
+  "run_dir": "runs/2026-09-21-0632Z",
+  "counts": {
+    "retire": 2,
+    "weakened": 1,
+    "valid": 4
+  },
+  "rows": [
+    {
+      "id": "P-008",
+      "ticker": "CQQQ",
+      "direction": "BUY",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "MEDIUM",
+      "retire_because": [
+        "you sold 10 CQQQ on 2026-07-17 -- the opposite of this proposal"
+      ],
+      "weakened_because": [
+        "47 sessions old"
+      ],
+      "retire_conditions": [
+        "own_trade_contradicts"
+      ],
+      "weakened_conditions": [
+        "age_sessions"
+      ],
+      "informational_conditions": [],
+      "trigger_state": "n/a",
+      "trigger": null,
+      "since": {
+        "stock_pct": null,
+        "smh_pct": null,
+        "agree_pp": null,
+        "price_now": 47.08
+      },
+      "against": [
+        "you sold 10 CQQQ on 2026-07-17"
+      ],
+      "contradicting_trades": [
+        "you sold 10 CQQQ on 2026-07-17"
+      ],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": null,
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 47,
+      "after_trade": {},
+      "drops_off_when": null,
+      "drops_off_met": false,
+      "ticket": false
+    },
+    {
+      "id": "P-009",
+      "ticker": null,
+      "direction": "BUY",
+      "verdict": "weakened",
+      "effective_priority": "LOW",
+      "priority": "MEDIUM",
+      "retire_because": [],
+      "weakened_because": [
+        "46 sessions old"
+      ],
+      "retire_conditions": [],
+      "weakened_conditions": [
+        "age_sessions"
+      ],
+      "informational_conditions": [],
+      "trigger_state": "n/a",
+      "trigger": null,
+      "since": {
+        "stock_pct": null,
+        "smh_pct": null,
+        "agree_pp": null,
+        "price_now": null
+      },
+      "against": [],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": null,
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 46,
+      "after_trade": {},
+      "drops_off_when": null,
+      "drops_off_met": false,
+      "ticket": false
+    },
+    {
+      "id": "P-026",
+      "ticker": "VRT",
+      "direction": "BUY",
+      "verdict": "retire",
+      "effective_priority": "RETIRE",
+      "priority": "MEDIUM",
+      "retire_because": [
+        "you sold 2 VRT on 2026-09-16 -- the opposite of this proposal"
+      ],
+      "weakened_because": [
+        "buying into a `watch` thesis",
+        "38 sessions old"
+      ],
+      "retire_conditions": [
+        "own_trade_contradicts"
+      ],
+      "weakened_conditions": [
+        "age_sessions",
+        "thesis_conflict"
+      ],
+      "informational_conditions": [],
+      "trigger_state": "n/a",
+      "trigger": null,
+      "since": {
+        "stock_pct": -7.55,
+        "smh_pct": null,
+        "agree_pp": null,
+        "price_now": 249.22
+      },
+      "against": [
+        "you sold 4 VRT on 2026-09-16",
+        "you sold 2 VRT on 2026-09-16",
+        "thesis: 1 insider sold in last 60 days; no insider buying during drawdown",
+        "thesis: -9.61% today, confirmed via live quote (not a cache artifact), with no dated catalyst found in a fresh news pull (latest item 09-08, positive) -- largest unexpl"
+      ],
+      "contradicting_trades": [
+        "you sold 2 VRT on 2026-08-06",
+        "you sold 5 VRT on 2026-08-10",
+        "you sold 4 VRT on 2026-09-16",
+        "you sold 2 VRT on 2026-09-16"
+      ],
+      "acted_on": [
+        "you bought 2 VRT on 2026-07-29",
+        "you bought 3 VRT on 2026-08-13",
+        "you bought 2 VRT on 2026-08-19",
+        "you bought 2 VRT on 2026-08-20",
+        "you bought 2 VRT on 2026-09-11",
+        "you bought 3 VRT on 2026-09-14"
+      ],
+      "desk_retire_reason": null,
+      "thesis_status": "watch",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 38,
+      "after_trade": {},
+      "drops_off_when": "AI Power/Cooling/DC Infra re-enters its policy band",
+      "drops_off_met": false,
+      "ticket": false
+    },
+    {
+      "id": "P-363",
+      "ticker": "MU",
+      "direction": "TRIM",
+      "verdict": "valid",
+      "effective_priority": "HIGH",
+      "priority": "HIGH",
+      "retire_because": [],
+      "weakened_because": [],
+      "retire_conditions": [],
+      "weakened_conditions": [],
+      "informational_conditions": [
+        "earnings_proximity"
+      ],
+      "trigger_state": "firing",
+      "trigger": "catalyst_threat",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": -0.0,
+        "price_now": 1017.75
+      },
+      "against": [
+        "thesis: HBM3E contract quote $12.4/GB and HBM4 $16.0/GB, tier1-corroborated; stack-derived HBM3E flat 0.0% within basis 2026-07-19 to 2026-09-15; no ASP erosion",
+        "thesis: CXMT HBM3E is one generation behind (HBM4 already mass-produced by Samsung/SK hynix/Micron); no volume, yield or HBM share disclosed",
+        "earnings 2026-10-01 (8 sessions away)"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "watch",
+      "desk": null,
+      "earnings": "2026-10-01",
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 0.4001,
+        "pct_of_position": 20.0,
+        "weight_before": 6.04,
+        "weight_after": 4.89
+      },
+      "drops_off_when": "MU drops out of this run's live catalyst_threat list OR trigger condition: MU no longer appears in a structural-threat factor catalyst",
+      "drops_off_met": false,
+      "ticket": true
+    },
+    {
+      "id": "P-364",
+      "ticker": "GLW",
+      "direction": "TRIM",
+      "verdict": "valid",
+      "effective_priority": "MEDIUM",
+      "priority": "MEDIUM",
+      "retire_because": [],
+      "weakened_because": [],
+      "retire_conditions": [],
+      "weakened_conditions": [],
+      "informational_conditions": [],
+      "trigger_state": "firing",
+      "trigger": "catalyst_threat",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": -0.0,
+        "price_now": 150.1
+      },
+      "against": [
+        "thesis: Q2 core EPS +30%; Truist upgrade to Buy; +18% on the week; 15% polysilicon tariff tailwind; 19% sales CAGR guided through 2030"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "watch",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 3.0,
+        "pct_of_position": 100.0,
+        "weight_before": 1.33,
+        "weight_after": 0.0
+      },
+      "drops_off_when": "GLW drops out of this run's live catalyst_threat list OR trigger condition: GLW no longer appears in a structural-threat factor catalyst",
+      "drops_off_met": false,
+      "ticket": true
+    },
+    {
+      "id": "P-365",
+      "ticker": "AMD",
+      "direction": "SELL",
+      "verdict": "valid",
+      "effective_priority": "HIGH",
+      "priority": "HIGH",
+      "retire_because": [],
+      "weakened_because": [],
+      "retire_conditions": [],
+      "weakened_conditions": [],
+      "informational_conditions": [],
+      "trigger_state": "firing",
+      "trigger": "profit_rotation",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": -0.0,
+        "price_now": 557.98
+      },
+      "against": [
+        "thesis: Q2 rev $11.54B beat, EPS $1.66 beat, Data Center rev +107% YoY",
+        "thesis: ~$5B investment-grade debt offering closed for AI/datacenter capex"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "watch",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 1.0,
+        "pct_of_position": 100.0,
+        "weight_before": 1.65,
+        "weight_after": 0.0
+      },
+      "drops_off_when": "the profit_rotation pairing profit_rotation-AMD-KLAC stops being live this run (both legs retire together) OR trigger condition: EITHER AMD drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening",
+      "drops_off_met": false,
+      "ticket": true
+    },
+    {
+      "id": "P-366",
+      "ticker": "KLAC",
+      "direction": "BUY",
+      "verdict": "valid",
+      "effective_priority": "HIGH",
+      "priority": "HIGH",
+      "retire_because": [],
+      "weakened_because": [],
+      "retire_conditions": [],
+      "weakened_conditions": [],
+      "informational_conditions": [],
+      "trigger_state": "firing",
+      "trigger": "profit_rotation",
+      "since": {
+        "stock_pct": 0.0,
+        "smh_pct": 0.0,
+        "agree_pp": 0.0,
+        "price_now": 177.14
+      },
+      "against": [
+        "thesis: stock fell ~9.6% after-hours on the July 28 beat -- expectations-reset/valuation reaction, unresolved whether it recurs",
+        "thesis: pulled back -3.21% the day after the 09-09 add (now $182.91 vs $181.98 buy, essentially flat) -- continues the beat-but-sells-off pattern; no negative company n"
+      ],
+      "contradicting_trades": [],
+      "acted_on": [],
+      "desk_retire_reason": null,
+      "thesis_status": "strengthening",
+      "desk": null,
+      "earnings": null,
+      "age_sessions": 0,
+      "after_trade": {
+        "shares": 2.4232,
+        "pct_of_position": 24.2,
+        "weight_before": 5.25,
+        "weight_after": 6.44
+      },
+      "drops_off_when": "price trades below $162.51 (the stop) OR the profit_rotation pairing profit_rotation-AMD-KLAC stops being live this run (both legs retire together) OR trigger condition: EITHER AMD drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening",
+      "drops_off_met": false,
+      "ticket": true
+    }
+  ],
+  "note": "advisory: proposals.json is not edited and nothing is dismissed. A `retire` verdict waits for the user's click (user decision 2026-09-19)."
+}

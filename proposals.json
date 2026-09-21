@@ -12,10 +12,10 @@
       "ticker": "TSM",
       "id": "P-001",
       "direction_bucket": "BUY",
-      "outcome_pct": 1.33,
+      "outcome_pct": 1.03,
       "outcome_verdict": "neutral",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20",
+      "outcome_scored_on": "2026-09-21",
       "date_raw": "2026-07-13T19:40"
     },
     {
@@ -29,10 +29,10 @@
       "ticker": "LRCX",
       "id": "P-002",
       "direction_bucket": "TRIM",
-      "outcome_pct": 13.58,
+      "outcome_pct": 13.49,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20",
+      "outcome_scored_on": "2026-09-21",
       "date_raw": "2026-07-13T19:40"
     },
     {
@@ -49,7 +49,7 @@
       "outcome_pct": null,
       "outcome_verdict": "unscoreable",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20",
+      "outcome_scored_on": "2026-09-21",
       "date_raw": "2026-07-13T19:40"
     },
     {
@@ -66,7 +66,7 @@
       "outcome_pct": null,
       "outcome_verdict": "unscoreable",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20",
+      "outcome_scored_on": "2026-09-21",
       "date_raw": "2026-07-13T19:40"
     },
     {
@@ -81,10 +81,10 @@
       "id": "P-005",
       "direction_bucket": "BUY",
       "cluster": "AI Power/Cooling/DC Infra",
-      "outcome_pct": -18.47,
+      "outcome_pct": -18.52,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20",
+      "outcome_scored_on": "2026-09-21",
       "text_archived": "proposals-text-archive.json"
     },
     {
@@ -100,10 +100,10 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-006",
       "direction_bucket": "BUY",
-      "outcome_pct": -18.07,
+      "outcome_pct": -18.09,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20",
+      "outcome_scored_on": "2026-09-21",
       "date_raw": "2026-07-15T15:42"
     },
     {
@@ -111,17 +111,27 @@
       "action": "Defer GLW stage-in (rebound candidate)",
       "size_usd": 0,
       "price_at_proposal": 162.0,
-      "status": "deferred",
+      "status": "auto_retired",
       "rationale": "Rebound flagged $600 stage-in on sharpest AI-capex dip (-6.07%) but cash 0.095% vs 3-15% band leaves no dry powder; deferred pending cash rebuild",
       "ticker": "GLW",
-      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-retired 2026-09-21: AI Networking/Optics is back inside its policy band -- the underweight this filled has cleared",
       "id": "P-007",
       "direction_bucket": "BUY",
-      "outcome_pct": -7.33,
+      "outcome_pct": -7.35,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20",
-      "date_raw": "2026-07-16T16:44"
+      "outcome_scored_on": "2026-09-21",
+      "date_raw": "2026-07-16T16:44",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cash in excess at 20.7% vs a [5,15]% band -- deploying is the live problem, not raising more"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Networking/Optics",
+      "retired_on": "2026-09-21",
+      "retired_reason": "AI Networking/Optics is back inside its policy band -- the underweight this filled has cleared",
+      "retired_condition": "cluster_band_cleared"
     },
     {
       "date": "2026-07-16T16:44:00+05:30",
@@ -134,7 +144,19 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-008",
       "direction_bucket": "BUY",
-      "date_raw": "2026-07-16T16:44"
+      "date_raw": "2026-07-16T16:44",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cash in excess at 20.7% vs a [5,15]% band -- deploying is the live problem, not raising more"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "cash in excess at 20.7% vs a [5,15]% band -- deploying is the live problem, not raising more"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-21",
+      "retires_when": null
     },
     {
       "date": "2026-07-17T13:44:00+05:30",
@@ -145,7 +167,19 @@
       "rationale": "Cash severely breached (1.06% vs 3-15%) and AI-capex already over cap (97.77% vs 90%); ESCALATING gate, no confirmed bottom -- deploying deepens both breaches",
       "id": "P-009",
       "direction_bucket": "BUY",
-      "date_raw": "2026-07-17T13:44"
+      "date_raw": "2026-07-17T13:44",
+      "priority_score": 2,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "cash in excess at 20.7% vs a [5,15]% band -- deploying is the live problem, not raising more"
+      ],
+      "proposal_class": "idea",
+      "still_valid_because": [
+        "cash in excess at 20.7% vs a [5,15]% band -- deploying is the live problem, not raising more"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-21",
+      "retires_when": null
     },
     {
       "date": "2026-07-17T13:44:00+05:30",
@@ -200,10 +234,10 @@
       "note": "Executed early by the user ahead of the proposed post-FOMC window, at $1,973 vs $1,335 proposed (1.48x size).",
       "id": "P-017",
       "direction_bucket": "BUY",
-      "outcome_pct": 12.7,
+      "outcome_pct": 12.83,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "date": "2026-07-28",
@@ -305,10 +339,29 @@
       "note": "ticker backfilled from action text (2026-07-29 fix)",
       "id": "P-026",
       "direction_bucket": "BUY",
-      "outcome_pct": -7.48,
+      "outcome_pct": -7.55,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21",
+      "priority_score": 4,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "AI Power/Cooling/DC Infra under band (-10.0pt)",
+        "cash in excess at 20.7% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "price_now": 249.22,
+      "price_drift_pct": -7.55,
+      "still_valid_because": [
+        "AI Power/Cooling/DC Infra under band (-10.0pt)",
+        "cash in excess at 20.7% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "capped at MEDIUM: no live trigger (technical, catalyst, or thesis) behind this proposal -- score reached HIGH on cap/cluster/cash/repeat mechanics alone, which describes the portfolio, not the stock"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-21",
+      "retires_when": "AI Power/Cooling/DC Infra re-enters its policy band"
     },
     {
       "date": "2026-07-29",
@@ -337,16 +390,24 @@
       "action": "ASML trim-watch, no capital action",
       "size_usd": 0,
       "price_at_proposal": 1582.95,
-      "status": "watch",
+      "status": "auto_retired",
       "rationale": "Largest position (10.9%), signal flipped to STRONG DOWNTREND + headwinds, risk-cap-breach group, but home cluster (AI Semis/Fabs) within band and thesis unbroken. Holding the trim call for LRCX's after-close print.",
       "ticker": "ASML",
-      "note": "ticker backfilled from action text (2026-07-29 fix)",
+      "note": "ticker backfilled from action text (2026-07-29 fix) | auto-retired 2026-09-21: neither trigger is live: ASML is within its ATR risk cap and AI Semis/Fabs is inside its policy band -- the structural reason for this trim has cleared",
       "id": "P-028",
       "direction_bucket": "TRIM",
-      "outcome_pct": -6.13,
+      "outcome_pct": -5.54,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21",
+      "priority_score": 0,
+      "priority": "LOW",
+      "priority_reasons": [],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "retired_on": "2026-09-21",
+      "retired_reason": "neither trigger is live: ASML is within its ATR risk cap and AI Semis/Fabs is inside its policy band -- the structural reason for this trim has cleared",
+      "retired_condition": "cap_cluster_breach_cleared"
     },
     {
       "date": "2026-07-30",
@@ -459,10 +520,10 @@
       "retired_on": "2026-08-06",
       "retired_reason": "META is now held -- this proposed initiating a position that already exists",
       "note": "auto-retired 2026-08-06: META is now held -- this proposed initiating a position that already exists",
-      "outcome_pct": 24.39,
+      "outcome_pct": 24.91,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "date": "2026-08-03T11:14:00+05:30",
@@ -631,10 +692,10 @@
       "tranche_note": "cures 27% of the risk cap excess ($1,457) -- roughly 4 tranches this size to fully clear it",
       "retired_on": "2026-08-07",
       "retired_reason": "neither trigger is live: MRVL is within its ATR risk cap, though AI Networking/Optics is now UNDER its floor (-5.8pt) -- a separate live issue, just not one a trim addresses -- the structural reason for this trim has cleared",
-      "outcome_pct": -29.92,
+      "outcome_pct": -29.47,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "date": "2026-08-04T18:20:00+05:30",
@@ -852,10 +913,10 @@
       "cluster": "AI Networking/Optics",
       "fulfilled_date": "2026-08-04",
       "fulfilled_note": "User's own stop-loss executed this: COHR 2sh @ $323.98, order type stop.",
-      "outcome_pct": 2.23,
+      "outcome_pct": 2.25,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "date": "2026-08-04T18:20:00+05:30",
@@ -877,7 +938,7 @@
       "outcome_pct": null,
       "outcome_verdict": "unscoreable",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "action": "Trim MU",
@@ -1075,10 +1136,10 @@
       "retires_when": "Compute/Hyperscaler re-enters its policy band",
       "retired_on": "2026-08-07",
       "retired_reason": "Compute/Hyperscaler is back inside its policy band -- the underweight this filled has cleared",
-      "outcome_pct": -3.51,
+      "outcome_pct": -3.16,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "id": "P-062",
@@ -1182,7 +1243,7 @@
       "outcome_pct": null,
       "outcome_verdict": "needs_anchor_review",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20",
+      "outcome_scored_on": "2026-09-21",
       "text_archived": "proposals-text-archive.json"
     },
     {
@@ -1362,10 +1423,10 @@
       },
       "retired_on": "2026-08-12",
       "retired_reason": "QCOM no longer carries the 'OVERSOLD BOUNCE' signal -- the edge this buy was sized against is gone",
-      "outcome_pct": 10.85,
+      "outcome_pct": 11.07,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "date": "2026-08-12",
@@ -1671,10 +1732,10 @@
       "retires_when": "n/a -- laggard_rotation is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here",
       "retired_on": "2026-08-15",
       "retired_reason": "QCOM's OVERSOLD BOUNCE premise expired (pos 0.318 vs the <=0.30 the setup needs). No case to fund from a book at 0.028% cash. Retired by strategist 2026-08-15.",
-      "outcome_pct": 9.94,
+      "outcome_pct": 10.16,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "id": "P-078",
@@ -1812,7 +1873,7 @@
       "outcome_pct": null,
       "outcome_verdict": "unscoreable",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "id": "P-082",
@@ -1950,7 +2011,7 @@
       "outcome_pct": null,
       "outcome_verdict": "unscoreable",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "id": "P-085",
@@ -1993,10 +2054,10 @@
       "retires_when": "AI Power/Cooling/DC Infra re-enters its policy band",
       "retired_on": "2026-08-15",
       "retired_reason": "VRT's Q2 is genuinely contested (EPS beat $1.52 vs $1.43, revenue MISS $3.27B vs $3.38B) -- under the G58 gate a contested verified verdict is a supporting input, not a lead one for a fresh add against a cash breach. Retired by strategist 2026-08-15.",
-      "outcome_pct": -15.94,
+      "outcome_pct": -15.99,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "id": "P-086",
@@ -2093,10 +2154,10 @@
       "retires_when": "NVDA drops under its ATR risk cap",
       "retired_reason": "Retired by smith-strategist as pure ATR-cap mechanics: across 4 repeats no live trigger ever attached (RSI 62.2, neither oversold nor overbought) -- precisely the mechanics-only pattern the user objected to on 2026-08-12/17. At rc4 one more restatement reaches rc5 and earns zero bonus. NOTE: this is a STRATEGIST retirement, NOT dismissed_by_user -- the user was not asked and gave no such instruction. Recorded as auto_retired so the audit trail cannot imply user consent; the strategist RECOMMENDS the user run `dismiss P-087` to make it terminal. NVDA earnings 2026-08-26 (8 sessions out) noted as real proximity risk but not a sized-trim basis on its own.",
       "retired_on": "2026-08-17",
-      "outcome_pct": 1.29,
+      "outcome_pct": 1.17,
       "outcome_verdict": "neutral",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "id": "P-088",
@@ -2330,7 +2391,7 @@
       "outcome_pct": 16.32,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "id": "P-093",
@@ -2438,7 +2499,7 @@
       "outcome_pct": null,
       "outcome_verdict": "unscoreable",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "id": "P-096",
@@ -2471,7 +2532,7 @@
       "outcome_pct": null,
       "outcome_verdict": "unscoreable",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "date": "2026-08-16T18:07:00+05:30",
@@ -2545,10 +2606,10 @@
       "retires_when": "n/a -- laggard_rotation is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here",
       "retired_reason": "Funding leg dead. The BX exit meant to fund this DID occur, but cash did not rise ($499.06 unchanged) -- proceeds were absorbed by the IONQ entry and BE/AMZN adds, leaving no traceable cash. An unfunded buy is exactly what was retired on 2026-08-15. Superseded by a fresh ORCL->QCOM pair with an honestly-funded sell leg.",
       "retired_on": "2026-08-17",
-      "outcome_pct": 7.84,
+      "outcome_pct": 8.06,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "date": "2026-08-16T18:07:00+05:30",
@@ -2624,7 +2685,7 @@
       "outcome_pct": null,
       "outcome_verdict": "unscoreable",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "date": "2026-08-17T13:35:00+05:30",
@@ -2677,7 +2738,7 @@
       "outcome_pct": 13.43,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "date": "2026-08-17T13:35:00+05:30",
@@ -2741,10 +2802,10 @@
       "retires_when": "n/a -- profit_ratchet is shadow-scored, tracked in trigger_journal.json rather than lifecycle-managed here",
       "retired_reason": "Retired for cause: NBIS sits simultaneously in compute_rotation.json's `accumulate` bucket on a strengthening thesis, and trimming a name whose own thesis argues for adding is the contradiction the rotation-pair rule forbids. Separately the position had ALREADY dropped 6->3sh (~$826) this run on an unverified fill -- no further forced trim warranted on top of that.",
       "retired_on": "2026-08-17",
-      "outcome_pct": 20.83,
+      "outcome_pct": 21.29,
       "outcome_verdict": "worked",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "date": "2026-08-17T13:35:00+05:30",
@@ -2799,7 +2860,7 @@
       "outcome_pct": -10.19,
       "outcome_verdict": "missed",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "date": "2026-08-17T13:35:00+05:30",
@@ -3185,10 +3246,10 @@
       "retires_when": "MU drops under its ATR risk cap",
       "retired_on": "2026-08-19",
       "retired_reason": "neither trigger is live: MU is within its ATR risk cap, though AI Memory/Storage is now UNDER its floor (-13.4pt) -- a separate live issue, just not one a trim addresses -- the structural reason for this trim has cleared",
-      "outcome_pct": 0.47,
+      "outcome_pct": 0.28,
       "outcome_verdict": "neutral",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "action": "TRIM",
@@ -3449,7 +3510,7 @@
       "outcome_pct": null,
       "outcome_verdict": "unscoreable",
       "outcome_window": "30d",
-      "outcome_scored_on": "2026-09-20"
+      "outcome_scored_on": "2026-09-21"
     },
     {
       "action": "STOP_RAISE",
@@ -12945,6 +13006,494 @@
       "dismissed_by": "user",
       "dismiss_reason": "Dropped by user 2026-09-21: produced by the pre-rebuild proposal engine; start fresh",
       "note": "dismissed by user 2026-09-21T08:47+05:30: Dropped by user 2026-09-21: produced by the pre-rebuild proposal engine; start fresh"
+    },
+    {
+      "action": "Trim MU",
+      "ticker": "MU",
+      "direction_bucket": "TRIM",
+      "size_usd": 407.17,
+      "price_at_proposal": 1017.75,
+      "rationale": "catalyst_threat: MU is one of only two held names (with SKHY, ~6.6% of equity combined) with a direct CXMT mechanism -- share loss in DRAM, not ASP. CXMT announced G5 LPDDR5X volume production 2026-09-20 at 9.5% of Q2 global DRAM revenue (secondary source, sedaily); HBM3E still trial-only, mass production 2027 (so this trim is NOT an HBM call). Thesis is watch, position 6.04% and +8.4% on the month, RSI 58. MU prints 2026-10-01 (implied move 10.22%): this is a small 20%-of-open-risk trim ($407, 0.96% of book, risk removed $34.85, r_ticket 0.16), sized by the script, not a view on the print. Cap-independent by design. Precedent check: gaps G8/CXMT-conflation lesson applied -- claim limited to LPDDR5X share, not HBM. Expires 2026-09-26, before the print; not resized. Tax: see compute_taxcalc trim_sequencing (0.4001 sh short-term FIFO).",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-21T12:30:35+05:30",
+      "created_utc": "2026-09-21T07:00:35Z",
+      "status": "open",
+      "benchmark_price_at_proposal": 573.0,
+      "benchmark_ticker": "SMH",
+      "size_wanted_usd": 407.17,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 2,
+        "unverified": 1
+      },
+      "price_check": {
+        "supplied": 1017.75,
+        "reference": 1017.75,
+        "source": "live_quotes",
+        "deviation_pct": 0.0,
+        "corrected": false
+      },
+      "ticket": {
+        "ticker": "MU",
+        "direction": "TRIM",
+        "trigger_type": "catalyst_threat",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 1017.75,
+          "type": "limit_or_better",
+          "valid_until": "2026-09-26"
+        },
+        "stop": null,
+        "target": null,
+        "size": {
+          "usd": 407.17,
+          "shares": 0.4001,
+          "pct_of_book": 0.957,
+          "wanted_usd": 407.17,
+          "clamped_by": null
+        },
+        "risk": {
+          "kind": "removed",
+          "usd": null,
+          "removed_usd": 34.85,
+          "pct_of_book": 0.082,
+          "basis": null,
+          "r_base_usd": 212.74,
+          "r_ticket": 0.164,
+          "book_heat_before_pct": null,
+          "book_heat_after_pct": null,
+          "heat_budget_remaining_usd": null
+        },
+        "edge": {
+          "ev_r": null,
+          "p_win": null,
+          "payoff_r": null,
+          "fee_r": null,
+          "p_win_basis": "n/a: sells are never EV-gated (an EV bar at a 1R payoff would refuse every sell, protective exits included); only the family verdict applies"
+        },
+        "invalidation": "MU drops out of this run's live catalyst_threat list OR trigger condition: MU no longer appears in a structural-threat factor catalyst",
+        "invalidation_checks": [
+          {
+            "type": "leaves_live_list",
+            "family": "catalyst_threat",
+            "ticker": "MU"
+          }
+        ],
+        "horizon": {
+          "days": 5,
+          "review_on": "2026-09-23",
+          "expires_on": "2026-09-26",
+          "basis": "family table (catalyst_threat): an event-driven exit; a structural catalyst is priced within days, so an unacted exit past a week is a stale read of the event"
+        },
+        "gate": {
+          "family_verdict": "unproven",
+          "family_multiplier": 1.0,
+          "family_basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": "FIFO on this exit: 0.0000 sh long-term, 0.4001 sh short-term; earliest short-term lot turns long-term 2028-08-24 (24-month boundary; policy prefer_ltcg=off)"
+        },
+        "pair": null
+      },
+      "ticket_version": 1,
+      "risk_removed_usd": 34.85,
+      "horizon_days": 5,
+      "expires_on": "2026-09-26",
+      "invalidation": "MU drops out of this run's live catalyst_threat list OR trigger condition: MU no longer appears in a structural-threat factor catalyst",
+      "id": "P-363",
+      "priority_score": 5,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "MU genuinely stretched: +8.4% 1m, +6.2pp vs SMH -- real profit to take, not just a smaller loss",
+        "catalyst_threat: CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged (2026-09-20) -- trial/risk production only, no volume or yield disclosed; HBM4 already mass-produced by Samsung/SK hynix/Micron, so CXMT is one generation behind; mass production not before 2027. No HBM % figure cited (tracker HBM3E contract quote publication date 2026-07-12; freshness-illusion finding orchestrator:00ba4bd6c3 stands); CXMT announces G5 DRAM platform (11.95nm half-pitch) with two 24Gb LPDDR5X products in volume production; 9.5% global DRAM revenue share in Q2 (4th place) (2026-09-20) -- 9.5% Q2 global DRAM revenue share vs ~90% held by Samsung/SK hynix/Micron; LPDDR5X mobile-class, not HBM or server DDR5; yield and monthly output undisclosed; node metric not comparable to rivals' 12nm-class naming; sedaily makes no mention of DUV/EUV/ASML, so a secondary outlet's 'built without ASML machines' framing is unverified and NOT carried as an ASML threat; CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambricon (2026-09-01) -- ~1 year ahead of 2027 consensus timeline; risk-production/qualification stage, not volume -- HBM tracker 43d stale, unverified against consumer_view.json this run [carried forward, last confirmed 2026-09-16]"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Memory/Storage",
+      "price_now": 1017.75,
+      "price_drift_pct": 0.0,
+      "still_valid_because": [
+        "MU genuinely stretched: +8.4% 1m, +6.2pp vs SMH -- real profit to take, not just a smaller loss",
+        "catalyst_threat: CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged (2026-09-20) -- trial/risk production only, no volume or yield disclosed; HBM4 already mass-produced by Samsung/SK hynix/Micron, so CXMT is one generation behind; mass production not before 2027. No HBM % figure cited (tracker HBM3E contract quote publication date 2026-07-12; freshness-illusion finding orchestrator:00ba4bd6c3 stands); CXMT announces G5 DRAM platform (11.95nm half-pitch) with two 24Gb LPDDR5X products in volume production; 9.5% global DRAM revenue share in Q2 (4th place) (2026-09-20) -- 9.5% Q2 global DRAM revenue share vs ~90% held by Samsung/SK hynix/Micron; LPDDR5X mobile-class, not HBM or server DDR5; yield and monthly output undisclosed; node metric not comparable to rivals' 12nm-class naming; sedaily makes no mention of DUV/EUV/ASML, so a secondary outlet's 'built without ASML machines' framing is unverified and NOT carried as an ASML threat; CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambricon (2026-09-01) -- ~1 year ahead of 2027 consensus timeline; risk-production/qualification stage, not volume -- HBM tracker 43d stale, unverified against consumer_view.json this run [carried forward, last confirmed 2026-09-16]"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-21"
+    },
+    {
+      "action": "Trim GLW",
+      "ticker": "GLW",
+      "direction_bucket": "TRIM",
+      "size_usd": 450.3,
+      "price_at_proposal": 150.1,
+      "rationale": "full_exit of a sub-scale, lowest-conviction position. Independent grounds that do NOT depend on the ATM: $450 is below the $638 minimum position with the book at 27 names vs a 15-20 target (position_consolidation, GLW is candidate #1, conviction -1.5); thesis watch; cluster_optics ranks GLW the weakest stack node and says it folds on conviction. The catalyst_threat trigger (ATM $2bn, 8-K/424B5 filed 2026-09-11, verified filing) is corroborating only: catalyst says usage is UNKNOWN, not zero, and WEAKENED it 09-18 -- I do not rely on it. Script sized: full_exit because a 20%-of-risk $90 trim would leave $360, under the $400 minimum. Risk removed $45.39. Exit is never blocked by materiality. Cluster exposure to optics stays via LITE/APH/ALAB.",
+      "trigger_type": "catalyst_threat",
+      "date": "2026-09-21T12:30:35+05:30",
+      "created_utc": "2026-09-21T07:00:35Z",
+      "status": "open",
+      "benchmark_price_at_proposal": 573.0,
+      "benchmark_ticker": "SMH",
+      "size_wanted_usd": 450.3,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 2,
+        "unverified": 0
+      },
+      "price_check": {
+        "supplied": 150.1,
+        "reference": 150.1,
+        "source": "live_quotes",
+        "deviation_pct": 0.0,
+        "corrected": false
+      },
+      "ticket": {
+        "ticker": "GLW",
+        "direction": "TRIM",
+        "trigger_type": "catalyst_threat",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 150.1,
+          "type": "limit_or_better",
+          "valid_until": "2026-09-26"
+        },
+        "stop": null,
+        "target": null,
+        "size": {
+          "usd": 450.3,
+          "shares": 3.0,
+          "pct_of_book": 1.058,
+          "wanted_usd": 450.3,
+          "clamped_by": null
+        },
+        "risk": {
+          "kind": "removed",
+          "usd": null,
+          "removed_usd": 45.39,
+          "pct_of_book": 0.107,
+          "basis": null,
+          "r_base_usd": 212.74,
+          "r_ticket": 0.213,
+          "book_heat_before_pct": null,
+          "book_heat_after_pct": null,
+          "heat_budget_remaining_usd": null
+        },
+        "edge": {
+          "ev_r": null,
+          "p_win": null,
+          "payoff_r": null,
+          "fee_r": null,
+          "p_win_basis": "n/a: sells are never EV-gated (an EV bar at a 1R payoff would refuse every sell, protective exits included); only the family verdict applies"
+        },
+        "invalidation": "GLW drops out of this run's live catalyst_threat list OR trigger condition: GLW no longer appears in a structural-threat factor catalyst",
+        "invalidation_checks": [
+          {
+            "type": "leaves_live_list",
+            "family": "catalyst_threat",
+            "ticker": "GLW"
+          }
+        ],
+        "horizon": {
+          "days": 5,
+          "review_on": "2026-09-23",
+          "expires_on": "2026-09-26",
+          "basis": "family table (catalyst_threat): an event-driven exit; a structural catalyst is priced within days, so an unacted exit past a week is a stale read of the event"
+        },
+        "gate": {
+          "family_verdict": "unproven",
+          "family_multiplier": 1.0,
+          "family_basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": "FIFO on this exit: 0.0000 sh long-term, 3.0000 sh short-term; earliest short-term lot turns long-term 2028-08-26 (24-month boundary; policy prefer_ltcg=off)"
+        },
+        "pair": null
+      },
+      "ticket_version": 1,
+      "risk_removed_usd": 45.39,
+      "horizon_days": 5,
+      "expires_on": "2026-09-26",
+      "invalidation": "GLW drops out of this run's live catalyst_threat list OR trigger condition: GLW no longer appears in a structural-threat factor catalyst",
+      "id": "P-364",
+      "priority_score": 3,
+      "priority": "MEDIUM",
+      "priority_reasons": [
+        "catalyst_threat: Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LITE +3%, GLW +3%); no program-usage disclosure found (2026-09-18) -- GLW -12% to $145.61 on 09-14; ATM sells gradually, realized dilution a fraction of $2bn; Q3 core sales guide $4.9-5.0bn intact; only a usage disclosure would re-escalate. Fri rebound recovers only part of the drop (not sized: no prints fetched); Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 2026-09-11); GLW fell ~12-14% Monday with direct optics-peer contagion -- Coherent -11%, Lumentum -9%, Fabrinet -6% (not held) (2026-09-14) -- ATM programs sell shares gradually and opportunistically, not $2bn upfront, so realized dilution will be a fraction of the headline over time -- but the stated purpose is 'general corporate purposes,' not a named project, which is what drove the -12-14% single-day reaction. Was one of the four items in Monday's desk narrative but had NOT yet been logged as its own catalyst; added this run. Peer contagion (COHR/LITE) is a read-through, not a COHR/LITE-specific fundamental event. [carried forward, last confirmed 2026-09-15]"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Networking/Optics",
+      "price_now": 150.1,
+      "price_drift_pct": 0.0,
+      "still_valid_because": [
+        "catalyst_threat: Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LITE +3%, GLW +3%); no program-usage disclosure found (2026-09-18) -- GLW -12% to $145.61 on 09-14; ATM sells gradually, realized dilution a fraction of $2bn; Q3 core sales guide $4.9-5.0bn intact; only a usage disclosure would re-escalate. Fri rebound recovers only part of the drop (not sized: no prints fetched); Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 2026-09-11); GLW fell ~12-14% Monday with direct optics-peer contagion -- Coherent -11%, Lumentum -9%, Fabrinet -6% (not held) (2026-09-14) -- ATM programs sell shares gradually and opportunistically, not $2bn upfront, so realized dilution will be a fraction of the headline over time -- but the stated purpose is 'general corporate purposes,' not a named project, which is what drove the -12-14% single-day reaction. Was one of the four items in Monday's desk narrative but had NOT yet been logged as its own catalyst; added this run. Peer contagion (COHR/LITE) is a read-through, not a COHR/LITE-specific fundamental event. [carried forward, last confirmed 2026-09-15]"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-21"
+    },
+    {
+      "action": "Sell AMD",
+      "ticker": "AMD",
+      "direction_bucket": "SELL",
+      "size_usd": 557.98,
+      "price_at_proposal": 557.98,
+      "rationale": "profit_rotation sell leg (paired with KLAC BUY): AMD in names_stretched with a watch thesis, conviction 9.2, sub-scale at $558 (< $638 minimum). Full-position sale of $558 books real profit and shrinks position count. Risk removed $41.74 vs KLAC redeployed $35.46 -- pair is roughly risk-flat, net risk -$6.28; the difference goes to cash. Trigger is live, thesis watch, so no contradiction with an accumulate bucket.",
+      "trigger_type": "profit_rotation",
+      "date": "2026-09-21T12:30:35+05:30",
+      "created_utc": "2026-09-21T07:00:35Z",
+      "status": "open",
+      "benchmark_price_at_proposal": 573.0,
+      "benchmark_ticker": "SMH",
+      "pair_id": "profit_rotation-AMD-KLAC",
+      "pair_role": "sell",
+      "size_wanted_usd": 557.98,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 3,
+        "unverified": 1
+      },
+      "price_check": {
+        "supplied": 557.98,
+        "reference": 557.98,
+        "source": "live_quotes",
+        "deviation_pct": 0.0,
+        "corrected": false
+      },
+      "ticket": {
+        "ticker": "AMD",
+        "direction": "SELL",
+        "trigger_type": "profit_rotation",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 557.98,
+          "type": "limit_or_better",
+          "valid_until": "2026-10-01"
+        },
+        "stop": null,
+        "target": null,
+        "size": {
+          "usd": 557.98,
+          "shares": 1.0,
+          "pct_of_book": 1.311,
+          "wanted_usd": 557.98,
+          "clamped_by": null
+        },
+        "risk": {
+          "kind": "removed",
+          "usd": null,
+          "removed_usd": 41.74,
+          "pct_of_book": 0.098,
+          "basis": null,
+          "r_base_usd": 212.74,
+          "r_ticket": 0.196,
+          "book_heat_before_pct": null,
+          "book_heat_after_pct": null,
+          "heat_budget_remaining_usd": null
+        },
+        "edge": {
+          "ev_r": null,
+          "p_win": null,
+          "payoff_r": null,
+          "fee_r": null,
+          "p_win_basis": null
+        },
+        "invalidation": "the profit_rotation pairing profit_rotation-AMD-KLAC stops being live this run (both legs retire together) OR trigger condition: EITHER AMD drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening",
+        "invalidation_checks": [
+          {
+            "type": "pair_not_live",
+            "pair_id": "profit_rotation-AMD-KLAC"
+          }
+        ],
+        "horizon": {
+          "days": 10,
+          "review_on": "2026-09-26",
+          "expires_on": "2026-10-01",
+          "basis": "family table (profit_rotation): a paired swap: both legs must be executed while the ladder that ranked them is fresh (stale after 14 days in retires_when)"
+        },
+        "gate": {
+          "family_verdict": null,
+          "family_multiplier": null,
+          "family_basis": null,
+          "n_eff": null,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": "FIFO on this exit: 0.0000 sh long-term, 1.0000 sh short-term; earliest short-term lot turns long-term 2028-09-04 (24-month boundary; policy prefer_ltcg=off)"
+        },
+        "pair": {
+          "pair_id": "profit_rotation-AMD-KLAC",
+          "role": "sell",
+          "r_freed_usd": 41.74,
+          "buy_risk_usd": 35.46,
+          "heat_delta_usd": -6.28
+        }
+      },
+      "ticket_version": 1,
+      "risk_removed_usd": 41.74,
+      "horizon_days": 10,
+      "expires_on": "2026-10-01",
+      "invalidation": "the profit_rotation pairing profit_rotation-AMD-KLAC stops being live this run (both legs retire together) OR trigger condition: EITHER AMD drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening",
+      "id": "P-365",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "AMD genuinely stretched: +20.0% 1m, +17.9pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "price_now": 557.98,
+      "price_drift_pct": 0.0,
+      "still_valid_because": [
+        "AMD genuinely stretched: +20.0% 1m, +17.9pp vs SMH -- real profit to take, not just a smaller loss",
+        "profit_rotation: conviction 0 (unscored) -- stretched (in names_stretched) with a watch thesis -- real profit to book"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-21"
+    },
+    {
+      "action": "Buy KLAC",
+      "ticker": "KLAC",
+      "direction_bucket": "BUY",
+      "size_usd": 429.25,
+      "price_at_proposal": 177.14,
+      "rationale": "profit_rotation buy leg (paired with AMD SELL): KLAC is a laggard (-7.6pp vs benchmark) with a strengthening thesis, yet to rally -- 'back the performer with intact thesis'. Script ticket: $429 sized by R_ticket (its own conviction tranche), stop $162.51, risk $35.46, buy EV 0.92R (p_win 0.40 UNCALIBRATED prior, payoff 3.87R), heat budget allocation first in EV order, leaves R_free ~$560. No engine verdict yet (BUY unproven, n=0) so no multiplier. Only live buy-side ticket this run. policy.heat_budget is confirmed=true per compute_triggers; trade_materiality unconfirmed. Not to be read as a proven edge.",
+      "trigger_type": "profit_rotation",
+      "date": "2026-09-21T12:30:35+05:30",
+      "created_utc": "2026-09-21T07:00:35Z",
+      "status": "open",
+      "benchmark_price_at_proposal": 573.0,
+      "benchmark_ticker": "SMH",
+      "pair_id": "profit_rotation-AMD-KLAC",
+      "pair_role": "buy",
+      "stop_price_usd": 162.51,
+      "size_wanted_usd": 429.25,
+      "clamped_by": "buy R_ticket (its own conviction tranche)",
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 3,
+        "unverified": 1
+      },
+      "price_check": {
+        "supplied": 177.14,
+        "reference": 177.14,
+        "source": "live_quotes",
+        "deviation_pct": 0.0,
+        "corrected": false
+      },
+      "ticket": {
+        "ticker": "KLAC",
+        "direction": "BUY",
+        "trigger_type": "profit_rotation",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 177.14,
+          "type": "limit_or_better",
+          "valid_until": "2026-10-01"
+        },
+        "stop": {
+          "price_usd": 162.51,
+          "distance_pct": 8.26,
+          "basis": "policy 2xATR20, floor 3% (smith_risk.stop_and_cap)",
+          "atr20_pct": 4.13
+        },
+        "target": {
+          "price_usd": 233.77,
+          "basis": "data_cache.analyst_targets as of 2026-09-21",
+          "r_multiple": 3.87
+        },
+        "size": {
+          "usd": 429.25,
+          "shares": 2.4232,
+          "pct_of_book": 1.009,
+          "wanted_usd": 429.25,
+          "clamped_by": "buy R_ticket (its own conviction tranche)"
+        },
+        "risk": {
+          "kind": "added",
+          "usd": 35.46,
+          "removed_usd": null,
+          "pct_of_book": 0.083,
+          "basis": null,
+          "r_base_usd": 212.74,
+          "r_ticket": 0.167,
+          "book_heat_before_pct": 7.417,
+          "book_heat_after_pct": 7.402,
+          "heat_budget_remaining_usd": 593.58
+        },
+        "edge": {
+          "ev_r": 0.9169,
+          "p_win": 0.401,
+          "payoff_r": 3.8703,
+          "fee_r": 0.0363,
+          "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 22.8"
+        },
+        "invalidation": "price trades below $162.51 (the stop) OR the profit_rotation pairing profit_rotation-AMD-KLAC stops being live this run (both legs retire together) OR trigger condition: EITHER AMD drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening",
+        "invalidation_checks": [
+          {
+            "type": "price_below",
+            "price_usd": 162.51
+          },
+          {
+            "type": "pair_not_live",
+            "pair_id": "profit_rotation-AMD-KLAC"
+          }
+        ],
+        "horizon": {
+          "days": 10,
+          "review_on": "2026-09-26",
+          "expires_on": "2026-10-01",
+          "basis": "family table (profit_rotation): a paired swap: both legs must be executed while the ladder that ranked them is fresh (stale after 14 days in retires_when)"
+        },
+        "gate": {
+          "family_verdict": "unproven",
+          "family_multiplier": 1.0,
+          "family_basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": null
+        },
+        "pair": {
+          "pair_id": "profit_rotation-AMD-KLAC",
+          "role": "buy",
+          "r_freed_usd": 41.74,
+          "buy_risk_usd": 35.46,
+          "heat_delta_usd": -6.28
+        }
+      },
+      "ticket_version": 1,
+      "stop_distance_pct": 8.26,
+      "target_price_usd": 233.77,
+      "r_multiple": 3.87,
+      "risk_usd": 35.46,
+      "ev_r": 0.9169,
+      "p_win": 0.401,
+      "horizon_days": 10,
+      "expires_on": "2026-10-01",
+      "invalidation": "price trades below $162.51 (the stop) OR the profit_rotation pairing profit_rotation-AMD-KLAC stops being live this run (both legs retire together) OR trigger condition: EITHER AMD drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening",
+      "id": "P-366",
+      "priority_score": 4,
+      "priority": "HIGH",
+      "priority_reasons": [
+        "cash in excess at 20.7% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "profit_rotation: conviction 22.8 (unscored) -- laggard (-7.6pp) with a strengthening thesis -- yet to rally"
+      ],
+      "proposal_class": "idea",
+      "cluster": "AI Semis/Fabs",
+      "price_now": 177.14,
+      "price_drift_pct": 0.0,
+      "still_valid_because": [
+        "cash in excess at 20.7% vs a [5,15]% band -- deploying is the live problem, not raising more",
+        "profit_rotation: conviction 22.8 (unscored) -- laggard (-7.6pp) with a strengthening thesis -- yet to rally"
+      ],
+      "review_flags": [],
+      "revalidated_on": "2026-09-21"
     }
   ],
   "retracted": [
@@ -12956,7 +13505,7 @@
     }
   ],
   "scorecard": {
-    "as_of": "2026-09-20",
+    "as_of": "2026-09-21",
     "trim_accuracy_30d": 55.6,
     "add_accuracy_30d": 38.5,
     "overall_accuracy_30d": 45.5,
@@ -12969,19 +13518,19 @@
         "missed": 2,
         "neutral": 2,
         "accuracy_pct": 55.6,
-        "avg_benefit_pct": 3.57,
-        "expectancy_pct_net": 3.267,
-        "expectancy_usd_per_1k": 32.67,
+        "avg_benefit_pct": 3.69,
+        "expectancy_pct_net": 3.391,
+        "expectancy_usd_per_1k": 33.91,
         "round_trip_fee_pct": 0.3,
         "positive_expectancy": true,
-        "size_weighted_benefit_pct": 5.516,
-        "size_weighted_expectancy_pct_net": 5.216,
+        "size_weighted_benefit_pct": 5.596,
+        "size_weighted_expectancy_pct_net": 5.296,
         "capital_proposed_usd": 3580.0,
-        "expectancy_usd_total": 186.74,
+        "expectancy_usd_total": 189.58,
         "sized_rows": 8,
-        "avg_win_pct": 13.28,
-        "avg_loss_pct": 18.03,
-        "payoff_ratio": 0.74
+        "avg_win_pct": 13.36,
+        "avg_loss_pct": 17.5,
+        "payoff_ratio": 0.76
       },
       "BUY": {
         "n": 13,
@@ -12991,19 +13540,19 @@
         "missed": 7,
         "neutral": 1,
         "accuracy_pct": 38.5,
-        "avg_benefit_pct": -1.07,
-        "expectancy_pct_net": -1.372,
-        "expectancy_usd_per_1k": -13.72,
+        "avg_benefit_pct": -0.98,
+        "expectancy_pct_net": -1.284,
+        "expectancy_usd_per_1k": -12.84,
         "round_trip_fee_pct": 0.3,
         "positive_expectancy": false,
-        "size_weighted_benefit_pct": -0.831,
-        "size_weighted_expectancy_pct_net": -1.131,
+        "size_weighted_benefit_pct": -0.79,
+        "size_weighted_expectancy_pct_net": -1.09,
         "capital_proposed_usd": 7038.88,
-        "expectancy_usd_total": -79.58,
+        "expectancy_usd_total": -76.69,
         "sized_rows": 11,
-        "avg_win_pct": 13.14,
-        "avg_loss_pct": 11.57,
-        "payoff_ratio": 1.14
+        "avg_win_pct": 13.41,
+        "avg_loss_pct": 11.55,
+        "payoff_ratio": 1.16
       },
       "HOLD": null
     },
@@ -13015,27 +13564,114 @@
       "missed": 9,
       "neutral": 3,
       "accuracy_pct": 45.5,
-      "avg_benefit_pct": 0.83,
-      "expectancy_pct_net": 0.525,
-      "expectancy_usd_per_1k": 5.25,
+      "avg_benefit_pct": 0.93,
+      "expectancy_pct_net": 0.629,
+      "expectancy_usd_per_1k": 6.29,
       "round_trip_fee_pct": 0.3,
       "positive_expectancy": true,
-      "size_weighted_benefit_pct": 1.309,
-      "size_weighted_expectancy_pct_net": 1.009,
+      "size_weighted_benefit_pct": 1.363,
+      "size_weighted_expectancy_pct_net": 1.063,
       "capital_proposed_usd": 10618.88,
-      "expectancy_usd_total": 107.17,
+      "expectancy_usd_total": 112.89,
       "sized_rows": 19,
-      "avg_win_pct": 13.21,
-      "avg_loss_pct": 13.0,
-      "payoff_ratio": 1.02
+      "avg_win_pct": 13.38,
+      "avg_loss_pct": 12.87,
+      "payoff_ratio": 1.04
     },
+    "legacy": {
+      "label": "LEGACY-ENGINE HISTORY -- not the current engine's performance",
+      "engine_epoch": "2026-09-21",
+      "n_rows": 22,
+      "n_ideas": 20,
+      "overall": {
+        "n": 22,
+        "n_rows": 22,
+        "n_ideas": 20,
+        "worked": 10,
+        "missed": 9,
+        "neutral": 3,
+        "accuracy_pct": 45.5,
+        "avg_benefit_pct": 0.93,
+        "expectancy_pct_net": 0.629,
+        "expectancy_usd_per_1k": 6.29,
+        "round_trip_fee_pct": 0.3,
+        "positive_expectancy": true,
+        "size_weighted_benefit_pct": 1.363,
+        "size_weighted_expectancy_pct_net": 1.063,
+        "capital_proposed_usd": 10618.88,
+        "expectancy_usd_total": 112.89,
+        "sized_rows": 19,
+        "avg_win_pct": 13.38,
+        "avg_loss_pct": 12.87,
+        "payoff_ratio": 1.04
+      },
+      "by_direction": {
+        "TRIM/SELL": {
+          "n": 9,
+          "n_rows": 9,
+          "n_ideas": 9,
+          "worked": 5,
+          "missed": 2,
+          "neutral": 2,
+          "accuracy_pct": 55.6,
+          "avg_benefit_pct": 3.69,
+          "expectancy_pct_net": 3.391,
+          "expectancy_usd_per_1k": 33.91,
+          "round_trip_fee_pct": 0.3,
+          "positive_expectancy": true,
+          "size_weighted_benefit_pct": 5.596,
+          "size_weighted_expectancy_pct_net": 5.296,
+          "capital_proposed_usd": 3580.0,
+          "expectancy_usd_total": 189.58,
+          "sized_rows": 8,
+          "avg_win_pct": 13.36,
+          "avg_loss_pct": 17.5,
+          "payoff_ratio": 0.76
+        },
+        "BUY": {
+          "n": 13,
+          "n_rows": 13,
+          "n_ideas": 11,
+          "worked": 5,
+          "missed": 7,
+          "neutral": 1,
+          "accuracy_pct": 38.5,
+          "avg_benefit_pct": -0.98,
+          "expectancy_pct_net": -1.284,
+          "expectancy_usd_per_1k": -12.84,
+          "round_trip_fee_pct": 0.3,
+          "positive_expectancy": false,
+          "size_weighted_benefit_pct": -0.79,
+          "size_weighted_expectancy_pct_net": -1.09,
+          "capital_proposed_usd": 7038.88,
+          "expectancy_usd_total": -76.69,
+          "sized_rows": 11,
+          "avg_win_pct": 13.41,
+          "avg_loss_pct": 11.55,
+          "payoff_ratio": 1.16
+        }
+      }
+    },
+    "since_epoch": {
+      "label": "rebuilt engine, proposals on/after ENGINE_EPOCH",
+      "engine_epoch": "2026-09-21",
+      "n_rows": 0,
+      "n_ideas": 0,
+      "overall": null,
+      "by_direction": {
+        "TRIM/SELL": null,
+        "BUY": null
+      },
+      "note": "no post-rebuild proposal has been scored yet (n=0) -- the first reaches 30 days about a month after the epoch"
+    },
+    "headline_basis": "LEGACY-DOMINATED: the flat accuracy/expectancy fields below pool every graded row, and every row today predates ENGINE_EPOCH. Quote `since_epoch` as the current engine's record and `legacy` only as labelled history.",
     "scored_count": 22,
     "n_rows": 22,
     "n_ideas": 20,
     "unscoreable_hold": 9,
     "alpha_scored_count": 0,
     "quarantined_anchor_review": 1,
-    "excluded_dismissed_by_user": 18,
+    "excluded_dismissed_by_user": 30,
     "withdrawn_by_desk": 43,
     "withdrawn_by_desk_detail": [
       {
@@ -13266,11 +13902,10 @@
       }
     },
     "data_quality": [
-      "SCORECARD REBASED 88 -> 22 graded rows (one-time, --rebase-scorecard). The drop is a DEFINITIONAL correction, not lost data: 58 superseded restatement(s) are no longer scored as separate rows (cmd_score's own docstring always said one idea counts once; the code contradicted it), and 9 HOLD row(s) with no benchmark anchor are now unscoreable instead of graded on the retired absolute rule. Accuracy/expectancy before and after are NOT comparable.",
       "80 proposal(s) are under 30 days old -- not yet in the scoring window.",
       "22 BUY/TRIM/SELL row(s) graded on absolute move, not alpha -- no benchmark_price_at_proposal on the proposal (pre-2026-09-07 history, or a caller that omitted it): P-001, P-002, P-005, P-006, P-007, P-017, P-026, P-028, P-033, P-051, P-056, P-061....",
       "9 HOLD row(s) unscoreable -- HOLD is graded on alpha and these have no benchmark anchor or no benchmark price: P-003, P-004, P-057, P-081, P-084, P-095, P-096, P-100, P-117.",
-      "QUARANTINED pending anchor review, excluded from the scorecard: P-064 TRIM SNDK implies +47.8% from a $1212.38 anchor. Verify the anchor against price history before trusting these."
+      "QUARANTINED pending anchor review, excluded from the scorecard: P-064 TRIM SNDK implies +48.3% from a $1212.38 anchor. Verify the anchor against price history before trusting these."
     ]
   },
   "last_updated": "2026-08-20T22:11:00+05:30"

@@ -1,8 +1,0 @@
-{
-  "id": "G98",
-  "opened": "2026-09-15",
-  "owner": "orchestrator / policy.cluster_playbooks",
-  "status": "open",
-  "description": "NBIS (neocloud: sells GPU capacity to MSFT/Meta, funded by a floating SOFR+2.50% secured facility plus a $5B convert) sits in the 'Compute/Hyperscaler' cluster alongside MSFT/GOOG/AMZN, which BUY capacity and largely self-fund. smith-cluster (2026-09-15) measured NBIS at ~54% of the cluster's weight x ATR20 risk proxy on a 3.2% weight, so the cluster's 'below 15% target / ~$3,800 room' figure treats a financing-and-rate-exposed neocloud dollar as equivalent to an MSFT dollar. Drift, cluster_room sizing and the hyperscaler ladder all inherit the mix.",
-  "next_step": "User decision: either split a 'Neocloud' sub-cluster (NBIS, plus bench CRWV/IREN) with its own target/band in policy.cluster_playbooks, or add a financing_risk tag that sizing respects. Do not change policy.json without explicit instruction."
-}

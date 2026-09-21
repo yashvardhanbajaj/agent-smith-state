@@ -1,0 +1,265 @@
+{
+  "round": 8,
+  "counts": {
+    "answered": 27,
+    "recorded": 5,
+    "delivered": 2,
+    "expired": 3,
+    "total": 37,
+    "revisions": 3
+  },
+  "debates": [],
+  "asks": [
+    {
+      "id": "M2.3",
+      "from": "cluster_optics",
+      "to": "thesis",
+      "ticker": "APH",
+      "question": "APH's thesis is status-only and carries verified=unverified while being the largest position in AI Networking/Optics (4.61%). What share of APH revenue is AI/datacenter today, and what is the evidence_for that supports `strengthening`?",
+      "status": "answered",
+      "position": "revised",
+      "answer": "I cannot give APH's AI/datacenter revenue share: my only support is a single untagged orchestrator note (2026-09-06) that IT Datacom is APH's largest and fastest-growing segment, with no percentage, no filing and verified=unverified. No mix figure was fetched this run (INDmoney unauthenticated; XBRL via smith_edgar does not carry segment mix). So 'strengthening' was under-supported: the only dated"
+    },
+    {
+      "id": "M2.4",
+      "from": "cluster_optics",
+      "to": "catalyst",
+      "ticker": "GLW",
+      "question": "Did any GLW filing after 2026-09-11 (10-Q, 8-K or prospectus supplement amendment) disclose shares actually sold under the $2bn ATM programme, or is the absence of a usage disclosure simply that nothing has been filed yet?",
+      "status": "answered",
+      "position": "cannot_answer",
+      "answer": "No GLW filing after 2026-09-11 discloses ATM usage. An EDGAR company-feed fetch (summarised by the fetch tool, not a raw read) lists only the 8-K (0001193125-26-389321) and 424B5 (0001193125-26-389313), both filed 2026-09-11, plus a Form 4 dated 2026-09-08 (before the programme); no 10-Q or later 8-K/424B5. So the absence is 'nothing filed yet', not a disclosed zero. I cannot establish zero versus"
+    },
+    {
+      "id": "M2.5",
+      "from": "cluster_optics",
+      "to": "strategist",
+      "ticker": "CIEN",
+      "question": "CIEN is $2.98 / 0.009% weight with a `strengthening` thesis and a 09-03 beat-and-raise (EPS $2.11 vs $1.73, guide above). Is this a deliberate residual or the same dust pathology as the open TER flag, and does it need a re-establish-or-zero decision?",
+      "status": "answered",
+      "position": "held",
+      "answer": "CIEN is dust ($2.98, 0.009%), a real residual, not a position. The engine's conviction_average CIEN ticket (EV 0.67R) is below the $319 materiality floor by $71, so it is not a proposal. It needs a user decision: re-establish at >= floor or zero. Not forced here. Treat optics as a 6-name problem for the 15-20 target; only COHR->LITE is a measured redundancy."
+    },
+    {
+      "id": "M2.6",
+      "from": "cluster_optics",
+      "to": "desk",
+      "ticker": null,
+      "question": "Can a script pull LITE and COHR one-month daily returns and report their pairwise correlation? The deterministic redundancy screen returned redundancy_candidates: [] for this cluster, but the two names moved together on both legs of the September event (-9%/-11% on 09-14, +3%/+5% on 09-18).",
+      "status": "answered",
+      "position": "held",
+      "answer": "Measured from perf_bars daily closes through 2026-09-18: LITE/COHR pairwise return correlation is 0.843 over the last 21 sessions and 0.891 over 63. For reference, LITE vs SMH is 0.789 and COHR vs SMH 0.819 (63 sessions), and LITE vs GLW 0.791, COHR vs GLW 0.821. The pair correlates more with each other than either does with the benchmark or with GLW, so the business-grounds 'redundant' verdict fo"
+    },
+    {
+      "id": "M3.14",
+      "from": "thesis",
+      "to": "desk",
+      "ticker": "APH",
+      "question": "APH latest 10-Q: IT Datacom (and any datacenter/AI-attributed) net sales as % of total and YoY growth, with period end date",
+      "status": "answered",
+      "position": "held",
+      "answer": "Primary source, APH 10-Q for the quarter ended 2026-06-30 (filed 2026-07-31, accn 0001104659-26-089194). The Communications Solutions segment is approximately 62% of Q2-2026 net sales (60% for the first six months) and its net sales rose 85% in USD, 84% in constant currency and 42% ORGANICALLY versus Q2-2025; the filing attributes the increase to 'outsized organic growth in the IT datacom market, "
+    },
+    {
+      "id": "M4.21",
+      "from": "cluster_optics",
+      "to": "desk",
+      "ticker": "CIEN",
+      "question": "data_cache.earnings_facts.CIEN records guide_next_q = 6,420,000,000 against guide_consensus 6,330,000,000. Per Ciena's own release that $6.42bn is the FULL-YEAR FY26 guide; the FQ4 guide is $1.75bn +/- $50m. Can the cache field be corrected, and can you check whether any other agent has consumed the",
+      "status": "answered",
+      "position": "held",
+      "answer": "Confirmed by reading state.data_cache.earnings_facts.CIEN: guide_next_q = 6,420,000,000 with guide_consensus 6,330,000,000, source stockanalysis.com/stocks/cien, verified_on 2026-09-03, while revenue_actual is 1,670,000,000 for FQ3. A next-quarter guide of $6.42bn against a $1.67bn quarter is not a quarterly figure: it is the FULL-YEAR FY26 guide, as catalyst read from Ciena's own release (FQ4 gui"
+    },
+    {
+      "id": "M4.22",
+      "from": "cluster_optics",
+      "to": "desk",
+      "ticker": "APH",
+      "question": "Does the APH 10-Q for the quarter ended 2026-06-30 break out IT Datacom as a stand-alone line within Communications Solutions, or is ~62% of net sales the finest available cut?",
+      "status": "answered",
+      "position": "held",
+      "answer": "No. The APH 10-Q text (quarter ended 2026-06-30) gives the segment split only: Communications Solutions ~62% of Q2 net sales (~60% for six months), Harsh Environment Solutions ~22%, Interconnect and Sensor Systems the remainder; IT datacom is named as the driver of Communications Solutions growth but is not quantified as a share of total sales in the filing text. The end-market mix is a press-rele"
+    },
+    {
+      "id": "M4.23",
+      "from": "cluster_optics",
+      "to": "strategist",
+      "ticker": "CIEN",
+      "question": "Re-asking my M2.5 with the TER premise corrected: CIEN is $2.98 / 0.009% of the book with an `intact-to-strengthening` thesis and a verified 09-03 beat (FQ3 rev $1.67bn, adj EPS $2.11, backlog $8.5bn +$800m q/q, book-to-bill well above 1). Does it need a re-establish-or-zero decision?",
+      "status": "answered",
+      "position": "held",
+      "answer": "Same as M2.5. Strategist does not rank CIEN as a position; TER premise correction accepted (TER $1,852.96, 5.5%)."
+    }
+  ],
+  "tells": [
+    {
+      "id": "M1.1",
+      "from": "catalyst",
+      "to": "strategist",
+      "ticker": "MU",
+      "fact": "CXMT announced G5 LPDDR5X volume production 09-20 (9.5% Q2 global DRAM share) plus HBM3E still trial-only with mass production 2027; MU 10-01 print (implied move 10.22%) is the nearer catalyst. Bloom S&P inclusion is realized today; CME hike-odds catalysts retired (hike delivered).",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M1.2",
+      "from": "scout",
+      "to": "strategist",
+      "ticker": null,
+      "fact": "Extreme-greed gauge (75.1) with action_hint profit-booking, and 10-yr at 4.998% one tick from 5.0%; regime neutral-fragile. Bench utilities SO/DUK are partial diversifiers (rate-sensitive, datacenter-load adjacent), only UNH/LLY/NEM/PG/XOM are clean.",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M2.7",
+      "from": "cluster_optics",
+      "to": "catalyst",
+      "ticker": "CIEN",
+      "fact": "CIEN's 2026-09-03 FQ3 print was a large beat with a guide above consensus (revenue $1.67bn vs $1.64bn, EPS $2.11 vs $1.73, next-quarter guide $6.42bn vs $6.33bn consensus) and the stock is nonetheless -12.68% over the following month, the worst in this cluster. Per the cluster playbook, a CIEN print",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M2.8",
+      "from": "cluster_optics",
+      "to": "thesis",
+      "ticker": "LITE",
+      "fact": "Lumentum is the only supplier shipping 200G-per-lane EMLs at volume -- the binding component for every 1.6T module in the industry, including modules assembled by its own competitors -- and NVDA has invested directly into LITE and COHR laser capacity rather than into module capacity. This is a sole-",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M2.9",
+      "from": "cluster_optics",
+      "to": "signals",
+      "ticker": "GLW",
+      "fact": "GLW is the only member of AI Networking/Optics carrying a `watch` thesis while the other six carry `strengthening`, and it is the only one with a live, undisclosed $2bn ATM equity programme. Its 09-18 +3% rebound moved it with the sector, which risks reading as confirmation when the financing overha",
+      "weight": "normal",
+      "status": "recorded"
+    },
+    {
+      "id": "M2.10",
+      "from": "thesis",
+      "to": "strategist",
+      "ticker": "ASML",
+      "fact": "catalyst_threat TRIM triggers on ASML, AMAT and TER rest solely on the CXMT HBM3E reason; smith-catalyst's source never mentions DUV/EUV and no deposition/etch/test revenue mechanism is established. Treat as not thesis evidence; only MU/SKHY have a direct mechanism (share, not ASP). TER is a dust po",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M3.15",
+      "from": "thesis",
+      "to": "strategist",
+      "ticker": "TER",
+      "fact": "RETRACTION: my earlier tell called TER a dust position and said trim triggers on it were immaterial. That is wrong. TER is 5.0027sh, ~$1,853, 5.49% of book (holdings.json this run). The CXMT catalyst_threat TRIM trigger on TER therefore acts on a real 5.5% position. My substantive point stands separ",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M3.16",
+      "from": "thesis",
+      "to": "desk",
+      "ticker": "TER",
+      "fact": "Stale open_flag (TER DUST, opened 2026-08-19) is superseded; the actual dust position is CIEN 0.0085sh, ~$2.98. Flag needs resolving/re-pointing.",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M4.24",
+      "from": "cluster_optics",
+      "to": "catalyst",
+      "ticker": "CIEN",
+      "fact": "Correction to my own round-1 tell (M2.7), which you caught and which I am propagating rather than quietly dropping: I stated CIEN's 'next-quarter guide $6.42bn vs $6.33bn consensus'. Per Ciena's release the $6.42bn is the RAISED FULL-YEAR FY26 guide; the FQ4 guide is $1.75bn +/- $50m. The read-throu",
+      "weight": "high",
+      "status": "delivered"
+    },
+    {
+      "id": "M4.25",
+      "from": "cluster_optics",
+      "to": "thesis",
+      "ticker": "APH",
+      "fact": "The primary source you said was needed exists and the desk has it: APH's Form 10-Q for the quarter ended 2026-06-30 shows Communications Solutions at ~62% of net sales, +85% USD / +42% organic y/y, attributed to outsized organic growth in IT datacom with particular strength in AI-related. That is da",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M4.26",
+      "from": "cluster_optics",
+      "to": "strategist",
+      "ticker": "TER",
+      "fact": "Correcting an error I propagated from my own slice: slice_cluster_optics.json open_flags carries TER as a DUST POSITION at 0.00273sh / ~$1.10. The desk reports TER is actually $1,852.96, about 5.5% of the book. I used the stale flag as an analogy in my round-1 position_count_note and in my CIEN ques",
+      "weight": "high",
+      "status": "answered"
+    }
+  ],
+  "revisions": [
+    {
+      "agent": "thesis",
+      "message": "M2.3",
+      "changed": [
+        "thesis.changed.APH.status: \"strengthening\" -> \"intact\"",
+        "thesis.changed.APH.thesis: \"High-speed interconnect/cable-assembly supplier for AI serv -> \"High-speed interconnect/cable-assembly for AI servers and d",
+        "thesis.changed.APH.evidence_for: [{\"claim\": \"IT Datacom segment is APH's largest and fastest- -> [{\"claim\": \"IT Datacom is APH's largest and fastest-growing ",
+        "thesis.changed.APH.evidence_against: [{\"claim\": \"-5.78% close today (deeper than the 18:23Z snaps -> [{\"claim\": \"-5.78% close within a -8.28% cluster de-rating o",
+        "thesis.changed.APH.note: \"Status unchanged; the 'none found' placeholder from earlier -> \"Status moved strengthening->intact for thin evidence, not d"
+      ]
+    },
+    {
+      "agent": "cluster_optics",
+      "message": "M3.13",
+      "changed": [
+        "ranking.[MRVL].rank: 4 -> 5",
+        "ranking.[MRVL].differentiator_reads: [{\"axis\": \"merchant switch silicon share vs in-hou -> [{\"axis\": \"merchant switch silicon share vs in-hou",
+        "ranking.[MRVL].case_against: \"The case FOR is real and I am not pricing it at z -> \"Demoted from 4 to 5 on APH's promotion, not on ne",
+        "ranking.[APH].rank: 5 -> 4",
+        "ranking.[APH].differentiator_reads: [{\"axis\": \"position in the stack: connector\", \"rea -> [{\"axis\": \"position in the stack: laser/EML vs mod",
+        "ranking.[APH].case_against: \"Its -0.60% month and RSI 44.1 are not a broken bu -> \"Rank 4 not higher because Communications Solution",
+        "bench.[CRDO].why_better_than: \"APH\" -> \"MRVL\"",
+        "bench.[CRDO].entry_condition: \"Beats APH on the identical scale-up/within-rack a -> \"WITHDRAWN as a why_better_than APH line -- the AP",
+        "order: (new) -> \"LITE > COHR > ALAB > APH > MRVL > CIEN > GLW\""
+      ]
+    },
+    {
+      "agent": "thesis",
+      "message": "M4.25",
+      "changed": [
+        "thesis.changed.APH.status: \"intact\" -> \"strengthening\"",
+        "thesis.changed.APH.thesis: \"High-speed interconnect/cable-assembly for AI servers and d -> \"High-speed interconnect for AI servers/datacenter; Communic",
+        "thesis.changed.APH.evidence_for: [{\"claim\": \"IT Datacom is APH's largest and fastest-growing  -> [{\"claim\": \"Communications Solutions ~62% of net sales, +42%",
+        "thesis.changed.APH.evidence_against: [{\"claim\": \"-5.78% close within a -8.28% cluster de-rating o -> [{\"claim\": \"About half of the +85% USD growth is acquired (8",
+        "thesis.changed.APH.verified: \"unverified\" -> \"primary\"",
+        "thesis.changed.APH.verified_against: \"\" -> \"APH Form 10-Q, quarter ended 2026-06-30, accn 0001104659-26"
+      ]
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "M7.35",
+      "to": "thesis",
+      "ticker": "APH",
+      "kind": "reply",
+      "status": "expired",
+      "question": "Answer to your M6.33 (Answer to your M4.27 (Answer to your M3.14 (APH latest 10-Q: IT Datacom (and any datacenter/AI-attributed) net sales as % of total and YoY growth, with period e): [held] Acknowledgement only: thesis's answer to M4.27 (APH primary source) is recorded; nothing further owed.",
+      "why": "round cap 6 reached before delivery"
+    },
+    {
+      "id": "M8.36",
+      "to": "cluster_optics",
+      "ticker": "CIEN",
+      "kind": "reply",
+      "status": "expired",
+      "question": "Answer to your M2.5 (CIEN is $2.98 / 0.009% weight with a `strengthening` thesis and a 09-03 beat-and-raise (EPS $2.11 vs $1.73, guide above). Is this a deliberate residual or the s): [held] CIEN is dust ($2.98, 0.009%), a real residual, not a position. The engine's conviction_average CIEN ticket (E",
+      "why": "round cap 6 reached before delivery"
+    },
+    {
+      "id": "M8.37",
+      "to": "cluster_optics",
+      "ticker": "CIEN",
+      "kind": "reply",
+      "status": "expired",
+      "question": "Answer to your M4.23 (Re-asking my M2.5 with the TER premise corrected: CIEN is $2.98 / 0.009% of the book with an `intact-to-strengthening` thesis and a verified 09-03 beat (FQ3 rev): [held] Same as M2.5. Strategist does not rank CIEN as a position; TER premise correction accepted (TER $1,852.96, 5",
+      "why": "round cap 6 reached before delivery"
+    }
+  ],
+  "rule": "Adjudicate on the post-debate record. A `revised` outcome means the owning analyst changed its output and every consumer was told. A `held` outcome means the challenge was answered with a reason; weigh that reason, do not re-open it. `unresolved` items are live disagreements -- do not size a proposal on one without naming it."
+}

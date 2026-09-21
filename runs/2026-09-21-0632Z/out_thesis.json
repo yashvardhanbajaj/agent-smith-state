@@ -1,0 +1,182 @@
+{
+  "thesis": {
+    "changed": {
+      "MU": {
+        "status": "watch",
+        "thesis": "Memory (DRAM/HBM); WATCH is CXMT structural capacity risk, not ASP. New 09-20: CXMT G5 LPDDR5X volume output (mobile-class, not HBM/server DDR5) and HBM3E still trial-only with mass production guided 2027; MU HBM3E contract quote firm at $12.4/GB. FQ4 print 2026-10-01 is the next hard datapoint.",
+        "evidence_for": [
+          {
+            "claim": "HBM3E contract quote $12.4/GB and HBM4 $16.0/GB, tier1-corroborated; stack-derived HBM3E flat 0.0% within basis 2026-07-19 to 2026-09-15; no ASP erosion",
+            "date": "2026-09-20",
+            "source": "HBMTracker consumer_view.json"
+          },
+          {
+            "claim": "CXMT HBM3E is one generation behind (HBM4 already mass-produced by Samsung/SK hynix/Micron); no volume, yield or HBM share disclosed",
+            "date": "2026-09-20",
+            "source": "smith-catalyst out_catalyst.json (sedaily 2026-09-20)"
+          },
+          {
+            "claim": "Analyst mean target $1513.11, ~49% above $1017.75 close",
+            "date": "2026-09-18",
+            "source": "INDmoney via smith-signals"
+          }
+        ],
+        "evidence_against": [
+          {
+            "claim": "CXMT reported 9.5% of global DRAM revenue in Q2 (4th place) and now has G5 LPDDR5X in volume: share pressure on commodity/mobile DRAM is real, though not HBM",
+            "date": "2026-09-20",
+            "source": "smith-catalyst (sedaily 2026-09-20)"
+          },
+          {
+            "claim": "CXMT HBM3E qualification samples to Alibaba T-Head/Cambricon, mass production guided 2027 (structural, not yet in any contract print)",
+            "date": "2026-09-20",
+            "source": "smith-catalyst"
+          },
+          {
+            "claim": "HBM4 Vera Rubin share SK hynix 60-70%, Samsung 25-30%, MU residual: MU captures least of the ramp",
+            "date": "2026-06-05",
+            "source": "HBMTracker supply_structure"
+          }
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "Status unchanged (WATCH). No downgrade: CXMT items are unquantified on HBM and pricing is firm. Branch (c)/no_action tension. Not an upgrade either: 10-01 print pending and evidence_against grew (G5 volume). No precedent search since no verdict moved."
+      },
+      "SKHY": {
+        "status": "watch",
+        "thesis": "SK hynix ADR; HBM4 Vera Rubin leader (60-70% share), 0.56% starter. CXMT HBM3E trial production is one generation behind and does not touch HBM4 leadership near-term; G5 output is LPDDR5X.",
+        "evidence_for": [
+          {
+            "claim": "HBM4 contract quote $16.0/GB is ~29% above HBM3E $12.4/GB, the premium SKHY captures most directly",
+            "date": "2026-09-20",
+            "source": "HBMTracker consumer_view.json"
+          },
+          {
+            "claim": "PEER LEADER +17.92pp vs SMH (+1.68 sigma) and STRONG UPTREND; target gap +32.9%",
+            "date": "2026-09-21",
+            "source": "smith-signals"
+          }
+        ],
+        "evidence_against": [
+          {
+            "claim": "CXMT 9.5% Q2 global DRAM share plus HBM3E trial production with 2027 mass production guide; Samsung/Micron also passed HBM4 NVIDIA certification so 60-70% is a starting share, not a moat",
+            "date": "2026-09-20",
+            "source": "smith-catalyst; HBMTracker supply_structure 2026-06-05"
+          },
+          {
+            "claim": "Position remains an unreconciled fill (no INDmoney confirmation)",
+            "date": "2026-09-07",
+            "source": "prior run"
+          }
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "Status unchanged (WATCH); evidence arrays refreshed with 09-20 CXMT data."
+      },
+      "APH": {
+        "status": "strengthening",
+        "thesis": "High-speed interconnect for AI servers/datacenter; Communications Solutions ~62% of Q2-2026 net sales grew 42% organically (src: APH 10-Q qtr ended 2026-06-30, as_of 2026-07-31). Stand-alone IT-datacom share is not established in the filing.",
+        "evidence_for": [
+          {
+            "claim": "Communications Solutions ~62% of net sales, +42% organic y/y (+85% USD), driven by IT datacom, AI strength",
+            "date": "2026-07-31",
+            "source": "APH Form 10-Q accn 0001104659-26-089194"
+          },
+          {
+            "claim": "CommScope CCS acquisition (closed 2026-01-09) adds fiber-optic interconnect for IT datacom",
+            "date": "2026-01-09",
+            "source": "APH 10-Q via desk"
+          }
+        ],
+        "evidence_against": [
+          {
+            "claim": "About half of the +85% USD growth is acquired (85% vs 42% organic), so headline growth overstates demand",
+            "date": "2026-07-31",
+            "source": "APH 10-Q"
+          },
+          {
+            "claim": "Segment includes non-datacom lines; IT-datacom share stand-alone not established",
+            "date": "2026-07-31",
+            "source": "APH 10-Q, desk"
+          },
+          {
+            "claim": "Acquisition funded by Delayed Draw Term Loans ($1,534.1M drawn under each per desk): added leverage, ratio unchecked",
+            "date": "2026-07-31",
+            "source": "APH 10-Q via desk"
+          },
+          {
+            "claim": "-5.78% close inside a -8.28% cluster de-rating on sentiment, no name-specific catalyst",
+            "date": "2026-09-14",
+            "source": "smith-signals/smith-catalyst"
+          }
+        ],
+        "verified": "primary",
+        "verified_against": "APH Form 10-Q, quarter ended 2026-06-30, accn 0001104659-26-089194 (via desk)",
+        "verified_on": "2026-09-21",
+        "note": "Restored to strengthening on primary evidence; supersedes the M2.3 intact revision. Leverage not independently checked this run.",
+        "reviewed_on": "2026-09-20"
+      }
+    },
+    "unchanged_count": 25,
+    "reviewed_unchanged": [
+      "ASML",
+      "AMAT",
+      "TER"
+    ],
+    "reviewed_notes": {
+      "ASML": "Stays WATCH. CXMT G5/HBM3E items are memory-product news; catalyst confirms source never mentions DUV/EUV, so ASML link NOT established and carried as no evidence against EUV moat. Standing against: China DUV buildout multi-year (~5 units 2026 vs ~20 in 2027, src smith-catalyst 2026-07-28). No upgrade (not resolved). Both evidence arrays in state unchanged.",
+      "AMAT": "Stays STRENGTHENING. CXMT trial HBM/G5 volume ramp implies Chinese fab tool demand at most; deposition/etch revenue linkage to a HBM3E trial is unestablished (Aug print beat both quarter and guide, src 8-K/stockanalysis 2026-08-24). Standing against: -12.55pp vs SMH 1m peer laggard (smith-signals 2026-09-21). Live catalyst_threat TRIM trigger rests on the CXMT reason alone; recommend strategist treat it as not thesis evidence.",
+      "TER": "Stays STRENGTHENING as a status; DUST position (0.00273sh, ~$1.10), excluded from weights, so the 26% exposure figure includes a name with no economic weight. CXMT reason is not a TER-specific mechanism. Open user_decision flag (sell residue vs hold) remains."
+    }
+  },
+  "sector_map": {
+    "changed": {},
+    "unchanged_count": 27,
+    "note": "WDC = 'AI Storage/HDD' confirmed consistent (exact string used in slice sector_map); all 27 entries match existing cluster names; no new names this run. Slice sector_map lists 27 tickers though thesis has 27 entries incl. status_only."
+  },
+  "ai_capex_pct": null,
+  "factor_flags": [
+    "CXMT structural threat touches memory (MU, SKHY) directly; semicap (AMAT, ASML, TER) link unestablished -- effective exposed slice with real economic weight is MU+SKHY (~6.6% of equity), not 26%"
+  ],
+  "thesis_tensions": [
+    {
+      "metric": "HBM3E usd_per_gb (contract_quote)",
+      "current_value": 12.4,
+      "basis": "contract_quote",
+      "trend_within_basis_pct": null,
+      "verdict_conflict": "MU WATCH (CXMT capacity risk) vs firm tier1 HBM3E/HBM4 contract quotes",
+      "direction": "no_action",
+      "reconciliation": "Threat is supply-side share (CXMT), not ASP; stack_derived basis flat 0.0% (2026-07-19 to 2026-09-15); only one contract_quote point since 2026-01-15 so no within-basis trend is computable; cross-basis comparison refused. Quote as-of 2026-09-20 (staleness 0).",
+      "corrections_checked": [
+        "C1",
+        "C2"
+      ]
+    }
+  ],
+  "findings_reaffirmed": [
+    "catalyst:aa6e4a3cf0"
+  ],
+  "findings_revised": [],
+  "comms": {
+    "answers": [],
+    "asks": [],
+    "tells": [
+      {
+        "to": "strategist",
+        "ticker": "ASML",
+        "fact": "catalyst_threat TRIM triggers on ASML, AMAT and TER rest solely on the CXMT HBM3E reason; smith-catalyst's source never mentions DUV/EUV and no deposition/etch/test revenue mechanism is established. Treat as not thesis evidence; only MU/SKHY have a direct mechanism (share, not ASP). TER is a dust position.",
+        "source": "out_catalyst.json 2026-09-21; smith-thesis review",
+        "weight": "high"
+      }
+    ]
+  },
+  "data_quality": [
+    "INDmoney MCP unauthenticated this session: no fresh per-holding news; verdicts rest on Wave-1 tails, hbm_tracker (as of 2026-09-20) and prior thesis text.",
+    "No verification calls spent (no status change, no new position); earnings_facts not emitted.",
+    "MU/SKHY/ASML entries verified unverified; AMAT secondary from 2026-08-24.",
+    "ai_capex_pct not recomputed this run (scope limited to CXMT names); orchestrator's script figure governs.",
+    "HBM3E contract_quote has a single fresh point since 2026-01-15; no within-basis trend."
+  ]
+}

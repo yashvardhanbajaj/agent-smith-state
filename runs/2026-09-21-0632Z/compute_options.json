@@ -1,0 +1,45 @@
+{
+  "SPY": {
+    "symbol": "SPY",
+    "underlying_price": 761.6900024414062,
+    "expiries": {
+      "2026-09-28": {
+        "max_pain": null,
+        "pcr_oi": null,
+        "note": "no open interest"
+      },
+      "2026-09-29": {
+        "max_pain": null,
+        "pcr_oi": null,
+        "note": "no open interest"
+      }
+    },
+    "data_quality": [
+      "2026-09-28: open interest is zero across every strike -- this is the original G18 signature. Reported as null rather than as a max-pain of 0.",
+      "2026-09-29: open interest is zero across every strike -- this is the original G18 signature. Reported as null rather than as a max-pain of 0."
+    ],
+    "note": "pcr_oi is put/call OPEN INTEREST (standing positioning); pcr_vol is today's FLOW. Different questions -- report both, never blend them. Max-pain is a gravity heuristic, not a forecast -- it moves as OI shifts and is least meaningful far from expiry."
+  },
+  "QQQ": {
+    "symbol": "QQQ",
+    "underlying_price": 721.4500122070312,
+    "expiries": {
+      "2026-09-28": {
+        "max_pain": null,
+        "pcr_oi": null,
+        "note": "no open interest"
+      },
+      "2026-09-29": {
+        "max_pain": null,
+        "pcr_oi": null,
+        "note": "no open interest"
+      }
+    },
+    "data_quality": [
+      "2026-09-28: open interest is zero across every strike -- this is the original G18 signature. Reported as null rather than as a max-pain of 0.",
+      "2026-09-29: open interest is zero across every strike -- this is the original G18 signature. Reported as null rather than as a max-pain of 0."
+    ],
+    "note": "pcr_oi is put/call OPEN INTEREST (standing positioning); pcr_vol is today's FLOW. Different questions -- report both, never blend them. Max-pain is a gravity heuristic, not a forecast -- it moves as OI shifts and is least meaningful far from expiry."
+  },
+  "as_of_utc": "2026-09-21T06:33:41Z"
+}

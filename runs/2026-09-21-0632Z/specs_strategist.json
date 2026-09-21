@@ -1,0 +1,71 @@
+[
+ {
+  "direction": "TRIM",
+  "ticker": "MU",
+  "size_usd": 407.17,
+  "price_at_proposal": 1017.75,
+  "trigger_type": "catalyst_threat",
+  "size_wanted_usd": 407.17,
+  "stop_price_usd": null,
+  "rationale": "catalyst_threat: MU is one of only two held names (with SKHY, ~6.6% of equity combined) with a direct CXMT mechanism -- share loss in DRAM, not ASP. CXMT announced G5 LPDDR5X volume production 2026-09-20 at 9.5% of Q2 global DRAM revenue (secondary source, sedaily); HBM3E still trial-only, mass production 2027 (so this trim is NOT an HBM call). Thesis is watch, position 6.04% and +8.4% on the month, RSI 58. MU prints 2026-10-01 (implied move 10.22%): this is a small 20%-of-open-risk trim ($407, 0.96% of book, risk removed $34.85, r_ticket 0.16), sized by the script, not a view on the print. Cap-independent by design. Precedent check: gaps G8/CXMT-conflation lesson applied -- claim limited to LPDDR5X share, not HBM. Expires 2026-09-26, before the print; not resized. Tax: see compute_taxcalc trim_sequencing (0.4001 sh short-term FIFO).",
+  "evidence_quality": {
+   "verified": 1,
+   "computed": 2,
+   "unverified": 1
+  },
+  "benchmark_price_at_proposal": 573.0
+ },
+ {
+  "direction": "TRIM",
+  "ticker": "GLW",
+  "size_usd": 450.3,
+  "price_at_proposal": 150.1,
+  "trigger_type": "catalyst_threat",
+  "size_wanted_usd": 450.3,
+  "stop_price_usd": null,
+  "rationale": "full_exit of a sub-scale, lowest-conviction position. Independent grounds that do NOT depend on the ATM: $450 is below the $638 minimum position with the book at 27 names vs a 15-20 target (position_consolidation, GLW is candidate #1, conviction -1.5); thesis watch; cluster_optics ranks GLW the weakest stack node and says it folds on conviction. The catalyst_threat trigger (ATM $2bn, 8-K/424B5 filed 2026-09-11, verified filing) is corroborating only: catalyst says usage is UNKNOWN, not zero, and WEAKENED it 09-18 -- I do not rely on it. Script sized: full_exit because a 20%-of-risk $90 trim would leave $360, under the $400 minimum. Risk removed $45.39. Exit is never blocked by materiality. Cluster exposure to optics stays via LITE/APH/ALAB.",
+  "evidence_quality": {
+   "verified": 1,
+   "computed": 2,
+   "unverified": 0
+  },
+  "benchmark_price_at_proposal": 573.0
+ },
+ {
+  "direction": "SELL",
+  "ticker": "AMD",
+  "size_usd": 557.98,
+  "price_at_proposal": 557.98,
+  "trigger_type": "profit_rotation",
+  "pair_id": "profit_rotation-AMD-KLAC",
+  "pair_role": "sell",
+  "size_wanted_usd": 557.98,
+  "stop_price_usd": null,
+  "rationale": "profit_rotation sell leg (paired with KLAC BUY): AMD in names_stretched with a watch thesis, conviction 9.2, sub-scale at $558 (< $638 minimum). Full-position sale of $558 books real profit and shrinks position count. Risk removed $41.74 vs KLAC redeployed $35.46 -- pair is roughly risk-flat, net risk -$6.28; the difference goes to cash. Trigger is live, thesis watch, so no contradiction with an accumulate bucket.",
+  "evidence_quality": {
+   "verified": 0,
+   "computed": 3,
+   "unverified": 1
+  },
+  "benchmark_price_at_proposal": 573.0
+ },
+ {
+  "direction": "BUY",
+  "ticker": "KLAC",
+  "size_usd": 429.25,
+  "price_at_proposal": 177.14,
+  "trigger_type": "profit_rotation",
+  "pair_id": "profit_rotation-AMD-KLAC",
+  "pair_role": "buy",
+  "size_wanted_usd": 429.25,
+  "clamped_by": "buy R_ticket (its own conviction tranche)",
+  "stop_price_usd": 162.51,
+  "rationale": "profit_rotation buy leg (paired with AMD SELL): KLAC is a laggard (-7.6pp vs benchmark) with a strengthening thesis, yet to rally -- 'back the performer with intact thesis'. Script ticket: $429 sized by R_ticket (its own conviction tranche), stop $162.51, risk $35.46, buy EV 0.92R (p_win 0.40 UNCALIBRATED prior, payoff 3.87R), heat budget allocation first in EV order, leaves R_free ~$560. No engine verdict yet (BUY unproven, n=0) so no multiplier. Only live buy-side ticket this run. policy.heat_budget is confirmed=true per compute_triggers; trade_materiality unconfirmed. Not to be read as a proven edge.",
+  "evidence_quality": {
+   "verified": 0,
+   "computed": 3,
+   "unverified": 1
+  },
+  "benchmark_price_at_proposal": 573.0
+ }
+]

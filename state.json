@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "ts": "2026-09-20T08:46:15Z",
+  "ts": "2026-09-21T07:02:13Z",
   "mode": "deep",
   "usdinr": 95.095,
   "artifact_url": "https://claude.ai/artifact/QmHBPbVt656xYzYhNRgL6h",
-  "last_run_dir": "runs/2026-09-20-0816Z",
+  "last_run_dir": "runs/2026-09-21-0632Z",
   "us": {
     "value_usd": 33730.51,
     "count": 27,
@@ -23,12 +23,12 @@
       }
     ],
     "pnl_pct": 1.808,
-    "wallet_usd": 8811.44,
+    "wallet_usd": 8816.73,
     "peak_value_usd": 44037.79,
     "beta": 1.045,
     "peak_total_book_usd": 43027.32,
-    "total_book_usd": 42541.95,
-    "drawdown_pct": -1.128
+    "total_book_usd": 42547.24,
+    "drawdown_pct": -1.116
   },
   "holdings": [
     {
@@ -167,7 +167,7 @@
       "weight_pct": 0.0088
     }
   ],
-  "news_watermark": "2026-09-20",
+  "news_watermark": "2026-09-21",
   "thesis": {
     "ASML": {
       "status": "watch",
@@ -220,7 +220,7 @@
       "verified_against": "",
       "verified_on": "",
       "note": "Status unchanged. Wave-1 capex-guidance verification this run corroborates yesterday's sentiment/multiple-compression adjudication. No new status action; no precedent check run (no verdict moved).",
-      "reviewed_on": "2026-09-20"
+      "reviewed_on": "2026-09-21"
     },
     "GEV": {
       "status": "watch",
@@ -465,7 +465,7 @@
       "verified_against": "SEC 8-K/10-Q filings + stockanalysis.com (2026-08-24)",
       "verified_on": "2026-08-24",
       "note": "Status unchanged; evidence arrays populated per G58 (were empty despite a live catalyst_threat trigger and a Wave-1 sibling flag -- not allowed to stay empty). Weight correction flagged in data_quality, not a status-triggering event.",
-      "reviewed_on": "2026-09-20"
+      "reviewed_on": "2026-09-21"
     },
     "TSM": {
       "status": "strengthening",
@@ -491,32 +491,37 @@
     },
     "MU": {
       "status": "watch",
-      "thesis": "Memory (DRAM/HBM); 2.0004sh / 6.04% of equity. WATCH remains CXMT structural/capacity risk, not ASP -- fresh HBM tracker refresh (5d stale, was 46d dark) confirms no ASP erosion. FQ4 earnings 2026-10-01 is the next hard datapoint.",
+      "thesis": "Memory (DRAM/HBM); WATCH is CXMT structural capacity risk, not ASP. New 09-20: CXMT G5 LPDDR5X volume output (mobile-class, not HBM/server DDR5) and HBM3E still trial-only with mass production guided 2027; MU HBM3E contract quote firm at $12.4/GB. FQ4 print 2026-10-01 is the next hard datapoint.",
       "evidence_for": [
         {
-          "claim": "HBM3E stack-derived basis still flat at $9.00/GB, 0.0% trend 2026-07-19 to 2026-09-15, tier1-corroborated (upgraded from prior tier2-only read)",
-          "date": "2026-09-15",
-          "source": "HBMTracker consumer_view.json"
-        },
-        {
-          "claim": "First contract_quote datapoint since 2026-01-15: HBM3E $12.4/GB and HBM4 $16.0/GB, both tier1-corroborated -- absolute levels sit above the stack-derived floor, consistent with TrendForce's corrected view (C1) that HBM3E pricing is rising/flat post-3Q25 renegotiation, not the phantom -51% decline",
+          "claim": "HBM3E contract quote $12.4/GB and HBM4 $16.0/GB, tier1-corroborated; stack-derived HBM3E flat 0.0% within basis 2026-07-19 to 2026-09-15; no ASP erosion",
           "date": "2026-09-20",
           "source": "HBMTracker consumer_view.json"
         },
         {
-          "claim": "Analyst mean target $1513.11, ~49% above the $1017.75 close, n=30",
+          "claim": "CXMT HBM3E is one generation behind (HBM4 already mass-produced by Samsung/SK hynix/Micron); no volume, yield or HBM share disclosed",
+          "date": "2026-09-20",
+          "source": "smith-catalyst out_catalyst.json (sedaily 2026-09-20)"
+        },
+        {
+          "claim": "Analyst mean target $1513.11, ~49% above $1017.75 close",
           "date": "2026-09-18",
           "source": "INDmoney via smith-signals"
         }
       ],
       "evidence_against": [
         {
-          "claim": "CXMT HBM3E risk production shipping qualification samples to Alibaba/Cambricon, ~1yr ahead of 2027 consensus -- qualification stage only, still not reflected in any supplier contract print",
-          "date": "2026-09-07",
-          "source": "smith-catalyst (carried forward)"
+          "claim": "CXMT reported 9.5% of global DRAM revenue in Q2 (4th place) and now has G5 LPDDR5X in volume: share pressure on commodity/mobile DRAM is real, though not HBM",
+          "date": "2026-09-20",
+          "source": "smith-catalyst (sedaily 2026-09-20)"
         },
         {
-          "claim": "HBM4 Vera Rubin supplier share: SK hynix 60-70%, Samsung 25-30%, MU the residual -- MU captures the least of the ramp even as pricing firms",
+          "claim": "CXMT HBM3E qualification samples to Alibaba T-Head/Cambricon, mass production guided 2027 (structural, not yet in any contract print)",
+          "date": "2026-09-20",
+          "source": "smith-catalyst"
+        },
+        {
+          "claim": "HBM4 Vera Rubin share SK hynix 60-70%, Samsung 25-30%, MU residual: MU captures least of the ramp",
           "date": "2026-06-05",
           "source": "HBMTracker supply_structure"
         }
@@ -524,9 +529,8 @@
       "verified": "unverified",
       "verified_against": "",
       "verified_on": "",
-      "note": "Status unchanged (WATCH). This run's HBM refresh (staleness_days 0-5, first usable pricing in 6 weeks) closes the freshness gap flagged in the dispatch: no ASP-driven downgrade case exists -- stack-derived is flat, and the new tier1 contract quotes ($12.4/HBM3E, $16.0/HBM4) sit at levels that corroborate a firming, not weakening, pricing backdrop. No status action; precedent check not run (no verdict moved).",
-      "reviewed_on": "2026-09-20",
-      "_see": "full corrected entry in this file's thesis.changed.MU"
+      "note": "Status unchanged (WATCH). No downgrade: CXMT items are unquantified on HBM and pricing is firm. Branch (c)/no_action tension. Not an upgrade either: 10-01 print pending and evidence_against grew (G5 volume). No precedent search since no verdict moved.",
+      "reviewed_on": "2026-09-21"
     },
     "AMAT": {
       "status": "strengthening",
@@ -559,7 +563,7 @@
       "verified_against": "SEC 8-K/10-Q + stockanalysis.com",
       "verified_on": "2026-08-24",
       "note": "Status unchanged; weight/position text refreshed (the prior 3.864% figure is superseded). No status change so no gap-precedent check spent.",
-      "reviewed_on": "2026-09-20"
+      "reviewed_on": "2026-09-21"
     },
     "AMD": {
       "status": "watch",
@@ -870,32 +874,32 @@
       "reviewed_on": "2026-09-20"
     },
     "APH": {
-      "status": "strengthening",
-      "thesis": "High-speed interconnect/cable-assembly supplier for AI servers and datacenter networking; IT Datacom is APH's largest, fastest-growing segment",
+      "status": "intact",
+      "thesis": "High-speed interconnect/cable-assembly for AI servers and datacenter networking; AI/datacenter revenue share NOT established this run (no sourced percentage), so strengthening is not evidenced.",
       "evidence_for": [
         {
-          "claim": "IT Datacom segment is APH's largest and fastest-growing, AI-server-buildout beneficiary",
+          "claim": "IT Datacom is APH's largest and fastest-growing segment (no percentage; unverified)",
           "date": "2026-09-06",
           "source": "orchestrator holdings note"
-        },
-        {
-          "claim": "earlier-session STRONG UPTREND read (rel_sigma -0.46) is SUPERSEDED by the closing print below -- kept for context, not the live read",
-          "date": "2026-09-14",
-          "source": "smith-signals 2026-09-14 (pre-close snapshot)"
         }
       ],
       "evidence_against": [
         {
-          "claim": "-5.78% close today (deeper than the 18:23Z snapshot), MOMENTUM+VOLUME? unconfirmed leg + STRONG DOWNTREND, part of a sector-wide AI Networking/Optics cluster de-rating (-8.28%) on the Amodei pacing-essay sentiment shock + Fed hike-odds surge -- no name-specific negative catalyst found",
+          "claim": "-5.78% close within a -8.28% cluster de-rating on sentiment; no name-specific catalyst found (weakly against, sentiment not fundamentals)",
           "date": "2026-09-14",
-          "source": "smith-signals/smith-catalyst 2026-09-14 (post-close data)"
+          "source": "smith-signals/smith-catalyst"
+        },
+        {
+          "claim": "No primary-source AI/datacenter revenue mix found: thesis rests on an unquantified claim",
+          "date": "2026-09-21",
+          "source": "smith-thesis review"
         }
       ],
       "verified": "unverified",
       "verified_against": "",
       "verified_on": "",
-      "note": "Status unchanged; the 'none found' placeholder from earlier today is superseded by post-close price action, now filled per G58 (a Wave-1 sibling flagged this name).",
-      "reviewed_on": "2026-09-20"
+      "note": "Status moved strengthening->intact for thin evidence, not deterioration. Provisional pending a 10-Q segment lookup (desk). Precedent search not run (no INDmoney/ledger tooling; downgrade rests on absence, not an event claim).",
+      "reviewed_on": "2026-09-21"
     },
     "AMZN": {
       "status": "watch",
@@ -1018,33 +1022,36 @@
     },
     "SKHY": {
       "status": "watch",
-      "thesis": "SK hynix ADR; HBM4 Vera Rubin leader (60-70% share). 1sh / ~0.56% is an UNRECONCILED fill -- unchanged from prior run.",
+      "thesis": "SK hynix ADR; HBM4 Vera Rubin leader (60-70% share), 0.56% starter. CXMT HBM3E trial production is one generation behind and does not touch HBM4 leadership near-term; G5 output is LPDDR5X.",
       "evidence_for": [
         {
-          "claim": "New tier1 HBM4 contract quote $16.0/GB (2026-09-20) sits ~29% above the new HBM3E contract quote ($12.4/GB), corroborating the generational premium SKHY's HBM4 leadership captures most directly (60-70% Vera Rubin share)",
+          "claim": "HBM4 contract quote $16.0/GB is ~29% above HBM3E $12.4/GB, the premium SKHY captures most directly",
           "date": "2026-09-20",
           "source": "HBMTracker consumer_view.json"
+        },
+        {
+          "claim": "PEER LEADER +17.92pp vs SMH (+1.68 sigma) and STRONG UPTREND; target gap +32.9%",
+          "date": "2026-09-21",
+          "source": "smith-signals"
         }
       ],
       "evidence_against": [
         {
-          "claim": "Position still unreconciled (no INDmoney success confirmation); CXMT HBM3E risk-production and ~10% domestic DRAM share both carried forward, qualification-stage only",
+          "claim": "CXMT 9.5% Q2 global DRAM share plus HBM3E trial production with 2027 mass production guide; Samsung/Micron also passed HBM4 NVIDIA certification so 60-70% is a starting share, not a moat",
+          "date": "2026-09-20",
+          "source": "smith-catalyst; HBMTracker supply_structure 2026-06-05"
+        },
+        {
+          "claim": "Position remains an unreconciled fill (no INDmoney confirmation)",
           "date": "2026-09-07",
-          "source": "smith-catalyst (carried forward)"
+          "source": "prior run"
         }
       ],
       "verified": "unverified",
       "verified_against": "",
       "verified_on": "",
-      "note": "evidence_against line added per M2.12 (cluster_memory); status unchanged (WATCH).",
-      "reviewed_on": "2026-09-20",
-      "evidence_against_add": [
-        {
-          "claim": "HBM4 is the first generation where SK hynix, Samsung AND Micron all passed NVIDIA certification for Vera Rubin at the START of the ramp -- unlike HBM3E where SK hynix held an early near-monopoly. The current 60-70% allocation is a starting share, not a structural moat; Samsung/Micron qualification removes the single-source lock-in that HBM3E-era SKHY exposure relied on",
-          "date": "2026-06-05",
-          "source": "HBMTracker supply_structure.hbm4_vera_rubin_allocation"
-        }
-      ]
+      "note": "Status unchanged (WATCH); evidence arrays refreshed with 09-20 CXMT data.",
+      "reviewed_on": "2026-09-21"
     }
   },
   "sector_map": {
@@ -1178,10 +1185,8 @@
       "TARGET GAP"
     ],
     "SKHY": [
-      "BREAKOUT",
       "STRONG UPTREND",
       "PEER LEADER",
-      "NEW TAILWINDS",
       "TARGET GAP"
     ],
     "SMCI": [],
@@ -1385,9 +1390,11 @@
         "source": "script"
       },
       "LRCX": {
-        "value": 1.772,
-        "as_of": "2026-07-31",
-        "benchmark": "SMH"
+        "value": 1.449,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
       },
       "MRVL": {
         "value": 1.412,
@@ -1404,14 +1411,18 @@
         "source": "script"
       },
       "NVDA": {
-        "value": 0.51,
-        "as_of": "2026-07-31",
-        "benchmark": "SMH"
+        "value": 0.654,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
       },
       "ORCL": {
-        "value": 0.677,
-        "as_of": "2026-07-31",
-        "benchmark": "SMH"
+        "value": 0.581,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
       },
       "QCOM": {
         "value": 0.721,
@@ -1421,9 +1432,11 @@
         "source": "script"
       },
       "SNDK": {
-        "value": 2.924,
-        "as_of": "2026-07-31",
-        "benchmark": "SMH"
+        "value": 1.974,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
       },
       "TER": {
         "value": 1.516,
@@ -1447,9 +1460,11 @@
         "source": "script"
       },
       "GOOGL": {
-        "value": -0.036,
-        "as_of": "2026-07-31",
-        "benchmark": "SMH"
+        "value": 0.229,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
       },
       "NBIS": {
         "value": 1.495,
@@ -1459,9 +1474,11 @@
         "source": "script"
       },
       "IREN": {
-        "value": 2.436,
-        "as_of": "2026-07-31",
-        "benchmark": "SMH"
+        "value": 1.503,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
       },
       "CEG": {
         "value": 0.45,
@@ -1483,24 +1500,32 @@
         "source": "script"
       },
       "MKSI": {
-        "value": 1.646,
-        "as_of": "2026-07-31",
-        "benchmark": "SMH"
+        "value": 1.267,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
       },
       "META": {
-        "value": 0.022,
-        "as_of": "2026-08-03",
-        "benchmark": "SMH"
+        "value": 0.215,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
       },
       "BABA": {
-        "value": 0.264,
-        "as_of": "2026-08-03",
-        "benchmark": "SMH"
+        "value": 0.341,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
       },
       "QBTS": {
-        "value": 1.21,
-        "as_of": "2026-08-03",
-        "benchmark": "SMH"
+        "value": 1.253,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
       },
       "MP": {
         "value": 1.233,
@@ -1561,10 +1586,11 @@
       },
       "_method_note_2026_08_12": "STM/TXN/AMD/COHR/FLTW/BX betas regressed vs SMH over only 22 daily returns (2026-07-13..08-12) -- the per-call row cap limits history. Thin but materially better than the 1.0 default that was silently in use; refresh on the next deep run.",
       "IONQ": {
-        "value": 1.311,
-        "as_of": "2026-08-17",
+        "value": 1.095,
+        "as_of": "2026-09-18",
         "benchmark": "SMH",
-        "note": "seeded by smith-book 2026-08-17 from a batched IONQ+SMH 1mo/1d pull on first appearance of the position; only 21 daily observations spanning one violent sector event -- directional, not structural. Re-measure with longer history."
+        "obs": 250,
+        "source": "script"
       },
       "WDC": {
         "value": 1.383,
@@ -1593,9 +1619,11 @@
         "source": "script"
       },
       "AMKR": {
-        "value": 2.247,
-        "as_of": "2026-08-29",
-        "benchmark": "SMH"
+        "value": 1.539,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
       },
       "SMCI": {
         "value": 1.283,
@@ -1647,6 +1675,160 @@
       },
       "XLU": {
         "value": 0.026,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "AEP": {
+        "value": -0.024,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "AIA": {
+        "value": 0.705,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "ANET": {
+        "value": 0.748,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "BLK": {
+        "value": 0.216,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "CRDO": {
+        "value": 1.485,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "CRWV": {
+        "value": 1.269,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "DDOG": {
+        "value": 0.164,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "DELL": {
+        "value": 0.793,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "DUK": {
+        "value": -0.126,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "ETN": {
+        "value": 0.719,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "JNJ": {
+        "value": -0.136,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "LLY": {
+        "value": -0.058,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "NEM": {
+        "value": 0.535,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "PG": {
+        "value": -0.134,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "PWR": {
+        "value": 0.698,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "RGTI": {
+        "value": 1.207,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "SO": {
+        "value": -0.11,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "SPGI": {
+        "value": -0.156,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "STX": {
+        "value": 1.199,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "UNH": {
+        "value": 0.038,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "VST": {
+        "value": 0.585,
+        "as_of": "2026-09-18",
+        "benchmark": "SMH",
+        "obs": 250,
+        "source": "script"
+      },
+      "XOM": {
+        "value": -0.16,
         "as_of": "2026-09-18",
         "benchmark": "SMH",
         "obs": 250,
@@ -2192,18 +2374,18 @@
     "analyst_targets": {
       "AMZN": {
         "mean_target_usd": 328.17,
-        "n_analysts": 40,
-        "as_of": "2026-09-19"
+        "n_analysts": null,
+        "as_of": "2026-09-21"
       },
       "ASML": {
         "mean_target_usd": 2157.62,
         "n_analysts": null,
-        "as_of": "2026-09-19"
+        "as_of": "2026-09-21"
       },
       "BE": {
         "mean_target_usd": 280.24,
-        "n_analysts": 18,
-        "as_of": "2026-09-19"
+        "n_analysts": null,
+        "as_of": "2026-09-21"
       },
       "BX": {
         "mean_target_usd": 142.57,
@@ -2217,8 +2399,8 @@
       },
       "GOOG": {
         "mean_target_usd": 422.34,
-        "n_analysts": 12,
-        "as_of": "2026-09-19"
+        "n_analysts": null,
+        "as_of": "2026-09-21"
       },
       "MRVL": {
         "mean_target_usd": 284.64,
@@ -2227,8 +2409,8 @@
       },
       "MU": {
         "mean_target_usd": 1513.11,
-        "n_analysts": 30,
-        "as_of": "2026-09-19"
+        "n_analysts": null,
+        "as_of": "2026-09-21"
       },
       "STM": {
         "mean_target_usd": 75.04,
@@ -2262,8 +2444,8 @@
       },
       "MSFT": {
         "mean_target_usd": 572.92,
-        "n_analysts": 34,
-        "as_of": "2026-09-19"
+        "n_analysts": null,
+        "as_of": "2026-09-21"
       },
       "NVDA": {
         "mean_target_usd": 327.13,
@@ -2277,14 +2459,14 @@
       },
       "TSM": {
         "mean_target_usd": 551.26,
-        "n_analysts": 8,
-        "as_of": "2026-09-19"
+        "n_analysts": null,
+        "as_of": "2026-09-21"
       },
-      "as_of": "2026-09-20",
+      "as_of": "2026-09-21",
       "AMAT": {
         "mean_target_usd": 640.89,
-        "n_analysts": 28,
-        "as_of": "2026-09-19"
+        "n_analysts": null,
+        "as_of": "2026-09-21"
       },
       "CEG": {
         "mean_target_usd": 348.3,
@@ -2308,8 +2490,8 @@
       },
       "AMD": {
         "mean_target_usd": 615.07,
-        "n_analysts": 35,
-        "as_of": "2026-09-19"
+        "n_analysts": null,
+        "as_of": "2026-09-21"
       },
       "TER": {
         "mean_target_usd": 446.47,
@@ -2318,8 +2500,8 @@
       },
       "LITE": {
         "mean_target_usd": 1149.38,
-        "n_analysts": 17,
-        "as_of": "2026-09-19"
+        "n_analysts": null,
+        "as_of": "2026-09-21"
       },
       "NBIS": {
         "mean_target_usd": 288.33,
@@ -2328,13 +2510,13 @@
       },
       "SKHY": {
         "mean_target_usd": 249.7,
-        "n_analysts": 11,
-        "as_of": "2026-09-19"
+        "n_analysts": null,
+        "as_of": "2026-09-21"
       },
       "KLAC": {
         "mean_target_usd": 233.77,
-        "n_analysts": 21,
-        "as_of": "2026-09-19"
+        "n_analysts": null,
+        "as_of": "2026-09-21"
       },
       "AVGO": {
         "mean_target_usd": 531.85,
@@ -2398,10 +2580,10 @@
       "source": "smith_math.py indicators (script) from smith_fetch daily bars",
       "values_pct": {
         "ASML": 2.9,
-        "NVDA": 4.36,
-        "SNDK": 15.6,
+        "NVDA": 3.14,
+        "SNDK": 5.6,
         "MU": 4.28,
-        "GOOGL": 3.34,
+        "GOOGL": 2.19,
         "DRAM": 9.72,
         "MRVL": 5.62,
         "COHR": 5.96,
@@ -2410,25 +2592,25 @@
         "TER": 5.11,
         "EWY": 6.44,
         "CLS": 5.31,
-        "LRCX": 4.77,
+        "LRCX": 4.74,
         "AMAT": 3.92,
         "ARM": 10.45,
         "CIEN": 6.85,
         "TSM": 2.29,
-        "ORCL": 5.47,
+        "ORCL": 5.02,
         "QCOM": 4.22,
         "GEV": 4.02,
         "NBIS": 6.38,
-        "IREN": 8.05,
+        "IREN": 6.46,
         "CEG": 2.86,
         "GLW": 5.04,
         "BE": 6.45,
-        "MKSI": 9.41,
+        "MKSI": 4.62,
         "AVGO": 3.26,
-        "META": 4.74,
+        "META": 3.1,
         "AMZN": 2.19,
-        "BABA": 3.79,
-        "QBTS": 8.01,
+        "BABA": 2.81,
+        "QBTS": 6.16,
         "MP": 6.1,
         "NOW": 4.71,
         "MSFT": 2.05,
@@ -2438,12 +2620,12 @@
         "TXN": 3.35,
         "FLTW": 1.73,
         "BX": 2.9,
-        "IONQ": 6.04,
+        "IONQ": 6.56,
         "GOOG": 2.12,
         "WDC": 5.54,
         "HOOD": 5.62,
         "SMCI": 6.04,
-        "AMKR": 6.16,
+        "AMKR": 5.02,
         "LITE": 6.69,
         "KLAC": 4.13,
         "ALAB": 6.3,
@@ -2453,7 +2635,29 @@
         "SMH": 2.57,
         "XLF": 1.27,
         "XLK": 1.66,
-        "XLU": 1.55
+        "XLU": 1.55,
+        "AEP": 1.7,
+        "AIA": 1.66,
+        "ANET": 3.78,
+        "BLK": 2.22,
+        "CRDO": 7.37,
+        "CRWV": 6.15,
+        "DDOG": 4.92,
+        "DELL": 5.66,
+        "DUK": 1.41,
+        "ETN": 3.36,
+        "JNJ": 1.9,
+        "LLY": 2.41,
+        "NEM": 3.5,
+        "PG": 1.53,
+        "PWR": 3.55,
+        "RGTI": 6.02,
+        "SO": 1.53,
+        "SPGI": 2.71,
+        "STX": 5.27,
+        "UNH": 2.47,
+        "VST": 3.3,
+        "XOM": 2.2
       },
       "note": "Refreshed 2026-07-31 deep run -- prior cache (as_of 07-28) window predated the violent 07-28 crash and 07-29/30 rally entirely. Basis of stop_loss_framework (stop = 2x ATR20, floored at 3%). | 2026-08-12: added the 6 names that had no entry, incl. 2 brand-new positions (STM, TXN) and 2 that had been silently uncapped for weeks (FLTW, BX). ATR computed over 20 of 23 available bars via the policy's own (high-low)/close rule. | IONQ 6.04% added 2026-08-17 by smith-book on first appearance (21 daily obs, batched with SMH); shorter window than the rest of this table, treat as directional.",
       "ttl_days": 7,
@@ -2487,7 +2691,7 @@
       "benchmark_return_1m_pct": 2.15,
       "window": "21 sessions",
       "values_pp": {
-        "NVDA": 6.34,
+        "NVDA": 0.01,
         "MU": 6.25,
         "DRAM": -8.0,
         "MRVL": 0.79,
@@ -2496,7 +2700,7 @@
         "ARM": -8.36,
         "ASML": -6.25,
         "AVGO": -5.53,
-        "BABA": -12.53,
+        "BABA": -14.3,
         "BX": -2.64,
         "CEG": -4.16,
         "CIEN": -14.83,
@@ -2504,26 +2708,26 @@
         "FLTW": 7.58,
         "GEV": -6.92,
         "INTC": -1.17,
-        "LRCX": 12.6,
-        "META": -9.55,
+        "LRCX": -8.36,
+        "META": 19.78,
         "MSFT": -0.19,
         "NBIS": -2.31,
         "NOW": 4.35,
-        "ORCL": 16.74,
+        "ORCL": 0.49,
         "QCOM": 7.61,
-        "SNDK": -14.28,
+        "SNDK": 12.06,
         "TER": -4.3,
         "TSM": 3.33,
         "STM": -2.61,
         "TXN": -4.88,
         "AMD": 17.87,
         "COHR": 8.25,
-        "IREN": 24.64,
+        "IREN": 6.81,
         "GOOG": -1.36,
         "BE": 26.4,
         "SKHY": 17.92,
         "SMCI": 3.37,
-        "AMKR": 7.44,
+        "AMKR": -3.31,
         "GLW": -3.68,
         "LITE": 10.33,
         "KLAC": -7.64,
@@ -2536,10 +2740,36 @@
         "SMH": 0.0,
         "XLF": -4.97,
         "XLK": 1.1,
-        "XLU": -8.78
+        "XLU": -8.78,
+        "AEP": -7.12,
+        "AIA": 0.34,
+        "ANET": 4.79,
+        "BLK": -9.84,
+        "CRDO": -27.25,
+        "CRWV": -12.62,
+        "DDOG": -3.69,
+        "DELL": 27.68,
+        "DUK": -7.06,
+        "ETN": -2.13,
+        "GOOGL": -0.75,
+        "IONQ": -11.91,
+        "JNJ": -3.4,
+        "LLY": -12.1,
+        "MKSI": -12.63,
+        "NEM": -3.49,
+        "PG": -0.76,
+        "PWR": -8.16,
+        "QBTS": -13.59,
+        "RGTI": -9.44,
+        "SO": -9.39,
+        "SPGI": -7.15,
+        "STX": 1.0,
+        "UNH": -5.16,
+        "VST": -3.57,
+        "XOM": -2.9
       },
       "values_abs_pct": {
-        "NVDA": 8.13,
+        "NVDA": 2.16,
         "MU": 8.4,
         "DRAM": -7.27,
         "MRVL": 2.94,
@@ -2548,7 +2778,7 @@
         "ARM": -7.63,
         "ASML": -4.1,
         "AVGO": -14.16,
-        "BABA": 5.96,
+        "BABA": -12.15,
         "BX": 16.54,
         "CEG": 7.71,
         "CIEN": -12.68,
@@ -2556,14 +2786,14 @@
         "FLTW": 6.25,
         "GEV": -4.77,
         "INTC": -4.27,
-        "LRCX": 0.84,
-        "META": -8.82,
+        "LRCX": -6.21,
+        "META": 21.93,
         "MSFT": 1.96,
         "NBIS": -0.16,
         "NOW": 6.5,
-        "ORCL": 17.47,
+        "ORCL": 2.64,
         "QCOM": 9.76,
-        "SNDK": -13.55,
+        "SNDK": 14.21,
         "TER": -2.15,
         "TSM": 5.48,
         "STM": -0.46,
@@ -2586,7 +2816,35 @@
         "XLF": -2.82,
         "XLK": 3.25,
         "XLU": -6.63,
-        "SKHY": 20.07
+        "SKHY": 20.07,
+        "AEP": -4.97,
+        "AIA": 2.49,
+        "AMKR": -1.16,
+        "ANET": 6.94,
+        "BLK": -7.69,
+        "CRDO": -25.1,
+        "CRWV": -10.47,
+        "DDOG": -1.54,
+        "DELL": 29.83,
+        "DUK": -4.91,
+        "ETN": 0.02,
+        "GOOGL": 1.4,
+        "IONQ": -9.76,
+        "IREN": 8.96,
+        "JNJ": -1.25,
+        "LLY": -9.95,
+        "MKSI": -10.48,
+        "NEM": -1.34,
+        "PG": 1.39,
+        "PWR": -6.01,
+        "QBTS": -11.44,
+        "RGTI": -7.29,
+        "SO": -7.24,
+        "SPGI": -5.0,
+        "STX": 3.15,
+        "UNH": -3.01,
+        "VST": -1.42,
+        "XOM": -0.75
       },
       "ttl_days": 7,
       "refresh_after": "2026-08-19",
@@ -2637,7 +2895,7 @@
     "rsi14": {
       "as_of": "2026-09-18",
       "values": {
-        "NVDA": 70.4,
+        "NVDA": 54.2,
         "MU": 58.3,
         "DRAM": 53.9,
         "MRVL": 58.0,
@@ -2646,7 +2904,7 @@
         "ARM": 43.7,
         "ASML": 48.6,
         "AVGO": 31.4,
-        "BABA": 34.6,
+        "BABA": 48.0,
         "BX": 59.6,
         "CEG": 63.5,
         "CIEN": 45.8,
@@ -2654,26 +2912,26 @@
         "FLTW": 63.9,
         "GEV": 48.7,
         "INTC": 36.5,
-        "LRCX": 53.3,
-        "META": 34.1,
+        "LRCX": 45.5,
+        "META": 65.8,
         "MSFT": 53.1,
         "NBIS": 52.0,
         "NOW": 52.9,
-        "ORCL": 66.6,
+        "ORCL": 49.6,
         "QCOM": 54.0,
-        "SNDK": 43.7,
+        "SNDK": 61.4,
         "TER": 52.4,
         "TSM": 56.9,
         "STM": 46.1,
         "TXN": 42.4,
         "AMD": 65.4,
         "COHR": 56.1,
-        "IREN": 48.5,
+        "IREN": 59.2,
         "GOOG": 53.5,
         "BE": 57.5,
         "SKHY": 59.1,
         "SMCI": 52.8,
-        "AMKR": 43.8,
+        "AMKR": 49.2,
         "GLW": 47.3,
         "LITE": 54.0,
         "KLAC": 46.0,
@@ -2686,7 +2944,33 @@
         "SMH": 54.3,
         "XLF": 36.9,
         "XLK": 58.2,
-        "XLU": 31.3
+        "XLU": 31.3,
+        "AEP": 34.4,
+        "AIA": 54.2,
+        "ANET": 55.8,
+        "BLK": 42.4,
+        "CRDO": 43.1,
+        "CRWV": 44.2,
+        "DDOG": 48.9,
+        "DELL": 61.8,
+        "DUK": 35.1,
+        "ETN": 54.8,
+        "GOOGL": 55.0,
+        "IONQ": 48.7,
+        "JNJ": 54.6,
+        "LLY": 47.2,
+        "MKSI": 43.4,
+        "NEM": 51.8,
+        "PG": 52.2,
+        "PWR": 51.0,
+        "QBTS": 46.1,
+        "RGTI": 49.1,
+        "SO": 29.5,
+        "SPGI": 40.1,
+        "STX": 52.9,
+        "UNH": 36.9,
+        "VST": 45.0,
+        "XOM": 53.6
       },
       "period": 14,
       "method": "Wilder RSI14 on daily closes (script)",
@@ -2853,11 +3137,17 @@
         "eps_actual": 2.11,
         "eps_consensus": 1.73,
         "quarter_verdict": "beat",
-        "guide_verdict": "guide_above_consensus",
-        "guide_next_q": 6420000000,
-        "guide_consensus": 6330000000,
-        "source": "stockanalysis.com/stocks/cien",
-        "verified_on": "2026-09-03"
+        "guide_next_q": 1750000000,
+        "guide_consensus": null,
+        "guide_verdict": null,
+        "guide_fy": 6420000000,
+        "guide_fy_consensus": 6330000000,
+        "guide_fy_verdict": "above",
+        "backlog": 8500000000,
+        "source": "SEC 8-K 0001628280-26-060245 ex99.1; backlog per call coverage",
+        "verified_on": "2026-09-21",
+        "verified": true,
+        "correction": "2026-09-21: guide_next_q previously held 6.42bn which is the FY26 guide; fixed. Old guide_verdict guide_above_consensus was FY-vs-FY-consensus only."
       },
       "KLAC": {
         "period": "Q4 FY2026",
@@ -2960,7 +3250,7 @@
         "MU": 4.16,
         "CLS": -4.02,
         "CIEN": -0.21,
-        "IREN": -6.758,
+        "IREN": 6.5,
         "GOOG": 2.67,
         "ASML": -1.08,
         "AVGO": -7.55,
@@ -2972,11 +3262,11 @@
         "AMZN": -1.2,
         "SMCI": -5.1,
         "GEV": -1.77,
-        "AMKR": 1.73,
-        "BABA": -10.89,
+        "AMKR": -2.76,
+        "BABA": 3.6,
         "GLW": -9.78,
         "TSM": 0.33,
-        "LRCX": -6.98,
+        "LRCX": -3.39,
         "COHR": 3.93,
         "LITE": 0.42,
         "KLAC": -2.02,
@@ -2987,7 +3277,7 @@
         "MSFT": -0.37,
         "MRVL": 3.45,
         "VRT": -2.98,
-        "NVDA": 4.693,
+        "NVDA": 1.82,
         "ALAB": 4.13,
         "FSLR": -0.0,
         "APH": -7.59,
@@ -2996,7 +3286,36 @@
         "SMH": 0.79,
         "XLF": -2.43,
         "XLK": 1.03,
-        "XLU": -3.04
+        "XLU": -3.04,
+        "AEP": -2.7,
+        "AIA": -0.62,
+        "ANET": -0.1,
+        "BLK": -0.91,
+        "CRDO": 7.94,
+        "CRWV": -8.57,
+        "DDOG": 3.94,
+        "DELL": 0.14,
+        "DUK": -1.58,
+        "ETN": -0.14,
+        "GOOGL": 3.26,
+        "IONQ": 6.48,
+        "JNJ": 1.66,
+        "LLY": 3.34,
+        "META": 2.73,
+        "MKSI": -5.7,
+        "NEM": -2.68,
+        "ORCL": -1.78,
+        "PG": 0.77,
+        "PWR": -2.13,
+        "QBTS": 1.85,
+        "RGTI": 3.21,
+        "SNDK": 9.7,
+        "SO": -1.89,
+        "SPGI": -1.31,
+        "STX": 3.45,
+        "UNH": -0.58,
+        "VST": -5.2,
+        "XOM": -1.48
       },
       "benchmark_return_pct": 0.79,
       "benchmark": "SMH",
@@ -3414,8 +3733,7 @@
       },
       "NVDA": {
         "low": 164.27,
-        "high": 236.54,
-        "as_of": "2026-09-06"
+        "high": 236.54
       },
       "KLAC": {
         "low": 98.097,
@@ -3430,14 +3748,12 @@
         "high": 799.87
       },
       "LRCX": {
-        "low": 104.46,
-        "high": 438.5,
-        "as_of": "2026-09-06"
+        "low": 125.0,
+        "high": 438.5
       },
       "IREN": {
-        "low": 25.38,
-        "high": 76.87,
-        "as_of": "2026-09-06"
+        "low": 28.93,
+        "high": 76.87
       },
       "LITE": {
         "low": 144.52,
@@ -3509,6 +3825,130 @@
       "XLU": {
         "low": 41.08,
         "high": 47.8
+      },
+      "AEP": {
+        "low": 105.7,
+        "high": 140.58
+      },
+      "AIA": {
+        "low": 90.7,
+        "high": 150.83
+      },
+      "AMKR": {
+        "low": 28.03,
+        "high": 96.68
+      },
+      "ANET": {
+        "low": 114.52,
+        "high": 214.89
+      },
+      "BABA": {
+        "low": 91.99,
+        "high": 192.67
+      },
+      "BLK": {
+        "low": 917.39,
+        "high": 1219.9399
+      },
+      "CRDO": {
+        "low": 86.485,
+        "high": 308.67
+      },
+      "CRWV": {
+        "low": 60.55,
+        "high": 153.2
+      },
+      "DDOG": {
+        "low": 98.01,
+        "high": 292.72
+      },
+      "DELL": {
+        "low": 110.22,
+        "high": 595.51
+      },
+      "DUK": {
+        "low": 113.9,
+        "high": 134.49
+      },
+      "ETN": {
+        "low": 311.92,
+        "high": 478.0
+      },
+      "GOOGL": {
+        "low": 235.84,
+        "high": 408.61
+      },
+      "IONQ": {
+        "low": 25.89,
+        "high": 84.64
+      },
+      "JNJ": {
+        "low": 173.33,
+        "high": 281.07
+      },
+      "LLY": {
+        "low": 712.05,
+        "high": 1292.65
+      },
+      "META": {
+        "low": 520.26,
+        "high": 790.8
+      },
+      "MKSI": {
+        "low": 119.62,
+        "high": 447.62
+      },
+      "NEM": {
+        "low": 76.05,
+        "high": 135.29
+      },
+      "ORCL": {
+        "low": 114.5,
+        "high": 329.5
+      },
+      "PG": {
+        "low": 137.62,
+        "high": 167.25
+      },
+      "PWR": {
+        "low": 382.24,
+        "high": 788.75
+      },
+      "QBTS": {
+        "low": 12.75,
+        "high": 46.75
+      },
+      "RGTI": {
+        "low": 12.53,
+        "high": 58.15
+      },
+      "SNDK": {
+        "low": 93.535,
+        "high": 2354.3899
+      },
+      "SO": {
+        "low": 83.8,
+        "high": 100.84
+      },
+      "SPGI": {
+        "low": 361.0312,
+        "high": 522.4692
+      },
+      "STX": {
+        "low": 209.0,
+        "high": 1145.0
+      },
+      "UNH": {
+        "low": 255.97,
+        "high": 461.62
+      },
+      "VST": {
+        "low": 132.66,
+        "high": 219.82
+      },
+      "XOM": {
+        "low": 110.39,
+        "high": 176.41
       }
     },
     "ticker_map_email_aliases": {
@@ -3537,13 +3977,18 @@
         "GEV": 1.86,
         "VRT": 2.18,
         "GOOG": -2.46,
-        "IREN": 14.15,
+        "IREN": 5.71,
         "MSFT": -1.29,
         "NBIS": -3.41,
         "SMCI": -1.23,
-        "META": 2.29,
+        "META": 18.68,
         "AMZN": -7.81,
-        "NOW": 3.25
+        "NOW": 3.25,
+        "BABA": -15.4,
+        "GOOGL": -1.85,
+        "IONQ": -13.01,
+        "ORCL": -0.61,
+        "QBTS": -14.69
       },
       "peer_etf": {
         "BE": "XLU",
@@ -3557,7 +4002,12 @@
         "SMCI": "XLK",
         "META": "XLK",
         "AMZN": "XLK",
-        "NOW": "XLK"
+        "NOW": "XLK",
+        "BABA": "XLK",
+        "GOOGL": "XLK",
+        "IONQ": "XLK",
+        "ORCL": "XLK",
+        "QBTS": "XLK"
       },
       "as_of": "2026-09-18"
     },
@@ -3819,45 +4269,47 @@
       "NVDA": "2026-09-14",
       "SMCI": "2026-09-14",
       "ONTO": "2026-09-15",
-      "AVGO": "2026-09-17"
+      "AVGO": "2026-09-17",
+      "AIA": "2026-09-21",
+      "DELL": "2026-09-21",
+      "PWR": "2026-09-21"
     },
     "last_seen": {
-      "VRT": "2026-09-20",
-      "ASML": "2026-09-20",
-      "GOOG": "2026-09-20",
-      "MRVL": "2026-09-20",
-      "GEV": "2026-09-20",
-      "TER": "2026-09-20",
-      "KLAC": "2026-09-20",
-      "TSM": "2026-09-20",
-      "COHR": "2026-09-20",
-      "ALAB": "2026-09-20",
-      "CLS": "2026-09-20",
-      "LITE": "2026-09-20",
-      "AMAT": "2026-09-20",
-      "APH": "2026-09-20",
-      "AMD": "2026-09-20",
-      "MU": "2026-09-20",
-      "QCOM": "2026-09-20",
-      "WDC": "2026-09-20",
-      "AMZN": "2026-09-20",
-      "STM": "2026-09-20",
+      "VRT": "2026-09-21",
+      "ASML": "2026-09-21",
+      "GOOG": "2026-09-21",
+      "MRVL": "2026-09-21",
+      "GEV": "2026-09-21",
+      "TER": "2026-09-21",
+      "KLAC": "2026-09-21",
+      "TSM": "2026-09-21",
+      "COHR": "2026-09-21",
+      "ALAB": "2026-09-21",
+      "CLS": "2026-09-21",
+      "LITE": "2026-09-21",
+      "AMAT": "2026-09-21",
+      "APH": "2026-09-21",
+      "AMD": "2026-09-21",
+      "MU": "2026-09-21",
+      "QCOM": "2026-09-21",
+      "WDC": "2026-09-21",
+      "AMZN": "2026-09-21",
+      "STM": "2026-09-21",
       "AVGO": "2026-09-16",
-      "NOW": "2026-09-20",
-      "BE": "2026-09-20",
-      "MSFT": "2026-09-20",
-      "GLW": "2026-09-20",
-      "NBIS": "2026-09-20",
+      "NOW": "2026-09-21",
+      "BE": "2026-09-21",
+      "MSFT": "2026-09-21",
+      "GLW": "2026-09-21",
+      "NBIS": "2026-09-21",
       "SMCI": "2026-09-14",
-      "CIEN": "2026-09-20",
-      "SKHY": "2026-09-20"
+      "CIEN": "2026-09-21",
+      "SKHY": "2026-09-21"
     }
   },
   "fomc_cache": {
     "rate_pct": 3.875,
     "stance": "hawkish",
-    "next_check_date": "2026-10-30",
-    "note": "Hiked +25bp to 3.75-4.00% on 2026-09-16, 12-0, first hike since 2023. Dot plot: 12/18 see one more 25bp hike to 4.125% by year-end, 4 see two more (4.375%). Warsh presser: economy 'strengthening', flagged oil-driven price shocks as inflation risk to guard against broadening. CME FedWatch: 63.7% probability of a second hike at Dec 2026 meeting; futures price ~4.1% by December, ~2.2 hikes (~56bp) across next 3 meetings."
+    "next_check_date": "2026-10-30"
   },
   "us_market_holidays": [
     {
@@ -4092,20 +4544,11 @@
     }
   },
   "diversifier_candidates": {
-    "VST": {
-      "price_usd": 140.67,
-      "target_usd": 223.17,
-      "upside_pct": 58.7,
-      "thesis": "Merchant power gen, beta 1.41 -- AI-load adjacent, NOT clean",
-      "status": "active",
-      "clean_diversifier": false,
-      "as_of": "2026-09-06"
-    },
     "UNH": {
       "price_usd": 376.9,
       "target_usd": 475.23,
       "upside_pct": 26.1,
-      "thesis": "Managed care, beta ~0.62; 27-analyst consensus Buy, avg target raised from $471.65",
+      "thesis": "Managed care, beta ~0.62; demand independent of AI capex; policy/medical-cost risk is its own factor. Clean.",
       "status": "active",
       "clean_diversifier": true,
       "as_of": "2026-09-20"
@@ -4114,25 +4557,25 @@
       "price_usd": 85.52,
       "target_usd": 100.29,
       "upside_pct": 17.3,
-      "thesis": "Regulated SE utility, beta 0.32; 23-analyst consensus, Hold rating, avg target essentially flat vs prior",
+      "thesis": "Regulated SE utility, beta 0.32. PARTIAL diversifier: load-growth (data-center demand) narrative gives it some AI-capex adjacency; also bond-proxy rate risk at a 5% 10-yr.",
       "status": "active",
-      "clean_diversifier": true,
+      "clean_diversifier": false,
       "as_of": "2026-09-20"
     },
     "DUK": {
       "price_usd": 117.53,
       "target_usd": 137.28,
       "upside_pct": 16.8,
-      "thesis": "Regulated utility, beta 0.36; 18-analyst consensus Buy, target essentially flat vs prior",
+      "thesis": "Regulated utility, beta 0.36. PARTIAL diversifier for the same reasons as SO (datacenter load narrative, rate sensitivity).",
       "status": "active",
-      "clean_diversifier": true,
+      "clean_diversifier": false,
       "as_of": "2026-09-20"
     },
     "LLY": {
       "price_usd": 1152.93,
       "target_usd": 1300.0,
       "upside_pct": 12.75,
-      "thesis": "Pharma/GLP-1, beta 0.50; target raised post beat-and-raise quarter (from $1270.37)",
+      "thesis": "Pharma/GLP-1, beta 0.50; target raised post beat-and-raise. Clean; concentrated single-drug-class risk.",
       "status": "active",
       "clean_diversifier": true,
       "as_of": "2026-09-20"
@@ -4141,7 +4584,7 @@
       "price_usd": 123.41,
       "target_usd": 139.04,
       "upside_pct": 12.7,
-      "thesis": "Gold miner, beta 0.54; 22-analyst consensus Buy, target raised from $133.00",
+      "thesis": "Gold miner, beta 0.54; driven by gold/real yields, not AI capex. Clean; headwind from strong DXY/real yields.",
       "status": "active",
       "clean_diversifier": true,
       "as_of": "2026-09-20"
@@ -4150,7 +4593,7 @@
       "price_usd": 146.39,
       "target_usd": 163.25,
       "upside_pct": 11.5,
-      "thesis": "Staples ballast, beta 0.38; target essentially flat vs prior",
+      "thesis": "Staples ballast, beta 0.38. Clean; low upside, defensive.",
       "status": "active",
       "clean_diversifier": true,
       "as_of": "2026-09-20"
@@ -4159,7 +4602,7 @@
       "price_usd": 163.54,
       "target_usd": 173.42,
       "upside_pct": 6.0,
-      "thesis": "Integrated oil major, direct Brent/WTI leverage, beta 0.175, policy-neutral across midterm scenarios. Prior run's -3.5% anomaly did not persist -- Friday's move (+0.17%) was in line with tape.",
+      "thesis": "Integrated oil major, direct Brent/WTI leverage, beta 0.175; hedges the oil-driven inflation channel. Clean; target 4 days old.",
       "status": "active",
       "clean_diversifier": true,
       "as_of": "2026-09-17"
@@ -4168,10 +4611,19 @@
       "price_usd": 269.99,
       "target_usd": 238.2,
       "upside_pct": -11.8,
-      "thesis": "Diversified pharma/medtech, beta 0.24 -- clean on correlation, but consensus target flipped BELOW spot (was $269.95, now $238.20 across 20 analysts) -- no upside case remains at current price; recommend excluding from new-cash proposals until re-underwritten.",
+      "thesis": "Diversified pharma/medtech, beta 0.24; clean on correlation but consensus target below spot; exclude from new-cash proposals until re-underwritten.",
       "status": "active",
       "clean_diversifier": true,
       "as_of": "2026-09-20"
+    },
+    "VST": {
+      "price_usd": 140.67,
+      "target_usd": 223.17,
+      "upside_pct": 58.7,
+      "thesis": "Merchant power gen, beta 1.41, AI-load adjacent; NOT a diversifier. Target 15 days old and yfinance summary returned no target field, so carried unchanged and stale. Ex-dividend today.",
+      "status": "stale",
+      "clean_diversifier": false,
+      "as_of": "2026-09-06"
     }
   },
   "watchlist_scan_cursor": 19,
@@ -4534,6 +4986,113 @@
   },
   "factor_catalysts": [
     {
+      "headline": "CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged",
+      "date": "2026-09-20",
+      "horizon": "structural",
+      "direction": "threat",
+      "affects": [
+        "MU",
+        "SKHY",
+        "ASML",
+        "AMAT",
+        "TER"
+      ],
+      "exposure_pct_equity": 26.03,
+      "exposure_pct_book": 23.2,
+      "magnitude": "trial/risk production only, no volume or yield disclosed; HBM4 already mass-produced by Samsung/SK hynix/Micron, so CXMT is one generation behind; mass production not before 2027. No HBM % figure cited (tracker HBM3E contract quote publication date 2026-07-12; freshness-illusion finding orchestrator:00ba4bd6c3 stands)",
+      "source": "https://en.sedaily.com/international/2026/09/20/chinas-cxmt-starts-mass-production-on-5th-generation-dram",
+      "invalidates_proposal": null,
+      "first_seen": "2026-09-20",
+      "last_confirmed": "2026-09-21",
+      "carried_forward": false
+    },
+    {
+      "headline": "CXMT announces G5 DRAM platform (11.95nm half-pitch) with two 24Gb LPDDR5X products in volume production; 9.5% global DRAM revenue share in Q2 (4th place)",
+      "date": "2026-09-20",
+      "horizon": "structural",
+      "direction": "threat",
+      "affects": [
+        "MU",
+        "SKHY"
+      ],
+      "exposure_pct_equity": 6.6,
+      "exposure_pct_book": 5.9,
+      "magnitude": "9.5% Q2 global DRAM revenue share vs ~90% held by Samsung/SK hynix/Micron; LPDDR5X mobile-class, not HBM or server DDR5; yield and monthly output undisclosed; node metric not comparable to rivals' 12nm-class naming; sedaily makes no mention of DUV/EUV/ASML, so a secondary outlet's 'built without ASML machines' framing is unverified and NOT carried as an ASML threat",
+      "source": "https://en.sedaily.com/international/2026/09/20/chinas-cxmt-starts-mass-production-on-5th-generation-dram",
+      "invalidates_proposal": null,
+      "first_seen": "2026-09-20",
+      "last_confirmed": "2026-09-21",
+      "carried_forward": false
+    },
+    {
+      "headline": "Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LITE +3%, GLW +3%); no program-usage disclosure found",
+      "date": "2026-09-18",
+      "horizon": "structural",
+      "direction": "threat",
+      "affects": [
+        "GLW",
+        "COHR",
+        "LITE"
+      ],
+      "exposure_pct_equity": 3.2,
+      "exposure_pct_book": 2.85,
+      "magnitude": "GLW -12% to $145.61 on 09-14; ATM sells gradually, realized dilution a fraction of $2bn; Q3 core sales guide $4.9-5.0bn intact; only a usage disclosure would re-escalate. Fri rebound recovers only part of the drop (not sized: no prints fetched)",
+      "source": "https://247wallst.com/investing/2026/09/18/lumentum-climbs-3-as-optics-buying-extends-coherent-rises-5-corning-jumps-3/",
+      "invalidates_proposal": null,
+      "first_seen": "2026-09-18",
+      "last_confirmed": "2026-09-21",
+      "carried_forward": false
+    },
+    {
+      "headline": "Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex cut found through 09-20; sell-off described as sentiment against unchanged order book",
+      "date": "2026-09-20",
+      "horizon": "immediate",
+      "direction": "threat",
+      "affects": [
+        "MRVL",
+        "AVGO",
+        "ALAB",
+        "COHR",
+        "LITE",
+        "CIEN",
+        "GLW",
+        "APH",
+        "VRT",
+        "GEV",
+        "BE",
+        "ASML",
+        "KLAC",
+        "TSM",
+        "TER"
+      ],
+      "exposure_pct_equity": 60,
+      "exposure_pct_book": 53,
+      "magnitude": "AI Infrastructure basket -5.8% vs cybersecurity +13.2% on 09-14 (secondary source); SMH +2.21% pre-market 09-21 reverses part; reclassified structural->immediate as no capex mechanism; re-escalate only on a hyperscaler cut or Oct/Nov print citing pacing",
+      "source": "https://realinvestmentadvice.com/resources/blog/amodei-says-slow-down-trump-and-china-say-no/",
+      "invalidates_proposal": null,
+      "first_seen": "2026-09-20",
+      "last_confirmed": "2026-09-21",
+      "carried_forward": false
+    },
+    {
+      "headline": "GLJ Research Sell on GEV ($470 PT): WEAKENED to idiosyncratic; VRT read-through unproven",
+      "date": "2026-09-14",
+      "horizon": "noise",
+      "direction": "threat",
+      "affects": [
+        "VRT",
+        "GEV"
+      ],
+      "exposure_pct_equity": 7.23,
+      "exposure_pct_book": 6.4,
+      "magnitude": "single-shop call, PT ~47% below spot; ~80% of covering analysts rate Buy; GEV fell ~8.6% on 09-14 (Eaton/Vertiv ~-7.6% same day amid AI-pacing sentiment, so not attributable to GLJ alone); no company guidance change found. Downgraded structural->noise for VRT",
+      "source": "https://finance.yahoo.com/markets/stocks/articles/ge-vernova-falls-8-6-172719200.html",
+      "invalidates_proposal": null,
+      "first_seen": "2026-09-14",
+      "last_confirmed": "2026-09-21",
+      "carried_forward": false
+    },
+    {
       "headline": "SK Hynix's Solidigm unit weighing a US NAND factory (upstate NY leading candidate), per Reuters sources; separate from SK Hynix-Intel Ohio memory talks",
       "date": "2026-09-18",
       "horizon": "tactical",
@@ -4729,40 +5288,6 @@
       "carried_forward": true
     },
     {
-      "headline": "CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC sit at 84.1% as of 2026-09-14; SEP dot-plot lands alongside the decision Wed 09-16",
-      "date": "2026-09-15",
-      "horizon": "immediate",
-      "direction": "threat",
-      "affects": [
-        "MU",
-        "EWY",
-        "TSM",
-        "ASML",
-        "KLAC",
-        "AMAT",
-        "TER",
-        "MRVL",
-        "AVGO",
-        "ALAB",
-        "COHR",
-        "LITE",
-        "CIEN",
-        "GLW",
-        "APH",
-        "VRT",
-        "GEV",
-        "BE"
-      ],
-      "exposure_pct_equity": 100,
-      "exposure_pct_book": 77.47,
-      "magnitude": "84.1% CME print (09-14) vs 88.5% cited in the prior run's source and vs Kalshi 57%/Polymarket 49% same day -- material cross-venue dispersion, CME is the standard reference but not unanimous. This run's own US10Y print is flat (4.961%, -0.014pts) and VIX only mildly elevated pre-open (17.43, +1.93%, an order of magnitude below Monday's +13.8% spike) -- no fresh yield-shock print per G81 discipline. The decision itself, not yet resolved, remains the live catalyst.",
-      "source": "https://cryptonews.com/news/cme-fedwatch-fomc-september-2026-odds-rate-hike-50/",
-      "invalidates_proposal": "09-11 Waller-hold tailwind rationale stays void pending Wed's actual decision",
-      "first_seen": "2026-09-15",
-      "last_confirmed": "2026-09-15",
-      "carried_forward": true
-    },
-    {
       "headline": "Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 2026-09-11); GLW fell ~12-14% Monday with direct optics-peer contagion -- Coherent -11%, Lumentum -9%, Fabrinet -6% (not held)",
       "date": "2026-09-14",
       "horizon": "structural",
@@ -4859,40 +5384,6 @@
       "carried_forward": true
     },
     {
-      "headline": "CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, up from ~57% cited in the 09:29Z pre-market review, with Brent near $107/bbl sustaining the inflation-fear channel",
-      "date": "2026-09-14",
-      "horizon": "immediate",
-      "direction": "threat",
-      "affects": [
-        "MU",
-        "EWY",
-        "TSM",
-        "ASML",
-        "KLAC",
-        "AMAT",
-        "TER",
-        "MRVL",
-        "AVGO",
-        "ALAB",
-        "COHR",
-        "LITE",
-        "CIEN",
-        "GLW",
-        "APH",
-        "VRT",
-        "GEV",
-        "BE"
-      ],
-      "exposure_pct_equity": 100,
-      "exposure_pct_book": 77.47,
-      "magnitude": "Hike-odds move (57pp->88.5pp) is the largest single change since the AM review, but this run's own primary US10Y print is +/-flat on the session (4.955%, -0.02pts) -- the mechanism is probability-of-hike repricing plus the Amodei sentiment shock stacking on top, NOT a fresh yield-print spike (per G81, do not cite a same-day yield shock without the two prints; the two prints here say it did not happen today).",
-      "source": "https://finance.yahoo.com/markets/live/stock-market-today-monday-september-14-dow-sp-500-nasdaq-080559558.html",
-      "invalidates_proposal": "09-11 Waller-hold tailwind proposal rationale is now decisively void, not just stale",
-      "first_seen": "2026-09-14",
-      "last_confirmed": "2026-09-14",
-      "carried_forward": true
-    },
-    {
       "headline": "KOSPI -3.26% (Samsung/SK Hynix -5 to -6.4%) on Fed-hawkish repricing (Warsh Jackson Hole address, 57% odds of a 25bp hike at Sept 15-16 FOMC) plus Strait of Hormuz oil spike (crude +3%, Saudi pipeline attack) and renewed 'AI-slowdown' sentiment -- broad macro risk-off, not a new memory-specific fundamental catalyst; directly reverses the 09-11 Waller-hold tailwind carried in factor_catalysts",
       "date": "2026-09-14",
       "horizon": "immediate",
@@ -4939,23 +5430,6 @@
       "source": "https://en.sedaily.com/finance/2026/09/14/kospi-tumbles-33-percent-on-rate-oil-and-ai-slowdown-fears",
       "invalidates_proposal": "09-11 Waller-hold tailwind proposal rationale is stale: Fed odds have since shifted hawkish per Warsh's Jackson Hole remarks",
       "first_seen": "2026-09-14",
-      "last_confirmed": "2026-09-14",
-      "carried_forward": true
-    },
-    {
-      "headline": "Bloom Energy confirmed for S&P 500 inclusion effective 2026-09-21; Clear Street/UBS price-target raises to $330/$325",
-      "date": "2026-09-08",
-      "horizon": "structural",
-      "direction": "tailwind",
-      "affects": [
-        "BE"
-      ],
-      "exposure_pct_equity": 1.65,
-      "exposure_pct_book": 1.28,
-      "magnitude": "one index add among ~500 S&P constituents; partially priced ahead of the 09-21 effective date",
-      "source": "https://www.timothysykes.com/news/bloom-energy-corporation-be-news-2026_09_08/",
-      "invalidates_proposal": null,
-      "first_seen": "2026-09-08",
       "last_confirmed": "2026-09-14",
       "carried_forward": true
     },
@@ -5022,59 +5496,59 @@
     "note": "First complete realised P&L on fully-exited names, computable only after the 116-row recovery. Best: GOOG +$334.46, WDC +$204.77, BE +$142.81. Worst: GLW -$249.02, SMCI -$197.09, META -$107.67, EWY -$96.48. GOOG's figure is partly pre-history basis and is distorted by the unrecorded GOOG->GOOGL conversion (G71) -- treat it as indicative."
   },
   "signal_history_as_of": {
-    "ASML": "2026-09-20",
-    "TSM": "2026-09-20",
-    "MU": "2026-09-20",
-    "MRVL": "2026-09-20",
-    "CIEN": "2026-09-20",
-    "AMD": "2026-09-20",
-    "STM": "2026-09-20",
+    "ASML": "2026-09-21",
+    "TSM": "2026-09-21",
+    "MU": "2026-09-21",
+    "MRVL": "2026-09-21",
+    "CIEN": "2026-09-21",
+    "AMD": "2026-09-21",
+    "STM": "2026-09-21",
     "NVDA": "2026-09-10",
     "AVGO": "2026-09-16",
-    "GEV": "2026-09-20",
-    "QCOM": "2026-09-20",
-    "CLS": "2026-09-20",
+    "GEV": "2026-09-21",
+    "QCOM": "2026-09-21",
+    "CLS": "2026-09-21",
     "BABA": "2026-09-01",
     "CEG": "2026-09-01",
-    "AMZN": "2026-09-20",
-    "NOW": "2026-09-20",
-    "MSFT": "2026-09-20",
+    "AMZN": "2026-09-21",
+    "NOW": "2026-09-21",
+    "MSFT": "2026-09-21",
     "FLTW": "2026-09-01",
-    "TER": "2026-09-20",
-    "VRT": "2026-09-20",
-    "COHR": "2026-09-20",
-    "AMAT": "2026-09-20",
-    "BE": "2026-09-20",
+    "TER": "2026-09-21",
+    "VRT": "2026-09-21",
+    "COHR": "2026-09-21",
+    "AMAT": "2026-09-21",
+    "BE": "2026-09-21",
     "IREN": "2026-09-08",
     "LRCX": "2026-09-10",
-    "GLW": "2026-09-20",
+    "GLW": "2026-09-21",
     "INTC": "2026-09-10",
     "TXN": "2026-08-29",
-    "NBIS": "2026-09-20",
+    "NBIS": "2026-09-21",
     "META": "2026-09-10",
-    "GOOG": "2026-09-20",
-    "WDC": "2026-09-20",
-    "SKHY": "2026-09-20",
+    "GOOG": "2026-09-21",
+    "WDC": "2026-09-21",
+    "SKHY": "2026-09-21",
     "HOOD": "2026-08-29",
     "BX": "2026-09-01",
-    "KLAC": "2026-09-20",
-    "LITE": "2026-09-20",
+    "KLAC": "2026-09-21",
+    "LITE": "2026-09-21",
     "SMCI": "2026-09-14",
     "AMKR": "2026-09-01",
     "FSLR": "2026-09-09",
-    "ALAB": "2026-09-20",
-    "APH": "2026-09-20",
+    "ALAB": "2026-09-21",
+    "APH": "2026-09-21",
     "VST": "2026-09-09"
   },
   "macro_read": {
     "fed_funds_pct": 3.875,
     "fomc_stance": "hawkish",
-    "spy_pcr_oi": 2.259,
-    "spy_pcr_vol": 1.132,
-    "spy_max_pain": 763.0,
-    "qqq_pcr_oi": 3.391,
-    "qqq_pcr_vol": 2.754,
-    "qqq_max_pain": 717.0,
+    "spy_pcr_oi": null,
+    "spy_pcr_vol": null,
+    "spy_max_pain": null,
+    "qqq_pcr_oi": null,
+    "qqq_pcr_vol": null,
+    "qqq_max_pain": null,
     "calendar": {
       "next_fomc": "2026-10-28",
       "next_cpi": "2026-10-14",
@@ -5082,13 +5556,13 @@
       "earnings_season_window": false
     },
     "regime": "neutral",
-    "regime_note": "Yields up (US10y 4.998%, +5.1bp Friday, +34.5bp trailing month, near cycle high) + vol down (VIX -4.1% to 14.81) + equities up (SPX +0.17%, SMH +2.21%) reads as a hawkish-hike-already-absorbed, soft-landing tape -- not risk-off, but fragile: Fed dots point to a further ~64%-odds Dec hike, and the AI-capex chain has shown 1.7-2.5x SMH sensitivity to rate scares before (09-14 episode). Friday's SMH/KOSPI rally has no confirmed new capex catalyst (prior orchestrator finding) -- momentum, not fundamentals.",
+    "regime_note": "Hawkish-but-absorbed soft-landing tape: Fed hiked 09-16 with a further hike ~64% priced for Dec, US10y 4.998% (+34.5bp in a month), yet VIX 14.81 and SPX 1.9% under its 52w high, ES +1.16% / NQ +1.69% pre-open. Risk-on price action on a rate backdrop that punishes duration; not risk-off, fragile at the 5% 10-yr line. Gate STABILIZING is consistent.",
     "cluster_impact": {
-      "ai_capex_chain": "Near-term tailwind into Monday from Friday's momentum, but remains the first cluster to reprice on any yield/FOMC-dot scare; unconfirmed by new capex guidance.",
-      "rate_sensitive": "10-yr still near cycle highs with a hawkish Fed -- no discount-rate relief yet despite Friday's equity rally; SPY options positioning (pcr_oi >> pcr_vol) shows the market hedging this exact risk.",
-      "defensives": "Extreme-greed sentiment + SPX near 52wk high argues for adding ballast here rather than chasing the AI-capex momentum leg -- directly motivates this run's diversifier refresh."
+      "ai_capex_chain": "Highest beta to a rate scare: chain has shown 1.7-2.5x SMH sensitivity to yield spikes. Today's tailwind (Asia memory/foundry +1.1-1.4%, NQ +1.7%) is momentum, and a 10-yr close above 5% would hit semis/semicap/memory first. Extreme-greed reading argues against adding into the gap.",
+      "rate_sensitive": "Long-duration growth and unprofitable/levered compute (NBIS, floating-rate funded) carry the double hit: 10-yr at cycle high plus a second hike priced. Absorbed so far; watch 5.0%.",
+      "defensives": "Mixed. Staples/pharma/managed care (PG, LLY, UNH) lag in a risk-on gap but are the low-beta ballast. Regulated utilities (SO, DUK) are bond proxies and are hurt by a 5% 10-yr, so they are partial hedges only. Gold (NEM) faces DXY 100.3 and real-yield headwind. Oil-linked XOM hedges the oil-driven inflation channel that the Fed named."
     },
-    "as_of": "2026-09-20"
+    "as_of": "2026-09-21"
   },
   "thesis_tensions_last": {
     "as_of": "2026-08-20",
@@ -5370,9 +5844,9 @@
       "reason": null
     }
   },
-  "sector_map_as_of": "2026-09-20",
-  "factor_themes_as_of": "2026-09-20",
-  "peer_map_as_of": "2026-09-20",
+  "sector_map_as_of": "2026-09-21",
+  "factor_themes_as_of": "2026-09-21",
+  "peer_map_as_of": "2026-09-21",
   "cycle_position": {
     "position": "late",
     "confidence": "medium",
@@ -5867,7 +6341,7 @@
       }
     }
   },
-  "latest_run_dir": "runs/2026-09-20-0816Z",
+  "latest_run_dir": "runs/2026-09-21-0632Z",
   "rebound_candidates": {
     "as_of": "2026-09-16",
     "correction_state": "pullback",
@@ -5989,6 +6463,85 @@
     ]
   },
   "stress_table": {
+    "as_of": "2026-09-21",
+    "anchored_to": {
+      "us10y_pct": 4.998,
+      "vix": 14.81,
+      "dxy": 100.336,
+      "fed_rate_pct": 3.875,
+      "fed_stance": "hawkish"
+    },
+    "scenarios": [
+      {
+        "scenario": "AI-capex pause",
+        "impact_pct_low": -27.0,
+        "impact_pct_high": -19.0,
+        "most_exposed": [
+          "MU",
+          "ASML",
+          "TSM",
+          "AMAT",
+          "KLAC",
+          "TER"
+        ],
+        "mechanism": "~99% of equity is AI-capex factor; equity -25 to -34%, diluted by 20.7% cash. Consistent with compute_risk stress_limit read of 26.6% vs 20% advisory limit (over).",
+        "basis": "static_assumption",
+        "note": "Approximate; stress limit is advisory, not a block."
+      },
+      {
+        "scenario": "Rates +100bp (10-yr to ~6%)",
+        "impact_pct_low": -16.0,
+        "impact_pct_high": -10.0,
+        "most_exposed": [
+          "NBIS",
+          "MU",
+          "MRVL",
+          "ALAB",
+          "BE"
+        ],
+        "mechanism": "10-yr at 4.998% one tick below 5.0%, Fed hiked 09-16, another hike ~64% priced for Dec; chain has shown 1.7-2.5x SMH sensitivity to yield spikes (scout).",
+        "basis": "live",
+        "note": "Anchored to scout regime read; magnitude is a rule-of-thumb."
+      },
+      {
+        "scenario": "Tariff / export-control escalation",
+        "impact_pct_low": -12.0,
+        "impact_pct_high": -6.0,
+        "most_exposed": [
+          "ASML",
+          "AMAT",
+          "KLAC",
+          "TER",
+          "TSM"
+        ],
+        "mechanism": "China revenue share of semicap; TSM/ASML supply-chain friction.",
+        "basis": "static_assumption",
+        "note": ""
+      },
+      {
+        "scenario": "USD/INR +3% (INR weakens)",
+        "impact_pct_low": 0.0,
+        "impact_pct_high": 0.0,
+        "most_exposed": [],
+        "mechanism": "USD-reported book: ~0% in USD terms; in INR terms net worth rises ~3% on the US book.",
+        "basis": "static_assumption",
+        "note": ""
+      },
+      {
+        "scenario": "USD/INR -3% (INR strengthens)",
+        "impact_pct_low": 0.0,
+        "impact_pct_high": 0.0,
+        "most_exposed": [],
+        "mechanism": "USD-reported book: ~0% in USD terms; in INR terms net worth falls ~3% on the US book.",
+        "basis": "static_assumption",
+        "note": ""
+      }
+    ],
+    "data_quality": [
+      "Scenario magnitudes approximate from cluster weights and scout beta reads; not re-derived from a factor model."
+    ]
+  },
+  "stress_table_prev": {
     "as_of": "2026-09-20",
     "anchored_to": {
       "us10y_pct": 4.998,
@@ -6058,109 +6611,6 @@
       "AI-capex pause row is a standing rule-of-thumb, not re-derived from a fresh capex guide this run."
     ]
   },
-  "stress_table_prev": {
-    "as_of": "2026-09-16",
-    "anchored_to": {
-      "us10y_pct": 5.006,
-      "vix": 17.71,
-      "dxy": 100.309,
-      "fed_rate_pct": 3.875,
-      "fed_stance": "hawkish"
-    },
-    "scenarios": [
-      {
-        "scenario": "Hawkish-for-longer: Dec hike + 10y 5.25-5.50%",
-        "impact_pct_low": -10.0,
-        "impact_pct_high": -5.7,
-        "most_exposed": [
-          "MU",
-          "ASML",
-          "KLAC"
-        ],
-        "mechanism": "Further rate rise directly compresses long-duration AI-capex/semicap multiples; 95.7% of equity is AI-capex exposed (compute_drift.ai_capex_pct).",
-        "basis": "live",
-        "note": "Anchored to scout's confirmed post-FOMC funds rate and live US10y (5.006%, cycle high)."
-      },
-      {
-        "scenario": "Oil spike to $120-130 (stagflation)",
-        "impact_pct_low": -11.5,
-        "impact_pct_high": -7.2,
-        "most_exposed": [
-          "MU",
-          "ASML",
-          "KLAC",
-          "GLW",
-          "MRVL"
-        ],
-        "mechanism": "Inflation pass-through raises Dec-hike odds further, compounding the rate-driven multiple compression on top of the existing Brent/WTI shock.",
-        "basis": "live",
-        "note": "Anchored to scout's live Brent ~$107.50/WTI ~$103.78 (Hormuz/Saudi-pipeline driven)."
-      },
-      {
-        "scenario": "Oil/geopolitical relief, Brent back to $80",
-        "impact_pct_low": 4.3,
-        "impact_pct_high": 7.2,
-        "most_exposed": [
-          "ASML",
-          "KLAC",
-          "NOW"
-        ],
-        "mechanism": "Inflation pressure eases, Dec-hike odds fall, 10y likely retreats -- relief for duration multiples.",
-        "basis": "live",
-        "note": "Symmetric inverse of the oil-spike scenario off the same live Brent anchor."
-      },
-      {
-        "scenario": "Midterm divided government + seasonal Q4 rally",
-        "impact_pct_low": 5.7,
-        "impact_pct_high": 9.3,
-        "most_exposed": [
-          "ALAB",
-          "TER",
-          "VRT"
-        ],
-        "mechanism": "Base-case election outcome removes a binary overhang; midterm-year seasonality (+13.59% mean autumn-low-to-year-end vs +9.09% non-midterm) applied partially to a high-beta book.",
-        "basis": "live",
-        "note": "Anchored to scout's divided-govt base-case odds and quoted seasonality statistic."
-      },
-      {
-        "scenario": "Democratic-sweep tail (export controls/antitrust)",
-        "impact_pct_low": -6.5,
-        "impact_pct_high": -3.6,
-        "most_exposed": [
-          "TSM",
-          "ASML",
-          "AMAT",
-          "GOOG",
-          "AMZN",
-          "MSFT"
-        ],
-        "mechanism": "Tighter China export controls hit the semicap/foundry supply chain; hyperscaler antitrust revival pressures Compute/Hyperscaler cluster multiples.",
-        "basis": "live",
-        "note": "Tail probability, not base case -- scout flags divided government (Dem House favored, Senate coin-flip) as the base case."
-      },
-      {
-        "scenario": "AI-capex pause (pacing essay becomes real cuts)",
-        "impact_pct_low": -20.1,
-        "impact_pct_high": -12.9,
-        "most_exposed": [
-          "ALAB",
-          "VRT",
-          "GEV",
-          "GLW",
-          "MRVL",
-          "COHR",
-          "LITE"
-        ],
-        "mechanism": "Extrapolates the 09-14 single-session cluster shock (Networking/Optics -8.28%, Power/Cooling -7.42%) to a sustained capex-cut scenario across the most duration/multiple-sensitive clusters.",
-        "basis": "static_assumption",
-        "note": "No hyperscaler has actually cut 2026/27 capex guidance -- this is a sample-of-one extrapolation, not a live signal."
-      }
-    ],
-    "data_quality": [
-      "USD/INR: book is USD-reported, ~0% direct book-level impact; INR-terms net-worth effect not re-derived here.",
-      "Scenario (f) basis is static_assumption -- treat its range as illustrative, not measured."
-    ]
-  },
   "run_outages": [
     {
       "from": "2026-08-27",
@@ -6170,8 +6620,8 @@
     }
   ],
   "scout_narrative": {
-    "text": "Composite sentiment 75.1, extreme_greed (unchanged band vs prior run). VIX sub-score 92.4 reflects real complacency (VIX 14.81, near 52wk low); RSI14 55.8 is neutral, not overbought; SPX sits ~91.5% toward its 52wk high. action_hint = propose profit-booking on overweight/breach names -- this run's sizing should lean toward measured, staged deployment of the $2,430-$6,684 deployable cash rather than a single lump-sum commit, given the market is this close to its highs on a complacent options tape.",
-    "as_of": "2026-09-20"
+    "text": "The proxy gauge reads 75.1, extreme greed, unchanged from the prior band. VIX (92.4) and distance from the 52-week high (91.5) carry it; RSI 55.8 is the only neutral component. The action_hint is to propose profit-booking on overweight or breached names. For this run that means the strategist should favour trims on names above cap and should not treat the futures bounce as a reason to add; sizing is the strategist's call. This is a proxy composite, not CNN's index.",
+    "as_of": "2026-09-21"
   },
   "cluster_ladders": {
     "AI Semis/Fabs": {
@@ -6537,31 +6987,41 @@
       ]
     },
     "AI Networking/Optics": {
-      "as_of": "2026-09-14",
+      "as_of": "2026-09-21",
       "cluster_thesis": {
-        "status": "intact",
+        "status": "strengthening",
         "innings": "early",
-        "text": "The 1.6T ramp is limited by supply, not demand. InP/EML lasers are short and LITE says 1.6T shipments are live to three customers in H2 CY26. Downgraded from strengthening to intact only because rates/FOMC risk is compressing multiples across the cluster. That is a valuation headwind, not a break in fundamentals.",
-        "falsifier": "Module or laser makers post gross-margin compression while revenue grows at the Nov-2026 prints, or a supply study shows EML supply and demand in balance before end-2027."
+        "text": "The 800G->1.6T transition is barely started and is supply-constrained at the laser, not at the module. Both LITE and COHR are shipping 1.6T today and COHR calls its ramp faster than it expected three months ago; NVDA is investing directly into laser/photonics capacity rather than module capacity. That is an early-innings, capacity-led upcycle, and it is a different clock from memory contract pricing, which is late in the HBM3E basis. The 2026-09-14 drawdown in this cluster was a financing-structure scare (GLW ATM) plus the Amodei pacing-essay sentiment shock, both of which the catalyst desk has since WEAKENED to unresolved-but-unescalated and sentiment-only respectively; Friday 09-18 (COHR +5%, LITE +3%, GLW +3%) recovered part of it against an unchanged order book.",
+        "falsifier": "A hyperscaler or NVDA disclosing a 1.6T module order cut or a laser-capacity build pause; OR LITE/COHR reporting 200G/lane EML lead times SHORTENING materially into the Nov-2026 prints, which would say the binding constraint has cleared and the pricing power with it."
       },
       "margin_pool": {
-        "moving_toward": "InP/EML laser supply (LITE, COHR) and electro-optic DSP / scale-up interconnect silicon (MRVL, ALAB)",
-        "moving_away_from": "Pluggable module assembly, systems integration (CIEN) and passive copper interconnect (APH)",
+        "moving_toward": "Laser/EML supply -- InP epitaxy and the 200G-per-lane device, plus external laser sources for co-packaged switches",
+        "moving_away_from": "Pluggable optical module assembly and passive optical materials (fiber, glass, connector)",
         "evidence": [
           {
-            "claim": "EML supply for 1.6T modelled 30-40% short of demand through 2029",
-            "date": "2025-06",
-            "source": "McKinsey via semiconductor-today (carried from 2026-09-08 ladder)"
+            "claim": "LITE is the only supplier shipping 200G-per-lane EMLs at volume; its 1.6T DR4 OSFP was demonstrated on four Lumentum 400G differential EMLs",
+            "date": "2026-03-18",
+            "source": "investor.lumentum.com OFC 2026 release / semiconductor-today"
           },
           {
-            "claim": "Lumentum: 1.6T transceiver backlog >$400M across three customers, majority shipping H2 CY26; $2B quarterly revenue target and new fab",
-            "date": "2026-09",
-            "source": "finance.yahoo.com 'Lumentum Touts AI Optics Boom'"
+            "claim": "Co-packaged optics disintermediates module assembly but still requires an external laser source, so CPO concentrates rather than destroys laser demand",
+            "date": "2026-03",
+            "source": "jasonschips.ai 'The Lumentum Series Part 2: Co-Packaged Omnipotence'"
           },
           {
-            "claim": "Piper Sandler initiated MRVL at $270, citing CPO and scale-up optics where MRVL already ships optical DSPs",
-            "date": "2026-09-11",
-            "source": "247wallst.com"
+            "claim": "COHR manufactures 100G EMLs (400G/800G), 200G EMLs (800G/1.6T) and demoed a 400G differential EML for 3.2T/6.4T -- vertical integration into the device, not the module, is where it is investing",
+            "date": "2026-03",
+            "source": "chipstrat.com 'Coherent's Vertical Integration Strategy'"
+          },
+          {
+            "claim": "NVDA announced strategic partnerships with both Lumentum and Coherent to expand laser and photonics supply (reported at $2bn each; magnitude secondary-sourced)",
+            "date": "2026-05-27",
+            "source": "techtimes.com AI data center optical component shortage"
+          },
+          {
+            "claim": "Laser lead times read through to module makers' next-quarter GROSS MARGIN rather than revenue -- the constraint is priced, not volumetric",
+            "date": "2026-09-21",
+            "source": "cluster playbook read_throughs, applied"
           }
         ]
       },
@@ -6573,19 +7033,25 @@
           "verdict": "leader",
           "differentiator_reads": [
             {
-              "axis": "800G->1.6T timing, qualified today vs promising it",
-              "read": "1.6T shipping to 3 customers with >$400M backlog, so it is past the demo stage. COHR's VCSEL 1.6T is still guided to 2H CY26",
-              "source": "finance.yahoo.com Lumentum article",
-              "date": "2026-09"
+              "axis": "position in the stack: laser/EML supply vs module assembly",
+              "read": "Sole supplier shipping 200G-per-lane EMLs at volume -- the binding component for every 1.6T module in the industry, including modules built by its competitors",
+              "source": "investor.lumentum.com OFC 2026 release",
+              "date": "2026-03-18"
             },
             {
-              "axis": "stack position laser/EML",
-              "read": "On the short side of the EML shortfall; FQ1 guide >$1.25B at >39% op margin",
-              "source": "stockanalysis.com/stocks/lite",
+              "axis": "co-packaged optics as a threat to pluggable-module economics",
+              "read": "Structurally CPO-immune: a co-packaged switch still needs an external laser source, so LITE's value-add survives the transition that kills module assembly",
+              "source": "jasonschips.ai Lumentum Series Pt 2",
+              "date": "2026-03"
+            },
+            {
+              "axis": "800G -> 1.6T transition timing",
+              "read": "Qualified and shipping 1.6T today, not promising it; Q4 FY26 guide >$1.25bn revenue at >39% operating margin against a $1.01bn actual",
+              "source": "data_cache.earnings_facts LITE Q4 FY2026",
               "date": "2026-08-11"
             }
           ],
-          "case_against": "The $2B NVDA tie means single-customer concentration. The stock is already re-rated. ATR20 7.06% is the highest in the cluster, so it is the most exposed to today's beta selloff. The 09-01 exit and 09-03 re-entry still have no captured rationale (G78)."
+          "case_against": "Most-owned expression of the thesis and already the price leader (+12.48% 1m, rel_intra +10.20pp), so the sole-source fact is at least partly in the price. Single-customer concentration into NVDA cuts both ways: the $2bn relationship that secures demand also fixes the counterparty. A second qualified 200G/lane EML source -- most plausibly COHR at volume -- removes the entire rank-1 argument."
         },
         {
           "rank": 2,
@@ -6594,76 +7060,88 @@
           "verdict": "middle",
           "differentiator_reads": [
             {
-              "axis": "stack position laser/EML",
-              "read": "Most vertically integrated in InP; internal output doubling by end-CY26",
-              "source": "chipstrat.com",
-              "date": "2026"
+              "axis": "position in the stack: laser/EML supply",
+              "read": "Second source at 200G EML for 800G/1.6T and already demoing a 400G differential EML for 3.2T/6.4T -- it is on the right side of the margin migration, one node behind LITE",
+              "source": "chipstrat.com Coherent vertical integration",
+              "date": "2026-03"
             },
             {
-              "axis": "1.6T timing",
-              "read": "VCSEL 1.6T guided 2H CY26, still a promise rather than shipments",
-              "source": "coherent.com OFC 2026",
-              "date": "2026-03"
+              "axis": "800G -> 1.6T transition timing",
+              "read": "Management stated the 1.6T ramp is running 'even faster than expected three months ago' -- the only forward acceleration statement in this cluster",
+              "source": "chipstrat / COHR Aug-2026 commentary",
+              "date": "2026-08"
+            },
+            {
+              "axis": "merchant vs in-house / customer structure",
+              "read": "Beat Q4 FY26 on revenue ($2.045bn vs $2.025bn) and EPS ($1.74 vs $1.65) with a raised FY27 outlook and the stock fell anyway -- a valuation/positioning reaction, not a demand one",
+              "source": "data_cache.earnings_facts COHR + Benzinga",
+              "date": "2026-08-12"
             }
           ],
-          "case_against": "Worst held performer in the cluster (-8.07pp intra, not counting CIEN dust). Guide Q1 $2.2-2.4B is above the beaten quarter, so the fundamentals disagree with price. Keeping it at rank 2 is a bet that the drawdown is beta. It is also near its ATR cap (0.918)."
+          "case_against": "Roughly half of Coherent is industrial lasers, telecom and materials -- it dilutes the exact datacenter-laser exposure the book is paying for, which is why it ranks behind LITE on the same axis. It also carries the merger balance sheet. And its 1.6T second-source position is only valuable while LITE is capacity-constrained; if LITE's capacity build lands, COHR's premium compresses first."
         },
         {
           "rank": 3,
-          "ticker": "MRVL",
-          "held": true,
-          "verdict": "middle",
-          "differentiator_reads": [
-            {
-              "axis": "custom-ASIC attach",
-              "read": "Holds the challenger seat at ~20-25% share vs AVGO ~60% (2027 est.); Q2 FY26 beat with guide above consensus",
-              "source": "fool.com 2026-09-08; earnings_facts",
-              "date": "2026-09-08"
-            },
-            {
-              "axis": "scale-up vs scale-out / CPO",
-              "read": "Already ships optical DSP; Piper sees scale-up optics and XPU-attach upside by FY29",
-              "source": "247wallst.com",
-              "date": "2026-09-11"
-            }
-          ],
-          "case_against": "Price leader by a wide margin (+14.83pp) and over its ATR cap (1.206x), so the rank cannot be expressed by adding. Its share-gain case is the mirror of AVGO's risk. The DSP layer is exposed if CPO moves DSP functions into the switch package."
-        },
-        {
-          "rank": 4,
           "ticker": "ALAB",
           "held": true,
           "verdict": "middle",
           "differentiator_reads": [
             {
-              "axis": "scale-up exposure",
-              "read": "Q3 guide $540-560M vs $417M consensus; Scorpio X in volume production",
-              "source": "stockanalysis.com/stocks/alab",
+              "axis": "scale-up (within-rack) vs scale-out exposure",
+              "read": "Pure scale-up connectivity (retimers, Scorpio switching) -- the fastest-growing segment inside the rack and the one CPO does not touch",
+              "source": "cluster playbook axis applied to ALAB product line",
+              "date": "2026-09-21"
+            },
+            {
+              "axis": "custom-ASIC attach: whose silicon rides which hyperscaler's in-house accelerator",
+              "read": "Guided Q3 to $540-560M revenue against $417.0M consensus -- a guide ~30% above the street, the strongest forward statement made by any member of this cluster",
+              "source": "data_cache.earnings_facts ALAB Q2 2026",
               "date": "2026-08-05"
             }
           ],
-          "case_against": "Retimers are the layer most easily designed out, by optical scale-up or in-house fabric silicon. Stock is -2.58pp intra despite the guide. Nothing refreshed this run."
+          "case_against": "It is not optics -- it is electrical. The same 1.6T/CPO transition that makes LITE structural is, at the limit, the transition that replaces within-rack electrical links with optical ones; ALAB's rank-3 depends on scale-up staying copper for at least this generation. Customer concentration is severe, and a guide 30% above consensus sets a bar that a single hyperscaler's schedule slip resets."
         },
         {
           "rank": 5,
-          "ticker": "AVGO",
+          "ticker": "MRVL",
           "held": true,
           "verdict": "middle",
           "differentiator_reads": [
             {
-              "axis": "merchant switch / custom-ASIC share",
-              "read": "~60% custom-ASIC share est.; AI semis revenue +221% YoY to $16.7B in Q3 FY26",
-              "source": "fool.com",
-              "date": "2026-09-08"
+              "axis": "merchant switch silicon share vs in-house displacement risk",
+              "read": "Exposed on both sides of the same axis -- merchant switch silicon share loss to AVGO's Tomahawk line, and in-house-accelerator displacement risk on the custom-ASIC book",
+              "source": "cluster playbook axis; AVGO positioning",
+              "date": "2026-09-21"
             },
             {
               "axis": "custom-ASIC attach",
-              "read": "Guide read as light (-2.75% reaction); BofA bond downgrade over XPV off-balance-sheet financing",
-              "source": "earnings_facts; 247wallst",
-              "date": "2026-08-11"
+              "read": "Q2 FY26 EPS $0.94 vs $0.930 consensus -- a 1.05% average-surprise name, the thinnest beat in this cluster, against a 10.55% option-implied move",
+              "source": "data_cache.earnings_facts MRVL",
+              "date": "2026-08-27"
             }
           ],
-          "case_against": "(This is the case FOR.) It is the share incumbent with the largest AI revenue base, trading at 0.22x cap with an $533 mean target. Ranking it below ALAB leans on an overhang (XPV) that has not escalated."
+          "case_against": "Demoted from 4 to 5 on APH's promotion, not on new MRVL evidence -- and the case FOR remains real: MRVL owns optical DSP content that rides every pluggable module regardless of who assembles it, and it guided above consensus. A named third custom-ASIC hyperscaler customer before the 12-02 print moves it back above APH. Its Dec-02 date also makes it the last member to be re-priced by evidence, so this rank is the least likely in the cluster to be tested soon."
+        },
+        {
+          "rank": 4,
+          "ticker": "APH",
+          "held": true,
+          "verdict": "middle",
+          "differentiator_reads": [
+            {
+              "axis": "position in the stack: laser/EML vs module vs switch silicon vs connector",
+              "read": "No longer a pure copper-connector node: the CommScope Connectivity and Cable Solutions acquisition (closed 2026-01-09) moved APH into fiber-optic interconnect content, i.e. into the optics stack rather than adjacent to it",
+              "source": "APH Form 10-Q, quarter ended 2026-06-30 (primary, via desk)",
+              "date": "2026-06-30"
+            },
+            {
+              "axis": "scale-up (within-rack) vs scale-out exposure",
+              "read": "Communications Solutions is ~62% of net sales and grew 42% ORGANICALLY (85% USD) y/y on outsized IT-datacom growth with particular strength in AI-related -- this contradicts my round-1 'lowest AI torque per dollar' premise, which is withdrawn",
+              "source": "APH Form 10-Q, quarter ended 2026-06-30 (primary, via desk)",
+              "date": "2026-06-30"
+            }
+          ],
+          "case_against": "Rank 4 not higher because Communications Solutions also contains mobile networks and broadband, so a stand-alone IT-datacom share of total sales is NOT established -- the 62% overstates AI exposure by an unknown amount. Roughly half the segment's USD growth (85% vs 42% organic) is the CommScope CCS acquisition rather than underlying demand, and that deal was term-loan funded, so APH has bought part of the AI content it is now credited with and added leverage doing it. Its -0.60% month and RSI 44.1 also sit oddly against a 42% organic grower, which is either an opportunity or a signal the market knows something the segment table does not show. smith-thesis independently moved APH strengthening->intact this round on thin evidence."
         },
         {
           "rank": 6,
@@ -6672,32 +7150,50 @@
           "verdict": "middle",
           "differentiator_reads": [
             {
-              "axis": "stack position (systems)",
-              "read": "FQ3 beat ($1.67B vs $1.64B) and FY26 guide raised to $6.42B, but it sits in the systems layer that margin is migrating away from",
-              "source": "stockanalysis.com/stocks/cien",
+              "axis": "scale-across / DCI exposure and coherent DSP position",
+              "read": "Systems and coherent-DSP vendor for datacenter interconnect -- a differentiated node, but systems-level margin, below component margin, and the node CPO/pluggable coherent erodes over time",
+              "source": "cluster playbook stack axis",
+              "date": "2026-09-21"
+            },
+            {
+              "axis": "800G -> 1.6T transition timing (as a demand read-through)",
+              "read": "FQ3 2026 printed revenue $1.67bn vs $1.64bn and EPS $2.11 vs $1.73 with a guide ABOVE consensus, and the stock is still -12.68% on the month -- the beat that validates component demand for LITE and COHR with a lag",
+              "source": "data_cache.earnings_facts CIEN",
               "date": "2026-09-03"
             }
           ],
-          "case_against": "Delivered the best beat-and-raise in the cluster, then fell -19.1% in the month. If the raise repeats in December, the systems-layer-loses premise is wrong. The position is dust ($2.81), so the rank carries no weight."
+          "case_against": "Ranked 6th despite the cluster's largest earnings beat because systems margin is structurally below component margin and because the position is $2.98 -- there is no capital here to be right with. If the -12.68% is the market pricing a 2027 order-book problem that the 09-03 guide has not yet caught, rank 6 is generous, and no dated evidence this window separates those two readings."
         },
         {
           "rank": 7,
-          "ticker": "APH",
+          "ticker": "GLW",
           "held": true,
           "verdict": "laggard",
           "differentiator_reads": [
             {
-              "axis": "stack position connector / scale-up copper",
-              "read": "Passive copper's reach budget shrinks at 1.6T; active cables (CRDO) and optics take the incremental rack; not re-evidenced this run",
-              "source": "2026-09-08 ladder playbook read",
-              "date": "2026-09-08"
+              "axis": "position in the stack: passive materials vs active component",
+              "read": "Optical fiber and specialty glass -- no active-component content, the node with the least pricing power as value migrates to the laser",
+              "source": "cluster playbook stack axis",
+              "date": "2026-09-21"
+            },
+            {
+              "axis": "financing structure as a differentiator within the cluster",
+              "read": "$2bn at-the-market equity programme with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 09-11); -12% to $145.61 on 09-14 with peer contagion. Catalyst desk WEAKENED it on 09-18 for lack of any usage disclosure -- weakened, not resolved: the programme is still live and undisclosed",
+              "source": "out_catalyst.json 2026-09-18 + 247wallst 2026-09-14",
+              "date": "2026-09-18"
+            },
+            {
+              "axis": "thesis divergence",
+              "read": "The only member carrying `watch` status while the other six carry `strengthening`",
+              "source": "state.thesis GLW",
+              "date": "2026-09-14"
             }
           ],
-          "case_against": "(This is the case FOR.) IT Datacom is its fastest-growing segment. It has the lowest ATR (3.17%), sits at +4.82pp intra, and at $99 mean target is not expensive. Today's beta selloff favours it. The laggard call is structural (multi-year), not a call on the next quarter."
+          "case_against": "The case FOR GLW is the one I am ranking against and it is not weak: Q2 core EPS +30%, a 19% sales CAGR guided through 2030, a 15% polysilicon tariff tailwind, and an ATM that by construction sells gradually so realized dilution will be a fraction of $2bn. Q3 core sales guidance of $4.9-5.0bn is intact. The 09-18 +3% says the market is already discounting the dilution scare. If the programme lapses unused, the laggard call is wrong on the financing leg and rests on stack position alone."
         }
       ],
       "leader": "LITE",
-      "laggard": "APH",
+      "laggard": "GLW",
       "confidence": "medium",
       "redundant_pairs": [
         {
@@ -6705,62 +7201,84 @@
             "LITE",
             "COHR"
           ],
-          "same_bet_because": "Business grounds only, no correlation asserted: both are InP/EML laser suppliers to the same shortfall, both have $2B NVDA investments, and both make 1.6T pluggables and CPO light sources",
+          "same_bet_because": "Same binding component (200G/lane EML into 1.6T sockets), same end customers, same NVDA supply relationship, and they moved together through both legs of the September event -- -9%/-11% on the 09-14 GLW ATM contagion and +3%/+5% on the 09-18 rebound. No return series is cached so this is a business-grounds verdict, not a measured correlation.",
           "keep": "LITE",
           "drop": "COHR",
           "verdict": "redundant"
         },
         {
           "pair": [
-            "AVGO",
-            "MRVL"
+            "MRVL",
+            "ALAB"
           ],
-          "same_bet_because": "Same customers, but opposite sides of the custom-ASIC share shift; holding both hedges which way share moves",
-          "keep": "both",
-          "drop": "",
+          "same_bet_because": "Both monetise custom-ASIC attach at the same hyperscalers, but MRVL sells the accelerator/DSP silicon and ALAB the scale-up connectivity around it -- different content per rack, different competitors, and they can diverge on a single customer's architecture choice.",
+          "keep": "MRVL",
+          "drop": null,
+          "verdict": "distinct"
+        },
+        {
+          "pair": [
+            "LITE",
+            "GLW"
+          ],
+          "same_bet_because": "Labelled together as optics and they trade together on sector shocks, but active laser economics and passive fiber/glass economics are on opposite sides of the margin migration. GLW is a conviction question, not an overlap question.",
+          "keep": "LITE",
+          "drop": null,
+          "verdict": "distinct"
+        },
+        {
+          "pair": [
+            "APH",
+            "CIEN"
+          ],
+          "same_bet_because": "Connector versus systems -- no shared component, no shared customer structure, no shared margin pool. Listed only to record that the 7 line items contain exactly one redundancy, not several.",
+          "keep": "APH",
+          "drop": null,
           "verdict": "distinct"
         }
       ],
       "bench": [
         {
           "ticker": "CRDO",
-          "price_usd": null,
-          "why_better_than": "APH",
-          "entry_condition": "Below ~$150 (08-Sep ref $164.17, not re-priced this run) or after another quarter of >25% sequential AEC growth"
+          "price_usd": 175.89,
+          "why_better_than": "MRVL",
+          "entry_condition": "WITHDRAWN as a why_better_than APH line -- the APH 10-Q segment disclosure removes the torque-per-dollar gap that argument depended on. Re-pointed at MRVL on a different axis from the AVGO bench line: AVGO beats MRVL on merchant switch silicon SHARE, CRDO beats it on scale-up interconnect PURITY (AEC content is almost entirely AI datacenter against MRVL's contested merchant book). Enter on a pullback toward the low-$150s or a disclosed hyperscaler AEC design win. Reinstate the APH comparison only if APH discloses a stand-alone IT-datacom share of total sales below roughly 35%."
+        },
+        {
+          "ticker": "AVGO",
+          "price_usd": 357.61,
+          "why_better_than": "MRVL",
+          "entry_condition": "Beats MRVL on the exact axis MRVL loses -- merchant switch silicon share (Tomahawk) plus the larger custom-ASIC book. It was exited 2026-09-16 by round-lot sizing on the rate-rotation sell leg, not on thesis (prior finding orchestrator:0aa1099ae5). Enter on a re-test of $330 or a confirmed third custom-ASIC customer."
         },
         {
           "ticker": "ANET",
-          "price_usd": null,
-          "why_better_than": "CIEN",
-          "entry_condition": "Below $180 (08-Sep ref $191.44, not re-priced); note it is in the systems layer"
+          "price_usd": 199.39,
+          "why_better_than": "GLW",
+          "entry_condition": "A systems-level 1.6T beneficiary is a better optics expression than passive glass. Enter only on evidence that in-house hyperscaler switching is NOT displacing merchant systems -- e.g. a hyperscaler renewing merchant switch commitments at 1.6T."
+        },
+        {
+          "ticker": "FN",
+          "price_usd": 388.55,
+          "why_better_than": null,
+          "entry_condition": "DELIBERATELY NOT BENCHED. Fabrinet is module assembly -- precisely the pool co-packaged optics drains. Listed so the omission reads as a judgement rather than an oversight. No entry condition."
         }
       ],
       "reorder_when": [
-        "By COHR's early-Nov 2026 FQ1 print: if COHR reports qualified 1.6T volume revenue, COHR ties or passes LITE",
-        "If LITE's FQ1 FY27 op margin is <39% on revenue >=$1.25B, LITE drops below COHR and MRVL",
-        "If ALAB's Q3 lands inside $540-560M and the intra-cluster gap does not close within 10 sessions, ALAB drops to rank 6",
-        "If any hyperscaler names an in-house NIC/switch for volume before 2026-12-31, AVGO goes to rank 7 and APH moves up",
-        "If AVGO's XPV exposure is escalated by any agency at any date, AVGO becomes laggard",
-        "If CIEN raises again at its early-Dec FQ4 print, CIEN moves above APH",
-        "If MRVL's Dec print shows its custom-ASIC revenue guide cut, MRVL drops below ALAB"
+        "By the 2026-11-06 LITE print: if COHR discloses 200G/lane EML shipments at volume into third-party 1.6T modules, LITE's sole-source premium is gone and ranks 1 and 2 swap.",
+        "2026-10-27 GLW Q3 print: any disclosure of ATM programme usage above ~$500M moves GLW from laggard to a sizing decision rather than a ranking one; a disclosure of ZERO usage moves GLW above CIEN and makes APH the laggard.",
+        "2026-10-28 APH Q3 print: AI/datacenter disclosed above ~35% of revenue moves APH above MRVL on torque per dollar.",
+        "2026-11-04 ALAB print: any guide-down or a named hyperscaler moving scale-up from copper retimers to optical drops ALAB below MRVL.",
+        "2026-12-02 MRVL print: a named third custom-ASIC hyperscaler customer moves MRVL to rank 3; a confirmed Tomahawk share loss in merchant switch silicon drops it to rank 6.",
+        "Any hyperscaler naming an in-house NIC or switch ASIC before year-end reorders MRVL and ALAB downward together and leaves LITE/COHR untouched -- lasers are agnostic to whose silicon wins."
       ],
       "catalysts": [
         {
-          "date": "2026-09-16",
-          "event": "FOMC decision (57% odds of 25bp hike); beta driver, not a reordering event",
-          "reorders": [],
-          "read_through_to": [
-            "LITE",
-            "COHR",
-            "ALAB",
-            "MRVL"
-          ]
-        },
-        {
           "date": "2026-10-27",
-          "event": "GLW Q3 print; fiber demand per AI rack",
+          "event": "GLW Q3 2026 print -- the first opportunity to disclose ATM programme usage against the $2bn authorisation",
           "reorders": [
-            "GLW"
+            "GLW",
+            "CIEN",
+            "APH"
           ],
           "read_through_to": [
             "COHR",
@@ -6769,55 +7287,58 @@
         },
         {
           "date": "2026-10-28",
-          "event": "APH Q3; IT Datacom growth tests the copper-loses thesis",
+          "event": "APH Q3 2026 print -- AI/datacenter revenue mix disclosure",
           "reorders": [
-            "APH"
+            "APH",
+            "MRVL"
           ],
           "read_through_to": [
-            "ALAB"
+            "CRDO"
           ]
         },
         {
           "date": "2026-11-04",
-          "event": "ALAB Q3 vs $540-560M guide",
+          "event": "ALAB Q3 2026 print against its own ~30%-above-consensus guide ($540-560M vs $417M)",
           "reorders": [
-            "ALAB"
+            "ALAB",
+            "MRVL"
           ],
           "read_through_to": [
             "MRVL",
-            "AVGO"
+            "CRDO"
           ]
         },
         {
           "date": "2026-11-05",
-          "event": "COHR FQ1; 1.6T VCSEL status",
+          "event": "COHR FQ1 2027 print -- 1.6T ramp pace and, critically, whether 200G/lane EML is shipping at volume to third parties",
           "reorders": [
             "COHR",
             "LITE"
           ],
           "read_through_to": [
             "LITE",
-            "CIEN"
+            "FN"
           ]
         },
         {
           "date": "2026-11-06",
-          "event": "LITE FQ1 vs >$1.25B / >39% margin guide",
+          "event": "LITE FQ1 2027 print -- 200G/lane EML capacity, lead times and gross margin against the >39% op-margin guide",
           "reorders": [
             "LITE",
             "COHR"
           ],
           "read_through_to": [
             "COHR",
-            "CRDO"
+            "FN",
+            "CIEN"
           ]
         },
         {
           "date": "2026-12-02",
-          "event": "MRVL Q3 FY27",
+          "event": "MRVL Q3 FY27 print -- custom-ASIC customer count and merchant switch silicon share",
           "reorders": [
             "MRVL",
-            "AVGO"
+            "ALAB"
           ],
           "read_through_to": [
             "AVGO",
@@ -6825,48 +7346,45 @@
           ]
         },
         {
-          "date": "2026-12-10",
-          "event": "AVGO Q4 FY26",
+          "date": "2026-12-04",
+          "event": "CIEN FQ4 2026 print (approximate, from its 09-03 FQ3 cadence) -- the cluster's demand read-through arrives here FIRST and leads LITE/COHR component demand with a lag",
           "reorders": [
-            "AVGO",
-            "MRVL"
+            "CIEN"
           ],
           "read_through_to": [
-            "MRVL"
+            "LITE",
+            "COHR",
+            "GLW"
           ]
         }
       ],
       "thesis_tensions": [
         {
-          "ticker": "APH",
-          "ladder_rank": 7,
-          "thesis_status": "strengthening",
-          "tension": "Ranked last on the structural reach-budget axis while thesis says strengthening (unverified). Two agents disagree."
-        },
-        {
           "ticker": "CIEN",
           "ladder_rank": 6,
           "thesis_status": "strengthening",
-          "tension": "Thesis upgraded on the beat and raise; ladder ranks it low on stack position"
+          "tension": "smith-thesis carries CIEN `strengthening` (status-only trim) and the 09-03 print supports that -- EPS $2.11 vs $1.73 with a guide above consensus. I rank it 6 of 7 anyway, on stack position (systems margin below component margin) and on the fact that the holding is $2.98. Both can be true: the business is strengthening and the expression is the weakest in the cluster. But a `strengthening` name held at 0.009% weight is a book decision smith-thesis's status does not capture, and the two should be reconciled explicitly rather than left to look like agreement."
         },
         {
-          "ticker": "AVGO",
+          "ticker": "APH",
           "ladder_rank": 5,
-          "thesis_status": "watch",
-          "tension": "Mild: the watch name ranks above two strengthening names (CIEN, APH)"
-        }
-      ],
-      "unranked": [
+          "thesis_status": "strengthening",
+          "tension": "smith-thesis carries APH `strengthening` with verified=unverified, and it is simultaneously the book's largest optics weight (4.61%) and the weakest substantive one-month performer (-0.60%, RSI 44.1). My rank-5 says its AI torque per dollar is the lowest here. An `unverified` strengthening verdict on the largest position in the cluster is the single weakest evidence link in this ladder -- I am asking smith-thesis for the full text rather than ranking around it."
+        },
         {
           "ticker": "GLW",
-          "reason": "No differentiator axis (fiber pull-through per 1.6T rack, hollow-core) evidenced this run; last sourced read 2026-08-07; 0.20x cap"
+          "ladder_rank": 7,
+          "thesis_status": "watch",
+          "tension": "No tension -- ladder and thesis agree. Recorded because the agreement is itself informative: GLW is the only member where the price ranking, the thesis status and the stack-position axis all point the same way."
         }
       ],
+      "unranked": [],
       "confidence_reasons": [
-        "Return coverage 8/8, but only 2 web calls this run: 1.6T timing (LITE) and custom-ASIC share (MRVL/AVGO) refreshed; other axes carried from the 2026-09-08 ladder (6 days old) and not re-evidenced",
-        "GLW unranked, no fresh differentiator read",
-        "Today's -6.25% pre-market move is macro/beta (FOMC-hike odds, Hormuz oil) per catalyst tail, so it says nothing about the ordering",
-        "No scored track record yet (track_record empty)"
+        "Return coverage complete (7/7 members) and dispersion 8.41pp is wide enough to be informative.",
+        "Ranks 1-2 and the margin-pool call rest on dated, named sources (OFC 2026 Lumentum release; Coherent Aug-2026 ramp commentary) plus fundamental prints on file, not on the one-month return.",
+        "Ranks 3-5 rest on stack position and filed prints rather than a fresh per-name 1.6T qualification datapoint this window.",
+        "The reported NVDA $2bn-each investment in LITE and COHR is secondary-sourced; direction treated as verified, magnitude as unverified.",
+        "GLW thesis is status `watch` with a live ATM overhang that the catalyst agent WEAKENED on 09-18 without resolving it -- the laggard call is directionally safe but its magnitude is not."
       ],
       "track_record": [
         {
@@ -6878,6 +7396,18 @@
           "leader_return_1m_pct": -0.58,
           "laggard_return_1m_pct": -1.25,
           "spread_pp": 0.67,
+          "correct": true,
+          "ladder_confidence_at_call": "medium"
+        },
+        {
+          "scored": true,
+          "as_of": "2026-09-21",
+          "ladder_as_of": "2026-09-14",
+          "leader": "LITE",
+          "laggard": "APH",
+          "leader_return_1m_pct": 12.48,
+          "laggard_return_1m_pct": -0.6,
+          "spread_pp": 13.08,
           "correct": true,
           "ladder_confidence_at_call": "medium"
         }
@@ -7728,15 +8258,19 @@
       ]
     }
   },
-  "cluster_ladders_as_of": "2026-09-20",
+  "cluster_ladders_as_of": "2026-09-21",
   "cluster_scan_cursor": {
     "AI Semis/Fabs": "2026-09-15",
-    "AI Networking/Optics": "2026-09-14",
+    "AI Networking/Optics": "2026-09-21",
     "Compute/Hyperscaler": "2026-09-15",
     "AI Power/Cooling/DC Infra": "2026-09-15",
     "AI Memory/Storage": "2026-09-20"
   },
-  "factor_catalysts_as_of": "2026-09-20",
+  "factor_catalysts_as_of": "2026-09-21",
   "catalyst_suppressed": [],
-  "dashboard_last_synced_ts": "2026-09-20"
+  "dashboard_last_synced_ts": "2026-09-21",
+  "strategist_deemphasis": {
+    "buckets": [],
+    "as_of": "2026-09-21"
+  }
 }

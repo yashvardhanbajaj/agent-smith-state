@@ -1,0 +1,507 @@
+{
+  "cluster": "AI Networking/Optics",
+  "confidence": "medium",
+  "confidence_reasons": [
+    "Return coverage complete (7/7 members) and dispersion 8.41pp is wide enough to be informative.",
+    "Ranks 1-2 and the margin-pool call rest on dated, named sources (OFC 2026 Lumentum release; Coherent Aug-2026 ramp commentary) plus fundamental prints on file, not on the one-month return.",
+    "Ranks 3-5 rest on stack position and filed prints rather than a fresh per-name 1.6T qualification datapoint this window.",
+    "The reported NVDA $2bn-each investment in LITE and COHR is secondary-sourced; direction treated as verified, magnitude as unverified.",
+    "GLW thesis is status `watch` with a live ATM overhang that the catalyst agent WEAKENED on 09-18 without resolving it -- the laggard call is directionally safe but its magnitude is not."
+  ],
+  "cluster_thesis": {
+    "status": "strengthening",
+    "innings": "early",
+    "text": "The 800G->1.6T transition is barely started and is supply-constrained at the laser, not at the module. Both LITE and COHR are shipping 1.6T today and COHR calls its ramp faster than it expected three months ago; NVDA is investing directly into laser/photonics capacity rather than module capacity. That is an early-innings, capacity-led upcycle, and it is a different clock from memory contract pricing, which is late in the HBM3E basis. The 2026-09-14 drawdown in this cluster was a financing-structure scare (GLW ATM) plus the Amodei pacing-essay sentiment shock, both of which the catalyst desk has since WEAKENED to unresolved-but-unescalated and sentiment-only respectively; Friday 09-18 (COHR +5%, LITE +3%, GLW +3%) recovered part of it against an unchanged order book.",
+    "falsifier": "A hyperscaler or NVDA disclosing a 1.6T module order cut or a laser-capacity build pause; OR LITE/COHR reporting 200G/lane EML lead times SHORTENING materially into the Nov-2026 prints, which would say the binding constraint has cleared and the pricing power with it."
+  },
+  "margin_pool": {
+    "moving_toward": "Laser/EML supply -- InP epitaxy and the 200G-per-lane device, plus external laser sources for co-packaged switches",
+    "moving_away_from": "Pluggable optical module assembly and passive optical materials (fiber, glass, connector)",
+    "evidence": [
+      {
+        "claim": "LITE is the only supplier shipping 200G-per-lane EMLs at volume; its 1.6T DR4 OSFP was demonstrated on four Lumentum 400G differential EMLs",
+        "date": "2026-03-18",
+        "source": "investor.lumentum.com OFC 2026 release / semiconductor-today"
+      },
+      {
+        "claim": "Co-packaged optics disintermediates module assembly but still requires an external laser source, so CPO concentrates rather than destroys laser demand",
+        "date": "2026-03",
+        "source": "jasonschips.ai 'The Lumentum Series Part 2: Co-Packaged Omnipotence'"
+      },
+      {
+        "claim": "COHR manufactures 100G EMLs (400G/800G), 200G EMLs (800G/1.6T) and demoed a 400G differential EML for 3.2T/6.4T -- vertical integration into the device, not the module, is where it is investing",
+        "date": "2026-03",
+        "source": "chipstrat.com 'Coherent's Vertical Integration Strategy'"
+      },
+      {
+        "claim": "NVDA announced strategic partnerships with both Lumentum and Coherent to expand laser and photonics supply (reported at $2bn each; magnitude secondary-sourced)",
+        "date": "2026-05-27",
+        "source": "techtimes.com AI data center optical component shortage"
+      },
+      {
+        "claim": "Laser lead times read through to module makers' next-quarter GROSS MARGIN rather than revenue -- the constraint is priced, not volumetric",
+        "date": "2026-09-21",
+        "source": "cluster playbook read_throughs, applied"
+      }
+    ]
+  },
+  "ranking": [
+    {
+      "rank": 1,
+      "ticker": "LITE",
+      "held": true,
+      "verdict": "leader",
+      "differentiator_reads": [
+        {
+          "axis": "position in the stack: laser/EML supply vs module assembly",
+          "read": "Sole supplier shipping 200G-per-lane EMLs at volume -- the binding component for every 1.6T module in the industry, including modules built by its competitors",
+          "source": "investor.lumentum.com OFC 2026 release",
+          "date": "2026-03-18"
+        },
+        {
+          "axis": "co-packaged optics as a threat to pluggable-module economics",
+          "read": "Structurally CPO-immune: a co-packaged switch still needs an external laser source, so LITE's value-add survives the transition that kills module assembly",
+          "source": "jasonschips.ai Lumentum Series Pt 2",
+          "date": "2026-03"
+        },
+        {
+          "axis": "800G -> 1.6T transition timing",
+          "read": "Qualified and shipping 1.6T today, not promising it; Q4 FY26 guide >$1.25bn revenue at >39% operating margin against a $1.01bn actual",
+          "source": "data_cache.earnings_facts LITE Q4 FY2026",
+          "date": "2026-08-11"
+        }
+      ],
+      "case_against": "Most-owned expression of the thesis and already the price leader (+12.48% 1m, rel_intra +10.20pp), so the sole-source fact is at least partly in the price. Single-customer concentration into NVDA cuts both ways: the $2bn relationship that secures demand also fixes the counterparty. A second qualified 200G/lane EML source -- most plausibly COHR at volume -- removes the entire rank-1 argument."
+    },
+    {
+      "rank": 2,
+      "ticker": "COHR",
+      "held": true,
+      "verdict": "middle",
+      "differentiator_reads": [
+        {
+          "axis": "position in the stack: laser/EML supply",
+          "read": "Second source at 200G EML for 800G/1.6T and already demoing a 400G differential EML for 3.2T/6.4T -- it is on the right side of the margin migration, one node behind LITE",
+          "source": "chipstrat.com Coherent vertical integration",
+          "date": "2026-03"
+        },
+        {
+          "axis": "800G -> 1.6T transition timing",
+          "read": "Management stated the 1.6T ramp is running 'even faster than expected three months ago' -- the only forward acceleration statement in this cluster",
+          "source": "chipstrat / COHR Aug-2026 commentary",
+          "date": "2026-08"
+        },
+        {
+          "axis": "merchant vs in-house / customer structure",
+          "read": "Beat Q4 FY26 on revenue ($2.045bn vs $2.025bn) and EPS ($1.74 vs $1.65) with a raised FY27 outlook and the stock fell anyway -- a valuation/positioning reaction, not a demand one",
+          "source": "data_cache.earnings_facts COHR + Benzinga",
+          "date": "2026-08-12"
+        }
+      ],
+      "case_against": "Roughly half of Coherent is industrial lasers, telecom and materials -- it dilutes the exact datacenter-laser exposure the book is paying for, which is why it ranks behind LITE on the same axis. It also carries the merger balance sheet. And its 1.6T second-source position is only valuable while LITE is capacity-constrained; if LITE's capacity build lands, COHR's premium compresses first."
+    },
+    {
+      "rank": 3,
+      "ticker": "ALAB",
+      "held": true,
+      "verdict": "middle",
+      "differentiator_reads": [
+        {
+          "axis": "scale-up (within-rack) vs scale-out exposure",
+          "read": "Pure scale-up connectivity (retimers, Scorpio switching) -- the fastest-growing segment inside the rack and the one CPO does not touch",
+          "source": "cluster playbook axis applied to ALAB product line",
+          "date": "2026-09-21"
+        },
+        {
+          "axis": "custom-ASIC attach: whose silicon rides which hyperscaler's in-house accelerator",
+          "read": "Guided Q3 to $540-560M revenue against $417.0M consensus -- a guide ~30% above the street, the strongest forward statement made by any member of this cluster",
+          "source": "data_cache.earnings_facts ALAB Q2 2026",
+          "date": "2026-08-05"
+        }
+      ],
+      "case_against": "It is not optics -- it is electrical. The same 1.6T/CPO transition that makes LITE structural is, at the limit, the transition that replaces within-rack electrical links with optical ones; ALAB's rank-3 depends on scale-up staying copper for at least this generation. Customer concentration is severe, and a guide 30% above consensus sets a bar that a single hyperscaler's schedule slip resets."
+    },
+    {
+      "rank": 5,
+      "ticker": "MRVL",
+      "held": true,
+      "verdict": "middle",
+      "differentiator_reads": [
+        {
+          "axis": "merchant switch silicon share vs in-house displacement risk",
+          "read": "Exposed on both sides of the same axis -- merchant switch silicon share loss to AVGO's Tomahawk line, and in-house-accelerator displacement risk on the custom-ASIC book",
+          "source": "cluster playbook axis; AVGO positioning",
+          "date": "2026-09-21"
+        },
+        {
+          "axis": "custom-ASIC attach",
+          "read": "Q2 FY26 EPS $0.94 vs $0.930 consensus -- a 1.05% average-surprise name, the thinnest beat in this cluster, against a 10.55% option-implied move",
+          "source": "data_cache.earnings_facts MRVL",
+          "date": "2026-08-27"
+        }
+      ],
+      "case_against": "Demoted from 4 to 5 on APH's promotion, not on new MRVL evidence -- and the case FOR remains real: MRVL owns optical DSP content that rides every pluggable module regardless of who assembles it, and it guided above consensus. A named third custom-ASIC hyperscaler customer before the 12-02 print moves it back above APH. Its Dec-02 date also makes it the last member to be re-priced by evidence, so this rank is the least likely in the cluster to be tested soon."
+    },
+    {
+      "rank": 4,
+      "ticker": "APH",
+      "held": true,
+      "verdict": "middle",
+      "differentiator_reads": [
+        {
+          "axis": "position in the stack: laser/EML vs module vs switch silicon vs connector",
+          "read": "No longer a pure copper-connector node: the CommScope Connectivity and Cable Solutions acquisition (closed 2026-01-09) moved APH into fiber-optic interconnect content, i.e. into the optics stack rather than adjacent to it",
+          "source": "APH Form 10-Q, quarter ended 2026-06-30 (primary, via desk)",
+          "date": "2026-06-30"
+        },
+        {
+          "axis": "scale-up (within-rack) vs scale-out exposure",
+          "read": "Communications Solutions is ~62% of net sales and grew 42% ORGANICALLY (85% USD) y/y on outsized IT-datacom growth with particular strength in AI-related -- this contradicts my round-1 'lowest AI torque per dollar' premise, which is withdrawn",
+          "source": "APH Form 10-Q, quarter ended 2026-06-30 (primary, via desk)",
+          "date": "2026-06-30"
+        }
+      ],
+      "case_against": "Rank 4 not higher because Communications Solutions also contains mobile networks and broadband, so a stand-alone IT-datacom share of total sales is NOT established -- the 62% overstates AI exposure by an unknown amount. Roughly half the segment's USD growth (85% vs 42% organic) is the CommScope CCS acquisition rather than underlying demand, and that deal was term-loan funded, so APH has bought part of the AI content it is now credited with and added leverage doing it. Its -0.60% month and RSI 44.1 also sit oddly against a 42% organic grower, which is either an opportunity or a signal the market knows something the segment table does not show. smith-thesis independently moved APH strengthening->intact this round on thin evidence."
+    },
+    {
+      "rank": 6,
+      "ticker": "CIEN",
+      "held": true,
+      "verdict": "middle",
+      "differentiator_reads": [
+        {
+          "axis": "scale-across / DCI exposure and coherent DSP position",
+          "read": "Systems and coherent-DSP vendor for datacenter interconnect -- a differentiated node, but systems-level margin, below component margin, and the node CPO/pluggable coherent erodes over time",
+          "source": "cluster playbook stack axis",
+          "date": "2026-09-21"
+        },
+        {
+          "axis": "800G -> 1.6T transition timing (as a demand read-through)",
+          "read": "FQ3 2026 printed revenue $1.67bn vs $1.64bn and EPS $2.11 vs $1.73 with a guide ABOVE consensus, and the stock is still -12.68% on the month -- the beat that validates component demand for LITE and COHR with a lag",
+          "source": "data_cache.earnings_facts CIEN",
+          "date": "2026-09-03"
+        }
+      ],
+      "case_against": "Ranked 6th despite the cluster's largest earnings beat because systems margin is structurally below component margin and because the position is $2.98 -- there is no capital here to be right with. If the -12.68% is the market pricing a 2027 order-book problem that the 09-03 guide has not yet caught, rank 6 is generous, and no dated evidence this window separates those two readings."
+    },
+    {
+      "rank": 7,
+      "ticker": "GLW",
+      "held": true,
+      "verdict": "laggard",
+      "differentiator_reads": [
+        {
+          "axis": "position in the stack: passive materials vs active component",
+          "read": "Optical fiber and specialty glass -- no active-component content, the node with the least pricing power as value migrates to the laser",
+          "source": "cluster playbook stack axis",
+          "date": "2026-09-21"
+        },
+        {
+          "axis": "financing structure as a differentiator within the cluster",
+          "read": "$2bn at-the-market equity programme with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 09-11); -12% to $145.61 on 09-14 with peer contagion. Catalyst desk WEAKENED it on 09-18 for lack of any usage disclosure -- weakened, not resolved: the programme is still live and undisclosed",
+          "source": "out_catalyst.json 2026-09-18 + 247wallst 2026-09-14",
+          "date": "2026-09-18"
+        },
+        {
+          "axis": "thesis divergence",
+          "read": "The only member carrying `watch` status while the other six carry `strengthening`",
+          "source": "state.thesis GLW",
+          "date": "2026-09-14"
+        }
+      ],
+      "case_against": "The case FOR GLW is the one I am ranking against and it is not weak: Q2 core EPS +30%, a 19% sales CAGR guided through 2030, a 15% polysilicon tariff tailwind, and an ATM that by construction sells gradually so realized dilution will be a fraction of $2bn. Q3 core sales guidance of $4.9-5.0bn is intact. The 09-18 +3% says the market is already discounting the dilution scare. If the programme lapses unused, the laggard call is wrong on the financing leg and rests on stack position alone."
+    }
+  ],
+  "unranked": [],
+  "leader": "LITE",
+  "laggard": "GLW",
+  "reorder_when": [
+    "By the 2026-11-06 LITE print: if COHR discloses 200G/lane EML shipments at volume into third-party 1.6T modules, LITE's sole-source premium is gone and ranks 1 and 2 swap.",
+    "2026-10-27 GLW Q3 print: any disclosure of ATM programme usage above ~$500M moves GLW from laggard to a sizing decision rather than a ranking one; a disclosure of ZERO usage moves GLW above CIEN and makes APH the laggard.",
+    "2026-10-28 APH Q3 print: AI/datacenter disclosed above ~35% of revenue moves APH above MRVL on torque per dollar.",
+    "2026-11-04 ALAB print: any guide-down or a named hyperscaler moving scale-up from copper retimers to optical drops ALAB below MRVL.",
+    "2026-12-02 MRVL print: a named third custom-ASIC hyperscaler customer moves MRVL to rank 3; a confirmed Tomahawk share loss in merchant switch silicon drops it to rank 6.",
+    "Any hyperscaler naming an in-house NIC or switch ASIC before year-end reorders MRVL and ALAB downward together and leaves LITE/COHR untouched -- lasers are agnostic to whose silicon wins."
+  ],
+  "redundant_pairs": [
+    {
+      "pair": [
+        "LITE",
+        "COHR"
+      ],
+      "same_bet_because": "Same binding component (200G/lane EML into 1.6T sockets), same end customers, same NVDA supply relationship, and they moved together through both legs of the September event -- -9%/-11% on the 09-14 GLW ATM contagion and +3%/+5% on the 09-18 rebound. No return series is cached so this is a business-grounds verdict, not a measured correlation.",
+      "keep": "LITE",
+      "drop": "COHR",
+      "verdict": "redundant"
+    },
+    {
+      "pair": [
+        "MRVL",
+        "ALAB"
+      ],
+      "same_bet_because": "Both monetise custom-ASIC attach at the same hyperscalers, but MRVL sells the accelerator/DSP silicon and ALAB the scale-up connectivity around it -- different content per rack, different competitors, and they can diverge on a single customer's architecture choice.",
+      "keep": "MRVL",
+      "drop": null,
+      "verdict": "distinct"
+    },
+    {
+      "pair": [
+        "LITE",
+        "GLW"
+      ],
+      "same_bet_because": "Labelled together as optics and they trade together on sector shocks, but active laser economics and passive fiber/glass economics are on opposite sides of the margin migration. GLW is a conviction question, not an overlap question.",
+      "keep": "LITE",
+      "drop": null,
+      "verdict": "distinct"
+    },
+    {
+      "pair": [
+        "APH",
+        "CIEN"
+      ],
+      "same_bet_because": "Connector versus systems -- no shared component, no shared customer structure, no shared margin pool. Listed only to record that the 7 line items contain exactly one redundancy, not several.",
+      "keep": "APH",
+      "drop": null,
+      "verdict": "distinct"
+    }
+  ],
+  "position_count_note": "Cluster holds 7 line items against a 15-20 book target (27 held). Four are worth a full position on their own axis: LITE (laser sole-source), ALAB (scale-up), MRVL (custom ASIC/DSP), APH (connector ballast, sized as ballast not as an AI expression). COHR folds into LITE on redundancy. GLW folds on conviction -- weakest stack node plus a live undisclosed ATM. CIEN at $2.98 / 0.009% is not a position at all: same pathology as the open TER dust flag, and it needs a re-establish-or-zero decision, not a rank. That takes optics from 7 line items to 4-5 with no reduction in factor exposure.",
+  "bench": [
+    {
+      "ticker": "CRDO",
+      "price_usd": 175.89,
+      "why_better_than": "MRVL",
+      "entry_condition": "WITHDRAWN as a why_better_than APH line -- the APH 10-Q segment disclosure removes the torque-per-dollar gap that argument depended on. Re-pointed at MRVL on a different axis from the AVGO bench line: AVGO beats MRVL on merchant switch silicon SHARE, CRDO beats it on scale-up interconnect PURITY (AEC content is almost entirely AI datacenter against MRVL's contested merchant book). Enter on a pullback toward the low-$150s or a disclosed hyperscaler AEC design win. Reinstate the APH comparison only if APH discloses a stand-alone IT-datacom share of total sales below roughly 35%."
+    },
+    {
+      "ticker": "AVGO",
+      "price_usd": 357.61,
+      "why_better_than": "MRVL",
+      "entry_condition": "Beats MRVL on the exact axis MRVL loses -- merchant switch silicon share (Tomahawk) plus the larger custom-ASIC book. It was exited 2026-09-16 by round-lot sizing on the rate-rotation sell leg, not on thesis (prior finding orchestrator:0aa1099ae5). Enter on a re-test of $330 or a confirmed third custom-ASIC customer."
+    },
+    {
+      "ticker": "ANET",
+      "price_usd": 199.39,
+      "why_better_than": "GLW",
+      "entry_condition": "A systems-level 1.6T beneficiary is a better optics expression than passive glass. Enter only on evidence that in-house hyperscaler switching is NOT displacing merchant systems -- e.g. a hyperscaler renewing merchant switch commitments at 1.6T."
+    },
+    {
+      "ticker": "FN",
+      "price_usd": 388.55,
+      "why_better_than": null,
+      "entry_condition": "DELIBERATELY NOT BENCHED. Fabrinet is module assembly -- precisely the pool co-packaged optics drains. Listed so the omission reads as a judgement rather than an oversight. No entry condition."
+    }
+  ],
+  "catalysts": [
+    {
+      "date": "2026-10-27",
+      "event": "GLW Q3 2026 print -- the first opportunity to disclose ATM programme usage against the $2bn authorisation",
+      "reorders": [
+        "GLW",
+        "CIEN",
+        "APH"
+      ],
+      "read_through_to": [
+        "COHR",
+        "LITE"
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "event": "APH Q3 2026 print -- AI/datacenter revenue mix disclosure",
+      "reorders": [
+        "APH",
+        "MRVL"
+      ],
+      "read_through_to": [
+        "CRDO"
+      ]
+    },
+    {
+      "date": "2026-11-04",
+      "event": "ALAB Q3 2026 print against its own ~30%-above-consensus guide ($540-560M vs $417M)",
+      "reorders": [
+        "ALAB",
+        "MRVL"
+      ],
+      "read_through_to": [
+        "MRVL",
+        "CRDO"
+      ]
+    },
+    {
+      "date": "2026-11-05",
+      "event": "COHR FQ1 2027 print -- 1.6T ramp pace and, critically, whether 200G/lane EML is shipping at volume to third parties",
+      "reorders": [
+        "COHR",
+        "LITE"
+      ],
+      "read_through_to": [
+        "LITE",
+        "FN"
+      ]
+    },
+    {
+      "date": "2026-11-06",
+      "event": "LITE FQ1 2027 print -- 200G/lane EML capacity, lead times and gross margin against the >39% op-margin guide",
+      "reorders": [
+        "LITE",
+        "COHR"
+      ],
+      "read_through_to": [
+        "COHR",
+        "FN",
+        "CIEN"
+      ]
+    },
+    {
+      "date": "2026-12-02",
+      "event": "MRVL Q3 FY27 print -- custom-ASIC customer count and merchant switch silicon share",
+      "reorders": [
+        "MRVL",
+        "ALAB"
+      ],
+      "read_through_to": [
+        "AVGO",
+        "ALAB"
+      ]
+    },
+    {
+      "date": "2026-12-04",
+      "event": "CIEN FQ4 2026 print (approximate, from its 09-03 FQ3 cadence) -- the cluster's demand read-through arrives here FIRST and leads LITE/COHR component demand with a lag",
+      "reorders": [
+        "CIEN"
+      ],
+      "read_through_to": [
+        "LITE",
+        "COHR",
+        "GLW"
+      ]
+    }
+  ],
+  "thesis_tensions": [
+    {
+      "ticker": "CIEN",
+      "ladder_rank": 6,
+      "thesis_status": "strengthening",
+      "tension": "smith-thesis carries CIEN `strengthening` (status-only trim) and the 09-03 print supports that -- EPS $2.11 vs $1.73 with a guide above consensus. I rank it 6 of 7 anyway, on stack position (systems margin below component margin) and on the fact that the holding is $2.98. Both can be true: the business is strengthening and the expression is the weakest in the cluster. But a `strengthening` name held at 0.009% weight is a book decision smith-thesis's status does not capture, and the two should be reconciled explicitly rather than left to look like agreement."
+    },
+    {
+      "ticker": "APH",
+      "ladder_rank": 5,
+      "thesis_status": "strengthening",
+      "tension": "smith-thesis carries APH `strengthening` with verified=unverified, and it is simultaneously the book's largest optics weight (4.61%) and the weakest substantive one-month performer (-0.60%, RSI 44.1). My rank-5 says its AI torque per dollar is the lowest here. An `unverified` strengthening verdict on the largest position in the cluster is the single weakest evidence link in this ladder -- I am asking smith-thesis for the full text rather than ranking around it."
+    },
+    {
+      "ticker": "GLW",
+      "ladder_rank": 7,
+      "thesis_status": "watch",
+      "tension": "No tension -- ladder and thesis agree. Recorded because the agreement is itself informative: GLW is the only member where the price ranking, the thesis status and the stack-position axis all point the same way."
+    }
+  ],
+  "prior_ladder_review": {
+    "leader_was": "LITE",
+    "laggard_was": "APH",
+    "was_correct": true,
+    "why": "Leader call correct and well-scored: LITE returned +12.48% over the month, the best in the cluster and +10.20pp against the cluster mean. Laggard call on APH was directionally correct on the substantive members -- APH returned -0.60% against a +2.28% cluster mean, second-worst of the six real positions -- but it was beaten to the bottom by CIEN (-12.68%), which the prior ladder ranked 6th of 7. The prior order also included AVGO, which has since been fully exited by round-lot sizing on the 09-16 rate-rotation sell leg, so the ladder's 7th slot is now GLW rather than AVGO. I am moving the laggard from APH to GLW this run, on financing structure and stack position rather than on APH's price improving."
+  },
+  "findings_reaffirmed": [
+    "catalyst:9744ffb8fe",
+    "catalyst:68ffcdcb21",
+    "orchestrator:0aa1099ae5",
+    "orchestrator:1baef9a5b2"
+  ],
+  "findings_revised": [
+    {
+      "id": "ladder:a67f4e871a",
+      "claim": "AI Networking/Optics: leader LITE, laggard APH; order LITE > COHR > MRVL > ALAB > AVGO > CIEN > APH",
+      "source": "cluster_ladder_row 2026-09-21 + prints on file + OFC 2026 laser-supply evidence",
+      "reason": "AVGO is no longer held (full exit 2026-09-16 by round-lot sizing, per orchestrator:0aa1099ae5) and is moved to the bench. Laggard moves APH -> GLW on the live undisclosed $2bn ATM plus GLW's passive-materials stack position. ALAB moves above MRVL on its ~30%-above-consensus Q3 guide versus MRVL's 1.05%-average-surprise beat. CIEN moves above GLW despite being price-last, on its 09-03 beat-and-raise. New order: LITE > COHR > ALAB > MRVL > APH > CIEN > GLW."
+    },
+    {
+      "id": "catalyst:7180d87827",
+      "claim": "Amodei 'We Must Pace the Frontier' essay mapped as a structural threat across 15 names including all 7 optics members",
+      "source": "out_catalyst.json 2026-09-20 reclassification",
+      "reason": "Reclassified by the catalyst desk from structural to immediate, sentiment-only: no hyperscaler capex cut found through 09-20, and the sell-off is described as sentiment against an unchanged order book. It carries no differentiating weight inside this cluster -- it hits all seven members identically, so it cannot reorder the ladder, and I have excluded it from every rank rationale."
+    }
+  ],
+  "comms": {
+    "answers": [],
+    "asks": [
+      {
+        "to": "thesis",
+        "ticker": "APH",
+        "question": "APH's thesis is status-only and carries verified=unverified while being the largest position in AI Networking/Optics (4.61%). What share of APH revenue is AI/datacenter today, and what is the evidence_for that supports `strengthening`?",
+        "why": "My rank-5 for APH rests entirely on 'lowest AI torque per dollar in the cluster'. If AI/datacenter is already a large and fast-growing majority of APH revenue, APH belongs above MRVL and possibly above ALAB, and my CRDO bench entry (why_better_than APH) is wrong.",
+        "blocking": true
+      },
+      {
+        "to": "catalyst",
+        "ticker": "GLW",
+        "question": "Did any GLW filing after 2026-09-11 (10-Q, 8-K or prospectus supplement amendment) disclose shares actually sold under the $2bn ATM programme, or is the absence of a usage disclosure simply that nothing has been filed yet?",
+        "why": "GLW is my laggard and one of its two legs is the live, undisclosed ATM. If a filing confirms zero or de-minimis usage, GLW moves above CIEN and the laggard becomes APH.",
+        "blocking": false
+      },
+      {
+        "to": "strategist",
+        "ticker": "CIEN",
+        "question": "CIEN is $2.98 / 0.009% weight with a `strengthening` thesis and a 09-03 beat-and-raise (EPS $2.11 vs $1.73, guide above). Is this a deliberate residual or the same dust pathology as the open TER flag, and does it need a re-establish-or-zero decision?",
+        "why": "I ranked CIEN 6 of 7, but the rank is close to meaningless at this size. Whether the cluster is a 7-name or a 6-name problem changes my redundancy answer to the 15-20 position-count target.",
+        "blocking": false
+      },
+      {
+        "to": "desk",
+        "ticker": null,
+        "question": "Can a script pull LITE and COHR one-month daily returns and report their pairwise correlation? The deterministic redundancy screen returned redundancy_candidates: [] for this cluster, but the two names moved together on both legs of the September event (-9%/-11% on 09-14, +3%/+5% on 09-18).",
+        "why": "My only `redundant` verdict in this cluster is LITE/COHR, argued on business grounds because no return series is cached. A measured correlation would either confirm it or tell me the screen was right and I am over-reading two shared news days.",
+        "blocking": false
+      }
+    ],
+    "tells": [
+      {
+        "to": "catalyst",
+        "ticker": "CIEN",
+        "fact": "CIEN's 2026-09-03 FQ3 print was a large beat with a guide above consensus (revenue $1.67bn vs $1.64bn, EPS $2.11 vs $1.73, next-quarter guide $6.42bn vs $6.33bn consensus) and the stock is nonetheless -12.68% over the following month, the worst in this cluster. Per the cluster playbook, a CIEN print leads LITE and COHR component demand with a lag -- so this is a positive demand read-through to two held names that has not been reflected in any catalyst item.",
+        "source": "data_cache.earnings_facts CIEN, verified 2026-09-03",
+        "weight": "high"
+      },
+      {
+        "to": "thesis",
+        "ticker": "LITE",
+        "fact": "Lumentum is the only supplier shipping 200G-per-lane EMLs at volume -- the binding component for every 1.6T module in the industry, including modules assembled by its own competitors -- and NVDA has invested directly into LITE and COHR laser capacity rather than into module capacity. This is a sole-source structural argument for LITE that is stronger than the sector-beta case its status-only `strengthening` verdict implies.",
+        "source": "investor.lumentum.com OFC 2026 release (2026-03-18); techtimes.com 2026-05-27 (NVDA magnitude secondary-sourced)",
+        "weight": "normal"
+      },
+      {
+        "to": "signals",
+        "ticker": "GLW",
+        "fact": "GLW is the only member of AI Networking/Optics carrying a `watch` thesis while the other six carry `strengthening`, and it is the only one with a live, undisclosed $2bn ATM equity programme. Its 09-18 +3% rebound moved it with the sector, which risks reading as confirmation when the financing overhang is weakened but unresolved.",
+        "source": "state.thesis GLW + out_catalyst.json 2026-09-18",
+        "weight": "normal"
+      }
+    ]
+  },
+  "data_quality": [
+    {
+      "issue": "No return series is cached for any member, so the LITE/COHR redundancy verdict is argued on business grounds (shared binding component, shared customers, shared movement on two dated event legs) and is explicitly NOT a measured correlation. Asked desk to compute it.",
+      "severity": "medium"
+    },
+    {
+      "issue": "Six of seven members are thesis status-only trims (all but GLW), so ladder ranks 1-6 could not be cross-checked against smith-thesis evidence arrays. APH is the material case: largest cluster weight, verified=unverified, and a blocking question raised.",
+      "severity": "medium"
+    },
+    {
+      "issue": "The reported NVDA $2bn-each investment in LITE and COHR comes from a secondary outlet (techtimes.com, 2026-05-27). Direction (NVDA is funding laser capacity) is corroborated by both companies' OFC 2026 positioning; the dollar magnitude is unverified and is not load-bearing for any rank.",
+      "severity": "low"
+    },
+    {
+      "issue": "CIEN's ladder row shows market_value_usd $2.98 / weight 0.009%. Its rel_intra_pp of -14.96 makes it the cluster's laggard by price on a position with no capital in it, which is why leader_by_price/laggard_by_price is misleading for this cluster this run.",
+      "severity": "medium"
+    },
+    {
+      "issue": "CIEN's next earnings date is absent from the cache (days_to_earnings -18, i.e. the 09-03 print). The 2026-12-04 FQ4 date in my catalyst calendar is inferred from CIEN's reporting cadence, not fetched, and is marked approximate.",
+      "severity": "low"
+    }
+  ],
+  "order": "LITE > COHR > ALAB > APH > MRVL > CIEN > GLW"
+}

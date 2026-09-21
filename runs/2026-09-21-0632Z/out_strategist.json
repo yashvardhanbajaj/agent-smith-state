@@ -1,0 +1,232 @@
+{
+ "policy_draft": null,
+ "stress_table": {
+  "as_of": "2026-09-21",
+  "anchored_to": {
+   "us10y_pct": 4.998,
+   "vix": 14.81,
+   "dxy": 100.336,
+   "fed_rate_pct": 3.875,
+   "fed_stance": "hawkish"
+  },
+  "scenarios": [
+   {
+    "scenario": "AI-capex pause",
+    "impact_pct_low": -27.0,
+    "impact_pct_high": -19.0,
+    "most_exposed": [
+     "MU",
+     "ASML",
+     "TSM",
+     "AMAT",
+     "KLAC",
+     "TER"
+    ],
+    "mechanism": "~99% of equity is AI-capex factor; equity -25 to -34%, diluted by 20.7% cash. Consistent with compute_risk stress_limit read of 26.6% vs 20% advisory limit (over).",
+    "basis": "static_assumption",
+    "note": "Approximate; stress limit is advisory, not a block."
+   },
+   {
+    "scenario": "Rates +100bp (10-yr to ~6%)",
+    "impact_pct_low": -16.0,
+    "impact_pct_high": -10.0,
+    "most_exposed": [
+     "NBIS",
+     "MU",
+     "MRVL",
+     "ALAB",
+     "BE"
+    ],
+    "mechanism": "10-yr at 4.998% one tick below 5.0%, Fed hiked 09-16, another hike ~64% priced for Dec; chain has shown 1.7-2.5x SMH sensitivity to yield spikes (scout).",
+    "basis": "live",
+    "note": "Anchored to scout regime read; magnitude is a rule-of-thumb."
+   },
+   {
+    "scenario": "Tariff / export-control escalation",
+    "impact_pct_low": -12.0,
+    "impact_pct_high": -6.0,
+    "most_exposed": [
+     "ASML",
+     "AMAT",
+     "KLAC",
+     "TER",
+     "TSM"
+    ],
+    "mechanism": "China revenue share of semicap; TSM/ASML supply-chain friction.",
+    "basis": "static_assumption",
+    "note": ""
+   },
+   {
+    "scenario": "USD/INR +3% (INR weakens)",
+    "impact_pct_low": 0.0,
+    "impact_pct_high": 0.0,
+    "most_exposed": [],
+    "mechanism": "USD-reported book: ~0% in USD terms; in INR terms net worth rises ~3% on the US book.",
+    "basis": "static_assumption",
+    "note": ""
+   },
+   {
+    "scenario": "USD/INR -3% (INR strengthens)",
+    "impact_pct_low": 0.0,
+    "impact_pct_high": 0.0,
+    "most_exposed": [],
+    "mechanism": "USD-reported book: ~0% in USD terms; in INR terms net worth falls ~3% on the US book.",
+    "basis": "static_assumption",
+    "note": ""
+   }
+  ],
+  "data_quality": [
+   "Scenario magnitudes approximate from cluster weights and scout beta reads; not re-derived from a factor model."
+  ]
+ },
+ "proposals": [
+  {
+   "direction": "TRIM",
+   "ticker": "MU",
+   "size_usd": 407.17,
+   "price_at_proposal": 1017.75,
+   "trigger_type": "catalyst_threat",
+   "size_wanted_usd": 407.17,
+   "stop_price_usd": null,
+   "rationale": "catalyst_threat: MU is one of only two held names (with SKHY, ~6.6% of equity combined) with a direct CXMT mechanism -- share loss in DRAM, not ASP. CXMT announced G5 LPDDR5X volume production 2026-09-20 at 9.5% of Q2 global DRAM revenue (secondary source, sedaily); HBM3E still trial-only, mass production 2027 (so this trim is NOT an HBM call). Thesis is watch, position 6.04% and +8.4% on the month, RSI 58. MU prints 2026-10-01 (implied move 10.22%): this is a small 20%-of-open-risk trim ($407, 0.96% of book, risk removed $34.85, r_ticket 0.16), sized by the script, not a view on the print. Cap-independent by design. Precedent check: gaps G8/CXMT-conflation lesson applied -- claim limited to LPDDR5X share, not HBM. Expires 2026-09-26, before the print; not resized. Tax: see compute_taxcalc trim_sequencing (0.4001 sh short-term FIFO).",
+   "evidence_quality": {
+    "verified": 1,
+    "computed": 2,
+    "unverified": 1
+   },
+   "benchmark_price_at_proposal": 573.0
+  },
+  {
+   "direction": "TRIM",
+   "ticker": "GLW",
+   "size_usd": 450.3,
+   "price_at_proposal": 150.1,
+   "trigger_type": "catalyst_threat",
+   "size_wanted_usd": 450.3,
+   "stop_price_usd": null,
+   "rationale": "full_exit of a sub-scale, lowest-conviction position. Independent grounds that do NOT depend on the ATM: $450 is below the $638 minimum position with the book at 27 names vs a 15-20 target (position_consolidation, GLW is candidate #1, conviction -1.5); thesis watch; cluster_optics ranks GLW the weakest stack node and says it folds on conviction. The catalyst_threat trigger (ATM $2bn, 8-K/424B5 filed 2026-09-11, verified filing) is corroborating only: catalyst says usage is UNKNOWN, not zero, and WEAKENED it 09-18 -- I do not rely on it. Script sized: full_exit because a 20%-of-risk $90 trim would leave $360, under the $400 minimum. Risk removed $45.39. Exit is never blocked by materiality. Cluster exposure to optics stays via LITE/APH/ALAB.",
+   "evidence_quality": {
+    "verified": 1,
+    "computed": 2,
+    "unverified": 0
+   },
+   "benchmark_price_at_proposal": 573.0
+  },
+  {
+   "direction": "SELL",
+   "ticker": "AMD",
+   "size_usd": 557.98,
+   "price_at_proposal": 557.98,
+   "trigger_type": "profit_rotation",
+   "pair_id": "profit_rotation-AMD-KLAC",
+   "pair_role": "sell",
+   "size_wanted_usd": 557.98,
+   "stop_price_usd": null,
+   "rationale": "profit_rotation sell leg (paired with KLAC BUY): AMD in names_stretched with a watch thesis, conviction 9.2, sub-scale at $558 (< $638 minimum). Full-position sale of $558 books real profit and shrinks position count. Risk removed $41.74 vs KLAC redeployed $35.46 -- pair is roughly risk-flat, net risk -$6.28; the difference goes to cash. Trigger is live, thesis watch, so no contradiction with an accumulate bucket.",
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 3,
+    "unverified": 1
+   },
+   "benchmark_price_at_proposal": 573.0
+  },
+  {
+   "direction": "BUY",
+   "ticker": "KLAC",
+   "size_usd": 429.25,
+   "price_at_proposal": 177.14,
+   "trigger_type": "profit_rotation",
+   "pair_id": "profit_rotation-AMD-KLAC",
+   "pair_role": "buy",
+   "size_wanted_usd": 429.25,
+   "clamped_by": "buy R_ticket (its own conviction tranche)",
+   "stop_price_usd": 162.51,
+   "rationale": "profit_rotation buy leg (paired with AMD SELL): KLAC is a laggard (-7.6pp vs benchmark) with a strengthening thesis, yet to rally -- 'back the performer with intact thesis'. Script ticket: $429 sized by R_ticket (its own conviction tranche), stop $162.51, risk $35.46, buy EV 0.92R (p_win 0.40 UNCALIBRATED prior, payoff 3.87R), heat budget allocation first in EV order, leaves R_free ~$560. No engine verdict yet (BUY unproven, n=0) so no multiplier. Only live buy-side ticket this run. policy.heat_budget is confirmed=true per compute_triggers; trade_materiality unconfirmed. Not to be read as a proven edge.",
+   "evidence_quality": {
+    "verified": 0,
+    "computed": 3,
+    "unverified": 1
+   },
+   "benchmark_price_at_proposal": 573.0
+  }
+ ],
+ "scorecard_read": "Since-epoch (ENGINE_EPOCH 2026-09-21) scorecard: n=0 scored, every BUY/SELL family verdict UNPROVEN (n_eff 0, multiplier 1.00). Nothing measured about the rebuilt engine yet; first proposals reach 30d about 2026-10-21. Legacy-engine history (22 rows, 45.5% accuracy, +0.525% net expectancy) is excluded from the gate and is not evidence for or against these tickets. All buy p_win values are the UNCALIBRATED 0.45 prior shrunk by conviction.",
+ "deemphasize_buckets": [],
+ "comms": {
+  "answers": [
+   {
+    "to": "M1.1",
+    "from": "catalyst",
+    "answer": "Noted. MU is the only held name (with SKHY) with a direct CXMT mechanism (LPDDR5X share 9.5%); MU trim proposed at script size $407, expiring 09-26 before the 10-01 print. HBM3E is trial-only and is not the basis."
+   },
+   {
+    "to": "M1.2",
+    "from": "scout",
+    "answer": "Noted. Extreme-greed 75.1 argues for profit-booking, not adding; only live buy is the AMD->KLAC rotation, near risk-flat. Bench utilities not proposed (no bench_diversifier ticket cleared the bar)."
+   },
+   {
+    "to": "M2.5",
+    "from": "cluster_optics",
+    "answer": "CIEN is dust ($2.98, 0.009%), a real residual, not a position. The engine's conviction_average CIEN ticket (EV 0.67R) is below the $319 materiality floor by $71, so it is not a proposal. It needs a user decision: re-establish at >= floor or zero. Not forced here. Treat optics as a 6-name problem for the 15-20 target; only COHR->LITE is a measured redundancy."
+   },
+   {
+    "to": "M4.23",
+    "from": "cluster_optics",
+    "answer": "Same as M2.5. Strategist does not rank CIEN as a position; TER premise correction accepted (TER $1,852.96, 5.5%)."
+   },
+   {
+    "to": "M2.10",
+    "from": "thesis",
+    "answer": "Accepted. ASML/AMAT/TER catalyst_threat trims DROPPED: only trigger is CXMT HBM3E, mechanism not established for equipment names; AMAT/TER thesis strengthening. ASML thesis is watch but no independent trigger (no overbought/breakdown/exit row), so no trim."
+   },
+   {
+    "to": "M3.15",
+    "from": "thesis",
+    "answer": "Accepted retraction. TER treated as real 5.5%; trim dropped on merits (no non-CXMT trigger, thesis strengthening, Q2 beat)."
+   },
+   {
+    "to": "M3.17",
+    "from": "thesis",
+    "answer": "Acknowledged and superseded by M6.34."
+   },
+   {
+    "to": "M4.26",
+    "from": "cluster_optics",
+    "answer": "Acknowledged: stale TER dust flag not used; TER real 5.5% position. Stale open_flags entry should be cleared by orchestrator."
+   },
+   {
+    "to": "M4.28",
+    "from": "cluster_optics",
+    "answer": "Acknowledged. APH rank 4; no proposal touches APH."
+   },
+   {
+    "to": "M6.34",
+    "from": "thesis",
+    "answer": "Acknowledged. APH now strengthening; no proposal touches APH."
+   }
+  ],
+  "asks": [],
+  "tells": [
+   {
+    "to": "orchestrator",
+    "ticker": "TER",
+    "weight": "high",
+    "message": "open_flags/slice still carries TER as a $1.10 dust position in at least one slice; it is $1,852.96 (5.5%). Clear the flag."
+   }
+  ]
+ },
+ "data_quality": [
+  "DROPPED catalyst_threat trims: ASML $584.70, AMAT $355.72, TER $370.59 -- sole trigger is the CXMT HBM3E reason, mechanism to equipment revenue not established (thesis, catalyst agree); AMAT/TER thesis strengthening; not shrunk, dropped because no other trigger exists.",
+  "GLW exit rests on consolidation/thesis-watch/lowest conviction; ATM overhang treated as UNKNOWN not zero.",
+  "Below materiality, not proposals: catalyst_threat LITE (short $133), COHR (short $192), SKHY (short $319, hold; $188 stub); conviction_average CIEN (short $71, EV 0.67R); profit_rotation SKHY->CIEN (short $31); cluster_rotation ASML->TSM shadow (rotation edge 0.00R < 0.25R bar). Report only.",
+  "No engine buy ticket cleared materiality plus EV gate except the KLAC leg of the AMD->KLAC rotation. NVDA reentry shadow (no fresh analyst target, payoff unknown); AMAT conviction_average netted (live sell) and shadow; IONQ entry_setup shadow (no thesis entry, below floor). No buys forced.",
+  "Heat budget: R_free $587.3, allocation leaves ~$559.6 after KLAC ($35.46, net -$6.28) and CIEN ticket; not over cap. Deferred: none.",
+  "factor_threat (Amodei essay, 26 held names / 99.44% equity, sentiment-only, no new mechanism): answered at book level -- no per-name trims; gross exposure unchanged; cash 20.7% already above 5-15% advisory band; risk_off_status normal. Reasoned no action.",
+  "Position consolidation (advisory): 27 vs 15-20 target, 7 excess. Actioned: GLW exit, AMD exit (via rotation) -> 25. Remaining candidates for user judgement: SKHY $188 (watch, direct CXMT link), COHR $635 (redundant with LITE, corr 0.84/0.89), CIEN $2.98, BE $534 (strengthening, conv 25.4). Stress limit over 26.6% vs 20% (advisory): no proposal reduces it materially; user decision.",
+  "Policy blocks trade_materiality and unconfirmed items remain unconfirmed; heat_budget confirmed=true per compute_triggers.",
+  "Tax: TRIM/SELL lots per compute_taxcalc trim_sequencing; all lots short-term (earliest turns LT 2028-08-24), prefer_ltcg off, no deferral.",
+  "Hit rates: bucket_hit_rates empty post-epoch; none quoted."
+ ],
+ "findings_reaffirmed": [],
+ "findings_revised": []
+}

@@ -1,0 +1,84 @@
+{
+  "mode": "deep",
+  "today": "2026-09-21",
+  "waves": {
+    "1": [
+      "catalyst",
+      "scout",
+      "signals"
+    ],
+    "2": [
+      "cluster_optics",
+      "thesis"
+    ],
+    "3": [
+      "strategist"
+    ]
+  },
+  "agents": {
+    "signals": {
+      "agent": "smith-signals",
+      "wave": 1,
+      "reasons": [
+        "every run"
+      ]
+    },
+    "catalyst": {
+      "agent": "smith-catalyst",
+      "wave": 1,
+      "reasons": [
+        "deep-lite roster (last deep run 21.8h ago)"
+      ]
+    },
+    "scout": {
+      "agent": "smith-scout",
+      "wave": 1,
+      "reasons": [
+        "deep-lite: diversifier bench stale or missing"
+      ],
+      "mode": "full"
+    },
+    "thesis": {
+      "agent": "smith-thesis",
+      "wave": 2,
+      "reasons": [
+        "deep-lite: structural catalyst since 2026-09-20 on held AMAT, ASML, MU, SKHY, TER"
+      ]
+    },
+    "cluster_optics": {
+      "agent": "smith-cluster",
+      "wave": 2,
+      "reasons": [
+        "cluster ladder dispatch gate (compute_ladder.json)"
+      ]
+    },
+    "strategist": {
+      "agent": "smith-strategist",
+      "wave": 3,
+      "reasons": [
+        "every run"
+      ]
+    }
+  },
+  "skipped": {
+    "watchlist": "deep-lite: setups still fresh, no ask",
+    "cluster_power": "ladder is 6d old (< 7d) with no structural catalyst, member earnings, wrong-scoring call or unranked member since -- reuse it",
+    "cluster_semis": "ladder is 6d old (< 7d) with no structural catalyst, member earnings, wrong-scoring call or unranked member since -- reuse it",
+    "cluster_hyperscaler": "ladder is 6d old (< 7d) with no structural catalyst, member earnings, wrong-scoring call or unranked member since -- reuse it"
+  },
+  "scripts": [],
+  "deep_lite": {
+    "last_deep_ts": "2026-09-20T08:46:15+00:00",
+    "hours_since": 21.8,
+    "window_hours": 48,
+    "active": true,
+    "reason": "last deep run 21.8h ago (< 48h)"
+  },
+  "dispatch_prompts": {
+    "scout": "Mode full: all six tasks, including the session read and diversifier bench refresh."
+  },
+  "recheck_after_wave1": false,
+  "merge_after_wave1": "catalyst,scout,signals",
+  "reslice_wave2": "cluster_optics,thesis",
+  "ledger": "dispatch smith-ledger only if ledger-parse reports dispatch_agent, or lots reports a mismatch or phantom short"
+}
