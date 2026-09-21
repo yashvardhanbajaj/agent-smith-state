@@ -44,11 +44,12 @@
       ]
     },
     "AI Memory/Storage": {
-      "target_pct": 10,
+      "target_pct": 7,
       "band_pct": [
-        6,
-        16
-      ]
+        4,
+        13
+      ],
+      "revised": "2026-09-21: 10->7 (band 6-16 -> 4-13); 3pt carved out to AI Storage/HDD"
     },
     "AI Networking/Optics": {
       "target_pct": 16,
@@ -127,6 +128,15 @@
       ],
       "added": "2026-08-30",
       "rationale": "Held but absent from cluster_targets until now, so cmd_drift emitted it with a null target and breach:false -- reported, but structurally unable to breach. Two of the three (Financials/Alt-Asset, China Internet) exist under these names only because compact archived their classification on exit and smith-thesis re-derived it from scratch on re-entry under a different label (BX was 'Alternative Asset Manager/Diversifier', BABA was 'China Consumer/Cloud'). These are now the canonical names; agents reuse policy cluster strings, so re-derivation will match from here."
+    },
+    "AI Storage/HDD": {
+      "target_pct": 3,
+      "band_pct": [
+        0,
+        8
+      ],
+      "added": "2026-09-21",
+      "rationale": "User-selected 2026-09-21 (option 1). WDC is pure nearline HDD since the SanDisk separation (thesis: zero DRAM/NAND/HBM revenue, high confidence); it was mis-ranked as a Memory laggard, which drove false sell pressure (P-149). Different cycle from memory. 3pt carved from AI Memory/Storage (10->7) so targets still sum to 100 and AI-capex stays 89%. Single-name cluster: no substitution ladder until a peer (e.g. STX) is added."
     }
   },
   "ai_capex_clusters": [
@@ -135,7 +145,8 @@
     "AI Networking/Optics",
     "AI Power/Cooling/DC Infra",
     "Compute/Hyperscaler OEM",
-    "Compute/Hyperscaler"
+    "Compute/Hyperscaler",
+    "AI Storage/HDD"
   ],
   "max_single_position_pct": 12,
   "cash_band_pct": [
