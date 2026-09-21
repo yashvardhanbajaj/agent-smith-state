@@ -952,3 +952,71 @@ def script_owned_conflicts(canonical_flat, spec):
                 supplied.setdefault(k, v)
     return [(k, v, canonical_flat.get(k)) for k, v in supplied.items()
             if not _same(v, canonical_flat.get(k))]
+
+
+# ---------------------------------------------------------------------------
+# PER-TICKER NETTING (2026-09-21)
+# ---------------------------------------------------------------------------
+# Triggers fire independently, so one name could be a protective SELL and a BUY in the same run
+# (AMAT: catalyst_threat sell + trend_entry + conviction_average buys). A desk does not buy what it
+# is selling. Rules, applied to LIVE rows only and before the edge gate so nothing refused here
+# consumes heat: (1) a live sell on a ticker (standalone, scale-out, or a rotation's sell leg) shadows
+# every buy INTO that ticker; (2) among the remaining live buys into one ticker only the strongest
+# survives (rotation over single at equal conviction, then bigger size), so two triggers never
+# double-buy a name. Losers are shadowed and recorded with `netted_because`, not deleted.
+
+def _buy_leg_of(row):
+    return row["buy_leg"] if isinstance(row.get("buy_leg"), dict) else row
+
+
+def net_conflicts(single_buys, pair_rows, sell_rows):
+    """single_buys: [(family, row)]; pair_rows: [(family, row)] with buy_leg/sell_leg; sell_rows:
+    [(family, row)] standalone sells. Mutates losers to vote "shadow" and returns the list of
+    {family, ticker, netted_because, kept} records."""
+    sells = {}
+    for fam, r in sell_rows:
+        if r.get("vote") == "live" and r.get("ticker"):
+            sells.setdefault(r["ticker"], f"{fam} sell")
+    for fam, r in pair_rows:
+        if r.get("vote") == "live" and (r.get("sell_leg") or {}).get("ticker"):
+            sells.setdefault(r["sell_leg"]["ticker"], f"{fam} sell leg")
+
+    out = []
+
+    def shadow(fam, row, ticker, why, kept=None):
+        row["vote"] = "shadow"
+        row["netted_because"] = why
+        row.setdefault("blockers", []).append(f"NETTED: {why}")
+        out.append({"family": fam, "ticker": ticker, "netted_because": why, "kept": kept})
+
+    buys = []                                  # (fam, row, leg, is_pair)
+    for fam, r in single_buys:
+        if r.get("vote") == "live" and r.get("ticker"):
+            buys.append((fam, r, r, False))
+    for fam, r in pair_rows:
+        if r.get("vote") == "live" and (r.get("buy_leg") or {}).get("ticker"):
+            buys.append((fam, r, r["buy_leg"], True))
+
+    live = []
+    for fam, row, leg, is_pair in buys:
+        t = leg["ticker"]
+        own_sell = (row.get("sell_leg") or {}).get("ticker") if is_pair else None
+        conflict = sells.get(t)
+        if conflict and not (is_pair and own_sell == t):
+            shadow(fam, row, t, f"{t} carries a live {conflict}; never buy what the desk is selling this run")
+        else:
+            live.append((fam, row, leg, is_pair))
+
+    by_t = {}
+    for item in live:
+        by_t.setdefault(item[2]["ticker"], []).append(item)
+    for t, items in by_t.items():
+        if len(items) < 2:
+            continue
+        items.sort(key=lambda i: (_num(i[2].get("conviction_score")) or 0.0, i[3],
+                                  _num(i[2].get("suggested_size_usd")) or 0.0), reverse=True)
+        win = items[0]
+        for fam, row, leg, is_pair in items[1:]:
+            shadow(fam, row, t, f"duplicate buy into {t}: the {win[0]} ticket already carries it",
+                   kept=win[0])
+    return out

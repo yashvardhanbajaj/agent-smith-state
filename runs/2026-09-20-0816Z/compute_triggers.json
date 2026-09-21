@@ -1,12 +1,12 @@
 {
-  "as_of": "2026-09-20",
+  "as_of": "2026-09-21",
   "rsi_as_of": "2026-09-18",
-  "rsi_age_days": 2,
+  "rsi_age_days": 3,
   "rsi_usable": true,
   "rsi_coverage_pct": 100.0,
   "rsi_missing": [],
   "rel_as_of": "2026-09-18",
-  "rel_age_days": 2,
+  "rel_age_days": 3,
   "rel_usable": true,
   "rel_coverage_pct": 100.0,
   "rel_missing": [],
@@ -92,9 +92,9 @@
     "overbought_distribution": 0,
     "catalyst_threat": 5,
     "thesis_break": 0,
-    "trend_entry": 1,
+    "trend_entry": 0,
     "trend_breakdown": 0,
-    "conviction_average": 3,
+    "conviction_average": 1,
     "conviction_exit": 0,
     "entry_setup": 0,
     "reentry": 0,
@@ -137,14 +137,14 @@
       "measured": true,
       "as_of": "2026-09-20",
       "window_to": "2026-09-18",
-      "age_days": 2,
+      "age_days": 3,
       "reason": null
     },
     "sell_credit_usd": 0.0,
     "sell_credit_from": [],
     "r_available_usd": 998.44,
-    "r_remaining_after_allocation_usd": 856.19,
-    "book_heat_after_allocation_usd": 2886.23,
+    "r_remaining_after_allocation_usd": 970.75,
+    "book_heat_after_allocation_usd": 2771.67,
     "ordering_key": "smith_ticket.allocation_priority (EV_R desc -- EV per unit of risk; conviction_score only for a candidate with no EV)",
     "allocated": [
       {
@@ -152,27 +152,6 @@
         "size_usd": 429.19,
         "risk_usd": 35.45,
         "net_risk_usd": -6.29,
-        "clamped_by": null
-      },
-      {
-        "id": "conviction_average:AMAT",
-        "size_usd": 504.51,
-        "risk_usd": 39.55,
-        "net_risk_usd": 39.55,
-        "clamped_by": null
-      },
-      {
-        "id": "trend_entry:AMAT",
-        "size_usd": 504.51,
-        "risk_usd": 39.55,
-        "net_risk_usd": 39.55,
-        "clamped_by": null
-      },
-      {
-        "id": "conviction_average:KLAC",
-        "size_usd": 429.19,
-        "risk_usd": 35.45,
-        "net_risk_usd": 35.45,
         "clamped_by": null
       },
       {
@@ -207,7 +186,7 @@
     "learned_stop_surfaced": true
   },
   "edge": {
-    "as_of": "2026-09-20",
+    "as_of": "2026-09-21",
     "engine_epoch": "2026-09-21",
     "evidence_rule": "only proposals / shadow-journal rows dated on or after ENGINE_EPOCH count; the legacy engine's outcomes are history, not calibration",
     "excluded_legacy": {
@@ -261,135 +240,6 @@
     "all_unproven": true,
     "tickets": [
       {
-        "id": "trend_entry:AMAT",
-        "ticker": "AMAT",
-        "family": "trend_entry",
-        "direction": "BUY",
-        "vote_before": "live",
-        "vote_after": "live",
-        "refused_because": null,
-        "reason_code": null,
-        "gate": {
-          "verdict": "unproven",
-          "multiplier": 1.0,
-          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-          "n_eff": 0,
-          "mean_ev_net_pct": null,
-          "ci95": [
-            null,
-            null
-          ],
-          "family": "BUY",
-          "level": "direction"
-        },
-        "p_win": 0.4068,
-        "payoff_r": 4.0,
-        "ev_r": 0.9957,
-        "fee_r": 0.0383,
-        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 26.0",
-        "size_before_usd": 504.51,
-        "f_edge": 1.0,
-        "f_family": 1.0,
-        "f_deemph": 1.0,
-        "size_after_usd": 504.51
-      },
-      {
-        "id": "trend_entry:LITE",
-        "ticker": "LITE",
-        "family": "trend_entry",
-        "direction": "BUY",
-        "vote_before": "live",
-        "vote_after": "shadow",
-        "refused_because": "EV 0.12R below the 0.15R bar (p_win 0.41, payoff 1.8R, fee 0.02R)",
-        "reason_code": "ev_below_bar",
-        "gate": {
-          "verdict": "unproven",
-          "multiplier": 1.0,
-          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-          "n_eff": 0,
-          "mean_ev_net_pct": null,
-          "ci95": [
-            null,
-            null
-          ],
-          "family": "BUY",
-          "level": "direction"
-        },
-        "p_win": 0.4135,
-        "payoff_r": 1.7677,
-        "ev_r": 0.1219,
-        "fee_r": 0.0224,
-        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 29.7",
-        "size_before_usd": 330.54,
-        "size_after_usd": null
-      },
-      {
-        "id": "conviction_average:AMAT",
-        "ticker": "AMAT",
-        "family": "conviction_average",
-        "direction": "BUY",
-        "vote_before": "live",
-        "vote_after": "live",
-        "refused_because": null,
-        "reason_code": null,
-        "gate": {
-          "verdict": "unproven",
-          "multiplier": 1.0,
-          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-          "n_eff": 0,
-          "mean_ev_net_pct": null,
-          "ci95": [
-            null,
-            null
-          ],
-          "family": "BUY",
-          "level": "direction"
-        },
-        "p_win": 0.4068,
-        "payoff_r": 4.0,
-        "ev_r": 0.9957,
-        "fee_r": 0.0383,
-        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 26.0",
-        "size_before_usd": 504.51,
-        "f_edge": 1.0,
-        "f_family": 1.0,
-        "f_deemph": 1.0,
-        "size_after_usd": 504.51
-      },
-      {
-        "id": "conviction_average:KLAC",
-        "ticker": "KLAC",
-        "family": "conviction_average",
-        "direction": "BUY",
-        "vote_before": "live",
-        "vote_after": "live",
-        "refused_because": null,
-        "reason_code": null,
-        "gate": {
-          "verdict": "unproven",
-          "multiplier": 1.0,
-          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-          "n_eff": 0,
-          "mean_ev_net_pct": null,
-          "ci95": [
-            null,
-            null
-          ],
-          "family": "BUY",
-          "level": "direction"
-        },
-        "p_win": 0.401,
-        "payoff_r": 3.8703,
-        "ev_r": 0.9169,
-        "fee_r": 0.0363,
-        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 22.8",
-        "size_before_usd": 429.19,
-        "f_edge": 1.0,
-        "f_family": 1.0,
-        "f_deemph": 1.0,
-        "size_after_usd": 429.19
-      },
-      {
         "id": "conviction_average:CIEN",
         "ticker": "CIEN",
         "family": "conviction_average",
@@ -423,44 +273,6 @@
         "size_after_usd": 248.05
       },
       {
-        "id": "profit_rotation-MU-AMAT",
-        "ticker": "AMAT",
-        "family": "profit_rotation",
-        "direction": "BUY",
-        "vote_before": "live",
-        "vote_after": "shadow",
-        "refused_because": "rotation edge +0.20R (buy EV 1.00R minus holding 0.80R) below the 0.25R bar",
-        "reason_code": "rotation_edge_below_bar",
-        "gate": {
-          "verdict": "unproven",
-          "multiplier": 1.0,
-          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-          "n_eff": 0,
-          "mean_ev_net_pct": null,
-          "ci95": [
-            null,
-            null
-          ],
-          "family": "BUY",
-          "level": "direction"
-        },
-        "p_win": 0.4068,
-        "payoff_r": 4.0,
-        "ev_r": 0.9957,
-        "fee_r": 0.0383,
-        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 26.0",
-        "size_before_usd": 504.51,
-        "rotation_edge": {
-          "assessed": true,
-          "edge_r": 0.1957,
-          "min_edge_r": 0.25,
-          "hold_ev_r": 0.8,
-          "passes": false,
-          "reason": null
-        },
-        "size_after_usd": null
-      },
-      {
         "id": "profit_rotation-AMD-KLAC",
         "ticker": "KLAC",
         "family": "profit_rotation",
@@ -490,9 +302,9 @@
         "size_before_usd": 429.19,
         "rotation_edge": {
           "assessed": true,
-          "edge_r": 1.0253,
+          "edge_r": 1.0338,
           "min_edge_r": 0.25,
-          "hold_ev_r": -0.1084,
+          "hold_ev_r": -0.1169,
           "passes": true,
           "reason": null
         },
@@ -737,10 +549,10 @@
       }
     ],
     "summary": {
-      "tickets": 15,
-      "live_after_gate": 10,
-      "refused": 5,
-      "buys_refused_by_ev": 3,
+      "tickets": 10,
+      "live_after_gate": 7,
+      "refused": 3,
+      "buys_refused_by_ev": 2,
       "buys_refused_no_target": 0
     },
     "invariant": {
@@ -1244,53 +1056,13 @@
         "threat/structural: Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate con; threat/immediate: Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endo; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC sit at 84.1% as ; threat/structural: Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Eq; threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, ; threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI",
         "signal polarity net +1 (STRONG UPTREND)",
         "+10.3pp vs benchmark",
-        "named by 8 independent source(s) this run",
+        "named by 7 independent source(s) this run",
         "no post-epoch track record (since 2026-09-21) for this name's bullish signal (an admissible record needs at least 3 scored signals since the epoch) -- no tilt"
       ],
       "blockers": [
-        "REFUSED by the EV gate: EV 0.12R below the 0.15R bar (p_win 0.41, payoff 1.8R, fee 0.02R)"
+        "NETTED: duplicate buy into LITE: the cluster_rotation ticket already carries it"
       ],
-      "gate": {
-        "verdict": "unproven",
-        "multiplier": 1.0,
-        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-        "family": "BUY",
-        "level": "direction",
-        "n_eff": 0,
-        "n_rows": 0,
-        "hit_rate": null,
-        "mean_ev_net_pct": null,
-        "ci95": [
-          null,
-          null
-        ],
-        "protective_exit": false
-      },
-      "edge": {
-        "status": "ok",
-        "p_win": 0.4135,
-        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 29.7",
-        "payoff_r": 1.7677,
-        "payoff_r_uncapped": 1.7677,
-        "target_capped": false,
-        "target_usd": 1149.38,
-        "target_source": "data_cache.analyst_targets",
-        "target_as_of": "2026-09-19",
-        "entry_usd": 929.53,
-        "stop_pct": 13.38,
-        "fee_r": 0.0224,
-        "ev_r": 0.1219,
-        "ev_bar_r": 0.15,
-        "kelly_quarter": 0.0204,
-        "f_edge": 0.25,
-        "refused_because": "EV 0.12R below the 0.15R bar (p_win 0.41, payoff 1.8R, fee 0.02R)",
-        "reason_code": "ev_below_bar"
-      },
-      "refused_because": "EV 0.12R below the 0.15R bar (p_win 0.41, payoff 1.8R, fee 0.02R)",
-      "gate_refused": {
-        "code": "ev_below_bar",
-        "size_pre_gate_usd": 330.54
-      },
+      "netted_because": "duplicate buy into LITE: the cluster_rotation ticket already carries it",
       "risk_usd": 44.23,
       "heat_status": "not_allocated (shadow)",
       "materiality": {
@@ -1311,7 +1083,7 @@
       "market_value_usd": 1778.61,
       "trigger_type": "trend_entry",
       "direction": "BUY",
-      "vote": "live",
+      "vote": "shadow",
       "conviction_score": 26.0,
       "conviction_tier": "low",
       "size_wanted_usd": 504.51,
@@ -1325,60 +1097,15 @@
         "signal polarity net +0 (STRONG UPTREND, PEER LAGGARD)",
         "+44.4% vs analyst target",
         "-12.6pp vs benchmark",
-        "named by 8 independent source(s) this run",
+        "named by 7 independent source(s) this run",
         "no post-epoch track record (since 2026-09-21) for this name's bullish signal (an admissible record needs at least 3 scored signals since the epoch) -- no tilt"
       ],
-      "blockers": [],
-      "gate": {
-        "verdict": "unproven",
-        "multiplier": 1.0,
-        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-        "family": "BUY",
-        "level": "direction",
-        "n_eff": 0,
-        "n_rows": 0,
-        "hit_rate": null,
-        "mean_ev_net_pct": null,
-        "ci95": [
-          null,
-          null
-        ],
-        "protective_exit": false
-      },
-      "edge": {
-        "status": "ok",
-        "p_win": 0.4068,
-        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 26.0",
-        "payoff_r": 4.0,
-        "payoff_r_uncapped": 5.6667,
-        "target_capped": true,
-        "target_usd": 640.89,
-        "target_source": "journal.analyst_target",
-        "target_as_of": "2026-09-20",
-        "entry_usd": 443.7458,
-        "stop_pct": 7.84,
-        "fee_r": 0.0383,
-        "ev_r": 0.9957,
-        "ev_bar_r": 0.15,
-        "kelly_quarter": 0.0646,
-        "f_edge": 1.0,
-        "refused_because": null,
-        "reason_code": null
-      },
-      "sizing_factors": {
-        "f_edge": 1.0,
-        "f_family": 1.0,
-        "f_deemph": 1.0,
-        "f_conv_and_track": "embedded in size_wanted_usd (conviction_tier_pct of the track-tilted score)",
-        "stage_fraction": 0.5,
-        "combined": 1.0,
-        "identity": "R_base*f_conv*f_track*STAGE (existing) x f_edge x f_family x f_deemph"
-      },
+      "blockers": [
+        "NETTED: AMAT carries a live catalyst_threat sell; never buy what the desk is selling this run"
+      ],
+      "netted_because": "AMAT carries a live catalyst_threat sell; never buy what the desk is selling this run",
       "risk_usd": 39.55,
-      "book_heat_before_usd": 2777.24,
-      "book_heat_after_usd": 2816.8,
-      "heat_room_remaining_usd": 925.62,
-      "heat_status": "fit",
+      "heat_status": "not_allocated (shadow)",
       "learned_stop": {
         "atr_multiple": 2.249,
         "stop_distance_pct": 8.816,
@@ -1407,7 +1134,7 @@
       "market_value_usd": 1778.61,
       "trigger_type": "conviction_average",
       "direction": "BUY",
-      "vote": "live",
+      "vote": "shadow",
       "conviction_score": 26.0,
       "conviction_tier": "low",
       "support_usd": 426.351,
@@ -1424,60 +1151,15 @@
         "signal polarity net +0 (STRONG UPTREND, PEER LAGGARD)",
         "+44.4% vs analyst target",
         "-12.6pp vs benchmark",
-        "named by 8 independent source(s) this run",
+        "named by 7 independent source(s) this run",
         "no post-epoch track record (since 2026-09-21) for this name's bullish signal (an admissible record needs at least 3 scored signals since the epoch) -- no tilt"
       ],
-      "blockers": [],
-      "gate": {
-        "verdict": "unproven",
-        "multiplier": 1.0,
-        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-        "family": "BUY",
-        "level": "direction",
-        "n_eff": 0,
-        "n_rows": 0,
-        "hit_rate": null,
-        "mean_ev_net_pct": null,
-        "ci95": [
-          null,
-          null
-        ],
-        "protective_exit": false
-      },
-      "edge": {
-        "status": "ok",
-        "p_win": 0.4068,
-        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 26.0",
-        "payoff_r": 4.0,
-        "payoff_r_uncapped": 5.6667,
-        "target_capped": true,
-        "target_usd": 640.89,
-        "target_source": "journal.analyst_target",
-        "target_as_of": "2026-09-20",
-        "entry_usd": 443.7458,
-        "stop_pct": 7.84,
-        "fee_r": 0.0383,
-        "ev_r": 0.9957,
-        "ev_bar_r": 0.15,
-        "kelly_quarter": 0.0646,
-        "f_edge": 1.0,
-        "refused_because": null,
-        "reason_code": null
-      },
-      "sizing_factors": {
-        "f_edge": 1.0,
-        "f_family": 1.0,
-        "f_deemph": 1.0,
-        "f_conv_and_track": "embedded in size_wanted_usd (conviction_tier_pct of the track-tilted score)",
-        "stage_fraction": 0.5,
-        "combined": 1.0,
-        "identity": "R_base*f_conv*f_track*STAGE (existing) x f_edge x f_family x f_deemph"
-      },
+      "blockers": [
+        "NETTED: AMAT carries a live catalyst_threat sell; never buy what the desk is selling this run"
+      ],
+      "netted_because": "AMAT carries a live catalyst_threat sell; never buy what the desk is selling this run",
       "risk_usd": 39.55,
-      "book_heat_before_usd": 2737.69,
-      "book_heat_after_usd": 2777.24,
-      "heat_room_remaining_usd": 965.18,
-      "heat_status": "fit",
+      "heat_status": "not_allocated (shadow)",
       "learned_stop": {
         "atr_multiple": 2.249,
         "stop_distance_pct": 8.816,
@@ -1503,7 +1185,7 @@
       "market_value_usd": 1771.4,
       "trigger_type": "conviction_average",
       "direction": "BUY",
-      "vote": "live",
+      "vote": "shadow",
       "conviction_score": 22.8,
       "conviction_tier": "low",
       "support_usd": 169.8241,
@@ -1519,59 +1201,14 @@
         "ambiguous/immediate: FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental ; threat/structural: Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate con; threat/immediate: Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endo; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC sit at 84.1% as ; threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, ; threat/immediate: KOSPI -3.26% (Samsung/SK Hynix -5 to -6.4%) on Fed-hawkish repricing (Warsh Jack",
         "reported: beat",
         "-7.6pp vs benchmark",
-        "named by 8 independent source(s) this run"
+        "named by 7 independent source(s) this run"
       ],
-      "blockers": [],
-      "gate": {
-        "verdict": "unproven",
-        "multiplier": 1.0,
-        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-        "family": "BUY",
-        "level": "direction",
-        "n_eff": 0,
-        "n_rows": 0,
-        "hit_rate": null,
-        "mean_ev_net_pct": null,
-        "ci95": [
-          null,
-          null
-        ],
-        "protective_exit": false
-      },
-      "edge": {
-        "status": "ok",
-        "p_win": 0.401,
-        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 22.8",
-        "payoff_r": 3.8703,
-        "payoff_r_uncapped": 3.8703,
-        "target_capped": false,
-        "target_usd": 233.77,
-        "target_source": "data_cache.analyst_targets",
-        "target_as_of": "2026-09-19",
-        "entry_usd": 177.14,
-        "stop_pct": 8.26,
-        "fee_r": 0.0363,
-        "ev_r": 0.9169,
-        "ev_bar_r": 0.15,
-        "kelly_quarter": 0.0616,
-        "f_edge": 1.0,
-        "refused_because": null,
-        "reason_code": null
-      },
-      "sizing_factors": {
-        "f_edge": 1.0,
-        "f_family": 1.0,
-        "f_deemph": 1.0,
-        "f_conv_and_track": "embedded in size_wanted_usd (conviction_tier_pct of the track-tilted score)",
-        "stage_fraction": 0.5,
-        "combined": 1.0,
-        "identity": "R_base*f_conv*f_track*STAGE (existing) x f_edge x f_family x f_deemph"
-      },
+      "blockers": [
+        "NETTED: duplicate buy into KLAC: the profit_rotation ticket already carries it"
+      ],
+      "netted_because": "duplicate buy into KLAC: the profit_rotation ticket already carries it",
       "risk_usd": 35.45,
-      "book_heat_before_usd": 2816.8,
-      "book_heat_after_usd": 2852.25,
-      "heat_room_remaining_usd": 890.17,
-      "heat_status": "fit",
+      "heat_status": "not_allocated (shadow)",
       "learned_stop": {
         "atr_multiple": 2.249,
         "stop_distance_pct": 9.288,
@@ -1613,7 +1250,7 @@
         "threat/structural: Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate con; threat/immediate: Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endo; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC sit at 84.1% as ; threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, ; threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI",
         "reported: beat",
         "-14.8pp vs benchmark",
-        "named by 7 independent source(s) this run"
+        "named by 6 independent source(s) this run"
       ],
       "blockers": [
         "below the materiality floor (advisory for single-leg buys): $248.05 vs $250.00 (min_ticket_usd); vote unchanged -- buys are annotated, not demoted, until the floors are confirmed"
@@ -1664,9 +1301,9 @@
         "identity": "R_base*f_conv*f_track*STAGE (existing) x f_edge x f_family x f_deemph"
       },
       "risk_usd": 33.98,
-      "book_heat_before_usd": 2852.25,
-      "book_heat_after_usd": 2886.23,
-      "heat_room_remaining_usd": 856.19,
+      "book_heat_before_usd": 2737.69,
+      "book_heat_after_usd": 2771.67,
+      "heat_room_remaining_usd": 970.75,
       "heat_status": "fit",
       "materiality": {
         "ok": false,
@@ -2378,7 +2015,7 @@
     "correction_state": "none",
     "reasons": [],
     "inputs_usable": true,
-    "rel_cache_age_days": 2,
+    "rel_cache_age_days": 3,
     "stale_warning": null,
     "book_drawdown_pct": -1.128,
     "benchmark_1m_pct": 2.15,
@@ -2438,50 +2075,6 @@
           "binding_term": "min_ticket_r",
           "shortfall_usd": 0.0
         },
-        "gate": {
-          "verdict": "unproven",
-          "multiplier": 1.0,
-          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-          "family": "BUY",
-          "level": "direction",
-          "n_eff": 0,
-          "n_rows": 0,
-          "hit_rate": null,
-          "mean_ev_net_pct": null,
-          "ci95": [
-            null,
-            null
-          ],
-          "protective_exit": false
-        },
-        "edge": {
-          "status": "ok",
-          "p_win": 0.4068,
-          "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 26.0",
-          "payoff_r": 4.0,
-          "payoff_r_uncapped": 5.6667,
-          "target_capped": true,
-          "target_usd": 640.89,
-          "target_source": "journal.analyst_target",
-          "target_as_of": "2026-09-20",
-          "entry_usd": 443.7458,
-          "stop_pct": 7.84,
-          "fee_r": 0.0383,
-          "ev_r": 0.9957,
-          "ev_bar_r": 0.15,
-          "kelly_quarter": 0.0646,
-          "f_edge": 1.0,
-          "refused_because": null,
-          "reason_code": null
-        },
-        "rotation_edge": {
-          "assessed": true,
-          "edge_r": 0.1957,
-          "min_edge_r": 0.25,
-          "hold_ev_r": 0.8,
-          "passes": false,
-          "reason": null
-        },
         "risk_usd": 39.55,
         "heat_status": "not_allocated (shadow)"
       },
@@ -2499,29 +2092,9 @@
       "retires_when": "EITHER MU drops out of the stretched cohort OR AMAT's thesis leaves intact/strengthening",
       "blockers": [
         "not risk-flat: the sell frees $52.28 of risk and the buy re-takes $39.55 (bound by buy_r_ticket); the difference goes to cash, not into the book",
-        "REFUSED by the EV gate: rotation edge +0.20R (buy EV 1.00R minus holding 0.80R) below the 0.25R bar"
+        "NETTED: AMAT carries a live catalyst_threat sell; never buy what the desk is selling this run"
       ],
-      "gate": {
-        "verdict": "unproven",
-        "multiplier": 1.0,
-        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-        "family": "BUY",
-        "level": "direction",
-        "n_eff": 0,
-        "n_rows": 0,
-        "hit_rate": null,
-        "mean_ev_net_pct": null,
-        "ci95": [
-          null,
-          null
-        ],
-        "protective_exit": false
-      },
-      "refused_because": "rotation edge +0.20R (buy EV 1.00R minus holding 0.80R) below the 0.25R bar",
-      "gate_refused": {
-        "code": "rotation_edge_below_bar",
-        "size_pre_gate_usd": 504.51
-      }
+      "netted_because": "AMAT carries a live catalyst_threat sell; never buy what the desk is selling this run"
     },
     {
       "pair_id": "profit_rotation-AMD-KLAC",
@@ -2604,9 +2177,9 @@
         },
         "rotation_edge": {
           "assessed": true,
-          "edge_r": 1.0253,
+          "edge_r": 1.0338,
           "min_edge_r": 0.25,
-          "hold_ev_r": -0.1084,
+          "hold_ev_r": -0.1169,
           "passes": true,
           "reason": null
         },
@@ -2731,7 +2304,7 @@
       "ladder_authority": "rank",
       "ladder_authority_reasons": [
         "2 scored ladder call(s) predate the engine epoch (2026-09-21) -- kept as history, not counted toward authority",
-        "ladder is 5d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+        "ladder is 6d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
       ],
       "sell_leg": {
         "ticker": "ASML",
@@ -2865,7 +2438,7 @@
       "ladder_authority": "rank",
       "ladder_authority_reasons": [
         "2 scored ladder call(s) predate the engine epoch (2026-09-21) -- kept as history, not counted toward authority",
-        "ladder is 5d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+        "ladder is 6d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
       ],
       "sell_leg": {
         "ticker": "AMZN",
@@ -2940,7 +2513,7 @@
       "ladder_authority": "rank",
       "ladder_authority_reasons": [
         "1 scored ladder call(s) predate the engine epoch (2026-09-21) -- kept as history, not counted toward authority",
-        "ladder is 6d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+        "ladder is 7d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
       ],
       "sell_leg": {
         "ticker": "GLW",
@@ -3075,7 +2648,7 @@
       "ladder_authority": "rank",
       "ladder_authority_reasons": [
         "1 scored ladder call(s) predate the engine epoch (2026-09-21) -- kept as history, not counted toward authority",
-        "ladder is 5d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+        "ladder is 6d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
       ],
       "sell_leg": {
         "ticker": "VRT",
@@ -3674,7 +3247,7 @@
   ],
   "shadow_new": [
     {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "CIEN",
       "trigger_type": "laggard_rotation",
       "price_at_flag": 349.5,
@@ -3684,7 +3257,7 @@
       "scored": false
     },
     {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "AMAT",
       "trigger_type": "laggard_rotation",
       "price_at_flag": 443.7458,
@@ -3694,7 +3267,7 @@
       "scored": false
     },
     {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "KLAC",
       "trigger_type": "laggard_rotation",
       "price_at_flag": 177.14,
@@ -3704,7 +3277,7 @@
       "scored": false
     },
     {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "WDC",
       "trigger_type": "laggard_rotation",
       "price_at_flag": 442.01,
@@ -3714,7 +3287,7 @@
       "scored": false
     },
     {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "BE",
       "trigger_type": "scale_out_ladder",
       "price_at_flag": 267.0483,
@@ -3724,7 +3297,7 @@
       "scored": false
     },
     {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "AMKR",
       "trigger_type": "cluster_bench_rotation",
       "price_at_flag": 47.12,
@@ -3735,7 +3308,7 @@
       "scored": false
     },
     {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "META",
       "trigger_type": "cluster_bench_rotation",
       "price_at_flag": 665.6,
@@ -3746,7 +3319,7 @@
       "scored": false
     },
     {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "ETN",
       "trigger_type": "cluster_bench_rotation",
       "price_at_flag": 393.16,
@@ -3757,7 +3330,7 @@
       "scored": false
     },
     {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "LITE",
       "trigger_type": "cluster_consolidation",
       "price_at_flag": 929.53,
@@ -3768,7 +3341,7 @@
       "scored": false
     },
     {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "MU",
       "trigger_type": "cluster_consolidation",
       "price_at_flag": 1017.75,
@@ -3779,33 +3352,7 @@
       "scored": false
     },
     {
-      "date": "2026-09-20",
-      "ticker": "LITE",
-      "trigger_type": "trend_entry",
-      "direction_bucket": "BUY",
-      "price_at_flag": 929.53,
-      "rsi14": null,
-      "gain_pct": null,
-      "rel_strength_1m_pp": null,
-      "shadow_reason": "ev_below_bar",
-      "refused_because": "EV 0.12R below the 0.15R bar (p_win 0.41, payoff 1.8R, fee 0.02R)",
-      "scored": false
-    },
-    {
-      "date": "2026-09-20",
-      "ticker": "AMAT",
-      "trigger_type": "profit_rotation",
-      "direction_bucket": "BUY",
-      "price_at_flag": 443.7458,
-      "rsi14": null,
-      "gain_pct": null,
-      "rel_strength_1m_pp": null,
-      "shadow_reason": "rotation_edge_below_bar",
-      "refused_because": "rotation edge +0.20R (buy EV 1.00R minus holding 0.80R) below the 0.25R bar",
-      "scored": false
-    },
-    {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "TSM",
       "trigger_type": "cluster_rotation",
       "direction_bucket": "BUY",
@@ -3818,7 +3365,7 @@
       "scored": false
     },
     {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "LITE",
       "trigger_type": "cluster_rotation",
       "direction_bucket": "BUY",
@@ -3831,7 +3378,7 @@
       "scored": false
     },
     {
-      "date": "2026-09-20",
+      "date": "2026-09-21",
       "ticker": "BE",
       "trigger_type": "cluster_rotation",
       "direction_bucket": "BUY",
@@ -3948,7 +3495,8 @@
   },
   "data_quality": [
     "policy.trade_materiality is UNCONFIRMED (confirmed:false) -- the engine uses these floors (min ticket $250 / 0.4% of book / 0.1R, dust $400) but the user has not signed them; treat every below_materiality verdict as provisional.",
-    "EDGE GATE refused (emitted as shadow, recorded, scored): trend_entry LITE: EV 0.12R below the 0.15R bar (p_win 0.41, payoff 1.8R, fee 0.02R); profit_rotation AMAT: rotation edge +0.20R (buy EV 1.00R minus holding 0.80R) below the 0.25R bar; cluster_rotation TSM: rotation edge +0.00R (buy EV 0.80R minus holding 0.80R) below the 0.25R bar; cluster_rotation LITE: EV 0.12R below the 0.15R bar (p_win 0.41, payoff 1.8R, fee 0.02R); cluster_rotation BE: EV -0.46R below the 0.15R bar (p_win 0.41, payoff 0.4R, fee 0.02R)",
+    "NETTED per ticker (shadowed, recorded, scored): trend_entry AMAT: AMAT carries a live catalyst_threat sell; never buy what the desk is selling this run; conviction_average AMAT: AMAT carries a live catalyst_threat sell; never buy what the desk is selling this run; profit_rotation AMAT: AMAT carries a live catalyst_threat sell; never buy what the desk is selling this run; trend_entry LITE: duplicate buy into LITE: the cluster_rotation ticket already carries it; conviction_average KLAC: duplicate buy into KLAC: the profit_rotation ticket already carries it",
+    "EDGE GATE refused (emitted as shadow, recorded, scored): cluster_rotation TSM: rotation edge +0.00R (buy EV 0.80R minus holding 0.80R) below the 0.25R bar; cluster_rotation LITE: EV 0.12R below the 0.15R bar (p_win 0.41, payoff 1.8R, fee 0.02R); cluster_rotation BE: EV -0.46R below the 0.15R bar (p_win 0.41, payoff 0.4R, fee 0.02R)",
     "edge gate: every family/direction verdict is UNPROVEN (n_eff < 12; the legacy engine's record before ENGINE_EPOCH 2026-09-21 is excluded) -- multiplier 1.00, p_win is the UNCALIBRATED 0.45 prior shrunk only by conviction.",
     "policy.heat_budget is UNCONFIRMED (confirmed:false) -- the engine uses a 70% floor on the aggregate-risk cap at full correlation and the cluster sub-budget ON, but the user has not signed them; treat every deferred/heat_room verdict as provisional.",
     "below_materiality (emitted, not proposed -- too small to act on): catalyst_threat GEV short $76; catalyst_threat SKHY short $250; profit_rotation profit_rotation-SKHY-CIEN short $250; cluster_rotation cluster_rotation-AMZN-MSFT short $112. Many of these are stubs: a book that generates tickets this small needs consolidating.",

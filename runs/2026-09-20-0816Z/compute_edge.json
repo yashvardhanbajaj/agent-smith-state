@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-20",
+  "as_of": "2026-09-21",
   "engine_epoch": "2026-09-21",
   "evidence_rule": "only proposals / shadow-journal rows dated on or after ENGINE_EPOCH count; the legacy engine's outcomes are history, not calibration",
   "excluded_legacy": {
@@ -53,135 +53,6 @@
   "all_unproven": true,
   "tickets": [
     {
-      "id": "trend_entry:AMAT",
-      "ticker": "AMAT",
-      "family": "trend_entry",
-      "direction": "BUY",
-      "vote_before": "live",
-      "vote_after": "live",
-      "refused_because": null,
-      "reason_code": null,
-      "gate": {
-        "verdict": "unproven",
-        "multiplier": 1.0,
-        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-        "n_eff": 0,
-        "mean_ev_net_pct": null,
-        "ci95": [
-          null,
-          null
-        ],
-        "family": "BUY",
-        "level": "direction"
-      },
-      "p_win": 0.4068,
-      "payoff_r": 4.0,
-      "ev_r": 0.9957,
-      "fee_r": 0.0383,
-      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 26.0",
-      "size_before_usd": 504.51,
-      "f_edge": 1.0,
-      "f_family": 1.0,
-      "f_deemph": 1.0,
-      "size_after_usd": 504.51
-    },
-    {
-      "id": "trend_entry:LITE",
-      "ticker": "LITE",
-      "family": "trend_entry",
-      "direction": "BUY",
-      "vote_before": "live",
-      "vote_after": "shadow",
-      "refused_because": "EV 0.12R below the 0.15R bar (p_win 0.41, payoff 1.8R, fee 0.02R)",
-      "reason_code": "ev_below_bar",
-      "gate": {
-        "verdict": "unproven",
-        "multiplier": 1.0,
-        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-        "n_eff": 0,
-        "mean_ev_net_pct": null,
-        "ci95": [
-          null,
-          null
-        ],
-        "family": "BUY",
-        "level": "direction"
-      },
-      "p_win": 0.4135,
-      "payoff_r": 1.7677,
-      "ev_r": 0.1219,
-      "fee_r": 0.0224,
-      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 29.7",
-      "size_before_usd": 330.54,
-      "size_after_usd": null
-    },
-    {
-      "id": "conviction_average:AMAT",
-      "ticker": "AMAT",
-      "family": "conviction_average",
-      "direction": "BUY",
-      "vote_before": "live",
-      "vote_after": "live",
-      "refused_because": null,
-      "reason_code": null,
-      "gate": {
-        "verdict": "unproven",
-        "multiplier": 1.0,
-        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-        "n_eff": 0,
-        "mean_ev_net_pct": null,
-        "ci95": [
-          null,
-          null
-        ],
-        "family": "BUY",
-        "level": "direction"
-      },
-      "p_win": 0.4068,
-      "payoff_r": 4.0,
-      "ev_r": 0.9957,
-      "fee_r": 0.0383,
-      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 26.0",
-      "size_before_usd": 504.51,
-      "f_edge": 1.0,
-      "f_family": 1.0,
-      "f_deemph": 1.0,
-      "size_after_usd": 504.51
-    },
-    {
-      "id": "conviction_average:KLAC",
-      "ticker": "KLAC",
-      "family": "conviction_average",
-      "direction": "BUY",
-      "vote_before": "live",
-      "vote_after": "live",
-      "refused_because": null,
-      "reason_code": null,
-      "gate": {
-        "verdict": "unproven",
-        "multiplier": 1.0,
-        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-        "n_eff": 0,
-        "mean_ev_net_pct": null,
-        "ci95": [
-          null,
-          null
-        ],
-        "family": "BUY",
-        "level": "direction"
-      },
-      "p_win": 0.401,
-      "payoff_r": 3.8703,
-      "ev_r": 0.9169,
-      "fee_r": 0.0363,
-      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 22.8",
-      "size_before_usd": 429.19,
-      "f_edge": 1.0,
-      "f_family": 1.0,
-      "f_deemph": 1.0,
-      "size_after_usd": 429.19
-    },
-    {
       "id": "conviction_average:CIEN",
       "ticker": "CIEN",
       "family": "conviction_average",
@@ -215,44 +86,6 @@
       "size_after_usd": 248.05
     },
     {
-      "id": "profit_rotation-MU-AMAT",
-      "ticker": "AMAT",
-      "family": "profit_rotation",
-      "direction": "BUY",
-      "vote_before": "live",
-      "vote_after": "shadow",
-      "refused_because": "rotation edge +0.20R (buy EV 1.00R minus holding 0.80R) below the 0.25R bar",
-      "reason_code": "rotation_edge_below_bar",
-      "gate": {
-        "verdict": "unproven",
-        "multiplier": 1.0,
-        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
-        "n_eff": 0,
-        "mean_ev_net_pct": null,
-        "ci95": [
-          null,
-          null
-        ],
-        "family": "BUY",
-        "level": "direction"
-      },
-      "p_win": 0.4068,
-      "payoff_r": 4.0,
-      "ev_r": 0.9957,
-      "fee_r": 0.0383,
-      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 26.0",
-      "size_before_usd": 504.51,
-      "rotation_edge": {
-        "assessed": true,
-        "edge_r": 0.1957,
-        "min_edge_r": 0.25,
-        "hold_ev_r": 0.8,
-        "passes": false,
-        "reason": null
-      },
-      "size_after_usd": null
-    },
-    {
       "id": "profit_rotation-AMD-KLAC",
       "ticker": "KLAC",
       "family": "profit_rotation",
@@ -282,9 +115,9 @@
       "size_before_usd": 429.19,
       "rotation_edge": {
         "assessed": true,
-        "edge_r": 1.0253,
+        "edge_r": 1.0338,
         "min_edge_r": 0.25,
-        "hold_ev_r": -0.1084,
+        "hold_ev_r": -0.1169,
         "passes": true,
         "reason": null
       },
@@ -529,10 +362,10 @@
     }
   ],
   "summary": {
-    "tickets": 15,
-    "live_after_gate": 10,
-    "refused": 5,
-    "buys_refused_by_ev": 3,
+    "tickets": 10,
+    "live_after_gate": 7,
+    "refused": 3,
+    "buys_refused_by_ev": 2,
     "buys_refused_no_target": 0
   },
   "invariant": {

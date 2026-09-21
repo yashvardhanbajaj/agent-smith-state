@@ -5244,6 +5244,20 @@ def cmd_triggers(args):
         return (price_by_ticker.get(t) or (market_prices.get(t) or {}).get("price")
                 or (conviction_by_ticker.get(t) or {}).get("price"))
 
+    _netted = smith_ticket.net_conflicts(
+        [(f, r) for f, rows in (("oversold_reversion", oversold), ("trend_entry", trend_entry),
+                                ("conviction_average", conviction_average), ("entry_setup", entry_setup),
+                                ("reentry", reentry), ("bench_diversifier", bench_diversifier)) for r in rows],
+        [(f, r) for f, rows in (("profit_rotation", profit_rotation), ("cluster_rotation", cluster_rotation))
+         for r in rows],
+        [(f, r) for f, rows in (("overbought_distribution", overbought), ("catalyst_threat", catalyst_threat),
+                                ("thesis_break", thesis_break), ("trend_breakdown", trend_breakdown),
+                                ("conviction_exit", conviction_exit), ("scale_out_ladder", ladder))
+         for r in rows])
+    if _netted:
+        dq.append("NETTED per ticker (shadowed, recorded, scored): " + "; ".join(
+            f"{n['family']} {n['ticker']}: {n['netted_because']}" for n in _netted))
+
     _edge_ctx = _apply_edge_gate(
         {"oversold_reversion": oversold, "trend_entry": trend_entry, "conviction_average": conviction_average,
          "entry_setup": entry_setup, "reentry": reentry, "bench_diversifier": bench_diversifier},
