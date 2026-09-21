@@ -587,6 +587,21 @@ def postflight_commit(args):
     except Exception as e:  # noqa: BLE001
         out["findings"] = {"error": f"{type(e).__name__}: {e}"}
 
+    # Knowledge base (2026-09-21): what this run LEARNED is folded into knowledge/ (append-only, git-tracked):
+    # every tail and revision in chronological order, then the committed state's verdicts. Never blocks a commit.
+    try:
+        import smith_kb
+        import smith_kb_harvest as _H
+        _run_id = os.path.basename(os.path.normpath(rd))
+        _obs, _files = _H.harvest_run(base, rd, _run_id, str(today))
+        _rep = smith_kb.add_observations(base, _obs, reinforce=True)
+        _st = _j(os.path.join(base, "state.json"), {}) or {}
+        _rep2 = smith_kb.add_observations(base, _H.from_state_snapshot(_st, str(today), run=_run_id), reinforce=False)
+        out["knowledge"] = {"tails": len(_files), "added": _rep["added"] + _rep2["added"], "reinforced": _rep["reinforced"],
+                            "pages": smith_kb.rebuild_pages(base, str(today))}
+    except Exception as e:  # noqa: BLE001
+        out["knowledge"] = {"error": f"{type(e).__name__}: {e}"}
+
     book = _j(os.path.join(rd, "compute_book.json"), {}) or {}
     mi = _j(os.path.join(rd, "market_inputs.json"), {}) or {}
     holdings = _j(os.path.join(rd, "holdings.json"), {}) or {}

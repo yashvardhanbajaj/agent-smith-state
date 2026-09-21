@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "ts": "2026-09-21T07:16:56Z",
+  "ts": "2026-09-21T07:33:25Z",
   "mode": "deep",
   "usdinr": 95.095,
   "artifact_url": "https://claude.ai/artifact/QmHBPbVt656xYzYhNRgL6h",
@@ -874,31 +874,46 @@
       "reviewed_on": "2026-09-20"
     },
     "APH": {
-      "status": "intact",
-      "thesis": "High-speed interconnect/cable-assembly for AI servers and datacenter networking; AI/datacenter revenue share NOT established this run (no sourced percentage), so strengthening is not evidenced.",
+      "status": "strengthening",
+      "thesis": "High-speed interconnect for AI servers/datacenter; Communications Solutions ~62% of Q2-2026 net sales grew 42% organically (src: APH 10-Q qtr ended 2026-06-30, as_of 2026-07-31). Stand-alone IT-datacom share is not established in the filing.",
       "evidence_for": [
         {
-          "claim": "IT Datacom is APH's largest and fastest-growing segment (no percentage; unverified)",
-          "date": "2026-09-06",
-          "source": "orchestrator holdings note"
+          "claim": "Communications Solutions ~62% of net sales, +42% organic y/y (+85% USD), driven by IT datacom, AI strength",
+          "date": "2026-07-31",
+          "source": "APH Form 10-Q accn 0001104659-26-089194"
+        },
+        {
+          "claim": "CommScope CCS acquisition (closed 2026-01-09) adds fiber-optic interconnect for IT datacom",
+          "date": "2026-01-09",
+          "source": "APH 10-Q via desk"
         }
       ],
       "evidence_against": [
         {
-          "claim": "-5.78% close within a -8.28% cluster de-rating on sentiment; no name-specific catalyst found (weakly against, sentiment not fundamentals)",
-          "date": "2026-09-14",
-          "source": "smith-signals/smith-catalyst"
+          "claim": "About half of the +85% USD growth is acquired (85% vs 42% organic), so headline growth overstates demand",
+          "date": "2026-07-31",
+          "source": "APH 10-Q"
         },
         {
-          "claim": "No primary-source AI/datacenter revenue mix found: thesis rests on an unquantified claim",
-          "date": "2026-09-21",
-          "source": "smith-thesis review"
+          "claim": "Segment includes non-datacom lines; IT-datacom share stand-alone not established",
+          "date": "2026-07-31",
+          "source": "APH 10-Q, desk"
+        },
+        {
+          "claim": "Acquisition funded by Delayed Draw Term Loans ($1,534.1M drawn under each per desk): added leverage, ratio unchecked",
+          "date": "2026-07-31",
+          "source": "APH 10-Q via desk"
+        },
+        {
+          "claim": "-5.78% close inside a -8.28% cluster de-rating on sentiment, no name-specific catalyst",
+          "date": "2026-09-14",
+          "source": "smith-signals/smith-catalyst"
         }
       ],
-      "verified": "unverified",
-      "verified_against": "",
-      "verified_on": "",
-      "note": "Status moved strengthening->intact for thin evidence, not deterioration. Provisional pending a 10-Q segment lookup (desk). Precedent search not run (no INDmoney/ledger tooling; downgrade rests on absence, not an event claim).",
+      "verified": "primary",
+      "verified_against": "APH Form 10-Q, quarter ended 2026-06-30, accn 0001104659-26-089194 (via desk)",
+      "verified_on": "2026-09-21",
+      "note": "Restored to strengthening on primary evidence; supersedes the M2.3 intact revision. Leverage not independently checked this run.",
       "reviewed_on": "2026-09-21"
     },
     "AMZN": {

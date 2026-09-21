@@ -1,0 +1,83 @@
+{
+ "entity": "T:BE",
+ "live_facts": [
+  "[b2585b85ba25] event ALAB,APH,ASML (2026-09-20) [secondary]: THREAT/immediate: Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex cut found through 09-20; sell-off described as sentiment against unchanged order book",
+  "[9bc50e2631f0] relation/pair BE,GEV =distinct (2026-09-15) [secondary]: BE/GEV: distinct -- Both sell generation to data centers, but are substitutes at the margin (behind-the-meter fuel cells vs grid-scale turbines) with opposite queue exposure and opposite rate sensitivity -- an intra-cluster hedge, not a duplicate (keep both, drop none)",
+  "[e085500a8882] relation/pair BE,VST =distinct (2026-09-09) [secondary]: BE/VST: distinct -- screen returned no candidate; opposite ends of the behind-the-meter vs grid-connected regulatory axis by design (keep both, drop none)",
+  "[9c2bf4fa700b] event ALAB,APH,BE (2026-09-14) [secondary]: THREAT/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI Networking/Optics cluster -6.25%) -- broad AI-capex-book de-rating tracking the same FOMC-hawkish + Hormuz-oil + AI-slowdown-sentiment complex as the Asia session, not a new optics-specific print (no COHR/LITE/CIEN-specific news found this scan)",
+  "[2333e45056f0] event ALAB,APH,ASML (2026-09-14) [secondary]: THREAT/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting)",
+  "[96934a892f71] event ALAB,APH,ASML (2026-09-14) [secondary]: THREAT/immediate: Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endorsed within 48hrs by OpenAI's Altman and xAI's Musk) is confirmed as the sentiment trigger for Monday's AI-infra repricing, but VERIFIED this run: no hyperscaler has moved capex guidance -- Microsoft/Amazon/Alphabet/Oracle 2026 capex remains locked at ~$660-690bn combined, unchanged since the essay published",
+  "[2045c207f41e] event ALAB,APH,ASML (2026-09-12) [secondary]: THREAT/structural: Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate continues (Altman/Musk endorse, Burry/Sankar/Trump dismiss, Harris calls for legislation)",
+  "[6439a9d3190f] fact BE (2026-09-16) [secondary]: [analyst targets] mean target None (n None), gap None",
+  "[594935dafb15] fact BE (2026-09-15) [secondary]: [thesis] strengthening -- Fuel-cell power generation for AI-datacenter and grid-power demand; AI Power/Cooling/DC Infra.",
+  "[d1b06dc7c595] fact BE (2026-09-14) [secondary]: [catalyst] Bloom Energy confirmed for S&P 500 inclusion effective 2026-09-21; Clear Street/UBS price-target raises to $330/$325 -- magnitude: one index add among ~500 S&P constituents; partially priced ahead of the 09-21 effective date",
+  "[35aeb70f4109] event BE (2026-09-08) [secondary]: TAILWIND/structural: Bloom Energy confirmed for S&P 500 inclusion effective 2026-09-21; Clear Street/UBS price-target raises to $330/$325",
+  "[da614804d2d2] event BE (2026-09-08) [secondary]: TAILWIND/structural: Bloom Energy analyst price-target raises: UBS to $325 from $300, Clear Street to $330 from $290, both Buy, both citing the S&P 500 addition",
+  "[efedeeb6a1be] event BE (2026-09-08) [secondary]: TAILWIND/immediate: Bloom Energy confirmed for S&P 500 inclusion effective 2026-09-21; Clear Street/UBS price-target raises to $330/$325 [RETIRED: Event executes at today's open (replaces Molson Coors, Trade Desk, Builders FirstSource); index-demand leg is now realized, not pending. Source: https://press.spglobal.com/2026-09-04-Bloom-Energy,-Illumina,-and-Everpure-Set-to-Join-S-P-500-Others-to-Join-S-P-100,-S-P-MidCap-400,-and-S-P-SmallCap-600]",
+  "[caedebf2bb8d] fact BE (2026-09-06) [secondary]: [analyst targets] mean target None (n 17), gap None",
+  "[61f3378ef70f] fact BE (2026-09-06) [secondary]: [quality flag] {\"finding\": \"Heavy share dilution funding capacity buildout\", \"metric\": \"diluted_shares_yoy\", \"magnitude\": \"+39% YoY (232.5M to 323.3M)\", \"evidence_for\": [{\"claim\": \"Diluted avg shares rose from 232.54M to 323.33M YoY\", \"date\": \"2026-09-06\", \"source\": \"yfinance quarterly financials\"}], \"evidence_against\": [{\"claim\": \"OCF ($226M) exceeds NI ($196M) latest quarter; net debt is thin (~$140M) vs ~$223",
+  "[8e20c9c7ad9a] fact BE (2026-09-06) [secondary]: [quality financials] {\"latest_period_end\": \"2026-06-30\", \"fetched_at\": \"2026-09-06\", \"quarters\": [{\"period_end\": \"2026-06-30\", \"revenue\": 1070000000, \"ocf\": 226430000, \"capex\": -51640000, \"net_income\": 196290000, \"op_income\": 182240000, \"interest_expense\": 8910000, \"total_debt\": 2810000000, \"sbc\": 57230000, \"diluted_shares\": 323330000}, {\"period_end\": \"2026-03-31\", \"revenue\": 751050000, \"ocf\": 73610000, \"capex\": -26180000, \"net_income\": 70650000, \"op_income\": 721900…",
+  "[f8ec45689679] fact BE (2026-08-30) [secondary]: [analyst targets] mean target None (n 18), gap None",
+  "[81ea286008a9] fact BE (2026-08-30) [secondary]: [quality flag] {\"finding\": \"Heavy share dilution and debt-funded growth in a merchant/power-adjacent AI-capex name\", \"metric\": \"diluted shares YoY, total debt YoY, SBC % revenue\", \"magnitude\": \"dilution +37.6% YoY; debt +86% YoY; SBC 5.3% of revenue\", \"evidence_for\": [{\"claim\": \"Diluted share count +37.6% YoY; total debt +86% YoY to $2.81B; SBC 5.3% of revenue\", \"date\": \"2026-08-30\", \"source\": \"yfinance quarterl",
+  "[ea8ae73c7887] fact BE (2026-09-08) [unverified]: [thesis evidence FOR] true-peer rel_strength vs XLU is +9.24pp (positive), even though the raw PEER LEADER flag was a false SMH-fallback artifact and has been withdrawn",
+  "[54f6d74405c2] fact BE (2026-09-08) [unverified]: [thesis evidence AGAINST] prior PEER LEADER signal-bucket label (rel_sigma vs SMH) was a data-quality artifact -- BE's true peer is XLU (utilities), not semis; do not cite the withdrawn SMH-relative claim as support going forward",
+  "[f00dc26b97e2] event ASML,BE,CIEN (2026-08-18) [secondary]: THREAT/immediate: Semis-specific rout: SMH -4.09% vs SPX -0.69%/NDX -1.33%; high-multiple AI-hardware names repriced hardest while mega-cap compute barely moved",
+  "[c97d97d406e9] fact BE (2026-09-07) [unverified]: [thesis evidence AGAINST] 5 distinct insiders (Chambers, Chitoori, Immelt, Joshi, Soderberg) sold in last 60 days; stock -28% off 52wk high so no formal sell-into-rally flag fires",
+  "[f17115785560] event AVGO,BE,GEV (2026-08-17) [secondary]: THREAT/structural: WSJ: nine Big Tech firms carry $3T in off-balance-sheet AI commitments vs ~$600bn trailing capex; triggers behind-the-meter power-stock de-risking",
+  "[c5160d17573a] fact BE (2026-08-13) [unverified]: [thesis evidence FOR] Q2 revenue $1.07B and EPS $0.78 both beat; FY guidance raised; JPMorgan raised price target",
+  "[64449769c606] fact BE (2026-08-13) [unverified]: [thesis evidence AGAINST] scandium supply-chain class-action lawsuit filed; company rebutted citing confirmed non-China inventory independence"
+ ],
+ "n_observations": 38,
+ "open_tensions": [],
+ "refuted": [],
+ "timelines": {
+  "ladder_rank": [
+   {
+    "as_of": "2026-09-09",
+    "id": "6bb055b2297d",
+    "status": "live",
+    "text": "rank 2 (middle). Case against: 3.93% weight is 1.219x cap and rotation_bucket already flags trim_risk_cap; no return figure in this run's cache (return_coverag…",
+    "value": 2
+   },
+   {
+    "as_of": "2026-09-15",
+    "id": "c8a52984a67a",
+    "status": "live",
+    "text": "rank 1 (leader). Case against: Priced for it: ~95x FY26 non-GAAP EPS mid ($2.70), EV/EBITDA ~199x, +190% YTD, mean target $276.05 only +7.4% above $257.05; bet…",
+    "value": 1
+   }
+  ],
+  "proposal": [
+   {
+    "as_of": "2026-09-15",
+    "id": "de00482107c8",
+    "status": "live",
+    "text": "BUY $659.63 (cluster_rotation): cluster_rotation buy leg, ladder rank #1 but highest rate-sensitivity in cluster -- gated to as-priced/dovish FOMC outcome only.",
+    "value": "BUY"
+   }
+  ],
+  "thesis": [
+   {
+    "as_of": "2026-08-15",
+    "id": "7c1aa74858aa",
+    "status": "superseded",
+    "text": "STRENGTHENING: On-site fuel-cell power for AI datacenters; re-entered 2.75sh after a Q2 beat and raised guide",
+    "value": "strengthening"
+   },
+   {
+    "as_of": "2026-09-07",
+    "id": "a313748bf7e9",
+    "status": "live",
+    "text": "STRENGTHENING: unchanged",
+    "value": "strengthening"
+   },
+   {
+    "as_of": "2026-09-08",
+    "id": "608bc610d3e6",
+    "status": "live",
+    "text": "STRENGTHENING: Fuel-cell power generation for AI-datacenter and grid-power demand; AI Power/Cooling/DC Infra.",
+    "value": "strengthening"
+   }
+  ]
+ }
+}

@@ -1,605 +1,912 @@
 {
   "set": {
-    "factor_catalysts": [
-      {
-        "headline": "Bloom Energy analyst price-target raises: UBS to $325 from $300, Clear Street to $330 from $290, both Buy, both citing the S&P 500 addition",
-        "date": "2026-09-08",
-        "horizon": "structural",
-        "direction": "tailwind",
-        "affects": [
-          "BE"
+    "thesis": {
+      "ASML": {
+        "status": "watch",
+        "thesis": "Sole-source EUV lithography; the EUV moat is untouched by China's DUV progress.",
+        "evidence_for": [
+          {
+            "claim": "no new deterioration since the 2026-07-28 China-DUV dent; EPS estimates revised +20.4%",
+            "date": "2026-07-31",
+            "source": "smith-thesis news scan"
+          },
+          {
+            "claim": "BofA calls the selloff an overreaction; price recovered near highs",
+            "date": "2026-07-31",
+            "source": "smith-thesis news scan"
+          },
+          {
+            "claim": "China's DUV entry is real but tiny: 5 units in 2026 vs ASML's 131 immersion tools and 98.7% share; does not touch EUV",
+            "date": "2026-07-28",
+            "source": "smith-catalyst magnitude check"
+          },
+          {
+            "claim": "raised FY26 revenue guidance the SAME session it fell -6.16% -- today's price action is sentiment/multiple-compression (Amodei pacing essay + Fed hike-odds surge to 88.5%), not a fundamental read",
+            "date": "2026-09-14",
+            "source": "smith-signals 2026-09-14"
+          },
+          {
+            "claim": "Wave-1 (smith-catalyst) VERIFIED this run: MSFT/AMZN/GOOGL/ORCL combined 2026 capex guidance unchanged at ~$660-690bn since the Amodei essay published -- corroborates the 'sentiment/multiple-compression, not demand' read already applied to ASML",
+            "date": "2026-09-15",
+            "source": "out_catalyst.json 2026-09-15"
+          }
         ],
-        "exposure_pct_equity": 1.58,
-        "exposure_pct_book": 1.4,
-        "magnitude": "vs ~$265 Friday close (coordinator-supplied, not re-verified): UBS +22.6%, Clear Street +24.5% upside; raises were +8.3% and +13.8% vs prior targets. Both firms tied the raise to the inclusion (executed 09-21 open), so part of the target rationale is now spent; UBS's stated remaining leg is passive funds eventually owning 10-15% of shares outstanding (UBS estimate, not a disclosed holding). Two sell-side targets, not consensus",
-        "source": "https://www.investing.com/news/analyst-ratings/ubs-raises-bloom-energy-stock-price-target-to-325-on-s-p-500-add-93CH-4891098",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-08",
-        "last_confirmed": "2026-09-21",
-        "carried_forward": false
+        "evidence_against": [
+          {
+            "claim": "the structural China buildout is a MULTI-YEAR risk that is NOT resolved -- only un-escalated; scale rises to ~20 units in 2027",
+            "date": "2026-07-28",
+            "source": "smith-thesis 2026-08-10 prose (dropped from that run's tail)"
+          },
+          {
+            "claim": "status deliberately NOT upgraded to strengthening despite the improving tone",
+            "date": "2026-08-10",
+            "source": "smith-thesis 2026-08-10"
+          },
+          {
+            "claim": "compute_triggers.json's live catalyst_threat trigger applies the SAME 'CXMT ships HBM3E to Alibaba/Cambricon' reason to ASML as it does to MU -- that mechanism is a memory-ASP/competitive threat, not an EUV-tooling threat; ASML's actual China risk is the separate DUV-immersion-unit item above. The CXMT-HBM3E reason as applied to ASML is not established and should not be read as fresh evidence against the EUV thesis",
+            "date": "2026-09-14",
+            "source": "compute_triggers.json cross-check, smith-thesis"
+          }
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "Status unchanged. Wave-1 capex-guidance verification this run corroborates yesterday's sentiment/multiple-compression adjudication. No new status action; no precedent check run (no verdict moved).",
+        "reviewed_on": "2026-09-21"
       },
-      {
-        "headline": "Intel (exited) jumps 4.03% to $101.05 on Reuters report SK Hynix is in talks to make memory chips in the US, possibly leasing part of Intel's Ohio complex or a JV; no deal announced",
-        "date": "2026-09-16",
-        "horizon": "structural",
-        "direction": "tailwind",
-        "affects": [
-          "INTC"
+      "GEV": {
+        "status": "watch",
+        "thesis": "Hyperscaler grid/power-gen equipment (turbines + electrification), AI-DC power beneficiary; DOWNGRADED to WATCH 2026-09-14 -- GLJ Research initiated a Sell the SAME DAY GEV raised FY26 guidance, a genuinely mixed/contested signal, stacked on an existing trailing-NI quality flag",
+        "evidence_for": [
+          {
+            "claim": "Q2 FY26 operating income $655M +73% YoY on revenue $11.10B +22% YoY; net cash position; diluted shares -2.2% YoY",
+            "date": "2026-09-07",
+            "source": "smith-quality/yfinance quarterly financials"
+          },
+          {
+            "claim": "raised FY26 cash-flow/revenue guidance the same day as the Sell initiation -- fundamentals side of the mixed signal",
+            "date": "2026-09-14",
+            "source": "smith-signals 2026-09-14 (INDmoney news)"
+          },
+          {
+            "claim": "GLJ Research's $470 Sell PT is the Street's lowest and implies consensus sits well above it; the backlog-margin mechanism (fixed-price 2027-vintage turbine deliveries) is a single boutique's model, unconfirmed by any peer analyst or company disclosure -- an outlier call, not corroborated bearish consensus",
+            "date": "2026-09-15",
+            "source": "out_catalyst.json 2026-09-15"
+          }
         ],
-        "exposure_pct_equity": 0,
-        "exposure_pct_book": 0,
-        "magnitude": "talks only, no terms, capacity or timeline; Melius reiterated Buy with $165 target (~63% above $101.05) and $200 in two years, a single-firm view. Re-buy read: the news is a named foundry customer prospect, but INTC already ran to $101 (a $110 print was quoted 09-17), so a re-buy setup depends on price, not on this headline. Also touches held SKHY/MU only as the same Ohio-talks story already in the SK Hynix/Solidigm item",
-        "source": "https://finance.yahoo.com/markets/stocks/articles/stock-market-today-sept-16-212959692.html",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-16",
-        "last_confirmed": "2026-09-21",
-        "carried_forward": false
+        "evidence_against": [
+          {
+            "claim": "Trailing-4Q NI >5x trailing-4Q op income: Q1 FY26 10-Q shows pretax $5.10B vs op income $179M (a $4.92B non-operating gain that quarter) plus a Q4 FY25 $2.57B tax benefit",
+            "date": "2026-09-07",
+            "source": "SEC EDGAR XBRL, GEV 10-Q accn 0001996810-26-000064, via smith-quality"
+          },
+          {
+            "claim": "No insider buying observed in 60-day Form 4 scan",
+            "date": "2026-09-07",
+            "source": "SEC Form 4"
+          },
+          {
+            "claim": "GLJ Research initiated Sell rating 2026-09-14, same day as the guidance raise -- a genuine analyst-vs-fundamentals split, not resolved in either direction; stock -8.63% close, rel_sigma -1.06 vs XLU (PEER LAGGARD), day_atr_mult -1.79, new journal flag fired",
+            "date": "2026-09-14",
+            "source": "smith-signals 2026-09-14 (INDmoney news, CONFIRMED tag)"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "INDmoney news via smith-signals 2026-09-14 CONFIRMED tag",
+        "verified_on": "2026-09-14",
+        "note": "Status unchanged (WATCH). Wave-1 this run contextualizes GLJ as a single-shop outlier, which weakens that specific input, but the SEC-EDGAR-verified trailing-NI quality flag is the more durable, independent reason for WATCH and is untouched by this nuance -- net verdict stays WATCH, not re-upgraded. Precedent already cited 2026-09-14 (G75); not re-run since no new status change.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "Broadcom (exited): OpenAI first custom chip (Jalapeno) built with Broadcom; 1.3 GW deployment in 2027 with line of sight above 5 GW across first two generations; second-gen tape-out pending",
-        "date": "2026-09-10",
-        "horizon": "structural",
-        "direction": "tailwind",
-        "affects": [
-          "AVGO"
+      "CLS": {
+        "status": "strengthening",
+        "thesis": "EMS/AI ASIC builder; Q2 beat+raised guide, 08-06 -12.9% dilutive-offering hit was capital-structure not demand",
+        "evidence_for": [],
+        "evidence_against": [
+          {
+            "claim": "remains PEER LAGGARD vs SMH (rel_sigma -1.33, -17.0pp) despite today's book-wide rally",
+            "date": "2026-09-14",
+            "source": "smith-signals 2026-09-14"
+          },
+          {
+            "claim": "CFO/leadership transition (09-11) coincided with a +6.33% day but smith-catalyst found it not established as causal at that scale -- noise, not fundamental",
+            "date": "2026-09-11",
+            "source": "smith-catalyst 2026-09-14"
+          }
         ],
-        "exposure_pct_equity": 0,
-        "exposure_pct_book": 0,
-        "magnitude": "stock ~$364.38, -13.7% over the month (Simply Wall St, undated snapshot); AI revenue targets of $115bn FY27 / $230bn FY28 are analyst projections per the cited coverage, not company guidance I verified. Pullback plus a named customer ramp is a re-buy setup; the Amodei-driven multiple compression that hit AVGO (-4% on 09-14) is the counter-force. Broadcom's 09-02 Q3 report beat/miss NOT established here",
-        "source": "https://247wallst.com/investing/2026/09/10/openai-picked-broadcom-for-its-first-custom-ai-chip-the-race-for-number-two-just-got-dangerous/",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-10",
-        "last_confirmed": "2026-09-21",
-        "carried_forward": false
+        "verified": "secondary",
+        "verified_against": "SEC Form 4 filings + stockanalysis.com",
+        "verified_on": "2026-08-24",
+        "note": "Status unchanged; evidence_against populated for the first time.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "Vistra (exited 09-09) prices $850 million underwritten public equity offering",
-        "date": "2026-09-10",
-        "horizon": "structural",
-        "direction": "threat",
-        "affects": [
-          "VST"
+      "VRT": {
+        "status": "watch",
+        "thesis": "AI-datacenter power/cooling infra (UPS, thermal management); $26B revenue-by-2030 target, FY26 guide raised to $14B on 24% Q2 growth, $1.45B Utility Innovation Holdings acquisition announced 09-02",
+        "evidence_for": [
+          {
+            "claim": "Q2 2026 revenue +24% YoY, adj EPS +60%; FY26 guidance raised to $14B on AI-datacenter demand",
+            "date": "2026-08-18",
+            "source": "INDmoney get_us_stocks_details news"
+          },
+          {
+            "claim": "targeting $26B revenue by 2030; $1.45B acquisition of Utility Innovation Holdings to expand DC power offering",
+            "date": "2026-09-02",
+            "source": "INDmoney get_us_stocks_details news"
+          }
         ],
-        "exposure_pct_equity": 0,
-        "exposure_pct_book": 0,
-        "magnitude": "$850m vs ~$47.2bn market cap (snippet figure, undated) = ~1.8% dilution, far smaller than Corning's open-ended $2bn ATM; shares quoted ~$141.44 vs consensus target $217.42 (aggregator, unverified). Reason to wait for the offering overhang to clear, not a thesis break",
-        "source": "https://robinhood.com/us/en/stocks/VST/",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-10",
-        "last_confirmed": "2026-09-21",
-        "carried_forward": false
+        "evidence_against": [
+          {
+            "claim": "1 insider sold in last 60 days; no insider buying during drawdown",
+            "date": "2026-09-07",
+            "source": "SEC Form 4"
+          },
+          {
+            "claim": "-9.61% today, confirmed via live quote (not a cache artifact), with no dated catalyst found in a fresh news pull (latest item 09-08, positive) -- largest unexplained single-day drop in the book this run, 4.37% position",
+            "date": "2026-09-10",
+            "source": "INDmoney get_us_stocks_details live quote + news"
+          },
+          {
+            "claim": "already ~32% off its 2026 peak as of 08-28 despite that quarter's beat -- pre-existing distribution pattern, not new",
+            "date": "2026-08-28",
+            "source": "INDmoney news"
+          }
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "Status unchanged (genuinely mixed: real fundamentals vs. real unexplained weakness) -- no precedent-check gate applies since no status change made.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "Super Micro (exited 09-14): Goldman Sachs reiterates Sell 09-16; SMCI fell >7% in the 09-14 week AI-infrastructure selloff then rebounded ~3%",
-        "date": "2026-09-16",
-        "horizon": "noise",
-        "direction": "threat",
-        "affects": [
-          "SMCI"
+      "MRVL": {
+        "status": "strengthening",
+        "thesis": "Custom AI ASICs/networking silicon for hyperscalers; Q2 FY26 beat + guide_above_consensus, G44 interest-coverage scare resolved, but SBC/dilution trend and insider selling are new watch items",
+        "evidence_for": [
+          {
+            "claim": "Q2 FY26 EPS $0.94 beat $0.93 consensus; Q3 guide ~4% above consensus",
+            "date": "2026-09-07",
+            "source": "smith-earnings earnings_facts cache"
+          },
+          {
+            "claim": "OCF $605.5M vs NI $308.0M (1.97x); interest expense normalized to $81.4M (5.6x op-income coverage), confirming G44 resolution held",
+            "date": "2026-09-07",
+            "source": "yfinance quarterly financials via smith-quality"
+          }
         ],
-        "exposure_pct_equity": 0,
-        "exposure_pct_book": 0,
-        "magnitude": "counter-scale: FY26 revenue $39.1bn (+77.8%) and $60bn backlog per the cited coverage; stock ~$39.05 (52-wk $19.48-$58.78). A reiterated Sell is not a mechanism; no company-specific event found",
-        "source": "https://www.benzinga.com/markets/tech/26/09/61820795/super-micro-rebounds-3-after-this-weeks-ai-infrastructure-selloff",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-16",
-        "last_confirmed": "2026-09-21",
-        "carried_forward": false
+        "evidence_against": [
+          {
+            "claim": "Diluted shares +5.8% YoY (870.4M to 921.2M); SBC/revenue climbed 6.4%->8.6%->11.9% over 3 consecutive quarters",
+            "date": "2026-09-07",
+            "source": "yfinance quarterly financials via smith-quality"
+          },
+          {
+            "claim": "3 distinct insiders (Bharathi, Koopmans, CEO Murphy) sold in the last 60 days while stock is -32% off 52wk high -- not a formal sell-into-rally flag but a negative tell",
+            "date": "2026-09-07",
+            "source": "SEC Form 4"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "smith-earnings/smith-quality tails this run",
+        "verified_on": "2026-09-07",
+        "note": "Upgraded from status-only to full entry this run given material new findings.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "Meta (exited 09-10): Connect keynote Wed 09-23 (AI glasses); 09-18 coverage frames Meta becoming a cloud operator; 2026 capex guide is $125-145bn (raised at Q2)",
-        "date": "2026-09-18",
-        "horizon": "immediate",
-        "direction": "ambiguous",
-        "affects": [
-          "META"
+      "CIEN": {
+        "status": "strengthening",
+        "thesis": "Optical networking for AI-DC/telco backbone; FQ3'26 clean beat+raise resolves prior weak-guide overhang",
+        "evidence_for": [
+          {
+            "claim": "recent earnings beat and AI-related demand support robust cash-flow outlook; DCF suggests undervalued",
+            "date": "2026-08-13",
+            "source": "INDmoney news"
+          },
+          {
+            "claim": "FQ3 2026 revenue $1.67B beat $1.64B consensus; adj EPS $2.11 beat $1.73 consensus",
+            "date": "2026-09-03",
+            "source": "stockanalysis.com/stocks/cien"
+          },
+          {
+            "claim": "FY26 revenue guide raised to $6.42B (+/-$50M) vs prior $6.3B guide and $6.33B consensus",
+            "date": "2026-09-03",
+            "source": "stockanalysis.com/stocks/cien"
+          }
         ],
-        "exposure_pct_equity": 0,
-        "exposure_pct_book": 0,
-        "magnitude": "META $680.85 on 09-18, +25.2% in one month and +5.7% in the week, so a re-buy would be after a run, not a pullback; the Q2 capex raise (07-29) coincided with a ~10% one-day drop on free-cash-flow pressure (Fortune). Cloud-operator framing is a 24/7 Wall St headline/Zuckerberg hint, not a company announcement I verified. Meta capex is demand for the held semis chain (tailwind to the book), threat only to META's own FCF",
-        "source": "https://247wallst.com/investing/2026/09/18/meta-is-about-to-become-mega-cloud-operator/",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-18",
-        "last_confirmed": "2026-09-21",
-        "carried_forward": false
+        "evidence_against": [
+          {
+            "claim": "market multiples suggest expensive despite DCF signal; carries a prior 59% trim + weak FY guide vs AI PoC win",
+            "date": "2026-08-13",
+            "source": "INDmoney news"
+          },
+          {
+            "claim": "position remains 0.01% weight post-trim despite improved print",
+            "date": "2026-09-03",
+            "source": "holdings.json"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "stockanalysis.com/stocks/cien",
+        "verified_on": "2026-09-03",
+        "note": "Upgraded from watch. The 08-13 weak-guide claim is SUPERSEDED by the 09-03 raise but kept in the array, not dropped, per G58.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged",
-        "date": "2026-09-20",
-        "horizon": "structural",
-        "direction": "threat",
-        "affects": [
-          "MU",
-          "SKHY",
-          "ASML",
-          "AMAT",
-          "TER"
+      "QCOM": {
+        "status": "strengthening",
+        "thesis": "Diversifying from handsets into AI/datacenter CPUs and auto; 5.0008sh / 2.64% of equity. Friday's drop looks like handset-group profit-taking, not a thesis event, but the strengthening call now rests on 10-day-old partnership news.",
+        "evidence_for": [
+          {
+            "claim": "RBC price-target raise citing AI chip-partnership expansion",
+            "date": "2026-09-09",
+            "source": "smith-signals 2026-09-10 / INDmoney news"
+          },
+          {
+            "claim": "AWS partnership targeting $5B AI-chip revenue by FY27",
+            "date": "2026-09-08",
+            "source": "smith-signals 2026-09-10 / INDmoney news"
+          },
+          {
+            "claim": "Analyst mean target $193.90, ~9% above the $178.08 close, n=26 (thin upside)",
+            "date": "2026-09-18",
+            "source": "INDmoney via smith-signals"
+          }
         ],
-        "exposure_pct_equity": 26.03,
-        "exposure_pct_book": 23.2,
-        "magnitude": "trial/risk production only, no volume or yield disclosed; HBM4 already mass-produced by Samsung/SK hynix/Micron, so CXMT is one generation behind; mass production not before 2027. No HBM % figure cited (tracker HBM3E contract quote publication date 2026-07-12; freshness-illusion finding orchestrator:00ba4bd6c3 stands)",
-        "source": "https://en.sedaily.com/international/2026/09/20/chinas-cxmt-starts-mass-production-on-5th-generation-dram",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-20",
-        "last_confirmed": "2026-09-21",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "-5.6% to -5.8% on Friday (1.33x its 4.22% ATR) against SMH +2.21%, roughly an 8pp one-day divergence; 24/7 Wall St called it 'positioning-driven profit-taking' with no company announcement, and Skyworks/Qorvo slipped too (handset-chip group)",
+            "date": "2026-09-18",
+            "source": "smith-signals 2026-09-19 citing 24/7 Wall St 2026-09-18"
+          },
+          {
+            "claim": "Pre-existing handset headwinds (Apple modem transition, smartphone weakness) remain unresolved; 1 dated negative item on INDmoney 09-17",
+            "date": "2026-09-17",
+            "source": "smith-signals 2026-09-19"
+          }
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "Status held as strengthening: a one-day 1.33x ATR move with no company-specific news is noise per the thesis-vs-price rule. Downgrade to intact is a fair alternative if the peer gap persists next run; no status change made, so no gap-precedent check spent.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "CXMT announces G5 DRAM platform (11.95nm half-pitch) with two 24Gb LPDDR5X products in volume production; 9.5% global DRAM revenue share in Q2 (4th place)",
-        "date": "2026-09-20",
-        "horizon": "structural",
-        "direction": "threat",
-        "affects": [
-          "MU",
-          "SKHY"
+      "TER": {
+        "status": "strengthening",
+        "thesis": "Semicap automated test equipment geared to AI chip test volume; position is 5.0027sh / 5.02% weight (2026-09-14) -- NOT the dust position described in the stale 2026-08-19 open_flag, which appears superseded",
+        "evidence_for": [
+          {
+            "claim": "Q2 revenue >100% YoY, EPS $2.47 non-GAAP vs $2.05 consensus; Q3 guide well above consensus; CEO cited test demand 'from wafer to AI data center'",
+            "date": "2026-08-24",
+            "source": "SEC 8-K/10-Q + stockanalysis.com"
+          },
+          {
+            "claim": "TARGET GAP 25.3% upside, 12 analysts, mean target $446.47",
+            "date": "2026-09-14",
+            "source": "smith-signals 2026-09-14"
+          }
         ],
-        "exposure_pct_equity": 6.6,
-        "exposure_pct_book": 5.9,
-        "magnitude": "9.5% Q2 global DRAM revenue share vs ~90% held by Samsung/SK hynix/Micron; LPDDR5X mobile-class, not HBM or server DDR5; yield and monthly output undisclosed; node metric not comparable to rivals' 12nm-class naming; sedaily makes no mention of DUV/EUV/ASML, so a secondary outlet's 'built without ASML machines' framing is unverified and NOT carried as an ASML threat",
-        "source": "https://en.sedaily.com/international/2026/09/20/chinas-cxmt-starts-mass-production-on-5th-generation-dram",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-20",
-        "last_confirmed": "2026-09-21",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "-12.13% close today, STRONG DOWNTREND + unconfirmed MOMENTUM+VOLUME leg; no name-specific negative catalyst found in today's news scan -- sector-beta/Amodei-pacing-essay sentiment + Fed hike-odds compression (88.5% from 57%)",
+            "date": "2026-09-14",
+            "source": "smith-signals/smith-catalyst 2026-09-14"
+          },
+          {
+            "claim": "compute_triggers.json's live catalyst_threat trigger (TRIM, 20% fraction) is justified only by 'CXMT ships HBM3E to Alibaba/Cambricon' -- a memory-ASP threat mechanically carried onto a test-equipment name whose revenue is not memory-price-linked; linkage to TER's actual business is unestablished",
+            "date": "2026-09-14",
+            "source": "compute_triggers.json cross-check, smith-thesis"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "SEC 8-K/10-Q filings + stockanalysis.com (2026-08-24)",
+        "verified_on": "2026-08-24",
+        "note": "Status unchanged; evidence arrays populated per G58 (were empty despite a live catalyst_threat trigger and a Wave-1 sibling flag -- not allowed to stay empty). Weight correction flagged in data_quality, not a status-triggering event.",
+        "reviewed_on": "2026-09-21"
       },
-      {
-        "headline": "Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LITE +3%, GLW +3%); no program-usage disclosure found",
-        "date": "2026-09-18",
-        "horizon": "structural",
-        "direction": "threat",
-        "affects": [
-          "GLW",
-          "COHR",
-          "LITE"
+      "TSM": {
+        "status": "strengthening",
+        "thesis": "Foundry monopoly manufacturing leading-edge AI chips; July revenue +45% YoY reinforces pricing power narrative",
+        "evidence_for": [
+          {
+            "claim": "July revenue +45% YoY, trailing 7-month +37% YoY",
+            "date": "2026-08-15",
+            "source": "smith-catalyst 2026-08-16 scan (in-window item)"
+          },
+          {
+            "claim": "~25% AI-chip price hike planned",
+            "date": "2026-08-15",
+            "source": "smith-catalyst 2026-08-16 scan"
+          }
         ],
-        "exposure_pct_equity": 3.2,
-        "exposure_pct_book": 2.85,
-        "magnitude": "GLW -12% to $145.61 on 09-14; ATM sells gradually, realized dilution a fraction of $2bn; Q3 core sales guide $4.9-5.0bn intact; only a usage disclosure would re-escalate. Fri rebound recovers only part of the drop (not sized: no prints fetched)",
-        "source": "https://247wallst.com/investing/2026/09/18/lumentum-climbs-3-as-optics-buying-extends-coherent-rises-5-corning-jumps-3/",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-18",
-        "last_confirmed": "2026-09-21",
-        "carried_forward": true
+        "evidence_against": [],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "none found this run; not independently re-verified via stockanalysis.com this run, no status change",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex cut found through 09-20; sell-off described as sentiment against unchanged order book",
-        "date": "2026-09-20",
-        "horizon": "immediate",
-        "direction": "threat",
-        "affects": [
-          "MRVL",
-          "AVGO",
-          "ALAB",
-          "COHR",
-          "LITE",
-          "CIEN",
-          "GLW",
-          "APH",
-          "VRT",
-          "GEV",
-          "BE",
-          "ASML",
-          "KLAC",
-          "TSM",
-          "TER"
+      "MU": {
+        "status": "watch",
+        "thesis": "Memory (DRAM/HBM); WATCH is CXMT structural capacity risk, not ASP. New 09-20: CXMT G5 LPDDR5X volume output (mobile-class, not HBM/server DDR5) and HBM3E still trial-only with mass production guided 2027; MU HBM3E contract quote firm at $12.4/GB. FQ4 print 2026-10-01 is the next hard datapoint.",
+        "evidence_for": [
+          {
+            "claim": "HBM3E contract quote $12.4/GB and HBM4 $16.0/GB, tier1-corroborated; stack-derived HBM3E flat 0.0% within basis 2026-07-19 to 2026-09-15; no ASP erosion",
+            "date": "2026-09-20",
+            "source": "HBMTracker consumer_view.json"
+          },
+          {
+            "claim": "CXMT HBM3E is one generation behind (HBM4 already mass-produced by Samsung/SK hynix/Micron); no volume, yield or HBM share disclosed",
+            "date": "2026-09-20",
+            "source": "smith-catalyst out_catalyst.json (sedaily 2026-09-20)"
+          },
+          {
+            "claim": "Analyst mean target $1513.11, ~49% above $1017.75 close",
+            "date": "2026-09-18",
+            "source": "INDmoney via smith-signals"
+          }
         ],
-        "exposure_pct_equity": 60,
-        "exposure_pct_book": 53,
-        "magnitude": "AI Infrastructure basket -5.8% vs cybersecurity +13.2% on 09-14 (secondary source); SMH +2.21% pre-market 09-21 reverses part; reclassified structural->immediate as no capex mechanism; re-escalate only on a hyperscaler cut or Oct/Nov print citing pacing",
-        "source": "https://realinvestmentadvice.com/resources/blog/amodei-says-slow-down-trump-and-china-say-no/",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-20",
-        "last_confirmed": "2026-09-21",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "CXMT reported 9.5% of global DRAM revenue in Q2 (4th place) and now has G5 LPDDR5X in volume: share pressure on commodity/mobile DRAM is real, though not HBM",
+            "date": "2026-09-20",
+            "source": "smith-catalyst (sedaily 2026-09-20)"
+          },
+          {
+            "claim": "CXMT HBM3E qualification samples to Alibaba T-Head/Cambricon, mass production guided 2027 (structural, not yet in any contract print)",
+            "date": "2026-09-20",
+            "source": "smith-catalyst"
+          },
+          {
+            "claim": "HBM4 Vera Rubin share SK hynix 60-70%, Samsung 25-30%, MU residual: MU captures least of the ramp",
+            "date": "2026-06-05",
+            "source": "HBMTracker supply_structure"
+          }
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "Status unchanged (WATCH). No downgrade: CXMT items are unquantified on HBM and pricing is firm. Branch (c)/no_action tension. Not an upgrade either: 10-01 print pending and evidence_against grew (G5 volume). No precedent search since no verdict moved.",
+        "reviewed_on": "2026-09-21"
       },
-      {
-        "headline": "GLJ Research Sell on GEV ($470 PT): WEAKENED to idiosyncratic; VRT read-through unproven",
-        "date": "2026-09-14",
-        "horizon": "noise",
-        "direction": "threat",
-        "affects": [
-          "VRT",
-          "GEV"
+      "AMAT": {
+        "status": "strengthening",
+        "thesis": "Semicap deposition/etch equipment for AI chip fabs; +1sh bought 2026-09-18, now 4.0082sh / 5.27% of invested equity (src: holdings_trim, as_of 2026-09-18). Fundamentals intact on the August print; the near-term price story is a laggard catching up, not new evidence.",
+        "evidence_for": [
+          {
+            "claim": "Q3 revenue $9.12B beat $9.0B consensus, EPS $3.50 beat $3.39; Q4 guide $10.25B +/-$500M (reported quarter and guide both above the Street)",
+            "date": "2026-08-24",
+            "source": "SEC 8-K/10-Q + stockanalysis.com (verified secondary)"
+          },
+          {
+            "claim": "Analyst mean target $640.89, ~44% above the $443.75 close, n=28",
+            "date": "2026-09-18",
+            "source": "INDmoney via smith-signals analyst_targets_updates"
+          }
         ],
-        "exposure_pct_equity": 7.23,
-        "exposure_pct_book": 6.4,
-        "magnitude": "single-shop call, PT ~47% below spot; ~80% of covering analysts rate Buy; GEV fell ~8.6% on 09-14 (Eaton/Vertiv ~-7.6% same day amid AI-pacing sentiment, so not attributable to GLJ alone); no company guidance change found. Downgraded structural->noise for VRT",
-        "source": "https://finance.yahoo.com/markets/stocks/articles/ge-vernova-falls-8-6-172719200.html",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-14",
-        "last_confirmed": "2026-09-21",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "PEER LAGGARD persists: -12.55pp vs SMH over 1m (-1.39 sigma). Friday's +6.5% (1.61x ATR) was a sector catch-up bounce (SMH +2.2%, TER +4.9%, KLAC +4.8%), not name leadership",
+            "date": "2026-09-18",
+            "source": "smith-signals 2026-09-19"
+          },
+          {
+            "claim": "Live catalyst_threat TRIM trigger rests only on the carried-forward CXMT HBM3E reason; linkage to deposition/etch revenue remains unestablished",
+            "date": "2026-09-19",
+            "source": "compute_triggers.json cross-check"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "SEC 8-K/10-Q + stockanalysis.com",
+        "verified_on": "2026-08-24",
+        "note": "Status unchanged; weight/position text refreshed (the prior 3.864% figure is superseded). No status change so no gap-precedent check spent.",
+        "reviewed_on": "2026-09-21"
       },
-      {
-        "headline": "SK Hynix's Solidigm unit weighing a US NAND factory (upstate NY leading candidate), per Reuters sources; separate from SK Hynix-Intel Ohio memory talks",
-        "date": "2026-09-18",
-        "horizon": "tactical",
-        "direction": "ambiguous",
-        "affects": [
-          "SKHY",
-          "WDC",
-          "MU"
+      "AMD": {
+        "status": "watch",
+        "thesis": "GPU/CPU compute silicon, direct NVDA competitor; re-entered 2sh against the strategist's own 08-12 refusal, which remains unresolved",
+        "evidence_for": [
+          {
+            "claim": "Q2 rev $11.54B beat, EPS $1.66 beat, Data Center rev +107% YoY",
+            "date": "2026-08-04",
+            "source": "INDmoney news"
+          },
+          {
+            "claim": "~$5B investment-grade debt offering closed for AI/datacenter capex",
+            "date": "2026-08-14",
+            "source": "stockanalysis.com/stocks/amd"
+          }
         ],
-        "exposure_pct_equity": null,
-        "exposure_pct_book": null,
-        "magnitude": "'weighing' only: no capex, wafer capacity or timeline disclosed; new fab capacity takes years, so no supply effect inside any pricing window in the book's horizon. Reads as demand-confidence for NAND/SSD near term, a long-dated NAND-supply add for WDC/SNDK-type exposure later. Reuters-sourced, not company-confirmed.",
-        "source": "https://www.thestar.com.my/tech/tech-news/2026/09/18/sk-hynix039s-solidigm-unit-is-weighing-nand-memory-chip-factory-in-us-sources-say",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-18",
-        "last_confirmed": "2026-09-19",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "Q3 guidance read as guide_below_consensus",
+            "date": "2026-08-11",
+            "source": "INDmoney news"
+          },
+          {
+            "claim": "the ~$5B debt raise cuts both ways -- it funds the capex but levers the balance sheet",
+            "date": "2026-08-14",
+            "source": "stockanalysis.com/stocks/amd"
+          },
+          {
+            "claim": "re-entry contradicts the strategist's explicit 2026-08-12 decision not to re-add; strategist ruled HOLD/no-further-adds on 2026-08-15",
+            "date": "2026-08-15",
+            "source": "smith-strategist 2026-08-15"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "stockanalysis.com/stocks/amd",
+        "verified_on": "2026-08-14",
+        "note": "re-entered 2sh; prior status exited",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "Memory rally Thu 09-17 (MU +5.5%, SNDK +6.2%, SKHY +4.6%) extended Fri: no company-specific catalyst named; coverage credits Brent easing to ~$102.87 and 10y 'back below 5%', plus Intel-CEO memory-shortage remarks",
-        "date": "2026-09-17",
-        "horizon": "noise",
-        "direction": "tailwind",
-        "affects": [
-          "MU",
-          "WDC",
-          "SKHY"
+      "BE": {
+        "status": "strengthening",
+        "thesis": "Fuel-cell power generation for AI-datacenter and grid-power demand; AI Power/Cooling/DC Infra.",
+        "evidence_for": [
+          {
+            "claim": "true-peer rel_strength vs XLU is +9.24pp (positive), even though the raw PEER LEADER flag was a false SMH-fallback artifact and has been withdrawn",
+            "date": "2026-09-08",
+            "source": "smith-signals corrected rel_strength_1m_peer_updates"
+          }
         ],
-        "exposure_pct_equity": null,
-        "exposure_pct_book": null,
-        "magnitude": "rates leg NOT supported by primary print on Friday: market_inputs shows us10y 4.998 with +0.051pt on 09-18 (rose while SMH +2.21%), so cannot be Friday's driver (G81); Thursday sub-5% is a news paraphrase, unverified. Brent ~$102.87 is a press figure, not a primary print. Ties to the already-logged Brent Hormuz complex (~$107.5 on 09-16), easing not resolution.",
-        "source": "https://www.tipranks.com/news/why-are-ai-memory-stocks-micron-sandisk-and-sk-hynix-rising-in-pre-market-today-sept-18",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-17",
-        "last_confirmed": "2026-09-19",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "prior PEER LEADER signal-bucket label (rel_sigma vs SMH) was a data-quality artifact -- BE's true peer is XLU (utilities), not semis; do not cite the withdrawn SMH-relative claim as support going forward",
+            "date": "2026-09-08",
+            "source": "smith-signals data_quality"
+          }
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "upgraded to full text this run (gained a live signal bucket); status unaffected -- the strengthening case never cited the false flag.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental AI-infra selloff follows -- SMH closes +0.64% vs Monday's -4.75%, NDX -0.01%, SPX -0.45%, Dow -1.2% (broad-market laggard, not semis-led)",
-        "date": "2026-09-16",
-        "horizon": "immediate",
-        "direction": "ambiguous",
-        "affects": [
-          "TSM",
-          "ASML",
-          "TER",
-          "KLAC",
-          "MSFT",
-          "COHR",
-          "VRT",
-          "CLS",
-          "WDC",
-          "MU",
-          "GOOG"
+      "GLW": {
+        "status": "watch",
+        "thesis": "Optical fiber/connectivity and specialty glass for AI datacenter interconnect; DOWNGRADED to WATCH 2026-09-14 on a new $2B dilutive equity offering -- a real financing-structure catalyst, not sector beta",
+        "evidence_for": [
+          {
+            "claim": "Q2 core EPS +30%; Truist upgrade to Buy; +18% on the week; 15% polysilicon tariff tailwind; 19% sales CAGR guided through 2030",
+            "date": "2026-08-07",
+            "source": "INDmoney news"
+          }
         ],
-        "exposure_pct_equity": 100,
-        "exposure_pct_book": 89,
-        "magnitude": "SMH post-close +0.64% (545.56 vs prev close 542.11) same session as the hawkish decision -- relief that an already-priced event did not trigger a second leg down, not confirmation the financing-cost fear is resolved",
-        "source": "https://finance.yahoo.com/markets/live/stock-market-today-wednesday-september-16-dow-sp-500-nasdaq-fed-meeting-decision-080356525.html",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-16",
-        "last_confirmed": "2026-09-16",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "Q3 guide_below_consensus drove a pullback reported as '-50% from the June peak' -- single tier-2 source, magnitude UNCONFIRMED",
+            "date": "2026-07-28",
+            "source": "INDmoney news (tier2, unconfirmed)"
+          },
+          {
+            "claim": "$2B dilutive equity offering announced today, 2026-09-14 -- confirmed name-specific financing catalyst (not sector beta); stock -12.64% close, largest single-day drop in the book, 2.2x its 5.6% ATR",
+            "date": "2026-09-14",
+            "source": "INDmoney news via smith-signals (CONFIRMED tag), 2026-09-14"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "INDmoney news via smith-signals 2026-09-14 CONFIRMED tag",
+        "verified_on": "2026-09-14",
+        "note": "STATUS CHANGE strengthening->watch. Precedent check run (smith_math.py gaps, query 'dilutive equity offering') -- no artifact/measurement-basis precedent found (closest hit G51, an unrelated stop-cascade incident that also touched GLW); dilution read taken at face value, not discounted.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "Corning (GLW) $2bn at-the-market equity program with Goldman Sachs",
-        "date": "2026-09-14",
-        "horizon": "structural",
-        "direction": "threat",
-        "affects": [
-          "COHR"
+      "MSFT": {
+        "status": "strengthening",
+        "thesis": "Azure/OpenAI-linked hyperscaler capex spender; confirmed compute-capacity buildout to ~38GW by 2032 (>3x current) amid demand outstripping supply",
+        "evidence_for": [
+          {
+            "claim": "plans to triple datacenter capacity to ~38GW by 2032, reportedly turning away AI/cloud business on compute shortage",
+            "date": "2026-09-09",
+            "source": "stockanalysis.com/stocks/msft, corroborating smith-signals NEW TAILWINDS"
+          },
+          {
+            "claim": "averaged up 08-10 (+2.8% vs first entry), not averaging down, same window GOOGL was stopped out",
+            "date": "2026-08-10",
+            "source": "trades.json (carried forward)"
+          }
         ],
-        "exposure_pct_equity": 4.89,
-        "exposure_pct_book": 4.35,
-        "magnitude": "GLW -12-14% same session; optics-peer read-through to COHR (-11%) and LITE -- reaffirmed, unresolved per orchestrator:a76f6b6505",
-        "source": "https://247wallst.com/investing/2026/09/14/corning-tumbles-12-on-2b-at-the-market-equity-offering-coherent-sinks-11-lumentum-drops-9-fabrinet-slides-6/",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-14",
-        "last_confirmed": "2026-09-16",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "the '$90.01B Q4 revenue' figure in the 09-11 news headline is a RECYCLED FY26 Q4 print; next earnings is 2026-10-28, not a new beat",
+            "date": "2026-09-14",
+            "source": "stockanalysis.com verification"
+          },
+          {
+            "claim": "still no independent Azure segment valuation view",
+            "date": "2026-09-14",
+            "source": "smith-thesis"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "stockanalysis.com/stocks/msft",
+        "verified_on": "2026-09-14",
+        "note": "Upgraded from watch. Precedent check run (smith_math.py gaps, query 'demand exceeds supply capacity expansion no earnings event') -- top hits G58/G75, no direct precedent against this pattern.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "GE Vernova (GEV) initiated Sell by GLJ Research, $470 PT (Street-low)",
-        "date": "2026-09-14",
-        "horizon": "structural",
-        "direction": "threat",
-        "affects": [
-          "VRT"
+      "STM": {
+        "status": "watch",
+        "thesis": "Analog/industrial semis; Q2 beat but Q3 guide_below_consensus drove the selloff; peer-laggard flag has now resolved but guide-driven WATCH stands",
+        "evidence_for": [
+          {
+            "claim": "Q2 2026 revenue $3.49B beat $3.47B; EPS $0.31 beat $0.27",
+            "date": "2026-07-23",
+            "source": "stockanalysis.com/stocks/STM"
+          },
+          {
+            "claim": "long-standing PEER LAGGARD (opened 08-13) resolved, rel_sigma now -0.9, no longer crosses -1.0",
+            "date": "2026-09-14",
+            "source": "smith-signals 2026-09-14"
+          }
         ],
-        "exposure_pct_equity": 4.9,
-        "exposure_pct_book": 4.36,
-        "magnitude": "51% below GEV's 09-11 close of $957.27; citing 2027-vintage turbine margins; contested vs GEV's own guidance raise, still unresolved",
-        "source": "https://247wallst.com/investing/2026/09/14/ge-vernova-sinks-9-as-glj-research-starts-at-sell-with-470-target-eaton-drops-7-quanta-services-falls-4/",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-14",
-        "last_confirmed": "2026-09-16",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "Q3 guide $3.7B is guide_below_consensus vs Street $3.78B; stock -15-17% post-print",
+            "date": "2026-07-23",
+            "source": "stockanalysis.com/stocks/STM"
+          }
+        ],
+        "verified": "primary",
+        "verified_against": "stockanalysis.com/stocks/STM",
+        "verified_on": "2026-08-12",
+        "note": "Status unchanged; peer-laggard resolution does not flip the guide-driven WATCH.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate continues (Altman/Musk endorse, Burry/Sankar/Trump dismiss, Harris calls for legislation)",
-        "date": "2026-09-12",
-        "horizon": "structural",
-        "direction": "threat",
-        "affects": [
-          "MRVL",
-          "AVGO",
-          "ALAB",
-          "COHR",
-          "LITE",
-          "CIEN",
-          "GLW",
-          "APH",
-          "VRT",
-          "GEV",
-          "BE",
-          "ASML",
-          "KLAC",
-          "TSM",
-          "TER"
+      "GOOG": {
+        "status": "strengthening",
+        "thesis": "Alphabet Class C -- hyperscaler buying AI capex, demand-side link not a diversifier",
+        "evidence_for": [
+          {
+            "claim": "prior GOOG/GOOGL record: blowout 2Q26 print, strong cloud growth",
+            "date": "2026-07-28",
+            "source": "exited-holdings-archive.json (stale, context only)"
+          }
         ],
-        "exposure_pct_equity": 60,
-        "exposure_pct_book": 53,
-        "magnitude": "political/investor noise widened (Burry, Sankar, Trump, Harris) but no new stock-moving mechanism found this window; classification unchanged",
-        "source": "https://the-agent-report.com/2026/09/ai-development-brake-amodei-altman-2026/",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-12",
-        "last_confirmed": "2026-09-16",
-        "carried_forward": true
+        "evidence_against": [],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "no new earnings event this run; next print ~late Oct",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "CXMT reaches HBM3E risk production, ships qualification samples to Alibaba T-Head/Cambricon",
-        "date": "2026-09-01",
-        "horizon": "structural",
-        "direction": "threat",
-        "affects": [
-          "MU",
-          "EWY",
-          "ASML",
-          "LRCX",
-          "AMAT",
-          "TER"
+      "WDC": {
+        "status": "strengthening",
+        "thesis": "NAND/enterprise-SSD+nearline-HDD for AI datacenters; carve-out from HBM, judged on NAND/HDD",
+        "evidence_for": [
+          {
+            "claim": "FY26 Q4 beat, +45% YoY rev guided Q1FY27, strong AI/cloud storage demand, Citi PT $800",
+            "date": "2026-08-05",
+            "source": "stockanalysis.com/stocks/wdc"
+          }
         ],
-        "exposure_pct_equity": 21.25,
-        "exposure_pct_book": 18.9,
-        "magnitude": "~1 year ahead of 2027 consensus timeline; risk-production/qualification stage, not volume -- HBM tracker 43d stale, unverified against consumer_view.json this run",
-        "source": "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-01",
-        "last_confirmed": "2026-09-16",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "stock fell ~11% AH same day despite beat -- expectations priced in",
+            "date": "2026-08-05",
+            "source": "stockanalysis.com/stocks/wdc"
+          }
+        ],
+        "verified": "primary",
+        "verified_against": "SEC 8-K (press release) filed 2026-08-05 for Q4/FY26 earnings, plus 10-K filed 2026-08-14",
+        "verified_on": "2026-08-24",
+        "note": "FY26 revenue +36% YoY to $12.92B, Q4 +44% YoY; CEO Irving Tan on record: AI infrastructure buildout driving sustained data-storage demand. Upgraded secondary to primary per direct 8-K filing confirmation.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endorsed within 48hrs by OpenAI's Altman and xAI's Musk) is confirmed as the sentiment trigger for Monday's AI-infra repricing, but VERIFIED this run: no hyperscaler has moved capex guidance -- Microsoft/Amazon/Alphabet/Oracle 2026 capex remains locked at ~$660-690bn combined, unchanged since the essay published",
-        "date": "2026-09-14",
-        "horizon": "immediate",
-        "direction": "threat",
-        "affects": [
-          "MRVL",
-          "AVGO",
-          "ALAB",
-          "COHR",
-          "LITE",
-          "CIEN",
-          "GLW",
-          "APH",
-          "VRT",
-          "GEV",
-          "BE",
-          "ASML",
-          "KLAC",
-          "TSM",
-          "TER",
-          "AMAT",
-          "AMD",
-          "QCOM",
-          "MU",
-          "WDC",
-          "STM",
-          "CLS",
-          "GOOG",
-          "NBIS",
-          "AMZN",
-          "MSFT",
-          "NOW"
+      "KLAC": {
+        "status": "strengthening",
+        "thesis": "Semicap process-control/inspection (AI Semis/Fabs); position now 8sh (3.48%) after 09-09 add",
+        "evidence_for": [
+          {
+            "claim": "Q4 FY26 revenue $3.66B, non-GAAP EPS $1.05 at/above guidance high end; $7B buyback announced",
+            "date": "2026-07-28",
+            "source": "INDmoney news + stockanalysis.com/stocks/klac"
+          },
+          {
+            "claim": "Stifel raised PT $191->$270; consensus PT $231.78 (+28% upside), accelerating 2026-2027 growth guide",
+            "date": "2026-08-24",
+            "source": "INDmoney news + stockanalysis.com/stocks/klac"
+          }
         ],
-        "exposure_pct_equity": 100,
-        "exposure_pct_book": 77.47,
-        "magnitude": "Reclassified structural->immediate this run: essay is voluntary/rhetorical, zero capex cuts found anywhere. Coverage itself says the market is 'pricing the slowdown as cheap talk -- for now.' Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) still fell 1.7-2.5x SMH (-4.75%) -- sentiment/multiple-compression, not a demand cut. Reassess only if an Oct/Nov Q3 print references pacing-driven order changes.",
-        "source": "https://the-agent-report.com/2026/09/ai-development-brake-amodei-altman-2026/",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-14",
-        "last_confirmed": "2026-09-15",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "stock fell ~9.6% after-hours on the July 28 beat -- expectations-reset/valuation reaction, unresolved whether it recurs",
+            "date": "2026-07-28",
+            "source": "INDmoney news"
+          },
+          {
+            "claim": "pulled back -3.21% the day after the 09-09 add (now $182.91 vs $181.98 buy, essentially flat) -- continues the beat-but-sells-off pattern; no negative company news found",
+            "date": "2026-09-10",
+            "source": "INDmoney get_us_stocks_details"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "stockanalysis.com/stocks/klac + INDmoney news",
+        "verified_on": "2026-08-25",
+        "note": "Status unchanged; new pullback evidence added post-add.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 2026-09-11); GLW fell ~12-14% Monday with direct optics-peer contagion -- Coherent -11%, Lumentum -9%, Fabrinet -6% (not held)",
-        "date": "2026-09-14",
-        "horizon": "structural",
-        "direction": "threat",
-        "affects": [
-          "GLW",
-          "COHR",
-          "LITE"
+      "COHR": {
+        "status": "strengthening",
+        "thesis": "RECONCILED. Optical/photonics for AI datacenter interconnect. Q4 FY26 beat rev/EPS with guide raised above the beaten quarter; today's stop-out (3sh@$295, now 2.01% wt) reflects an unresolved GLW-driven optics-peer contagion, not a COHR-specific break.",
+        "evidence_for": [
+          {
+            "claim": "Q4 FY26 revenue $2.05B beat $2.025B consensus, EPS $1.74 beat $1.65 consensus; guided Q1 rev $2.2-2.4B/EPS $1.85-2.05, above the just-reported quarter",
+            "date": "2026-08-12",
+            "source": "stockanalysis.com/stocks/cohr"
+          },
+          {
+            "claim": "CEO cites AI-datacenter demand as outstanding, 7 consecutive quarters of record revenue",
+            "date": "2026-08-07",
+            "source": "INDmoney news"
+          }
         ],
-        "exposure_pct_equity": 9.21,
-        "exposure_pct_book": 7.46,
-        "magnitude": "ATM programs sell shares gradually and opportunistically, not $2bn upfront, so realized dilution will be a fraction of the headline over time -- but the stated purpose is 'general corporate purposes,' not a named project, which is what drove the -12-14% single-day reaction. Was one of the four items in Monday's desk narrative but had NOT yet been logged as its own catalyst; added this run. Peer contagion (COHR/LITE) is a read-through, not a COHR/LITE-specific fundamental event.",
-        "source": "https://247wallst.com/investing/2026/09/14/corning-tumbles-12-on-2b-at-the-market-equity-offering-coherent-sinks-11-lumentum-drops-9-fabrinet-slides-6/",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-14",
-        "last_confirmed": "2026-09-15",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "stop-out sold 3sh @$295 today, position cut 2.98%->2.01% wt, on a day the broad tape (SMH +2.57%) rallied -- COHR failed to fully participate",
+            "date": "2026-09-17",
+            "source": "holdings.json / INDmoney transaction"
+          },
+          {
+            "claim": "GLW's $2bn ATM equity program triggered an optics-peer read-through, COHR -11% same session; catalyst reaffirmed unresolved as of 2026-09-16",
+            "date": "2026-09-14",
+            "source": "247wallst.com via catalyst:9744ffb8fe"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "stockanalysis.com/stocks/cohr (earnings); INDmoney transaction record (stop-out)",
+        "verified_on": "2026-09-17",
+        "note": "Status unchanged (strengthening) -- no COHR-specific negative fact, only peer contagion + a mechanical stop. Precedent check not run (no status change).",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "GLJ Research (Gordon Johnson) initiates GE Vernova (GEV) at Sell, $470 price target -- 51% below the 09-11 close of $957.27 and described as the lowest target on Wall Street -- citing 2027-vintage turbine deliveries booked in 2024 pre-price-hikes (~3pp backlog margin vs 10-11pp on 2025-vintage shipping 2028); GEV fell ~9% Monday",
-        "date": "2026-09-14",
-        "horizon": "structural",
-        "direction": "threat",
-        "affects": [
-          "GEV"
+      "LITE": {
+        "status": "strengthening",
+        "thesis": "Optical/photonics for AI-datacenter interconnect (transceivers/ROADM); re-entered 2026-09-03 after 09-01 exit",
+        "evidence_for": [
+          {
+            "claim": "Q4 FY26 revenue $1.01B beat $987.7M consensus; EPS $3.23 beat $2.97 consensus",
+            "date": "2026-08-11",
+            "source": "stockanalysis.com/stocks/lite"
+          },
+          {
+            "claim": "Q1 FY27 guide >$1.25B rev / >39% op margin, above just-reported quarter",
+            "date": "2026-08-11",
+            "source": "stockanalysis.com/stocks/lite"
+          }
         ],
-        "exposure_pct_equity": 6.62,
-        "exposure_pct_book": 5.36,
-        "magnitude": "Single boutique shop's outlier call -- GLJ's $470 PT is the Street's lowest, implying consensus sits well above it -- against no confirmed change in GE Vernova's own guidance. The backlog-margin mechanism (fixed-price turbine orders signed before 2024 price hikes, shipping in 2027) is real and checkable, but is one analyst's model, not a company disclosure or a peer-corroborated view yet; not name-checked in this note: VRT/BE, GEV's Power/Cooling cluster-mates (16.82% of equity combined), so treat as idiosyncratic to GEV, not proven cluster-wide.",
-        "source": "https://247wallst.com/investing/2026/09/14/ge-vernova-sinks-9-as-glj-research-starts-at-sell-with-470-target-eaton-drops-7-quanta-services-falls-4/",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-14",
-        "last_confirmed": "2026-09-15",
-        "carried_forward": true
+        "evidence_against": [],
+        "verified": "secondary",
+        "verified_against": "stockanalysis.com/stocks/lite",
+        "verified_on": "2026-08-26",
+        "note": "none found this run. RE-ENTERED 2026-09-03 (0->1sh); prior status at exit was STRENGTHENING not watch/broken, so re-entry is consistent with the standing thesis, not a reversal of a bearish call. Exit rationale (why stopped 09-01 after ~1 day) is uncaptured in the record.",
+        "reviewed_on": "2026-09-20",
+        "held": true,
+        "exited": false
       },
-      {
-        "headline": "ServiceNow (NOW) +6.4% Monday as investors rotated from AI infrastructure into enterprise software (Adobe +4%, Salesforce also up) while SMH fell -4.75%; sell-side reframing NOW's own AI products (crossed $1bn annual contract value in Q2 2026) as a monetization leg, not just a safe haven",
-        "date": "2026-09-14",
-        "horizon": "immediate",
-        "direction": "tailwind",
-        "affects": [
-          "NOW"
+      "ALAB": {
+        "status": "strengthening",
+        "thesis": "PCIe/CXL connectivity+retimer silicon for AI-server interconnect (Scorpio family); Q2 beat on rev+EPS, Q3 guide well above consensus, but today's -5.98% (vs SMH -2.1%) has no name-specific explanation found on a 3-week-old, still-untested position.",
+        "evidence_for": [
+          {
+            "claim": "Q2 2026 revenue $392.4M beat $360.81M consensus; EPS $0.80 beat $0.69 consensus",
+            "date": "2026-08-05",
+            "source": "stockanalysis.com/stocks/alab"
+          },
+          {
+            "claim": "Q3 2026 guidance $540-560M rev / $1.16-1.21 EPS vs $417.02M/$0.81 consensus (guide_above_consensus); Scorpio X-Series entering volume production",
+            "date": "2026-08-05",
+            "source": "stockanalysis.com/stocks/alab + INDmoney news"
+          }
         ],
-        "exposure_pct_equity": 1.71,
-        "exposure_pct_book": 1.39,
-        "magnitude": "Answers the desk's rotation question directly, with a name and a mechanism (not just 'software felt safer'): NOW is the book's only toehold on this side of the trade at 1.71% of equity vs ~93pt combined AI-hardware/infra clusters (Semis/Fabs 33.2 + Networking/Optics 23.6 + Power/Cooling 16.8 + Hyperscaler OEM 3.8 + Memory 5.4). One session of relative strength is a signal, not proof of a durable rotation.",
-        "source": "https://ca.finance.yahoo.com/news/servicenow-jumps-6-4-ai-205808694.html",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-14",
-        "last_confirmed": "2026-09-15",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "-5.98% on 2026-09-01 vs SMH -2.1% (~3x beta); no ALAB-specific news found explaining the move, reads as high-beta amplification of a broad down day",
+            "date": "2026-09-01",
+            "source": "holdings.json day_chg_pct + stockanalysis.com/stocks/alab"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "stockanalysis.com/stocks/alab",
+        "verified_on": "2026-09-01",
+        "note": "First-ever thesis, brand-new position (5sh, 4.22% wt). Classified AI Networking/Optics (exact policy.json string) -- no dedicated PCIe/CXL-retimer cluster exists.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting)",
-        "date": "2026-09-14",
-        "horizon": "structural",
-        "direction": "threat",
-        "affects": [
-          "MRVL",
-          "AVGO",
-          "ALAB",
-          "COHR",
-          "LITE",
-          "CIEN",
-          "GLW",
-          "APH",
-          "VRT",
-          "GEV",
-          "BE",
-          "ASML",
-          "KLAC",
-          "TSM",
-          "TER",
-          "AMAT",
-          "AMD",
-          "QCOM",
-          "MU",
-          "WDC",
-          "STM",
-          "CLS",
-          "GOOG",
-          "NBIS",
-          "AMZN",
-          "MSFT",
-          "NOW"
+      "APH": {
+        "status": "strengthening",
+        "thesis": "High-speed interconnect for AI servers/datacenter; Communications Solutions ~62% of Q2-2026 net sales grew 42% organically (src: APH 10-Q qtr ended 2026-06-30, as_of 2026-07-31). Stand-alone IT-datacom share is not established in the filing.",
+        "evidence_for": [
+          {
+            "claim": "Communications Solutions ~62% of net sales, +42% organic y/y (+85% USD), driven by IT datacom, AI strength",
+            "date": "2026-07-31",
+            "source": "APH Form 10-Q accn 0001104659-26-089194"
+          },
+          {
+            "claim": "CommScope CCS acquisition (closed 2026-01-09) adds fiber-optic interconnect for IT datacom",
+            "date": "2026-01-09",
+            "source": "APH 10-Q via desk"
+          }
         ],
-        "exposure_pct_equity": 100,
-        "exposure_pct_book": 77.47,
-        "magnitude": "Voluntary essay + rhetorical endorsements only; no hyperscaler has cut 2026/27 capex guidance in response. Duration/multiple-sensitive names (MRVL -7%, AVGO -4%) fell 1.7-2.5x the SMH index move (-4.07%) while diversified hyperscalers (Compute/Hyperscaler cluster, +0.35%) were flat -- consistent with a sentiment/multiple-compression shock concentrated in AI Networking/Optics (-8.28% cluster) and Power/Cooling (-7.42%), not a broad or fundamental demand cut.",
-        "source": "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-14",
-        "last_confirmed": "2026-09-14",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "About half of the +85% USD growth is acquired (85% vs 42% organic), so headline growth overstates demand",
+            "date": "2026-07-31",
+            "source": "APH 10-Q"
+          },
+          {
+            "claim": "Segment includes non-datacom lines; IT-datacom share stand-alone not established",
+            "date": "2026-07-31",
+            "source": "APH 10-Q, desk"
+          },
+          {
+            "claim": "Acquisition funded by Delayed Draw Term Loans ($1,534.1M drawn under each per desk): added leverage, ratio unchecked",
+            "date": "2026-07-31",
+            "source": "APH 10-Q via desk"
+          },
+          {
+            "claim": "-5.78% close inside a -8.28% cluster de-rating on sentiment, no name-specific catalyst",
+            "date": "2026-09-14",
+            "source": "smith-signals/smith-catalyst"
+          }
+        ],
+        "verified": "primary",
+        "verified_against": "APH Form 10-Q, quarter ended 2026-06-30, accn 0001104659-26-089194 (via desk)",
+        "verified_on": "2026-09-21",
+        "note": "Restored to strengthening on primary evidence; supersedes the M2.3 intact revision. Leverage not independently checked this run.",
+        "reviewed_on": "2026-09-21"
       },
-      {
-        "headline": "KOSPI -3.26% (Samsung/SK Hynix -5 to -6.4%) on Fed-hawkish repricing (Warsh Jackson Hole address, 57% odds of a 25bp hike at Sept 15-16 FOMC) plus Strait of Hormuz oil spike (crude +3%, Saudi pipeline attack) and renewed 'AI-slowdown' sentiment -- broad macro risk-off, not a new memory-specific fundamental catalyst; directly reverses the 09-11 Waller-hold tailwind carried in factor_catalysts",
-        "date": "2026-09-14",
-        "horizon": "immediate",
-        "direction": "threat",
-        "affects": [
-          "MU",
-          "EWY",
-          "TSM",
-          "ASML",
-          "KLAC",
-          "AMAT",
-          "TER"
+      "AMZN": {
+        "status": "watch",
+        "thesis": "AWS hyperscaler AI-capex demand-side link (Compute/Hyperscaler cluster); +2sh bought 2026-09-18 into an existing WATCH, now 5sh / 3.77% of equity. WATCH rests on widening 1m peer underperformance, offset by confirmed partnership tailwinds.",
+        "evidence_for": [
+          {
+            "claim": "Qualcomm expanding AI datacenter partnership with Amazon",
+            "date": "2026-09-13",
+            "source": "stockanalysis.com/stocks/amzn"
+          },
+          {
+            "claim": "Amazon-OpenAI ad partnership",
+            "date": "2026-09-10",
+            "source": "stockanalysis.com/stocks/amzn"
+          },
+          {
+            "claim": "Analyst mean target $328.17, ~29% above the $254.15 close, n=40",
+            "date": "2026-09-18",
+            "source": "INDmoney via smith-signals"
+          }
         ],
-        "exposure_pct_equity": 29.9,
-        "exposure_pct_book": 23.2,
-        "magnitude": "KOSPI -3.26% vs book's memory/foundry-adjacent names; US10Y flat on the day (+0.031pts per market_inputs, no yield-shock print to cite) -- so the transmission is sentiment/oil/FOMC-odds, not a rates-print shock; Samsung+SKHY are ~35-40% of KOSPI index weight so a chip-specific readout is structurally amplified by index composition",
-        "source": "https://en.sedaily.com/finance/2026/09/14/kospi-falls-326-percent-to-close-at-668437",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-14",
-        "last_confirmed": "2026-09-14",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "PEER LAGGARD: -7.81pp vs XLK over 1m (-1.55 sigma), wider than the -3.30pp read on 09-14; Friday +1.2% = 0.54x ATR, so no catch-up yet",
+            "date": "2026-09-19",
+            "source": "smith-signals 2026-09-19"
+          },
+          {
+            "claim": "EU probe of seller price-parity restrictions (low magnitude, sub-threshold)",
+            "date": "2026-09-18",
+            "source": "INDmoney news via smith-signals"
+          },
+          {
+            "claim": "Buy added to a name still on WATCH the same run the peer gap widened: sizing ahead of thesis resolution (same pattern flagged on NBIS/AMD)",
+            "date": "2026-09-18",
+            "source": "holdings qty_changes + smith-thesis analysis"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "stockanalysis.com/stocks/amzn",
+        "verified_on": "2026-09-14",
+        "note": "Status unchanged (WATCH). Next earnings 2026-10-29. Not upgraded: the laggard gap widened and no new positive event appeared since 09-13.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI Networking/Optics cluster -6.25%) -- broad AI-capex-book de-rating tracking the same FOMC-hawkish + Hormuz-oil + AI-slowdown-sentiment complex as the Asia session, not a new optics-specific print (no COHR/LITE/CIEN-specific news found this scan)",
-        "date": "2026-09-14",
-        "horizon": "immediate",
-        "direction": "threat",
-        "affects": [
-          "COHR",
-          "ALAB",
-          "CLS",
-          "LITE",
-          "GLW",
-          "CIEN",
-          "MRVL",
-          "APH",
-          "VRT",
-          "GEV",
-          "BE"
+      "NOW": {
+        "status": "strengthening",
+        "thesis": "ServiceNow -- enterprise workflow/ITSM platform monetizing agentic-AI workflows; non-AI-capex satellite diversifier (Enterprise Software cluster)",
+        "evidence_for": [
+          {
+            "claim": "1-month return +6.07% vs true peer XLK -0.63% = +6.70pp outperformance, rel_sigma +0.515",
+            "date": "2026-09-14",
+            "source": "smith-signals 2026-09-14 peer correction"
+          },
+          {
+            "claim": "sequential analyst PT raises: BTIG to $170, Needham to $155",
+            "date": "2026-09-09/09-12",
+            "source": "stockanalysis.com/stocks/now"
+          }
         ],
-        "exposure_pct_equity": 100,
-        "exposure_pct_book": 77.47,
-        "magnitude": "index move (VIX +13.8%, NQ -1.84%) an order of magnitude smaller than per-name pre-market moves (VRT -6.4%, MRVL -7.5%, TER -6.2%) -- consistent with high-beta AI-capex names amplifying a macro risk-off day, not idiosyncratic per-name news",
-        "source": "https://en.sedaily.com/finance/2026/09/14/kospi-tumbles-33-percent-on-rate-oil-and-ai-slowdown-fears",
-        "invalidates_proposal": "09-11 Waller-hold tailwind proposal rationale is stale: Fed odds have since shifted hawkish per Warsh's Jackson Hole remarks",
-        "first_seen": "2026-09-14",
-        "last_confirmed": "2026-09-14",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "none found this run",
+            "date": "2026-09-14",
+            "source": "n/a"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "stockanalysis.com/stocks/now",
+        "verified_on": "2026-09-14",
+        "note": "NEW POSITION, first thesis. Earlier PEER LEADER flag (SMH fallback) corrected down to +6.70pp vs true peer XLK. Next earnings 2026-10-28.",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline",
-        "date": "2026-09-01",
-        "horizon": "structural",
-        "direction": "threat",
-        "affects": [
-          "MU",
-          "SKHY",
-          "EWY",
-          "ASML",
-          "LRCX",
-          "AMAT",
-          "TER"
+      "NBIS": {
+        "status": "watch",
+        "thesis": "Neocloud selling GPU capacity to hyperscalers, funded by floating-rate secured debt plus a $5B convert; RE-ENTERED 5sh on 2026-09-18 (3.29% of equity) after the 09-16 full exit forced by round-lot sizing on the rate-rotation sell leg. Prior WATCH (dilution and data-center concerns) is carried; nothing since resolves it.",
+        "evidence_for": [
+          {
+            "claim": "Q2 revenue +454% YoY to $582M, 2026 guidance reaffirmed",
+            "date": "2026-08-20",
+            "source": "INDmoney news (from exited-holdings archive)"
+          },
+          {
+            "claim": "Announced GPU price hike of up to 21% effective 2026-10-01",
+            "date": "2026-09-17",
+            "source": "INDmoney news via smith-signals"
+          },
+          {
+            "claim": "Analyst mean target $288.33 (INDmoney live) vs $222.23 close, n=10; the script cache still holds $280",
+            "date": "2026-09-18",
+            "source": "INDmoney via smith-signals"
+          }
         ],
-        "exposure_pct_equity": 8.425,
-        "exposure_pct_book": 8.425,
-        "magnitude": "risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json)",
-        "source": "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-01",
-        "last_confirmed": "2026-09-07",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "$5B convertible note closed; stock fell 14% on 08-19 on dilution concern",
+            "date": "2026-08-20",
+            "source": "INDmoney news (archive)"
+          },
+          {
+            "claim": "Undisclosed Vineland data-center issues and regulatory concerns, unresolved",
+            "date": "2026-08-13",
+            "source": "INDmoney news (archive)"
+          },
+          {
+            "claim": "Cluster mismatch (G98): NBIS sells capacity to MSFT/Meta and carries floating SOFR+2.50% secured debt, unlike the self-funded hyperscalers it is grouped with; ladder ranks it laggard in Compute/Hyperscaler",
+            "date": "2026-09-15",
+            "source": "known_gaps G98 + ladder:34b8da8413"
+          },
+          {
+            "claim": "Re-entered 2 days after a full exit with the WATCH unresolved: conviction ahead of thesis resolution",
+            "date": "2026-09-18",
+            "source": "holdings qty_changes + trades"
+          }
+        ],
+        "verified": "secondary",
+        "verified_against": "INDmoney news aggregation",
+        "verified_on": "2026-08-24",
+        "note": "New thesis-map entry (NBIS had dropped out of the live map on the 09-16 exit; carried from exited-holdings-archive). No new status change, so no gap-precedent check. Sector stays Compute/Hyperscaler per policy cluster names (G98 open).",
+        "reviewed_on": "2026-09-20"
       },
-      {
-        "headline": "CXMT DRAM share reaches ~10% domestically as Samsung's HBM capacity pivot vacates conventional-DRAM share",
-        "date": "2026-09-03",
-        "horizon": "structural",
-        "direction": "ambiguous",
-        "affects": [
-          "MU",
-          "SKHY",
-          "EWY"
+      "SKHY": {
+        "status": "watch",
+        "thesis": "SK hynix ADR; HBM4 Vera Rubin leader (60-70% share), 0.56% starter. CXMT HBM3E trial production is one generation behind and does not touch HBM4 leadership near-term; G5 output is LPDDR5X.",
+        "evidence_for": [
+          {
+            "claim": "HBM4 contract quote $16.0/GB is ~29% above HBM3E $12.4/GB, the premium SKHY captures most directly",
+            "date": "2026-09-20",
+            "source": "HBMTracker consumer_view.json"
+          },
+          {
+            "claim": "PEER LEADER +17.92pp vs SMH (+1.68 sigma) and STRONG UPTREND; target gap +32.9%",
+            "date": "2026-09-21",
+            "source": "smith-signals"
+          }
         ],
-        "exposure_pct_equity": 8.425,
-        "exposure_pct_book": 8.425,
-        "magnitude": "~10% domestic China DRAM share vs Samsung/SK Hynix/Micron controlling the large majority of global DRAM; consistent with, not incremental to, the already-logged HBM-crowds-out-DRAM mechanism (18%->30% of DRAM wafer input by end-2027 per TrendForce)",
-        "source": "https://www.techtimes.com/articles/326406/20260903/cxmt-hits-10-dram-share-samsungs-hbm-pivot-handed-china-market-vacancy.htm",
-        "invalidates_proposal": null,
-        "first_seen": "2026-09-03",
-        "last_confirmed": "2026-09-07",
-        "carried_forward": true
+        "evidence_against": [
+          {
+            "claim": "CXMT 9.5% Q2 global DRAM share plus HBM3E trial production with 2027 mass production guide; Samsung/Micron also passed HBM4 NVIDIA certification so 60-70% is a starting share, not a moat",
+            "date": "2026-09-20",
+            "source": "smith-catalyst; HBMTracker supply_structure 2026-06-05"
+          },
+          {
+            "claim": "Position remains an unreconciled fill (no INDmoney confirmation)",
+            "date": "2026-09-07",
+            "source": "prior run"
+          }
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "Status unchanged (WATCH); evidence arrays refreshed with 09-20 CXMT data.",
+        "reviewed_on": "2026-09-21"
       }
-    ]
+    }
   },
   "unset": [],
   "staged_by": [
     {
-      "by": "merge-tails:catalyst",
-      "utc": "2026-09-21T07:16:56Z"
+      "by": "merge-tails:thesis",
+      "utc": "2026-09-21T07:33:25Z"
     }
   ]
 }

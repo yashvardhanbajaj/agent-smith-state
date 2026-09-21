@@ -2838,6 +2838,51 @@ def _thesis_tiers(thesis, state, base_dir):
     return full, brief, open_tickers, flagged
 
 
+def _kb_memory_for(base, agent, state, rows, run_dir, today):
+    """The retrieved knowledge-base memory for one agent (2026-09-21): the most salient live observations about the
+    entities this agent works on, within its token budget (knowledge/config.json: default 5000, per-agent override)."""
+    try:
+        import smith_kb as K
+        kb = K.replay(K.read_events(base))
+        if not kb:
+            return {"note": "knowledge base is empty -- run `smith_math.py kb backfill`"}
+        held = [r.get("ticker") for r in rows if r.get("ticker")]
+        smap = state.get("sector_map") or {}
+        clusters = sorted({smap[t] for t in held if isinstance(smap.get(t), str)})
+        ents = [K.T(t) for t in held] + [K.C(c) for c in clusters]
+        key = agent
+        if agent.startswith("cluster_"):
+            cl = next((c for c in (state.get("cluster_ladders") or {}) if K.safe_name(c).lower().replace("_", "").find(agent[8:]) >= 0), None)
+            cl = cl or next((c for c in clusters if agent[8:] in K.safe_name(c).lower()), None)
+            members = [K.T(t) for t in held if smap.get(t) == cl] if cl else []
+            ents = ([K.C(cl)] if cl else []) + members + [K.entity_key("M", "desk")]
+        elif agent == "catalyst":
+            ents += [K.T(e["ticker"]) for e in catalyst_scope_extras(state, load_json(os.path.join(run_dir, "compute_universe.json"), default={}),
+                                                                     today.isoformat())["exited_names"]] + [K.entity_key("TH", "book-factor")]
+        elif agent == "scout":
+            ents = [K.entity_key("M", "macro"), K.entity_key("M", "desk")] + [K.T(c.get("ticker")) for c in
+                     ((state.get("diversifier_candidates") or {}).get("candidates") or []) if isinstance(c, dict) and c.get("ticker")]
+        else:
+            ents += [K.entity_key("M", "macro"), K.entity_key("M", "desk")]
+        trig = load_json(os.path.join(run_dir, "compute_triggers.json"), default={}) or {}
+        focus = set()
+        for v in trig.values():
+            if isinstance(v, list):
+                for r in v:
+                    if isinstance(r, dict) and r.get("vote") in ("live", "below_materiality") and r.get("ticker"):
+                        focus.add(K.T(r["ticker"]))
+        r = K.retrieve(kb, ents, K.budget_for(base, agent), today, focus=focus, cfg=K.load_config(base))
+        r["rule"] = ("Memory from earlier runs: each item has an id. USE it, do not re-derive it. Return in your tail: "
+                     "`memory_used` [ids you relied on], `memory_refuted` [{id, reason}] for any item you have evidence is now false "
+                     "(state the evidence), and `learned` [{entities:[TICKER|C:cluster], kind: fact|verdict|event|lesson, text, source, "
+                     "confidence: primary|secondary|unverified}] for what this run taught you that a future run should know. "
+                     "Confidence tiers are labelled: never treat an [unverified] memory as fact.")
+        r.pop("ids", None)
+        return r
+    except Exception as e:  # noqa: BLE001
+        return {"error": f"{type(e).__name__}: {e}"}
+
+
 def cmd_slices(args):
     """Render each agent's embed: small state inline, everything file-backed by reference."""
     base, rd = args.base_dir, args.run_dir
@@ -2952,6 +2997,7 @@ def cmd_slices(args):
                                        "that touches a name we no longer hold is still a catalyst: list exited tickers "
                                        "in `affects` (the reentry scorer reads them). Nothing retired is lost -- "
                                        "`recent_retired_catalysts` is what already left the live array and why.")
+        sl["memory"] = _kb_memory_for(base, agent, state, rows, rd, today_d)
         sl["read_these_files"] = {}
         # Persist the markers the NEXT run's domain check reads back. `_lots_digest` was read at
         # the top of this function but never actually written into any slice, so `lots_changed`

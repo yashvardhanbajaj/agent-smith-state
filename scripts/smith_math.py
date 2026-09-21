@@ -6194,6 +6194,50 @@ def cmd_archive_catalysts(args):
     emit({"archived": len(state["catalyst_archive"]) - before, "archive_size": len(state["catalyst_archive"])})
 
 
+def cmd_kb(args):
+    """Knowledge base tools: stats | show | timeline | query | harvest | backfill | rebuild (2026-09-21)."""
+    import smith_kb as K
+    import smith_kb_harvest as H
+    import smith_kb_backfill as B
+    base, today = args.base_dir, resolve_today(getattr(args, "today", None))
+    op = args.op
+    if op == "backfill":
+        rep = B.backfill_all(base, use_git=not args.no_git)
+        rep["pages"] = K.rebuild_pages(base, today)
+        emit(rep)
+        return
+    kb = K.replay(K.read_events(base))
+    if op == "stats":
+        by_kind, by_status, ents = {}, {}, {}
+        for o in kb.values():
+            by_kind[o["kind"]] = by_kind.get(o["kind"], 0) + 1
+            by_status[o["status"]] = by_status.get(o["status"], 0) + 1
+            for e in o["entities"]:
+                ents[e.split(":")[0]] = ents.get(e.split(":")[0], 0) + 1
+        emit({"observations": len(kb), "by_kind": by_kind, "by_status": by_status, "mentions_by_entity_type": ents,
+              "edges": len(K.graph(kb, today)), "budget_default_tokens": K.budget_for(base, "default")})
+    elif op == "show":
+        if not args.entity:
+            fail("--entity required (e.g. T:AVGO, C:AI Networking/Optics, M:macro)")
+        ent = args.entity if ":" in args.entity else K.T(args.entity)
+        r = K.retrieve(kb, [ent], args.budget or K.budget_for(base, "default"), today)
+        emit({"entity": ent, **r, "page": K.entity_page(kb, ent, today)})
+    elif op == "timeline":
+        ent = args.entity if ":" in args.entity else K.T(args.entity)
+        emit(K.entity_page(kb, ent, today)["timelines"])
+    elif op == "query":
+        emit({"hits": K.search(kb, args.text or "", today, limit=args.limit)})
+    elif op == "harvest":
+        run_dir = args.run_dir
+        run_id = os.path.basename(run_dir.rstrip("/"))
+        obs, files = H.harvest_run(base, run_dir, run_id, run_id[:10] or str(today))
+        rep = K.add_observations(base, obs, kb, reinforce=True)
+        rep.update(files=len(files), pages=K.rebuild_pages(base, today))
+        emit(rep)
+    elif op == "rebuild":
+        emit(K.rebuild_pages(base, today))
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -6296,6 +6340,16 @@ def main():
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--tail", required=True)
     sp.add_argument("--retired-on", default=None)
+    sp.add_argument("--today", default=None)
+    sp = sub.add_parser("kb", help="knowledge base: stats|show|timeline|query|harvest|backfill|rebuild")
+    sp.add_argument("op", choices=("stats", "show", "timeline", "query", "harvest", "backfill", "rebuild"))
+    sp.add_argument("--base-dir", default=DEFAULT_BASE)
+    sp.add_argument("--entity", default=None)
+    sp.add_argument("--text", default=None)
+    sp.add_argument("--run-dir", default=None)
+    sp.add_argument("--budget", type=int, default=None)
+    sp.add_argument("--limit", type=int, default=15)
+    sp.add_argument("--no-git", action="store_true")
     sp.add_argument("--today", default=None)
     sp = sub.add_parser("assign-cluster", help="point a ticker at a cluster (created implicitly)")
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
@@ -6756,7 +6810,7 @@ def main():
          "sentiment": cmd_sentiment, "validate": cmd_validate, "proposals": cmd_proposals,
          "freshness": cmd_freshness, "report": cmd_report, "runs": cmd_runs,
          "dismiss": cmd_dismiss, "add-proposal": cmd_add_proposal,
-         "set-cluster": cmd_set_cluster, "archive-catalysts": cmd_archive_catalysts, "confirm-policy": cmd_confirm_policy, "assign-cluster": cmd_assign_cluster,
+         "set-cluster": cmd_set_cluster, "kb": cmd_kb, "archive-catalysts": cmd_archive_catalysts, "confirm-policy": cmd_confirm_policy, "assign-cluster": cmd_assign_cluster,
          "reconcile-proposals": cmd_reconcile_proposals,
          "append-ledger": cmd_append_ledger, "merge-tails": cmd_merge_tails, "stops": cmd_stops,
          "score-shadow-journal": cmd_score_shadow_journal, "learn-status": cmd_learn_status,

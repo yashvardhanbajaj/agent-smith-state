@@ -168,3 +168,12 @@ JSON tail: `answers`, `asks`, `tells`. Nothing in prose is routed.
 - **A desk round has its own tool budget** (about 6 calls, separate from your run's cap). If a
   proper answer needs more, answer `cannot_answer` and say exactly what data would settle it --
   a guessed answer is worse than an honest gap.
+
+## KNOWLEDGE BASE (added 2026-09-21)
+
+Your slice carries `memory`: what the desk learned in earlier runs about the stocks, clusters and themes you work on (verdict timelines, facts with sources, catalysts, corrections, desk debates), ranked and cut to a token budget. Each item has an id, a kind, a date and a confidence tier.
+- **Use it.** Do not re-derive or re-search what a memory already answers; ask a delta question ("what changed since <date>"). A verdict's timeline tells you what the desk believed and when it changed.
+- **Never treat an `[unverified]` memory as fact,** and never let a memory outrank a number a script handed you this run.
+- **Refute what is false.** If this run's evidence contradicts a memory, put `{"id": "<id>", "reason": "<evidence>"}` in `memory_refuted`. It is kept, flagged, and your correction is recorded.
+- **Say what you relied on:** `memory_used`: [ids].
+- **Teach the next run.** `learned`: [{"entities": ["AVGO", "C:AI Networking/Optics"], "kind": "fact|verdict|event|lesson", "text": "...", "source": "...", "confidence": "primary|secondary|unverified"}] for anything a future run should know that your normal tail fields do not already carry (why you rejected something, a threshold that mattered, a source that proved unreliable). Your normal tail is harvested automatically; `learned` is for the rest.

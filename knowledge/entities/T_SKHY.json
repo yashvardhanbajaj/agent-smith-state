@@ -1,0 +1,139 @@
+{
+ "entity": "T:SKHY",
+ "live_facts": [
+  "[59538a2b2bd9] lesson SKHY (2026-09-20) [secondary]: [debate] thesis changed its position (M2.12, on The SKHY thesis rests on 60-70% HBM4 Vera Rubin allocation, but the same tracker record states HBM4 is the FIRST generat): Confirmed against supply_structure directly: 'all three vendors passed NVIDIA HBM4 certification for Vera Rubin -- the first HBM generation where all three qualified at the start of the ramp, unlike HBM3E where SK Hynix held an early nea…",
+  "[c94eb0f81dfd] event AMAT,ASML,MU (2026-09-20) [secondary]: THREAT/structural: CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged",
+  "[53a994fc02d8] event MU,SKHY (2026-09-20) [secondary]: THREAT/structural: CXMT announces G5 DRAM platform (11.95nm half-pitch) with two 24Gb LPDDR5X products in volume production; 9.5% global DRAM revenue share in Q2 (4th place)",
+  "[8bd1e725fc46] event MU,SKHY,WDC (2026-09-18) [secondary]: AMBIGUOUS/tactical: SK Hynix's Solidigm unit weighing a US NAND factory (upstate NY leading candidate), per Reuters sources; separate from SK Hynix-Intel Ohio memory talks",
+  "[005adad47019] event MU,SKHY,WDC (2026-09-17) [secondary]: TAILWIND/noise: Memory rally Thu 09-17 (MU +5.5%, SNDK +6.2%, SKHY +4.6%) extended Fri: no company-specific catalyst named; coverage credits Brent easing to ~$102.87 and 10y 'back below 5%', plus Intel-CEO memory-shortage remarks",
+  "[12eadf213a29] relation/pair MU,SKHY =redundant (2026-09-20) [secondary]: MU/SKHY: redundant -- Both are HBM4-qualified DRAM suppliers to the same customer (NVIDIA Vera Rubin) at the same generation; they share the single decisive axis and will move together on any HBM4 contract print or hyperscaler capex revision. (keep MU, drop None)",
+  "[91cf49f99e51] relation/pair MU,SKHY =distinct (2026-09-09) [secondary]: MU/SKHY: distinct -- both are DRAM/HBM merchant memory suppliers riding the same HBM pricing tailwind (keep both, drop none)",
+  "[2e7ab71215c4] fact AMAT,ASML,MU (2026-09-21) [secondary]: [catalyst] CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged -- magnitude: trial/risk production only, no volume or yield disclosed; HBM4 already mass-produced by Samsung/SK hynix/Micron, so CXMT is one generation behind; mass production not before 2027. No HBM % figure cited (tracker H…",
+  "[3e3c9a79cbf8] fact MU,SKHY (2026-09-21) [secondary]: [catalyst] CXMT announces G5 DRAM platform (11.95nm half-pitch) with two 24Gb LPDDR5X products in volume production; 9.5% global DRAM revenue share in Q2 (4th place) -- magnitude: 9.5% Q2 global DRAM revenue share vs ~90% held by Samsung/SK hynix/Micron; LPDDR5X mobile-class, not HBM or server DDR5; yield and monthly output undisclosed; node metric not comparable to rivals' 12nm-class naming; sedaily makes …",
+  "[0906274942cf] fact EWY,MU,SKHY (2026-09-21) [secondary]: [catalyst] CXMT G5 DRAM (LPDDR5X) now in volume production; 9.5% global DRAM revenue share Q2",
+  "[a09d9cb52e47] fact SKHY (2026-09-21) [secondary]: [thesis] watch -- SK hynix ADR; HBM4 Vera Rubin leader (60-70% share), 0.56% starter. CXMT HBM3E trial production is one generation behind and does not touch HBM4 leadership near-term; G5 output is LPDDR5X.",
+  "[28239ca061ce] fact SKHY (2026-09-20) [secondary]: [thesis] watch -- SK hynix ADR; HBM4 Vera Rubin leader (60-70% share). 1sh / ~0.56% is an UNRECONCILED fill -- unchanged from prior run.",
+  "[5ca1871c4068] fact SKHY (2026-09-19) [secondary]: [analyst targets] mean target None (n 11), gap None",
+  "[8aaafbb9d8da] fact MU,SKHY,WDC (2026-09-19) [secondary]: [catalyst] Memory rally Thu 09-17 (MU +5.5%, SNDK +6.2%, SKHY +4.6%) extended Fri: no company-specific catalyst named; coverage credits Brent easing to ~$102.87 and 10y 'back below 5%', plus Intel-CEO memory-shortage remarks -- magnitude: rates leg NOT supported by primary print on Friday: market_inputs shows us10y 4.998 with +0.051pt on 09-18 (rose while SMH +2.21%), so cannot be Friday's driver (G81); Thu…",
+  "[ab62f9efa5b3] fact MU,SKHY,WDC (2026-09-19) [secondary]: [catalyst] SK Hynix's Solidigm unit weighing a US NAND factory (upstate NY leading candidate), per Reuters sources; separate from SK Hynix-Intel Ohio memory talks -- magnitude: 'weighing' only: no capex, wafer capacity or timeline disclosed; new fab capacity takes years, so no supply effect inside any pricing window in the book's horizon. Reads as demand-confidence for NAND/SSD near term, a long-dated NAND-…",
+  "[e652fac7618d] fact SKHY (2026-09-19) [secondary]: [thesis] watch -- SK hynix ADR (name matches the holdings row); HBM leader (HBM4 Vera Rubin share 60-70%, src: HBMTracker supply_structure, as_of 2026-06-05). 1sh / 0.56% of equity is an UNRECONCILED fill (no INDmoney success confirmation; two limit buys were cancelled by email), so this entry does not treat it as a confirmed position.",
+  "[ac37b3587518] fact AMAT,ASML,EWY (2026-09-07) [secondary]: [catalyst] CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline -- magnitude: risk-production/qualification-stage volume only, not mass production; no unit count disclosed; not yet reflected in any supplier contract price (hbm_tracker.json)",
+  "[14ff81915e7c] fact EWY,MU,SKHY (2026-09-07) [secondary]: [catalyst] CXMT DRAM share reaches ~10% domestically as Samsung's HBM capacity pivot vacates conventional-DRAM share -- magnitude: ~10% domestic China DRAM share vs Samsung/SK Hynix/Micron controlling the large majority of global DRAM; consistent with, not incremental to, the already-logged HBM-crowds-out-DRAM mechanism (18%->30% of DRAM wafer input by end-2027 per TrendForce)",
+  "[53c3973c228d] fact SKHY (2026-09-06) [secondary]: [analyst targets] mean target None (n None), gap None",
+  "[d0ea536fa203] event DRAM,MU,SKHY (2026-09-04) [secondary]: TAILWIND/structural: Susquehanna: DRAM contract prices to rise >50% QoQ, NAND ~60% QoQ this quarter; Samsung warns of tightening memory supply; Dell earnings call flags NAND scarcity",
+  "[67d32696269e] event DRAM,EWY,MU (2026-09-04) [secondary]: TAILWIND/structural: Micron sold out cutting-edge memory capacity through late 2026; UBS raises HBM pricing-growth estimate to 79% annually; Dell's $95bn AI server backlog cited as proof hyperscalers are buying every available wafer",
+  "[28fd377fade1] event DRAM,MU,SKHY (2026-09-04) [secondary]: TAILWIND/structural: Susquehanna DRAM +50%+/NAND +60% QoQ contract-price claim -- CONFIDENCE DOWNGRADED: HBMTracker G8 flags this as tier-3-sourced and unverified, conflicting with TrendForce's own 4Q26 guide of +3-8% QoQ",
+  "[ede68004b2e8] fact SKHY (2026-08-31) [secondary]: [analyst targets] mean target None (n 10), gap None",
+  "[aa860d27df5f] event EWY,MU,SKHY (2026-09-03) [secondary]: AMBIGUOUS/structural: CXMT DRAM share reaches ~10% domestically as Samsung's HBM capacity pivot vacates conventional-DRAM share",
+  "[4fdb2ae3dfce] event AMAT,ASML,EWY (2026-09-01) [secondary]: THREAT/structural: CXMT reaches HBM3E risk production, shipping qualification samples to Alibaba T-Head and Cambricon -- ~1 year ahead of the 2027 consensus timeline"
+ ],
+ "n_observations": 83,
+ "open_tensions": [],
+ "refuted": [],
+ "timelines": {
+  "ladder_rank": [
+   {
+    "as_of": "2026-09-09",
+    "id": "93abece6fbea",
+    "status": "live",
+    "text": "rank 1 (leader). Case against: Highest beta in the entire 33-name book (2.442) and thinnest analyst coverage of the three (10 vs MU's 32); SK Hynix's HBM3E nea…",
+    "value": 1
+   },
+   {
+    "as_of": "2026-09-20",
+    "id": "cc6ae1d6c6f5",
+    "status": "live",
+    "text": "rank 1 (leader). Case against: The HBM4 round is the FIRST generation where all three vendors passed NVIDIA certification at ramp start -- SK hynix's HBM3E nea…",
+    "value": 1
+   }
+  ],
+  "proposal": [
+   {
+    "as_of": "2026-09-09",
+    "id": "530f27413aa4",
+    "status": "superseded",
+    "text": "TRIM $185.55 (catalyst_threat): Same CXMT catalyst; SKHY is memory-adjacent (SK Hynix-linked HBM exposure), a genuine competitive-threat name. Tension noted: S…",
+    "value": "TRIM"
+   },
+   {
+    "as_of": "2026-09-10",
+    "id": "bf5c9924a2b2",
+    "status": "superseded",
+    "text": "TRIM $198.63 (catalyst_threat): REFRESH of open P-251. Same CXMT catalyst_threat. SHARPEST TENSION of the six: SKHY rallied +7.05% today (BREAKOUT+STRONG UPTRE…",
+    "value": "TRIM"
+   },
+   {
+    "as_of": "2026-09-14",
+    "id": "ad1fc53e4cc1",
+    "status": "live",
+    "text": "BUY $306.16 (reentry): reentry, low conviction 21.8, 67% (n=9) track record tilt, exited 09-10",
+    "value": "BUY"
+   },
+   {
+    "as_of": "2026-09-20",
+    "id": "da87e5e6325a",
+    "status": "live",
+    "text": "SELL $56.37 (profit_rotation): Stretched, watch thesis, real profit to book.",
+    "value": "SELL"
+   }
+  ],
+  "thesis": [
+   {
+    "as_of": "2026-08-17",
+    "id": "4230ae83e8e7",
+    "status": "superseded",
+    "text": "WATCH: Direct SK Hynix ADR; down ~9.2% since 08-05 entry despite dominant 60-70% HBM4 Vera Rubin allocation -- price weakness is a measurement artifact/unresol…",
+    "value": "watch"
+   },
+   {
+    "as_of": "2026-08-20",
+    "id": "942db3a93939",
+    "status": "superseded",
+    "text": "STRENGTHENING: Direct SK Hynix ADS -- best-positioned name for the 2027 HBM4 ramp",
+    "value": "strengthening"
+   },
+   {
+    "as_of": "2026-08-25",
+    "id": "547b85c8390d",
+    "status": "superseded",
+    "text": "STRENGTHENING: Direct SK Hynix ADS -- best-positioned name for the 2027 HBM4 ramp; re-entered after being flagged stopped-out, now back at 2.11% weight.",
+    "value": "strengthening"
+   },
+   {
+    "as_of": "2026-09-10",
+    "id": "eb4f196d83f4",
+    "status": "superseded",
+    "text": "STRENGTHENING: SK Hynix direct position; leads HBM4 Vera Rubin allocation (60-70% share) vs Samsung 25-30% and Micron low-single-to-teens",
+    "value": "strengthening"
+   },
+   {
+    "as_of": "2026-09-19",
+    "id": "fa14a73d183d",
+    "status": "superseded",
+    "text": "WATCH: SK hynix ADR (name matches the holdings row); HBM leader (HBM4 Vera Rubin share 60-70%, src: HBMTracker supply_structure, as_of 2026-06-05). 1sh / 0.56%…",
+    "value": "watch"
+   },
+   {
+    "as_of": "2026-09-20",
+    "id": "e21c94e4b4a3",
+    "status": "superseded",
+    "text": "WATCH: evidence_against line added per M2.12 (cluster_memory); status unchanged (WATCH).",
+    "value": "watch"
+   },
+   {
+    "as_of": "2026-09-20",
+    "id": "ee4691ece27e",
+    "status": "live",
+    "text": "WATCH: SK hynix ADR; HBM4 Vera Rubin leader (60-70% share). 1sh / ~0.56% is an UNRECONCILED fill -- unchanged from prior run.",
+    "value": "watch"
+   },
+   {
+    "as_of": "2026-09-21",
+    "id": "da7502d36186",
+    "status": "live",
+    "text": "WATCH: SK hynix ADR; HBM4 Vera Rubin leader (60-70% share), 0.56% starter. CXMT HBM3E trial production is one generation behind and does not touch HBM4 leaders…",
+    "value": "watch"
+   }
+  ]
+ }
+}

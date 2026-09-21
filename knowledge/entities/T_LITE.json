@@ -1,0 +1,104 @@
+{
+ "entity": "T:LITE",
+ "live_facts": [
+  "[b2585b85ba25] event ALAB,APH,ASML (2026-09-20) [secondary]: THREAT/immediate: Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex cut found through 09-20; sell-off described as sentiment against unchanged order book",
+  "[7642d030f05a] event COHR,GLW,LITE (2026-09-18) [secondary]: THREAT/structural: Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LITE +3%, GLW +3%); no program-usage disclosure found",
+  "[90075d8e09f0] relation/pair COHR,LITE =redundant (2026-09-21) [secondary]: LITE/COHR: redundant -- Same binding component (200G/lane EML into 1.6T sockets), same end customers, same NVDA supply relationship, and they moved together through both legs of the September event -- -9%/-11% on the 09-14 GLW ATM contagion and +3%/+5% on the 09-18 rebound. No return series is cached so this is a business-grounds verdict, not a measured correlation. (keep LITE, drop COHR)",
+  "[b1e7af74a77c] relation/pair GLW,LITE =distinct (2026-09-21) [secondary]: LITE/GLW: distinct -- Labelled together as optics and they trade together on sector shocks, but active laser economics and passive fiber/glass economics are on opposite sides of the margin migration. GLW is a conviction question, not an overlap question. (keep LITE, drop None)",
+  "[4d2f283e3dfb] relation/pair COHR,LITE =redundant (2026-09-14) [secondary]: LITE/COHR: redundant -- Business grounds only, no correlation asserted: both are InP/EML laser suppliers to the same shortfall, both have $2B NVDA investments, and both make 1.6T pluggables and CPO light sources (keep LITE, drop COHR)",
+  "[145428c2e2f5] event ALAB,AMAT,ASML (2026-09-15) [secondary]: THREAT/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC sit at 84.1% as of 2026-09-14; SEP dot-plot lands alongside the decision Wed 09-16",
+  "[7d761501dc68] relation/pair COHR,LITE =redundant (2026-09-08) [secondary]: LITE/COHR: redundant -- Not correlation -- no return series is cached and none is asserted. On business grounds these are one position: both are InP/EML light-source suppliers levered to the same 30-40% shortfall, both build 1.6T pluggables, both supply CPO light sources, and both received a $2bn NVIDIA strategic investment in the same programme. Same constraint, same product, same anchor customer, same catalyst calendar. Together they are 4.76% of equity expressed twice. (keep LITE, drop COHR)",
+  "[9c2bf4fa700b] event ALAB,APH,BE (2026-09-14) [secondary]: THREAT/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI Networking/Optics cluster -6.25%) -- broad AI-capex-book de-rating tracking the same FOMC-hawkish + Hormuz-oil + AI-slowdown-sentiment complex as the Asia session, not a new optics-specific print (no COHR/LITE/CIEN-specific news found this scan)",
+  "[2333e45056f0] event ALAB,APH,ASML (2026-09-14) [secondary]: THREAT/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting)",
+  "[4f3e28f96677] event ALAB,AMAT,ASML (2026-09-14) [secondary]: THREAT/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, up from ~57% cited in the 09:29Z pre-market review, with Brent near $107/bbl sustaining the inflation-fear channel",
+  "[96934a892f71] event ALAB,APH,ASML (2026-09-14) [secondary]: THREAT/immediate: Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endorsed within 48hrs by OpenAI's Altman and xAI's Musk) is confirmed as the sentiment trigger for Monday's AI-infra repricing, but VERIFIED this run: no hyperscaler has moved capex guidance -- Microsoft/Amazon/Alphabet/Oracle 2026 capex remains locked at ~$660-690bn combined, unchanged since the essay published",
+  "[ca356a21f1bc] event COHR,GLW,LITE (2026-09-14) [secondary]: THREAT/structural: Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 2026-09-11); GLW fell ~12-14% Monday with direct optics-peer contagion -- Coherent -11%, Lumentum -9%, Fabrinet -6% (not held)",
+  "[69a46a20ed88] fact ALAB,AVGO,CIEN (2026-09-21) [secondary]: [catalyst] Amodei 'We Must Pace the Frontier' essay mapped as a structural threat across 15 names including all 7 optics members",
+  "[cdfabfbe3ee5] fact ALAB,AVGO,CIEN (2026-09-21) [secondary]: [catalyst] Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex cut found through 09-20; sell-off described as sentiment against unchanged order book -- magnitude: AI Infrastructure basket -5.8% vs cybersecurity +13.2% on 09-14 (secondary source); SMH +2.21% pre-market 09-21 reverses part; reclassified structural->immediate as no capex mechanism; re-escalate only on a hyperscaler…",
+  "[8eb937d3c938] fact COHR,GLW,LITE (2026-09-21) [secondary]: [catalyst] Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LITE +3%, GLW +3%); no program-usage disclosure found -- magnitude: GLW -12% to $145.61 on 09-14; ATM sells gradually, realized dilution a fraction of $2bn; Q3 core sales guide $4.9-5.0bn intact; only a usage disclosure would re-escalate. Fri rebound recovers only part of the drop (not sized: no prints fetched)",
+  "[2045c207f41e] event ALAB,APH,ASML (2026-09-12) [secondary]: THREAT/structural: Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate continues (Altman/Musk endorse, Burry/Sankar/Trump dismiss, Harris calls for legislation)",
+  "[f928f4763cb8] fact ALAB,AVGO,CIEN (2026-09-16) [secondary]: [catalyst] Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate continues (Altman/Musk endorse, Burry/Sankar/Trump dismiss, Harris calls for legislation) -- magnitude: political/investor noise widened (Burry, Sankar, Trump, Harris) but no new stock-moving mechanism found this window; classification unchanged",
+  "[f4ee2a07faaf] fact LITE (2026-09-16) [secondary]: [rebound candidate] macro-driven (peer contagion off GLW's ATM disclosure + Amodei-essay sentiment, thesis strengthening), but AI Networking/Optics cluster is at 23.41% vs 21% band top -- fully over cap, no room regardless of thesis.",
+  "[880f29091fcb] event ALAB,ASML,CLS (2026-09-11) [secondary]: TAILWIND/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC, easing hike-fear from hot August CPI -- broad relief rally across the entire risk-on book, not an AI-capex-specific tailwind",
+  "[d1d4846be80b] fact COHR,GLW,LITE (2026-09-15) [secondary]: [catalyst] Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 2026-09-11); GLW fell ~12-14% Monday with direct optics-peer contagion -- Coherent -11%, Lumentum -9%, Fabrinet -6% (not held) -- magnitude: ATM programs sell shares gradually and opportunistically, not $2bn upfront, so realized dilution will be a fraction of t…",
+  "[e559a921ffa4] fact ALAB,AVGO,CIEN (2026-09-15) [secondary]: [catalyst] Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endorsed within 48hrs by OpenAI's Altman and xAI's Musk) is confirmed as the sentiment trigger for Monday's AI-infra repricing, but VERIFIED this run: no hyperscaler has moved capex guidance -- Microsoft/Amazon/Alphabet/Oracle 2026 capex remains locked at ~$660-690bn combined, unchanged since the essay published -- magnit…",
+  "[71dde27e3e89] fact LITE (2026-09-15) [secondary]: [thesis] strengthening -- Optical/photonics for AI-datacenter interconnect (transceivers/ROADM); re-entered 2026-09-03 after 09-01 exit",
+  "[083019f8d689] fact LITE (2026-09-14) [secondary]: [analyst targets] mean target None (n 17), gap None",
+  "[8e3ec1c8c934] fact ALAB,CIEN,CLS (2026-09-14) [secondary]: [catalyst] US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI Networking/Optics cluster -6.25%) -- broad AI-capex-book de-rating tracking the same FOMC-hawkish + Hormuz-oil + AI-slowdown-sentiment complex as the Asia session, not a new optics-specific print (no COHR/LITE/CIEN-specific news found this scan) -- magnitude: index move (VIX +13.8%, NQ -1.84%) an order of magnitude s…",
+  "[830e580e1b97] fact ALAB,AVGO,CIEN (2026-09-14) [secondary]: [catalyst] Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) -- mag…"
+ ],
+ "n_observations": 53,
+ "open_tensions": [],
+ "refuted": [],
+ "timelines": {
+  "ladder_rank": [
+   {
+    "as_of": "2026-09-08",
+    "id": "7bfb09606be1",
+    "status": "superseded",
+    "text": "rank 1 (leader). Case against: No 1-month return is cached -- the position was re-entered 2026-09-03 one session after a 2026-09-01 exit whose rationale is unc…",
+    "value": 1
+   },
+   {
+    "as_of": "2026-09-14",
+    "id": "59b89d9a9709",
+    "status": "live",
+    "text": "rank 1 (leader). Case against: The $2B NVDA tie means single-customer concentration. The stock is already re-rated. ATR20 7.06% is the highest in the cluster, …",
+    "value": 1
+   },
+   {
+    "as_of": "2026-09-21",
+    "id": "250fd03d9d07",
+    "status": "live",
+    "text": "rank 1 (leader). Case against: Most-owned expression of the thesis and already the price leader (+12.48% 1m, rel_intra +10.20pp), so the sole-source fact is at…",
+    "value": 1
+   }
+  ],
+  "proposal": [
+   {
+    "as_of": "2026-09-01",
+    "id": "426041b426d4",
+    "status": "superseded",
+    "text": "BUY $382.01 (reentry): reentry: exited 2026-07-23 at $895.29, conviction score 47.1 (medium -- highest-conviction idea this run). Thesis strengthening (seconda…",
+    "value": "BUY"
+   },
+   {
+    "as_of": "2026-09-07",
+    "id": "abe0b425650f",
+    "status": "superseded",
+    "text": "BUY $214.81 (cluster_rotation): cluster_rotation buy leg (AI Networking/Optics): LITE performer +45.1pp vs SMH, strengthening thesis, conviction_score 55.8, ac…",
+    "value": "BUY"
+   },
+   {
+    "as_of": "2026-09-10",
+    "id": "b53e34800fb4",
+    "status": "live",
+    "text": "BUY $218.63 (cluster_rotation): REFRESH of open P-242. cluster_rotation buy leg, fully funded by the AVGO sell leg. Cluster performer (+45.1pp vs SMH), strengt…",
+    "value": "BUY"
+   },
+   {
+    "as_of": "2026-09-20",
+    "id": "e3a3d1bcfecc",
+    "status": "live",
+    "text": "BUY $135.09 (cluster_rotation): Cluster leader, strengthening thesis, STRONG UPTREND (+10.3pp vs benchmark), named by 8 independent sources this run.",
+    "value": "BUY"
+   }
+  ],
+  "thesis": [
+   {
+    "as_of": "2026-09-01",
+    "id": "733eb321f33c",
+    "status": "live",
+    "text": "STRENGTHENING: Optical/photonics components for AI-datacenter interconnect (transceivers/ROADM); AI Networking/Optics cluster.",
+    "value": "strengthening"
+   },
+   {
+    "as_of": "2026-09-03",
+    "id": "9d7ae9d020d3",
+    "status": "live",
+    "text": "STRENGTHENING: Optical/photonics for AI-datacenter interconnect (transceivers/ROADM); re-entered 2026-09-03 after 09-01 exit",
+    "value": "strengthening"
+   }
+  ]
+ }
+}
