@@ -1,0 +1,238 @@
+{
+ "mode": "full",
+ "session_read": {
+  "futures": {
+   "es_pct": 1.425,
+   "nq_pct": 2.54,
+   "_note": "SUSPECT: roughly double cash SPX +0.72% / NDX +1.22% and a wire report of futures +0.6%/+0.8%; likely a different reference price. Cash indices used for the read."
+  },
+  "cash": {
+   "spx_pct": 0.716,
+   "ndx_pct": 1.218,
+   "smh_pct": 2.04,
+   "vix": 14.91,
+   "us10y": 4.967,
+   "us10y_change_pts": -0.031
+  },
+  "asia": {
+   "nikkei_pct": 1.376,
+   "kospi_pct": 1.646,
+   "taiex_pct": 1.14,
+   "stoxx50_pct": 1.11,
+   "read": "All three Asia closes >1%: KOSPI +1.65% (memory: MU, SKHY, WDC), TAIEX +1.14% (TSM), Nikkei +1.38%. Already in the price: at 09:58 ET this is a live session, not a pre-open gap."
+  },
+  "gap_risk": [
+   "AI Networking/Optics (+3.95% cluster): LITE/COHR (~4.7% of book combined) trade as one bet (corr 0.843/0.891) after a chase-sized move.",
+   "Compute/Hyperscaler OEM +3.59% (CLS ~4.0%) and AI Memory/Storage +2.93% (MU 6.0%, SKHY, WDC): MU prints 2026-10-01, implied move 10.22%, so the memory bid runs into a binary.",
+   "TSM (8.83%) and semicap (ASML, AMAT, KLAC, TER, ~24% combined) carry China-policy headline risk this week from the Trump-Xi Washington summit (tariffs, critical minerals, AI); direction two-way, source is a wire preview only.",
+   "Narrow tape: Russell 2000 -0.5% while SPX +0.7%, tech leading; a rotation out of tech would hit the book with no non-AI offset."
+  ],
+  "headline_scan": [
+   "Oil: Brent down a 4th straight day (longest run in 3 months), which lowers the inflation-hike channel; XOM -2.3% on it.",
+   "Rates: Treasuries bid across the curve; 10-yr 4.967% (-3.1bp) but +27.1bp over a month, 3.3bp under the 5% line.",
+   "Single names (wire): Intel +6%, AMD +4% (AMD held, 1.75%), Dell +1%.",
+   "Trump-Xi summit in Washington this week: tariffs, critical minerals, AI."
+  ]
+ },
+ "sentiment_narrative": "Proxy gauge reads 76.6, extreme greed (prior run: extreme greed, so a persistent regime, not a fresh spike). It is driven by VIX at 14.91 (component 91.8, VIX 52w low is 13.47) and SPX 1.4% under its 52w high (94.3); 125dma, RSI 62 and the yield trend are only mildly warm. This is a proxy composite, not CNN's index, and it is not degraded. The action_hint is 'propose profit-booking on overweight/breach names': for this run that means the strategist may trim names already above cap into today's strength, sized by stock-moving criteria; it is not a call to de-risk the whole book or to time a top, because the gauge has sat in this band for consecutive runs. Options positioning disagrees with the greed read (put-heavy OI and flow on SPY/QQQ), so the market is hedged, not naked, which argues against a violent unwind but does not remove the 10-yr-through-5% risk.",
+ "fed_funds_pct": 3.875,
+ "fomc_stance": "hawkish",
+ "fomc_cache_update": null,
+ "fed_note": "cached, no FOMC meeting since last check (today is before next_check_date 2026-10-30). Range 3.75-4.00% after the 09-16 25bp hike, the first since 2023; the statement said inflation remained elevated and framed the hike as supporting a timelier return to 2%. 3.875% is the range midpoint. Web snippet puts ~51% odds on another 25bp in October (futures-implied, unverified against CME; prior desk digest said ~64% for Dec).",
+ "spy_pcr_oi": 1.222,
+ "spy_pcr_vol": 1.632,
+ "spy_max_pain": 761.0,
+ "qqq_pcr_oi": 1.341,
+ "qqq_pcr_vol": 2.647,
+ "qqq_max_pain": 716.0,
+ "options_note": "Nearest expiry in file is 2026-09-28 (only 09-28 and 09-29 are carried; no 09-25). SPY 767.42 is 0.84% above max-pain 761; QQQ 732.43 is 2.29% above 716, so both trade above the pin with mild downward gravity (a heuristic, weakest at 7 days out). Put/call is above 1 on both for OI (positioning) and volume (flow); flow is the more extreme (QQQ 2.65, 5.09 on the 09-29 expiry), i.e. protection being bought into the rally. Not complacency, despite VIX 14.9. pcr_vol is a partial-session count 28 minutes after the open. boundary_artifact false, no data_quality notes.",
+ "calendar": {
+  "next_fomc": "2026-10-28",
+  "next_cpi": "2026-10-14",
+  "next_nfp": "2026-10-02",
+  "earnings_season_window": false,
+  "inside_5_trading_days": [],
+  "note": "FOMC 10-28 re-verified today (decision 2:00 PM ET, no projections at the October meeting). CPI and NFP dates carried from the desk digest (reaffirmed 2026-09-21), not re-searched. Nothing scheduled inside 5 trading days; the unscheduled event is the Trump-Xi summit this week. First mega-cap print is MU 2026-10-01 (8 trading days), then ASML 10-14 / TSM 10-15; no window open."
+ },
+ "regime": "risk_on",
+ "regime_note": "Tape is risk-on: SPX +0.72%, NDX +1.22%, SMH +2.04%, VIX 14.9, oil and yields lower (10-yr -3.1bp), gate STABILIZING. Fragile, not clean: the Fed just hiked and leans hawkish, the 10-yr is 4.967% (+27bp in a month) and 3bp below the 5% line, breadth is narrow (Russell 2000 -0.5%), and the gauge is at extreme greed. Tilts the 09-21 07:02Z 'neutral' pre-open read to risk_on now that cash indices confirm; reverts to neutral on a 10-yr close above 5.0% or SMH giving back the day.",
+ "cluster_impact": {
+  "ai_capex_chain": "Bid. Optics +3.95%, OEM +3.59%, Memory +2.93%, Semis/Fabs +1.5%, on lower yields and Asia leadership. Concentration is the risk, not the direction: LITE/COHR are one bet, MU prints 10-01 (implied 10.22%), and the China summit can move TSM/semicap either way. Extreme greed plus a 75.9% AI-capex book supports profit-booking on breached names into strength.",
+  "rate_sensitive": "Relief is only 3bp. A 10-yr print through 5.0% with the hawkish Fed presses long-duration first: NOW (2.38%), NBIS (3.9%, floating-rate financed), ALAB, then BE and the AI power names; today software is only +1.85% vs semis, so they are not being chased.",
+  "defensives": "Lagging in a tech-led tape (UNH -0.4%, PG -0.2%, SO/DUK flat, NEM -0.9%, XOM -2.3%, LLY +0.9%, JNJ +1.3%). They hedge a rate or rotation shock, not an AI-capex unwind; utilities carry data-center-load and bond-proxy overlap. The book holds no clean diversifier, so the bench is the only offset."
+ },
+ "diversifier_candidates": {
+  "UNH": {
+   "price_usd": 375.42,
+   "target_usd": 475.23,
+   "upside_pct": 26.6,
+   "thesis": "Managed care, beta ~0.62; demand independent of AI capex; policy/medical-cost risk is its own factor. Clean.",
+   "status": "active",
+   "clean_diversifier": true,
+   "as_of": "2026-09-20"
+  },
+  "NEM": {
+   "price_usd": 122.32,
+   "target_usd": 139.04,
+   "upside_pct": 13.7,
+   "thesis": "Gold miner, beta 0.54; driven by gold/real yields, not AI capex. Clean; headwind from DXY 100.3 and a 4.97% 10-yr (real yields).",
+   "status": "active",
+   "clean_diversifier": true,
+   "as_of": "2026-09-20"
+  },
+  "LLY": {
+   "price_usd": 1162.76,
+   "target_usd": 1300.0,
+   "upside_pct": 11.8,
+   "thesis": "Pharma/GLP-1, beta 0.50; target raised post beat-and-raise. Clean; single-drug-class concentration risk.",
+   "status": "active",
+   "clean_diversifier": true,
+   "as_of": "2026-09-20"
+  },
+  "PG": {
+   "price_usd": 146.15,
+   "target_usd": 163.25,
+   "upside_pct": 11.7,
+   "thesis": "Staples ballast, beta 0.38. Clean; low upside, defensive.",
+   "status": "active",
+   "clean_diversifier": true,
+   "as_of": "2026-09-20"
+  },
+  "XOM": {
+   "price_usd": 159.77,
+   "target_usd": 173.42,
+   "upside_pct": 8.5,
+   "thesis": "Integrated oil major, direct Brent/WTI leverage, beta 0.175; hedges the oil-driven inflation channel. Clean; -2.3% today as Brent falls a 4th day; target 4 days old.",
+   "status": "active",
+   "clean_diversifier": true,
+   "as_of": "2026-09-17"
+  },
+  "SO": {
+   "price_usd": 85.58,
+   "target_usd": 100.29,
+   "upside_pct": 17.2,
+   "thesis": "Regulated SE utility, beta 0.32. PARTIAL diversifier: data-center load-growth narrative gives AI-capex adjacency; bond-proxy rate risk at a 5% 10-yr.",
+   "status": "active",
+   "clean_diversifier": false,
+   "as_of": "2026-09-20"
+  },
+  "DUK": {
+   "price_usd": 117.51,
+   "target_usd": 137.28,
+   "upside_pct": 16.8,
+   "thesis": "Regulated utility, beta 0.36. PARTIAL diversifier for the same reasons as SO (datacenter load narrative, rate sensitivity).",
+   "status": "active",
+   "clean_diversifier": false,
+   "as_of": "2026-09-20"
+  },
+  "JNJ": {
+   "price_usd": 273.37,
+   "target_usd": 238.2,
+   "upside_pct": -12.9,
+   "thesis": "Diversified pharma/medtech, beta 0.24; clean on correlation but consensus target below spot (-12.9%); exclude from new-cash proposals until re-underwritten.",
+   "status": "active",
+   "clean_diversifier": true,
+   "as_of": "2026-09-20"
+  },
+  "VST": {
+   "price_usd": 139.81,
+   "target_usd": 223.17,
+   "upside_pct": 59.6,
+   "thesis": "Merchant power gen, beta 1.41, AI-load adjacent; NOT a diversifier. Target 15d old (as_of 2026-09-06); yfinance still returns no target field (20 analysts, 19 buy/strong-buy, 1 strong-sell), so carried unchanged and stale.",
+   "status": "stale",
+   "clean_diversifier": false,
+   "as_of": "2026-09-06"
+  }
+ },
+ "bench_rank": [
+  "UNH",
+  "NEM",
+  "LLY",
+  "PG",
+  "SO",
+  "XOM",
+  "DUK",
+  "JNJ",
+  "VST"
+ ],
+ "data_quality": [
+  "ES/NQ futures pct (+1.425/+2.54) are roughly double cash SPX/NDX (+0.72/+1.22) and a wire report (+0.6/+0.8): reference-price mismatch likely; futures figures not used for the read.",
+  "Session is intraday (09:58 ET), so the 'implied open' task is replaced by a live read; put/call volumes are partial-session.",
+  "VST target unrefreshed: yfinance returns no target field for it (recommendations show coverage, 19 buy-side / 1 strong-sell); carried stale, flagged clean_diversifier false so it does not rank as a diversifier.",
+  "Bench refreshed in one batched price call; targets carried for 8 of 9 names (as_of <=4 days old); bench is 9 names, below the 12 ceiling. JNJ is at -12.9% upside.",
+  "Oct-hike odds (~51%) are a search-snippet figure, not CME-verified. CPI and NFP dates not re-searched this run.",
+  "fomc_cache next_check_date 2026-10-30 is two days past the 10-28 decision (agent spec says day after = 10-29); harmless.",
+  "Tool calls used: 6 of ~12."
+ ],
+ "comms": {
+  "answers": [],
+  "asks": [],
+  "tells": [
+   {
+    "to": "catalyst",
+    "ticker": null,
+    "fact": "A Trump-Xi summit in Washington this week is on the agenda for tariffs, critical minerals and AI; it is two-way headline risk for TSM, ASML, AMAT, KLAC and TER (~24% of book in semicap plus TSM 8.8%). Not seen in the prior-findings digest.",
+    "source": "Bloomberg/Yahoo Finance/TheStreet market wraps 2026-09-20/21 via web search",
+    "weight": "normal"
+   },
+   {
+    "to": "strategist",
+    "ticker": null,
+    "fact": "Options positioning contradicts the extreme-greed gauge: SPY/QQQ OI put/call 1.22/1.34 and flow 1.63/2.65 (QQQ 5.09 on the 09-29 expiry); both trade above max-pain (SPY +0.84%, QQQ +2.29%). Cash-tape regime is risk_on but hedged, 10-yr 3bp under 5%. Use for the stress table and for sizing any profit-booking.",
+    "source": "compute_options.json 2026-09-21T13:58Z; market_inputs.json",
+    "weight": "normal"
+   }
+  ]
+ },
+ "findings_reaffirmed": [
+  "macro:fomc",
+  "macro:calendar",
+  "orchestrator:a175ef0eec"
+ ],
+ "findings_revised": [
+  {
+   "id": "macro:regime",
+   "claim": "Regime risk_on (fragile): cash SPX +0.72%, NDX +1.22%, SMH +2.04%, VIX 14.91, 10-yr 4.967% (-3.1bp)",
+   "source": "market_inputs.json 2026-09-21T13:58Z",
+   "reason": "07:02Z pre-open read was neutral on futures; cash session confirms the bid and rates eased, though futures pct overstated the move"
+  }
+ ],
+ "memory_used": [
+  "8eeaea11e401",
+  "4fe39e1116b2",
+  "6bb4da54b8f1",
+  "ea3aa51a4f7a"
+ ],
+ "memory_refuted": [],
+ "learned": [
+  {
+   "entities": [
+    "M:macro"
+   ],
+   "kind": "fact",
+   "text": "Fed funds target 3.75-4.00% (midpoint 3.875%) after a 25bp hike on 2026-09-16, the first since 2023; next decision 2026-10-28 (no SEP), futures-implied October hike odds ~51% per a search snippet (unverified vs CME).",
+   "source": "web search FedRateCalc/Cambridge Currencies 2026-09-21",
+   "confidence": "secondary"
+  },
+  {
+   "entities": [
+    "M:macro",
+    "M:desk"
+   ],
+   "kind": "lesson",
+   "text": "market_inputs es_f/nq_f change_pct can be about 2x the cash index move intraday (09-21: ES +1.425 vs SPX +0.716; NQ +2.54 vs NDX +1.22; wires said +0.6/+0.8). Reference price likely differs; read the session from cash indices and smh_live, treat futures pct as suspect until the fetch's reference is checked.",
+   "source": "market_inputs.json vs web wraps 2026-09-21",
+   "confidence": "secondary"
+  },
+  {
+   "entities": [
+    "M:macro"
+   ],
+   "kind": "event",
+   "text": "2026-09-21 Trump-Xi summit set for Washington this week (tariffs, critical minerals, AI); Brent down 4 straight days; Russell 2000 -0.5% vs SPX +0.7% on 09-21 intraday.",
+   "source": "TheStreet/Yahoo Finance market wraps 2026-09-21",
+   "confidence": "secondary"
+  }
+ ],
+ "bench_rank_note": "upside x cleanliness (clean 1.0, partial 0.5); VST (AI-adjacent, stale target) and JNJ (negative upside) last"
+}

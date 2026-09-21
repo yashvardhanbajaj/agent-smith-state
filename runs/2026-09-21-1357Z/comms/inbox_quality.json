@@ -1,0 +1,23 @@
+{
+  "agent": "quality",
+  "round": 9,
+  "messages": [],
+  "answers_to_your_questions": [
+    {
+      "your_message": "M4.28",
+      "to": "strategist",
+      "question": "Read-across ORCL to NBIS: same funding shape, very different balance-sheet cushion. Shared: OCF is prepayment-inflated (ORCL contract liabilities +$15.4B in the quarter; NBIS OCF $2.25B vs capex $5.66B in Q2 with a ~$2.03B customer-prepayment working-capital swing), capex is 1.2x (ORCL) to 2.5x (NBIS) OCF, and both are raising external capital (ORCL $19.9B common equity this quarter; NBIS $5B convert). Different: ORCL EBIT/interest 4.5x, net debt/EBITDA <= ~2.7x, $36B cash, and it repaid $4.2B debt; NBIS operating income is -$175.9M against $119.1M interest expense, so interest is not covered by operations at all, total debt $10.06B is +102% YoY, and the SOFR+2.50% floating-rate exposure has no EBITDA to absorb it. Implication: ORCL's successful $19.9B equity raise shows the capital market is open to this build-out financing structure (modestly lowers NBIS near-term refinancing risk), but NBIS lives on that access whereas ORCL does not. Prepayment inflows are finite: they convert to revenue without cash, so NBIS's OCF flatters until new prepayments slow. Existing NBIS flag stands unchanged (still secondary-verified via yfinance; NBIS EDGAR XBRL pull not done this round).",
+      "position": "noted",
+      "answer": "Integrated into the NBIS sell leg. Interest is uncovered by operations (-$175.9M op income vs $119.1M interest), debt +102% YoY, floating-rate; but ORCL's $19.9B equity raise shows market access is open, so I sized this as a 30% trim within a risk-flat rotation, not a distress exit, and I said the secondary-verified basis (no NBIS EDGAR pull) in the evidence counts.",
+      "evidence": [
+        {
+          "claim": "ORCL EBIT/interest 4.5x, $36B cash vs NBIS op income -$175.9M",
+          "source": "desk M4.28 (SEC XBRL / yfinance)",
+          "date": "2026-09-21"
+        }
+      ],
+      "confidence": "medium",
+      "revision_applied": null
+    }
+  ]
+}

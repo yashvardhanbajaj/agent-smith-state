@@ -6,35 +6,36 @@
  },
  "entity": "T:NBIS",
  "live_facts": [
+  "[9bdabacf98fb] lesson NBIS,ORCL (2026-09-21): ORCL has no us-gaap total-debt tag: build gross debt from NotesPayableCurrent + LongTermNotesAndLoans (verify concept 'lt_debt' alias returns stale FY2022 zero). Use RepaymentsOfDebt and ProceedsFromIssuanceOfCommonStock for the funding mix. Capex-heavy prepayment-funded names (ORCL, NBIS): OCF/PAT is inflated by deferred revenue; judge by OCF ex change in contract liabilities and by EBIT/interest.",
+  "[4ee1c502e1d8] fact/thesis_evidence NBIS (2026-09-18 x2) [secondary]: [thesis evidence FOR] Analyst mean target $288.33 (INDmoney live) vs $222.23 close, n=10; the script cache still holds $280",
+  "[2c6bd1f94baf] fact/thesis_evidence NBIS (2026-09-18 x2) [secondary]: [thesis evidence AGAINST] Re-entered 2 days after a full exit with the WATCH unresolved: conviction ahead of thesis resolution",
+  "[eb80fd6a8d93] fact/thesis_evidence NBIS (2026-09-17 x2) [secondary]: [thesis evidence FOR] Announced GPU price hike of up to 21% effective 2026-10-01",
+  "[f26d7f3ff94d] event/proposal NBIS (2026-09-21) [secondary]: [proposal] SELL $406.42 (cluster_rotation): cluster_rotation SELL leg, paired with MSFT BUY (pair cluster_rotation-NBIS-MSFT; both legs retire together). TICKET: trim 1.8 of 6 sh NBIS (~$406, 30% of the position's own open risk) at ~$225.79 limit-or-better; a sell carries no stop -- it removes $50.56 of open risk (0.23R of the $215.95 R-base); horizon 10d, review 09-26, expires 10-01; 1.8 sh FIFO all short-term, no LTCG effect (prefer_ltcg off; ticket lots note). WHY NBIS: thesis WATCH, unresolved since 08-20 (dilution from the $5B convert, Vineland data-center issues, floating SOFR+2.50% secured debt), and the quality read (secondary-verified via yfinance, EDGAR pull not done) says operati…",
+  "[25772407c322] lesson Compute/Hyperscaler,MSFT,NBIS (2026-09-21) [secondary]: 2026-09-21 the only live rotation (NBIS sell / MSFT buy) was sourced from a Compute/Hyperscaler ladder dated 09-15 (6d old, medium, unscored) that ranks a neocloud against self-funded hyperscalers (G98); ladder_authority reads 'rank' although its scored calls all predate ENGINE_EPOCH and the semis ladder failed its first forward window. Proposed with an advisory label and thesis+quality as the real basis.",
+  "[0e1a01783ff9] event NBIS,ORCL,book-factor (2026-09-21) [secondary]: Oracle-leased Project Jupiter (NM) ~$18bn loans quoted 89-91c, syndication stalled on Oracle credit (FT/Reuters 09-18); no NBIS link sourced.",
   "[892e439c2f17] lesson NBIS (2026-09-16) [secondary]: [rebound excluded] thesis_blocked_watch",
+  "[2eed342cc54f] fact/thesis_evidence NBIS (2026-09-15 x2) [secondary]: [thesis evidence AGAINST] Cluster mismatch (G98): NBIS sells capacity to MSFT/Meta and carries floating SOFR+2.50% secured debt, unlike the self-funded hyperscalers it is grouped with; ladder ranks it laggard in Compute/Hyperscaler",
   "[f331aac2976a] event/proposal NBIS (2026-09-16) [secondary]: [proposal] SELL $316.66 (cluster_rotation): Cluster ladder ranks NBIS #4 of 4 in Compute/Hyperscaler. Contested, not clean: the draft's own case-against notes Google renting bridge capacity directly from NBIS, funded-capex coverage >100%, ~25% off ATH with a $280 target, and the cluster's highest snap-back beta into a dovish FOMC surprise. G98 (open gap: NBIS's floating-rate funding structure doesn't match the self-funding hyperscalers it's clustered with) further distorts this specific cluster comparison. NBIS live analyst-target fetch came back empty this run; cached $280 substituted. Weaker-conviction of the two pairs proposed this run.",
   "[ebf6477749cd] relation/pair MSFT,NBIS =distinct (2026-09-15) [secondary]: MSFT/NBIS: distinct -- Partial overlap: MSFT is an NBIS customer, so part of NBIS revenue is MSFT capex rented out. NBIS layers a financing and rate factor MSFT lacks. Carried from 09-14 and unchanged. (keep both, drop )",
   "[3e660e16f967] relation/pair MSFT,NBIS =distinct (2026-09-14) [secondary]: MSFT/NBIS: distinct -- Partial overlap only -- MSFT is an NBIS customer, so NBIS revenue is partly MSFT capex rented out; but NBIS adds financing/rate risk MSFT lacks (keep both, drop )",
   "[d84fb593fc36] relation/pair IREN,NBIS =distinct (2026-09-08) [secondary]: NBIS/IREN: distinct -- Both are GPU neoclouds whose equity is a levered call on the same AI-rental demand, both dependent on external financing (converts, GPU collateral, vendor capital), and both repriced by the same move in rates and AI-credit spreads -- a single CPI or FOMC print moves them together. But the financing STRUCTURE differs materially (vendor/asset-anchored vs convert-and-dilute) and counterparty disclosure differs, so they are not interchangeable. (keep IREN, drop NBIS)",
   "[8a260d0bc67a] event/proposal NBIS (2026-09-14) [secondary]: [proposal] SELL $134.73 (profit_rotation): profit_rotation: stretched cohort + watch thesis with majority-against evidence",
+  "[ba0004a2d8af] fact/thesis_evidence NBIS (2026-09-21) [secondary]: [thesis evidence AGAINST] Second add into an unresolved WATCH in four days (+1sh @225.81 today, only TARGET GAP +27.7% fired; signals: not a signals-driven add). Same add-ahead-of-resolution pattern flagged on AMZN 09-18 and AMD",
+  "[e4f4271120ac] fact NBIS,ORCL (2026-09-21) [secondary]: Read-across: NBIS shares ORCL's prepayment-inflated OCF and external-capital funding but has negative operating income (-$175.9M vs $119.1M interest expense, Q2 2026) versus ORCL's 4.5x cover and $36B cash; NBIS depends on capital-market access. NBIS XBRL not yet primary-verified.",
   "[55672036ba44] fact NBIS (2026-09-19) [secondary]: [thesis] watch -- Neocloud selling GPU capacity to hyperscalers, funded by floating-rate secured debt plus a $5B convert; RE-ENTERED 5sh on 2026-09-18 (3.29% of equity) after the 09-16 full exit forced by round-lot sizing on the rate-rotation sell leg. Prior WATCH (dilution and data-center concerns) is carried; nothing since resolves it.",
-  "[4ee1c502e1d8] fact/thesis_evidence NBIS (2026-09-18) [secondary]: [thesis evidence FOR] Analyst mean target $288.33 (INDmoney live) vs $222.23 close, n=10; the script cache still holds $280",
-  "[2c6bd1f94baf] fact/thesis_evidence NBIS (2026-09-18) [secondary]: [thesis evidence AGAINST] Re-entered 2 days after a full exit with the WATCH unresolved: conviction ahead of thesis resolution",
-  "[eb80fd6a8d93] fact/thesis_evidence NBIS (2026-09-17) [secondary]: [thesis evidence FOR] Announced GPU price hike of up to 21% effective 2026-10-01",
+  "[305ddccfcff1] fact/thesis_evidence NBIS (2026-09-18) [secondary]: [thesis evidence AGAINST] Read-across from ORCL: loans on an Oracle-leased ~$18B New Mexico data center quoted at 89-91c (Reuters via stockanalysis), and ORCL itself needed a ~$20B equity sale plus went to negative FCF -$5.4B; capacity-seller funding is being priced with a discount. NBIS-specific link not established; single secondary source",
   "[baebb4a678f5] fact NBIS (2026-09-16) [secondary]: [rebound candidate] no thesis entry; fall tracks the same Amodei pacing-essay AI-infra sentiment shock hitting MRVL/ALAB/optics cluster (reaffirmed catalyst:c1a6f6b205); no support level found below price (broken trend, ATR floor only) -- kept small despite macro read",
   "[9fcb9392b029] fact NBIS (2026-09-15) [secondary]: [orchestrator] NBIS is a floating-rate-funded neocloud (SOFR+2.50% facility, $5B convert) clustered with self-funding hyperscalers; it carries ~54% of Compute/Hyperscaler weight x ATR risk on a 3.2% weight. Cluster room/drift for that cluster is distorted until the user decides on a Neocloud split (G98).",
   "[662e7afc3e8f] fact NBIS (2026-09-15) [secondary]: [thesis] watch -- Neocloud AI-GPU infra provider; sized up 5->7sh then trimmed 7->5sh while dilution/data-center concerns remain unresolved",
-  "[2eed342cc54f] fact/thesis_evidence NBIS (2026-09-15) [secondary]: [thesis evidence AGAINST] Cluster mismatch (G98): NBIS sells capacity to MSFT/Meta and carries floating SOFR+2.50% secured debt, unlike the self-funded hyperscalers it is grouped with; ladder ranks it laggard in Compute/Hyperscaler",
   "[9d7c86c7c6b4] event/proposal NBIS (2026-09-10) [secondary]: [proposal] HOLD $0.0 (profit_ratchet): REFRESH of open P-254 (shadow profit_ratchet, not yet hit-rate validated per SOP 2c). Recommend raising the stop from $192.86 to $207.83 (breakeven) -- up +15.6% vs a $207.83 basis but the current stop sits below breakeven, putting $74.85 of gain at risk to a retracement. Bookkeeping, not a new directional call.",
   "[a54e498178ab] event/proposal NBIS (2026-09-09) [secondary]: [proposal] HOLD $0 (profit_ratchet): STOP_RAISE (no capital moved): NBIS +16.56% vs $209.23 basis but current stop $195.69 sits below breakeven. Coincides with over_cap (cap_multiple 1.108, trim_risk_cap bucket) and rank #2 in the de-risk queue (derisk_score 124.0). Shadow trigger (profit_ratchet), not yet hit-rate validated -- surfaced because it independently coincides with two computed breaches. Recommend raising stop to $209.23.",
-  "[a4a70173a38f] fact NBIS (2026-09-06) [secondary]: [quality flag] {\"finding\": \"Extreme capex/debt funding gap; NI volatility from one-off gains\", \"metric\": \"fcf_and_net_income_swing\", \"magnitude\": \"NI swung -$268.8M/+$621.2M/-$190.4M across 3 quarters; capex $5.66B vs $582M revenue; FCF -$3.41B\", \"evidence_for\": [{\"claim\": \"Total debt +102% YoY ($4.97B to $10.06B), interest expense +87% YoY, FCF -$3.41B latest quarter\", \"date\": \"2026-09-06\", \"source\": \"yfinance",
-  "[41d0df2401c3] fact NBIS (2026-09-06) [secondary]: [quality financials] {\"latest_period_end\": \"2026-06-30\", \"fetched_at\": \"2026-09-06\", \"quarters\": [{\"period_end\": \"2026-06-30\", \"revenue\": 582300000, \"ocf\": 2250000000, \"capex\": -5660000000, \"net_income\": -190400000, \"op_income\": -175900000, \"interest_expense\": 119100000, \"total_debt\": 10060000000, \"sbc\": 102500000, \"diluted_shares\": 280380000}, {\"period_end\": \"2026-03-31\", \"revenue\": 399000000, \"ocf\": 2260000000, \"capex\": -2470000000, \"net_income\": 621200000, \"op_in…",
-  "[e26355132ac9] tension NBIS (2026-09-21) [unverified]: [librarian] Case FOR (Google renting capacity, funded-capex coverage >100%) coexists with a laggard rank and SELL proposal (09-16); not resolved.",
-  "[d64d5f671880] fact/thesis_evidence NBIS (2026-08-20) [secondary]: [thesis evidence AGAINST] $5B convertible note closed; stock fell 14% on 08-19 on dilution concern",
-  "[5648a796dad5] fact/thesis_evidence NBIS (2026-08-13) [secondary]: [thesis evidence AGAINST] Undisclosed Vineland data-center issues and regulatory concerns, unresolved",
-  "[54f12156efb9] event NBIS (2026-08-14) [secondary]: TAILWIND/immediate: Nebius Q2 2026 revenue $582.3mn beats estimates, +454% YoY",
-  "[487e1864e90e] event NBIS (2026-08-12) [secondary]: TAILWIND/structural: Nebius Q2 2026 earnings beat: revenue $582.3M +454% YoY, adj. EBITDA turns positive $236.2M, ARR $3.0B (+58% QoQ), capacity target raised to 5GW for end-2026",
-  "[7bf657b2d096] event NBIS (2026-08-12) [secondary]: TAILWIND/structural: Nebius signs >$1bn multi-year compute-capacity deal with Reflection AI through 2029",
-  "[b58a2ad85af2] fact/signal NBIS (2026-09-16): [signals] PEER LAGGARD, TARGET GAP"
+  "[d64d5f671880] fact/thesis_evidence NBIS (2026-08-20 x2) [secondary]: [thesis evidence AGAINST] $5B convertible note closed; stock fell 14% on 08-19 on dilution concern",
+  "[a4a70173a38f] fact NBIS (2026-09-06) [secondary]: [quality flag] {\"finding\": \"Extreme capex/debt funding gap; NI volatility from one-off gains\", \"metric\": \"fcf_and_net_income_swing\", \"magnitude\": \"NI swung -$268.8M/+$621.2M/-$190.4M across 3 quarters; capex $5.66B vs $582M revenue; FCF -$3.41B\", \"evidence_for\": [{\"claim\": \"Total debt +102% YoY ($4.97B to $10.06B), interest expense +87% YoY, FCF -$3.41B latest quarter\", \"date\": \"2026-09-06\", \"source\": \"yfinance"
  ],
- "n_observations": 56,
+ "n_observations": 65,
  "open_tensions": [
-  "[e26355132ac9] tension NBIS (2026-09-21) [unverified]: [librarian] Case FOR (Google renting capacity, funded-capex coverage >100%) coexists with a laggard rank and SELL proposal (09-16); not resolved."
+  "[e26355132ac9] tension NBIS (2026-09-21) [unverified]: [librarian] Case FOR (Google renting capacity, funded-capex coverage >100%) coexists with a laggard rank and SELL proposal (09-16); not resolved.",
+  "[38896b478b27] tension NBIS (2026-09-21) [unverified]: [unresolved] {\"id\": \"M9.46\", \"to\": \"thesis\", \"ticker\": \"NBIS\", \"kind\": \"tell\", \"status\": \"expired\", \"question\": \"G98 is now decision-relevant: the only live rotation this run (NBIS SELL / MSFT BUY) rests partly on a Compute/Hyperscaler ladder that ranks a neocloud against self-funded hyperscalers. A Neocloud sub"
  ],
  "refuted": [],
  "timelines": {
@@ -100,8 +101,15 @@
    {
     "as_of": "2026-09-19",
     "id": "00cff17d1642",
-    "status": "live",
+    "status": "superseded",
     "text": "WATCH: Neocloud selling GPU capacity to hyperscalers, funded by floating-rate secured debt plus a $5B convert; RE-ENTERED 5sh on 2026-09-18 (3.29% of equity) a…",
+    "value": "watch"
+   },
+   {
+    "as_of": "2026-09-21",
+    "id": "1b431eaf1e3e",
+    "status": "live",
+    "text": "WATCH: Neocloud selling GPU capacity to hyperscalers, funded by floating-rate secured debt plus a $5B convert; position 6sh / 3.90% (src holdings_trim, as_of 2…",
     "value": "watch"
    }
   ]

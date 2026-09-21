@@ -1,0 +1,521 @@
+{
+ "comms": {
+  "answers": [
+   {
+    "id": "M3.11",
+    "position": "revised",
+    "answer": "No. QCOM has no quantified AI-datacenter revenue or backlog in a filing that I could find. A smith_edgar tag search for 'datacenter' on QCOM's XBRL returned zero concepts (tag-level only; I did not read the 10-Q text, accn 0000804328-26-000086). What exists is forward targets from management: data center revenue of $5B in FY27 and $15B in FY29, AI200 in mass-production scaling, AI250 sampling in 2027 (secondary call summaries). Against a ~$39.8B revenue run-rate (4 x $9.95B, computed) the FY27 target would be about 12.6% of revenue only if achieved. Q3 FY26 revenue was $9.95B, -4% y/y, with QCT Automotive+IoT +28% the only reported growth line. So the laggard rank is right and should not move up. I have also acted on it: QCOM goes from strengthening to INTACT because the strengthening case rested on forward news, not filed datacenter revenue.",
+    "evidence": [
+     {
+      "claim": "no datacenter XBRL concept on QCOM",
+      "source": "smith_edgar tags --ticker QCOM --match datacenter",
+      "date": "2026-09-21"
+     },
+     {
+      "claim": "$5B FY27 / $15B FY29 data center targets; AI200 mass-production scaling; Q3 FY26 revenue $9.95B -4% y/y",
+      "source": "KuCoin / Yahoo Q3 FY26 call summaries (secondary)",
+      "date": "2026-07-29"
+     }
+    ],
+    "confidence": "medium",
+    "revision": {
+     "thesis": {
+      "changed": {
+       "QCOM": {
+        "status": "intact",
+        "thesis": "Handset/auto/IoT chip company with a nascent AI-datacenter option (AI200 in mass-production scaling, AI250 sampling 2027); position 5.0008sh / 2.63% (src holdings_trim 2026-09-21). No filed datacenter revenue line yet: the AI story is a forward target, not reported revenue, so INTACT rather than STRENGTHENING.",
+        "evidence_for": [
+         {
+          "claim": "RBC price-target raise citing AI chip-partnership expansion",
+          "date": "2026-09-09",
+          "source": "smith-signals 2026-09-10 / INDmoney news"
+         },
+         {
+          "claim": "AWS partnership targeting $5B AI-chip revenue by FY27",
+          "date": "2026-09-08",
+          "source": "smith-signals 2026-09-10 / INDmoney news"
+         },
+         {
+          "claim": "AI200 has begun mass-production scaling; management targets data center revenue of $5B in FY27 and $15B in FY29 (company targets, not backlog or reported revenue)",
+          "date": "2026-07-29",
+          "source": "QCOM Q3 FY26 call summaries via Yahoo/KuCoin (secondary)"
+         },
+         {
+          "claim": "Q3 FY26 revenue $9.95B, -4% y/y but above the Zacks consensus $9.71B; non-GAAP EPS $2.21 vs $2.22 consensus (secondary; the reported quarter is a revenue beat and an in-line/slight EPS miss, forward guide not checked)",
+          "date": "2026-07-29",
+          "source": "KuCoin / Zacks summary (secondary)"
+         }
+        ],
+        "evidence_against": [
+         {
+          "claim": "-5.6% to -5.8% on Friday (1.33x its 4.22% ATR) against SMH +2.21%, roughly an 8pp one-day divergence; 24/7 Wall St called it 'positioning-driven profit-taking' with no company announcement, and Skyworks/Qorvo slipped too (handset-chip group)",
+          "date": "2026-09-18",
+          "source": "smith-signals 2026-09-19 citing 24/7 Wall St 2026-09-18"
+         },
+         {
+          "claim": "Pre-existing handset headwinds (Apple modem transition, smartphone weakness) remain unresolved; 1 dated negative item on INDmoney 09-17",
+          "date": "2026-09-17",
+          "source": "smith-signals 2026-09-19"
+         },
+         {
+          "claim": "Trump-Xi summit Thu 2026-09-24 (tariff truce runs to 11-10; chips export controls, rare earths, US-China AI dialogue on agenda): two-sided event risk for China-exposed names; consensus expects an incremental outcome with no meaningful export-control loosening; no control change is quantified in any source",
+          "date": "2026-09-21",
+          "source": "smith-catalyst out_catalyst.json 2026-09-21 (WEF preview; secondary)"
+         },
+         {
+          "claim": "Margin-pressure headline 09-17 and thin upside: mean target $194.13 (n=26), only about +6% above price",
+          "date": "2026-09-21",
+          "source": "smith-signals 2026-09-21 (INDmoney feed)"
+         },
+         {
+          "claim": "No quantified datacenter revenue is filed: a smith_edgar tag search for 'datacenter' on QCOM's XBRL returned zero concepts (document text of the 10-Q accn 0000804328-26-000086 not read, so this is a tag-level finding). The only figures are forward targets; $5B FY27 against a ~$39.8B run-rate (4 x $9.95B, computed) would be about 12.6% of revenue only if achieved",
+          "date": "2026-09-21",
+          "source": "smith_edgar tags QCOM (primary, tag-level) + secondary call summaries; ratio computed"
+         },
+         {
+          "claim": "Revenue is still handset-driven and shrinking y/y (-4%), with QCT Automotive+IoT +28% y/y the only reported growth line",
+          "date": "2026-07-29",
+          "source": "KuCoin / Yahoo Q3 FY26 summaries (secondary)"
+         }
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "REVISED strengthening -> INTACT in desk round 3 (M3.11). Basis: the strengthening case rested on forward partnership/target news; no filed datacenter revenue or backlog exists to justify STRENGTHENING. Precedent check run (smith_math.py gaps, 'forward target not reported revenue'): no relevant hit (G75 is a beat/miss mislabel, not this). Unverified vs the 10-Q text; verified tier stays unverified."
+       }
+      }
+     }
+    }
+   },
+   {
+    "id": "M3.15",
+    "position": "noted",
+    "answer": "Agreed and fixed: my TER thesis text still referred to a dust position (in the negative). Rewritten to 5.0027sh / 5.36% of invested equity (holdings_trim 2026-09-21), no dust framing. I am refuting memory item c9939d558b10 on that basis.",
+    "evidence": [
+     {
+      "claim": "TER 5.0027sh, 5.36% weight",
+      "source": "holdings_trim 2026-09-21",
+      "date": "2026-09-21"
+     }
+    ],
+    "confidence": "high",
+    "revision": {
+     "thesis": {
+      "changed": {
+       "TER": {
+        "status": "strengthening",
+        "thesis": "Semicap automated test equipment geared to AI chip test volume; position is 5.0027sh / 5.36% of invested equity (src holdings_trim, as_of 2026-09-21). Not a dust position (the stale 2026-08-19 flag is superseded).",
+        "evidence_for": [
+         {
+          "claim": "Q2 revenue >100% YoY, EPS $2.47 non-GAAP vs $2.05 consensus; Q3 guide well above consensus; CEO cited test demand 'from wafer to AI data center'",
+          "date": "2026-08-24",
+          "source": "SEC 8-K/10-Q + stockanalysis.com"
+         },
+         {
+          "claim": "TARGET GAP 25.3% upside, 12 analysts, mean target $446.47",
+          "date": "2026-09-14",
+          "source": "smith-signals 2026-09-14"
+         },
+         {
+          "claim": "Exposure check for the CXMT threat: Q2 2026 revenue $1.33B (+104% y/y); Semiconductor Test $1.12B (+128%) with compute-related SoC test up nearly 600% y/y; AI-driven revenue >60% of sales (CEO). Memory test $212M is only ~16% of revenue (computed $212M / $1.33B)",
+          "date": "2026-07-29",
+          "source": "Futurum / Investing.com / BigGo Q2 2026 summaries (secondary); ratio computed"
+         }
+        ],
+        "evidence_against": [
+         {
+          "claim": "-12.13% close today, STRONG DOWNTREND + unconfirmed MOMENTUM+VOLUME leg; no name-specific negative catalyst found in today's news scan -- sector-beta/Amodei-pacing-essay sentiment + Fed hike-odds compression (88.5% from 57%)",
+          "date": "2026-09-14",
+          "source": "smith-signals/smith-catalyst 2026-09-14"
+         },
+         {
+          "claim": "Live catalyst_threat TRIM rests only on the CXMT HBM3E reason. Mechanism read: it is a memory-ASP threat; TER's memory test line (~16% of revenue, +249% y/y on HBM/DRAM/NAND) would only be hit second-order via a memory capex cut, which needs an ASP decline the tracker does not show, and more memory producers are if anything more test demand. Residual: that 16% sleeve is the one that turns first in a memory downturn",
+          "date": "2026-09-21",
+          "source": "smith-thesis mechanism read; catalyst:2b516b39a1; Futurum Q2 2026 (secondary)"
+         },
+         {
+          "claim": "Trump-Xi summit Thu 2026-09-24 (tariff truce runs to 11-10; chips export controls, rare earths, US-China AI dialogue on agenda): two-sided event risk for China-exposed names; consensus expects an incremental outcome with no meaningful export-control loosening; no control change is quantified in any source",
+          "date": "2026-09-21",
+          "source": "smith-catalyst out_catalyst.json 2026-09-21 (WEF preview; secondary)"
+         },
+         {
+          "claim": "Q3 2026 guidance reportedly points to a sequential revenue decline after the record Q2 (one tier-2 summary, truncated; magnitude and comparison with consensus NOT verified, so not called guide_below_consensus)",
+          "date": "2026-07-29",
+          "source": "Finsee via X (tier-2, unverified)"
+         }
+        ],
+        "verified": "secondary",
+        "verified_against": "SEC 8-K/10-Q filings + stockanalysis.com (2026-08-24)",
+        "verified_on": "2026-08-24",
+        "note": "HELD strengthening in desk round 3 (M3.24); thesis text corrected for M3.15 (weight 5.36%, no dust framing). CXMT reason does not reach TER's compute-test core; the Q3 sequential-decline hint is unverified and recorded, not weighted."
+       }
+      }
+     }
+    }
+   },
+   {
+    "id": "M3.22",
+    "position": "held",
+    "answer": "AMAT stays strengthening. The threat's own stated basis is CXMT HBM3E trial production, one generation behind HBM4, mass production not before 2027, with no volume or yield disclosed. That is a memory-supplier price/share threat (MU, SKHY). It reaches AMAT only second-order: (i) a CXMT-driven memory price decline cutting DRAM capex at MU/SKHY/Samsung, which needs a within-basis ASP decline that the tracker does not show (HBM3E has no within-basis trend; cross-basis change is meaningless), or (ii) export-control retaliation, which is the separate 09-24 summit item and is already in evidence_against. Exposure figures: China was 28% of Q3 FY26 revenue vs 35% a year earlier, and DRAM revenue including HBM packaging was +52% y/y at a record; the reported quarter and the Q4 guide of $10.25B were both above the Street. Higher memory capacity anywhere is tool demand, not a cut to it. I do not treat the TRIM trigger as thesis evidence. The verdict would change on a within-basis HBM3E/DRAM contract decline or a tightening of SME controls at the summit.",
+    "evidence": [
+     {
+      "claim": "China 28% of Q3 FY26 revenue vs 35% a year earlier; DRAM incl. HBM packaging +52% y/y",
+      "source": "investing.com / BigGo / Yahoo AMAT Q3 FY26 call summaries (secondary)",
+      "date": "2026-08"
+     },
+     {
+      "claim": "CXMT HBM3E trial-only, mass production 2027, one generation behind HBM4",
+      "source": "catalyst:2b516b39a1 (sedaily 2026-09-20)",
+      "date": "2026-09-20"
+     },
+     {
+      "claim": "HBM3E: no within-basis trend, cross_basis_change_is_meaningless true",
+      "source": "HBMTracker consumer_view.json",
+      "date": "2026-09-20"
+     }
+    ],
+    "confidence": "medium",
+    "revision": {
+     "thesis": {
+      "changed": {
+       "AMAT": {
+        "status": "strengthening",
+        "thesis": "Semicap deposition/etch equipment for AI chip fabs; +1sh bought 2026-09-18, now 4.0082sh / 5.27% of invested equity (src: holdings_trim, as_of 2026-09-18). Fundamentals intact on the August print; the near-term price story is a laggard catching up, not new evidence.",
+        "evidence_for": [
+         {
+          "claim": "Q3 revenue $9.12B beat $9.0B consensus, EPS $3.50 beat $3.39; Q4 guide $10.25B +/-$500M (reported quarter and guide both above the Street)",
+          "date": "2026-08-24",
+          "source": "SEC 8-K/10-Q + stockanalysis.com (verified secondary)"
+         },
+         {
+          "claim": "Analyst mean target $640.89, ~44% above the $443.75 close, n=28",
+          "date": "2026-09-18",
+          "source": "INDmoney via smith-signals analyst_targets_updates"
+         },
+         {
+          "claim": "Exposure check for the CXMT threat: China was 28% of Q3 FY26 revenue vs 35% a year earlier, and DRAM revenue (incl. HBM packaging) was +52% y/y at a record; leading-edge logic, DRAM and packaging are ~80% of 2026-27 WFE growth per management. Print date listed 08-13 by BigGo vs 08-24 stored: unreconciled",
+          "date": "2026-08",
+          "source": "investing.com / BigGo / Yahoo call summaries (secondary)"
+         }
+        ],
+        "evidence_against": [
+         {
+          "claim": "PEER LAGGARD persists: -12.55pp vs SMH over 1m (-1.39 sigma). Friday's +6.5% (1.61x ATR) was a sector catch-up bounce (SMH +2.2%, TER +4.9%, KLAC +4.8%), not name leadership",
+          "date": "2026-09-18",
+          "source": "smith-signals 2026-09-19"
+         },
+         {
+          "claim": "Live catalyst_threat TRIM rests only on the CXMT HBM3E reason. Mechanism read: CXMT HBM3E is a memory-supplier ASP/share threat (MU, SKHY); AMAT's only channels are (i) a CXMT-driven memory price fall cutting MU/SKHY/Samsung DRAM capex, which needs a within-basis ASP decline that the tracker does not show (HBM3E has no within-basis trend; CXMT HBM3E is trial-only until 2027 and one generation behind HBM4), and (ii) export-control retaliation, which is the separate summit item above",
+          "date": "2026-09-21",
+          "source": "smith-thesis mechanism read; catalyst:2b516b39a1; HBMTracker consumer_view"
+         },
+         {
+          "claim": "Trump-Xi summit Thu 2026-09-24 (tariff truce runs to 11-10; chips export controls, rare earths, US-China AI dialogue on agenda): two-sided event risk for China-exposed names; consensus expects an incremental outcome with no meaningful export-control loosening; no control change is quantified in any source",
+          "date": "2026-09-21",
+          "source": "smith-catalyst out_catalyst.json 2026-09-21 (WEF preview; secondary)"
+         }
+        ],
+        "verified": "secondary",
+        "verified_against": "SEC 8-K/10-Q + stockanalysis.com",
+        "verified_on": "2026-08-24",
+        "note": "HELD strengthening in desk round 3 (M3.22): the CXMT reason does not reach AMAT's revenue, margin or thesis mechanism within the trial-only/2027 horizon; residual second-order capex channel and China-policy risk are recorded in evidence_against, not dismissed. Reassess if a within-basis HBM3E/DRAM contract decline appears or the 09-24 summit tightens SME controls."
+       }
+      }
+     }
+    }
+   },
+   {
+    "id": "M3.24",
+    "position": "held",
+    "answer": "TER stays strengthening. TER's revenue is not memory-price-linked in the way the threat assumes: Q2 2026 revenue was $1.33B (+104% y/y), Semiconductor Test $1.12B (+128%), compute-related SoC test up nearly 600% y/y, AI-driven revenue above 60% of sales. Memory test was $212M, about 16% of revenue (computed), so even a full memory-cycle hit would touch a minority sleeve, and only via a memory capex cut, which needs an ASP decline that is not in the tracker; CXMT trial output is one generation behind and not before 2027. More memory producers is more test demand, not less. Residual risks are on the record in evidence_against: the memory-test sleeve turns first in a downturn, the 09-24 summit, and an unverified tier-2 hint that Q3 guidance implies a sequential decline (magnitude and consensus not checked, so not weighted). The TRIM trigger is a carried mechanism, not thesis evidence.",
+    "evidence": [
+     {
+      "claim": "Q2 2026 revenue $1.33B +104% y/y; Semi Test $1.12B +128%; memory test $212M (+249%); AI >60% of sales",
+      "source": "Futurum / Investing.com / BigGo Q2 2026 summaries (secondary)",
+      "date": "2026-07-29"
+     },
+     {
+      "claim": "CXMT HBM3E trial-only, mass production 2027",
+      "source": "catalyst:2b516b39a1",
+      "date": "2026-09-20"
+     }
+    ],
+    "confidence": "medium",
+    "revision": {
+     "thesis": {
+      "changed": {
+       "TER": {
+        "status": "strengthening",
+        "thesis": "Semicap automated test equipment geared to AI chip test volume; position is 5.0027sh / 5.36% of invested equity (src holdings_trim, as_of 2026-09-21). Not a dust position (the stale 2026-08-19 flag is superseded).",
+        "evidence_for": [
+         {
+          "claim": "Q2 revenue >100% YoY, EPS $2.47 non-GAAP vs $2.05 consensus; Q3 guide well above consensus; CEO cited test demand 'from wafer to AI data center'",
+          "date": "2026-08-24",
+          "source": "SEC 8-K/10-Q + stockanalysis.com"
+         },
+         {
+          "claim": "TARGET GAP 25.3% upside, 12 analysts, mean target $446.47",
+          "date": "2026-09-14",
+          "source": "smith-signals 2026-09-14"
+         },
+         {
+          "claim": "Exposure check for the CXMT threat: Q2 2026 revenue $1.33B (+104% y/y); Semiconductor Test $1.12B (+128%) with compute-related SoC test up nearly 600% y/y; AI-driven revenue >60% of sales (CEO). Memory test $212M is only ~16% of revenue (computed $212M / $1.33B)",
+          "date": "2026-07-29",
+          "source": "Futurum / Investing.com / BigGo Q2 2026 summaries (secondary); ratio computed"
+         }
+        ],
+        "evidence_against": [
+         {
+          "claim": "-12.13% close today, STRONG DOWNTREND + unconfirmed MOMENTUM+VOLUME leg; no name-specific negative catalyst found in today's news scan -- sector-beta/Amodei-pacing-essay sentiment + Fed hike-odds compression (88.5% from 57%)",
+          "date": "2026-09-14",
+          "source": "smith-signals/smith-catalyst 2026-09-14"
+         },
+         {
+          "claim": "Live catalyst_threat TRIM rests only on the CXMT HBM3E reason. Mechanism read: it is a memory-ASP threat; TER's memory test line (~16% of revenue, +249% y/y on HBM/DRAM/NAND) would only be hit second-order via a memory capex cut, which needs an ASP decline the tracker does not show, and more memory producers are if anything more test demand. Residual: that 16% sleeve is the one that turns first in a memory downturn",
+          "date": "2026-09-21",
+          "source": "smith-thesis mechanism read; catalyst:2b516b39a1; Futurum Q2 2026 (secondary)"
+         },
+         {
+          "claim": "Trump-Xi summit Thu 2026-09-24 (tariff truce runs to 11-10; chips export controls, rare earths, US-China AI dialogue on agenda): two-sided event risk for China-exposed names; consensus expects an incremental outcome with no meaningful export-control loosening; no control change is quantified in any source",
+          "date": "2026-09-21",
+          "source": "smith-catalyst out_catalyst.json 2026-09-21 (WEF preview; secondary)"
+         },
+         {
+          "claim": "Q3 2026 guidance reportedly points to a sequential revenue decline after the record Q2 (one tier-2 summary, truncated; magnitude and comparison with consensus NOT verified, so not called guide_below_consensus)",
+          "date": "2026-07-29",
+          "source": "Finsee via X (tier-2, unverified)"
+         }
+        ],
+        "verified": "secondary",
+        "verified_against": "SEC 8-K/10-Q filings + stockanalysis.com (2026-08-24)",
+        "verified_on": "2026-08-24",
+        "note": "HELD strengthening in desk round 3 (M3.24); thesis text corrected for M3.15 (weight 5.36%, no dust framing). CXMT reason does not reach TER's compute-test core; the Q3 sequential-decline hint is unverified and recorded, not weighted."
+       }
+      }
+     }
+    }
+   }
+  ],
+  "asks": [],
+  "tells": [
+   {
+    "to": "catalyst",
+    "ticker": null,
+    "fact": "catalyst:2b516b39a1's affects list (MU, SKHY, ASML, AMAT, TER) mixes direct and second-order exposure. By mechanism the CXMT HBM3E reason is a memory ASP/share threat to MU/SKHY only; for ASML/AMAT/TER it works only through a memory capex cut that requires an ASP decline the tracker does not show. Suggest tagging those three as second-order so compute_triggers stops firing TRIM on them from that single reason.",
+    "source": "smith-thesis mechanism read, desk round 3; HBMTracker consumer_view.json",
+    "weight": "normal"
+   }
+  ]
+ },
+ "thesis": {
+  "changed": {
+   "QCOM": {
+    "status": "intact",
+    "thesis": "Handset/auto/IoT chip company with a nascent AI-datacenter option (AI200 in mass-production scaling, AI250 sampling 2027); position 5.0008sh / 2.63% (src holdings_trim 2026-09-21). No filed datacenter revenue line yet: the AI story is a forward target, not reported revenue, so INTACT rather than STRENGTHENING.",
+    "evidence_for": [
+     {
+      "claim": "RBC price-target raise citing AI chip-partnership expansion",
+      "date": "2026-09-09",
+      "source": "smith-signals 2026-09-10 / INDmoney news"
+     },
+     {
+      "claim": "AWS partnership targeting $5B AI-chip revenue by FY27",
+      "date": "2026-09-08",
+      "source": "smith-signals 2026-09-10 / INDmoney news"
+     },
+     {
+      "claim": "AI200 has begun mass-production scaling; management targets data center revenue of $5B in FY27 and $15B in FY29 (company targets, not backlog or reported revenue)",
+      "date": "2026-07-29",
+      "source": "QCOM Q3 FY26 call summaries via Yahoo/KuCoin (secondary)"
+     },
+     {
+      "claim": "Q3 FY26 revenue $9.95B, -4% y/y but above the Zacks consensus $9.71B; non-GAAP EPS $2.21 vs $2.22 consensus (secondary; the reported quarter is a revenue beat and an in-line/slight EPS miss, forward guide not checked)",
+      "date": "2026-07-29",
+      "source": "KuCoin / Zacks summary (secondary)"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "-5.6% to -5.8% on Friday (1.33x its 4.22% ATR) against SMH +2.21%, roughly an 8pp one-day divergence; 24/7 Wall St called it 'positioning-driven profit-taking' with no company announcement, and Skyworks/Qorvo slipped too (handset-chip group)",
+      "date": "2026-09-18",
+      "source": "smith-signals 2026-09-19 citing 24/7 Wall St 2026-09-18"
+     },
+     {
+      "claim": "Pre-existing handset headwinds (Apple modem transition, smartphone weakness) remain unresolved; 1 dated negative item on INDmoney 09-17",
+      "date": "2026-09-17",
+      "source": "smith-signals 2026-09-19"
+     },
+     {
+      "claim": "Trump-Xi summit Thu 2026-09-24 (tariff truce runs to 11-10; chips export controls, rare earths, US-China AI dialogue on agenda): two-sided event risk for China-exposed names; consensus expects an incremental outcome with no meaningful export-control loosening; no control change is quantified in any source",
+      "date": "2026-09-21",
+      "source": "smith-catalyst out_catalyst.json 2026-09-21 (WEF preview; secondary)"
+     },
+     {
+      "claim": "Margin-pressure headline 09-17 and thin upside: mean target $194.13 (n=26), only about +6% above price",
+      "date": "2026-09-21",
+      "source": "smith-signals 2026-09-21 (INDmoney feed)"
+     },
+     {
+      "claim": "No quantified datacenter revenue is filed: a smith_edgar tag search for 'datacenter' on QCOM's XBRL returned zero concepts (document text of the 10-Q accn 0000804328-26-000086 not read, so this is a tag-level finding). The only figures are forward targets; $5B FY27 against a ~$39.8B run-rate (4 x $9.95B, computed) would be about 12.6% of revenue only if achieved",
+      "date": "2026-09-21",
+      "source": "smith_edgar tags QCOM (primary, tag-level) + secondary call summaries; ratio computed"
+     },
+     {
+      "claim": "Revenue is still handset-driven and shrinking y/y (-4%), with QCT Automotive+IoT +28% y/y the only reported growth line",
+      "date": "2026-07-29",
+      "source": "KuCoin / Yahoo Q3 FY26 summaries (secondary)"
+     }
+    ],
+    "verified": "unverified",
+    "verified_against": "",
+    "verified_on": "",
+    "note": "REVISED strengthening -> INTACT in desk round 3 (M3.11). Basis: the strengthening case rested on forward partnership/target news; no filed datacenter revenue or backlog exists to justify STRENGTHENING. Precedent check run (smith_math.py gaps, 'forward target not reported revenue'): no relevant hit (G75 is a beat/miss mislabel, not this). Unverified vs the 10-Q text; verified tier stays unverified."
+   },
+   "AMAT": {
+    "status": "strengthening",
+    "thesis": "Semicap deposition/etch equipment for AI chip fabs; +1sh bought 2026-09-18, now 4.0082sh / 5.27% of invested equity (src: holdings_trim, as_of 2026-09-18). Fundamentals intact on the August print; the near-term price story is a laggard catching up, not new evidence.",
+    "evidence_for": [
+     {
+      "claim": "Q3 revenue $9.12B beat $9.0B consensus, EPS $3.50 beat $3.39; Q4 guide $10.25B +/-$500M (reported quarter and guide both above the Street)",
+      "date": "2026-08-24",
+      "source": "SEC 8-K/10-Q + stockanalysis.com (verified secondary)"
+     },
+     {
+      "claim": "Analyst mean target $640.89, ~44% above the $443.75 close, n=28",
+      "date": "2026-09-18",
+      "source": "INDmoney via smith-signals analyst_targets_updates"
+     },
+     {
+      "claim": "Exposure check for the CXMT threat: China was 28% of Q3 FY26 revenue vs 35% a year earlier, and DRAM revenue (incl. HBM packaging) was +52% y/y at a record; leading-edge logic, DRAM and packaging are ~80% of 2026-27 WFE growth per management. Print date listed 08-13 by BigGo vs 08-24 stored: unreconciled",
+      "date": "2026-08",
+      "source": "investing.com / BigGo / Yahoo call summaries (secondary)"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "PEER LAGGARD persists: -12.55pp vs SMH over 1m (-1.39 sigma). Friday's +6.5% (1.61x ATR) was a sector catch-up bounce (SMH +2.2%, TER +4.9%, KLAC +4.8%), not name leadership",
+      "date": "2026-09-18",
+      "source": "smith-signals 2026-09-19"
+     },
+     {
+      "claim": "Live catalyst_threat TRIM rests only on the CXMT HBM3E reason. Mechanism read: CXMT HBM3E is a memory-supplier ASP/share threat (MU, SKHY); AMAT's only channels are (i) a CXMT-driven memory price fall cutting MU/SKHY/Samsung DRAM capex, which needs a within-basis ASP decline that the tracker does not show (HBM3E has no within-basis trend; CXMT HBM3E is trial-only until 2027 and one generation behind HBM4), and (ii) export-control retaliation, which is the separate summit item above",
+      "date": "2026-09-21",
+      "source": "smith-thesis mechanism read; catalyst:2b516b39a1; HBMTracker consumer_view"
+     },
+     {
+      "claim": "Trump-Xi summit Thu 2026-09-24 (tariff truce runs to 11-10; chips export controls, rare earths, US-China AI dialogue on agenda): two-sided event risk for China-exposed names; consensus expects an incremental outcome with no meaningful export-control loosening; no control change is quantified in any source",
+      "date": "2026-09-21",
+      "source": "smith-catalyst out_catalyst.json 2026-09-21 (WEF preview; secondary)"
+     }
+    ],
+    "verified": "secondary",
+    "verified_against": "SEC 8-K/10-Q + stockanalysis.com",
+    "verified_on": "2026-08-24",
+    "note": "HELD strengthening in desk round 3 (M3.22): the CXMT reason does not reach AMAT's revenue, margin or thesis mechanism within the trial-only/2027 horizon; residual second-order capex channel and China-policy risk are recorded in evidence_against, not dismissed. Reassess if a within-basis HBM3E/DRAM contract decline appears or the 09-24 summit tightens SME controls."
+   },
+   "TER": {
+    "status": "strengthening",
+    "thesis": "Semicap automated test equipment geared to AI chip test volume; position is 5.0027sh / 5.36% of invested equity (src holdings_trim, as_of 2026-09-21). Not a dust position (the stale 2026-08-19 flag is superseded).",
+    "evidence_for": [
+     {
+      "claim": "Q2 revenue >100% YoY, EPS $2.47 non-GAAP vs $2.05 consensus; Q3 guide well above consensus; CEO cited test demand 'from wafer to AI data center'",
+      "date": "2026-08-24",
+      "source": "SEC 8-K/10-Q + stockanalysis.com"
+     },
+     {
+      "claim": "TARGET GAP 25.3% upside, 12 analysts, mean target $446.47",
+      "date": "2026-09-14",
+      "source": "smith-signals 2026-09-14"
+     },
+     {
+      "claim": "Exposure check for the CXMT threat: Q2 2026 revenue $1.33B (+104% y/y); Semiconductor Test $1.12B (+128%) with compute-related SoC test up nearly 600% y/y; AI-driven revenue >60% of sales (CEO). Memory test $212M is only ~16% of revenue (computed $212M / $1.33B)",
+      "date": "2026-07-29",
+      "source": "Futurum / Investing.com / BigGo Q2 2026 summaries (secondary); ratio computed"
+     }
+    ],
+    "evidence_against": [
+     {
+      "claim": "-12.13% close today, STRONG DOWNTREND + unconfirmed MOMENTUM+VOLUME leg; no name-specific negative catalyst found in today's news scan -- sector-beta/Amodei-pacing-essay sentiment + Fed hike-odds compression (88.5% from 57%)",
+      "date": "2026-09-14",
+      "source": "smith-signals/smith-catalyst 2026-09-14"
+     },
+     {
+      "claim": "Live catalyst_threat TRIM rests only on the CXMT HBM3E reason. Mechanism read: it is a memory-ASP threat; TER's memory test line (~16% of revenue, +249% y/y on HBM/DRAM/NAND) would only be hit second-order via a memory capex cut, which needs an ASP decline the tracker does not show, and more memory producers are if anything more test demand. Residual: that 16% sleeve is the one that turns first in a memory downturn",
+      "date": "2026-09-21",
+      "source": "smith-thesis mechanism read; catalyst:2b516b39a1; Futurum Q2 2026 (secondary)"
+     },
+     {
+      "claim": "Trump-Xi summit Thu 2026-09-24 (tariff truce runs to 11-10; chips export controls, rare earths, US-China AI dialogue on agenda): two-sided event risk for China-exposed names; consensus expects an incremental outcome with no meaningful export-control loosening; no control change is quantified in any source",
+      "date": "2026-09-21",
+      "source": "smith-catalyst out_catalyst.json 2026-09-21 (WEF preview; secondary)"
+     },
+     {
+      "claim": "Q3 2026 guidance reportedly points to a sequential revenue decline after the record Q2 (one tier-2 summary, truncated; magnitude and comparison with consensus NOT verified, so not called guide_below_consensus)",
+      "date": "2026-07-29",
+      "source": "Finsee via X (tier-2, unverified)"
+     }
+    ],
+    "verified": "secondary",
+    "verified_against": "SEC 8-K/10-Q filings + stockanalysis.com (2026-08-24)",
+    "verified_on": "2026-08-24",
+    "note": "HELD strengthening in desk round 3 (M3.24); thesis text corrected for M3.15 (weight 5.36%, no dust framing). CXMT reason does not reach TER's compute-test core; the Q3 sequential-decline hint is unverified and recorded, not weighted."
+   }
+  },
+  "unchanged_count": 0,
+  "reviewed_unchanged": []
+ },
+ "findings_reaffirmed": [],
+ "findings_revised": [
+  {
+   "id": "catalyst:2b516b39a1",
+   "claim": "CXMT HBM3E trial production is a direct threat to MU/SKHY (memory ASP/share) and only a second-order, unquantified one to ASML/AMAT/TER",
+   "source": "smith-thesis mechanism read; catalyst:2b516b39a1 own magnitude text; HBMTracker consumer_view.json",
+   "reason": "The threat text itself says trial-only, no volume/yield, mass production 2027, one generation behind; the tracker has no within-basis HBM3E decline; AMAT China is 28% of revenue and DRAM +52% y/y, TER memory test ~16% of revenue"
+  }
+ ],
+ "memory_used": [
+  "bace12169d2e",
+  "2dfa03dad57b",
+  "15db5bad9848",
+  "dafddcf892a3"
+ ],
+ "memory_refuted": [
+  {
+   "id": "c9939d558b10",
+   "reason": "Describes TER as a dust position (0.00273sh, ~$1.10) excluded from weights. holdings_trim 2026-09-21 shows TER 5.0027sh at 5.36% of invested equity; the ladder row and orchestrator finding d6095d3400 agree."
+  }
+ ],
+ "learned": [
+  {
+   "entities": [
+    "T:QCOM",
+    "C:AI Semis/Fabs"
+   ],
+   "kind": "verdict",
+   "text": "QCOM revised strengthening -> INTACT 2026-09-21 (desk round 3): no filed AI-datacenter revenue line (XBRL tag search empty, 10-Q text unread); data center is a forward target ($5B FY27, $15B FY29, company targets, secondary) against ~$39.8B revenue run-rate; Q3 FY26 revenue $9.95B, -4% y/y. Cluster rank last stands.",
+   "source": "smith_edgar tags QCOM; KuCoin/Yahoo Q3 FY26 summaries",
+   "confidence": "secondary"
+  },
+  {
+   "entities": [
+    "T:AMAT",
+    "T:TER",
+    "T:ASML",
+    "C:AI Semis/Fabs"
+   ],
+   "kind": "lesson",
+   "text": "CXMT HBM3E catalyst_threat maps by mechanism to MU/SKHY only; toolmakers (AMAT, TER, ASML) get it second-order via memory capex, which needs a within-basis ASP decline. Exposure yardsticks: AMAT China 28% of Q3 FY26 revenue (35% yr ago), DRAM +52% y/y; TER memory test $212M ~16% of Q2 2026 revenue (all secondary).",
+   "source": "desk round 3 M3.22/M3.24; call summaries",
+   "confidence": "secondary"
+  },
+  {
+   "entities": [
+    "T:TER"
+   ],
+   "kind": "lesson",
+   "text": "TER is not a dust position: 5.0027sh / 5.36% of invested equity (2026-09-21). Memory item c9939d558b10 was wrong.",
+   "source": "holdings_trim 2026-09-21",
+   "confidence": "primary"
+  }
+ ]
+}

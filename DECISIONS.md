@@ -1,7 +1,7 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**91 total gaps** -- 15 open, 76 archived (closed).
+**92 total gaps** -- 16 open, 76 archived (closed).
 
 ---
 
@@ -888,5 +888,12 @@ state.sentiment and state.risk_off_status were never in _stage_run_block's stage
 **Opened:** 2026-09-15  **Owner:** orchestrator / policy.cluster_playbooks  
 
 NBIS (neocloud: sells GPU capacity to MSFT/Meta, funded by a floating SOFR+2.50% secured facility plus a $5B convert) sits in the 'Compute/Hyperscaler' cluster alongside MSFT/GOOG/AMZN, which BUY capacity and largely self-fund. smith-cluster (2026-09-15) measured NBIS at ~54% of the cluster's weight x ATR20 risk proxy on a 3.2% weight, so the cluster's 'below 15% target / ~$3,800 room' figure treats a financing-and-rate-exposed neocloud dollar as equivalent to an MSFT dollar. Drift, cluster_room sizing and the hyperscaler ladder all inherit the mix.
+
+---
+
+## G99 -- OPEN
+**Opened:** 2026-09-21  **Owner:** orchestrator  
+
+LADDER SCORED CALLS GRADE THE WRONG WINDOW. compute_ladder's scored_call marks a cluster ladder correct/incorrect using each member's 1-MONTH return as of the scoring date, not the return since the ladder was written. On 2026-09-21 the 2026-09-15 semis ladder (leader TSM, laggard AMAT) was scored correct (leader +5.36% vs laggard -8.24% over 1m) while the forward window 09-15 close to 09-21 failed BOTH slots (AMAT +8.11% beat TSM +5.93%; the specialist scored it FALSE itself). The window mostly predates the call, so nearly every ladder that names a recent laggard as laggard scores correct. It feeds cluster track_record, which gates a ladder's authority to drive cluster_rotation (full authority needs >=6 admissible post-epoch calls) and the fleet learning store. No live damage today: 3 pre-epoch calls are history only and post-epoch n=0. Fix before the first post-epoch call is scored: compute returns from the ladder's as_of close, not a fixed 1m window, and record the window used on each scored call.
 
 ---

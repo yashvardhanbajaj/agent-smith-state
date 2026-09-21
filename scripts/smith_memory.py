@@ -1705,6 +1705,17 @@ def _merge_catalyst(out, state, today):
 def _merge_earnings(out, state, today):
     updates = out.get("earnings_facts_updates", {})
     state["data_cache"].setdefault("earnings_facts", {}).update(updates)
+    # A company-IR-verified print date is authoritative for the calendar cache too (found 2026-09-21: MU's IR release
+    # says 09-30 after the close; yfinance's 10-01 was the reaction session, cached as "confirmed", and the EARNINGS
+    # trigger reads the calendar, not earnings_facts). `ir_verified` makes a later watchlist merge unable to put the
+    # yfinance date back (see _merge_watchlist).
+    cal = state["data_cache"].setdefault("earnings_calendar", {})
+    for t, u in updates.items():
+        src = str((u or {}).get("date_source") or "").lower() if isinstance(u, dict) else ""
+        if src and u.get("reported_date") and any(k in src for k in ("investor", "press release", "company ir", "micron ir")):
+            cal[t] = {"date": u["reported_date"], "confirmed": True, "ir_verified": True,
+                      "timing": u.get("timing"), "first_reaction_session": u.get("first_reaction_session"),
+                      "source": u.get("date_source")}
     return {"earnings_facts_updated": list(updates)}
 
 
@@ -1734,8 +1745,13 @@ def _merge_watchlist(out, state, today):
         state["watchlist_scan_cursor"] = cursor
     ec = out.get("earnings_calendar_updates", {})
     if ec:
-        state["data_cache"].setdefault("earnings_calendar", {}).update(ec)
-        state["data_cache"]["earnings_calendar"]["as_of"] = today
+        cal = state["data_cache"].setdefault("earnings_calendar", {})
+        for t, e in ec.items():
+            held = cal.get(t)
+            if isinstance(held, dict) and held.get("ir_verified") and not (isinstance(e, dict) and e.get("ir_verified")):
+                continue                                  # a company-IR date is not replaced by a feed date
+            cal[t] = e
+        cal["as_of"] = today
     setups = out.get("watchlist_setups")
     if setups is not None:
         state["watchlist_setups"] = setups  # REPLACE: a setup list is point-in-time, like catalysts

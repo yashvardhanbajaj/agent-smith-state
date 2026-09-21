@@ -296,14 +296,80 @@
       "note": "archive -- no longer held as of 2026-08-19; exited in the 2026-08-18 stop-loss cascade (SNDK was a deliberate 08-17 market sell)"
     },
     "ORCL": {
-      "status": "exited",
-      "thesis": "position exited",
-      "evidence_for": [],
-      "evidence_against": [],
-      "verified": "unverified",
-      "verified_against": "",
-      "verified_on": "",
-      "note": "archive -- no longer held as of 2026-08-19; exited in the 2026-08-18 stop-loss cascade (SNDK was a deliberate 08-17 market sell)"
+      "status": "watch",
+      "thesis": "Oracle: OCI/AI-cloud capacity seller on a very large contracted backlog, financed by heavy capex, debt and now equity; a hyperscaler-adjacent but financing-stressed compute name, structurally closer to NBIS (G98) than to self-funded MSFT/GOOG/AMZN. Backlog and cloud growth are real; the open question is whether the funding structure holds. FIRST thesis read 2026-09-21 (was held 06-04 to 08-18, stopped out in the 08-18 cascade with only a placeholder thesis). WATCH, not INTACT: growth evidence and balance-sheet evidence point in opposite directions and nothing resolves it.",
+      "evidence_for": [
+        {
+          "claim": "FQ1 FY27 (quarter ended 2026-08-31) revenue $19.345B as filed; company-reported +30% y/y with cloud infrastructure +121% to $7.4B",
+          "date": "2026-09-21",
+          "source": "SEC 10-Q accn 0001193125-26-389274 filed 2026-09-11 (revenue, primary); growth rates from INDmoney feed 09-10 + Bitget/KuCoin summaries (secondary)"
+        },
+        {
+          "claim": "FY27 revenue guide raised to at least $90B; RPO ~$664B (+$209B y/y); >$30B new AI cloud contracts in the quarter, most via prepayment/bring-your-own-hardware structures needing little Oracle capital. Reported-quarter and guide are separate signals: no consensus figure was verified, so neither is called a beat or a miss here",
+          "date": "2026-09-21",
+          "source": "INDmoney feed 09-10/09-12 + erp.today / KuCoin (secondary, unverified vs consensus)"
+        },
+        {
+          "claim": "Quarter operating cash flow $23.103B vs $8.14B in the year-ago quarter (source of the jump not established; customer prepayments plausible)",
+          "date": "2026-09-21",
+          "source": "SEC 10-Q accn 0001193125-26-389274 via smith_edgar (primary)"
+        },
+        {
+          "claim": "Analyst mean target $237.97, n=30, 86.7% Buy, 0% Sell, vs $148.00 live (+61% to target)",
+          "date": "2026-09-21",
+          "source": "INDmoney get_us_stocks_details 2026-09-21"
+        },
+        {
+          "claim": "Larry Ellison cancelled a planned $7.5B Oracle share sale after the print",
+          "date": "2026-09-12",
+          "source": "INDmoney news feed (no outlet supplied; secondary)"
+        }
+      ],
+      "evidence_against": [
+        {
+          "claim": "Free cash flow is negative: quarter OCF $23.103B minus capex $28.499B = -$5.396B (computed from as-filed XBRL; matches the reported ~-$5.4B). FY27 capex guide $90-95B with no more than $70B net cash capex",
+          "date": "2026-09-21",
+          "source": "SEC 10-Q accn 0001193125-26-389274 (primary, computed); capex guide via erp.today/search summary (secondary)"
+        },
+        {
+          "claim": "Dilution: stockholders' equity rose from $42.5B (2026-05-31) to $66.8B (2026-08-31) on $4.76B of net income, consistent with a reported ~$20B equity sale; quarter weighted diluted shares 3.0B vs 2.914B for FY26. Dilution is real; the $20B size is secondary-sourced",
+          "date": "2026-09-21",
+          "source": "SEC 10-Q accn 0001193125-26-389274 (primary, StockholdersEquity / diluted shares); $20B size from erp.today (secondary)"
+        },
+        {
+          "claim": "Leverage cost: quarter interest expense $1.428B vs operating income $6.728B (4.7x cover, computed); FY26 interest $4.599B. LongTermDebt tag returned only a stale 2022 row, so total debt is NOT measured here",
+          "date": "2026-09-21",
+          "source": "SEC 10-Q / 10-K via smith_edgar (primary, computed)"
+        },
+        {
+          "claim": "S&P Global credit downgrade citing aggressive AI spending and negative cash flow",
+          "date": "2026-08-28",
+          "source": "INDmoney news feed (secondary)"
+        },
+        {
+          "claim": "Loans on an Oracle-leased New Mexico data center (~$18B) reported quoted at 89 to 91 cents on the dollar (Reuters, per stockanalysis summary): market is pricing datacenter project-debt risk. Single secondary summary, unverified",
+          "date": "2026-09-18",
+          "source": "stockanalysis.com/stocks/orcl (secondary, unverified)"
+        },
+        {
+          "claim": "Executive share sales and rounds of layoffs reported; gross margins reported falling; stock -55% from the $329.50 52-week high (pos 0.15 of range) despite the raised guide",
+          "date": "2026-09-17",
+          "source": "INDmoney news feed 09-13/09-17 + stockanalysis (secondary)"
+        }
+      ],
+      "verified": "primary",
+      "verified_against": "SEC EDGAR XBRL 10-Q accn 0001193125-26-389274 (quarter ended 2026-08-31, filed 2026-09-11) via smith_edgar.py verify: revenue, net income, op income, OCF, capex, equity, diluted shares, SBC, interest. Guide, RPO, $20B equity size, S&P downgrade and loan pricing are secondary only.",
+      "verified_on": "2026-09-21",
+      "note": "NEW THESIS (M1.8). Cluster mapped Compute/Hyperscaler (matches the exited-holdings archive), with the G98 caveat that ORCL's funding looks like a neocloud's. First-time classification of a name with a discrete event, so it spent the verification budget (1 name, 1 EDGAR call). No status change from a prior verdict, so no gap-precedent check.",
+      "reviewed_on": "2026-09-21",
+      "carried": true,
+      "exited": true,
+      "held": false,
+      "exited_as_of": null,
+      "carried_from": "state.thesis",
+      "carried_on": "2026-09-21",
+      "last_status": "watch",
+      "last_reviewed_on": "2026-09-21"
     },
     "SKHY": {
       "status": "strengthening",

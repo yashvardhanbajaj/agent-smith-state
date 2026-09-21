@@ -1,0 +1,579 @@
+{
+  "cluster": "AI Semis/Fabs",
+  "confidence": "medium",
+  "confidence_reasons": [
+    "return_coverage is complete (7/7 members priced), and the five toolmaker/foundry ranks each rest on a dated differentiator read rather than on rel_intra_pp",
+    "Two of seven members (AMD, QCOM) are fabless silicon BUYERS and sit on essentially none of this cluster's six differentiator axes; each is ranked on a single applicable axis and that limitation is stated on its row",
+    "QCOM's thesis is status-only and verified=unverified, and my laggard call depends on an unanswered question about whether its AI200/AI250 datacenter line is material revenue yet (ask M5.2, blocking)",
+    "No primary filing read this run; TSMC August revenue, AMAT FQ3 mix commentary and ASML guidance are all carried as verified-secondary from prior runs",
+    "Prior-ladder scoring is incomplete: I do not have 2026-09-15 to 2026-09-21 per-member returns, so was_correct is null pending ask M5.1"
+  ],
+  "cluster_thesis": {
+    "status": "intact",
+    "innings": "mid",
+    "text": "Order books are unchanged and the cluster's fundamentals are still expanding: TSMC August revenue +53.3% YoY, AMAT record FQ3 $9.12B (+25%) with FQ4 guided above consensus, ASML FY26 guide raised to EUR 43-45B. The 09-14 -6% cluster day was multiple compression (Amodei pacing essay plus hike-odds surge), and catalyst verified through 09-21 that no hyperscaler has moved capex guidance. Today's SOX +2% to its highest since 09-09 is oil below $100 and the 10y easing under 5%, not a company catalyst. NOT upgraded to strengthening because the cycle's two biggest binaries (ASML Q3 bookings 10-14, TSMC 2027 capex guide 10-15) both land inside 24 days and the China-controls tax falls unevenly across the five toolmakers, with the 09-24 Trump-Xi summit a genuine two-way event on that axis.",
+    "falsifier": "TSMC guides 2027 capex flat-or-down on 2026-10-15; OR ASML Q3 net bookings print below Q2 on 2026-10-14; OR two of AMAT/KLAC/TER guide below consensus in the 2026-10-22 to 2026-11-13 window. Any one converts intact -> watch."
+  },
+  "margin_pool": {
+    "moving_toward": "Advanced packaging and test: CoWoS-class capacity (TSM), inspection/metrology steps per wafer as gate-all-around and hybrid bonding ramp (KLAC), and test seconds per die as die sizes and HBM stack counts rise (TER). The incremental AI dollar buys packaging and test capacity, not another scanner.",
+    "moving_away_from": "Mature-node front-end wafer tools, and lithography UNIT count. ASML's EUV ASP rises but unit growth is gated by High-NA adoption pace, so its share of each incremental AI capex dollar falls even with the monopoly fully intact. Also away from fabless silicon pricing power relative to the upstream bottleneck.",
+    "evidence": [
+      {
+        "claim": "AMAT states leading-edge foundry/logic, DRAM and advanced packaging drive roughly 80% of its WFE growth",
+        "date": "2026-08-24",
+        "source": "AMAT FQ3 release/call via desk memory edc6895f1777 (verified secondary)"
+      },
+      {
+        "claim": "TSMC August revenue +53.3% YoY, with CoWoS capacity the named constraint on accelerator shipments",
+        "date": "2026-09-10",
+        "source": "TSMC monthly revenue release via cluster brief 867e2c14bd64 (secondary)"
+      },
+      {
+        "claim": "AMD data center revenue +107% YoY to $6.7B in Q2 2026 - demand proof that the upstream packaging/test bottleneck is binding, which is where the rent accrues",
+        "date": "2026-08-04",
+        "source": "AMD Q2 2026 release via state.thesis AMD (secondary)"
+      },
+      {
+        "claim": "Neocloud operator Nebius raised EPYC Genoa CPU rates ~25%, evidence of genuine compute scarcity pricing rather than sentiment",
+        "date": "2026-09-21",
+        "source": "investing.com AMD move explainer (secondary)"
+      }
+    ]
+  },
+  "ranking": [
+    {
+      "rank": 1,
+      "ticker": "TSM",
+      "held": true,
+      "verdict": "leader",
+      "differentiator_reads": [
+        {
+          "axis": "advanced packaging (CoWoS-class) capacity as a distinct bottleneck from wafer capacity",
+          "read": "TSM is the only member that owns BOTH the wafer and the packaging bottleneck, so it collects the scarcity rent at the exact step the margin pool is migrating toward",
+          "source": "TSMC monthly revenue + cluster brief 867e2c14bd64",
+          "date": "2026-09-10"
+        },
+        {
+          "axis": "foundry/IDM customer concentration and whether the customer is itself gaining share",
+          "read": "Its concentration is favourable rather than risky this cycle - NVDA, AMD and AAPL are each gaining share, and AMD's +107% YoY datacenter growth is TSM wafer and CoWoS demand",
+          "source": "AMD Q2 release; TSMC Aug revenue +53.3% YoY",
+          "date": "2026-08-04"
+        }
+      ],
+      "case_against": "Largest single position in the cluster at 8.83% of equity, so a rank-1 call is also a concentration call. Geographic concentration is the one axis where a Trump-Xi outcome touching Taiwan is a direct negative, and the 10-15 print carries both the Q3 result and the 2027 capex guide in one session. rel_intra_pp of only +0.95 says the market already pays for the bottleneck."
+    },
+    {
+      "rank": 2,
+      "ticker": "KLAC",
+      "held": true,
+      "verdict": "middle",
+      "differentiator_reads": [
+        {
+          "axis": "process-step mix - which steps gain intensity as gate-all-around and advanced packaging ramp",
+          "read": "Inspection/metrology steps per wafer rise with each GAA node and again with hybrid bonding, so KLAC's content grows faster than wafer starts - it is levered to the same intensity shift as TSM's packaging without the geographic tail",
+          "source": "cluster brief 867e2c14bd64 + KLAC brief 73c733ed1b6b",
+          "date": "2026-09-15"
+        },
+        {
+          "axis": "China export-control exposure",
+          "read": "Relatively insulated versus AMAT on the China channel, which is why the AMAT/KLAC pair was judged distinct on 09-15; but the share is still not quantified",
+          "source": "desk pair verdict 708049242488",
+          "date": "2026-09-15"
+        }
+      ],
+      "case_against": "Two consecutive beat-and-fall reactions (July 28 -9.6% after-hours; -3.21% the day after the 09-09 add) mean a good 10-29 print is not reliably a good stock outcome. China revenue share has been an open question since 09-15 and is still unquantified - if 10-29 discloses above 30% the rank-2 insulation argument fails. No dated company datapoint newer than late July."
+    },
+    {
+      "rank": 3,
+      "ticker": "AMAT",
+      "held": true,
+      "verdict": "middle",
+      "differentiator_reads": [
+        {
+          "axis": "process-step mix - which steps gain intensity as GAA and advanced packaging ramp",
+          "read": "AMAT's own FQ3 commentary is that leading-edge/DRAM/advanced packaging drive ~80% of WFE growth - it is the most direct front-end expression of the packaging and GAA deposition/etch intensity shift this ladder identifies as the margin pool's destination",
+          "source": "AMAT FQ3 release 8-K via memory edc6895f1777",
+          "date": "2026-08-24"
+        },
+        {
+          "axis": "China export-control exposure: revenue at risk, licences held, domestic substitution",
+          "read": "Carries the cluster's largest QUANTIFIED China revenue at risk (~$600-710M), so the 09-24 Trump-Xi summit has more positive convexity on AMAT than on any other member - the same axis that produced its discount is the one an easing would reprice first",
+          "source": "desk pair verdict 708049242488 + catalyst 2026-09-21 summit agenda",
+          "date": "2026-09-21"
+        },
+        {
+          "axis": "leading-edge vs mature-node revenue split",
+          "read": "FQ3 revenue $9.12B +25% with FQ4 guided $10.25B +/-0.5B above consensus - the mature-node overcapacity drag is not showing in the reported mix",
+          "source": "SEC 8-K/stockanalysis (verified secondary)",
+          "date": "2026-08-24"
+        }
+      ],
+      "case_against": "Promoted from laggard (rank 5, 09-15) to rank 3, and the convexity argument cuts both ways: because AMAT has the largest quantified China exposure, a summit that produces an entity-list expansion or a new deposition/etch licence requirement hits it hardest of the seven. Its 11-13 print is 53 days out, the longest catalyst wait in the cluster, so nothing forces a rerating before then and the -12.65pp can persist for two more months on no new news. The CXMT read-through frequently attached to AMAT remains unestablished in either direction (orchestrator:a40bf16612), so it is neither a threat nor support."
+    },
+    {
+      "rank": 4,
+      "ticker": "TER",
+      "held": true,
+      "verdict": "middle",
+      "differentiator_reads": [
+        {
+          "axis": "process-step mix - which steps gain intensity",
+          "read": "Test is the second destination of the migrating margin pool: test seconds per die rise with die size, chiplet count and HBM stack height, so TER's content per accelerator grows even at flat unit volumes",
+          "source": "cluster playbook differentiators + TER rank memory 3405fbdd7275",
+          "date": "2026-09-15"
+        },
+        {
+          "axis": "leading-edge vs mature-node revenue split (timing)",
+          "read": "The cluster's own read_through warns test LAGS the front end - that is why TER sits below the three front-end names despite the strongest growth rate: its share of this tailwind arrives later, and the 10-22 print is too early to show it",
+          "source": "cluster_ladder_row.read_throughs",
+          "date": "2026-09-21"
+        }
+      ],
+      "case_against": "Highest ATR in the cluster (4.99%) and highest beta (1.51), with cap_multiple 0.86 - the least headroom of any member ($303.74). The lag argument is symmetric: if the front end turns down on 10-14/10-15, TER's guide will still look fine on 10-22 and the position will be marked down anyway. Memory item c9939d558b10 describing TER as a dust position is refuted this run - it is a real 5.355% / $1,860 holding."
+    },
+    {
+      "rank": 5,
+      "ticker": "ASML",
+      "held": true,
+      "verdict": "middle",
+      "differentiator_reads": [
+        {
+          "axis": "share of WFE spend captured, and whether that share is rising or defended",
+          "read": "The EUV monopoly is fully DEFENDED but not RISING: incremental AI capex is buying packaging and test capacity, and litho unit growth is gated by High-NA adoption pace, so ASML's share of each new dollar is flat-to-falling even with the moat untouched",
+          "source": "cluster brief 867e2c14bd64 + margin-pool reads above",
+          "date": "2026-09-21"
+        },
+        {
+          "axis": "China export-control exposure",
+          "read": "China's DUV entry remains ~5 units in 2026 against ASML's 131 immersion tools and 98.7% share, and does not touch EUV; CXMT G5/HBM3E items are memory-product news with no established DUV/EUV linkage",
+          "source": "smith-catalyst magnitude check; orchestrator:a40bf16612",
+          "date": "2026-09-21"
+        }
+      ],
+      "case_against": "(the case FOR, which rank 5 must confront): lowest beta in the cluster at 0.99, mean target $2,137.63 against $1,684.24 spot (+26.9%), sole-source monopoly, and the 10-14 bookings print is the cluster's single biggest binary - if bookings beat Q2 with China under 20%, ASML re-rates first and hardest and this rank is wrong within 23 days. Against it: thesis is WATCH, the thesis text is last dated 2026-08-10, and a quality flag stands (Q1 FY26 OCF -$2.19B against net income +$2.76B)."
+    },
+    {
+      "rank": 6,
+      "ticker": "AMD",
+      "held": true,
+      "verdict": "middle",
+      "differentiator_reads": [
+        {
+          "axis": "advanced packaging (CoWoS-class) capacity as a distinct bottleneck",
+          "read": "AMD is on the CONSUMER side of the only cluster axis that applies to it - it competes for the same CoWoS allocation that is TSM's rent. Owning the tailwind through AMD means buying the scarcity at the step where it is paid, not collected",
+          "source": "cluster playbook differentiators; AMD is a TSMC foundry customer",
+          "date": "2026-09-21"
+        },
+        {
+          "axis": "valuation of the tailwind already captured (non-playbook, stated as such)",
+          "read": "$607.89 intraday against a mean target of $616.51 (n=35) is 1.4% of consensus upside after +29.5% in a month, RSI 72.1, at a 52-week high on 2.31x ATR - today's +8.6% is a Wells Fargo PT raise to $615 and neocloud pricing news, not a new order book",
+          "source": "live_quotes 2026-09-21T13:58Z; analyst_targets 2026-09-21; investing.com",
+          "date": "2026-09-21"
+        }
+      ],
+      "case_against": "(the case FOR): Data Center revenue +107% YoY to $6.7B is the strongest end-demand growth rate of any member, MI400/Helios rack-scale is the only credible second source to NVDA, and Nebius raising EPYC rates 25% is evidence of real scarcity rather than sentiment. If the Street revises 2027 MI-series units up rather than merely catching the price to target, rank 6 is too low. Against: thesis is WATCH on a guide-below-consensus read and a ~$5B debt raise, and a live SELL profit_rotation proposal already stands on the name."
+    },
+    {
+      "rank": 7,
+      "ticker": "QCOM",
+      "held": true,
+      "verdict": "laggard",
+      "differentiator_reads": [
+        {
+          "axis": "share of WFE spend captured / process-step mix / advanced packaging",
+          "read": "QCOM registers on NONE of these - it neither sells tools nor owns packaging capacity, and its silicon is predominantly handset/auto/IoT rather than accelerator. Per dollar held it captures the least of this cluster's shared tailwind of any of the seven",
+          "source": "cluster_ladder_row.differentiators applied to QCOM's business mix",
+          "date": "2026-09-21"
+        },
+        {
+          "axis": "China export-control exposure (as a cause of the 1m move, not of tailwind capture)",
+          "read": "Its +13.67% month has a NAMED non-tailwind driver: CEO Amon attends the 09-24 Trump-Xi White House dinner and the agenda is tariffs/chips - this is a trade-policy trade and a handset-China trade, not an AI-capex trade, so the rel_intra_pp of +9.26 does not evidence tailwind capture",
+          "source": "out_catalyst.json 2026-09-21 summit item",
+          "date": "2026-09-21"
+        }
+      ],
+      "case_against": "(the case FOR): thesis is STRENGTHENING, it is the cheapest member in the cluster on multiple, mean target $194.13 against $182.62 spot, and the 09-24 summit is a direct positive channel through both handset tariffs and the China modem/Apple relationship. If its announced AI200/AI250 datacenter accelerators are already a quantified revenue or backlog line, the entire basis for this laggard rank is wrong - that is ask M5.2 and this rank is provisional pending it."
+    }
+  ],
+  "unranked": [],
+  "leader": "TSM",
+  "laggard": "QCOM",
+  "reorder_when": [
+    "TSM loses rank 1 if the 2026-10-15 Q3 call guides 2027 capex flat-or-down versus 2026, or if September monthly revenue (~2026-10-09) prints below +25% YoY",
+    "AMAT falls back toward the laggard slot if the 2026-09-24 Trump-Xi summit produces an entity-list expansion or a new deposition/etch licence requirement, or if the 2026-11-13 FQ4 print quantifies the China hit above $900M against the ~$600-710M currently carried",
+    "ASML rises to rank 2 if 2026-10-14 Q3 net bookings exceed Q2 with China below 20% of system sales; it becomes the laggard if net bookings print below Q2",
+    "KLAC falls below TER if the 2026-10-29 print discloses China above 30% of revenue or guides the December quarter below consensus",
+    "QCOM leaves the laggard slot if the 2026-10-30 FQ4 call discloses AI200/AI250 datacenter revenue or committed backlog as a separately quantified line",
+    "AMD rises above rank 4 if the Street revises 2027 MI-series unit estimates up after the 2026-11-04 Q3 print, rather than the price merely closing the remaining 1.4% gap to the $616.51 mean target"
+  ],
+  "redundant_pairs": [
+    {
+      "pair": [
+        "KLAC",
+        "TER"
+      ],
+      "same_bet_because": "Screen only: 0.3pp gap in 1m return and 1.0pp in ATR. On business grounds they are NOT one bet - KLAC is front-end process control (inspection/metrology during wafer fab, revenue tied to fab tool-ups and yield ramp), TER is back-end automated test (revenue tied to unit volume and die complexity after wafer-out, plus an OSAT/SLT and robotics component). They sit at opposite ends of the capex cycle: the cluster's own read_through states test LAGS the front end, which is direct evidence against synchrony. No return series is cached, so no correlation is asserted.",
+      "keep": "both",
+      "drop": "none",
+      "verdict": "distinct"
+    },
+    {
+      "pair": [
+        "AMD",
+        "TSM"
+      ],
+      "same_bet_because": "Not screened, added on business grounds: AMD is TSM's foundry and CoWoS customer. An AMD unit upgrade is a TSM revenue positive, and a CoWoS price increase is an AMD margin negative - opposed exposures to the same bottleneck, the same logic as the 2026-09-08 ASML/TSM verdict. Holding both is the vendor and the customer, not one bet.",
+      "keep": "both",
+      "drop": "none",
+      "verdict": "distinct"
+    }
+  ],
+  "bench": [
+    {
+      "ticker": "LRCX",
+      "price_usd": 292.11,
+      "why_better_than": "AMAT - same deposition/etch exposure to the GAA and advanced-packaging intensity shift that drives AMAT's rank-3 case, but with higher leading-edge memory/NAND leverage and without AMAT's single largest quantified China revenue-at-risk line, so it expresses the same axis with less summit-outcome dependence",
+      "entry_condition": "Buy only if the 2026-10-14 ASML bookings print exceeds Q2 (the 2-3-quarter leading indicator for LRCX/AMAT/KLAC orders) AND LRCX has not already re-rated more than 8% on that news; mean target $370.87 (n=24, as_of 09-10) against $292.11 is +27%"
+    },
+    {
+      "ticker": "AMKR",
+      "price_usd": 51.22,
+      "why_better_than": "QCOM - AMKR is a pure advanced-packaging OSAT, the most direct non-TSM way to own the packaging bottleneck this ladder identifies as the margin pool's destination, whereas QCOM touches none of the cluster's axes. Substituting it would raise the book's exposure to the cluster's actual profit migration without adding a new geography risk the size of TSM's",
+      "entry_condition": "Buy on evidence that packaging capacity is being added outside TSM - specifically an AMKR capacity-expansion or CoWoS-class qualification disclosure at or before its Q3 print (~2026-10-26), or TSMC's 10-15 call naming OSAT overflow. Mean target $76.40 (n=7) is stale as_of 2026-08-31 and must be refreshed before sizing"
+    }
+  ],
+  "catalysts": [
+    {
+      "date": "2026-09-24",
+      "event": "Trump-Xi summit, Washington (Xi's first US visit since 2015). Agenda: tariff-truce extension (truce runs to 11-10), critical minerals/rare earths, chip export controls, proposed US-China AI dialogue. Qualcomm's Amon, Nvidia's Huang, Microsoft's Nadella and Tim Cook attend the White House dinner. Genuinely two-way.",
+      "reorders": [
+        "AMAT",
+        "ASML",
+        "QCOM",
+        "TSM"
+      ],
+      "read_through_to": [
+        "AMAT",
+        "ASML",
+        "KLAC",
+        "LRCX",
+        "QCOM"
+      ]
+    },
+    {
+      "date": "2026-10-09",
+      "event": "TSMC September monthly revenue",
+      "reorders": [
+        "TSM"
+      ],
+      "read_through_to": [
+        "ASML",
+        "AMAT",
+        "KLAC",
+        "TER"
+      ]
+    },
+    {
+      "date": "2026-10-14",
+      "event": "ASML Q3 results and net bookings - the cluster's biggest near-term binary",
+      "reorders": [
+        "ASML",
+        "AMAT",
+        "KLAC"
+      ],
+      "read_through_to": [
+        "AMAT",
+        "KLAC",
+        "LRCX",
+        "TER"
+      ]
+    },
+    {
+      "date": "2026-10-15",
+      "event": "TSMC Q3 results plus first read on 2027 capex - TSMC's capex line IS the toolmakers' revenue line",
+      "reorders": [
+        "TSM",
+        "ASML",
+        "AMAT",
+        "KLAC",
+        "TER"
+      ],
+      "read_through_to": [
+        "ASML",
+        "AMAT",
+        "KLAC",
+        "TER",
+        "AMKR"
+      ]
+    },
+    {
+      "date": "2026-10-22",
+      "event": "TER Q3 results",
+      "reorders": [
+        "TER",
+        "KLAC"
+      ],
+      "read_through_to": [
+        "AMKR",
+        "KLAC"
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "event": "KLAC FQ1 results - the China revenue-share disclosure that the rank-2 insulation argument depends on",
+      "reorders": [
+        "KLAC",
+        "TER"
+      ],
+      "read_through_to": [
+        "AMAT",
+        "LRCX"
+      ]
+    },
+    {
+      "date": "2026-10-30",
+      "event": "QCOM FQ4 results - whether AI200/AI250 datacenter silicon appears as a quantified line",
+      "reorders": [
+        "QCOM"
+      ],
+      "read_through_to": [
+        "AMD"
+      ]
+    },
+    {
+      "date": "2026-11-04",
+      "event": "AMD Q3 results",
+      "reorders": [
+        "AMD"
+      ],
+      "read_through_to": [
+        "TSM",
+        "AMKR"
+      ]
+    },
+    {
+      "date": "2026-11-10",
+      "event": "US-China tariff truce expiry (if not extended at the 09-24 summit)",
+      "reorders": [
+        "AMAT",
+        "ASML",
+        "QCOM"
+      ],
+      "read_through_to": [
+        "TSM",
+        "KLAC",
+        "TER"
+      ]
+    },
+    {
+      "date": "2026-11-13",
+      "event": "AMAT FQ4 results - the China hit quantification that decides whether the rank-3 promotion holds",
+      "reorders": [
+        "AMAT",
+        "KLAC"
+      ],
+      "read_through_to": [
+        "LRCX",
+        "KLAC"
+      ]
+    }
+  ],
+  "thesis_tensions": [
+    {
+      "ticker": "QCOM",
+      "ladder_rank": 7,
+      "thesis_status": "strengthening",
+      "tension": "I rank a STRENGTHENING name last. Both can be true and here is how: thesis asks whether QCOM's own business is improving (it is - handset/auto silicon, cheap multiple, +13.67% in a month); I ask which member captures the most of the AI-capex tailwind this cluster is built on, and on WFE share, process-step mix, advanced packaging and foundry dynamics QCOM registers on none. Its 1m outperformance has a named non-tailwind driver (the 09-24 summit/tariff channel, Amon at the dinner). This is a scope difference, not a factual dispute - but it does mean QCOM's presence in THIS cluster overstates the book's AI-capex exposure by its full 2.63% weight."
+    },
+    {
+      "ticker": "AMD",
+      "ladder_rank": 6,
+      "thesis_status": "watch",
+      "tension": "No contradiction on direction - both of us are cautious - but for different reasons worth separating. Thesis is watch on a guide-below-consensus read and the ~$5B debt raise. My rank-6 is not about AMD's business, which has the cluster's best growth rate (+107% YoY datacenter); it is that AMD is on the paying side of the bottleneck and, at $607.89 against a $616.51 mean target, the tailwind it does capture is already priced. Strategist should note these are independent reasons stacking, not one reason double-counted."
+    },
+    {
+      "ticker": "AMAT",
+      "ladder_rank": 3,
+      "thesis_status": "strengthening",
+      "tension": "No tension with thesis - this run resolves one. I have promoted AMAT from the laggard slot it held on 09-15 to rank 3 on the packaging/GAA intensity axis, which aligns the ladder with the strengthening thesis and with the live BUY $504.51 proposal. The 09-20 SELL $438.53 cluster_rotation on ASML (sourced from my own prior ladder, which then ranked ASML 4 and AMAT 5) should be re-read against this ordering: ASML is now ranked BELOW AMAT, so that proposal's direction still holds, but its premise (AMAT as laggard) no longer does."
+    }
+  ],
+  "prior_ladder_review": {
+    "leader_was": "TSM",
+    "laggard_was": "AMAT",
+    "was_correct": null,
+    "why": "Cannot score honestly without 2026-09-15 to 2026-09-21 per-member returns, which I do not have and will not estimate (ask M5.1 to desk). On the 1-month window I do hold: TSM at +0.95pp rel_intra is not the cluster's price leader (AMD is, at +25.07pp), so the leader call did not pay on price, while AMAT at -12.65pp did remain the price laggard, so the laggard call held directionally. But the AMAT laggard call is the one I am now reversing on fundamental grounds - the same evidence that made it cheap (China discount, beat-and-fall) is what gives it the most summit convexity. Scoring the ladder on whether the laggard kept lagging would reward exactly the price-following this layer exists to replace."
+  },
+  "data_quality": [
+    {
+      "issue": "CLUSTER COMPOSITION: 'AI Semis/Fabs' contains two businesses that are not semicap or foundry. AMD and QCOM are fabless silicon buyers; of the cluster's six differentiator axes only advanced packaging touches them, and it touches them as consumers competing for TSM's allocation. This is the same defect class as known_gap G98 (NBIS in Compute/Hyperscaler). Effect: both are ranked on a single axis each rather than the full playbook, and the cluster's 37.5% of equity overstates true semicap/fab exposure by AMD's 1.75% + QCOM's 2.63%.",
+      "severity": "high"
+    },
+    {
+      "issue": "KLAC's China revenue share has been an open question since 2026-09-15 and is still unquantified. The rank-2 case leans on KLAC being 'relatively insulated' versus AMAT on the China channel, which is a qualitative carry-forward, not a disclosed number. Resolves 2026-10-29.",
+      "severity": "medium"
+    },
+    {
+      "issue": "AMKR's mean analyst target ($76.40, n=7) is as_of 2026-08-31, three weeks stale, and must be refreshed before any sizing of that bench name.",
+      "severity": "low"
+    },
+    {
+      "issue": "ASML's state.thesis text is last dated 2026-08-10 despite reviews on 2026-09-21; the rank-5 read leans on evidence arrays whose freshest entry is 2026-09-14.",
+      "severity": "low"
+    }
+  ],
+  "findings_reaffirmed": [
+    "orchestrator:d6095d3400",
+    "orchestrator:a40bf16612",
+    "catalyst:afbd345ec2"
+  ],
+  "findings_revised": [
+    {
+      "id": "ladder:399b428241",
+      "claim": "AI Semis/Fabs order is now TSM > KLAC > AMAT > TER > ASML > AMD > QCOM; leader TSM (held), laggard QCOM (was AMAT). Cluster thesis intact / mid is unchanged.",
+      "source": "this run's differentiator reads: AMAT FQ3 packaging/GAA mix commentary (2026-08-24), 09-24 summit agenda (out_catalyst 2026-09-21), QCOM business-mix screen against the cluster's own axes",
+      "reason": "The 09-15 ladder carried five members; the row now carries seven, and the two additions (AMD, QCOM) are not semicap/fab names. Separately, AMAT is promoted out of the laggard slot on the packaging-intensity axis and on having the cluster's largest quantified China revenue at risk into a two-way summit, which is convexity rather than a defect."
+    }
+  ],
+  "memory_used": [
+    "867e2c14bd64",
+    "edc6895f1777",
+    "73c733ed1b6b",
+    "3405fbdd7275",
+    "2dfa03dad57b",
+    "15db5bad9848",
+    "708049242488",
+    "2bd26e19c0b3",
+    "6e8372c713bb",
+    "f3359662e772",
+    "862edec9912d",
+    "ed516e5cd581",
+    "719063e8f640",
+    "7e2722c7fa96",
+    "151cc1fd4189",
+    "3d1960625bac"
+  ],
+  "memory_refuted": [
+    {
+      "id": "c9939d558b10",
+      "reason": "States TER is a 'DUST position (0.00273sh, ~$1.10), excluded from weights'. This run's ladder row shows TER at market_value_usd 1860.07 and weight_pct 5.355 with cap_multiple 0.86, and orchestrator finding d6095d3400 (2026-09-21, holdings.json snapshot) independently states TER is a real 5.5% / $1,853 position and that the 2026-08-19 DUST open_flag is stale. The dust description is false and should not propagate into any weight or exposure calculation."
+    }
+  ],
+  "learned": [
+    {
+      "entities": [
+        "C:AI Semis/Fabs",
+        "AMD",
+        "QCOM"
+      ],
+      "kind": "lesson",
+      "text": "The AI Semis/Fabs cluster mixes tool/foundry SELLERS (TSM, ASML, AMAT, KLAC, TER) with fabless silicon BUYERS (AMD, QCOM). The playbook's six differentiators are all seller-side axes, so AMD and QCOM cannot be ranked on them and must be ranked on a single applicable axis each, stated as such. Same defect class as G98 (NBIS in Compute/Hyperscaler). Until the cluster is split, its percent-of-equity figure overstates true semicap/fab exposure by roughly 4.4pp.",
+      "source": "cluster_ladder_row.differentiators vs member business mix, 2026-09-21",
+      "confidence": "primary"
+    },
+    {
+      "entities": [
+        "AMAT",
+        "C:AI Semis/Fabs"
+      ],
+      "kind": "verdict",
+      "text": "AMAT promoted from ladder laggard (rank 5, 09-15) to rank 3 on 09-21. The reasoning that moved it is NOT the price bounce: it is that AMAT's own FQ3 commentary puts leading-edge/DRAM/advanced packaging at ~80% of WFE growth, which is the exact step the cluster's margin pool is migrating toward, and that its largest-in-cluster quantified China revenue at risk (~$600-710M) makes the 09-24 Trump-Xi summit positive convexity rather than only a discount. Reverses if the summit tightens controls or if the 11-13 print quantifies the China hit above $900M.",
+      "source": "AMAT FQ3 8-K 2026-08-24; out_catalyst summit item 2026-09-21",
+      "confidence": "secondary"
+    },
+    {
+      "entities": [
+        "QCOM",
+        "C:AI Semis/Fabs"
+      ],
+      "kind": "lesson",
+      "text": "QCOM's 1-month +13.67% (rel_intra +9.26pp, second-best in cluster) has a named non-AI-capex driver: the US-China tariff/handset channel into the 09-24 summit, with CEO Amon at the White House dinner. Future runs must not read QCOM's semis-cluster outperformance as evidence of AI-capex tailwind capture; the test is whether AI200/AI250 datacenter silicon appears as a quantified revenue or backlog line, first checkable at the 10-30 FQ4 call.",
+      "source": "out_catalyst.json 2026-09-21 summit item; cluster_ladder_row",
+      "confidence": "secondary"
+    },
+    {
+      "entities": [
+        "KLAC",
+        "TER",
+        "C:AI Semis/Fabs"
+      ],
+      "kind": "fact",
+      "text": "KLAC/TER re-judged DISTINCT on 2026-09-21 after a second near-identical-move screen (0.3pp return gap, 1.0pp ATR gap). The decisive business argument is cycle timing, not product: front-end process control leads the tool-up, back-end test lags wafer-out, and the cluster's own read_throughs file states test lags the front end - so a synchronous 1-month move is shared-macro, not a shared bet. This is the second consecutive run the screen has flagged them and the second distinct verdict.",
+      "source": "cluster_ladder_row.redundancy_candidates + read_throughs, 2026-09-21",
+      "confidence": "primary"
+    },
+    {
+      "entities": [
+        "C:AI Semis/Fabs",
+        "TSM",
+        "KLAC",
+        "TER",
+        "ASML"
+      ],
+      "kind": "fact",
+      "text": "Margin-pool call for this cluster, stated so a future run can test it: profit is migrating TOWARD advanced packaging and test (CoWoS at TSM, inspection steps per wafer at KLAC, test seconds per die at TER) and AWAY FROM lithography UNIT count and mature-node front-end tools. ASML's EUV monopoly is defended but its share of each incremental AI dollar is flat-to-falling because High-NA adoption pace gates unit growth. Testable at TSMC's 10-15 capex split and ASML's 10-14 bookings.",
+      "source": "AMAT FQ3 ~80% WFE-growth commentary 2026-08-24; TSMC Aug revenue +53.3% YoY",
+      "confidence": "secondary"
+    }
+  ],
+  "comms": {
+    "answers": [],
+    "asks": [
+      {
+        "id": "M5.1",
+        "to": "desk",
+        "ticker": null,
+        "question": "Per-member total return from the 2026-09-15 close to 2026-09-21 for TSM, ASML, AMAT, KLAC, TER, AMD and QCOM, plus SMH over the same window.",
+        "why": "prior_ladder_review.was_correct is null without it. My 09-15 ladder called TSM leader and AMAT laggard; I will not score it on the 1-month rel_intra_pp window because that window mostly predates the call. This is the number that scores the ladder's track record, which in turn gates whether my ranking may drive a live cluster_rotation.",
+        "blocking": false
+      },
+      {
+        "id": "M5.2",
+        "to": "thesis",
+        "ticker": "QCOM",
+        "question": "QCOM is trimmed to status-only (strengthening, verified=unverified). Does QCOM have a quantified AI-datacenter silicon revenue or backlog line yet - specifically AI200/AI250 - or is its revenue still predominantly handset/auto/IoT? A named percentage or a filed figure, not a directional read.",
+        "why": "I rank QCOM LAST in AI Semis/Fabs on the grounds that it captures the least of the cluster's AI-capex tailwind per dollar held, while its thesis is strengthening. If datacenter silicon is already a material, disclosed line, the laggard rank is wrong and QCOM should move up several places. The rank is provisional pending this answer.",
+        "blocking": true
+      },
+      {
+        "id": "M5.3",
+        "to": "catalyst",
+        "ticker": null,
+        "question": "For the 09-24 Trump-Xi summit: is there any sourced reporting on the DIRECTION of the chips-export-control item - i.e. whether the draft agenda contemplates easing existing semicap equipment restrictions, or extending them - as distinct from the fact that chips are on the agenda?",
+        "why": "My rank-3 promotion of AMAT rests on the summit being positive convexity on the cluster's largest quantified China revenue-at-risk line. If reporting points toward tightening rather than easing, AMAT's rank falls and ASML's China-channel risk rises with it.",
+        "blocking": false
+      }
+    ],
+    "tells": [
+      {
+        "to": "strategist",
+        "ticker": null,
+        "fact": "AI Semis/Fabs (37.5% of equity, the book's largest cluster) contains two names that are not semicap or foundry: AMD (1.75%) and QCOM (2.63%) are fabless silicon buyers and register on none of the cluster's six differentiator axes except as consumers of TSM's packaging allocation. The cluster's percent-of-equity therefore overstates true semicap/fab exposure by ~4.4pp, and any cluster-level band or rotation sized off 37.5% is sized off a mixed basket. Same defect class as known_gap G98 (NBIS in Compute/Hyperscaler).",
+        "source": "cluster_ladder_row.differentiators vs member business mix, 2026-09-21",
+        "weight": "high"
+      },
+      {
+        "to": "strategist",
+        "ticker": "AMAT",
+        "fact": "My ladder reverses the 09-15 AMAT laggard call: AMAT moves from rank 5 to rank 3, leader TSM held, and QCOM becomes the laggard. The 09-20 SELL $438.53 ASML cluster_rotation was sourced from the old ordering (ASML 4, AMAT 5); its direction survives - ASML now ranks 5, below AMAT - but its stated premise does not. Any AMAT trim sourced from 'ladder laggard' should be retired.",
+        "source": "this run's cluster ladder, 2026-09-21",
+        "weight": "high"
+      },
+      {
+        "to": "thesis",
+        "ticker": "TER",
+        "fact": "Knowledge-base item c9939d558b10 (2026-09-21) describes TER as a DUST position of 0.00273sh / ~$1.10 excluded from weights. That is false: the ladder row carries TER at $1,860.07 / 5.355% with cap_multiple 0.86, and orchestrator finding d6095d3400 confirms it. If any thesis or exposure text still carries the dust framing, it needs correcting.",
+        "source": "cluster_ladder_row + orchestrator:d6095d3400, 2026-09-21",
+        "weight": "normal"
+      },
+      {
+        "to": "signals",
+        "ticker": "QCOM",
+        "fact": "QCOM's 1m +13.67% (rel_intra +9.26pp, 2nd in the semis cluster) has a specific non-AI-capex driver: the US-China tariff/handset channel into the 09-24 summit, with CEO Amon named as attending the White House dinner. Worth separating from the AI-capex peer-strength read when QCOM next appears in a relative-strength bucket.",
+        "source": "out_catalyst.json 2026-09-21 summit item",
+        "weight": "normal"
+      }
+    ]
+  },
+  "_see": "the top-level `revision` block of this tail: ranking (TER 3 / AMAT 4), reorder_when, catalysts, thesis_tensions, data_quality"
+}

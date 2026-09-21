@@ -1,0 +1,63 @@
+{
+ "agent": "quality",
+ "round": 3,
+ "comms": {
+  "answers": [
+   {
+    "id": "M3.21",
+    "position": "noted",
+    "answer": "Primary-source read of ORCL 10-Q for FQ1 FY27 (period 2026-06-01 to 2026-08-31, filed 2026-09-11, accn 0001193125-26-389274), all figures as-filed XBRL. (1) OCF IS PREPAYMENT-DRIVEN: contract-with-customer liabilities rose $15.39B in the quarter ($15.40B to $30.79B), of which noncurrent rose $10.62B ($5.48B to $16.10B; it was $1.26B a year ago) and current rose $4.77B. Year-ago quarter's contract-liability build was only $2.55B. OCF $23.10B vs $8.14B (+$14.96B YoY); the deferred-revenue build alone is ~$15.4B, i.e. roughly the whole jump. Strip it and OCF is ~$7.7B vs net income $4.76B, and accounts receivable was a $1.01B cash use. So this is customer-financed capex (multi-year prepaid capacity, RPO $664B, +46% YoY from $455B), not earnings quality: the OCF/PAT of 4.9x this quarter (2.5x TTM) must NOT be scored as the 'good' >1.2x case. Prepayments become revenue without cash later, so OCF flatters until inflows slow. FCF is still negative: OCF less capex = -$5.40B in the quarter (year-ago -$0.36B); TTM OCF $46.9B vs TTM capex $75.7B = TTM FCF -$28.7B; ex-prepay FCF this quarter ~ -$20.8B. (2) DEBT (no us-gaap total-debt tag; built from balance-sheet lines): NotesPayableCurrent $7.63B + LongTermNotesAndLoans $117.71B = $125.34B gross at 2026-08-31, DOWN $4.20B from $129.54B at 2026-05-31 (RepaymentsOfDebt $4.20B in the quarter, no new long-term issuance tagged) but up from $91.3B a year ago. Cash $36.37B, so net debt $88.97B. Operating-lease liabilities are on top: $34.62B (was $21.31B at 2026-02-28, $30.19B at 2026-05-31), so lease-inclusive gross debt ~$159.96B. (3) LEVERAGE/COVERAGE: TTM operating income $23.06B (FY26 $20.61B + Q1FY27 $6.73B - Q1FY26 $4.28B); TTM 'Depreciation' tag $9.43B (lower bound, amortization of intangibles not captured), so TTM EBITDA >= ~$32.5B and net debt/EBITDA <= ~2.7x (gross ~3.9x). Quarter-only: EBITDA ~$9.88B annualising ~$39.5B, net ~2.3x. Interest cover EBIT/interest expense: 4.7x in the quarter ($6.73B / $1.43B), TTM 4.5x ($23.06B / $5.10B); year-ago quarter 4.6x, so stable, not tightening. Caveat: ORCL capitalizes interest on construction, so cash interest paid is likely above the expense line; not checked. (4) EQUITY +$24.3B ($42.51B to $66.77B) is a real raise: ProceedsFromIssuanceOfCommonStock $19.91B in the quarter (vs $0 a year ago), plus NI $4.76B and SBC $1.13B. Buybacks were nil in the quarter. So the quarter was funded by equity + customer prepayments, with $4.2B of debt actually repaid; the equity raise is the dilution/financing story, not leverage. Verdict for the desk: ORCL is not a quality red flag on coverage or leverage (net ~2.7x, cover 4.5x, cash $36B), but headline OCF is not usable as evidence of cash generation, lease obligations are the underweighted claim, and FCF is deeply negative. ORCL is not held; this clears the universe bar as informational only, no flag raised on the book. Not verified from the filing text (only XBRL): customer concentration behind the prepayments and lease-not-yet-commenced commitments.",
+    "evidence": [
+     {"claim": "OCF $23.103B (FQ1 FY27) vs $8.140B (FQ1 FY26); capex $28.499B vs $8.502B", "source": "SEC XBRL NetCashProvidedByUsedInOperatingActivities / PaymentsToAcquirePropertyPlantAndEquipment, accn 0001193125-26-389274", "date": "2026-09-11"},
+     {"claim": "ContractWithCustomerLiability $30.789B at 2026-08-31 vs $15.395B at 2026-05-31 (noncurrent $16.103B vs $5.479B); RPO $664B vs $638B at FY-end and $455.3B a year ago", "source": "SEC XBRL, same accession", "date": "2026-09-11"},
+     {"claim": "NotesPayableCurrent $7.625B + LongTermNotesAndLoans $117.712B = $125.337B; cash $36.369B; RepaymentsOfDebt $4.202B; OperatingLeaseLiability $34.621B", "source": "SEC XBRL, same accession", "date": "2026-09-11"},
+     {"claim": "ProceedsFromIssuanceOfCommonStock $19.909B; StockholdersEquity $66.772B vs $42.508B", "source": "SEC XBRL, same accession", "date": "2026-09-11"},
+     {"claim": "InterestExpense $1.428B (Q1 FY27), $0.923B (Q1 FY26), $4.599B (FY26); OperatingIncomeLoss $6.728B / $4.277B / $20.606B; Depreciation $3.156B / $1.351B / $7.623B", "source": "SEC XBRL, same accession and FY26 10-K accn 0001193125-26-277521", "date": "2026-09-11"}
+    ],
+    "confidence": "high"
+   }
+  ],
+  "asks": [],
+  "tells": [
+   {
+    "to": "strategist",
+    "ticker": "NBIS",
+    "fact": "Read-across ORCL to NBIS: same funding shape, very different balance-sheet cushion. Shared: OCF is prepayment-inflated (ORCL contract liabilities +$15.4B in the quarter; NBIS OCF $2.25B vs capex $5.66B in Q2 with a ~$2.03B customer-prepayment working-capital swing), capex is 1.2x (ORCL) to 2.5x (NBIS) OCF, and both are raising external capital (ORCL $19.9B common equity this quarter; NBIS $5B convert). Different: ORCL EBIT/interest 4.5x, net debt/EBITDA <= ~2.7x, $36B cash, and it repaid $4.2B debt; NBIS operating income is -$175.9M against $119.1M interest expense, so interest is not covered by operations at all, total debt $10.06B is +102% YoY, and the SOFR+2.50% floating-rate exposure has no EBITDA to absorb it. Implication: ORCL's successful $19.9B equity raise shows the capital market is open to this build-out financing structure (modestly lowers NBIS near-term refinancing risk), but NBIS lives on that access whereas ORCL does not. Prepayment inflows are finite: they convert to revenue without cash, so NBIS's OCF flatters until new prepayments slow. Existing NBIS flag stands unchanged (still secondary-verified via yfinance; NBIS EDGAR XBRL pull not done this round).",
+    "source": "ORCL: SEC XBRL accn 0001193125-26-389274; NBIS: data_cache.quality_financials (yfinance, fetched 2026-09-06) and quality_read flag dated 2026-09-06",
+    "weight": "normal"
+   },
+   {
+    "to": "catalyst",
+    "ticker": "ORCL",
+    "fact": "ORCL issued ~$19.9B of common equity in FQ1 FY27 (10-Q filed 2026-09-11) while repaying $4.2B of debt and taking $15.4B of customer prepayments. A financing-structure datapoint for the AI-capex factor: the build-out is being funded by equity and customer prepayments, not incremental debt, at the largest scale on the desk's universe.",
+    "source": "SEC XBRL ProceedsFromIssuanceOfCommonStock, RepaymentsOfDebt, ContractWithCustomerLiability, accn 0001193125-26-389274",
+    "weight": "normal"
+   }
+  ]
+ },
+ "memory_used": ["d5047f7caa71"],
+ "memory_refuted": [],
+ "learned": [
+  {
+   "entities": ["ORCL", "C:AI Networking/Optics"],
+   "kind": "fact",
+   "text": "ORCL FQ1 FY27 (qtr ended 2026-08-31): OCF $23.10B is prepayment-driven (contract liabilities +$15.39B to $30.79B; noncurrent $5.48B to $16.10B), capex $28.50B, quarter FCF -$5.40B, TTM FCF -$28.7B. Gross debt $125.3B (notes payable, no total-debt tag; down $4.2B QoQ), cash $36.4B, net debt $89.0B, TTM EBITDA >= ~$32.5B (Depreciation tag only) so net debt/EBITDA <= ~2.7x; EBIT/interest 4.7x quarter, 4.5x TTM; operating lease liabilities $34.6B on top. Equity +$24.3B incl. $19.9B common stock issuance. Not a coverage/leverage flag; do not score OCF/PAT >1.2x as good for prepayment-funded builders.",
+   "source": "SEC EDGAR XBRL via smith_edgar.py, 10-Q accn 0001193125-26-389274 filed 2026-09-11",
+   "confidence": "primary"
+  },
+  {
+   "entities": ["ORCL", "NBIS"],
+   "kind": "lesson",
+   "text": "ORCL has no us-gaap total-debt tag: build gross debt from NotesPayableCurrent + LongTermNotesAndLoans (verify concept 'lt_debt' alias returns stale FY2022 zero). Use RepaymentsOfDebt and ProceedsFromIssuanceOfCommonStock for the funding mix. Capex-heavy prepayment-funded names (ORCL, NBIS): OCF/PAT is inflated by deferred revenue; judge by OCF ex change in contract liabilities and by EBIT/interest.",
+   "source": "smith_edgar.py tags/verify ORCL, 2026-09-21",
+   "confidence": "primary"
+  },
+  {
+   "entities": ["ORCL", "NBIS"],
+   "kind": "fact",
+   "text": "Read-across: NBIS shares ORCL's prepayment-inflated OCF and external-capital funding but has negative operating income (-$175.9M vs $119.1M interest expense, Q2 2026) versus ORCL's 4.5x cover and $36B cash; NBIS depends on capital-market access. NBIS XBRL not yet primary-verified.",
+   "source": "data_cache.quality_financials NBIS (yfinance 2026-09-06) vs ORCL SEC XBRL 2026-09-11",
+   "confidence": "secondary"
+  }
+ ]
+}

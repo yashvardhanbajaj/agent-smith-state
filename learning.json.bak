@@ -1307,6 +1307,138 @@
       "value": 1,
       "run_dir": "runs/2026-09-20-0816Z",
       "note": "SKHY over WDC in AI Memory/Storage: spread 24.56pp (ladder of 2026-09-09, confidence medium)"
+    },
+    {
+      "date": "2026-09-21",
+      "param_id": "usage:catalyst",
+      "value": {
+        "tokens": 144814,
+        "tool_calls": 22,
+        "duration_s": 313,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-21-1357Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-21",
+      "param_id": "usage:scout",
+      "value": {
+        "tokens": 116247,
+        "tool_calls": 12,
+        "duration_s": 220,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-21-1357Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-21",
+      "param_id": "usage:signals",
+      "value": {
+        "tokens": 169516,
+        "tool_calls": 30,
+        "duration_s": 338,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-21-1357Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-21",
+      "param_id": "usage:watchlist",
+      "value": {
+        "tokens": 142273,
+        "tool_calls": 19,
+        "duration_s": 214,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-21-1357Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-21",
+      "param_id": "usage:thesis",
+      "value": {
+        "tokens": 226082,
+        "tool_calls": 36,
+        "duration_s": 747,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-21-1357Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-21",
+      "param_id": "usage:cluster_semis",
+      "value": {
+        "tokens": 160956,
+        "tool_calls": 13,
+        "duration_s": 780,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-21-1357Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-21",
+      "param_id": "usage:earnings",
+      "value": {
+        "tokens": 85413,
+        "tool_calls": 11,
+        "duration_s": 238,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-21-1357Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-21",
+      "param_id": "usage:quality",
+      "value": {
+        "tokens": 95952,
+        "tool_calls": 10,
+        "duration_s": 165,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-21-1357Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-21",
+      "param_id": "usage:strategist",
+      "value": {
+        "tokens": 198543,
+        "tool_calls": 24,
+        "duration_s": 522,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-21-1357Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-21",
+      "param_id": "usage:librarian",
+      "value": {
+        "tokens": 133343,
+        "tool_calls": 4,
+        "duration_s": 229,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-21-1357Z",
+      "note": "mode=deep"
+    },
+    {
+      "date": "2026-09-21",
+      "param_id": "usage:librarian",
+      "value": {
+        "tokens": 123031,
+        "tool_calls": 5,
+        "duration_s": 172,
+        "mode": "deep"
+      },
+      "run_dir": "2026-09-21-1357Z",
+      "note": "mode=deep"
     }
   ],
   "parameters": {
@@ -1812,6 +1944,24 @@
       "text": "USAGE AUDIT (auto-logged, 2026-09-15-0740Z): strategist used 248,513 tokens this run vs a trailing median of 118,574 over its last 5 runs -- 2.1x, past the 1.5x flag threshold. Investigate whether this run's dispatch prompt asked strategist to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
       "evidence": "usage-audit run_id=2026-09-15-0740Z, agent=strategist, tokens=248513, tool_calls=42, duration_s=1933",
       "source_run": "2026-09-15-0740Z",
+      "supersedes": null
+    },
+    {
+      "id": "L-053",
+      "date": "2026-09-21",
+      "kind": "correction",
+      "text": "USAGE AUDIT (auto-logged, 2026-09-21-1357Z): thesis used 226,082 tokens this run vs a trailing median of 128,745 over its last 7 runs -- 1.8x, past the 1.5x flag threshold. Investigate whether this run's dispatch prompt asked thesis to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
+      "evidence": "usage-audit run_id=2026-09-21-1357Z, agent=thesis, tokens=226082, tool_calls=36, duration_s=747",
+      "source_run": "2026-09-21-1357Z",
+      "supersedes": null
+    },
+    {
+      "id": "L-054",
+      "date": "2026-09-21",
+      "kind": "correction",
+      "text": "USAGE AUDIT (auto-logged, 2026-09-21-1357Z): cluster_semis used 160,956 tokens this run vs a trailing median of 94,128 over its last 3 runs -- 1.7x, past the 1.5x flag threshold. Investigate whether this run's dispatch prompt asked cluster_semis to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
+      "evidence": "usage-audit run_id=2026-09-21-1357Z, agent=cluster_semis, tokens=160956, tool_calls=13, duration_s=780",
+      "source_run": "2026-09-21-1357Z",
       "supersedes": null
     }
   ]

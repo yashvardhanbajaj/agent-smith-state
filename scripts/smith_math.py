@@ -3972,7 +3972,15 @@ def _cluster_rotation_legs_from_ladder(entry, tickers_here, conviction_by_ticker
         return f"{axis} -- {read}" if axis and read else None
 
     def _rank_line(t, side):
-        return f"cluster ladder ranks {t} #{order[t]} of {len(ranking)} ({side})"
+        # `side` is the LEG's role (sell/buy), not the ladder's own verdict: "(laggard)" was printed for any
+        # sell-leg name, so ASML at #5 of 7 read as the cluster's laggard while the ladder's laggard was QCOM
+        # (#7). The extreme label is earned only by the actual last / first rank; otherwise say which third.
+        n = len(ranking)
+        if side == "laggard":
+            side = "laggard" if order[t] == n else "bottom third"
+        elif side == "leader":
+            side = "leader" if order[t] == 1 else "top third"
+        return f"cluster ladder ranks {t} #{order[t]} of {n} ({side})"
 
     def _why_buy(t):
         """The buy leg quotes `differentiator_reads` -- the agent's case FOR the rank. On this

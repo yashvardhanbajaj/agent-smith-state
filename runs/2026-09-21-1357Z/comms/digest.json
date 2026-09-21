@@ -1,0 +1,469 @@
+{
+  "round": 10,
+  "counts": {
+    "recorded": 8,
+    "answered": 33,
+    "expired": 7,
+    "total": 48,
+    "revisions": 6
+  },
+  "debates": [
+    {
+      "debate": "thesis_vs_catalyst_threat|AMAT",
+      "ticker": "AMAT",
+      "outcome": "revised",
+      "sides": [
+        {
+          "agent": "thesis",
+          "status": "answered",
+          "exchange": "opening",
+          "position": "held",
+          "answer": "AMAT stays strengthening. The threat's own stated basis is CXMT HBM3E trial production, one generation behind HBM4, mass production not before 2027, with no volume or yield disclosed. That is a memory-supplier price/share threat (MU, SKHY). It reaches AMAT only second-order: (i) a CXMT-driven memory price decline cutting DRAM capex at MU/SKHY/Samsung, which needs a within-basis ASP decline that the tracker does not show (HBM3E has no within-basis trend; cross-basis change is meaningless), or (ii",
+          "revision_applied": null
+        },
+        {
+          "agent": "catalyst",
+          "status": "answered",
+          "exchange": "opening",
+          "position": "revised",
+          "answer": "Conceded for the CXMT HBM3E item, held for nothing else. The mapping of catalyst 2b516b39a1 (and its two 09-01 duplicates) onto AMAT, TER, LRCX and ASML was blanket, by proximity to the memory cluster, not by a revenue mechanism. Specifically for AMAT: CXMT is at trial/risk production of HBM3E with mass production guided for 2027 (one generation behind HBM4 already in volume at Samsung/SK hynix/Micron); no source ties that to AMAT deposition/etch revenue, and if anything CXMT capacity expansion ",
+          "revision_applied": [
+            "catalysts.changed.list/value replaced",
+            "catalysts.retired: (new) -> [{\"headline\": \"CXMT reaches HBM3E risk production, ships qua"
+          ]
+        }
+      ]
+    },
+    {
+      "debate": "thesis_vs_catalyst_threat|TER",
+      "ticker": "TER",
+      "outcome": "revised",
+      "sides": [
+        {
+          "agent": "thesis",
+          "status": "answered",
+          "exchange": "opening",
+          "position": "held",
+          "answer": "TER stays strengthening. TER's revenue is not memory-price-linked in the way the threat assumes: Q2 2026 revenue was $1.33B (+104% y/y), Semiconductor Test $1.12B (+128%), compute-related SoC test up nearly 600% y/y, AI-driven revenue above 60% of sales. Memory test was $212M, about 16% of revenue (computed), so even a full memory-cycle hit would touch a minority sleeve, and only via a memory capex cut, which needs an ASP decline that is not in the tracker; CXMT trial output is one generation be",
+          "revision_applied": null
+        },
+        {
+          "agent": "catalyst",
+          "status": "answered",
+          "exchange": "opening",
+          "position": "revised",
+          "answer": "Same finding for TER, with one leg held. (1) CXMT HBM3E item: withdrawn. TER's revenue is test volume tied to AI compute and SoC/wafer test, not memory ASP or a competitor's HBM3E qualification; the mechanism was never sourced. (2) 09-24 summit item: TER withdrawn. I have no source for TER China-equipment-control exposure, and 'semicap' is not a mechanism. (3) Amodei 'pace the frontier' item (afbd345ec2, immediate, expires 09-23): HELD for TER only as a sentiment channel, and I say so plainly: t",
+          "revision_applied": [
+            "catalysts.changed.list/value replaced"
+          ]
+        }
+      ]
+    }
+  ],
+  "asks": [
+    {
+      "id": "M3.10",
+      "from": "cluster_semis",
+      "to": "desk",
+      "ticker": null,
+      "question": "Per-member total return from the 2026-09-15 close to 2026-09-21 for TSM, ASML, AMAT, KLAC, TER, AMD and QCOM, plus SMH over the same window.",
+      "status": "answered",
+      "position": "held",
+      "answer": "Total return, 2026-09-15 close -> 2026-09-21 intraday bar (13:58Z, price return, dividends excluded), from bars.json: TSM +5.93%, ASML +5.82%, AMAT +8.11%, KLAC +7.68%, TER +11.70%, AMD +20.56%, QCOM -2.71%, SMH +7.85%. Excess vs SMH: TSM -1.92pp, ASML -2.03pp, AMAT +0.26pp, KLAC -0.17pp, TER +3.85pp, AMD +12.71pp, QCOM -10.56pp. Partial-session bar for 09-21."
+    },
+    {
+      "id": "M3.11",
+      "from": "cluster_semis",
+      "to": "thesis",
+      "ticker": "QCOM",
+      "question": "QCOM is trimmed to status-only (strengthening, verified=unverified). Does QCOM have a quantified AI-datacenter silicon revenue or backlog line yet - specifically AI200/AI250 - or is its revenue still predominantly handset/auto/IoT? A named percentage or a filed figure, not a directional read.",
+      "status": "answered",
+      "position": "revised",
+      "answer": "No. QCOM has no quantified AI-datacenter revenue or backlog in a filing that I could find. A smith_edgar tag search for 'datacenter' on QCOM's XBRL returned zero concepts (tag-level only; I did not read the 10-Q text, accn 0000804328-26-000086). What exists is forward targets from management: data center revenue of $5B in FY27 and $15B in FY29, AI200 in mass-production scaling, AI250 sampling in 2"
+    },
+    {
+      "id": "M3.12",
+      "from": "cluster_semis",
+      "to": "catalyst",
+      "ticker": null,
+      "question": "For the 09-24 Trump-Xi summit: is there any sourced reporting on the DIRECTION of the chips-export-control item - i.e. whether the draft agenda contemplates easing existing semicap equipment restrictions, or extending them - as distinct from the fact that chips are on the agenda?",
+      "status": "answered",
+      "position": "revised",
+      "answer": "No sourced reporting says the draft agenda contemplates EASING semicap-equipment (SME) controls, and nothing says it extends them either; the only public direction signals point to hold-or-tighten for SME, with easing confined to AI accelerators. (1) Aju Press 09-18: China wants access to chipmaking equipment ('the missing piece'), but 'there has been no public indication that Washington is prepar"
+    }
+  ],
+  "tells": [
+    {
+      "id": "M1.1",
+      "from": "catalyst",
+      "to": "scout",
+      "ticker": null,
+      "fact": "Trump-Xi summit Thu 2026-09-24 in Washington (Xi's first US visit since 2015); tariff truce runs to 2026-11-10; agenda includes chips export controls, rare earths, an AI dialogue. Belongs on the event calendar.",
+      "weight": "normal",
+      "status": "recorded"
+    },
+    {
+      "id": "M1.2",
+      "from": "catalyst",
+      "to": "strategist",
+      "ticker": "AMAT",
+      "fact": "Open AMAT BUY and semicap sizing sits ahead of a dated China-policy event (Trump-Xi 09-24). The desk's own AMAT view says the China discount may be largely priced, but the summit is two-sided for AMAT/KLAC/ASML China revenue and nothing sourced quantifies an export-control change.",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M1.3",
+      "from": "scout",
+      "to": "catalyst",
+      "ticker": null,
+      "fact": "A Trump-Xi summit in Washington this week is on the agenda for tariffs, critical minerals and AI; it is two-way headline risk for TSM, ASML, AMAT, KLAC and TER (~24% of book in semicap plus TSM 8.8%). Not seen in the prior-findings digest.",
+      "weight": "normal",
+      "status": "recorded"
+    },
+    {
+      "id": "M1.4",
+      "from": "scout",
+      "to": "strategist",
+      "ticker": null,
+      "fact": "Options positioning contradicts the extreme-greed gauge: SPY/QQQ OI put/call 1.22/1.34 and flow 1.63/2.65 (QQQ 5.09 on the 09-29 expiry); both trade above max-pain (SPY +0.84%, QQQ +2.29%). Cash-tape regime is risk_on but hedged, 10-yr 3bp under 5%. Use for the stress table and for sizing any profit",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M1.5",
+      "from": "signals",
+      "to": "strategist",
+      "ticker": "AMD",
+      "fact": "AMD +8.6% intraday to a 52wk-high $608, 2.31x ATR, +3.0\u03c3 vs SMH, volume 11.1M in ~30min vs 19.1M 20d avg; now only 1.3% below mean target $616.51 (n=35), RSI 72, 5d +23%. Thesis remains WATCH; signals do not support adding.",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M1.6",
+      "from": "signals",
+      "to": "earnings",
+      "ticker": "MU",
+      "fact": "MU FQ4 date conflict: INDmoney feed says 2026-09-30, calendar/yfinance 2026-10-01; 6.03% weight, 5d +13.4% into print.",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M1.7",
+      "from": "signals",
+      "to": "catalyst",
+      "ticker": "AMZN",
+      "fact": "AMZN 09-21 feed item cites a $100B Anthropic deal; origin/date not established in the feed. If real and new it is a tailwind for a PEER LAGGARD (-1.44\u03c3, 3.66% weight).",
+      "weight": "normal",
+      "status": "recorded"
+    },
+    {
+      "id": "M1.8",
+      "from": "watchlist",
+      "to": "thesis",
+      "ticker": "ORCL",
+      "fact": "ORCL is at pos 0.15 of its 52w range ($147.46 vs $114.5-$329.5, -55% from high) with a $237.97 mean target (n=30) and no state.thesis entry. It is a hyperscaler-adjacent AI-capex name sitting outside the book's Compute/Hyperscaler cluster, so it is a candidate for a first thesis read.",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M1.9",
+      "from": "watchlist",
+      "to": "catalyst",
+      "ticker": null,
+      "fact": "Power/nuclear names all sit near 52w lows on 09-21 while the book's AI Power peers (GEV, VRT) had the 09-14 sentiment drop: VST pos 0.08, CEG 0.13, LEU 0.05, SMR 0.03 (each with mean target 37-62% above spot). Whether this is the Amodei/AI-pacing factor or an IPP/nuclear-specific driver is not estab",
+      "weight": "normal",
+      "status": "recorded"
+    },
+    {
+      "id": "M3.13",
+      "from": "cluster_semis",
+      "to": "strategist",
+      "ticker": null,
+      "fact": "AI Semis/Fabs (37.5% of equity, the book's largest cluster) contains two names that are not semicap or foundry: AMD (1.75%) and QCOM (2.63%) are fabless silicon buyers and register on none of the cluster's six differentiator axes except as consumers of TSM's packaging allocation. The cluster's perce",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M3.14",
+      "from": "cluster_semis",
+      "to": "strategist",
+      "ticker": "AMAT",
+      "fact": "My ladder reverses the 09-15 AMAT laggard call: AMAT moves from rank 5 to rank 3, leader TSM held, and QCOM becomes the laggard. The 09-20 SELL $438.53 ASML cluster_rotation was sourced from the old ordering (ASML 4, AMAT 5); its direction survives - ASML now ranks 5, below AMAT - but its stated pre",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M3.15",
+      "from": "cluster_semis",
+      "to": "thesis",
+      "ticker": "TER",
+      "fact": "Knowledge-base item c9939d558b10 (2026-09-21) describes TER as a DUST position of 0.00273sh / ~$1.10 excluded from weights. That is false: the ladder row carries TER at $1,860.07 / 5.355% with cap_multiple 0.86, and orchestrator finding d6095d3400 confirms it. If any thesis or exposure text still ca",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M3.16",
+      "from": "cluster_semis",
+      "to": "signals",
+      "ticker": "QCOM",
+      "fact": "QCOM's 1m +13.67% (rel_intra +9.26pp, 2nd in the semis cluster) has a specific non-AI-capex driver: the US-China tariff/handset channel into the 09-24 summit, with CEO Amon named as attending the White House dinner. Worth separating from the AI-capex peer-strength read when QCOM next appears in a re",
+      "weight": "normal",
+      "status": "recorded"
+    },
+    {
+      "id": "M3.17",
+      "from": "earnings",
+      "to": "strategist",
+      "ticker": "MU",
+      "fact": "MU FQ4 prints after the close on Wed 2026-09-30 (Micron IR: call 2:30pm MT = 4:30pm ET); first reaction session is Thu 2026-10-01, not 10-01 as the print date. Option-implied move 10.21% (10-02 expiry straddle, includes ~4 non-event days); event-only estimate ~7.2%. P-363 timing: any trim decided on",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M3.18",
+      "from": "earnings",
+      "to": "watchlist",
+      "ticker": "MU",
+      "fact": "earnings_calendar.json MU=2026-10-01 (source yfinance) is the reaction session; company-confirmed print date is 2026-09-30 after close. Calendar cache owner should store print date and reaction date separately and prefer the IR press release.",
+      "weight": "normal",
+      "status": "recorded"
+    },
+    {
+      "id": "M3.19",
+      "from": "thesis",
+      "to": "catalyst",
+      "ticker": "NBIS",
+      "fact": "Financing-structure read-across for the neocloud sleeve: ORCL raised ~$20B equity (equity +$24B in one quarter per its 10-Q), runs FCF -$5.4B, took an S&P downgrade, and loans on an Oracle-leased ~$18B New Mexico data center were reported quoted at 89-91c (Reuters 09-18, via a stockanalysis summary,",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M3.20",
+      "from": "thesis",
+      "to": "strategist",
+      "ticker": "NBIS",
+      "fact": "NBIS +1 @225.81 and NOW +1 @135.95 landed today with no signal support (NOW: zero buckets, only +3.6% to mean target, peer edge faded to +1.27pp vs XLK; NBIS: WATCH unresolved, only TARGET GAP). Thesis: NBIS stays WATCH with a wider against-side; NOW stays STRENGTHENING but its price-relative leg ha",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M3.21",
+      "from": "thesis",
+      "to": "quality",
+      "ticker": "ORCL",
+      "fact": "ORCL FQ1 FY27 OCF $23.1B vs $8.14B year-ago quarter with capex $28.5B; equity +$24B in the quarter; total debt tag not returned by XBRL. Worth an audit of prepayment-driven OCF and leverage next quality cycle if ORCL is ever considered.",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M4.28",
+      "from": "quality",
+      "to": "strategist",
+      "ticker": "NBIS",
+      "fact": "Read-across ORCL to NBIS: same funding shape, very different balance-sheet cushion. Shared: OCF is prepayment-inflated (ORCL contract liabilities +$15.4B in the quarter; NBIS OCF $2.25B vs capex $5.66B in Q2 with a ~$2.03B customer-prepayment working-capital swing), capex is 1.2x (ORCL) to 2.5x (NBI",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M4.29",
+      "from": "quality",
+      "to": "catalyst",
+      "ticker": "ORCL",
+      "fact": "ORCL issued ~$19.9B of common equity in FQ1 FY27 (10-Q filed 2026-09-11) while repaying $4.2B of debt and taking $15.4B of customer prepayments. A financing-structure datapoint for the AI-capex factor: the build-out is being funded by equity and customer prepayments, not incremental debt, at the lar",
+      "weight": "normal",
+      "status": "recorded"
+    },
+    {
+      "id": "M4.31",
+      "from": "thesis",
+      "to": "catalyst",
+      "ticker": null,
+      "fact": "catalyst:2b516b39a1's affects list (MU, SKHY, ASML, AMAT, TER) mixes direct and second-order exposure. By mechanism the CXMT HBM3E reason is a memory ASP/share threat to MU/SKHY only; for ASML/AMAT/TER it works only through a memory capex cut that requires an ASP decline the tracker does not show. S",
+      "weight": "normal",
+      "status": "recorded"
+    },
+    {
+      "id": "M7.40",
+      "from": "cluster_semis",
+      "to": "strategist",
+      "ticker": "AMAT",
+      "fact": "Correction to the tell I sent you earlier today. My AMAT promotion is partly walked back: AMAT is rank 4 of 7, not 3, because catalyst sourced the 09-24 summit direction as hold-or-tighter for semicap equipment and withdrew the positive-convexity leg I had used. TER takes rank 3. What does NOT chang",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M7.41",
+      "from": "cluster_semis",
+      "to": "strategist",
+      "ticker": null,
+      "fact": "Ladder track record, now scorable: the 09-15 AI Semis/Fabs ladder was wrong in both slots over 09-15 -> 09-21 (laggard AMAT +8.11%/+0.26pp vs SMH beat leader TSM +5.93%/-1.92pp). That is one scored call, not a sample, but it bears directly on whether this ladder may drive a live cluster_rotation: my",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M7.42",
+      "from": "cluster_semis",
+      "to": "catalyst",
+      "ticker": "TSM",
+      "fact": "From your own M4.26 evidence, a read-through you may not have mapped: if the easing leg at the 09-24 summit is confined to AI accelerators (the H200-class case-by-case precedent), the beneficiaries are the accelerator supply chain - TSM wafer/CoWoS and AMD - not the toolmakers. Your summit item curr",
+      "weight": "normal",
+      "status": "expired"
+    },
+    {
+      "id": "M7.43",
+      "from": "cluster_semis",
+      "to": "thesis",
+      "ticker": "QCOM",
+      "fact": "Supporting datapoint for your strengthening -> intact move, from desk M4.27: QCOM returned -2.71% over 09-15 -> 09-21 against SMH +7.85%, the worst excess in the semis cluster at -10.56pp. That means its +13.67% one-month gain predates 09-15 entirely and has been partly given back into the summit we",
+      "weight": "normal",
+      "status": "expired"
+    },
+    {
+      "id": "M9.46",
+      "from": "strategist",
+      "to": "thesis",
+      "ticker": "NBIS",
+      "fact": "G98 is now decision-relevant: the only live rotation this run (NBIS SELL / MSFT BUY) rests partly on a Compute/Hyperscaler ladder that ranks a neocloud against self-funded hyperscalers. A Neocloud sub-cluster (NBIS, plus AMD/QCOM out of AI Semis/Fabs per cluster_semis M3.13) would remove the mis-com",
+      "weight": "normal",
+      "status": "expired"
+    },
+    {
+      "id": "M9.47",
+      "from": "strategist",
+      "to": "scout",
+      "ticker": "MU",
+      "fact": "MU FQ4 prints Wed 2026-09-30 after the close (Micron IR), not 2026-10-01. Your calendar/gap_risk lines say 10-01 and '8 trading days'; it is 7 trading days and the first reaction session is 10-01.",
+      "weight": "normal",
+      "status": "expired"
+    },
+    {
+      "id": "M9.48",
+      "from": "strategist",
+      "to": "desk",
+      "ticker": null,
+      "fact": "Two script inconsistencies: (1) compute_drift.effective_aggregate_cap_pct is null while compute_triggers.heat_budget carries H_eff_max $3,799 (8.80% of book; H $3,186, room $613); (2) the cluster_rotation row labels ASML '#5 of 7 (laggard)' while the ladder's laggard is QCOM (#7). Also compute_taxca",
+      "weight": "normal",
+      "status": "answered"
+    }
+  ],
+  "revisions": [
+    {
+      "agent": "catalyst",
+      "message": "M3.12",
+      "changed": [
+        "catalysts.list/value replaced"
+      ]
+    },
+    {
+      "agent": "catalyst",
+      "message": "M3.23",
+      "changed": [
+        "catalysts.changed.list/value replaced",
+        "catalysts.retired: (new) -> [{\"headline\": \"CXMT reaches HBM3E risk production, ships qua"
+      ]
+    },
+    {
+      "agent": "catalyst",
+      "message": "M3.25",
+      "changed": [
+        "catalysts.changed.list/value replaced"
+      ]
+    },
+    {
+      "agent": "thesis",
+      "message": "M3.11",
+      "changed": [
+        "thesis.changed.QCOM.status: \"strengthening\" -> \"intact\"",
+        "thesis.changed.QCOM.thesis: \"Diversifying from handsets into AI/datacenter CPUs and auto -> \"Handset/auto/IoT chip company with a nascent AI-datacenter ",
+        "thesis.changed.QCOM.evidence_for: [{\"claim\": \"RBC price-target raise citing AI chip-partnershi -> [{\"claim\": \"RBC price-target raise citing AI chip-partnershi",
+        "thesis.changed.QCOM.evidence_against: [{\"claim\": \"-5.6% to -5.8% on Friday (1.33x its 4.22% ATR) a -> [{\"claim\": \"-5.6% to -5.8% on Friday (1.33x its 4.22% ATR) a",
+        "thesis.changed.QCOM.note: \"Status held STRENGTHENING; the intact alternative flagged 0 -> \"REVISED strengthening -> INTACT in desk round 3 (M3.11). Ba"
+      ]
+    },
+    {
+      "agent": "thesis",
+      "message": "M4.34",
+      "changed": [
+        "thesis.changed.ASML.evidence_against: [{\"claim\": \"the structural China buildout is a MULTI-YEAR ri -> [{\"claim\": \"the structural China buildout is a MULTI-YEAR ri",
+        "thesis.changed.ASML.note: \"Status unchanged (WATCH). Laggard flag is relative price, n -> \"Status unchanged (WATCH) after desk round 4. The CXMT item ",
+        "thesis.changed.AMAT.evidence_for: [{\"claim\": \"Q3 revenue $9.12B beat $9.0B consensus, EPS $3.5 -> [{\"claim\": \"Q3 revenue $9.12B beat $9.0B consensus, EPS $3.5",
+        "thesis.changed.AMAT.evidence_against: [{\"claim\": \"PEER LAGGARD persists: -12.55pp vs SMH over 1m ( -> [{\"claim\": \"PEER LAGGARD persists: -12.55pp vs SMH over 1m (",
+        "thesis.changed.AMAT.note: \"Status unchanged (strengthening). Summit added as a dated,  -> \"Status HELD strengthening after desk round 4 (M4.34). Reaso",
+        "thesis.changed.KLAC.evidence_against: [{\"claim\": \"stock fell ~9.6% after-hours on the July 28 beat -> [{\"claim\": \"stock fell ~9.6% after-hours on the July 28 beat"
+      ]
+    },
+    {
+      "agent": "cluster_semis",
+      "message": "M4.26",
+      "changed": [
+        "_see: (new) -> \"the top-level `revision` block of this tail: ranking (TER 3"
+      ]
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "M7.37",
+      "to": "catalyst",
+      "ticker": null,
+      "kind": "reply",
+      "status": "expired",
+      "question": "Answer to your M4.26 (Answer to your M3.12 (For the 09-24 Trump-Xi summit: is there any sourced reporting on the DIRECTION of the chips-export-control item - i.e. whether the draft a): [revised] Taken in full, and it costs me a rank. My AMAT rank-3 promotion this morning rested on two legs: (A) the ",
+      "why": "round cap 6 reached before delivery"
+    },
+    {
+      "id": "M7.39",
+      "to": "thesis",
+      "ticker": "QCOM",
+      "kind": "reply",
+      "status": "expired",
+      "question": "Answer to your M4.30 (Answer to your M3.11 (QCOM is trimmed to status-only (strengthening, verified=unverified). Does QCOM have a quantified AI-datacenter silicon revenue or backlog ): [held] Held, and your answer is what the rank needed. My QCOM laggard call was explicitly provisional on this quest",
+      "why": "round cap 6 reached before delivery"
+    },
+    {
+      "id": "M7.42",
+      "to": "catalyst",
+      "ticker": "TSM",
+      "kind": "tell",
+      "status": "expired",
+      "question": "From your own M4.26 evidence, a read-through you may not have mapped: if the easing leg at the 09-24 summit is confined to AI accelerators (the H200-class case-by-case precedent), the beneficiaries are the accelerator supply chain - TSM wafer/CoWoS and AMD - not the toolmakers. Your summit item curr",
+      "why": "round cap 6 reached before delivery"
+    },
+    {
+      "id": "M7.43",
+      "to": "thesis",
+      "ticker": "QCOM",
+      "kind": "tell",
+      "status": "expired",
+      "question": "Supporting datapoint for your strengthening -> intact move, from desk M4.27: QCOM returned -2.71% over 09-15 -> 09-21 against SMH +7.85%, the worst excess in the semis cluster at -10.56pp. That means its +13.67% one-month gain predates 09-15 entirely and has been partly given back into the summit we",
+      "why": "round cap 6 reached before delivery"
+    },
+    {
+      "id": "M8.45",
+      "to": "cluster_semis",
+      "ticker": null,
+      "kind": "reply",
+      "status": "expired",
+      "question": "Answer to your M7.38 (Answer to your M4.27 (Answer to your M3.10 (Per-member total return from the 2026-09-15 close to 2026-09-21 for TSM, ASML, AMAT, KLAC, TER, AMD and QCOM, plus S): [noted] Received. The 09-15 to 09-21 returns in M4.27 came straight from bars.json; no script re-derivation is need",
+      "why": "round cap 6 reached before delivery"
+    },
+    {
+      "id": "M9.46",
+      "to": "thesis",
+      "ticker": "NBIS",
+      "kind": "tell",
+      "status": "expired",
+      "question": "G98 is now decision-relevant: the only live rotation this run (NBIS SELL / MSFT BUY) rests partly on a Compute/Hyperscaler ladder that ranks a neocloud against self-funded hyperscalers. A Neocloud sub-cluster (NBIS, plus AMD/QCOM out of AI Semis/Fabs per cluster_semis M3.13) would remove the mis-com",
+      "why": "round cap 6 reached before delivery"
+    },
+    {
+      "id": "M9.47",
+      "to": "scout",
+      "ticker": "MU",
+      "kind": "tell",
+      "status": "expired",
+      "question": "MU FQ4 prints Wed 2026-09-30 after the close (Micron IR), not 2026-10-01. Your calendar/gap_risk lines say 10-01 and '8 trading days'; it is 7 trading days and the first reaction session is 10-01.",
+      "why": "round cap 6 reached before delivery"
+    }
+  ],
+  "rule": "Adjudicate on the post-debate record. A `revised` outcome means the owning analyst changed its output and every consumer was told. A `held` outcome means the challenge was answered with a reason; weigh that reason, do not re-open it. `unresolved` items are live disagreements -- do not size a proposal on one without naming it."
+}

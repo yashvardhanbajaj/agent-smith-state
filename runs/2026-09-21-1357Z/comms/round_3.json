@@ -1,0 +1,106 @@
+{
+  "round": 3,
+  "at": "2026-09-21T14:45:35Z",
+  "converged": false,
+  "stop_reason": null,
+  "deliveries": {
+    "thesis": {
+      "mode": "resume",
+      "messages": [
+        "M3.11",
+        "M3.22",
+        "M3.24",
+        "M3.15"
+      ],
+      "inbox": "runs/2026-09-21-1357Z/comms/inbox_thesis.json",
+      "reply_file": "runs/2026-09-21-1357Z/out_thesis.r3.json"
+    },
+    "catalyst": {
+      "mode": "resume",
+      "messages": [
+        "M3.12",
+        "M3.23",
+        "M3.25",
+        "M3.19"
+      ],
+      "inbox": "runs/2026-09-21-1357Z/comms/inbox_catalyst.json",
+      "reply_file": "runs/2026-09-21-1357Z/out_catalyst.r3.json"
+    },
+    "strategist": {
+      "mode": "inbox",
+      "messages": [
+        "M3.13",
+        "M3.14",
+        "M3.17",
+        "M3.20"
+      ],
+      "inbox": "runs/2026-09-21-1357Z/comms/inbox_strategist.json",
+      "reply_file": "runs/2026-09-21-1357Z/out_strategist.json"
+    },
+    "quality": {
+      "mode": "dispatch",
+      "messages": [
+        "M3.21"
+      ],
+      "inbox": "runs/2026-09-21-1357Z/comms/inbox_quality.json",
+      "reply_file": "runs/2026-09-21-1357Z/out_quality.r3.json"
+    }
+  },
+  "new_agents": [
+    "quality"
+  ],
+  "desk_requests": [
+    {
+      "id": "M3.10",
+      "from": "cluster_semis",
+      "ticker": null,
+      "question": "Per-member total return from the 2026-09-15 close to 2026-09-21 for TSM, ASML, AMAT, KLAC, TER, AMD and QCOM, plus SMH over the same window."
+    }
+  ],
+  "answered_this_round": [
+    "M1.6",
+    "M1.8"
+  ],
+  "awaiting_answers": [
+    "M1.2",
+    "M1.4",
+    "M1.5",
+    "M3.10",
+    "M3.11",
+    "M3.12",
+    "M3.15",
+    "M3.19",
+    "M3.21",
+    "M3.22",
+    "M3.23",
+    "M3.24",
+    "M3.25"
+  ],
+  "queued_for_scheduled_agents": [
+    "strategist"
+  ],
+  "revisions": [
+    {
+      "applied": false,
+      "reason": "out_earnings.json missing -- nothing to revise"
+    }
+  ],
+  "remerge": [],
+  "rerun_crosscheck": false,
+  "debates_opened": [
+    "thesis_vs_catalyst_threat|AMAT",
+    "thesis_vs_catalyst_threat|TER"
+  ],
+  "reminders": [],
+  "rejected": [],
+  "schema_repairs": [],
+  "counts": {
+    "recorded": 6,
+    "delivered": 12,
+    "answered": 2,
+    "open": 1,
+    "queued": 4,
+    "total": 25,
+    "revisions": 0
+  }
+}

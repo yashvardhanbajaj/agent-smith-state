@@ -1,0 +1,59 @@
+{
+  "agent": "signals",
+  "round": 9,
+  "messages": [],
+  "answers_to_your_questions": [
+    {
+      "your_message": "M1.5",
+      "to": "strategist",
+      "question": "AMD +8.6% intraday to a 52wk-high $608, 2.31x ATR, +3.0\u03c3 vs SMH, volume 11.1M in ~30min vs 19.1M 20d avg; now only 1.3% below mean target $616.51 (n=35), RSI 72, 5d +23%. Thesis remains WATCH; signals do not support adding.",
+      "position": "noted",
+      "answer": "Consistent with my read: AMD +29.5% on the month, RSI 72.1, 1.3% under mean target, WATCH thesis, $608 sub-scale (below the $648 minimum position). It supports open P-365 (AMD full exit) and argues against any add; I did not re-propose it and did not resize P-365 (the exit is now worth ~$608 vs $558 at proposal).",
+      "evidence": [
+        {
+          "claim": "AMD RSI 72.1, +29.48% 1m",
+          "source": "compute_triggers.json overbought_distribution",
+          "date": "2026-09-21"
+        }
+      ],
+      "confidence": "high",
+      "revision_applied": null
+    },
+    {
+      "your_message": "M1.6",
+      "to": "earnings",
+      "question": "MU FQ4 date conflict: INDmoney feed says 2026-09-30, calendar/yfinance 2026-10-01; 6.03% weight, 5d +13.4% into print.",
+      "position": "revised",
+      "answer": "The INDmoney date is right and the calendar/yfinance date is the reaction-session date, not the print date. Micron's own IR press release (published 2026-08-26) states the FQ4 earnings call is Wednesday 2026-09-30 at 2:30 p.m. Mountain (= 4:30 p.m. ET, i.e. 30 minutes AFTER the US close). Results therefore land after the bell on 09-30 and the first tradable reaction session is Thursday 2026-10-01, which is what the 10-01 in yfinance/earnings_calendar.json is tracking (source: yfinance, unconfirmed by the company). The IR page does not itself print 'after market close'; the after-close inference rests on the 2:30 MT call time (4:30 ET, past the 4:00 ET close) and the same pattern on FQ3 (call Wed 2026-06-24, 2:30 p.m. MT, release dated the same day). Implication for P-363: the print is 7 trading days away (09-22..09-30), the gap-risk session is 10-01, and nothing prints on 09-30 during regular hours, so a 09-30 close-of-day decision is still made blind to the numbers. Option-implied move (yfinance chain, spot $1040.73 on 2026-09-21, ATM 1040 straddle mid): the 2026-10-02 expiry, the first expiry after the print, prices call mid 50.35 + put mid 55.95 = 106.30 = 10.21% of spot (matches the 10.22% already in memory, so the desk figure stands). That figure includes about 4 non-event trading days of diffusion. Stripping the pre-print variance using the 2026-09-28 expiry straddle (26.0+28.0)/2 + (31.25+33.85)/2 = 59.55 = 5.72% of spot, my variance-decomposition estimate of the earnings-day-only expected absolute move is about 7.2%. Treat 7.2% as a model estimate with a wide error band (wide bid/ask on the 09-28 puts, put skew, IV 45-54% on 09-28 vs 65-75% on 10-02); 10.21% is the directly observed number. I am not recommending a trade; sizing belongs to the strategist. No quarter verdict: FQ4 has not been reported, so quarter_verdict and guide_verdict stay null.",
+      "evidence": [
+        {
+          "claim": "Micron will hold FQ4 earnings call Wed 2026-09-30 at 2:30 p.m. Mountain time (release dated 2026-08-26)",
+          "source": "https://investors.micron.com/news/press-release/2026/Micron-Technology-to-Report-Fiscal-Fourth-Quarter-Results-on-September-30-2026/default.aspx (also GlobeNewswire 2026-08-26)",
+          "date": "2026-08-26"
+        },
+        {
+          "claim": "FQ3 precedent: results dated 2026-06-24 with call same day 2:30 p.m. MT (same pattern, after the close)",
+          "source": "https://investors.micron.com/news/press-release/2026/Micron-Technology-Inc--Reports-Record-Results-for-the-Third-Quarter-of-Fiscal-2026/default.aspx",
+          "date": "2026-06-24"
+        },
+        {
+          "claim": "MU 2026-10-02 ATM 1040 straddle mid 106.30 on spot 1040.73 = 10.21%",
+          "source": "yfinance get_options MU exp 2026-10-02",
+          "date": "2026-09-21"
+        },
+        {
+          "claim": "MU 2026-09-28 ATM 1040 straddle mid 59.55 = 5.72% of spot (pre-print baseline)",
+          "source": "yfinance get_options MU exp 2026-09-28",
+          "date": "2026-09-21"
+        },
+        {
+          "claim": "yfinance earnings calendar returned no data for MU today; earnings_calendar.json 10-01 is source=yfinance only, not company-confirmed",
+          "source": "yfinance get_earnings_calendar; runs/2026-09-21-0632Z/earnings_calendar.json",
+          "date": "2026-09-21"
+        }
+      ],
+      "confidence": "high",
+      "revision_applied": null
+    }
+  ]
+}

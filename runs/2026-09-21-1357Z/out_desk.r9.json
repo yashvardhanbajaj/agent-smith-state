@@ -1,0 +1,23 @@
+{
+ "comms": {
+  "answers": [
+   {
+    "id": "M9.48",
+    "position": "held",
+    "answer": "(1) effective_aggregate_cap_pct is null BY DESIGN: it is the drawdown ladder's stepped cap and no rung is reached (drawdown 0.0%, total-book basis, risk_off normal). It is not the operative cap and not a conflict: the heat budget spends against H_eff_max $3,799 (8.80% of book) = the base cap x the measured-correlation cap_factor 0.8797, and would spend against the stepped cap instead once a rung engages. (2) CONFIRMED BUG, fixed in scripts/smith_math.py (_rank_line): the sell leg was hard-labelled '(laggard)' and the buy leg '(leader)' whatever the name's rank, so ASML #5 of 7 read as the cluster laggard while the ladder's laggard is QCOM #7. Labels are now 'laggard'/'leader' only at the actual last/first rank, else 'bottom third'/'top third'. Text only; sizing and votes are unchanged. (3) compute_taxcalc.json is absent because tax is retired (policy v2, 2026-09-21): no tax term anywhere, so trim-lot sequencing from each ticket's lots note is the correct source.",
+    "evidence": [
+     {
+      "claim": "compute_drift drawdown_pct 0.0 / effective cap null; heat_budget h_eff_max_usd 3799.38, cap_factor 0.8797",
+      "source": "runs/2026-09-21-1357Z/compute_drift.json, compute_triggers.json",
+      "date": "2026-09-21"
+     },
+     {
+      "claim": "label generated in _rank_line, smith_math.py; unit suite 1182 pass, ladder golden master byte-identical",
+      "source": "scripts/smith_math.py",
+      "date": "2026-09-21"
+     }
+    ]
+   }
+  ]
+ }
+}

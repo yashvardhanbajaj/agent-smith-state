@@ -2,17 +2,33 @@
  "brief": null,
  "entity": "T:ORCL",
  "live_facts": [
+  "[9bdabacf98fb] lesson NBIS,ORCL (2026-09-21): ORCL has no us-gaap total-debt tag: build gross debt from NotesPayableCurrent + LongTermNotesAndLoans (verify concept 'lt_debt' alias returns stale FY2022 zero). Use RepaymentsOfDebt and ProceedsFromIssuanceOfCommonStock for the funding mix. Capex-heavy prepayment-funded names (ORCL, NBIS): OCF/PAT is inflated by deferred revenue; judge by OCF ex change in contract liabilities and by EBIT/interest.",
+  "[0a2444c2fffb] fact/thesis_evidence ORCL (2026-09-21): [thesis evidence FOR] FQ1 FY27 (quarter ended 2026-08-31) revenue $19.345B as filed; company-reported +30% y/y with cloud infrastructure +121% to $7.4B",
+  "[f11e7928afe6] fact/thesis_evidence ORCL (2026-09-21): [thesis evidence FOR] FY27 revenue guide raised to at least $90B; RPO ~$664B (+$209B y/y); >$30B new AI cloud contracts in the quarter, most via prepayment/bring-your-own-hardware structures needing little Oracle capital. Reported-quarter and guide are separate signals: no consensus figure was verified, so neither is called a beat or a miss here",
+  "[52e9b5acca77] fact/thesis_evidence ORCL (2026-09-21): [thesis evidence FOR] Quarter operating cash flow $23.103B vs $8.14B in the year-ago quarter (source of the jump not established; customer prepayments plausible)",
+  "[9a2acd86ca92] fact/thesis_evidence ORCL (2026-09-21): [thesis evidence FOR] Analyst mean target $237.97, n=30, 86.7% Buy, 0% Sell, vs $148.00 live (+61% to target)",
+  "[87905ef3ca02] fact/thesis_evidence ORCL (2026-09-21): [thesis evidence AGAINST] Free cash flow is negative: quarter OCF $23.103B minus capex $28.499B = -$5.396B (computed from as-filed XBRL; matches the reported ~-$5.4B). FY27 capex guide $90-95B with no more than $70B net cash capex",
+  "[12cd3905e9be] fact/thesis_evidence ORCL (2026-09-21): [thesis evidence AGAINST] Dilution: stockholders' equity rose from $42.5B (2026-05-31) to $66.8B (2026-08-31) on $4.76B of net income, consistent with a reported ~$20B equity sale; quarter weighted diluted shares 3.0B vs 2.914B for FY26. Dilution is real; the $20B size is secondary-sourced",
+  "[dbdc91f6a185] fact/thesis_evidence ORCL (2026-09-21): [thesis evidence AGAINST] Leverage cost: quarter interest expense $1.428B vs operating income $6.728B (4.7x cover, computed); FY26 interest $4.599B. LongTermDebt tag returned only a stale 2022 row, so total debt is NOT measured here",
+  "[f0e2cbd62766] fact ORCL (2026-09-21): ORCL FQ1 FY27 (quarter ended 2026-08-31) as filed: revenue $19.345B, net income $4.76B, op income $6.728B, OCF $23.103B, capex $28.499B (FCF -$5.396B), interest expense $1.428B, SBC $1.127B, diluted shares 3.0B. Note: EDGAR tags this quarter fy 2026 / fp Q1 (label lags fiscal year); always use the `end` date.",
+  "[e5d5fe3fef1e] fact AI Networking/Optics,ORCL (2026-09-21): ORCL FQ1 FY27 (qtr ended 2026-08-31): OCF $23.10B is prepayment-driven (contract liabilities +$15.39B to $30.79B; noncurrent $5.48B to $16.10B), capex $28.50B, quarter FCF -$5.40B, TTM FCF -$28.7B. Gross debt $125.3B (notes payable, no total-debt tag; down $4.2B QoQ), cash $36.4B, net debt $89.0B, TTM EBITDA >= ~$32.5B (Depreciation tag only) so net debt/EBITDA <= ~2.7x; EBIT/interest 4.7x quarter, 4.5x TTM; operating lease liabilities $34.6B on top. Equity +$24.3B incl. $19.9B common stock issuance. Not a coverage/leverage flag; do not score OCF/PAT >1.2x as good for prepayment-funded builders.",
+  "[759fc01b68e4] fact/thesis_evidence ORCL (2026-09-18): [thesis evidence AGAINST] Loans on an Oracle-leased New Mexico data center (~$18B) reported quoted at 89 to 91 cents on the dollar (Reuters, per stockanalysis summary): market is pricing datacenter project-debt risk. Single secondary summary, unverified",
+  "[6767ea54eb99] fact/thesis_evidence ORCL (2026-09-17): [thesis evidence AGAINST] Executive share sales and rounds of layoffs reported; gross margins reported falling; stock -55% from the $329.50 52-week high (pos 0.15 of range) despite the raised guide",
+  "[0e1a01783ff9] event NBIS,ORCL,book-factor (2026-09-21) [secondary]: Oracle-leased Project Jupiter (NM) ~$18bn loans quoted 89-91c, syndication stalled on Oracle credit (FT/Reuters 09-18); no NBIS link sourced.",
+  "[4932c210d565] fact/thesis_evidence ORCL (2026-09-12): [thesis evidence FOR] Larry Ellison cancelled a planned $7.5B Oracle share sale after the print",
+  "[cb9c5495eff5] event ORCL (2026-09-18) [secondary]: THREAT/structural: Oracle-leased Project Jupiter (New Mexico) datacentre loans of ~$18bn quoted at 89-91c by syndicate banks; sale to wider investors stalled on Oracle's rising borrowing and weakening credit (FT via Reuters)",
+  "[d4f08ff50340] fact ORCL (2026-09-21) [secondary]: [watchlist setup] {\"ticker\": \"ORCL\", \"type\": \"oversold_bounce\", \"upside_pct\": 61.4, \"pos\": 0.15, \"price_usd\": 147.46}",
+  "[e4f4271120ac] fact NBIS,ORCL (2026-09-21) [secondary]: Read-across: NBIS shares ORCL's prepayment-inflated OCF and external-capital funding but has negative operating income (-$175.9M vs $119.1M interest expense, Q2 2026) versus ORCL's 4.5x cover and $36B cash; NBIS depends on capital-market access. NBIS XBRL not yet primary-verified.",
+  "[f6878c7f8dce] fact/thesis_evidence ORCL (2026-08-28): [thesis evidence AGAINST] S&P Global credit downgrade citing aggressive AI spending and negative cash flow",
   "[1eac78d5d260] fact Compute/Hyperscaler,ORCL (2026-09-15) [secondary]: [bench, better than AMZN, on backlog-to-revenue conversion only if proven; currently worse on funding (debt-funded, FCF negative) and more rate-sensitive] RPO-to-revenue conversion shown and financing plan disclosed, and not before the FOMC outcome; -3.65% on 09-14 (was $158.78 on 09-08)",
   "[9584c8fba8e5] fact Compute/Hyperscaler,ORCL (2026-09-14) [secondary]: [bench, better than AMZN] RPO-to-revenue conversion shown and financing plan disclosed; FCF negative FY26 (09-08 ref $158.78)",
+  "[fd5c2be65e41] fact ORCL (2026-09-10) [secondary]: [earnings] FQ1 FY27 (quarter ended 2026-08-31) reported 2026-09-10: revenue 19345000000 vs None; EPS None vs None (None)",
   "[fb3ee102934e] fact Compute/Hyperscaler,ORCL (2026-09-08) [secondary]: [bench, better than NBIS] Wants a print showing RPO conversion to revenue; FCF is expected negative in FY26, so entry needs the financing plan disclosed first. OCI is a contracted-RPO business with disclosed mega-customers.",
   "[f8cb14f5450e] fact ORCL (2026-09-07) [secondary]: [watchlist setup] {\"ticker\": \"ORCL\", \"type\": \"oversold_bounce\", \"upside_pct\": 34.4, \"pos\": 0.19}",
   "[d9876a4d809b] event ORCL (2026-08-14) [secondary]: THREAT/structural: ORCL -3.65% continuing debt/capex/cloud-AI-returns skepticism narrative, no single new dated item",
-  "[4a68bfe32d23] fact/thesis_evidence ORCL (2026-08-13) [unverified]: [thesis evidence FOR] Cloud Infrastructure revenue +93% YoY; $630B AI backlog; $7B Pentagon defense contract; Google Cloud/AWS AI partnerships expanding",
-  "[4482434ebb80] fact/thesis_evidence ORCL (2026-08-11) [unverified]: [thesis evidence AGAINST] credit-rating downgrade, ~$40B funding requirement, repeated negative-cash-flow flags, Michael Burry disclosed a short position, Project Jupiter delayed; stock -47% trailing year",
-  "[7b23aedf5464] event AMD,ASML,CIEN (2026-07-29) [secondary]: TAILWIND/None: Microsoft FQ4 beat, Azure fastest cloud growth in 4yr, rebuts AI-capex-financing fear",
-  "[b934d8bac79f] relation/member Compute/Hyperscaler,ORCL =Compute/Hyperscaler (2026-07-18): ORCL is classified in Compute/Hyperscaler"
+  "[7b23aedf5464] event AMD,ASML,CIEN (2026-07-29) [secondary]: TAILWIND/None: Microsoft FQ4 beat, Azure fastest cloud growth in 4yr, rebuts AI-capex-financing fear"
  ],
- "n_observations": 11,
+ "n_observations": 32,
  "open_tensions": [],
  "refuted": [],
  "timelines": {
@@ -27,9 +43,16 @@
    {
     "as_of": "2026-09-01",
     "id": "ee4c0f651676",
-    "status": "live",
+    "status": "superseded",
     "text": "EXITED: position exited",
     "value": "exited"
+   },
+   {
+    "as_of": "2026-09-21",
+    "id": "6c4b9b77bcdd",
+    "status": "live",
+    "text": "WATCH: Oracle: OCI/AI-cloud capacity seller on a very large contracted backlog, financed by heavy capex, debt and now equity; a hyperscaler-adjacent but financ…",
+    "value": "watch"
    }
   ]
  }

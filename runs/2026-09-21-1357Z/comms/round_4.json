@@ -1,0 +1,156 @@
+{
+  "round": 4,
+  "at": "2026-09-21T14:49:20Z",
+  "converged": false,
+  "stop_reason": null,
+  "deliveries": {
+    "strategist": {
+      "mode": "inbox",
+      "messages": [
+        "M3.13",
+        "M3.14",
+        "M3.17",
+        "M3.20",
+        "M4.28",
+        "M4.33",
+        "M4.35"
+      ],
+      "inbox": "runs/2026-09-21-1357Z/comms/inbox_strategist.json",
+      "reply_file": "runs/2026-09-21-1357Z/out_strategist.json"
+    },
+    "cluster_semis": {
+      "mode": "resume",
+      "messages": [
+        "M4.30",
+        "M4.32",
+        "M4.26",
+        "M4.27"
+      ],
+      "inbox": "runs/2026-09-21-1357Z/comms/inbox_cluster_semis.json",
+      "reply_file": "runs/2026-09-21-1357Z/out_cluster_semis.r4.json"
+    },
+    "thesis": {
+      "mode": "resume",
+      "messages": [
+        "M4.34"
+      ],
+      "inbox": "runs/2026-09-21-1357Z/comms/inbox_thesis.json",
+      "reply_file": "runs/2026-09-21-1357Z/out_thesis.r4.json"
+    }
+  },
+  "new_agents": [],
+  "desk_requests": [],
+  "answered_this_round": [
+    "M3.12",
+    "M3.19",
+    "M3.23",
+    "M3.25",
+    "M3.10",
+    "M3.21",
+    "M3.11",
+    "M3.15",
+    "M3.22",
+    "M3.24"
+  ],
+  "awaiting_answers": [
+    "M1.2",
+    "M1.4",
+    "M1.5",
+    "M4.26",
+    "M4.27",
+    "M4.30",
+    "M4.32",
+    "M4.34"
+  ],
+  "queued_for_scheduled_agents": [
+    "strategist"
+  ],
+  "revisions": [
+    {
+      "applied": true,
+      "agent": "catalyst",
+      "message": "M3.12",
+      "round": 4,
+      "keys": [
+        "catalysts"
+      ],
+      "dropped_keys": [],
+      "hydration": [],
+      "changed": [
+        "catalysts.list/value replaced"
+      ],
+      "at": "2026-09-21T14:49:20Z",
+      "at_epoch": 1790002160.8242838
+    },
+    {
+      "applied": true,
+      "agent": "catalyst",
+      "message": "M3.23",
+      "round": 4,
+      "keys": [
+        "catalysts"
+      ],
+      "dropped_keys": [],
+      "hydration": [],
+      "changed": [
+        "catalysts.changed.list/value replaced",
+        "catalysts.retired: (new) -> [{\"headline\": \"CXMT reaches HBM3E risk production, ships qua"
+      ],
+      "at": "2026-09-21T14:49:20Z",
+      "at_epoch": 1790002160.827919
+    },
+    {
+      "applied": true,
+      "agent": "catalyst",
+      "message": "M3.25",
+      "round": 4,
+      "keys": [
+        "catalysts"
+      ],
+      "dropped_keys": [],
+      "hydration": [],
+      "changed": [
+        "catalysts.changed.list/value replaced"
+      ],
+      "at": "2026-09-21T14:49:20Z",
+      "at_epoch": 1790002160.830852
+    },
+    {
+      "applied": true,
+      "agent": "thesis",
+      "message": "M3.11",
+      "round": 4,
+      "keys": [
+        "thesis"
+      ],
+      "dropped_keys": [],
+      "hydration": [],
+      "changed": [
+        "thesis.changed.QCOM.status: \"strengthening\" -> \"intact\"",
+        "thesis.changed.QCOM.thesis: \"Diversifying from handsets into AI/datacenter CPUs and auto -> \"Handset/auto/IoT chip company with a nascent AI-datacenter ",
+        "thesis.changed.QCOM.evidence_for: [{\"claim\": \"RBC price-target raise citing AI chip-partnershi -> [{\"claim\": \"RBC price-target raise citing AI chip-partnershi",
+        "thesis.changed.QCOM.evidence_against: [{\"claim\": \"-5.6% to -5.8% on Friday (1.33x its 4.22% ATR) a -> [{\"claim\": \"-5.6% to -5.8% on Friday (1.33x its 4.22% ATR) a",
+        "thesis.changed.QCOM.note: \"Status held STRENGTHENING; the intact alternative flagged 0 -> \"REVISED strengthening -> INTACT in desk round 3 (M3.11). Ba"
+      ],
+      "at": "2026-09-21T14:49:20Z",
+      "at_epoch": 1790002160.837342
+    }
+  ],
+  "remerge": [
+    "catalyst",
+    "thesis"
+  ],
+  "rerun_crosscheck": true,
+  "debates_opened": [],
+  "reminders": [],
+  "rejected": [],
+  "schema_repairs": [],
+  "counts": {
+    "recorded": 8,
+    "delivered": 8,
+    "answered": 12,
+    "queued": 7,
+    "total": 35,
+    "revisions": 4
+  }
+}

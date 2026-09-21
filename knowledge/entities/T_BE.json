@@ -1,8 +1,12 @@
 {
- "brief": null,
+ "brief": {
+  "as_of": "2026-09-21",
+  "id": "47c77d47ca39",
+  "text": "Thesis STRENGTHENING (09-08, verdict [unverified]) and ladder rank 1 in AI Power/Cooling/DC Infra (09-15; was 2 on 09-09). The case against is valuation and financing: ~95x FY26 non-GAAP EPS mid, EV/EBITDA ~199x, +190% YTD, mean target $276.05 only +7.4% above $257.05, beta 1.68 (c8a52984a67a); diluted shares +39% YoY and total debt +86% YoY to $2.81B (61f3378ef70f, 81ea286008a9, secondary). Support: S&P 500 inclusion effective 09-21, now realized not pending (efedeeb6a1be); OCF $226M exceeded NI $196M last quarter (61f3378ef70f). Correction: the raw PEER LEADER label vs SMH was a false artifact and is withdrawn; true peer is XLU, +9.24pp (169840c97941, unverified). KEY: Proposal 09-15: BUY $659.63 cluster_rotation, gated to an as-priced or dovish FOMC outcome (highest rate sensitivity in cluster) (2e58a375972a).; The Amodei essay was WEAKENED to sentiment-only; no hyperscaler capex cut found through 09-20 (b2585b85ba25).; Q2 revenue $1.07B and EPS $0.78 beat with guidance raised (08-13, unverified, superseded record) (960f7c2176bb).. OPEN: Does the ~$14B non-product backlog carry the fixed-price vintage lag GLJ describes? Untested, no source (c8a52984a67a).; Return coverage: the 09-09 run had no return figure to size the +9.6% pre-market pop (6bb055b2297d).; How much of the S&P inclusion is priced in? Noted only as partially priced ahead of 09-21 (d1b06dc7c595).."
+ },
  "entity": "T:BE",
  "live_facts": [
-  "[b2585b85ba25] event ALAB,APH,ASML (2026-09-20) [secondary]: THREAT/immediate: Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex cut found through 09-20; sell-off described as sentiment against unchanged order book",
+  "[b2585b85ba25] event ALAB,APH,ASML (2026-09-20 x2) [secondary]: THREAT/immediate: Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex cut found through 09-20; sell-off described as sentiment against unchanged order book",
   "[9bc50e2631f0] relation/pair BE,GEV =distinct (2026-09-15) [secondary]: BE/GEV: distinct -- Both sell generation to data centers, but are substitutes at the margin (behind-the-meter fuel cells vs grid-scale turbines) with opposite queue exposure and opposite rate sensitivity -- an intra-cluster hedge, not a duplicate (keep both, drop none)",
   "[2e58a375972a] event/proposal BE (2026-09-15) [secondary]: [proposal] BUY $659.63 (cluster_rotation): cluster_rotation buy leg, ladder rank #1 but highest rate-sensitivity in cluster -- gated to as-priced/dovish FOMC outcome only.",
   "[e085500a8882] relation/pair BE,VST =distinct (2026-09-09) [secondary]: BE/VST: distinct -- screen returned no candidate; opposite ends of the behind-the-meter vs grid-connected regulatory axis by design (keep both, drop none)",
@@ -18,18 +22,22 @@
   "[61f3378ef70f] fact BE (2026-09-06) [secondary]: [quality flag] {\"finding\": \"Heavy share dilution funding capacity buildout\", \"metric\": \"diluted_shares_yoy\", \"magnitude\": \"+39% YoY (232.5M to 323.3M)\", \"evidence_for\": [{\"claim\": \"Diluted avg shares rose from 232.54M to 323.33M YoY\", \"date\": \"2026-09-06\", \"source\": \"yfinance quarterly financials\"}], \"evidence_against\": [{\"claim\": \"OCF ($226M) exceeds NI ($196M) latest quarter; net debt is thin (~$140M) vs ~$223",
   "[8e20c9c7ad9a] fact BE (2026-09-06) [secondary]: [quality financials] {\"latest_period_end\": \"2026-06-30\", \"fetched_at\": \"2026-09-06\", \"quarters\": [{\"period_end\": \"2026-06-30\", \"revenue\": 1070000000, \"ocf\": 226430000, \"capex\": -51640000, \"net_income\": 196290000, \"op_income\": 182240000, \"interest_expense\": 8910000, \"total_debt\": 2810000000, \"sbc\": 57230000, \"diluted_shares\": 323330000}, {\"period_end\": \"2026-03-31\", \"revenue\": 751050000, \"ocf\": 73610000, \"capex\": -26180000, \"net_income\": 70650000, \"op_income\": 721900…",
   "[81ea286008a9] fact BE (2026-08-30) [secondary]: [quality flag] {\"finding\": \"Heavy share dilution and debt-funded growth in a merchant/power-adjacent AI-capex name\", \"metric\": \"diluted shares YoY, total debt YoY, SBC % revenue\", \"magnitude\": \"dilution +37.6% YoY; debt +86% YoY; SBC 5.3% of revenue\", \"evidence_for\": [{\"claim\": \"Diluted share count +37.6% YoY; total debt +86% YoY to $2.81B; SBC 5.3% of revenue\", \"date\": \"2026-08-30\", \"source\": \"yfinance quarterl",
+  "[9a8125a1bcce] tension BE (2026-09-21) [unverified]: [librarian] Rank 1 leader and strengthening thesis vs a heavy dilution and debt-funded quality flag and the highest rate sensitivity in the cluster (c8a52984a67a, 61f3378ef70f).",
+  "[91ae647d7419] tension BE (2026-09-21) [unverified]: [librarian] Live PEER LEADER signal entries (08-30, 09-06) sit beside the withdrawal of that label as a false SMH-fallback artifact (c54fd978e828, b27b9ff2944d, a87db7098703).",
+  "[babce63a3d46] tension BE (2026-09-21) [unverified]: [librarian] Position was above cap and flagged trim_risk_cap on 09-09 (3.93% weight, 1.219x, superseded) while the 09-15 rotation proposes adding (6bb055b2297d, 2e58a375972a).",
   "[169840c97941] fact/thesis_evidence BE (2026-09-08) [unverified]: [thesis evidence FOR] true-peer rel_strength vs XLU is +9.24pp (positive), even though the raw PEER LEADER flag was a false SMH-fallback artifact and has been withdrawn",
   "[a87db7098703] fact/thesis_evidence BE (2026-09-08) [unverified]: [thesis evidence AGAINST] prior PEER LEADER signal-bucket label (rel_sigma vs SMH) was a data-quality artifact -- BE's true peer is XLU (utilities), not semis; do not cite the withdrawn SMH-relative claim as support going forward",
   "[f00dc26b97e2] event ASML,BE,CIEN (2026-08-18) [secondary]: THREAT/immediate: Semis-specific rout: SMH -4.09% vs SPX -0.69%/NDX -1.33%; high-multiple AI-hardware names repriced hardest while mega-cap compute barely moved",
   "[f17115785560] event AVGO,BE,GEV (2026-08-17) [secondary]: THREAT/structural: WSJ: nine Big Tech firms carry $3T in off-balance-sheet AI commitments vs ~$600bn trailing capex; triggers behind-the-meter power-stock de-risking",
   "[56365c51c564] fact/signal BE (2026-09-15): [signals]",
-  "[1d6290c8e4ff] fact/signal BE (2026-09-07): [signals] TARGET_GAP_NOT_FIRED, PEER_LEADER_OVERRIDDEN_FALSE_vs_XLU",
-  "[c54fd978e828] fact/signal BE (2026-09-06): [signals] PEER LEADER",
-  "[31b36ce353df] fact/signal BE (2026-09-06): [signals] PEER LEADER, NEW TAILWINDS",
-  "[b89c854385c5] fact/signal BE (2026-09-01): [signals] TARGET GAP"
+  "[1d6290c8e4ff] fact/signal BE (2026-09-07): [signals] TARGET_GAP_NOT_FIRED, PEER_LEADER_OVERRIDDEN_FALSE_vs_XLU"
  ],
- "n_observations": 35,
- "open_tensions": [],
+ "n_observations": 39,
+ "open_tensions": [
+  "[9a8125a1bcce] tension BE (2026-09-21) [unverified]: [librarian] Rank 1 leader and strengthening thesis vs a heavy dilution and debt-funded quality flag and the highest rate sensitivity in the cluster (c8a52984a67a, 61f3378ef70f).",
+  "[91ae647d7419] tension BE (2026-09-21) [unverified]: [librarian] Live PEER LEADER signal entries (08-30, 09-06) sit beside the withdrawal of that label as a false SMH-fallback artifact (c54fd978e828, b27b9ff2944d, a87db7098703).",
+  "[babce63a3d46] tension BE (2026-09-21) [unverified]: [librarian] Position was above cap and flagged trim_risk_cap on 09-09 (3.93% weight, 1.219x, superseded) while the 09-15 rotation proposes adding (6bb055b2297d, 2e58a375972a)."
+ ],
  "refuted": [],
  "timelines": {
   "ladder_rank": [

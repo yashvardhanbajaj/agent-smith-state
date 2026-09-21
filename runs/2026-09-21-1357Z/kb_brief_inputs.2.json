@@ -1,0 +1,1403 @@
+{
+  "as_of": "2026-09-21",
+  "chunk": 2,
+  "n": 6,
+  "entities": [
+    {
+      "entity": "C:Compute/Hyperscaler",
+      "priority": 61.0,
+      "n_new": 61,
+      "previous_brief": null,
+      "timelines": {
+        "ladder_order": [
+          {
+            "as_of": "2026-09-08",
+            "value": "MSFT > GOOG > IREN > NBIS",
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-14",
+            "value": "MSFT > AMZN > GOOG > NBIS",
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-15",
+            "value": "MSFT > GOOG > AMZN > NBIS",
+            "status": "live"
+          }
+        ],
+        "ladder_rank": [
+          {
+            "as_of": "2026-09-14",
+            "value": 2,
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-14",
+            "value": 4,
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-15",
+            "value": 4,
+            "status": "live"
+          },
+          {
+            "as_of": "2026-09-15",
+            "value": 3,
+            "status": "live"
+          },
+          {
+            "as_of": "2026-09-15",
+            "value": 1,
+            "status": "live"
+          },
+          {
+            "as_of": "2026-09-15",
+            "value": 2,
+            "status": "live"
+          }
+        ],
+        "cluster_thesis": [
+          {
+            "as_of": "2026-09-08",
+            "value": "watch",
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-14",
+            "value": "watch",
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-15",
+            "value": "watch",
+            "status": "live"
+          }
+        ]
+      },
+      "new_observations": [
+        {
+          "id": "d63258f00930",
+          "status": "live",
+          "line": "[d63258f00930] verdict Compute/Hyperscaler,ORCL (2026-09-21) [secondary]: ORCL first thesis 2026-09-21: WATCH. Growth real (FQ1 FY27 revenue $19.345B, guide >= $90B, RPO ~$664B) but funded by -$5.4B FCF, ~$20B equity sale (equity $42.5B -> $66.8B in the quarter), 4.7x interest cover, S&P downgrade; financing-structure resembles NBIS not MSFT/GOOG/AMZN (G98)."
+        },
+        {
+          "id": "fc1fe16c05e3",
+          "status": "live",
+          "line": "[fc1fe16c05e3] verdict/cluster_thesis Compute/Hyperscaler =watch (2026-09-15) [secondary]: WATCH (late): Demand has not rolled. Azure grew +43% and guides ~45% for the next quarter, Google Cloud +82% with a $514B backlog, AWS +37%, and wave-1 verified 2026 capex unchanged after the Amodei essay. I moved innings from 'rolling' to 'late' because 'rolling' implies demand deterioration, which the evidence contradicts. The late-cycle signature is funding. Among US hyperscalers only MSFT still generates positive FCF: GOOG posted its first negative-FCF quarter "
+        },
+        {
+          "id": "65344a35868c",
+          "status": "live",
+          "line": "[65344a35868c] verdict/ladder_order Compute/Hyperscaler =MSFT > GOOG > AMZN > NBIS (2026-09-15) [secondary]: Ladder order MSFT > GOOG > AMZN > NBIS; leader MSFT, laggard NBIS"
+        },
+        {
+          "id": "bfec80549843",
+          "status": "live",
+          "line": "[bfec80549843] verdict/ladder_rank Compute/Hyperscaler,MSFT =1 (2026-09-15) [secondary]: rank 1 (leader). Case against: The accounting change lowers reported capex and depreciation, so part of MSFT's 'self-funding' lead is presentation: operating-lease obligations still consume cash. Its OpenAI-linked commitments are the least disclosed. It has the lowest ATR (2.0%), so it captures the least upside in a snap-back. Its rank agrees with price, and the agreement rests on FCF and Azure acceleration, not on the +6.5pp rel_intra."
+        },
+        {
+          "id": "cce2d746d529",
+          "status": "live",
+          "line": "[cce2d746d529] verdict/ladder_rank Compute/Hyperscaler,GOOG =2 (2026-09-15) [secondary]: rank 2 (middle). Case against: This is the largest position (6.2%), and its funding just flipped to negative FCF, with 2027 capex guided significantly higher. Q3 Cloud margin compresses on third-party bridge capacity. If Cloud growth normalises while capex doubles again, GOOG has the most capex to justify."
+        },
+        {
+          "id": "b0b7a097d316",
+          "status": "live",
+          "line": "[b0b7a097d316] verdict/ladder_rank Compute/Hyperscaler,AMZN =3 (2026-09-15) [secondary]: rank 3 (middle). Case against: The case FOR: AWS has accelerated for five straight quarters, mean target $328 vs $253.6 (~29% gap, the largest among majors), and a large non-AI retail business diversifies the AI-capex factor. The gap to GOOG is one axis; AWS at >=40% in Q3 would close it."
+        },
+        {
+          "id": "1b1c37b38707",
+          "status": "live",
+          "line": "[1b1c37b38707] verdict/ladder_rank Compute/Hyperscaler,NBIS =4 (2026-09-15) [secondary]: rank 4 (laggard). Case against: The case FOR is real. Google explicitly renting third-party bridge capacity in Q3 is direct demand for neocloud landlords. The facility plus the customer contract covers >100% of the funded GPU capex. The stock is ~25% off its ATH with a $280 target vs $213.94. A dovish FOMC surprise gives it the highest snap-back beta in the cluster."
+        },
+        {
+          "id": "e76e9f075d90",
+          "status": "superseded",
+          "line": "[e76e9f075d90] verdict/cluster_thesis Compute/Hyperscaler =watch (2026-09-14) [secondary]: WATCH (rolling): Hyperscaler leg is mid-to-late and the question has fully shifted from volume to funding: AMZN raised 2026 capex to ~$220B (partly on memory cost) and TTM FCF went negative (-$7.6B) even as AWS accelerated to +37%. Demand is not the problem -- MSFT is reportedly turning away compute business -- cost and FCF are. Neocloud leg is early, funded by prepayments, converts and first secured debt into a 10-yr near 4.98% (+29bp/1m) ahead of the 09-15/16 FOM"
+        },
+        {
+          "id": "ccbe558bfe7a",
+          "status": "superseded",
+          "line": "[ccbe558bfe7a] verdict/ladder_order Compute/Hyperscaler =MSFT > AMZN > GOOG > NBIS (2026-09-14) [secondary]: Ladder order MSFT > AMZN > GOOG > NBIS; leader MSFT, laggard NBIS"
+        },
+        {
+          "id": "13d11309f7fa",
+          "status": "superseded",
+          "line": "[13d11309f7fa] verdict/ladder_rank Compute/Hyperscaler,MSFT =1 (2026-09-14) [secondary]: rank 1 (leader). Case against: No independent Azure segment figure verified this run; tripling capacity means capex/OCF keeps rising; OpenAI-linked commitments are the least-disclosed line; lowest ATR (1.95%) so least upside capture. Ranking agrees with price -- the agreement rests on self-funding plus rental optionality, not on the +5.3pp."
+        },
+        {
+          "id": "296ead623cf9",
+          "status": "superseded",
+          "line": "[296ead623cf9] verdict/ladder_rank Compute/Hyperscaler,AMZN =2 (2026-09-14) [secondary]: rank 2 (middle). Case against: The only one of the three majors not self-funding; memory-cost-driven capex raise means some capex is price not volume; thesis is watch and price rank is 3rd."
+        },
+        {
+          "id": "1a8674c2f2a3",
+          "status": "superseded",
+          "line": "[1a8674c2f2a3] verdict/ladder_rank Compute/Hyperscaler,GOOG =3 (2026-09-14) [secondary]: rank 3 (middle). Case against: (Case for is strong: self-funding + TPU is arguably the best structural position in the cluster.) Ranked 3rd because its growth-vs-capex axis is unevidenced this run while AMZN's is; largest position (6.3%) held on the weakest fresh evidence. Low-confidence rank."
+        },
+        {
+          "id": "d411cbe96c60",
+          "status": "superseded",
+          "line": "[d411cbe96c60] verdict/ladder_rank Compute/Hyperscaler,NBIS =4 (2026-09-14) [secondary]: rank 4 (laggard). Case against: Case FOR is real and improving: IG counterparties now named (MSFT, Meta), which was the 09-08 reorder condition for the counterparty axis; prepayments are the cheapest neocloud funding; Lone Pine made it its largest holding. Stays last because capex/revenue ~10x makes it the member most exposed to the rate channel into FOMC."
+        },
+        {
+          "id": "751dd37bf047",
+          "status": "superseded",
+          "line": "[751dd37bf047] verdict/cluster_thesis Compute/Hyperscaler =watch (2026-09-08) [secondary]: WATCH (rolling): Two legs on different clocks. The hyperscaler leg is mid-to-late: 2026 capex of $660-690B across MSFT/GOOG/AMZN/META/ORCL is already guided, so the incremental surprise is now cost and FCF, not volume. The neocloud leg is early and its financing model has never been tested through a full rate cycle -- with the 10-yr +12.4bp over a month and a hawkish cached Fed, cost of capital is the transmission channel and it touches only NBIS and IREN. Cluster "
+        },
+        {
+          "id": "0c5999ef150e",
+          "status": "superseded",
+          "line": "[0c5999ef150e] verdict/ladder_order Compute/Hyperscaler =MSFT > GOOG > IREN > NBIS (2026-09-08) [secondary]: Ladder order MSFT > GOOG > IREN > NBIS; leader MSFT, laggard NBIS"
+        },
+        {
+          "id": "f2013d86f114",
+          "status": "superseded",
+          "line": "[f2013d86f114] verdict/ladder_rank Compute/Hyperscaler,MSFT =1 (2026-09-08) [secondary]: rank 1 (leader). Case against: Thesis status is `watch` and marked unverified; capex/OCF is still rising, and the OpenAI-linked commitments are the least disclosed line in the guide. ATR 1.95% means it also captures the least of the tailwind on the upside."
+        },
+        {
+          "id": "fc23692ac536",
+          "status": "superseded",
+          "line": "[fc23692ac536] verdict/ladder_rank Compute/Hyperscaler,GOOG =2 (2026-09-08) [secondary]: rank 2 (middle). Case against: Raising the capex ceiling into an RSI of 28.9 is the market saying it does not yet believe the revenue gap closes; rel_smh -13.06pp is the weakest SMH-relative read in the cluster, and with no cached 1-month return I cannot tell whether that de-rate is still in force."
+        },
+        {
+          "id": "837ec21d36d1",
+          "status": "superseded",
+          "line": "[837ec21d36d1] verdict/ladder_rank Compute/Hyperscaler,IREN =3 (2026-09-08) [secondary]: rank 3 (middle). Case against: FY27 capex guide of $25-30B against a $17.6B market cap is a financing requirement, not a plan, and it lands into a rising-10-yr, rising-AI-credit-CDS regime. Large net loss, ATR 8.05%, and this is the book's third entry after two prior stop-outs -- a documented repeat-volatility pattern."
+        },
+        {
+          "id": "53f9c7791b1a",
+          "status": "superseded",
+          "line": "[53f9c7791b1a] verdict/ladder_rank Compute/Hyperscaler,NBIS =4 (2026-09-08) [secondary]: rank 4 (laggard). Case against: Case FOR, which is mandatory here: Q2 revenue +454% YoY to $582M and over $9B of expected 2026 customer prepayments. Prepayments are the highest-quality funding in the neocloud stack -- better than debt or converts -- and if NBIS names those four counterparties it moves up this ladder quickly. Held back operationally by undisclosed Vineland data-centre issues, and it is over its risk cap (1.47x, -$501 headroom, rotation_bucket trim_ris"
+        },
+        {
+          "id": "25772407c322",
+          "status": "live",
+          "line": "[25772407c322] lesson Compute/Hyperscaler,MSFT,NBIS (2026-09-21) [secondary]: 2026-09-21 the only live rotation (NBIS sell / MSFT buy) was sourced from a Compute/Hyperscaler ladder dated 09-15 (6d old, medium, unscored) that ranks a neocloud against self-funded hyperscalers (G98); ladder_authority reads 'rank' although its scored calls all predate ENGINE_EPOCH and the semis ladder failed its first forward window. Proposed with an advisory label and thesis+quality as the real basis."
+        },
+        {
+          "id": "3a1fa060fd52",
+          "status": "live",
+          "line": "[3a1fa060fd52] lesson AI Semis/Fabs,Compute/Hyperscaler (2026-09-21) [secondary]: Risk-flat rotation pairs are not dollar-for-dollar: NBIS sell $406 (12.4% stop) frees the same $50.56 risk as a $1,258 MSFT buy (4.0% stop), so the pair is a ~$851 net cash deployment and a net add to the AI-capex sleeve. While the advisory stress limit is breached (26.9% vs 20%) this is risk-flat for heat but not stress-neutral; cash-above-band and stress-limit point opposite ways and bench_diversifier produced no live row."
+        },
+        {
+          "id": "86d91fffb7c1",
+          "status": "live",
+          "line": "[86d91fffb7c1] fact Compute/Hyperscaler (2026-09-15) [secondary]: [falsifier] Watch breaks toward 'deteriorating' if any of MSFT/GOOG/AMZN guides 2027 capex flat-to-down, or if cloud growth decelerates (Azure <40%, Google Cloud <50%, AWS <33%) while capex still rises, in the 10-28..10-30 prints. It breaks toward 'intact' if GOOG and AMZN FCF turn back positive in Q3 with growth held."
+        },
+        {
+          "id": "6b42a469b01a",
+          "status": "live",
+          "line": "[6b42a469b01a] fact Compute/Hyperscaler (2026-09-15) [secondary]: [margin pool] moving toward Capacity owners that sell their own demand at the highest growth per capex dollar and still self-fund: MSFT on funding, GOOG on growth and backlog (TPU plus $514B backlog). Short-term, also toward neocloud landlords renting bridge capacity to hyperscalers, and toward component and memory vendors whose pricing is inflating hyperscaler capex.; away from Hyperscaler owners' cash margin generally: capex is now partly price rather than volume ('higher component prici"
+        },
+        {
+          "id": "73efcd049e4d",
+          "status": "live",
+          "line": "[73efcd049e4d] fact Compute/Hyperscaler (2026-09-15) [secondary]: [reorder when] MSFT FQ1 (2026-10-28/29): Azure <40% cc vs the ~45% guide, or quarterly FCF negative -> MSFT loses rank 1 to GOOG"
+        },
+        {
+          "id": "3a0478edf35a",
+          "status": "live",
+          "line": "[3a0478edf35a] fact Compute/Hyperscaler (2026-09-15) [secondary]: [reorder when] GOOG Q3 (2026-10-29): Cloud growth >=60% AND FCF back positive -> GOOG takes rank 1 if MSFT's Azure is <43%; Cloud growth <50% with FCF negative a second quarter -> GOOG falls to 3 behind AMZN"
+        },
+        {
+          "id": "13669f81f34c",
+          "status": "live",
+          "line": "[13669f81f34c] fact Compute/Hyperscaler (2026-09-15) [secondary]: [reorder when] AMZN Q3 (2026-10-30): AWS >=40% with TTM FCF improving toward zero -> AMZN passes GOOG; AWS <33% -> AMZN gap to rank 2 widens"
+        },
+        {
+          "id": "dcee6ea33c65",
+          "status": "live",
+          "line": "[dcee6ea33c65] fact Compute/Hyperscaler (2026-09-15) [secondary]: [reorder when] FOMC 2026-09-16: hike plus dots implying further hikes, and US10Y closing >5.10% by 2026-09-30 -> NBIS fixed at 4 with widening gap. No rate outcome alone lifts NBIS above AMZN"
+        },
+        {
+          "id": "94cdfd5f5aa8",
+          "status": "live",
+          "line": "[94cdfd5f5aa8] fact Compute/Hyperscaler (2026-09-15) [secondary]: [reorder when] NBIS Q3 (2026-11-10): new capex funded >=70% by prepayments/secured debt with no new equity or convert, and another named IG counterparty -> NBIS can pass AMZN if AMZN also misses the AWS >=35% bar"
+        },
+        {
+          "id": "a90edcd26fe6",
+          "status": "live",
+          "line": "[a90edcd26fe6] fact Compute/Hyperscaler (2026-09-15) [secondary]: [reorder when] Any Q3 10-Q useful-life/lease reclassification at GOOG or AMZN -> reassess ranks 1-3 on earnings quality"
+        },
+        {
+          "id": "523afba245c2",
+          "status": "live",
+          "line": "[523afba245c2] fact Compute/Hyperscaler,META (2026-09-15) [secondary]: [bench, better than NBIS: same AI-capex exposure without financing dependence, IG balance sheet, far lower volatility. Not better than any held major: no external cloud revenue to offset capex, and FCF is not positive per the 'only MSFT FCF-positive' read] Late-Oct Q3 print with 2027 capex guide AND FCF back to positive; mean target $754.77 (as of 09-10)"
+        },
+        {
+          "id": "1eac78d5d260",
+          "status": "live",
+          "line": "[1eac78d5d260] fact Compute/Hyperscaler,ORCL (2026-09-15) [secondary]: [bench, better than AMZN, on backlog-to-revenue conversion only if proven; currently worse on funding (debt-funded, FCF negative) and more rate-sensitive] RPO-to-revenue conversion shown and financing plan disclosed, and not before the FOMC outcome; -3.65% on 09-14 (was $158.78 on 09-08)"
+        },
+        {
+          "id": "c2880681f50b",
+          "status": "live",
+          "line": "[c2880681f50b] fact Compute/Hyperscaler,CRWV (2026-09-15) [secondary]: [bench, better than Not currently better than NBIS: Q2 net interest +140% vs revenue +112%. Listed as the neocloud read-through and alternative only] One quarter of net interest growing slower than revenue; -6.75% on 09-14"
+        },
+        {
+          "id": "445c41beba58",
+          "status": "live",
+          "line": "[445c41beba58] fact Compute/Hyperscaler (2026-09-14) [secondary]: [falsifier] Any of MSFT/GOOG/AMZN guiding 2027 capex flat-to-down in late-Oct prints, or a neocloud facility pricing materially wider than NBIS's $775M secured deal, breaks the read."
+        },
+        {
+          "id": "ee0fea845a64",
+          "status": "live",
+          "line": "[ee0fea845a64] fact Compute/Hyperscaler (2026-09-14) [secondary]: [margin pool] moving toward Capacity owners with contracted investment-grade demand and self-funded balance sheets (MSFT, GOOG), and neoclouds whose build is prepaid by those same hyperscalers; away from Owners whose capex growth outruns cash generation even with accelerating revenue (AMZN FCF turn), and speculative/convert-funded neocloud capacity where interest and dilution compound faster than revenue"
+        },
+        {
+          "id": "c7aeb400937f",
+          "status": "live",
+          "line": "[c7aeb400937f] fact Compute/Hyperscaler (2026-09-14) [secondary]: [reorder when] 2026-09-16 FOMC: hawkish hold plus 10-yr +15bp by 09-30 keeps NBIS last regardless of contracts; a dovish outcome with 10-yr back below 4.8% lets NBIS pass GOOG on counterparty quality"
+        },
+        {
+          "id": "7b41f4887831",
+          "status": "live",
+          "line": "[7b41f4887831] fact Compute/Hyperscaler (2026-09-14) [secondary]: [reorder when] GOOG Q3 print (~2026-10-29): Google Cloud growth >= AWS growth with FCF still positive -> GOOG moves to 1 or 2 above AMZN"
+        },
+        {
+          "id": "34848f7eebbf",
+          "status": "live",
+          "line": "[34848f7eebbf] fact Compute/Hyperscaler (2026-09-14) [secondary]: [reorder when] AMZN Q3 (~2026-10-30): if TTM FCF deepens further negative while AWS growth decelerates below 35%, AMZN drops below GOOG"
+        },
+        {
+          "id": "98cc2885708c",
+          "status": "live",
+          "line": "[98cc2885708c] fact Compute/Hyperscaler (2026-09-14) [secondary]: [reorder when] MSFT FQ1 (~2026-10-28/29): Azure growth decelerating while capex guide rises -> MSFT loses rank 1 to GOOG"
+        },
+        {
+          "id": "00742b7ea2a3",
+          "status": "live",
+          "line": "[00742b7ea2a3] fact Compute/Hyperscaler (2026-09-14) [secondary]: [reorder when] Any useful-life/depreciation change disclosed in Q3 10-Qs at MSFT/GOOG/AMZN reorders ranks 1-3 on earnings quality"
+        },
+        {
+          "id": "2d8c04aeb9b6",
+          "status": "live",
+          "line": "[2d8c04aeb9b6] fact Compute/Hyperscaler,META (2026-09-14) [secondary]: [bench, better than NBIS] Late-Oct print with 2027 capex guide accompanied by FCF staying positive; price not re-fetched this run (09-08 ref $616.77, mean target $754.77)"
+        }
+      ],
+      "open_tensions": [],
+      "refuted": []
+    },
+    {
+      "entity": "T:QCOM",
+      "priority": 60.0,
+      "n_new": 40,
+      "previous_brief": null,
+      "timelines": {
+        "thesis": [
+          {
+            "as_of": "2026-08-17",
+            "value": "strengthening",
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-10",
+            "value": "strengthening",
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-19",
+            "value": "strengthening",
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-21",
+            "value": "intact",
+            "status": "live"
+          }
+        ],
+        "ladder_rank": [
+          {
+            "as_of": "2026-09-08",
+            "value": 10,
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-14",
+            "value": 4,
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-21",
+            "value": 7,
+            "status": "live"
+          }
+        ]
+      },
+      "new_observations": [
+        {
+          "id": "d3caaf242dbb",
+          "status": "live",
+          "line": "[d3caaf242dbb] verdict/ladder_rank AI Semis/Fabs,QCOM =7 (2026-09-21) [secondary]: rank 7 (laggard). Case against: (the case FOR): thesis is STRENGTHENING, it is the cheapest member in the cluster on multiple, mean target $194.13 against $182.62 spot, and the 09-24 summit is a direct positive channel through both handset tariffs and the China modem/Apple relationship. If its announced AI200/AI250 datacenter accelerators are already a quantified revenue or backlog line, the entire basis for this laggard rank is wrong - that is ask M5.2 and this rank is pr"
+        },
+        {
+          "id": "1a0939fbe568",
+          "status": "live",
+          "line": "[1a0939fbe568] verdict AI Semis/Fabs,QCOM (2026-09-21) [secondary]: QCOM revised strengthening -> INTACT 2026-09-21 (desk round 3): no filed AI-datacenter revenue line (XBRL tag search empty, 10-Q text unread); data center is a forward target ($5B FY27, $15B FY29, company targets, secondary) against ~$39.8B revenue run-rate; Q3 FY26 revenue $9.95B, -4% y/y. Cluster rank last stands."
+        },
+        {
+          "id": "4f65ed434ee6",
+          "status": "live",
+          "line": "[4f65ed434ee6] lesson AI Semis/Fabs,AMD,QCOM (2026-09-21): The AI Semis/Fabs cluster mixes tool/foundry SELLERS (TSM, ASML, AMAT, KLAC, TER) with fabless silicon BUYERS (AMD, QCOM). The playbook's six differentiators are all seller-side axes, so AMD and QCOM cannot be ranked on them and must be ranked on a single applicable axis each, stated as such. Same defect class as G98 (NBIS in Compute/Hyperscaler). Until the cluster is split, its percent-of-equity figure overstates true semicap/fab exposure by roughly 4.4pp."
+        },
+        {
+          "id": "b3661116601d",
+          "status": "superseded",
+          "line": "[b3661116601d] verdict/ladder_rank AI Semis/Fabs,QCOM =4 (2026-09-14) [secondary]: rank 4 (middle). Case against: Price leadership rests on an announcement, not on any capacity or share axis. RSI 66 after +11.6%. The FY27 AI revenue is unproven until the 2026-10-30 print."
+        },
+        {
+          "id": "b9dc0f4280bd",
+          "status": "superseded",
+          "line": "[b9dc0f4280bd] verdict/ladder_rank AI Semis/Fabs,QCOM =10 (2026-09-08) [secondary]: rank 10 (laggard). Case against: Position is $0.13 -- a dust remnant at 0.000% weight. This rank is administrative and carries no rotation information; QCOM is not a usable funding source and should not be read as one."
+        },
+        {
+          "id": "fdcc57a48cdb",
+          "status": "live",
+          "line": "[fdcc57a48cdb] fact AI Semis/Fabs,QCOM (2026-09-21): QCOM's AI-datacenter story failed a filed-evidence test on 2026-09-21: a smith_edgar XBRL tag search for 'datacenter' returned zero concepts, and what exists is management forward targets ($5B FY27, $15B FY29, AI200 scaling, AI250 sampling 2027) against a ~$39.8B run-rate, with Q3 FY26 revenue $9.95B down 4% y/y. Thesis moved QCOM strengthening -> intact on this. The ladder laggard rank and the thesis downgrade were reached independently and converged - a useful check that the axis question and the the"
+        },
+        {
+          "id": "d8be06c1b513",
+          "status": "superseded",
+          "line": "[d8be06c1b513] verdict/thesis QCOM =strengthening (2026-09-19 x2) [unverified]: STRENGTHENING: Diversifying from handsets into AI/datacenter CPUs and auto; 5.0008sh / 2.64% of equity. Friday's drop looks like handset-group profit-taking, not a thesis event, but the strengthening call now rests on 10-day-old partnership news."
+        },
+        {
+          "id": "4656dd5c6590",
+          "status": "live",
+          "line": "[4656dd5c6590] verdict/thesis QCOM =intact (2026-09-21 x2) [unverified]: INTACT: Handset/auto/IoT chip company with a nascent AI-datacenter option (AI200 in mass-production scaling, AI250 sampling 2027); position 5.0008sh / 2.63% (src holdings_trim 2026-09-21). No filed datacenter revenue line yet: the AI story is a forward target, not reported revenue, so INTACT rather than STRENGTHENING."
+        },
+        {
+          "id": "a87d1c9520a7",
+          "status": "live",
+          "line": "[a87d1c9520a7] event AMAT,AMKR,ASML (2026-09-21) [secondary]: AMBIGUOUS/immediate: Trump-Xi summit in Washington Thursday 09-24 (Xi's first US visit since 2015): agenda is tariff-truce extension (truce runs to 11-10), critical minerals/rare earths, chips export controls, and a proposed US-China AI dialogue; Nvidia's Huang, OpenAI's Altman, Qualcomm's Amon, Microsoft's Nadella and Tim Cook attend the White House dinner"
+        },
+        {
+          "id": "905a5212994c",
+          "status": "live",
+          "line": "[905a5212994c] event AMAT,AMKR,ASML (2026-09-21) [secondary]: AMBIGUOUS/immediate: Trump-Xi summit in Washington Thursday 09-24 (Xi's first US visit since 2015): agenda is tariff-truce extension (truce runs to 11-10), critical minerals/rare earths, chips export controls, and a proposed US-China AI dialogue; Nvidia's Huang, OpenAI's Altman, Qualcomm's Amon, Microsoft's Nadella and Tim Cook attend the White House dinner"
+        },
+        {
+          "id": "ecf55186522a",
+          "status": "live",
+          "line": "[ecf55186522a] lesson AI Semis/Fabs,QCOM (2026-09-21) [secondary]: QCOM's 1-month +13.67% (rel_intra +9.26pp, second-best in cluster) has a named non-AI-capex driver: the US-China tariff/handset channel into the 09-24 summit, with CEO Amon at the White House dinner. Future runs must not read QCOM's semis-cluster outperformance as evidence of AI-capex tailwind capture; the test is whether AI200/AI250 datacenter silicon appears as a quantified revenue or backlog line, first checkable at the 10-30 FQ4 call."
+        },
+        {
+          "id": "d3d2217f2bd5",
+          "status": "live",
+          "line": "[d3d2217f2bd5] lesson QCOM (2026-09-21) [secondary]: [desk Q&A cluster_semis->thesis] Q: QCOM is trimmed to status-only (strengthening, verified=unverified). Does QCOM have a quantified AI-datacenter silicon revenue or backlog line yet - specifically AI200/AI250 - or is its revenue still\u2026 A (revised): No. QCOM has no quantified AI-datacenter revenue or backlog in a filing that I could find. A smith_edgar tag search for 'datacenter' on QCOM's XBRL returned zero concepts (tag-level only; I did not read the 10-Q text, accn 0000804328-26-000086). What exists"
+        },
+        {
+          "id": "413d804f5214",
+          "status": "live",
+          "line": "[413d804f5214] fact QCOM (2026-09-19) [secondary]: [thesis] strengthening -- Diversifying from handsets into AI/datacenter CPUs and auto; 5.0008sh / 2.64% of equity. Friday's drop looks like handset-group profit-taking, not a thesis event, but the strengthening call now rests on 10-day-old partnership news."
+        },
+        {
+          "id": "b643a05fa9fd",
+          "status": "live",
+          "line": "[b643a05fa9fd] fact QCOM (2026-09-15) [secondary]: [thesis] strengthening -- Diversifying from handsets into AI/datacenter CPUs and auto; added +2sh @$175.44 on 09-09"
+        },
+        {
+          "id": "99a59b03e00a",
+          "status": "superseded",
+          "line": "[99a59b03e00a] verdict/thesis QCOM =strengthening (2026-09-10) [unverified]: STRENGTHENING: Diversifying from handsets into AI/datacenter CPUs and auto; added +2sh @$175.44 on 09-09"
+        },
+        {
+          "id": "11024705367e",
+          "status": "superseded",
+          "line": "[11024705367e] fact/thesis_evidence QCOM (2026-09-18 x2) [unverified]: [thesis evidence FOR] Analyst mean target $193.90, ~9% above the $178.08 close, n=26 (thin upside)"
+        },
+        {
+          "id": "878413463c94",
+          "status": "live",
+          "line": "[878413463c94] fact/thesis_evidence QCOM (2026-09-18 x2) [unverified]: [thesis evidence AGAINST] -5.6% to -5.8% on Friday (1.33x its 4.22% ATR) against SMH +2.21%, roughly an 8pp one-day divergence; 24/7 Wall St called it 'positioning-driven profit-taking' with no company announcement, and Skyworks/Qorvo slipped too (handset-chip group)"
+        },
+        {
+          "id": "87b89ce3333f",
+          "status": "live",
+          "line": "[87b89ce3333f] fact/thesis_evidence QCOM (2026-09-17 x2) [unverified]: [thesis evidence AGAINST] Pre-existing handset headwinds (Apple modem transition, smartphone weakness) remain unresolved; 1 dated negative item on INDmoney 09-17"
+        },
+        {
+          "id": "aede73dc789d",
+          "status": "live",
+          "line": "[aede73dc789d] tension QCOM (2026-09-21) [unverified]: [unresolved] {\"id\": \"M7.39\", \"to\": \"thesis\", \"ticker\": \"QCOM\", \"kind\": \"reply\", \"status\": \"expired\", \"question\": \"Answer to your M4.30 (Answer to your M3.11 (QCOM is trimmed to status-only (strengthening, verified=unverified). Does QCOM have a quantified AI-datacenter silicon revenue or backlog ): [held] Held, a"
+        },
+        {
+          "id": "7f53d4af5b4d",
+          "status": "live",
+          "line": "[7f53d4af5b4d] tension QCOM (2026-09-21) [unverified]: [unresolved] {\"id\": \"M7.43\", \"to\": \"thesis\", \"ticker\": \"QCOM\", \"kind\": \"tell\", \"status\": \"expired\", \"question\": \"Supporting datapoint for your strengthening -> intact move, from desk M4.27: QCOM returned -2.71% over 09-15 -> 09-21 against SMH +7.85%, the worst excess in the semis cluster at -10.56pp. That means"
+        },
+        {
+          "id": "a5b574a37cd2",
+          "status": "live",
+          "line": "[a5b574a37cd2] event AMAT,AMD,INTC (2026-08-28) [secondary]: THREAT/immediate: Broad chip-sector unwind: Philadelphia Semiconductor Index (SMH proxy) hit a two-month low; Intel -6%, AMD -8.1%, Applied Materials -6.5%, SK Hynix ADR -6.8%, SMCI -7.1% in the session cluster around Aug 27-28, described as profit-taking after SMH's >75% H1 2026 rally and survey data showing 82% of fund managers calling semis the most crowded trade in history"
+        },
+        {
+          "id": "c0da79e9a41c",
+          "status": "live",
+          "line": "[c0da79e9a41c] event AMAT,AMD,INTC (2026-08-28) [secondary]: THREAT/immediate: Broad semis unwind: Philadelphia Semi Index 2-month low; Intel -6%, AMD -8.1%, AMAT -6.5%, SKHY -6.8%, SMCI -7.1% -- crowded-trade unwind after SMH +75% H1 2026 (82% of fund managers call semis most-crowded trade)"
+        },
+        {
+          "id": "fd776c1e044a",
+          "status": "live",
+          "line": "[fd776c1e044a] fact/thesis_evidence QCOM (2026-09-09 x2) [unverified]: [thesis evidence FOR] RBC price-target raise citing AI chip-partnership expansion"
+        },
+        {
+          "id": "5149e93784d7",
+          "status": "live",
+          "line": "[5149e93784d7] fact/thesis_evidence QCOM (2026-09-08 x2) [unverified]: [thesis evidence FOR] AWS partnership targeting $5B AI-chip revenue by FY27"
+        },
+        {
+          "id": "7b3c5eb6e5e0",
+          "status": "live",
+          "line": "[7b3c5eb6e5e0] fact/thesis_evidence QCOM (2026-09-21) [unverified]: [thesis evidence AGAINST] Margin-pressure headline 09-17 and thin upside: mean target $194.13 (n=26), only about +6% above price"
+        },
+        {
+          "id": "4e05622ab8fe",
+          "status": "superseded",
+          "line": "[4e05622ab8fe] fact/thesis_evidence QCOM (2026-09-21) [unverified]: [thesis evidence AGAINST] No quantified datacenter revenue is filed: a smith_edgar tag search for 'datacenter' on QCOM's XBRL returned zero concepts (document text of the 10-Q accn 0000804328-26-000086 not read, so this is a tag-level finding). The only figures are forward targets; $5B FY27 against a ~$39.8B run-rate (4 x $9.95B, computed) would be about 12.6% of revenue only if achieved"
+        },
+        {
+          "id": "b2674a8899d9",
+          "status": "superseded",
+          "line": "[b2674a8899d9] fact/thesis_evidence QCOM (2026-09-21) [unverified]: [thesis evidence AGAINST] Trump-Xi summit Thu 2026-09-24 (tariff truce to 11-10; chips export controls, rare earths, AI dialogue on the agenda). Equipment-control direction: no public sign of easing (Aju Press 09-18); the only easing on record is H200 case-by-case licensing, i.e. AI accelerators, not equipment. Skew is no-change to tighter, so the summit is NOT positive convexity; upside is limited to a tariff-truce extension; tightening tail is the MATCH Act servicing ban on CXMT/YMTC/H"
+        },
+        {
+          "id": "827135008794",
+          "status": "superseded",
+          "line": "[827135008794] fact/thesis_evidence QCOM (2026-09-21) [unverified]: [thesis evidence FOR] Friday's handset-group profit-taking gap has reversed: PEER LEADER +9.75pp vs SMH (+1.02 sigma, marginal); Altimeter disclosed a 1.88M-share stake"
+        },
+        {
+          "id": "00f73a10cd29",
+          "status": "superseded",
+          "line": "[00f73a10cd29] fact/thesis_evidence QCOM (2026-09-21) [unverified]: [thesis evidence AGAINST] Trump-Xi summit Thu 2026-09-24 (tariff truce runs to 11-10; chips export controls, rare earths, US-China AI dialogue on agenda): two-sided event risk for China-exposed names; consensus expects an incremental outcome with no meaningful export-control loosening; no control change is quantified in any source"
+        },
+        {
+          "id": "7170272f0c72",
+          "status": "superseded",
+          "line": "[7170272f0c72] verdict/thesis QCOM =strengthening (2026-08-17) [unverified]: STRENGTHENING: Diversifying from handsets into AI/datacenter CPUs and auto"
+        },
+        {
+          "id": "1cd30b45d8c9",
+          "status": "superseded",
+          "line": "[1cd30b45d8c9] fact/thesis_evidence QCOM (2026-09-10) [unverified]: [thesis evidence AGAINST] -1.17 sigma peer-laggard vs SMH persists despite the fresh positive news -- catalyst hasn't moved the peer-relative reading yet"
+        },
+        {
+          "id": "0b5dbefdf6f0",
+          "status": "live",
+          "line": "[0b5dbefdf6f0] fact/signal QCOM (2026-09-14 x2): [signals] PEER LEADER"
+        },
+        {
+          "id": "41a9e67b90ff",
+          "status": "live",
+          "line": "[41a9e67b90ff] fact/signal QCOM (2026-09-14): [signals] PEER LEADER, NEW HEADWINDS"
+        },
+        {
+          "id": "af7f20f12fce",
+          "status": "live",
+          "line": "[af7f20f12fce] event QCOM (2026-07-29) [secondary]: THREAT/None: QCOM FQ3 miss, guidance cut explicitly blamed on memory cost inflation squeezing handset margins"
+        },
+        {
+          "id": "ab6aae59a66e",
+          "status": "superseded",
+          "line": "[ab6aae59a66e] fact/thesis_evidence QCOM (2026-07-29) [unverified]: [thesis evidence FOR] AI200 has begun mass-production scaling; management targets data center revenue of $5B in FY27 and $15B in FY29 (company targets, not backlog or reported revenue)"
+        },
+        {
+          "id": "239e65e8680f",
+          "status": "superseded",
+          "line": "[239e65e8680f] fact/thesis_evidence QCOM (2026-07-29) [unverified]: [thesis evidence FOR] Q3 FY26 revenue $9.95B, -4% y/y but above the Zacks consensus $9.71B; non-GAAP EPS $2.21 vs $2.22 consensus (secondary; the reported quarter is a revenue beat and an in-line/slight EPS miss, forward guide not checked)"
+        },
+        {
+          "id": "340b2ddd89c7",
+          "status": "superseded",
+          "line": "[340b2ddd89c7] fact/thesis_evidence QCOM (2026-07-29) [unverified]: [thesis evidence AGAINST] Revenue is still handset-driven and shrinking y/y (-4%), with QCT Automotive+IoT +28% y/y the only reported growth line"
+        },
+        {
+          "id": "f77ece74d2be",
+          "status": "live",
+          "line": "[f77ece74d2be] fact/signal QCOM (2026-09-01): [signals]"
+        },
+        {
+          "id": "f3788fb088f3",
+          "status": "live",
+          "line": "[f3788fb088f3] fact/signal QCOM (2026-08-31): [signals] PEER LAGGARD"
+        },
+        {
+          "id": "c3c309ba83a9",
+          "status": "live",
+          "line": "[c3c309ba83a9] relation/member AI Semis/Fabs,QCOM =AI Semis/Fabs (2026-07-18): QCOM is classified in AI Semis/Fabs"
+        }
+      ],
+      "open_tensions": [
+        "[aede73dc789d] tension QCOM (2026-09-21) [unverified]: [unresolved] {\"id\": \"M7.39\", \"to\": \"thesis\", \"ticker\": \"QCOM\", \"kind\": \"reply\", \"status\": \"expired\", \"question\": \"Answer to your M4.30 (Answer to your M3.11 (QCOM is trimmed to status-only (strengthening, verified=unverified). Does QCOM have a quantified AI-datacenter silicon revenue or backlog ): [held] Held, a",
+        "[7f53d4af5b4d] tension QCOM (2026-09-21) [unverified]: [unresolved] {\"id\": \"M7.43\", \"to\": \"thesis\", \"ticker\": \"QCOM\", \"kind\": \"tell\", \"status\": \"expired\", \"question\": \"Supporting datapoint for your strengthening -> intact move, from desk M4.27: QCOM returned -2.71% over 09-15 -> 09-21 against SMH +7.85%, the worst excess in the semis cluster at -10.56pp. That means"
+      ],
+      "refuted": []
+    },
+    {
+      "entity": "T:MSFT",
+      "priority": 57.0,
+      "n_new": 38,
+      "previous_brief": null,
+      "timelines": {
+        "thesis": [
+          {
+            "as_of": "2026-08-12",
+            "value": "watch",
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-14",
+            "value": "strengthening",
+            "status": "live"
+          }
+        ],
+        "ladder_rank": [
+          {
+            "as_of": "2026-09-08",
+            "value": 1,
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-14",
+            "value": 1,
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-15",
+            "value": 1,
+            "status": "live"
+          }
+        ]
+      },
+      "new_observations": [
+        {
+          "id": "bfec80549843",
+          "status": "live",
+          "line": "[bfec80549843] verdict/ladder_rank Compute/Hyperscaler,MSFT =1 (2026-09-15) [secondary]: rank 1 (leader). Case against: The accounting change lowers reported capex and depreciation, so part of MSFT's 'self-funding' lead is presentation: operating-lease obligations still consume cash. Its OpenAI-linked commitments are the least disclosed. It has the lowest ATR (2.0%), so it captures the least upside in a snap-back. Its rank agrees with price, and the agreement rests on FCF and Azure acceleration, not on the +6.5pp rel_intra."
+        },
+        {
+          "id": "2553fabd1fb6",
+          "status": "live",
+          "line": "[2553fabd1fb6] verdict/thesis MSFT =strengthening (2026-09-14) [secondary]: STRENGTHENING: Azure/OpenAI-linked hyperscaler capex spender; confirmed compute-capacity buildout to ~38GW by 2032 (>3x current) amid demand outstripping supply"
+        },
+        {
+          "id": "13d11309f7fa",
+          "status": "superseded",
+          "line": "[13d11309f7fa] verdict/ladder_rank Compute/Hyperscaler,MSFT =1 (2026-09-14) [secondary]: rank 1 (leader). Case against: No independent Azure segment figure verified this run; tripling capacity means capex/OCF keeps rising; OpenAI-linked commitments are the least-disclosed line; lowest ATR (1.95%) so least upside capture. Ranking agrees with price -- the agreement rests on self-funding plus rental optionality, not on the +5.3pp."
+        },
+        {
+          "id": "f2013d86f114",
+          "status": "superseded",
+          "line": "[f2013d86f114] verdict/ladder_rank Compute/Hyperscaler,MSFT =1 (2026-09-08) [secondary]: rank 1 (leader). Case against: Thesis status is `watch` and marked unverified; capex/OCF is still rising, and the OpenAI-linked commitments are the least disclosed line in the guide. ATR 1.95% means it also captures the least of the tailwind on the upside."
+        },
+        {
+          "id": "6273a34110d5",
+          "status": "live",
+          "line": "[6273a34110d5] event/proposal MSFT (2026-09-21) [secondary]: [proposal] BUY $1257.68 (cluster_rotation): cluster_rotation BUY leg, paired with NBIS SELL. TICKET: buy 2.54 sh MSFT (~$1,258, 2.9% of book) at ~$495.25 limit-or-better; stop $475.34 (4.02%, policy 2xATR20 = 2.01% with the 3% floor); target $572.92 (analyst mean, +15.7%, 3.9R); risk $50.56 (0.23R) = exactly the risk the NBIS sale frees, so heat is unchanged at $3,186 (7.38% of book, room $613 left); EV +0.81R at p_win 0.385 (the UNCALIBRATED 0.45 prior shrunk by conviction; the EV is target-dr"
+        },
+        {
+          "id": "25772407c322",
+          "status": "live",
+          "line": "[25772407c322] lesson Compute/Hyperscaler,MSFT,NBIS (2026-09-21) [secondary]: 2026-09-21 the only live rotation (NBIS sell / MSFT buy) was sourced from a Compute/Hyperscaler ladder dated 09-15 (6d old, medium, unscored) that ranks a neocloud against self-funded hyperscalers (G98); ladder_authority reads 'rank' although its scored calls all predate ENGINE_EPOCH and the semis ladder failed its first forward window. Proposed with an advisory label and thesis+quality as the real basis."
+        },
+        {
+          "id": "0ea08aa30337",
+          "status": "live",
+          "line": "[0ea08aa30337] event/proposal MSFT (2026-09-16) [secondary]: [proposal] BUY $316.66 (cluster_rotation): Cluster ladder ranks MSFT #1 of 4: sole FCF-positive hyperscaler in the set (Q4 FCF $19.6B after $41B capex). Note: MSFT already carries a separate open conviction_average BUY (P-316) from the prior run's FOMC desk plan -- this rotation-pair leg is funded by the NBIS sell leg rather than fresh cash, a distinct mechanism, but nets the same direction as P-316; treat as one decision, not two."
+        },
+        {
+          "id": "8b533c4e51b3",
+          "status": "live",
+          "line": "[8b533c4e51b3] event ASML,CLS,COHR (2026-09-16) [secondary]: AMBIGUOUS/immediate: FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental AI-infra selloff follows -- SMH closes +0.64% vs Monday's -4.75%, NDX -0.01%, SPX -0.45%, Dow -1.2% (broad-market laggard, not semis-led)"
+        },
+        {
+          "id": "4e3e4a246af8",
+          "status": "live",
+          "line": "[4e3e4a246af8] relation/pair GOOG,MSFT =distinct (2026-09-15) [secondary]: MSFT/GOOG: distinct -- Screen candidate only (1m return gap 1.21pp, ATR gap 0.04). On business grounds they are distinct. MSFT is enterprise software/Copilot plus OpenAI-linked Azure and still self-funds; GOOG is ad-funded, has a mature TPU and the fastest cloud share gain, and is now FCF-negative. They share enterprise cloud customers, but their accelerator strategy, funding state and end-market mix differ. The near-identical price action comes from the same 'quality mega-cap in "
+        },
+        {
+          "id": "ebf6477749cd",
+          "status": "live",
+          "line": "[ebf6477749cd] relation/pair MSFT,NBIS =distinct (2026-09-15) [secondary]: MSFT/NBIS: distinct -- Partial overlap: MSFT is an NBIS customer, so part of NBIS revenue is MSFT capex rented out. NBIS layers a financing and rate factor MSFT lacks. Carried from 09-14 and unchanged. (keep both, drop )"
+        },
+        {
+          "id": "3e660e16f967",
+          "status": "live",
+          "line": "[3e660e16f967] relation/pair MSFT,NBIS =distinct (2026-09-14) [secondary]: MSFT/NBIS: distinct -- Partial overlap only -- MSFT is an NBIS customer, so NBIS revenue is partly MSFT capex rented out; but NBIS adds financing/rate risk MSFT lacks (keep both, drop )"
+        },
+        {
+          "id": "212777891591",
+          "status": "live",
+          "line": "[212777891591] event/proposal MSFT (2026-09-15) [secondary]: [proposal] BUY $963.51 (conviction_average): Amends P-301 down to today's re-scored conviction_average. Ladder rank #1, only FCF-positive hyperscaler. FOMC-staged (size only, not idea quality)."
+        },
+        {
+          "id": "a9e66e09cb86",
+          "status": "live",
+          "line": "[a9e66e09cb86] event/proposal MSFT (2026-09-14) [secondary]: [proposal] SELL $148.69 (profit_rotation): profit_rotation: stretched cohort; note MSFT thesis upgraded strengthening intra-run, treat as partial not full profit-take"
+        },
+        {
+          "id": "2aba8f0d007e",
+          "status": "live",
+          "line": "[2aba8f0d007e] event/proposal MSFT (2026-09-14) [secondary]: [proposal] BUY $2151.39 (conviction_average): No open proposal currently covers MSFT. conviction_average, highest conviction score in the book today (59.5, medium), thesis strengthening (verified secondary), +9.6pp vs SMH, +2.17% 1m -- one of the few names actually up. STAGE: hold until after the 2026-09-16 FOMC decision given size and the imminent rate outcome, not because of any weakness in the idea."
+        },
+        {
+          "id": "b6c48ada2c39",
+          "status": "live",
+          "line": "[b6c48ada2c39] fact ASML,COHR,KLAC (2026-09-16) [secondary]: [catalyst] FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental AI-infra selloff follows -- SMH closes +0.64% vs Monday's -4.75%, NDX -0.01%, SPX -0.45%, Dow -1.2% (broad-market laggard, not semis-led) -- magnitude: SMH post-close +0.64% (545.56 vs prev close 542.11) same session as the hawkish decision -- relief that an already-priced event did not trigger a second leg down, not \u2026"
+        },
+        {
+          "id": "ae09447ec748",
+          "status": "live",
+          "line": "[ae09447ec748] fact MSFT (2026-09-15) [secondary]: [thesis] strengthening -- Azure/OpenAI-linked hyperscaler capex spender; confirmed compute-capacity buildout to ~38GW by 2032 (>3x current) amid demand outstripping supply"
+        },
+        {
+          "id": "dfc41586e262",
+          "status": "live",
+          "line": "[dfc41586e262] fact/thesis_evidence MSFT (2026-09-14) [secondary]: [thesis evidence AGAINST] the '$90.01B Q4 revenue' figure in the 09-11 news headline is a RECYCLED FY26 Q4 print; next earnings is 2026-10-28, not a new beat"
+        },
+        {
+          "id": "1138d5ce5928",
+          "status": "live",
+          "line": "[1138d5ce5928] fact/thesis_evidence MSFT (2026-09-14) [secondary]: [thesis evidence AGAINST] still no independent Azure segment valuation view"
+        },
+        {
+          "id": "edaddd5298f0",
+          "status": "live",
+          "line": "[edaddd5298f0] event/proposal MSFT (2026-09-10) [secondary]: [proposal] SELL $147.49 (profit_rotation): REFRESH of open P-258. profit_rotation sell leg: MSFT in names_stretched (compute_derisk.json) with a watch thesis -- real profit to book. Buy leg (KLAC) stays clamped to $0.00 by AI Semis/Fabs's $0 cluster ceiling room; sell leg stands on its own merits regardless."
+        },
+        {
+          "id": "1cadf3a6eace",
+          "status": "live",
+          "line": "[1cadf3a6eace] event/proposal MSFT (2026-09-09) [secondary]: [proposal] SELL $147.88 (profit_rotation): Stretched cohort, watch thesis -- profit_rotation sell leg funding the KLAC buy leg."
+        },
+        {
+          "id": "97e82079df22",
+          "status": "live",
+          "line": "[97e82079df22] fact/thesis_evidence MSFT (2026-09-09) [secondary]: [thesis evidence FOR] plans to triple datacenter capacity to ~38GW by 2032, reportedly turning away AI/cloud business on compute shortage"
+        },
+        {
+          "id": "b5644980c537",
+          "status": "live",
+          "line": "[b5644980c537] event/proposal MSFT (2026-09-01) [secondary]: [proposal] SELL $152.66 (profit_rotation): profit_rotation sell leg: stretched (in names_stretched, +24.7% on month, +15.7pp rel. strength) with a watch thesis -- real profit to book. Independently reinforced by a live catalyst_threat hit this run (NVDA/Oracle CDS-widening contagion read; single-source, self-flagged as lacking an absolute bp level for MSFT specifically)."
+        },
+        {
+          "id": "51f1099bb1c3",
+          "status": "live",
+          "line": "[51f1099bb1c3] event AMZN,AVGO,GOOG (2026-08-27) [secondary]: THREAT/structural: Credit-default swaps on Oracle, SpaceX, Alphabet, Amazon, Meta, Broadcom and Nvidia hit record highs, per LSEG data, as market prices AI-financing/vendor-credit risk into the same week as the SMH selloff"
+        },
+        {
+          "id": "487acec3a7b0",
+          "status": "live",
+          "line": "[487acec3a7b0] event AMZN,AVGO,GOOG (2026-08-27) [secondary]: THREAT/structural: CDS on Oracle/SpaceX/Alphabet/Amazon/Meta/Broadcom/Nvidia hit record highs (LSEG) -- AI-financing/vendor-credit risk repricing"
+        },
+        {
+          "id": "eda3e53d788f",
+          "status": "live",
+          "line": "[eda3e53d788f] event AMZN,AVGO,GOOG (2026-08-27) [secondary]: THREAT/structural: Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: 'CDS, not EPS'"
+        },
+        {
+          "id": "137c6fb8e0d2",
+          "status": "live",
+          "line": "[137c6fb8e0d2] fact/thesis_evidence MSFT (2026-08-10) [secondary]: [thesis evidence FOR] averaged up 08-10 (+2.8% vs first entry), not averaging down, same window GOOGL was stopped out"
+        },
+        {
+          "id": "53b4bb0563ba",
+          "status": "superseded",
+          "line": "[53b4bb0563ba] verdict/thesis MSFT =watch (2026-08-12) [unverified]: WATCH: First researched thesis (two prior uncaptured buys: 08-06 2sh@$495.97, 08-10 +1sh@$509.86, now 3sh). Azure/OpenAI-linked hyperscaler capex spender, Compute/Hyperscaler cluster."
+        },
+        {
+          "id": "f760165403fb",
+          "status": "superseded",
+          "line": "[f760165403fb] fact/thesis_evidence MSFT (2026-08-10) [unverified]: [thesis evidence FOR] averaged up on second buy (+2.8% vs first entry), not averaging down"
+        },
+        {
+          "id": "324e1e95dba0",
+          "status": "superseded",
+          "line": "[324e1e95dba0] fact/thesis_evidence MSFT (2026-08-10) [unverified]: [thesis evidence FOR] added to, not trimmed, during the same window GOOGL was stopped out -- relative conviction signal"
+        },
+        {
+          "id": "cd90b74a216d",
+          "status": "live",
+          "line": "[cd90b74a216d] fact/signal MSFT (2026-09-16): [signals] TARGET GAP"
+        },
+        {
+          "id": "e9d71db958b2",
+          "status": "live",
+          "line": "[e9d71db958b2] fact/signal MSFT (2026-09-16): [signals] PEER LEADER, TARGET GAP"
+        },
+        {
+          "id": "e7302ab859a3",
+          "status": "live",
+          "line": "[e7302ab859a3] fact/signal MSFT (2026-09-14): [signals] TARGET GAP, NEW TAILWINDS"
+        },
+        {
+          "id": "5a774a6ecf99",
+          "status": "live",
+          "line": "[5a774a6ecf99] fact/signal MSFT (2026-09-14): [signals] PEER LEADER"
+        },
+        {
+          "id": "19c0a49a345b",
+          "status": "live",
+          "line": "[19c0a49a345b] fact/signal MSFT (2026-09-07): [signals] PEER_LEADER_OVERRIDDEN_FALSE_vs_XLK"
+        },
+        {
+          "id": "aee0f339c8a2",
+          "status": "live",
+          "line": "[aee0f339c8a2] fact/signal MSFT (2026-09-06): [signals] NEW TAILWINDS, PEER LEADER"
+        },
+        {
+          "id": "2a00243c96ea",
+          "status": "live",
+          "line": "[2a00243c96ea] fact/signal MSFT (2026-09-01): [signals] NEW TAILWINDS"
+        },
+        {
+          "id": "cec9e2926ac4",
+          "status": "live",
+          "line": "[cec9e2926ac4] fact/signal MSFT (2026-08-30): [signals] PEER LEADER, STRONG UPTREND"
+        },
+        {
+          "id": "3e0707e301c8",
+          "status": "live",
+          "line": "[3e0707e301c8] relation/member Compute/Hyperscaler,MSFT =Compute/Hyperscaler (2026-08-07): MSFT is classified in Compute/Hyperscaler"
+        }
+      ],
+      "open_tensions": [],
+      "refuted": []
+    },
+    {
+      "entity": "T:GLW",
+      "priority": 54.0,
+      "n_new": 36,
+      "previous_brief": null,
+      "timelines": {
+        "thesis": [
+          {
+            "as_of": "2026-08-15",
+            "value": "strengthening",
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-14",
+            "value": "watch",
+            "status": "live"
+          }
+        ],
+        "ladder_rank": [
+          {
+            "as_of": "2026-09-21",
+            "value": 7,
+            "status": "live"
+          }
+        ]
+      },
+      "new_observations": [
+        {
+          "id": "da6aa851b9fd",
+          "status": "live",
+          "line": "[da6aa851b9fd] verdict/ladder_rank AI Networking/Optics,GLW =7 (2026-09-21) [secondary]: rank 7 (laggard). Case against: The case FOR GLW is the one I am ranking against and it is not weak: Q2 core EPS +30%, a 19% sales CAGR guided through 2030, a 15% polysilicon tariff tailwind, and an ATM that by construction sells gradually so realized dilution will be a fraction of $2bn. Q3 core sales guidance of $4.9-5.0bn is intact. The 09-18 +3% says the market is already discounting the dilution scare. If the programme lapses unused, the laggard call is wrong on "
+        },
+        {
+          "id": "75f866937d72",
+          "status": "live",
+          "line": "[75f866937d72] event AMD,GLW,KLAC (2026-09-21): 2026-09-20 the user dismissed the whole 10-row proposal batch (P-353..P-362: MU/AMAT, AMD/KLAC, SKHY/CIEN, GLW/LITE, ASML/TSM); on 09-21 07:00Z MU, GLW and AMD/KLAC returned as P-363..P-366 at different sizes/grounds (full exits under the $648 minimum position). Re-proposal after a dismissal needs new grounds stated up front."
+        },
+        {
+          "id": "b2585b85ba25",
+          "status": "live",
+          "line": "[b2585b85ba25] event ALAB,APH,ASML (2026-09-20 x2) [secondary]: THREAT/immediate: Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex cut found through 09-20; sell-off described as sentiment against unchanged order book"
+        },
+        {
+          "id": "0790f8d5090e",
+          "status": "live",
+          "line": "[0790f8d5090e] verdict/thesis GLW =watch (2026-09-14) [secondary]: WATCH: Optical fiber/connectivity and specialty glass for AI datacenter interconnect; DOWNGRADED to WATCH 2026-09-14 on a new $2B dilutive equity offering -- a real financing-structure catalyst, not sector beta"
+        },
+        {
+          "id": "8ea93b43b59f",
+          "status": "live",
+          "line": "[8ea93b43b59f] event/proposal GLW (2026-09-21) [secondary]: [proposal] TRIM $450.3 (catalyst_threat): full_exit of a sub-scale, lowest-conviction position. Independent grounds that do NOT depend on the ATM: $450 is below the $638 minimum position with the book at 27 names vs a 15-20 target (position_consolidation, GLW is candidate #1, conviction -1.5); thesis watch; cluster_optics ranks GLW the weakest stack node and says it folds on conviction. The catalyst_threat trigger (ATM $2bn, 8-K/424B5 filed 2026-09-11, verified filing) is corroborating only: cat"
+        },
+        {
+          "id": "bc3cf63b21c6",
+          "status": "live",
+          "line": "[bc3cf63b21c6] lesson GLW (2026-09-21) [secondary]: [desk Q&A cluster_optics->catalyst] Q: Did any GLW filing after 2026-09-11 (10-Q, 8-K or prospectus supplement amendment) disclose shares actually sold under the $2bn ATM programme, or is the absence of a usage disclosure simply that noth\u2026 A (cannot_answer): No GLW filing after 2026-09-11 discloses ATM usage. An EDGAR company-feed fetch (summarised by the fetch tool, not a raw read) lists only the 8-K (0001193125-26-389321) and 424B5 (0001193125-26-389313), both filed 2026-09-11, plus a Form 4 dated 202"
+        },
+        {
+          "id": "5539e34f5122",
+          "status": "live",
+          "line": "[5539e34f5122] lesson AI Networking/Optics,GLW (2026-09-21) [secondary]: GLW catalyst_threat trigger stays live on a carried-forward event that catalyst has since marked WEAKENED; P-364 is only defensible on consolidation grounds (sub-scale, lowest conviction, position count 27 vs 15-20)."
+        },
+        {
+          "id": "b3ba3465524e",
+          "status": "live",
+          "line": "[b3ba3465524e] lesson GLW (2026-09-16) [secondary]: [rebound excluded] too_quiet_atr"
+        },
+        {
+          "id": "989b116f6832",
+          "status": "live",
+          "line": "[989b116f6832] lesson GLW (2026-09-16) [secondary]: [rebound excluded] too_quiet, atr_below_threshold"
+        },
+        {
+          "id": "377bcc724d01",
+          "status": "live",
+          "line": "[377bcc724d01] event/proposal GLW (2026-09-20) [secondary]: [proposal] SELL $135.09 (cluster_rotation): Laggard within AI Networking/Optics (-3.7pp), watch thesis, dead money in cluster; also carries a $2bn ATM dilution overhang (Corning/Goldman)."
+        },
+        {
+          "id": "7642d030f05a",
+          "status": "live",
+          "line": "[7642d030f05a] event COHR,GLW,LITE (2026-09-18) [secondary]: THREAT/structural: Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LITE +3%, GLW +3%); no program-usage disclosure found"
+        },
+        {
+          "id": "b1e7af74a77c",
+          "status": "live",
+          "line": "[b1e7af74a77c] relation/pair GLW,LITE =distinct (2026-09-21) [secondary]: LITE/GLW: distinct -- Labelled together as optics and they trade together on sector shocks, but active laser economics and passive fiber/glass economics are on opposite sides of the margin migration. GLW is a conviction question, not an overlap question. (keep LITE, drop None)"
+        },
+        {
+          "id": "b523872a4def",
+          "status": "live",
+          "line": "[b523872a4def] event/proposal GLW (2026-09-16) [secondary]: [proposal] SELL $129.98 (cluster_rotation): Thesis WATCH (verified secondary) -- cluster laggard, rotate into MRVL."
+        },
+        {
+          "id": "11cc71359f8e",
+          "status": "live",
+          "line": "[11cc71359f8e] event/proposal GLW (2026-09-15) [secondary]: [proposal] SELL $217.78 (conviction_exit): 3-signal conviction_exit + GLW-specific $2bn ATM dilution catalyst (SEC-filed, primary source)."
+        },
+        {
+          "id": "9c2bf4fa700b",
+          "status": "live",
+          "line": "[9c2bf4fa700b] event ALAB,APH,BE (2026-09-14) [secondary]: THREAT/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI Networking/Optics cluster -6.25%) -- broad AI-capex-book de-rating tracking the same FOMC-hawkish + Hormuz-oil + AI-slowdown-sentiment complex as the Asia session, not a new optics-specific print (no COHR/LITE/CIEN-specific news found this scan)"
+        },
+        {
+          "id": "2333e45056f0",
+          "status": "live",
+          "line": "[2333e45056f0] event ALAB,APH,ASML (2026-09-14) [secondary]: THREAT/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting)"
+        },
+        {
+          "id": "96934a892f71",
+          "status": "live",
+          "line": "[96934a892f71] event ALAB,APH,ASML (2026-09-14) [secondary]: THREAT/immediate: Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endorsed within 48hrs by OpenAI's Altman and xAI's Musk) is confirmed as the sentiment trigger for Monday's AI-infra repricing, but VERIFIED this run: no hyperscaler has moved capex guidance -- Microsoft/Amazon/Alphabet/Oracle 2026 capex remains locked at ~$660-690bn combined, unchanged since the essay published"
+        },
+        {
+          "id": "ca356a21f1bc",
+          "status": "live",
+          "line": "[ca356a21f1bc] event COHR,GLW,LITE (2026-09-14) [secondary]: THREAT/structural: Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 2026-09-11); GLW fell ~12-14% Monday with direct optics-peer contagion -- Coherent -11%, Lumentum -9%, Fabrinet -6% (not held)"
+        },
+        {
+          "id": "1fe8cfae37e6",
+          "status": "live",
+          "line": "[1fe8cfae37e6] fact GLW (2026-09-21) [secondary]: GLW $2bn ATM usage is unknown (nothing filed since 2026-09-11), not zero; first quantified in the Q3 10-Q (~2026-10-27)"
+        },
+        {
+          "id": "5ecb84d7e4f7",
+          "status": "live",
+          "line": "[5ecb84d7e4f7] fact GLW (2026-09-21) [secondary]: [orchestrator] GLW $2bn ATM usage is unknown (nothing filed since 2026-09-11), not zero; first quantified in the Q3 10-Q (~2026-10-27)"
+        },
+        {
+          "id": "8eb937d3c938",
+          "status": "live",
+          "line": "[8eb937d3c938] fact COHR,GLW,LITE (2026-09-21) [secondary]: [catalyst] Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LITE +3%, GLW +3%); no program-usage disclosure found -- magnitude: GLW -12% to $145.61 on 09-14; ATM sells gradually, realized dilution a fraction of $2bn; Q3 core sales guide $4.9-5.0bn intact; only a usage disclosure would re-escalate. Fri rebound recovers only part of the drop (not sized: no prints fetched)"
+        },
+        {
+          "id": "2045c207f41e",
+          "status": "live",
+          "line": "[2045c207f41e] event ALAB,APH,ASML (2026-09-12) [secondary]: THREAT/structural: Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate continues (Altman/Musk endorse, Burry/Sankar/Trump dismiss, Harris calls for legislation)"
+        },
+        {
+          "id": "0dc735b0b820",
+          "status": "live",
+          "line": "[0dc735b0b820] fact GEV,GLW (2026-09-15) [secondary]: [orchestrator] Two 09-14 drops were company-specific, not sector: GLW's $2bn at-the-market equity program (COHR/LITE fell on read-through only); GEV's GLJ Research Sell $470 (Street low, 2027 turbine-vintage margin thesis), of which only ~1-3pp of GEV's -8.6% was idiosyncratic and none transfers to VRT/BE."
+        },
+        {
+          "id": "d1d4846be80b",
+          "status": "live",
+          "line": "[d1d4846be80b] fact COHR,GLW,LITE (2026-09-15) [secondary]: [catalyst] Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 2026-09-11); GLW fell ~12-14% Monday with direct optics-peer contagion -- Coherent -11%, Lumentum -9%, Fabrinet -6% (not held) -- magnitude: ATM programs sell shares gradually and opportunistically, not $2bn upfront, so realized dilution will be a fraction of t\u2026"
+        },
+        {
+          "id": "5d935b5c162f",
+          "status": "live",
+          "line": "[5d935b5c162f] fact GLW (2026-09-15) [secondary]: [thesis] watch -- Optical fiber/connectivity and specialty glass for AI datacenter interconnect; DOWNGRADED to WATCH 2026-09-14 on a new $2B dilutive equity offering -- a real financing-structure catalyst, not sector beta"
+        },
+        {
+          "id": "536886159582",
+          "status": "live",
+          "line": "[536886159582] fact/thesis_evidence GLW (2026-09-14) [secondary]: [thesis evidence AGAINST] $2B dilutive equity offering announced today, 2026-09-14 -- confirmed name-specific financing catalyst (not sector beta); stock -12.64% close, largest single-day drop in the book, 2.2x its 5.6% ATR"
+        },
+        {
+          "id": "8e3ec1c8c934",
+          "status": "live",
+          "line": "[8e3ec1c8c934] fact ALAB,CIEN,CLS (2026-09-14) [secondary]: [catalyst] US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI Networking/Optics cluster -6.25%) -- broad AI-capex-book de-rating tracking the same FOMC-hawkish + Hormuz-oil + AI-slowdown-sentiment complex as the Asia session, not a new optics-specific print (no COHR/LITE/CIEN-specific news found this scan) -- magnitude: index move (VIX +13.8%, NQ -1.84%) an order of magnitude s\u2026"
+        },
+        {
+          "id": "217781298907",
+          "status": "live",
+          "line": "[217781298907] event/proposal GLW (2026-09-03) [secondary]: [proposal] BUY $379.28 (conviction_average): conviction_average, low tier (29.5). Thesis strengthening (secondary, 1 for/1 against), +9.5pp vs benchmark."
+        },
+        {
+          "id": "a2c6e674c105",
+          "status": "live",
+          "line": "[a2c6e674c105] event/proposal GLW (2026-09-01) [secondary]: [proposal] BUY $364.85 (conviction_average): conviction_average: conviction score 29.5 (low). Thesis strengthening (secondary, 1 for/1 against -- verified). +9.5pp rel. strength vs SMH. Blended entry $149.48 clears the $132.27 stop."
+        },
+        {
+          "id": "46231dcfd54c",
+          "status": "superseded",
+          "line": "[46231dcfd54c] verdict/thesis GLW =strengthening (2026-08-15) [unverified]: STRENGTHENING: Optical fiber/connectivity and specialty glass for AI datacenter interconnect; re-entered 3sh"
+        },
+        {
+          "id": "9819c9d76e76",
+          "status": "live",
+          "line": "[9819c9d76e76] fact/thesis_evidence GLW (2026-08-07) [unverified]: [thesis evidence FOR] Q2 core EPS +30%; Truist upgrade to Buy; +18% on the week; 15% polysilicon tariff tailwind; 19% sales CAGR guided through 2030"
+        },
+        {
+          "id": "d76eaa68885c",
+          "status": "live",
+          "line": "[d76eaa68885c] fact/signal GLW (2026-09-14): [signals] MOMENTUM+VOLUME?, STRONG DOWNTREND, TARGET GAP"
+        },
+        {
+          "id": "21f382bd3ab4",
+          "status": "live",
+          "line": "[21f382bd3ab4] fact/thesis_evidence GLW (2026-07-28) [unverified]: [thesis evidence AGAINST] Q3 guide_below_consensus drove a pullback reported as '-50% from the June peak' -- single tier-2 source, magnitude UNCONFIRMED"
+        },
+        {
+          "id": "37e651ab33b6",
+          "status": "live",
+          "line": "[37e651ab33b6] fact/signal GLW (2026-09-06): [signals] NEW TAILWINDS"
+        },
+        {
+          "id": "99ce55fb0e21",
+          "status": "live",
+          "line": "[99ce55fb0e21] fact/signal GLW (2026-08-30): [signals] TARGET GAP"
+        },
+        {
+          "id": "e3e4667a9159",
+          "status": "live",
+          "line": "[e3e4667a9159] relation/member AI Networking/Optics,GLW =AI Networking/Optics (2026-07-18): GLW is classified in AI Networking/Optics"
+        }
+      ],
+      "open_tensions": [],
+      "refuted": []
+    },
+    {
+      "entity": "T:BE",
+      "priority": 52.5,
+      "n_new": 35,
+      "previous_brief": null,
+      "timelines": {
+        "thesis": [
+          {
+            "as_of": "2026-08-15",
+            "value": "strengthening",
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-07",
+            "value": "strengthening",
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-08",
+            "value": "strengthening",
+            "status": "live"
+          }
+        ],
+        "ladder_rank": [
+          {
+            "as_of": "2026-09-09",
+            "value": 2,
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-15",
+            "value": 1,
+            "status": "live"
+          }
+        ]
+      },
+      "new_observations": [
+        {
+          "id": "b2585b85ba25",
+          "status": "live",
+          "line": "[b2585b85ba25] event ALAB,APH,ASML (2026-09-20 x2) [secondary]: THREAT/immediate: Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex cut found through 09-20; sell-off described as sentiment against unchanged order book"
+        },
+        {
+          "id": "c8a52984a67a",
+          "status": "live",
+          "line": "[c8a52984a67a] verdict/ladder_rank AI Power/Cooling/DC Infra,BE =1 (2026-09-15) [secondary]: rank 1 (leader). Case against: Priced for it: ~95x FY26 non-GAAP EPS mid ($2.70), EV/EBITDA ~199x, +190% YTD, mean target $276.05 only +7.4% above $257.05; beta 1.68 -- highest rate/duration sensitivity in the cluster going into a hike-odds FOMC; ~$14B non-product (service/long-term) backlog is long-dated and could carry exactly the fixed-price vintage lag GLJ describes -- untested, no source."
+        },
+        {
+          "id": "6bb055b2297d",
+          "status": "superseded",
+          "line": "[6bb055b2297d] verdict/ladder_rank AI Power/Cooling/DC Infra,BE =2 (2026-09-09) [secondary]: rank 2 (middle). Case against: 3.93% weight is 1.219x cap and rotation_bucket already flags trim_risk_cap; no return figure in this run's cache (return_coverage gap) so the +9.6% pre-market pop cannot be independently sized against fundamentals today."
+        },
+        {
+          "id": "9bc50e2631f0",
+          "status": "live",
+          "line": "[9bc50e2631f0] relation/pair BE,GEV =distinct (2026-09-15) [secondary]: BE/GEV: distinct -- Both sell generation to data centers, but are substitutes at the margin (behind-the-meter fuel cells vs grid-scale turbines) with opposite queue exposure and opposite rate sensitivity -- an intra-cluster hedge, not a duplicate (keep both, drop none)"
+        },
+        {
+          "id": "2e58a375972a",
+          "status": "live",
+          "line": "[2e58a375972a] event/proposal BE (2026-09-15) [secondary]: [proposal] BUY $659.63 (cluster_rotation): cluster_rotation buy leg, ladder rank #1 but highest rate-sensitivity in cluster -- gated to as-priced/dovish FOMC outcome only."
+        },
+        {
+          "id": "e085500a8882",
+          "status": "live",
+          "line": "[e085500a8882] relation/pair BE,VST =distinct (2026-09-09) [secondary]: BE/VST: distinct -- screen returned no candidate; opposite ends of the behind-the-meter vs grid-connected regulatory axis by design (keep both, drop none)"
+        },
+        {
+          "id": "9c2bf4fa700b",
+          "status": "live",
+          "line": "[9c2bf4fa700b] event ALAB,APH,BE (2026-09-14) [secondary]: THREAT/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI Networking/Optics cluster -6.25%) -- broad AI-capex-book de-rating tracking the same FOMC-hawkish + Hormuz-oil + AI-slowdown-sentiment complex as the Asia session, not a new optics-specific print (no COHR/LITE/CIEN-specific news found this scan)"
+        },
+        {
+          "id": "2333e45056f0",
+          "status": "live",
+          "line": "[2333e45056f0] event ALAB,APH,ASML (2026-09-14) [secondary]: THREAT/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting)"
+        },
+        {
+          "id": "96934a892f71",
+          "status": "live",
+          "line": "[96934a892f71] event ALAB,APH,ASML (2026-09-14) [secondary]: THREAT/immediate: Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endorsed within 48hrs by OpenAI's Altman and xAI's Musk) is confirmed as the sentiment trigger for Monday's AI-infra repricing, but VERIFIED this run: no hyperscaler has moved capex guidance -- Microsoft/Amazon/Alphabet/Oracle 2026 capex remains locked at ~$660-690bn combined, unchanged since the essay published"
+        },
+        {
+          "id": "2045c207f41e",
+          "status": "live",
+          "line": "[2045c207f41e] event ALAB,APH,ASML (2026-09-12) [secondary]: THREAT/structural: Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate continues (Altman/Musk endorse, Burry/Sankar/Trump dismiss, Harris calls for legislation)"
+        },
+        {
+          "id": "594935dafb15",
+          "status": "live",
+          "line": "[594935dafb15] fact BE (2026-09-15) [secondary]: [thesis] strengthening -- Fuel-cell power generation for AI-datacenter and grid-power demand; AI Power/Cooling/DC Infra."
+        },
+        {
+          "id": "d1b06dc7c595",
+          "status": "live",
+          "line": "[d1b06dc7c595] fact BE (2026-09-14) [secondary]: [catalyst] Bloom Energy confirmed for S&P 500 inclusion effective 2026-09-21; Clear Street/UBS price-target raises to $330/$325 -- magnitude: one index add among ~500 S&P constituents; partially priced ahead of the 09-21 effective date"
+        },
+        {
+          "id": "35aeb70f4109",
+          "status": "live",
+          "line": "[35aeb70f4109] event BE (2026-09-08) [secondary]: TAILWIND/structural: Bloom Energy confirmed for S&P 500 inclusion effective 2026-09-21; Clear Street/UBS price-target raises to $330/$325"
+        },
+        {
+          "id": "da614804d2d2",
+          "status": "live",
+          "line": "[da614804d2d2] event BE (2026-09-08) [secondary]: TAILWIND/structural: Bloom Energy analyst price-target raises: UBS to $325 from $300, Clear Street to $330 from $290, both Buy, both citing the S&P 500 addition"
+        },
+        {
+          "id": "efedeeb6a1be",
+          "status": "live",
+          "line": "[efedeeb6a1be] event BE (2026-09-08) [secondary]: TAILWIND/immediate: Bloom Energy confirmed for S&P 500 inclusion effective 2026-09-21; Clear Street/UBS price-target raises to $330/$325 [RETIRED: Event executes at today's open (replaces Molson Coors, Trade Desk, Builders FirstSource); index-demand leg is now realized, not pending. Source: https://press.spglobal.com/2026-09-04-Bloom-Energy,-Illumina,-and-Everpure-Set-to-Join-S-P-500-Others-to-Join-S-P-100,-S-P-MidCap-400,-and-S-P-SmallCap-600]"
+        },
+        {
+          "id": "61f3378ef70f",
+          "status": "live",
+          "line": "[61f3378ef70f] fact BE (2026-09-06) [secondary]: [quality flag] {\"finding\": \"Heavy share dilution funding capacity buildout\", \"metric\": \"diluted_shares_yoy\", \"magnitude\": \"+39% YoY (232.5M to 323.3M)\", \"evidence_for\": [{\"claim\": \"Diluted avg shares rose from 232.54M to 323.33M YoY\", \"date\": \"2026-09-06\", \"source\": \"yfinance quarterly financials\"}], \"evidence_against\": [{\"claim\": \"OCF ($226M) exceeds NI ($196M) latest quarter; net debt is thin (~$140M) vs ~$223"
+        },
+        {
+          "id": "8e20c9c7ad9a",
+          "status": "live",
+          "line": "[8e20c9c7ad9a] fact BE (2026-09-06) [secondary]: [quality financials] {\"latest_period_end\": \"2026-06-30\", \"fetched_at\": \"2026-09-06\", \"quarters\": [{\"period_end\": \"2026-06-30\", \"revenue\": 1070000000, \"ocf\": 226430000, \"capex\": -51640000, \"net_income\": 196290000, \"op_income\": 182240000, \"interest_expense\": 8910000, \"total_debt\": 2810000000, \"sbc\": 57230000, \"diluted_shares\": 323330000}, {\"period_end\": \"2026-03-31\", \"revenue\": 751050000, \"ocf\": 73610000, \"capex\": -26180000, \"net_income\": 70650000, \"op_income\": 721900\u2026"
+        },
+        {
+          "id": "608bc610d3e6",
+          "status": "live",
+          "line": "[608bc610d3e6] verdict/thesis BE =strengthening (2026-09-08) [unverified]: STRENGTHENING: Fuel-cell power generation for AI-datacenter and grid-power demand; AI Power/Cooling/DC Infra."
+        },
+        {
+          "id": "81ea286008a9",
+          "status": "live",
+          "line": "[81ea286008a9] fact BE (2026-08-30) [secondary]: [quality flag] {\"finding\": \"Heavy share dilution and debt-funded growth in a merchant/power-adjacent AI-capex name\", \"metric\": \"diluted shares YoY, total debt YoY, SBC % revenue\", \"magnitude\": \"dilution +37.6% YoY; debt +86% YoY; SBC 5.3% of revenue\", \"evidence_for\": [{\"claim\": \"Diluted share count +37.6% YoY; total debt +86% YoY to $2.81B; SBC 5.3% of revenue\", \"date\": \"2026-08-30\", \"source\": \"yfinance quarterl"
+        },
+        {
+          "id": "a313748bf7e9",
+          "status": "superseded",
+          "line": "[a313748bf7e9] verdict/thesis BE =strengthening (2026-09-07) [unverified]: STRENGTHENING: unchanged"
+        },
+        {
+          "id": "7c1aa74858aa",
+          "status": "superseded",
+          "line": "[7c1aa74858aa] verdict/thesis BE =strengthening (2026-08-15) [unverified]: STRENGTHENING: On-site fuel-cell power for AI datacenters; re-entered 2.75sh after a Q2 beat and raised guide"
+        },
+        {
+          "id": "169840c97941",
+          "status": "live",
+          "line": "[169840c97941] fact/thesis_evidence BE (2026-09-08) [unverified]: [thesis evidence FOR] true-peer rel_strength vs XLU is +9.24pp (positive), even though the raw PEER LEADER flag was a false SMH-fallback artifact and has been withdrawn"
+        },
+        {
+          "id": "a87db7098703",
+          "status": "live",
+          "line": "[a87db7098703] fact/thesis_evidence BE (2026-09-08) [unverified]: [thesis evidence AGAINST] prior PEER LEADER signal-bucket label (rel_sigma vs SMH) was a data-quality artifact -- BE's true peer is XLU (utilities), not semis; do not cite the withdrawn SMH-relative claim as support going forward"
+        },
+        {
+          "id": "f00dc26b97e2",
+          "status": "live",
+          "line": "[f00dc26b97e2] event ASML,BE,CIEN (2026-08-18) [secondary]: THREAT/immediate: Semis-specific rout: SMH -4.09% vs SPX -0.69%/NDX -1.33%; high-multiple AI-hardware names repriced hardest while mega-cap compute barely moved"
+        },
+        {
+          "id": "2bdbb4502a33",
+          "status": "superseded",
+          "line": "[2bdbb4502a33] fact/thesis_evidence BE (2026-09-07) [unverified]: [thesis evidence AGAINST] 5 distinct insiders (Chambers, Chitoori, Immelt, Joshi, Soderberg) sold in last 60 days; stock -28% off 52wk high so no formal sell-into-rally flag fires"
+        },
+        {
+          "id": "f17115785560",
+          "status": "live",
+          "line": "[f17115785560] event AVGO,BE,GEV (2026-08-17) [secondary]: THREAT/structural: WSJ: nine Big Tech firms carry $3T in off-balance-sheet AI commitments vs ~$600bn trailing capex; triggers behind-the-meter power-stock de-risking"
+        },
+        {
+          "id": "960f7c2176bb",
+          "status": "superseded",
+          "line": "[960f7c2176bb] fact/thesis_evidence BE (2026-08-13) [unverified]: [thesis evidence FOR] Q2 revenue $1.07B and EPS $0.78 both beat; FY guidance raised; JPMorgan raised price target"
+        },
+        {
+          "id": "6d9994384656",
+          "status": "superseded",
+          "line": "[6d9994384656] fact/thesis_evidence BE (2026-08-13) [unverified]: [thesis evidence AGAINST] scandium supply-chain class-action lawsuit filed; company rebutted citing confirmed non-China inventory independence"
+        },
+        {
+          "id": "56365c51c564",
+          "status": "live",
+          "line": "[56365c51c564] fact/signal BE (2026-09-15): [signals]"
+        },
+        {
+          "id": "1d6290c8e4ff",
+          "status": "live",
+          "line": "[1d6290c8e4ff] fact/signal BE (2026-09-07): [signals] TARGET_GAP_NOT_FIRED, PEER_LEADER_OVERRIDDEN_FALSE_vs_XLU"
+        },
+        {
+          "id": "c54fd978e828",
+          "status": "live",
+          "line": "[c54fd978e828] fact/signal BE (2026-09-06): [signals] PEER LEADER"
+        },
+        {
+          "id": "31b36ce353df",
+          "status": "live",
+          "line": "[31b36ce353df] fact/signal BE (2026-09-06): [signals] PEER LEADER, NEW TAILWINDS"
+        },
+        {
+          "id": "b89c854385c5",
+          "status": "live",
+          "line": "[b89c854385c5] fact/signal BE (2026-09-01): [signals] TARGET GAP"
+        },
+        {
+          "id": "b27b9ff2944d",
+          "status": "live",
+          "line": "[b27b9ff2944d] fact/signal BE (2026-08-30): [signals] TARGET GAP, PEER LEADER"
+        },
+        {
+          "id": "0ed9bbc23177",
+          "status": "live",
+          "line": "[0ed9bbc23177] relation/member AI Power/Cooling/DC Infra,BE =AI Power/Cooling/DC Infra (2026-07-30): BE is classified in AI Power/Cooling/DC Infra"
+        }
+      ],
+      "open_tensions": [],
+      "refuted": []
+    },
+    {
+      "entity": "T:ALAB",
+      "priority": 51.0,
+      "n_new": 34,
+      "previous_brief": null,
+      "timelines": {
+        "thesis": [
+          {
+            "as_of": "2026-09-01",
+            "value": "strengthening",
+            "status": "live"
+          }
+        ],
+        "ladder_rank": [
+          {
+            "as_of": "2026-09-08",
+            "value": 3,
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-14",
+            "value": 4,
+            "status": "superseded"
+          },
+          {
+            "as_of": "2026-09-21",
+            "value": 3,
+            "status": "live"
+          }
+        ]
+      },
+      "new_observations": [
+        {
+          "id": "bfceaebd9d3e",
+          "status": "live",
+          "line": "[bfceaebd9d3e] verdict/ladder_rank AI Networking/Optics,ALAB =3 (2026-09-21) [secondary]: rank 3 (middle). Case against: It is not optics -- it is electrical. The same 1.6T/CPO transition that makes LITE structural is, at the limit, the transition that replaces within-rack electrical links with optical ones; ALAB's rank-3 depends on scale-up staying copper for at least this generation. Customer concentration is severe, and a guide 30% above consensus sets a bar that a single hyperscaler's schedule slip resets."
+        },
+        {
+          "id": "b2585b85ba25",
+          "status": "live",
+          "line": "[b2585b85ba25] event ALAB,APH,ASML (2026-09-20 x2) [secondary]: THREAT/immediate: Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex cut found through 09-20; sell-off described as sentiment against unchanged order book"
+        },
+        {
+          "id": "cd61c01f2074",
+          "status": "superseded",
+          "line": "[cd61c01f2074] verdict/ladder_rank AI Networking/Optics,ALAB =4 (2026-09-14) [secondary]: rank 4 (middle). Case against: Retimers are the layer most easily designed out, by optical scale-up or in-house fabric silicon. Stock is -2.58pp intra despite the guide. Nothing refreshed this run."
+        },
+        {
+          "id": "e3ce43c74b5f",
+          "status": "superseded",
+          "line": "[e3ce43c74b5f] verdict/ladder_rank AI Networking/Optics,ALAB =3 (2026-09-08) [secondary]: rank 3 (middle). Case against: Retiming is the most designed-out-able layer in this stack: a socket existing because of a signal-integrity gap, with both optical scale-up and hyperscaler in-house fabric silicon live paths to closing it. Price has disagreed for a month (-6.36pp intra, -2.52% absolute) despite the guide -- either the market pricing that disintermediation or an opportunity; I cannot yet distinguish. cap_multiple 0.944 leaves only $90.51 headroom."
+        },
+        {
+          "id": "8596a1d30991",
+          "status": "live",
+          "line": "[8596a1d30991] verdict/thesis ALAB =strengthening (2026-09-01) [secondary]: STRENGTHENING: PCIe/CXL connectivity+retimer silicon for AI-server interconnect (Scorpio family); Q2 beat on rev+EPS, Q3 guide well above consensus, but today's -5.98% (vs SMH -2.1%) has no name-specific explanation found on a 3-week-old, still-untested position."
+        },
+        {
+          "id": "73dda2d40198",
+          "status": "live",
+          "line": "[73dda2d40198] relation/pair ALAB,MRVL =distinct (2026-09-21) [secondary]: MRVL/ALAB: distinct -- Both monetise custom-ASIC attach at the same hyperscalers, but MRVL sells the accelerator/DSP silicon and ALAB the scale-up connectivity around it -- different content per rack, different competitors, and they can diverge on a single customer's architecture choice. (keep MRVL, drop None)"
+        },
+        {
+          "id": "1e2dd049b30e",
+          "status": "live",
+          "line": "[1e2dd049b30e] event/proposal ALAB (2026-09-16) [secondary]: [proposal] BUY $153.75 (profit_rotation): Thesis strengthening (verified secondary), -15.93% 1m / -7.76pp vs benchmark, RSI14 43.8 not overbought -- price says WHEN, thesis says WHICH WAY. Supersedes P-338's remaining open TRIM balance (stale catalyst_threat rationale overtaken by the thesis update)."
+        },
+        {
+          "id": "145428c2e2f5",
+          "status": "live",
+          "line": "[145428c2e2f5] event ALAB,AMAT,ASML (2026-09-15) [secondary]: THREAT/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC sit at 84.1% as of 2026-09-14; SEP dot-plot lands alongside the decision Wed 09-16"
+        },
+        {
+          "id": "ed08e778cc19",
+          "status": "live",
+          "line": "[ed08e778cc19] event/proposal ALAB (2026-09-15) [secondary]: [proposal] TRIM $362.25 (catalyst_threat): 2nd-highest cap breach (1.44x), derisk rank 2, flat signal fails 2a-i. Resolves conflict with rebound's average-down proposal."
+        },
+        {
+          "id": "5bbfd972fbdc",
+          "status": "live",
+          "line": "[5bbfd972fbdc] event/proposal ALAB (2026-09-14) [secondary]: [proposal] BUY $52.06 (profit_rotation): profit_rotation buy leg, laggard -2.0pp, strengthening thesis, funded from MSFT sale"
+        },
+        {
+          "id": "9c2bf4fa700b",
+          "status": "live",
+          "line": "[9c2bf4fa700b] event ALAB,APH,BE (2026-09-14) [secondary]: THREAT/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI Networking/Optics cluster -6.25%) -- broad AI-capex-book de-rating tracking the same FOMC-hawkish + Hormuz-oil + AI-slowdown-sentiment complex as the Asia session, not a new optics-specific print (no COHR/LITE/CIEN-specific news found this scan)"
+        },
+        {
+          "id": "2333e45056f0",
+          "status": "live",
+          "line": "[2333e45056f0] event ALAB,APH,ASML (2026-09-14) [secondary]: THREAT/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting)"
+        },
+        {
+          "id": "4f3e28f96677",
+          "status": "live",
+          "line": "[4f3e28f96677] event ALAB,AMAT,ASML (2026-09-14) [secondary]: THREAT/immediate: CME FedWatch-implied odds of a 25bp hike at the Sept 15-16 FOMC surge to 88.5%, up from ~57% cited in the 09:29Z pre-market review, with Brent near $107/bbl sustaining the inflation-fear channel"
+        },
+        {
+          "id": "96934a892f71",
+          "status": "live",
+          "line": "[96934a892f71] event ALAB,APH,ASML (2026-09-14) [secondary]: THREAT/immediate: Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endorsed within 48hrs by OpenAI's Altman and xAI's Musk) is confirmed as the sentiment trigger for Monday's AI-infra repricing, but VERIFIED this run: no hyperscaler has moved capex guidance -- Microsoft/Amazon/Alphabet/Oracle 2026 capex remains locked at ~$660-690bn combined, unchanged since the essay published"
+        },
+        {
+          "id": "69a46a20ed88",
+          "status": "live",
+          "line": "[69a46a20ed88] fact ALAB,AVGO,CIEN (2026-09-21) [secondary]: [catalyst] Amodei 'We Must Pace the Frontier' essay mapped as a structural threat across 15 names including all 7 optics members"
+        },
+        {
+          "id": "cdfabfbe3ee5",
+          "status": "live",
+          "line": "[cdfabfbe3ee5] fact ALAB,AVGO,CIEN (2026-09-21) [secondary]: [catalyst] Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex cut found through 09-20; sell-off described as sentiment against unchanged order book -- magnitude: AI Infrastructure basket -5.8% vs cybersecurity +13.2% on 09-14 (secondary source); SMH +2.21% pre-market 09-21 reverses part; reclassified structural->immediate as no capex mechanism; re-escalate only on a hyperscaler\u2026"
+        },
+        {
+          "id": "2045c207f41e",
+          "status": "live",
+          "line": "[2045c207f41e] event ALAB,APH,ASML (2026-09-12) [secondary]: THREAT/structural: Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate continues (Altman/Musk endorse, Burry/Sankar/Trump dismiss, Harris calls for legislation)"
+        },
+        {
+          "id": "3578f0462c03",
+          "status": "live",
+          "line": "[3578f0462c03] fact ALAB (2026-09-16) [secondary]: [rebound candidate] same cluster-cap block as LITE/COHR; thesis strengthening and fall reads as sector-beta amplification per state.thesis note, not company-specific."
+        },
+        {
+          "id": "b3df88bec5ed",
+          "status": "live",
+          "line": "[b3df88bec5ed] fact ALAB (2026-09-16) [secondary]: [rebound candidate] 5d fall is the same GLW-dilution optics-cluster contagion (COHR -11%, LITE -9%, reaffirmed catalyst:9744ffb8fe) plus Amodei pacing shock, not name-specific; already +6.6% today with COHR/LITE/CIEN/MRVL, in line with cluster-wide bounce; Q3 guide well above consensus intact, no flag"
+        },
+        {
+          "id": "f928f4763cb8",
+          "status": "live",
+          "line": "[f928f4763cb8] fact ALAB,AVGO,CIEN (2026-09-16) [secondary]: [catalyst] Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate continues (Altman/Musk endorse, Burry/Sankar/Trump dismiss, Harris calls for legislation) -- magnitude: political/investor noise widened (Burry, Sankar, Trump, Harris) but no new stock-moving mechanism found this window; classification unchanged"
+        },
+        {
+          "id": "880f29091fcb",
+          "status": "live",
+          "line": "[880f29091fcb] event ALAB,ASML,CLS (2026-09-11) [secondary]: TAILWIND/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC, easing hike-fear from hot August CPI -- broad relief rally across the entire risk-on book, not an AI-capex-specific tailwind"
+        },
+        {
+          "id": "a29901e25316",
+          "status": "live",
+          "line": "[a29901e25316] fact ALAB (2026-09-15) [secondary]: [rebound candidate] fell ~2x cluster median (-17.2% vs -8.86%) but high-beta(1.576) amplification of same macro catalyst per thesis; already over standard position cap, tranche1 only pre-FOMC"
+        },
+        {
+          "id": "e559a921ffa4",
+          "status": "live",
+          "line": "[e559a921ffa4] fact ALAB,AVGO,CIEN (2026-09-15) [secondary]: [catalyst] Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endorsed within 48hrs by OpenAI's Altman and xAI's Musk) is confirmed as the sentiment trigger for Monday's AI-infra repricing, but VERIFIED this run: no hyperscaler has moved capex guidance -- Microsoft/Amazon/Alphabet/Oracle 2026 capex remains locked at ~$660-690bn combined, unchanged since the essay published -- magnit\u2026"
+        },
+        {
+          "id": "f7a6f1688be0",
+          "status": "live",
+          "line": "[f7a6f1688be0] fact ALAB (2026-09-15) [secondary]: [thesis] strengthening -- PCIe/CXL connectivity+retimer silicon for AI-server interconnect (Scorpio family); Q2 beat on rev+EPS, Q3 guide well above consensus, but today's -5.98% (vs SMH -2.1%) has no name-specific explanation found on a 3-week-old, still-untested position."
+        },
+        {
+          "id": "8e3ec1c8c934",
+          "status": "live",
+          "line": "[8e3ec1c8c934] fact ALAB,CIEN,CLS (2026-09-14) [secondary]: [catalyst] US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI Networking/Optics cluster -6.25%) -- broad AI-capex-book de-rating tracking the same FOMC-hawkish + Hormuz-oil + AI-slowdown-sentiment complex as the Asia session, not a new optics-specific print (no COHR/LITE/CIEN-specific news found this scan) -- magnitude: index move (VIX +13.8%, NQ -1.84%) an order of magnitude s\u2026"
+        },
+        {
+          "id": "830e580e1b97",
+          "status": "live",
+          "line": "[830e580e1b97] fact ALAB,AVGO,CIEN (2026-09-14) [secondary]: [catalyst] Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-12) urging AI labs to slow frontier-model capability development; OpenAI's Altman and xAI's Musk publicly endorse within 48hrs -- first cross-lab AI-slowdown signal, colliding with FOMC week to drive the day's steepest declines in high-multiple AI-infrastructure names (MRVL -7%, AVGO -4% per same-day reporting) -- mag\u2026"
+        },
+        {
+          "id": "a7731a79d7c6",
+          "status": "live",
+          "line": "[a7731a79d7c6] fact/thesis_evidence ALAB (2026-09-01) [secondary]: [thesis evidence AGAINST] -5.98% on 2026-09-01 vs SMH -2.1% (~3x beta); no ALAB-specific news found explaining the move, reads as high-beta amplification of a broad down day"
+        },
+        {
+          "id": "e22eed6b7809",
+          "status": "live",
+          "line": "[e22eed6b7809] fact ALAB (2026-08-30) [secondary]: [watchlist setup] {\"ticker\": \"ALAB\", \"type\": \"target_gap\", \"upside_pct\": 25.8, \"pos\": 0.48}"
+        },
+        {
+          "id": "b615cc775f74",
+          "status": "live",
+          "line": "[b615cc775f74] fact/thesis_evidence ALAB (2026-08-05) [secondary]: [thesis evidence FOR] Q2 2026 revenue $392.4M beat $360.81M consensus; EPS $0.80 beat $0.69 consensus"
+        },
+        {
+          "id": "88c650130003",
+          "status": "live",
+          "line": "[88c650130003] fact/thesis_evidence ALAB (2026-08-05) [secondary]: [thesis evidence FOR] Q3 2026 guidance $540-560M rev / $1.16-1.21 EPS vs $417.02M/$0.81 consensus (guide_above_consensus); Scorpio X-Series entering volume production"
+        },
+        {
+          "id": "1288b0d212c3",
+          "status": "live",
+          "line": "[1288b0d212c3] fact ALAB (2026-08-05) [secondary]: [earnings] Q2 2026 reported 2026-08-05: revenue 392400000 vs 360810000; EPS 0.8 vs 0.69 (beat); next-quarter guide $540-560M rev / $1.16-1.21 EPS vs $417.02M/$0.81 consensus"
+        },
+        {
+          "id": "5ce3ca2a8a6d",
+          "status": "live",
+          "line": "[5ce3ca2a8a6d] fact/signal ALAB (2026-09-06): [signals] TARGET GAP"
+        },
+        {
+          "id": "99bf44bf959b",
+          "status": "live",
+          "line": "[99bf44bf959b] relation/member AI Networking/Optics,ALAB =AI Networking/Optics (2026-09-01): ALAB is classified in AI Networking/Optics"
+        },
+        {
+          "id": "0ccc34aa5039",
+          "status": "live",
+          "line": "[0ccc34aa5039] fact/signal ALAB (2026-09-01): [signals] STRONG DOWNTREND, TARGET GAP, PEER LAGGARD"
+        }
+      ],
+      "open_tensions": [],
+      "refuted": []
+    }
+  ]
+}

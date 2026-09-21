@@ -1093,6 +1093,63 @@
       "shadow_reason": "ev_below_bar",
       "refused_because": "EV -0.46R below the 0.15R bar (p_win 0.41, payoff 0.4R, fee 0.02R)",
       "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "TER",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 371.81,
+      "rsi14": 52.5,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -6.88,
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "AMD",
+      "trigger_type": "scale_out_ladder",
+      "price_at_flag": 607.89,
+      "rsi14": 72.1,
+      "gain_pct": 29.76,
+      "rel_strength_1m_pp": 25.56,
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "LRCX",
+      "trigger_type": "cluster_bench_rotation",
+      "price_at_flag": 292.11,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "pair_id": "cluster_bench_rotation-ASML-LRCX",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "LRCX",
+      "trigger_type": "reentry",
+      "direction_bucket": "BUY",
+      "price_at_flag": 292.11,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "shadow_reason": "no_analyst_target",
+      "refused_because": "no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "APH",
+      "trigger_type": "profit_rotation",
+      "direction_bucket": "BUY",
+      "price_at_flag": 79.405,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "shadow_reason": "rotation_edge_below_bar",
+      "refused_because": "rotation edge +0.13R (buy EV 0.96R minus holding 0.82R) below the 0.25R bar",
+      "scored": false
     }
   ],
   "hit_rate": null,

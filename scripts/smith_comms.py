@@ -377,6 +377,57 @@ def _headline_match(candidates, headline):
     return None
 
 
+def _catalyst_changeset(patch, base, st):
+    """Normalise a CHANGE-SET revision -- {"catalysts": {"added": [...], "changed": [{"match", ...fields}],
+    "retired": [...]}} -- into the list shapes the rest of the revision path reads.
+
+    FOUND 2026-09-21 (first full deep run with the desk loop live): smith-catalyst answered three crosscheck
+    challenges with a change-set. `_overlay` replaced the tail's `catalysts` LIST with that dict, and the next
+    `merge-tails` died on `dict(x)` over a string. A change-set is a natural way to say "these three entries
+    changed", so it is accepted here rather than banned in the agent's prompt: `changed` entries are located by
+    `match` (a headline or a prefix/substring of one) in this run's tail or the carried record, `added` entries
+    are full items, `retired` entries become `retired_catalysts`. A `match` that finds nothing is dropped and
+    reported, never appended as a fragment."""
+    cs = patch.get("catalysts") or {}
+    tail_cats = [c for c in (base.get("catalysts") or []) if isinstance(c, dict)]
+    fc = st.get("factor_catalysts")
+    carried = [c for c in ((fc.get("catalysts") if isinstance(fc, dict) else fc) or []) if isinstance(c, dict)]
+    notes, out, retired = [], [], list(patch.get("retired_catalysts") or [])
+
+    def locate(text):
+        hit = _headline_match(tail_cats + carried, text)
+        if hit is None and text:
+            t = str(text).lower()
+            hit = next((c for c in tail_cats + carried if t in str(c.get("headline") or "").lower()), None)
+        return hit
+
+    added = [a for a in (cs.get("added") or []) if isinstance(a, dict) and a.get("headline")]
+    for c in cs.get("changed") or []:
+        if not isinstance(c, dict):
+            continue
+        hit = locate(c.get("match") or c.get("headline"))
+        if hit is None:
+            notes.append(f"change-set entry '{str(c.get('match') or c.get('headline'))[:60]}' matched no catalyst -- dropped")
+            continue
+        p = {k: v for k, v in c.items() if k not in ("match", "note")}
+        p["headline"] = hit.get("headline")
+        if c.get("note"):
+            p["revision_note"] = c["note"]
+        out.append(p)
+    for r in cs.get("retired") or []:
+        if isinstance(r, dict):
+            hit = locate(r.get("headline") or r.get("match"))
+            retired.append(dict(r, headline=hit.get("headline")) if hit else r)   # substring -> the full headline
+    notes.append(f"normalised catalyst change-set: {len(out)} entries, {len(retired)} retirements")
+    patch = dict(patch, catalysts=out)
+    if added:
+        patch["_added_catalysts"] = added          # re-attached after hydration: new items are not revisions
+        notes.append(f"{len(added)} new catalyst(s) added")
+    if retired:
+        patch["retired_catalysts"] = retired
+    return patch, notes
+
+
 def _hydrate(run_dir, agent, patch, base):
     """Complete a PARTIAL revision of an item that lives in state, not in this run's tail.
 
@@ -392,6 +443,9 @@ def _hydrate(run_dir, agent, patch, base):
     notes, sources = [], []
     fam = _family(agent)
     st = _state(run_dir)
+    if fam == "catalyst" and isinstance(patch.get("catalysts"), dict):
+        patch, cs_notes = _catalyst_changeset(patch, base, st)
+        notes += cs_notes
     if fam == "catalyst" and isinstance(patch.get("catalysts"), list):
         tail_cats = [c for c in (base.get("catalysts") or []) if isinstance(c, dict)]
         fc = st.get("factor_catalysts")
@@ -440,6 +494,9 @@ def _hydrate(run_dir, agent, patch, base):
             patch = dict(patch, retired_catalysts=fixed)
         else:
             patch = {k: v for k, v in patch.items() if k != "retired_catalysts"}
+    added_cats = patch.pop("_added_catalysts", None)
+    if added_cats:
+        patch = dict(patch, catalysts=list(patch.get("catalysts") or []) + added_cats)
     if fam == "thesis":
         changed = ((patch.get("thesis") or {}).get("changed") or {})
         tail_changed = ((base.get("thesis") or {}).get("changed") or {})

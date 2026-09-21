@@ -1,0 +1,226 @@
+{
+  "as_of": "2026-09-21",
+  "proposal_specs": [
+    {
+      "direction": "SELL",
+      "ticker": "NBIS",
+      "trigger_type": "cluster_rotation",
+      "pair_id": "cluster_rotation-NBIS-MSFT",
+      "pair_role": "sell",
+      "size_usd": 406.42,
+      "size_wanted_usd": 406.42,
+      "clamped_by": null,
+      "price_at_proposal": 225.79,
+      "stop_price_usd": null,
+      "draft_reasons": [
+        "cluster ladder ranks NBIS #4 of 4 (laggard). Case against: The case FOR is real. Google explicitly renting third-party bridge capacity in Q3 is direct demand for neocloud landlords. The facility plus the customer contract covers >100% of the funded GPU capex. The stock is ~25% off its ATH with a $280 target vs $213.94. A dovish FOMC surprise gives it the highest snap-back beta in the cluster."
+      ],
+      "blockers": null,
+      "rationale": null,
+      "evidence_quality": null,
+      "stop_distance_pct": null,
+      "target_price_usd": null,
+      "r_multiple": null,
+      "risk_usd": null,
+      "risk_removed_usd": 50.56,
+      "ev_r": null,
+      "p_win": null,
+      "horizon_days": 10,
+      "expires_on": "2026-10-01",
+      "invalidation": "the cluster_rotation pairing cluster_rotation-NBIS-MSFT stops being live this run (both legs retire together) OR trigger condition: EITHER Compute/Hyperscaler's ladder no longer ranks MSFT above NBIS OR that ladder goes stale (>14d)",
+      "ticket": {
+        "ticker": "NBIS",
+        "direction": "SELL",
+        "trigger_type": "cluster_rotation",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 225.79,
+          "type": "limit_or_better",
+          "valid_until": "2026-10-01"
+        },
+        "stop": null,
+        "target": null,
+        "size": {
+          "usd": 406.42,
+          "shares": 1.8,
+          "pct_of_book": 0.941,
+          "wanted_usd": 406.42,
+          "clamped_by": null
+        },
+        "risk": {
+          "kind": "removed",
+          "usd": null,
+          "removed_usd": 50.56,
+          "pct_of_book": 0.117,
+          "basis": null,
+          "r_base_usd": 215.95,
+          "r_ticket": 0.234,
+          "book_heat_before_pct": null,
+          "book_heat_after_pct": null,
+          "heat_budget_remaining_usd": null
+        },
+        "edge": {
+          "ev_r": null,
+          "p_win": null,
+          "payoff_r": null,
+          "fee_r": null,
+          "p_win_basis": null
+        },
+        "invalidation": "the cluster_rotation pairing cluster_rotation-NBIS-MSFT stops being live this run (both legs retire together) OR trigger condition: EITHER Compute/Hyperscaler's ladder no longer ranks MSFT above NBIS OR that ladder goes stale (>14d)",
+        "invalidation_checks": [
+          {
+            "type": "pair_not_live",
+            "pair_id": "cluster_rotation-NBIS-MSFT"
+          }
+        ],
+        "horizon": {
+          "days": 10,
+          "review_on": "2026-09-26",
+          "expires_on": "2026-10-01",
+          "basis": "family table (cluster_rotation): a paired swap driven by the cluster ladder, which goes stale after 14 days"
+        },
+        "gate": {
+          "family_verdict": null,
+          "family_multiplier": null,
+          "family_basis": null,
+          "n_eff": null,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": "FIFO on this exit: 0.0000 sh long-term, 1.8000 sh short-term; earliest short-term lot turns long-term 2028-09-18 (24-month boundary; policy prefer_ltcg=off)"
+        },
+        "pair": {
+          "pair_id": "cluster_rotation-NBIS-MSFT",
+          "role": "sell",
+          "r_freed_usd": 50.56,
+          "buy_risk_usd": 50.56,
+          "heat_delta_usd": 0.0
+        }
+      }
+    },
+    {
+      "direction": "BUY",
+      "ticker": "MSFT",
+      "trigger_type": "cluster_rotation",
+      "pair_id": "cluster_rotation-NBIS-MSFT",
+      "pair_role": "buy",
+      "size_usd": 1257.68,
+      "size_wanted_usd": 1257.68,
+      "clamped_by": "risk freed by the sell leg",
+      "price_at_proposal": 495.25,
+      "stop_price_usd": 475.34,
+      "draft_reasons": [
+        "cluster ladder ranks MSFT #1 of 4 (leader): capex as a share of operating cash flow -- Only US hyperscaler still FCF-positive: Q4 FCF $19.6B after $41B capex"
+      ],
+      "blockers": null,
+      "rationale": null,
+      "evidence_quality": null,
+      "stop_distance_pct": 4.02,
+      "target_price_usd": 572.92,
+      "r_multiple": 3.9,
+      "risk_usd": 50.56,
+      "risk_removed_usd": null,
+      "ev_r": 0.8116,
+      "p_win": 0.3848,
+      "horizon_days": 10,
+      "expires_on": "2026-10-01",
+      "invalidation": "price trades below $475.34 (the stop) OR the cluster_rotation pairing cluster_rotation-NBIS-MSFT stops being live this run (both legs retire together) OR trigger condition: EITHER Compute/Hyperscaler's ladder no longer ranks MSFT above NBIS OR that ladder goes stale (>14d)",
+      "ticket": {
+        "ticker": "MSFT",
+        "direction": "BUY",
+        "trigger_type": "cluster_rotation",
+        "source": "trigger_row",
+        "built_on": "2026-09-21",
+        "entry": {
+          "price_usd": 495.25,
+          "type": "limit_or_better",
+          "valid_until": "2026-10-01"
+        },
+        "stop": {
+          "price_usd": 475.34,
+          "distance_pct": 4.02,
+          "basis": "policy 2xATR20, floor 3% (smith_risk.stop_and_cap)",
+          "atr20_pct": 2.01
+        },
+        "target": {
+          "price_usd": 572.92,
+          "basis": "data_cache.analyst_targets as of 2026-09-21",
+          "r_multiple": 3.9
+        },
+        "size": {
+          "usd": 1257.68,
+          "shares": 2.5395,
+          "pct_of_book": 2.912,
+          "wanted_usd": 1257.68,
+          "clamped_by": "risk freed by the sell leg"
+        },
+        "risk": {
+          "kind": "added",
+          "usd": 50.56,
+          "removed_usd": null,
+          "pct_of_book": 0.117,
+          "basis": null,
+          "r_base_usd": 215.95,
+          "r_ticket": 0.234,
+          "book_heat_before_pct": 7.377,
+          "book_heat_after_pct": 7.377,
+          "heat_budget_remaining_usd": 613.36
+        },
+        "edge": {
+          "ev_r": 0.8116,
+          "p_win": 0.3848,
+          "payoff_r": 3.9012,
+          "fee_r": 0.0746,
+          "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 13.8"
+        },
+        "invalidation": "price trades below $475.34 (the stop) OR the cluster_rotation pairing cluster_rotation-NBIS-MSFT stops being live this run (both legs retire together) OR trigger condition: EITHER Compute/Hyperscaler's ladder no longer ranks MSFT above NBIS OR that ladder goes stale (>14d)",
+        "invalidation_checks": [
+          {
+            "type": "price_below",
+            "price_usd": 475.34
+          },
+          {
+            "type": "pair_not_live",
+            "pair_id": "cluster_rotation-NBIS-MSFT"
+          }
+        ],
+        "horizon": {
+          "days": 10,
+          "review_on": "2026-09-26",
+          "expires_on": "2026-10-01",
+          "basis": "family table (cluster_rotation): a paired swap driven by the cluster ladder, which goes stale after 14 days"
+        },
+        "gate": {
+          "family_verdict": "unproven",
+          "family_multiplier": 1.0,
+          "family_basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null
+        },
+        "lots": {
+          "ltcg_note": null
+        },
+        "pair": {
+          "pair_id": "cluster_rotation-NBIS-MSFT",
+          "role": "buy",
+          "r_freed_usd": 50.56,
+          "buy_risk_usd": 50.56,
+          "heat_delta_usd": 0.0
+        }
+      }
+    }
+  ],
+  "skipped_already_open": [
+    "MU/catalyst_threat already open",
+    "GLW/catalyst_threat already open"
+  ],
+  "stress_table_anchor": {
+    "us10y_pct": 4.967,
+    "vix": 14.91,
+    "dxy": 100.338,
+    "fed_rate_pct": 3.875,
+    "fed_stance": "hawkish"
+  },
+  "scorecard_quote": "Stored scorecard (as_of 2026-09-21); CURRENT ENGINE: no post-rebuild proposals scored yet (n=0); LEGACY-ENGINE HISTORY, not current performance -- overall: net expectancy 1.202%, size-weighted 1.703%, $180.89 total, payoff 1.29:1, accuracy 45.5%, n=22 rows / 20 ideas;   legacy TRIM/SELL: net expectancy 1.751%, size-weighted 3.543%, $126.85 total, payoff 1.09:1, accuracy 44.4%, n=9 rows / 9 ideas;   legacy BUY: net expectancy 0.822%, size-weighted 0.768%, $54.04 total, payoff 1.4:1, accuracy 46.2%, n=13 rows / 11 ideas"
+}

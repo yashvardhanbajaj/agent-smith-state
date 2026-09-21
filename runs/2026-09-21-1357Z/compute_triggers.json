@@ -1,0 +1,4023 @@
+{
+  "as_of": "2026-09-21",
+  "rsi_as_of": "2026-09-21",
+  "rsi_age_days": 0,
+  "rsi_usable": true,
+  "rsi_coverage_pct": 100.0,
+  "rsi_missing": [],
+  "rel_as_of": "2026-09-21",
+  "rel_age_days": 0,
+  "rel_usable": true,
+  "rel_coverage_pct": 100.0,
+  "rel_missing": [],
+  "deployable_cash_usd": 1977.03,
+  "max_single_deploy_usd": 494.26,
+  "thresholds": {
+    "rsi_oversold": 35.0,
+    "rsi_overbought": 70.0,
+    "laggard_pctile": 25.0,
+    "ratchet_min_gain_pct": 15.0,
+    "ladder_tiers_pct": [
+      25.0,
+      50.0
+    ],
+    "sizing": {
+      "currency": "risk_dollars",
+      "r_base_usd": 215.95,
+      "r_base_rule": "policy.stop_loss_framework.risk_per_position_pct_of_book x total book",
+      "stop_pct_rule": "max(2 x atr20_pct, 3.0)",
+      "size_usd_rule": "min(severity_r x market value, market value); i.e. risk_removed = severity_r x R_open, R_open = mv x stop_pct/100",
+      "severity_unit": "fraction of the position's OWN open risk (R_base is the unit for entries and trim_risk_cap only)",
+      "severity_r": {
+        "overbought_distribution": 0.25,
+        "catalyst_threat": 0.2,
+        "scale_out_ladder": 0.3333333333333333,
+        "profit_rotation": 0.3,
+        "cluster_rotation": 0.3,
+        "cluster_bench_rotation": 0.3,
+        "trend_breakdown": 0.3,
+        "thesis_break": 0.4,
+        "conviction_exit": 0.5
+      },
+      "severity_r_computed": {
+        "trim_risk_cap": "(R_open - R_base) / R_base -- trims exactly to the ATR cap",
+        "cluster_consolidation": "full exit of the dropped name"
+      },
+      "exit_or_hold": {
+        "trim_to_exit_fraction": 0.6,
+        "min_position_usd": 400.0,
+        "rule": "residual < min_position or trim > 60% -> full exit; a position already < min_position is never partially trimmed"
+      },
+      "rotation_buy_rule": "buy = min(buy R_ticket, R_freed) / buy stop, then headroom / cluster room / deployable cash; rotation_risk names the bound",
+      "materiality": {
+        "min_ticket_usd": 250.0,
+        "min_ticket_pct_of_book": 0.75,
+        "min_ticket_r": 0.1,
+        "fee_cover_mult": 25.0,
+        "min_position_usd": 400.0,
+        "confirmed": true,
+        "rule": "ticket >= max(min_ticket_usd, min_ticket_pct_of_book% x book, min_ticket_r x r_base / stop, fee_cover_mult x round-trip fee); sub-floor -> vote below_materiality; full exits exempt"
+      },
+      "round_trip_fee_pct": 0.3,
+      "heat_budget": {
+        "rule": "H_eff_max = H_max x (heat_floor + (1 - heat_floor) x (1 - rho)); R_free = max(0, H_eff_max - H); H = aggregate_open_risk_usd, H_max = aggregate_open_risk_cap_pct_of_book x total book",
+        "heat_floor": 0.7,
+        "cluster_sub_budget": true,
+        "unmeasured_correlation": "rho treated as 1.0 (conservative bound), never as 0",
+        "allocation": "pairs first (net = buy risk - the risk their own sell frees), then singles greedily by smith_ticket.allocation_priority; a partial fit is sized to the remaining room only if it still clears materiality, else the ticket is DEFERRED (vote 'deferred', never dropped)",
+        "over_cap": "H > H_eff_max -> zero new net-risk buys; sells and net<=0 rotations still emit; no sell credit is taken",
+        "sell_credit": "OFF: a proposed standalone sell has not freed anything (STANDALONE_SELL_CREDIT_ENABLED); only a rotation's own sell leg offsets its own buy",
+        "static_clamps": [
+          "single_position",
+          "ai_capex",
+          "cluster_risk_budget"
+        ]
+      },
+      "legacy_fractions_for_one_release": {
+        "overbought_distribution": 0.25,
+        "catalyst_threat": 0.2,
+        "thesis_break": 0.4,
+        "scale_out_ladder": 0.3333,
+        "trend_breakdown": 0.3,
+        "conviction_exit": 0.5,
+        "profit_rotation": 0.3,
+        "cluster_rotation": 0.3,
+        "cluster_bench_rotation": 0.3
+      }
+    }
+  },
+  "deployable_cash_for_ideas_usd": 6295.98,
+  "live_counts": {
+    "oversold_reversion": 0,
+    "overbought_distribution": 0,
+    "catalyst_threat": 2,
+    "thesis_break": 0,
+    "trend_entry": 0,
+    "trend_breakdown": 0,
+    "conviction_average": 0,
+    "conviction_exit": 0,
+    "entry_setup": 0,
+    "reentry": 0,
+    "bench_diversifier": 0,
+    "profit_rotation": 0,
+    "cluster_rotation": 1,
+    "factor_threat": 1
+  },
+  "shadow_counts": {
+    "entry_setup": 6,
+    "laggard_rotation": 4,
+    "profit_ratchet": 0,
+    "scale_out_ladder": 2,
+    "cluster_bench_rotation": 4,
+    "cluster_consolidation": 2
+  },
+  "below_materiality_counts": {
+    "overbought_distribution": 1,
+    "catalyst_threat": 3,
+    "conviction_average": 1,
+    "profit_rotation": 2
+  },
+  "position_consolidation": {
+    "mode": "advisory",
+    "n_positions": 27,
+    "target_range": [
+      15,
+      20
+    ],
+    "min_position_usd": 647.84,
+    "min_position_pct_of_book": 1.5,
+    "excess_over_target": 7,
+    "sub_scale": [
+      {
+        "ticker": "GLW",
+        "market_value_usd": 467.19,
+        "pct_of_book": 1.08,
+        "cluster": "AI Networking/Optics",
+        "conviction_score": -2.7,
+        "thesis_status": "watch"
+      },
+      {
+        "ticker": "AMD",
+        "market_value_usd": 607.89,
+        "pct_of_book": 1.41,
+        "cluster": "AI Semis/Fabs",
+        "conviction_score": 1.7,
+        "thesis_status": "watch"
+      },
+      {
+        "ticker": "SKHY",
+        "market_value_usd": 188.51,
+        "pct_of_book": 0.44,
+        "cluster": "AI Memory/Storage",
+        "conviction_score": 4.0,
+        "thesis_status": "watch"
+      },
+      {
+        "ticker": "CIEN",
+        "market_value_usd": 3.11,
+        "pct_of_book": 0.01,
+        "cluster": "AI Networking/Optics",
+        "conviction_score": 22.2,
+        "thesis_status": "strengthening"
+      },
+      {
+        "ticker": "BE",
+        "market_value_usd": 535.51,
+        "pct_of_book": 1.24,
+        "cluster": "AI Power/Cooling/DC Infra",
+        "conviction_score": 25.3,
+        "thesis_status": "strengthening"
+      }
+    ],
+    "candidates": [
+      {
+        "ticker": "GLW",
+        "market_value_usd": 467.19,
+        "pct_of_book": 1.08,
+        "cluster": "AI Networking/Optics",
+        "conviction_score": -2.7,
+        "thesis_status": "watch",
+        "why": "$467 is below the $648 minimum position and the book holds 27 names vs a 15-20 target; lowest conviction first. Fold into a larger position in the same cluster or exit -- a full exit is never blocked by materiality."
+      },
+      {
+        "ticker": "AMD",
+        "market_value_usd": 607.89,
+        "pct_of_book": 1.41,
+        "cluster": "AI Semis/Fabs",
+        "conviction_score": 1.7,
+        "thesis_status": "watch",
+        "why": "$608 is below the $648 minimum position and the book holds 27 names vs a 15-20 target; lowest conviction first. Fold into a larger position in the same cluster or exit -- a full exit is never blocked by materiality."
+      },
+      {
+        "ticker": "SKHY",
+        "market_value_usd": 188.51,
+        "pct_of_book": 0.44,
+        "cluster": "AI Memory/Storage",
+        "conviction_score": 4.0,
+        "thesis_status": "watch",
+        "why": "$189 is below the $648 minimum position and the book holds 27 names vs a 15-20 target; lowest conviction first. Fold into a larger position in the same cluster or exit -- a full exit is never blocked by materiality."
+      },
+      {
+        "ticker": "CIEN",
+        "market_value_usd": 3.11,
+        "pct_of_book": 0.01,
+        "cluster": "AI Networking/Optics",
+        "conviction_score": 22.2,
+        "thesis_status": "strengthening",
+        "why": "$3 is below the $648 minimum position and the book holds 27 names vs a 15-20 target; lowest conviction first. Fold into a larger position in the same cluster or exit -- a full exit is never blocked by materiality."
+      },
+      {
+        "ticker": "BE",
+        "market_value_usd": 535.51,
+        "pct_of_book": 1.24,
+        "cluster": "AI Power/Cooling/DC Infra",
+        "conviction_score": 25.3,
+        "thesis_status": "strengthening",
+        "why": "$536 is below the $648 minimum position and the book holds 27 names vs a 15-20 target; lowest conviction first. Fold into a larger position in the same cluster or exit -- a full exit is never blocked by materiality."
+      }
+    ]
+  },
+  "heat_budget": {
+    "enabled": true,
+    "h_usd": 3186.02,
+    "h_max_usd": 4318.95,
+    "rho": 0.401,
+    "rho_used": 0.401,
+    "rho_basis": "measured avg pairwise correlation",
+    "rho_measured": true,
+    "heat_floor": 0.7,
+    "cap_factor": 0.8797,
+    "h_eff_max_usd": 3799.38,
+    "r_free_usd": 613.36,
+    "over_cap": false,
+    "over_cap_by_usd": 0.0,
+    "confirmed": true,
+    "cluster_sub_budget": true,
+    "correlation": {
+      "rho": 0.401,
+      "measured": true,
+      "as_of": "2026-09-21",
+      "window_to": "2026-09-18",
+      "age_days": 3,
+      "reason": null
+    },
+    "sell_credit_usd": 0.0,
+    "sell_credit_from": [],
+    "r_available_usd": 613.36,
+    "r_remaining_after_allocation_usd": 578.06,
+    "book_heat_after_allocation_usd": 3221.32,
+    "ordering_key": "smith_ticket.allocation_priority (EV_R desc -- EV per unit of risk; conviction_score only for a candidate with no EV)",
+    "allocated": [
+      {
+        "id": "cluster_rotation-NBIS-MSFT",
+        "size_usd": 1257.68,
+        "risk_usd": 50.56,
+        "net_risk_usd": 0.0,
+        "clamped_by": null
+      },
+      {
+        "id": "conviction_average:CIEN",
+        "size_usd": 270.73,
+        "risk_usd": 35.3,
+        "net_risk_usd": 35.3,
+        "clamped_by": null
+      }
+    ],
+    "deferred": [],
+    "rooms": {
+      "single_position_pct": 12,
+      "ai_capex_cap_pct": 100,
+      "ai_capex_denominator": "total_book",
+      "ai_capex_room_usd": 10048.9,
+      "cluster_risk_max_usd": {
+        "AI Networking/Optics": 992.1,
+        "Compute/Hyperscaler": 944.86
+      },
+      "cluster_risk_open_usd": {
+        "AI Semis/Fabs": 896.02,
+        "Compute/Hyperscaler": 371.7,
+        "AI Memory/Storage": 194.5,
+        "AI Networking/Optics": 591.7,
+        "AI Power/Cooling/DC Infra": 305.79,
+        "Compute/Hyperscaler OEM": 142.07,
+        "AI Storage/HDD": 145.57,
+        "Enterprise Software": 77.15,
+        "Analog/Industrial Semis": 45.95
+      }
+    },
+    "learned_stop_surfaced": true
+  },
+  "edge": {
+    "as_of": "2026-09-21",
+    "engine_epoch": "2026-09-21",
+    "evidence_rule": "only proposals / shadow-journal rows dated on or after ENGINE_EPOCH count; the legacy engine's outcomes are history, not calibration",
+    "excluded_legacy": {
+      "proposal_rows": 22,
+      "shadow_journal_rows": 17
+    },
+    "by_direction": {
+      "BUY": {
+        "n_rows": 0,
+        "n_ideas": 0,
+        "n_eff": 0,
+        "source_counts": {
+          "proposal": 0,
+          "shadow_journal": 0
+        },
+        "hit_rate": null,
+        "mean_ev_net_pct": null,
+        "se": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)"
+      },
+      "SELL": {
+        "n_rows": 0,
+        "n_ideas": 0,
+        "n_eff": 0,
+        "source_counts": {
+          "proposal": 0,
+          "shadow_journal": 0
+        },
+        "hit_rate": null,
+        "mean_ev_net_pct": null,
+        "se": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)"
+      }
+    },
+    "by_family": {},
+    "verdict_counts": {
+      "unproven": 2
+    },
+    "all_unproven": true,
+    "tickets": [
+      {
+        "id": "conviction_average:CIEN",
+        "ticker": "CIEN",
+        "family": "conviction_average",
+        "direction": "BUY",
+        "vote_before": "live",
+        "vote_after": "live",
+        "refused_because": null,
+        "reason_code": null,
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "family": "BUY",
+          "level": "direction"
+        },
+        "p_win": 0.4,
+        "payoff_r": 3.0028,
+        "ev_r": 0.5779,
+        "fee_r": 0.023,
+        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 22.2",
+        "size_before_usd": 270.73,
+        "f_edge": 1.0,
+        "f_family": 1.0,
+        "f_deemph": 1.0,
+        "size_after_usd": 270.73
+      },
+      {
+        "id": "reentry:LRCX",
+        "ticker": "LRCX",
+        "family": "reentry",
+        "direction": "BUY",
+        "vote_before": "live",
+        "vote_after": "shadow",
+        "refused_because": "no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated",
+        "reason_code": "no_analyst_target",
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "family": "BUY",
+          "level": "direction"
+        },
+        "p_win": 0.4037,
+        "payoff_r": null,
+        "ev_r": null,
+        "fee_r": 0.033,
+        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 24.3",
+        "size_before_usd": 417.78,
+        "size_after_usd": null
+      },
+      {
+        "id": "reentry:NVDA",
+        "ticker": "NVDA",
+        "family": "reentry",
+        "direction": "BUY",
+        "vote_before": "live",
+        "vote_after": "shadow",
+        "refused_because": "no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated",
+        "reason_code": "no_analyst_target",
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "family": "BUY",
+          "level": "direction"
+        },
+        "p_win": 0.428,
+        "payoff_r": null,
+        "ev_r": null,
+        "fee_r": 0.0485,
+        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 37.8",
+        "size_before_usd": 897.02,
+        "size_after_usd": null
+      },
+      {
+        "id": "profit_rotation-MU-APH",
+        "ticker": "APH",
+        "family": "profit_rotation",
+        "direction": "BUY",
+        "vote_before": "live",
+        "vote_after": "shadow",
+        "refused_because": "rotation edge +0.13R (buy EV 0.96R minus holding 0.82R) below the 0.25R bar",
+        "reason_code": "rotation_edge_below_bar",
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "family": "BUY",
+          "level": "direction"
+        },
+        "p_win": 0.4084,
+        "payoff_r": 3.907,
+        "ev_r": 0.9572,
+        "fee_r": 0.0469,
+        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 26.9",
+        "size_before_usd": 646.22,
+        "rotation_edge": {
+          "assessed": true,
+          "edge_r": 0.1329,
+          "min_edge_r": 0.25,
+          "hold_ev_r": 0.8243,
+          "passes": false,
+          "reason": null
+        },
+        "size_after_usd": null
+      },
+      {
+        "id": "cluster_rotation-ASML-TSM",
+        "ticker": "TSM",
+        "family": "cluster_rotation",
+        "direction": "BUY",
+        "vote_before": "live",
+        "vote_after": "shadow",
+        "refused_because": "rotation edge +0.12R (buy EV 0.92R minus holding 0.80R) below the 0.25R bar",
+        "reason_code": "rotation_edge_below_bar",
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "family": "BUY",
+          "level": "direction"
+        },
+        "p_win": 0.3982,
+        "payoff_r": 4.0,
+        "ev_r": 0.9241,
+        "fee_r": 0.0667,
+        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 21.2",
+        "size_before_usd": 1127.88,
+        "rotation_edge": {
+          "assessed": true,
+          "edge_r": 0.1241,
+          "min_edge_r": 0.25,
+          "hold_ev_r": 0.8,
+          "passes": false,
+          "reason": null
+        },
+        "size_after_usd": null
+      },
+      {
+        "id": "cluster_rotation-NBIS-MSFT",
+        "ticker": "MSFT",
+        "family": "cluster_rotation",
+        "direction": "BUY",
+        "vote_before": "live",
+        "vote_after": "live",
+        "refused_because": null,
+        "reason_code": null,
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "family": "BUY",
+          "level": "direction"
+        },
+        "p_win": 0.3848,
+        "payoff_r": 3.9012,
+        "ev_r": 0.8116,
+        "fee_r": 0.0746,
+        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 13.8",
+        "size_before_usd": 1257.68,
+        "rotation_edge": {
+          "assessed": true,
+          "edge_r": 0.65,
+          "min_edge_r": 0.25,
+          "hold_ev_r": 0.1616,
+          "passes": true,
+          "reason": null
+        },
+        "f_edge": 1.0,
+        "f_family": 1.0,
+        "f_deemph": 1.0,
+        "size_after_usd": 1257.68
+      },
+      {
+        "id": "cluster_rotation-GLW-LITE",
+        "ticker": "LITE",
+        "family": "cluster_rotation",
+        "direction": "BUY",
+        "vote_before": "live",
+        "vote_after": "shadow",
+        "refused_because": "EV -0.04R below the 0.15R bar (p_win 0.41, payoff 1.4R, fee 0.02R)",
+        "reason_code": "ev_below_bar",
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "family": "BUY",
+          "level": "direction"
+        },
+        "p_win": 0.4126,
+        "payoff_r": 1.3821,
+        "ev_r": -0.0412,
+        "fee_r": 0.0239,
+        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 29.2",
+        "size_before_usd": 359.89,
+        "rotation_edge": {
+          "assessed": true,
+          "edge_r": -0.2797,
+          "min_edge_r": 0.25,
+          "hold_ev_r": 0.2385,
+          "passes": false,
+          "reason": null
+        },
+        "size_after_usd": null
+      },
+      {
+        "id": "cluster_rotation-VRT-BE",
+        "ticker": "BE",
+        "family": "cluster_rotation",
+        "direction": "BUY",
+        "vote_before": "live",
+        "vote_after": "shadow",
+        "refused_because": "EV -0.47R below the 0.15R bar (p_win 0.41, payoff 0.4R, fee 0.02R)",
+        "reason_code": "ev_below_bar",
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "family": "BUY",
+          "level": "direction"
+        },
+        "p_win": 0.4055,
+        "payoff_r": 0.366,
+        "ev_r": -0.4696,
+        "fee_r": 0.0235,
+        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 25.3",
+        "size_before_usd": 381.97,
+        "rotation_edge": {
+          "assessed": true,
+          "edge_r": -1.0175,
+          "min_edge_r": 0.25,
+          "hold_ev_r": 0.5479,
+          "passes": false,
+          "reason": null
+        },
+        "size_after_usd": null
+      },
+      {
+        "id": "catalyst_threat:MU",
+        "ticker": "MU",
+        "family": "catalyst_threat",
+        "direction": "SELL",
+        "vote_before": "live",
+        "vote_after": "live",
+        "refused_because": null,
+        "reason_code": null,
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "family": "SELL",
+          "level": "direction"
+        },
+        "size_after_usd": null
+      },
+      {
+        "id": "catalyst_threat:GLW",
+        "ticker": "GLW",
+        "family": "catalyst_threat",
+        "direction": "SELL",
+        "vote_before": "live",
+        "vote_after": "live",
+        "refused_because": null,
+        "reason_code": null,
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "n_eff": 0,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "family": "SELL",
+          "level": "direction"
+        },
+        "size_after_usd": null
+      }
+    ],
+    "summary": {
+      "tickets": 10,
+      "live_after_gate": 4,
+      "refused": 6,
+      "buys_refused_by_ev": 2,
+      "buys_refused_no_target": 2
+    },
+    "invariant": {
+      "required": false,
+      "override": null,
+      "attempted": [],
+      "why_not": "live buys remain after the gate",
+      "cash_above_band": true,
+      "deployable_cash_usd": 1977.03
+    },
+    "constants": {
+      "MIN_EV_R": 0.15,
+      "EV_R_FULL": 0.5,
+      "F_EDGE_MIN": 0.25,
+      "ROTATION_MIN_EDGE_R": 0.25,
+      "TARGET_CAP_R": 4.0,
+      "P_WIN_PRIOR": 0.45,
+      "P_WIN_PRIOR_STATUS": "UNCALIBRATED engineering prior",
+      "P_WIN_SHRINK_K": 20,
+      "P_WIN_CEILING": 0.75,
+      "N_MIN": 12,
+      "N_SUPPRESS": 20,
+      "FAMILY_MULT_WATCH": 0.75,
+      "FAMILY_MULT_MAX": 1.25,
+      "DEEMPH_SIZE_MULT": 0.85,
+      "ROUND_TRIP_FEE_PCT": 0.3
+    },
+    "rules": [
+      "EV gate applies to BUYS only; sells are never EV-refused",
+      "protective exits ignore even a suppressed family verdict",
+      "unproven (n_eff < 12) never gates or scales",
+      "legacy proposals (before ENGINE_EPOCH) are excluded from every number here"
+    ]
+  },
+  "deferred_counts": {},
+  "oversold_reversion": [],
+  "overbought_distribution": [
+    {
+      "ticker": "AMD",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "watch",
+      "rsi14": 72.1,
+      "rel_strength_1m_pp": 25.56,
+      "abs_return_1m_pct": 29.48,
+      "price_usd": 607.89,
+      "market_value_usd": 607.89,
+      "trigger_type": "overbought_distribution",
+      "direction": "TRIM",
+      "vote": "below_materiality",
+      "suggested_size_usd": 151.97,
+      "legacy_size_usd": 151.97,
+      "severity_r": 0.25,
+      "stop_pct": 7.42,
+      "risk_removed_usd": 11.28,
+      "sell_action": "trim",
+      "trim_fraction": 0.25,
+      "sizing_note": "25% of the position's $45.11 open risk (7.42% stop) = $151.97",
+      "materiality": {
+        "ok": false,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 171.95
+      },
+      "over_cap_independent": true,
+      "cluster_tension": false,
+      "cluster_drift_pt": 2.167,
+      "rotation_targets": [],
+      "retires_when": "AMD RSI14 falls below 60 or it is no longer up on the month",
+      "reasons": [
+        "RSI14 72.1 > 70 (overbought)",
+        "up +29.5% on the month -- real gain to protect"
+      ],
+      "blockers": [
+        "below materiality: $151.97 vs a $323.92 floor (pct_of_book) -- emitted, not shrunk to the floor and not dropped"
+      ],
+      "materiality_shortfall_usd": 171.95
+    }
+  ],
+  "catalyst_threat": [
+    {
+      "ticker": "MU",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "watch",
+      "rsi14": 61.6,
+      "rel_strength_1m_pp": 3.65,
+      "abs_return_1m_pct": 7.57,
+      "price_usd": 1047.745,
+      "market_value_usd": 2095.87,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "events": [
+        "CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to A (2026-09-20)",
+        "CXMT announces G5 DRAM platform (11.95nm half-pitch) with two 24Gb LPDDR5X products in vol (2026-09-20)"
+      ],
+      "read_through": [],
+      "suggested_size_usd": 419.17,
+      "legacy_size_usd": 419.17,
+      "severity_r": 0.2,
+      "stop_pct": 8.46,
+      "risk_removed_usd": 35.46,
+      "sell_action": "trim",
+      "trim_fraction": 0.2,
+      "sizing_note": "20% of the position's $177.31 open risk (8.46% stop) = $419.17",
+      "materiality": {
+        "ok": true,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 0.0
+      },
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://en.sedaily.com/international/2026/09/20/chinas-cxmt-starts-mass-production-on-5th-generation-dram",
+        "https://en.sedaily.com/international/2026/09/20/chinas-cxmt-starts-mass-production-on-5th-generation-dram"
+      ],
+      "retires_when": "MU no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged (2026-09-20) -- trial/risk production only, no volume or yield disclosed; HBM4 already mass-produced by Samsung/SK hynix/Micron, so CXMT is one generation behind; mass production not before 2027. No HBM % figure cited (tracker HBM3E contract quote publication date 2026-07-12; freshness-illusion finding orchestrator:00ba4bd6c3 stands)",
+        "CXMT announces G5 DRAM platform (11.95nm half-pitch) with two 24Gb LPDDR5X products in volume production; 9.5% global DRAM revenue share in Q2 (4th place) (2026-09-20) -- 9.5% Q2 global DRAM revenue share vs ~90% held by Samsung/SK hynix/Micron; LPDDR5X mobile-class, not HBM or server DDR5; yield and monthly output undisclosed; node metric not comparable to rivals' 12nm-class naming; sedaily makes no mention of DUV/EUV/ASML, so a secondary outlet's 'built without ASML machines' framing is unverified and NOT carried as an ASML threat [carried forward, last confirmed 2026-09-21]"
+      ],
+      "blockers": [],
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "family": "SELL",
+        "level": "direction",
+        "n_eff": 0,
+        "n_rows": 0,
+        "hit_rate": null,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "protective_exit": true
+      },
+      "edge": {
+        "ev_gated": false,
+        "why": "sells are never EV-gated (an EV bar at a 1R payoff would refuse every sell, protective exits included); only the family verdict applies"
+      }
+    },
+    {
+      "ticker": "LITE",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 57.8,
+      "rel_strength_1m_pp": 7.52,
+      "abs_return_1m_pct": 11.44,
+      "price_usd": 979.605,
+      "market_value_usd": 979.61,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "below_materiality",
+      "events": [
+        "Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LIT (2026-09-18)"
+      ],
+      "read_through": [],
+      "suggested_size_usd": 195.92,
+      "legacy_size_usd": 195.92,
+      "severity_r": 0.2,
+      "stop_pct": 12.54,
+      "risk_removed_usd": 24.57,
+      "sell_action": "trim",
+      "trim_fraction": 0.2,
+      "sizing_note": "20% of the position's $122.84 open risk (12.54% stop) = $195.92",
+      "materiality": {
+        "ok": false,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 128.0
+      },
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/18/lumentum-climbs-3-as-optics-buying-extends-coherent-rises-5-corning-jumps-3/"
+      ],
+      "retires_when": "LITE no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LITE +3%, GLW +3%); no program-usage disclosure found (2026-09-18) -- GLW -12% to $145.61 on 09-14; ATM sells gradually, realized dilution a fraction of $2bn; Q3 core sales guide $4.9-5.0bn intact; only a usage disclosure would re-escalate. Fri rebound recovers only part of the drop (not sized: no prints fetched) [carried forward, last confirmed 2026-09-21]"
+      ],
+      "blockers": [
+        "LITE is simultaneously in rotation's accumulate bucket on a strengthening thesis -- the catalyst threat and the accumulate signal are answering different questions (financing-structure risk vs. operating fundamentals); this does not cancel the trigger, but size and priority are a judgement call, not a formula",
+        "below materiality: $195.92 vs a $323.92 floor (pct_of_book) -- emitted, not shrunk to the floor and not dropped"
+      ],
+      "materiality_shortfall_usd": 128.0
+    },
+    {
+      "ticker": "COHR",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 58.4,
+      "rel_strength_1m_pp": 9.0,
+      "abs_return_1m_pct": 12.92,
+      "price_usd": 327.655,
+      "market_value_usd": 655.31,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "below_materiality",
+      "events": [
+        "Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LIT (2026-09-18)"
+      ],
+      "read_through": [],
+      "suggested_size_usd": 131.06,
+      "legacy_size_usd": 131.06,
+      "severity_r": 0.2,
+      "stop_pct": 11.3,
+      "risk_removed_usd": 14.81,
+      "sell_action": "trim",
+      "trim_fraction": 0.2,
+      "sizing_note": "20% of the position's $74.05 open risk (11.30% stop) = $131.06",
+      "materiality": {
+        "ok": false,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 192.86
+      },
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/18/lumentum-climbs-3-as-optics-buying-extends-coherent-rises-5-corning-jumps-3/"
+      ],
+      "retires_when": "COHR no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LITE +3%, GLW +3%); no program-usage disclosure found (2026-09-18) -- GLW -12% to $145.61 on 09-14; ATM sells gradually, realized dilution a fraction of $2bn; Q3 core sales guide $4.9-5.0bn intact; only a usage disclosure would re-escalate. Fri rebound recovers only part of the drop (not sized: no prints fetched) [carried forward, last confirmed 2026-09-21]"
+      ],
+      "blockers": [
+        "below materiality: $131.06 vs a $323.92 floor (pct_of_book) -- emitted, not shrunk to the floor and not dropped"
+      ],
+      "materiality_shortfall_usd": 192.86
+    },
+    {
+      "ticker": "GLW",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "watch",
+      "rsi14": 51.2,
+      "rel_strength_1m_pp": -1.18,
+      "abs_return_1m_pct": 2.74,
+      "price_usd": 155.7287,
+      "market_value_usd": 467.19,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "live",
+      "events": [
+        "Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LIT (2026-09-18)",
+        "Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distr (2026-09-14)"
+      ],
+      "read_through": [
+        "COHR",
+        "LITE"
+      ],
+      "suggested_size_usd": 467.19,
+      "legacy_size_usd": 93.44,
+      "severity_r": 0.2,
+      "stop_pct": 9.66,
+      "risk_removed_usd": 45.13,
+      "sell_action": "full_exit",
+      "trim_fraction": 1.0,
+      "sizing_note": "20% of the position's $45.13 open risk (9.66% stop) = $93.44; a $93.44 trim would leave $373.75, under the $400 minimum position -- converted to a full exit",
+      "materiality": {
+        "ok": true,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 0.0,
+        "exempt": "full_exit"
+      },
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://247wallst.com/investing/2026/09/18/lumentum-climbs-3-as-optics-buying-extends-coherent-rises-5-corning-jumps-3/",
+        "https://247wallst.com/investing/2026/09/14/corning-tumbles-12-on-2b-at-the-market-equity-offering-coherent-sinks-11-lumentum-drops-9-fabrinet-slides-6/"
+      ],
+      "retires_when": "GLW no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COHR +5%, LITE +3%, GLW +3%); no program-usage disclosure found (2026-09-18) -- GLW -12% to $145.61 on 09-14; ATM sells gradually, realized dilution a fraction of $2bn; Q3 core sales guide $4.9-5.0bn intact; only a usage disclosure would re-escalate. Fri rebound recovers only part of the drop (not sized: no prints fetched) [carried forward, last confirmed 2026-09-21]",
+        "Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Equity Distribution Agreement + prospectus supplement filed 2026-09-11); GLW fell ~12-14% Monday with direct optics-peer contagion -- Coherent -11%, Lumentum -9%, Fabrinet -6% (not held) (2026-09-14) -- ATM programs sell shares gradually and opportunistically, not $2bn upfront, so realized dilution will be a fraction of the headline over time -- but the stated purpose is 'general corporate purposes,' not a named project, which is what drove the -12-14% single-day reaction. Was one of the four items in Monday's desk narrative but had NOT yet been logged as its own catalyst; added this run. Peer contagion (COHR/LITE) is a read-through, not a COHR/LITE-specific fundamental event. [carried forward, last confirmed 2026-09-15]"
+      ],
+      "blockers": [],
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "family": "SELL",
+        "level": "direction",
+        "n_eff": 0,
+        "n_rows": 0,
+        "hit_rate": null,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "protective_exit": true
+      },
+      "edge": {
+        "ev_gated": false,
+        "why": "sells are never EV-gated (an EV bar at a 1R payoff would refuse every sell, protective exits included); only the family verdict applies"
+      }
+    },
+    {
+      "ticker": "SKHY",
+      "cluster": "AI Memory/Storage",
+      "thesis_status": "watch",
+      "rsi14": 59.7,
+      "rel_strength_1m_pp": 11.77,
+      "abs_return_1m_pct": 15.69,
+      "price_usd": 188.515,
+      "market_value_usd": 188.51,
+      "trigger_type": "catalyst_threat",
+      "direction": "TRIM",
+      "vote": "below_materiality",
+      "events": [
+        "CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to A (2026-09-20)",
+        "CXMT announces G5 DRAM platform (11.95nm half-pitch) with two 24Gb LPDDR5X products in vol (2026-09-20)"
+      ],
+      "read_through": [],
+      "suggested_size_usd": 0.0,
+      "legacy_size_usd": 37.7,
+      "severity_r": 0.2,
+      "stop_pct": 9.12,
+      "risk_removed_usd": 0.0,
+      "sell_action": "hold",
+      "trim_fraction": null,
+      "sizing_note": "20% of the position's $17.19 open risk (9.12% stop) = $37.70; position $188.51 is already below the $400 minimum-position threshold -- a stub is a consolidation candidate, never partially trimmed",
+      "materiality": {
+        "ok": false,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 323.92
+      },
+      "over_cap_independent": true,
+      "catalyst_sources": [
+        "https://en.sedaily.com/international/2026/09/20/chinas-cxmt-starts-mass-production-on-5th-generation-dram",
+        "https://en.sedaily.com/international/2026/09/20/chinas-cxmt-starts-mass-production-on-5th-generation-dram"
+      ],
+      "retires_when": "SKHY no longer appears in a structural-threat factor catalyst",
+      "reasons": [
+        "CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged (2026-09-20) -- trial/risk production only, no volume or yield disclosed; HBM4 already mass-produced by Samsung/SK hynix/Micron, so CXMT is one generation behind; mass production not before 2027. No HBM % figure cited (tracker HBM3E contract quote publication date 2026-07-12; freshness-illusion finding orchestrator:00ba4bd6c3 stands)",
+        "CXMT announces G5 DRAM platform (11.95nm half-pitch) with two 24Gb LPDDR5X products in volume production; 9.5% global DRAM revenue share in Q2 (4th place) (2026-09-20) -- 9.5% Q2 global DRAM revenue share vs ~90% held by Samsung/SK hynix/Micron; LPDDR5X mobile-class, not HBM or server DDR5; yield and monthly output undisclosed; node metric not comparable to rivals' 12nm-class naming; sedaily makes no mention of DUV/EUV/ASML, so a secondary outlet's 'built without ASML machines' framing is unverified and NOT carried as an ASML threat [carried forward, last confirmed 2026-09-21]"
+      ],
+      "blockers": [
+        "not a trim candidate: position $188.51 is already below the $400 minimum-position threshold -- a stub is a consolidation candidate, never partially trimmed"
+      ],
+      "materiality_shortfall_usd": 323.92
+    }
+  ],
+  "thesis_break": [],
+  "factor_threat": [
+    {
+      "trigger_type": "factor_threat",
+      "direction": "BOOK",
+      "vote": "live",
+      "headline": "Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate continues (Altman/Musk endorse, Burry/Sankar/Trump dismiss, Harris calls for legislation)",
+      "date": "2026-09-12",
+      "magnitude": "political/investor noise widened (Burry, Sankar, Trump, Harris) but no new stock-moving mechanism found this window; classification unchanged",
+      "source": "https://the-agent-report.com/2026/09/ai-development-brake-amodei-altman-2026/",
+      "held_names": [
+        "ALAB",
+        "AMAT",
+        "AMD",
+        "AMZN",
+        "APH",
+        "ASML",
+        "BE",
+        "CIEN",
+        "CLS",
+        "COHR",
+        "GEV",
+        "GLW",
+        "GOOG",
+        "KLAC",
+        "LITE",
+        "MRVL",
+        "MSFT",
+        "MU",
+        "NBIS",
+        "NOW",
+        "QCOM",
+        "STM",
+        "TER",
+        "TSM",
+        "VRT",
+        "WDC"
+      ],
+      "held_count": 26,
+      "equity_pct": 99.46,
+      "duplicates_folded": 2,
+      "reasons": [
+        "touches 26 held names (99% of equity) -- a threat to the whole factor is answered by gross exposure and cash, not by trimming each name the same fraction"
+      ],
+      "suggested_size_usd": null
+    }
+  ],
+  "trend_entry": [
+    {
+      "ticker": "LITE",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 57.8,
+      "rel_strength_1m_pp": 7.52,
+      "abs_return_1m_pct": 11.44,
+      "price_usd": 979.605,
+      "market_value_usd": 979.61,
+      "trigger_type": "trend_entry",
+      "direction": "BUY",
+      "vote": "shadow",
+      "conviction_score": 29.2,
+      "conviction_tier": "low",
+      "size_wanted_usd": 353.4,
+      "suggested_size_usd": 353.4,
+      "clamped_by": null,
+      "stop_price_usd": 856.7625,
+      "retires_when": "LITE no longer carries BREAKOUT/STRONG UPTREND or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (secondary, 2 for / 0 against)",
+        "threat/immediate: Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex; threat/structural: Corning (GLW) $2bn ATM equity program: WEAKENED. Optics rebounded Fri 09-18 (COH; threat/structural: Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate con; threat/immediate: Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endo; threat/structural: Corning (GLW) discloses $2bn at-the-market equity program with Goldman Sachs (Eq; threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI",
+        "signal polarity net +1 (STRONG UPTREND)",
+        "+7.5pp vs benchmark",
+        "named by 8 independent source(s) this run",
+        "no post-epoch track record (since 2026-09-21) for this name's bullish signal (an admissible record needs at least 3 scored signals since the epoch) -- no tilt"
+      ],
+      "blockers": [
+        "NETTED: duplicate buy into LITE: the cluster_rotation ticket already carries it"
+      ],
+      "netted_because": "duplicate buy into LITE: the cluster_rotation ticket already carries it",
+      "risk_usd": 44.32,
+      "heat_status": "not_allocated (shadow)",
+      "materiality": {
+        "ok": true,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 0.0
+      }
+    },
+    {
+      "ticker": "TSM",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 58.6,
+      "rel_strength_1m_pp": 1.44,
+      "abs_return_1m_pct": 5.36,
+      "price_usd": 438.24,
+      "market_value_usd": 3067.68,
+      "trigger_type": "trend_entry",
+      "direction": "BUY",
+      "vote": "shadow",
+      "conviction_score": 21.2,
+      "conviction_tier": "low",
+      "size_wanted_usd": 755.25,
+      "suggested_size_usd": 755.25,
+      "clamped_by": null,
+      "stop_price_usd": 418.5192,
+      "retires_when": "TSM no longer carries BREAKOUT/STRONG UPTREND or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (unverified, 2 for / 2 against)",
+        "ambiguous/immediate: Trump-Xi summit in Washington Thursday 09-24 (Xi's first US visit since 2015): a; ambiguous/structural: Nvidia-OpenAI vendor financing stays the standing financing-structure overhang: ; tailwind/noise: Semis rally 09-21: SOX up >2% to its highest since 09-09 on oil falling below $1; threat/immediate: Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex; ambiguous/immediate: FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental ; threat/structural: Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate con; threat/immediate: Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endo; threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: KOSPI -3.26% (Samsung/SK Hynix -5 to -6.4%) on Fed-hawkish repricing (Warsh Jack",
+        "signal polarity net +1 (STRONG UPTREND)",
+        "+1.4pp vs benchmark",
+        "named by 10 independent source(s) this run",
+        "no post-epoch track record (since 2026-09-21) for this name's bullish signal (an admissible record needs at least 3 scored signals since the epoch) -- no tilt"
+      ],
+      "blockers": [
+        "NETTED: duplicate buy into TSM: the cluster_rotation ticket already carries it"
+      ],
+      "netted_because": "duplicate buy into TSM: the cluster_rotation ticket already carries it",
+      "risk_usd": 33.99,
+      "heat_status": "not_allocated (shadow)",
+      "materiality": {
+        "ok": true,
+        "floor_usd": 479.88,
+        "binding_term": "min_ticket_r",
+        "shortfall_usd": 0.0
+      }
+    }
+  ],
+  "trend_breakdown": [],
+  "conviction_average": [
+    {
+      "ticker": "APH",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 48.8,
+      "rel_strength_1m_pp": -0.2,
+      "abs_return_1m_pct": 3.72,
+      "price_usd": 79.405,
+      "market_value_usd": 1588.1,
+      "trigger_type": "conviction_average",
+      "direction": "BUY",
+      "vote": "shadow",
+      "conviction_score": 26.9,
+      "conviction_tier": "low",
+      "support_usd": 76.864,
+      "size_wanted_usd": 646.22,
+      "suggested_size_usd": 646.22,
+      "clamped_by": null,
+      "blended_entry_usd": 81.3208,
+      "current_stop_usd": 74.3231,
+      "stop_price_usd": 74.3231,
+      "retires_when": "APH recovers above its support level or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (primary, 2 for / 4 against)",
+        "threat/immediate: Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex; threat/structural: Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate con; threat/immediate: Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endo; threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI",
+        "+25.0% vs analyst target",
+        "-0.2pp vs benchmark",
+        "named by 7 independent source(s) this run"
+      ],
+      "blockers": [
+        "NETTED: duplicate buy into APH: the profit_rotation ticket already carries it"
+      ],
+      "netted_because": "duplicate buy into APH: the profit_rotation ticket already carries it",
+      "risk_usd": 41.36,
+      "heat_status": "not_allocated (shadow)",
+      "learned_stop": {
+        "atr_multiple": 2.249,
+        "stop_distance_pct": 7.197,
+        "stop_price_usd": 73.6904,
+        "wider_by_pp": 0.797,
+        "status": "advisory -- policy stop above is the operative one"
+      },
+      "materiality": {
+        "ok": true,
+        "floor_usd": 337.42,
+        "binding_term": "min_ticket_r",
+        "shortfall_usd": 0.0
+      }
+    },
+    {
+      "ticker": "CIEN",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 50.5,
+      "rel_strength_1m_pp": -10.96,
+      "abs_return_1m_pct": -7.04,
+      "price_usd": 364.785,
+      "market_value_usd": 3.11,
+      "trigger_type": "conviction_average",
+      "direction": "BUY",
+      "vote": "below_materiality",
+      "conviction_score": 22.2,
+      "conviction_tier": "low",
+      "support_usd": 341.001,
+      "size_wanted_usd": 270.73,
+      "suggested_size_usd": 270.73,
+      "clamped_by": null,
+      "blended_entry_usd": 364.9192,
+      "current_stop_usd": 317.217,
+      "stop_price_usd": 317.217,
+      "retires_when": "CIEN recovers above its support level or thesis leaves intact/strengthening",
+      "reasons": [
+        "thesis strengthening (secondary, 3 for / 2 against)",
+        "threat/immediate: Amodei 'Pace the Frontier' essay: WEAKENED, sentiment-only. No hyperscaler capex; threat/structural: Anthropic's Amodei 'We Must Pace the Frontier' essay -- no walk-back, debate con; threat/immediate: Anthropic CEO Dario Amodei's 'We Must Pace the Frontier' essay (2026-09-12, endo; threat/structural: Anthropic CEO Dario Amodei publishes 'We Must Pace the Frontier' essay (2026-09-; threat/immediate: US pre-market: VIX +13.8%, NQ -1.84%, SMH-tracked names down 4-7% pre-market (AI",
+        "reported: beat",
+        "-11.0pp vs benchmark",
+        "named by 6 independent source(s) this run"
+      ],
+      "blockers": [
+        "below materiality: $270.73 vs a $323.92 floor (pct_of_book) -- emitted, not shrunk to the floor and not dropped"
+      ],
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "family": "BUY",
+        "level": "direction",
+        "n_eff": 0,
+        "n_rows": 0,
+        "hit_rate": null,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "protective_exit": false
+      },
+      "edge": {
+        "status": "ok",
+        "p_win": 0.4,
+        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 22.2",
+        "payoff_r": 3.0028,
+        "payoff_r_uncapped": 3.0028,
+        "target_capped": false,
+        "target_usd": 507.62,
+        "target_source": "data_cache.analyst_targets",
+        "target_as_of": "2026-09-21",
+        "entry_usd": 364.785,
+        "stop_pct": 13.04,
+        "fee_r": 0.023,
+        "ev_r": 0.5779,
+        "ev_bar_r": 0.15,
+        "kelly_quarter": 0.05,
+        "f_edge": 1.0,
+        "refused_because": null,
+        "reason_code": null
+      },
+      "sizing_factors": {
+        "f_edge": 1.0,
+        "f_family": 1.0,
+        "f_deemph": 1.0,
+        "f_conv_and_track": "embedded in size_wanted_usd (conviction_tier_pct of the track-tilted score)",
+        "stage_fraction": 0.5,
+        "combined": 1.0,
+        "identity": "R_base*f_conv*f_track*STAGE (existing) x f_edge x f_family x f_deemph"
+      },
+      "risk_usd": 35.3,
+      "book_heat_before_usd": 3186.02,
+      "book_heat_after_usd": 3221.32,
+      "heat_room_remaining_usd": 578.06,
+      "heat_status": "fit",
+      "materiality": {
+        "ok": false,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 53.19
+      },
+      "materiality_shortfall_usd": 53.19
+    }
+  ],
+  "conviction_exit": [],
+  "entry_setup": [
+    {
+      "ticker": "LEU",
+      "cluster": null,
+      "thesis_status": null,
+      "watchlist_type": "oversold_bounce",
+      "upside_pct": 62.2,
+      "price_usd": 152.49,
+      "price_source": "setup_row",
+      "trigger_type": "entry_setup",
+      "direction": "BUY",
+      "vote": "shadow",
+      "conviction_score": 20.8,
+      "conviction_tier": "low",
+      "size_wanted_usd": null,
+      "suggested_size_usd": null,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "retires_when": "LEU drops off the watchlist setups list or conviction falls to 'none'",
+      "reasons": [
+        "+62.2% vs analyst target",
+        "RSI14 5 oversold",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": [
+        "no live ATR for LEU this run -- setup valid, sizing needs a fetch",
+        "universe bar: no price for LEU fetched this run (live_quotes.json / bars.json) -- a setup-row price or an old exit fill is not a live price",
+        "universe bar: no ATR for LEU computed from this run's bars (compute_indicators.json) -- the cached value's date does not vouch for the name",
+        "universe bar: no verified or computed source for LEU -- unverified/reported claims alone do not clear the G58 evidence gate",
+        "universe bar: no thesis entry for LEU and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
+      ],
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_live_price",
+          "no_atr_this_run",
+          "no_verified_or_computed_source",
+          "no_thesis"
+        ],
+        "checks": {
+          "price": null,
+          "price_source": null,
+          "atr_pct": null,
+          "sources": [
+            "price_action:unverified",
+            "valuation:reported",
+            "agent_corroboration:unverified"
+          ],
+          "thesis": null
+        }
+      },
+      "risk_usd": null,
+      "heat_status": "not_allocated (shadow)"
+    },
+    {
+      "ticker": "IONQ",
+      "cluster": null,
+      "thesis_status": null,
+      "watchlist_type": "oversold_bounce",
+      "upside_pct": 71.2,
+      "price_usd": 40.45,
+      "price_source": "setup_row",
+      "trigger_type": "entry_setup",
+      "direction": "BUY",
+      "vote": "shadow",
+      "conviction_score": 20.8,
+      "conviction_tier": "low",
+      "size_wanted_usd": 273.56,
+      "suggested_size_usd": 273.56,
+      "clamped_by": null,
+      "stop_price_usd": 35.507,
+      "retires_when": "IONQ drops off the watchlist setups list or conviction falls to 'none'",
+      "reasons": [
+        "+71.2% vs analyst target",
+        "RSI14 25 oversold",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": [
+        "universe bar: no thesis entry for IONQ and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none",
+        "below materiality: $273.56 vs a $323.92 floor (pct_of_book) -- emitted, not shrunk to the floor and not dropped"
+      ],
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_thesis"
+        ],
+        "checks": {
+          "price": 40.145,
+          "price_source": "live_quotes.json",
+          "atr_pct": 6.11,
+          "sources": [
+            "price_action:computed",
+            "valuation:reported",
+            "agent_corroboration:unverified"
+          ],
+          "thesis": null
+        }
+      },
+      "risk_usd": 33.43,
+      "heat_status": "not_allocated (shadow)",
+      "materiality": {
+        "ok": false,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 50.36
+      },
+      "materiality_shortfall_usd": 50.36
+    },
+    {
+      "ticker": "QBTS",
+      "cluster": null,
+      "thesis_status": null,
+      "watchlist_type": "oversold_bounce",
+      "upside_pct": 98.9,
+      "price_usd": 17.72,
+      "price_source": "setup_row",
+      "trigger_type": "entry_setup",
+      "direction": "BUY",
+      "vote": "shadow",
+      "conviction_score": 20.8,
+      "conviction_tier": "low",
+      "size_wanted_usd": 292.21,
+      "suggested_size_usd": 292.21,
+      "clamped_by": null,
+      "stop_price_usd": 15.6928,
+      "retires_when": "QBTS drops off the watchlist setups list or conviction falls to 'none'",
+      "reasons": [
+        "+98.9% vs analyst target",
+        "RSI14 15 oversold",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": [
+        "universe bar: no thesis entry for QBTS and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none",
+        "below materiality: $292.21 vs a $323.92 floor (pct_of_book) -- emitted, not shrunk to the floor and not dropped"
+      ],
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_thesis"
+        ],
+        "checks": {
+          "price": 17.55,
+          "price_source": "live_quotes.json",
+          "atr_pct": 5.72,
+          "sources": [
+            "price_action:computed",
+            "valuation:reported",
+            "agent_corroboration:unverified"
+          ],
+          "thesis": null
+        }
+      },
+      "risk_usd": 33.43,
+      "heat_status": "not_allocated (shadow)",
+      "materiality": {
+        "ok": false,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 31.71
+      },
+      "materiality_shortfall_usd": 31.71
+    },
+    {
+      "ticker": "RGTI",
+      "cluster": null,
+      "thesis_status": null,
+      "watchlist_type": "oversold_bounce",
+      "upside_pct": 76.0,
+      "price_usd": 16.37,
+      "price_source": "setup_row",
+      "trigger_type": "entry_setup",
+      "direction": "BUY",
+      "vote": "shadow",
+      "conviction_score": 20.8,
+      "conviction_tier": "low",
+      "size_wanted_usd": 305.56,
+      "suggested_size_usd": 305.56,
+      "clamped_by": null,
+      "stop_price_usd": 14.5791,
+      "retires_when": "RGTI drops off the watchlist setups list or conviction falls to 'none'",
+      "reasons": [
+        "+76.0% vs analyst target",
+        "RSI14 8 oversold",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": [
+        "universe bar: no thesis entry for RGTI and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none",
+        "below materiality: $305.56 vs a $323.92 floor (pct_of_book) -- emitted, not shrunk to the floor and not dropped"
+      ],
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_thesis"
+        ],
+        "checks": {
+          "price": 16.255,
+          "price_source": "live_quotes.json",
+          "atr_pct": 5.47,
+          "sources": [
+            "price_action:computed",
+            "valuation:reported",
+            "agent_corroboration:unverified"
+          ],
+          "thesis": null
+        }
+      },
+      "risk_usd": 33.43,
+      "heat_status": "not_allocated (shadow)",
+      "learned_stop": {
+        "atr_multiple": 2.249,
+        "stop_distance_pct": 12.302,
+        "stop_price_usd": 14.3562,
+        "wider_by_pp": 1.362,
+        "status": "advisory -- policy stop above is the operative one"
+      },
+      "materiality": {
+        "ok": false,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 18.36
+      },
+      "materiality_shortfall_usd": 18.36
+    },
+    {
+      "ticker": "BABA",
+      "cluster": null,
+      "thesis_status": null,
+      "watchlist_type": "oversold_bounce_caution_negative_news_carried_from_prior",
+      "upside_pct": 63.6,
+      "price_usd": 113.67,
+      "price_source": "setup_row",
+      "trigger_type": "entry_setup",
+      "direction": "BUY",
+      "vote": "shadow",
+      "conviction_score": 20.8,
+      "conviction_tier": "low",
+      "size_wanted_usd": 696.43,
+      "suggested_size_usd": 696.43,
+      "clamped_by": null,
+      "stop_price_usd": 108.2138,
+      "retires_when": "BABA drops off the watchlist setups list or conviction falls to 'none'",
+      "reasons": [
+        "+63.6% vs analyst target",
+        "mixed print: revenue beat (+0.23%) / EPS miss (-20.52%) -- stated separately, never collapsed",
+        "RSI14 22 oversold",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": [
+        "universe bar: no thesis entry for BABA and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
+      ],
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_thesis"
+        ],
+        "checks": {
+          "price": 113.605,
+          "price_source": "live_quotes.json",
+          "atr_pct": 2.4,
+          "sources": [
+            "price_action:computed",
+            "valuation:reported",
+            "earnings:verified",
+            "agent_corroboration:unverified"
+          ],
+          "thesis": null
+        }
+      },
+      "risk_usd": 33.43,
+      "heat_status": "not_allocated (shadow)",
+      "materiality": {
+        "ok": true,
+        "floor_usd": 449.89,
+        "binding_term": "min_ticket_r",
+        "shortfall_usd": 0.0
+      }
+    },
+    {
+      "ticker": "CEG",
+      "cluster": null,
+      "thesis_status": null,
+      "watchlist_type": "oversold_bounce",
+      "upside_pct": 37.9,
+      "price_usd": 252.8,
+      "price_source": "setup_row",
+      "trigger_type": "entry_setup",
+      "direction": "BUY",
+      "vote": "shadow",
+      "conviction_score": 20.1,
+      "conviction_tier": "low",
+      "size_wanted_usd": 567.77,
+      "suggested_size_usd": 567.77,
+      "clamped_by": null,
+      "stop_price_usd": 238.3398,
+      "retires_when": "CEG drops off the watchlist setups list or conviction falls to 'none'",
+      "reasons": [
+        "+37.9% vs analyst target",
+        "RSI14 13 oversold",
+        "named by 1 independent source(s) this run"
+      ],
+      "blockers": [
+        "universe bar: no price for CEG fetched this run (live_quotes.json / bars.json) -- a setup-row price or an old exit fill is not a live price",
+        "universe bar: no ATR for CEG computed from this run's bars (compute_indicators.json) -- the cached value's date does not vouch for the name",
+        "universe bar: no verified or computed source for CEG -- unverified/reported claims alone do not clear the G58 evidence gate",
+        "universe bar: no thesis entry for CEG and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
+      ],
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_live_price",
+          "no_atr_this_run",
+          "no_verified_or_computed_source",
+          "no_thesis"
+        ],
+        "checks": {
+          "price": null,
+          "price_source": null,
+          "atr_pct": null,
+          "sources": [
+            "price_action:unverified",
+            "valuation:reported",
+            "agent_corroboration:unverified"
+          ],
+          "thesis": null
+        }
+      },
+      "risk_usd": 32.48,
+      "heat_status": "not_allocated (shadow)",
+      "materiality": {
+        "ok": true,
+        "floor_usd": 377.53,
+        "binding_term": "min_ticket_r",
+        "shortfall_usd": 0.0
+      }
+    }
+  ],
+  "reentry": [
+    {
+      "ticker": "NVDA",
+      "cluster": null,
+      "thesis_status": "strengthening",
+      "exited_on": "2026-09-10",
+      "price_usd": 224.34,
+      "trigger_type": "reentry",
+      "direction": "BUY",
+      "vote": "shadow",
+      "conviction_score": 37.8,
+      "conviction_tier": "low",
+      "size_wanted_usd": 897.02,
+      "suggested_size_usd": 897.02,
+      "clamped_by": null,
+      "stop_price_usd": 210.4758,
+      "retires_when": "NVDA's thesis leaves intact/strengthening",
+      "reasons": [
+        "exited 2026-09-10 at $210.23",
+        "thesis strengthening CARRIED FROM EXIT (stale, x0.5 x0.94 for age 11d; last reviewed 2026-09-10, exited 2026-09-10, from exited-holdings-archive.json) -- not re-examined since the exit",
+        "ambiguous/immediate: Trump-Xi summit in Washington Thursday 09-24 (Xi's first US visit since 2015): a; ambiguous/structural: Nvidia-OpenAI vendor financing stays the standing financing-structure overhang: ",
+        "signal polarity net +1 (STRONG UPTREND)",
+        "reported: beat",
+        "-0.5pp vs benchmark",
+        "named by 2 independent source(s) this run",
+        "no post-epoch track record (since 2026-09-21) for this name's bullish signal (an admissible record needs at least 3 scored signals since the epoch) -- no tilt"
+      ],
+      "blockers": [
+        "thesis is CARRIED from NVDA's exit (2026-09-10), stale and discounted -- smith-thesis has not re-examined it since the position closed",
+        "REFUSED by the EV gate: no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated"
+      ],
+      "thesis_carried": true,
+      "thesis_carried_from": "exited-holdings-archive.json",
+      "thesis_last_reviewed_on": "2026-09-10",
+      "universe_bar": {
+        "passes": true,
+        "failed": [],
+        "checks": {
+          "price": 224.34,
+          "price_source": "live_quotes.json",
+          "atr_pct": 3.09,
+          "sources": [
+            "thesis:unverified",
+            "catalyst:unverified",
+            "price_action:computed",
+            "earnings:verified",
+            "agent_corroboration:unverified"
+          ],
+          "thesis": "carried"
+        }
+      },
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "family": "BUY",
+        "level": "direction",
+        "n_eff": 0,
+        "n_rows": 0,
+        "hit_rate": null,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "protective_exit": false
+      },
+      "edge": {
+        "status": "no_target",
+        "p_win": 0.428,
+        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 37.8",
+        "payoff_r": null,
+        "payoff_r_uncapped": null,
+        "target_capped": false,
+        "target_usd": null,
+        "target_source": null,
+        "target_as_of": null,
+        "entry_usd": 224.34,
+        "stop_pct": 6.18,
+        "fee_r": 0.0485,
+        "ev_r": null,
+        "ev_bar_r": 0.15,
+        "kelly_quarter": null,
+        "f_edge": null,
+        "refused_because": "no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated",
+        "reason_code": "no_analyst_target"
+      },
+      "refused_because": "no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated",
+      "gate_refused": {
+        "code": "no_analyst_target",
+        "size_pre_gate_usd": 897.02
+      },
+      "risk_usd": 55.44,
+      "heat_status": "not_allocated (shadow)",
+      "learned_stop": {
+        "atr_multiple": 2.249,
+        "stop_distance_pct": 6.949,
+        "stop_price_usd": 208.7497,
+        "wider_by_pp": 0.769,
+        "status": "advisory -- policy stop above is the operative one"
+      },
+      "materiality": {
+        "ok": true,
+        "floor_usd": 349.43,
+        "binding_term": "min_ticket_r",
+        "shortfall_usd": 0.0
+      }
+    },
+    {
+      "ticker": "LRCX",
+      "cluster": null,
+      "thesis_status": "strengthening",
+      "exited_on": "2026-09-10",
+      "price_usd": 292.11,
+      "trigger_type": "reentry",
+      "direction": "BUY",
+      "vote": "shadow",
+      "conviction_score": 24.3,
+      "conviction_tier": "low",
+      "size_wanted_usd": 417.78,
+      "suggested_size_usd": 417.78,
+      "clamped_by": null,
+      "stop_price_usd": 265.5864,
+      "retires_when": "LRCX's thesis leaves intact/strengthening",
+      "reasons": [
+        "exited 2026-09-10 at $294.21",
+        "thesis strengthening CARRIED FROM EXIT (stale, x0.5 x0.94 for age 11d; last reviewed 2026-09-10, exited 2026-09-10, from exited-holdings-archive.json) -- not re-examined since the exit",
+        "ambiguous/immediate: Trump-Xi summit in Washington Thursday 09-24 (Xi's first US visit since 2015): a",
+        "signal polarity net +1 (PEER LEADER)",
+        "-9.9pp vs benchmark",
+        "named by 1 independent source(s) this run",
+        "no post-epoch track record (since 2026-09-21) for this name's bullish signal (an admissible record needs at least 3 scored signals since the epoch) -- no tilt"
+      ],
+      "blockers": [
+        "thesis is CARRIED from LRCX's exit (2026-09-10), stale and discounted -- smith-thesis has not re-examined it since the position closed",
+        "REFUSED by the EV gate: no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated"
+      ],
+      "thesis_carried": true,
+      "thesis_carried_from": "exited-holdings-archive.json",
+      "thesis_last_reviewed_on": "2026-09-10",
+      "universe_bar": {
+        "passes": true,
+        "failed": [],
+        "checks": {
+          "price": 292.11,
+          "price_source": "live_quotes.json",
+          "atr_pct": 4.54,
+          "sources": [
+            "thesis:unverified",
+            "catalyst:unverified",
+            "price_action:computed",
+            "agent_corroboration:unverified"
+          ],
+          "thesis": "carried"
+        }
+      },
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "family": "BUY",
+        "level": "direction",
+        "n_eff": 0,
+        "n_rows": 0,
+        "hit_rate": null,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "protective_exit": false
+      },
+      "edge": {
+        "status": "no_target",
+        "p_win": 0.4037,
+        "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 24.3",
+        "payoff_r": null,
+        "payoff_r_uncapped": null,
+        "target_capped": false,
+        "target_usd": null,
+        "target_source": null,
+        "target_as_of": null,
+        "entry_usd": 292.11,
+        "stop_pct": 9.08,
+        "fee_r": 0.033,
+        "ev_r": null,
+        "ev_bar_r": 0.15,
+        "kelly_quarter": null,
+        "f_edge": null,
+        "refused_because": "no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated",
+        "reason_code": "no_analyst_target"
+      },
+      "refused_because": "no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated",
+      "gate_refused": {
+        "code": "no_analyst_target",
+        "size_pre_gate_usd": 417.78
+      },
+      "risk_usd": 37.93,
+      "heat_status": "not_allocated (shadow)",
+      "learned_stop": {
+        "atr_multiple": 2.249,
+        "stop_distance_pct": 10.21,
+        "stop_price_usd": 262.2842,
+        "wider_by_pp": 1.13,
+        "status": "advisory -- policy stop above is the operative one"
+      },
+      "materiality": {
+        "ok": true,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 0.0
+      }
+    }
+  ],
+  "bench_diversifier": [],
+  "reentry_audit": [
+    {
+      "ticker": "AAPL",
+      "exited_on": "2025-06-11",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "AIA",
+      "exited_on": "2026-07-13",
+      "thesis_status": "intact",
+      "thesis_carried": true,
+      "conviction_score": 4.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "AMKR",
+      "exited_on": "2026-08-31",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 2.4,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "ANET",
+      "exited_on": "2026-07-13",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 1.1,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "ARM",
+      "exited_on": "2026-08-18",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": -1.3,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "AVGO",
+      "exited_on": "2026-09-16",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 24.1,
+      "conviction_tier": "low",
+      "outcome": "judged_out: thesis watch"
+    },
+    {
+      "ticker": "BABA",
+      "exited_on": "2026-08-31",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 0.2,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "BX",
+      "exited_on": "2026-09-01",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 0.5,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "CEG",
+      "exited_on": "2026-09-01",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 2.3,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "CORZ",
+      "exited_on": "2025-10-10",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "CQQQ",
+      "exited_on": "2026-07-17",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "CRDO",
+      "exited_on": "2026-07-15",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": -3.2,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "CRWV",
+      "exited_on": "2026-06-23",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": -1.7,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "DELL",
+      "exited_on": "2026-07-13",
+      "thesis_status": "strengthening",
+      "thesis_carried": true,
+      "conviction_score": 9.6,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "DLR",
+      "exited_on": "2026-07-13",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 2.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "DRAM",
+      "exited_on": "2026-08-18",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": -1.3,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "ETN",
+      "exited_on": "2026-07-13",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": -0.1,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "EWT",
+      "exited_on": "2026-07-02",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "EWY",
+      "exited_on": "2026-08-06",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": -13.2,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "FCG",
+      "exited_on": "2026-04-08",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "FLNG",
+      "exited_on": "2026-04-01",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "FLTW",
+      "exited_on": "2026-08-31",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 2.1,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "FSLR",
+      "exited_on": "2026-09-09",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": -11.1,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "GOOGL",
+      "exited_on": "2026-08-11",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 2.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "HOOD",
+      "exited_on": "2026-08-28",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 14.9,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "INTC",
+      "exited_on": "2026-09-10",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 38.8,
+      "conviction_tier": "low",
+      "outcome": "judged_out: thesis watch"
+    },
+    {
+      "ticker": "IONQ",
+      "exited_on": "2026-08-18",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 0.8,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "IREN",
+      "exited_on": "2026-09-08",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": -10.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "LLY",
+      "exited_on": "2026-05-28",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 4.4,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "LRCX",
+      "exited_on": "2026-09-10",
+      "thesis_status": "strengthening",
+      "thesis_carried": true,
+      "conviction_score": 24.3,
+      "conviction_tier": "low",
+      "outcome": "candidate: vote live",
+      "size_usd": 417.78,
+      "bar_failed": []
+    },
+    {
+      "ticker": "META",
+      "exited_on": "2026-09-10",
+      "thesis_status": "strengthening",
+      "thesis_carried": true,
+      "conviction_score": 10.3,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "MKSI",
+      "exited_on": "2026-08-06",
+      "thesis_status": "intact",
+      "thesis_carried": true,
+      "conviction_score": 2.4,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "MP",
+      "exited_on": "2026-08-11",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 2.0,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "NVDA",
+      "exited_on": "2026-09-10",
+      "thesis_status": "strengthening",
+      "thesis_carried": true,
+      "conviction_score": 37.8,
+      "conviction_tier": "low",
+      "outcome": "candidate: vote live",
+      "size_usd": 897.02,
+      "bar_failed": []
+    },
+    {
+      "ticker": "ORCL",
+      "exited_on": "2026-08-18",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": -12.9,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "P",
+      "exited_on": "2026-02-27",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "PENG",
+      "exited_on": "2025-06-16",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "PLTR",
+      "exited_on": "2026-08-15",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "QBTS",
+      "exited_on": "2026-08-06",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 1.1,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "RMBS",
+      "exited_on": "2026-02-27",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 0.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "SMCI",
+      "exited_on": "2026-09-14",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 3.5,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "SNDK",
+      "exited_on": "2026-08-26",
+      "thesis_status": "exited",
+      "thesis_carried": true,
+      "conviction_score": 1.3,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "SPCX",
+      "exited_on": "2026-06-16",
+      "thesis_status": null,
+      "thesis_carried": false,
+      "conviction_score": 2.0,
+      "conviction_tier": "none",
+      "outcome": "no_thesis_entry"
+    },
+    {
+      "ticker": "TXN",
+      "exited_on": "2026-08-28",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": -13.9,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    },
+    {
+      "ticker": "VST",
+      "exited_on": "2026-09-09",
+      "thesis_status": "watch",
+      "thesis_carried": true,
+      "conviction_score": 0.5,
+      "conviction_tier": "none",
+      "outcome": "judged_out: conviction none"
+    }
+  ],
+  "rebound": {
+    "correction_state": "none",
+    "reasons": [],
+    "inputs_usable": true,
+    "rel_cache_age_days": 0,
+    "stale_warning": null,
+    "book_drawdown_pct": 0.0,
+    "benchmark_1m_pct": 3.92,
+    "breadth_fallen_share": 0.0,
+    "policy_warn_pct": -15,
+    "candidates": [],
+    "considered": 0,
+    "excluded": {
+      "thesis_blocked": [],
+      "too_quiet": [],
+      "not_fallen_enough": [],
+      "no_data": []
+    },
+    "note": "No broad correction by any of the three routes -- no rebound screen run."
+  },
+  "correction_state": "none",
+  "profit_rotation": [
+    {
+      "pair_id": "profit_rotation-MU-APH",
+      "trigger_type": "profit_rotation",
+      "vote": "shadow",
+      "sell_leg": {
+        "ticker": "MU",
+        "direction": "SELL",
+        "suggested_size_usd": 628.76,
+        "legacy_size_usd": 628.76,
+        "severity_r": 0.3,
+        "stop_pct": 8.46,
+        "risk_removed_usd": 53.19,
+        "sell_action": "trim",
+        "trim_fraction": 0.3,
+        "sizing_note": "30% of the position's $177.31 open risk (8.46% stop) = $628.76",
+        "materiality": {
+          "ok": true,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 0.0
+        },
+        "market_value_usd": 2095.87,
+        "reasons": [
+          "stretched (in names_stretched) with a watch thesis -- real profit to book"
+        ]
+      },
+      "buy_leg": {
+        "ticker": "APH",
+        "direction": "BUY",
+        "suggested_size_usd": 646.22,
+        "clamped_by": "buy R_ticket (its own conviction tranche)",
+        "legacy_size_usd": 628.76,
+        "conviction_score": 26.9,
+        "reasons": [
+          "laggard (-0.2pp) with a strengthening thesis -- yet to rally"
+        ],
+        "materiality": {
+          "ok": true,
+          "floor_usd": 337.42,
+          "binding_term": "min_ticket_r",
+          "shortfall_usd": 0.0
+        },
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "family": "BUY",
+          "level": "direction",
+          "n_eff": 0,
+          "n_rows": 0,
+          "hit_rate": null,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "protective_exit": false
+        },
+        "edge": {
+          "status": "ok",
+          "p_win": 0.4084,
+          "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 26.9",
+          "payoff_r": 3.907,
+          "payoff_r_uncapped": 3.907,
+          "target_capped": false,
+          "target_usd": 99.26,
+          "target_source": "data_cache.analyst_targets",
+          "target_as_of": "2026-09-21",
+          "entry_usd": 79.405,
+          "stop_pct": 6.4,
+          "fee_r": 0.0469,
+          "ev_r": 0.9572,
+          "ev_bar_r": 0.15,
+          "kelly_quarter": 0.0643,
+          "f_edge": 1.0,
+          "refused_because": null,
+          "reason_code": null
+        },
+        "rotation_edge": {
+          "assessed": true,
+          "edge_r": 0.1329,
+          "min_edge_r": 0.25,
+          "hold_ev_r": 0.8243,
+          "passes": false,
+          "reason": null
+        },
+        "risk_usd": 41.36,
+        "heat_status": "not_allocated (shadow)"
+      },
+      "rotation_risk": {
+        "r_freed_usd": 53.19,
+        "buy_size_usd": 646.22,
+        "buy_uncapped_usd": 831.14,
+        "bound_by": "buy_r_ticket",
+        "buy_risk_usd": 41.36,
+        "heat_delta_usd": -11.84,
+        "buy_size_final_usd": 646.22,
+        "buy_risk_final_usd": 41.36,
+        "heat_delta_final_usd": -11.83
+      },
+      "retires_when": "EITHER MU drops out of the stretched cohort OR APH's thesis leaves intact/strengthening",
+      "blockers": [
+        "not risk-flat: the sell frees $53.19 of risk and the buy re-takes $41.36 (bound by buy_r_ticket); the difference goes to cash, not into the book",
+        "REFUSED by the EV gate: rotation edge +0.13R (buy EV 0.96R minus holding 0.82R) below the 0.25R bar"
+      ],
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "family": "BUY",
+        "level": "direction",
+        "n_eff": 0,
+        "n_rows": 0,
+        "hit_rate": null,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "protective_exit": false
+      },
+      "refused_because": "rotation edge +0.13R (buy EV 0.96R minus holding 0.82R) below the 0.25R bar",
+      "gate_refused": {
+        "code": "rotation_edge_below_bar",
+        "size_pre_gate_usd": 646.22
+      }
+    },
+    {
+      "pair_id": "profit_rotation-AMD-MRVL",
+      "trigger_type": "profit_rotation",
+      "vote": "below_materiality",
+      "sell_leg": {
+        "ticker": "AMD",
+        "direction": "SELL",
+        "suggested_size_usd": 182.37,
+        "legacy_size_usd": 182.37,
+        "severity_r": 0.3,
+        "stop_pct": 7.42,
+        "risk_removed_usd": 13.53,
+        "sell_action": "trim",
+        "trim_fraction": 0.3,
+        "sizing_note": "30% of the position's $45.11 open risk (7.42% stop) = $182.37",
+        "materiality": {
+          "ok": false,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 141.55
+        },
+        "market_value_usd": 607.89,
+        "reasons": [
+          "stretched (in names_stretched) with a watch thesis -- real profit to book"
+        ]
+      },
+      "buy_leg": {
+        "ticker": "MRVL",
+        "direction": "BUY",
+        "suggested_size_usd": 128.63,
+        "clamped_by": "risk freed by the sell leg",
+        "legacy_size_usd": 182.37,
+        "conviction_score": 23.3,
+        "reasons": [
+          "laggard (-4.1pp) with a strengthening thesis -- yet to rally"
+        ],
+        "materiality": {
+          "ok": false,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 195.29
+        },
+        "risk_usd": 13.53,
+        "heat_status": "not_allocated (below_materiality)"
+      },
+      "rotation_risk": {
+        "r_freed_usd": 13.53,
+        "buy_size_usd": 128.63,
+        "buy_uncapped_usd": 128.63,
+        "bound_by": "r_freed",
+        "buy_risk_usd": 13.53,
+        "heat_delta_usd": 0.0,
+        "buy_size_final_usd": 128.63,
+        "buy_risk_final_usd": 13.53,
+        "heat_delta_final_usd": 0.0
+      },
+      "retires_when": "EITHER AMD drops out of the stretched cohort OR MRVL's thesis leaves intact/strengthening",
+      "materiality_shortfall_usd": 195.29,
+      "materiality_legs_below": [
+        "sell",
+        "buy"
+      ],
+      "blockers": [
+        "sell leg: 30% of the position's $45.11 open risk (7.42% stop) = $182.37",
+        "below materiality (sell+buy leg): the pair is emitted but not proposed -- short by $195.29. Not shrunk to the floor and not dropped: this is what a ticket too small to act on looks like."
+      ]
+    },
+    {
+      "pair_id": "profit_rotation-SKHY-KLAC",
+      "trigger_type": "profit_rotation",
+      "vote": "below_materiality",
+      "sell_leg": {
+        "ticker": "SKHY",
+        "direction": "SELL",
+        "suggested_size_usd": 0.0,
+        "legacy_size_usd": 56.55,
+        "severity_r": 0.3,
+        "stop_pct": 9.12,
+        "risk_removed_usd": 0.0,
+        "sell_action": "hold",
+        "trim_fraction": null,
+        "sizing_note": "30% of the position's $17.19 open risk (9.12% stop) = $56.55; position $188.51 is already below the $400 minimum-position threshold -- a stub is a consolidation candidate, never partially trimmed",
+        "materiality": {
+          "ok": false,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 323.92
+        },
+        "market_value_usd": 188.51,
+        "reasons": [
+          "stretched (in names_stretched) with a watch thesis -- real profit to book"
+        ]
+      },
+      "buy_leg": {
+        "ticker": "KLAC",
+        "direction": "BUY",
+        "suggested_size_usd": 0.0,
+        "clamped_by": null,
+        "legacy_size_usd": 56.55,
+        "conviction_score": 22.9,
+        "reasons": [
+          "laggard (-6.6pp) with a strengthening thesis -- yet to rally"
+        ],
+        "materiality": null,
+        "risk_usd": null,
+        "heat_status": "not_allocated (below_materiality)"
+      },
+      "rotation_risk": {
+        "r_freed_usd": 0.0,
+        "buy_size_usd": 0.0,
+        "buy_uncapped_usd": 0.0,
+        "bound_by": "no_sell_leg",
+        "buy_risk_usd": 0.0,
+        "heat_delta_usd": 0.0,
+        "buy_size_final_usd": 0.0,
+        "buy_risk_final_usd": 0.0,
+        "heat_delta_final_usd": 0.0
+      },
+      "retires_when": "EITHER SKHY drops out of the stretched cohort OR KLAC's thesis leaves intact/strengthening",
+      "materiality_shortfall_usd": 323.92,
+      "materiality_legs_below": [
+        "sell"
+      ],
+      "blockers": [
+        "sell leg: position $188.51 is already below the $400 minimum-position threshold -- a stub is a consolidation candidate, never partially trimmed",
+        "below materiality (sell leg): the pair is emitted but not proposed -- short by $323.92. Not shrunk to the floor and not dropped: this is what a ticket too small to act on looks like."
+      ]
+    }
+  ],
+  "cluster_rotation": [
+    {
+      "pair_id": "cluster_rotation-ASML-TSM",
+      "trigger_type": "cluster_rotation",
+      "vote": "shadow",
+      "cluster": "AI Semis/Fabs",
+      "ladder_driven": true,
+      "ladder_as_of": "2026-09-21",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "ladder_authority_reasons": [
+        "3 scored ladder call(s) predate the engine epoch (2026-09-21) -- kept as history, not counted toward authority",
+        "ladder is 0d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+      ],
+      "sell_leg": {
+        "ticker": "ASML",
+        "direction": "SELL",
+        "suggested_size_usd": 884.23,
+        "legacy_size_usd": 884.23,
+        "severity_r": 0.3,
+        "stop_pct": 5.74,
+        "risk_removed_usd": 50.75,
+        "sell_action": "trim",
+        "trim_fraction": 0.3,
+        "sizing_note": "30% of the position's $169.18 open risk (5.74% stop) = $884.23",
+        "materiality": {
+          "ok": true,
+          "floor_usd": 376.22,
+          "binding_term": "min_ticket_r",
+          "shortfall_usd": 0.0
+        },
+        "reasons": [
+          "cluster ladder ranks ASML #5 of 7 (bottom third). Case against: (the case FOR, which rank 5 must confront): lowest beta in the cluster at 0.99, mean target $2,137.63 against $1,684.24 spot (+26.9%), sole-source monopoly, and the 10-14 bookings print is the cluster's single biggest binary - if bookings beat Q2 with China under 20%, ASML re-rates first and hardest and this rank is wrong within 23 days. Against it: thesis is WATCH, the thesis text is last dated 2026-08-10, and a quality flag stands (Q1 FY26 OCF -$2.19B against net income +$2.76B)."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "TSM",
+        "direction": "BUY",
+        "suggested_size_usd": 1127.88,
+        "clamped_by": "risk freed by the sell leg",
+        "legacy_size_usd": 884.23,
+        "conviction_score": 21.2,
+        "reasons": [
+          "cluster ladder ranks TSM #1 of 7 (leader): advanced packaging (CoWoS-class) capacity as a distinct bottleneck from wafer capacity -- TSM is the only member that owns BOTH the wafer and the packaging bottleneck, so it collects the scarcity rent at the exact step the margin pool is migrating toward"
+        ],
+        "materiality": {
+          "ok": true,
+          "floor_usd": 479.88,
+          "binding_term": "min_ticket_r",
+          "shortfall_usd": 0.0
+        },
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "family": "BUY",
+          "level": "direction",
+          "n_eff": 0,
+          "n_rows": 0,
+          "hit_rate": null,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "protective_exit": false
+        },
+        "edge": {
+          "status": "ok",
+          "p_win": 0.3982,
+          "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 21.2",
+          "payoff_r": 4.0,
+          "payoff_r_uncapped": 5.7817,
+          "target_capped": true,
+          "target_usd": 552.26,
+          "target_source": "data_cache.analyst_targets",
+          "target_as_of": "2026-09-21",
+          "entry_usd": 438.24,
+          "stop_pct": 4.5,
+          "fee_r": 0.0667,
+          "ev_r": 0.9241,
+          "ev_bar_r": 0.15,
+          "kelly_quarter": 0.0619,
+          "f_edge": 1.0,
+          "refused_because": null,
+          "reason_code": null
+        },
+        "rotation_edge": {
+          "assessed": true,
+          "edge_r": 0.1241,
+          "min_edge_r": 0.25,
+          "hold_ev_r": 0.8,
+          "passes": false,
+          "reason": null
+        },
+        "risk_usd": 50.75,
+        "heat_status": "not_allocated (shadow)"
+      },
+      "rotation_risk": {
+        "r_freed_usd": 50.75,
+        "buy_size_usd": 1127.88,
+        "buy_uncapped_usd": 1127.88,
+        "bound_by": "r_freed",
+        "buy_risk_usd": 50.75,
+        "heat_delta_usd": 0.0,
+        "buy_size_final_usd": 1127.88,
+        "buy_risk_final_usd": 50.75,
+        "heat_delta_final_usd": 0.0
+      },
+      "retires_when": "EITHER AI Semis/Fabs's ladder no longer ranks TSM above ASML OR that ladder goes stale (>14d)",
+      "blockers": [
+        "REFUSED by the EV gate: rotation edge +0.12R (buy EV 0.92R minus holding 0.80R) below the 0.25R bar"
+      ],
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "family": "BUY",
+        "level": "direction",
+        "n_eff": 0,
+        "n_rows": 0,
+        "hit_rate": null,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "protective_exit": false
+      },
+      "refused_because": "rotation edge +0.12R (buy EV 0.92R minus holding 0.80R) below the 0.25R bar",
+      "gate_refused": {
+        "code": "rotation_edge_below_bar",
+        "size_pre_gate_usd": 1127.88
+      }
+    },
+    {
+      "pair_id": "cluster_rotation-NBIS-MSFT",
+      "trigger_type": "cluster_rotation",
+      "vote": "live",
+      "cluster": "Compute/Hyperscaler",
+      "ladder_driven": true,
+      "ladder_as_of": "2026-09-15",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "ladder_authority_reasons": [
+        "2 scored ladder call(s) predate the engine epoch (2026-09-21) -- kept as history, not counted toward authority",
+        "ladder is 6d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+      ],
+      "sell_leg": {
+        "ticker": "NBIS",
+        "direction": "SELL",
+        "suggested_size_usd": 406.42,
+        "legacy_size_usd": 406.42,
+        "severity_r": 0.3,
+        "stop_pct": 12.44,
+        "risk_removed_usd": 50.56,
+        "sell_action": "trim",
+        "trim_fraction": 0.3,
+        "sizing_note": "30% of the position's $168.53 open risk (12.44% stop) = $406.42",
+        "materiality": {
+          "ok": true,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 0.0
+        },
+        "reasons": [
+          "cluster ladder ranks NBIS #4 of 4 (laggard). Case against: The case FOR is real. Google explicitly renting third-party bridge capacity in Q3 is direct demand for neocloud landlords. The facility plus the customer contract covers >100% of the funded GPU capex. The stock is ~25% off its ATH with a $280 target vs $213.94. A dovish FOMC surprise gives it the highest snap-back beta in the cluster."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "MSFT",
+        "direction": "BUY",
+        "suggested_size_usd": 1257.68,
+        "clamped_by": "risk freed by the sell leg",
+        "legacy_size_usd": 406.42,
+        "conviction_score": 13.8,
+        "reasons": [
+          "cluster ladder ranks MSFT #1 of 4 (leader): capex as a share of operating cash flow -- Only US hyperscaler still FCF-positive: Q4 FCF $19.6B after $41B capex"
+        ],
+        "materiality": {
+          "ok": true,
+          "floor_usd": 537.18,
+          "binding_term": "min_ticket_r",
+          "shortfall_usd": 0.0
+        },
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "family": "BUY",
+          "level": "direction",
+          "n_eff": 0,
+          "n_rows": 0,
+          "hit_rate": null,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "protective_exit": false
+        },
+        "edge": {
+          "status": "ok",
+          "p_win": 0.3848,
+          "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 13.8",
+          "payoff_r": 3.9012,
+          "payoff_r_uncapped": 3.9012,
+          "target_capped": false,
+          "target_usd": 572.92,
+          "target_source": "data_cache.analyst_targets",
+          "target_as_of": "2026-09-21",
+          "entry_usd": 495.25,
+          "stop_pct": 4.02,
+          "fee_r": 0.0746,
+          "ev_r": 0.8116,
+          "ev_bar_r": 0.15,
+          "kelly_quarter": 0.0568,
+          "f_edge": 1.0,
+          "refused_because": null,
+          "reason_code": null
+        },
+        "rotation_edge": {
+          "assessed": true,
+          "edge_r": 0.65,
+          "min_edge_r": 0.25,
+          "hold_ev_r": 0.1616,
+          "passes": true,
+          "reason": null
+        },
+        "sizing_factors": {
+          "f_edge": 1.0,
+          "f_family": 1.0,
+          "f_deemph": 1.0,
+          "f_conv_and_track": "embedded in size_wanted_usd (conviction_tier_pct of the track-tilted score)",
+          "stage_fraction": 0.5,
+          "combined": 1.0,
+          "identity": "R_base*f_conv*f_track*STAGE (existing) x f_edge x f_family x f_deemph"
+        },
+        "risk_usd": 50.56,
+        "book_heat_before_usd": 3186.02,
+        "book_heat_after_usd": 3186.02,
+        "heat_room_remaining_usd": 613.36,
+        "heat_status": "fit"
+      },
+      "rotation_risk": {
+        "r_freed_usd": 50.56,
+        "buy_size_usd": 1257.68,
+        "buy_uncapped_usd": 1257.68,
+        "bound_by": "r_freed",
+        "buy_risk_usd": 50.56,
+        "heat_delta_usd": 0.0,
+        "buy_size_final_usd": 1257.68,
+        "buy_risk_final_usd": 50.56,
+        "heat_delta_final_usd": 0.0
+      },
+      "retires_when": "EITHER Compute/Hyperscaler's ladder no longer ranks MSFT above NBIS OR that ladder goes stale (>14d)",
+      "blockers": [],
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "family": "BUY",
+        "level": "direction",
+        "n_eff": 0,
+        "n_rows": 0,
+        "hit_rate": null,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "protective_exit": false
+      }
+    },
+    {
+      "pair_id": "cluster_rotation-GLW-LITE",
+      "trigger_type": "cluster_rotation",
+      "vote": "shadow",
+      "cluster": "AI Networking/Optics",
+      "ladder_driven": true,
+      "ladder_as_of": "2026-09-21",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "ladder_authority_reasons": [
+        "2 scored ladder call(s) predate the engine epoch (2026-09-21) -- kept as history, not counted toward authority",
+        "ladder is 0d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+      ],
+      "sell_leg": {
+        "ticker": "GLW",
+        "direction": "SELL",
+        "suggested_size_usd": 467.19,
+        "legacy_size_usd": 140.16,
+        "severity_r": 0.3,
+        "stop_pct": 9.66,
+        "risk_removed_usd": 45.13,
+        "sell_action": "full_exit",
+        "trim_fraction": 1.0,
+        "sizing_note": "30% of the position's $45.13 open risk (9.66% stop) = $140.16; a $140.16 trim would leave $327.03, under the $400 minimum position -- converted to a full exit",
+        "materiality": {
+          "ok": true,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 0.0,
+          "exempt": "full_exit"
+        },
+        "reasons": [
+          "cluster ladder ranks GLW #7 of 7 (laggard). Case against: The case FOR GLW is the one I am ranking against and it is not weak: Q2 core EPS +30%, a 19% sales CAGR guided through 2030, a 15% polysilicon tariff tailwind, and an ATM that by construction sells gradually so realized dilution will be a fraction of $2bn. Q3 core sales guidance of $4.9-5.0bn is intact. The 09-18 +3% says the market is already discounting the dilution scare. If the programme lapses unused, the laggard call is wrong on the financing leg and rests on stack position alone."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "LITE",
+        "direction": "BUY",
+        "suggested_size_usd": 359.89,
+        "clamped_by": "risk freed by the sell leg",
+        "legacy_size_usd": 140.16,
+        "conviction_score": 29.2,
+        "reasons": [
+          "cluster ladder ranks LITE #1 of 7 (leader): position in the stack: laser/EML supply vs module assembly -- Sole supplier shipping 200G-per-lane EMLs at volume -- the binding component for every 1.6T module in the industry, including modules built by its competitors"
+        ],
+        "materiality": {
+          "ok": true,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 0.0
+        },
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "family": "BUY",
+          "level": "direction",
+          "n_eff": 0,
+          "n_rows": 0,
+          "hit_rate": null,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "protective_exit": false
+        },
+        "edge": {
+          "status": "ok",
+          "p_win": 0.4126,
+          "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 29.2",
+          "payoff_r": 1.3821,
+          "payoff_r_uncapped": 1.3821,
+          "target_capped": false,
+          "target_usd": 1149.38,
+          "target_source": "data_cache.analyst_targets",
+          "target_as_of": "2026-09-21",
+          "entry_usd": 979.605,
+          "stop_pct": 12.54,
+          "fee_r": 0.0239,
+          "ev_r": -0.0412,
+          "ev_bar_r": 0.15,
+          "kelly_quarter": 0.0,
+          "f_edge": 0.25,
+          "refused_because": "EV -0.04R below the 0.15R bar (p_win 0.41, payoff 1.4R, fee 0.02R)",
+          "reason_code": "ev_below_bar"
+        },
+        "rotation_edge": {
+          "assessed": true,
+          "edge_r": -0.2797,
+          "min_edge_r": 0.25,
+          "hold_ev_r": 0.2385,
+          "passes": false,
+          "reason": null
+        },
+        "risk_usd": 45.13,
+        "heat_status": "not_allocated (shadow)"
+      },
+      "rotation_risk": {
+        "r_freed_usd": 45.13,
+        "buy_size_usd": 359.89,
+        "buy_uncapped_usd": 359.89,
+        "bound_by": "r_freed",
+        "buy_risk_usd": 45.13,
+        "heat_delta_usd": 0.0,
+        "buy_size_final_usd": 359.89,
+        "buy_risk_final_usd": 45.13,
+        "heat_delta_final_usd": 0.0
+      },
+      "retires_when": "EITHER AI Networking/Optics's ladder no longer ranks LITE above GLW OR that ladder goes stale (>14d)",
+      "blockers": [
+        "REFUSED by the EV gate: EV -0.04R below the 0.15R bar (p_win 0.41, payoff 1.4R, fee 0.02R)"
+      ],
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "family": "BUY",
+        "level": "direction",
+        "n_eff": 0,
+        "n_rows": 0,
+        "hit_rate": null,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "protective_exit": false
+      },
+      "refused_because": "EV -0.04R below the 0.15R bar (p_win 0.41, payoff 1.4R, fee 0.02R)",
+      "gate_refused": {
+        "code": "ev_below_bar",
+        "size_pre_gate_usd": 359.89
+      }
+    },
+    {
+      "pair_id": "cluster_rotation-VRT-BE",
+      "trigger_type": "cluster_rotation",
+      "vote": "shadow",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "ladder_driven": true,
+      "ladder_as_of": "2026-09-15",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "ladder_authority_reasons": [
+        "1 scored ladder call(s) predate the engine epoch (2026-09-21) -- kept as history, not counted toward authority",
+        "ladder is 6d old with medium confidence -- ordering used, but the sell leg still requires a watch thesis"
+      ],
+      "sell_leg": {
+        "ticker": "VRT",
+        "direction": "SELL",
+        "suggested_size_usd": 448.09,
+        "legacy_size_usd": 448.09,
+        "severity_r": 0.3,
+        "stop_pct": 10.86,
+        "risk_removed_usd": 48.66,
+        "sell_action": "trim",
+        "trim_fraction": 0.3,
+        "sizing_note": "30% of the position's $162.21 open risk (10.86% stop) = $448.09",
+        "materiality": {
+          "ok": true,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 0.0
+        },
+        "reasons": [
+          "cluster ladder ranks VRT #3 of 3 (laggard). Case against: Laggard call is contestable: backlog is short-dated so the GLJ vintage mechanism barely applies, guidance was raised across all metrics, mean target $338.15 is +42% above $237.39 (~35x FY26 EPS), and a clean Q3 conversion on 10-21 would erase the only fundamental gap vs GEV."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "BE",
+        "direction": "BUY",
+        "suggested_size_usd": 381.97,
+        "clamped_by": "risk freed by the sell leg",
+        "legacy_size_usd": 448.09,
+        "conviction_score": 25.3,
+        "reasons": [
+          "cluster ladder ranks BE #1 of 3 (leader): fuel cell / on-site generation as a distinct bet; behind-the-meter vs grid-connected -- Behind-the-meter speed-to-power sidesteps interconnection queues; 'all major US hyperscalers' have validated systems per CEO; $20B backlog"
+        ],
+        "materiality": {
+          "ok": true,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 0.0
+        },
+        "gate": {
+          "verdict": "unproven",
+          "multiplier": 1.0,
+          "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+          "family": "BUY",
+          "level": "direction",
+          "n_eff": 0,
+          "n_rows": 0,
+          "hit_rate": null,
+          "mean_ev_net_pct": null,
+          "ci95": [
+            null,
+            null
+          ],
+          "protective_exit": false
+        },
+        "edge": {
+          "status": "ok",
+          "p_win": 0.4055,
+          "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 25.3",
+          "payoff_r": 0.366,
+          "payoff_r_uncapped": 0.366,
+          "target_capped": false,
+          "target_usd": 280.24,
+          "target_source": "data_cache.analyst_targets",
+          "target_as_of": "2026-09-21",
+          "entry_usd": 267.755,
+          "stop_pct": 12.74,
+          "fee_r": 0.0235,
+          "ev_r": -0.4696,
+          "ev_bar_r": 0.15,
+          "kelly_quarter": 0.0,
+          "f_edge": 0.25,
+          "refused_because": "EV -0.47R below the 0.15R bar (p_win 0.41, payoff 0.4R, fee 0.02R)",
+          "reason_code": "ev_below_bar"
+        },
+        "rotation_edge": {
+          "assessed": true,
+          "edge_r": -1.0175,
+          "min_edge_r": 0.25,
+          "hold_ev_r": 0.5479,
+          "passes": false,
+          "reason": null
+        },
+        "risk_usd": 48.66,
+        "heat_status": "not_allocated (shadow)"
+      },
+      "rotation_risk": {
+        "r_freed_usd": 48.66,
+        "buy_size_usd": 381.97,
+        "buy_uncapped_usd": 381.97,
+        "bound_by": "r_freed",
+        "buy_risk_usd": 48.66,
+        "heat_delta_usd": 0.0,
+        "buy_size_final_usd": 381.97,
+        "buy_risk_final_usd": 48.66,
+        "heat_delta_final_usd": 0.0
+      },
+      "retires_when": "EITHER AI Power/Cooling/DC Infra's ladder no longer ranks BE above VRT OR that ladder goes stale (>14d)",
+      "blockers": [
+        "REFUSED by the EV gate: EV -0.47R below the 0.15R bar (p_win 0.41, payoff 0.4R, fee 0.02R)"
+      ],
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "family": "BUY",
+        "level": "direction",
+        "n_eff": 0,
+        "n_rows": 0,
+        "hit_rate": null,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "protective_exit": false
+      },
+      "refused_because": "EV -0.47R below the 0.15R bar (p_win 0.41, payoff 0.4R, fee 0.02R)",
+      "gate_refused": {
+        "code": "ev_below_bar",
+        "size_pre_gate_usd": 381.97
+      }
+    }
+  ],
+  "cluster_bench_rotation": [
+    {
+      "pair_id": "cluster_bench_rotation-ASML-LRCX",
+      "trigger_type": "cluster_bench_rotation",
+      "vote": "shadow",
+      "cluster": "AI Semis/Fabs",
+      "ladder_as_of": "2026-09-21",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "sell_leg": {
+        "ticker": "ASML",
+        "direction": "SELL",
+        "suggested_size_usd": 884.23,
+        "legacy_size_usd": 884.23,
+        "severity_r": 0.3,
+        "stop_pct": 5.74,
+        "risk_removed_usd": 50.75,
+        "sell_action": "trim",
+        "trim_fraction": 0.3,
+        "sizing_note": "30% of the position's $169.18 open risk (5.74% stop) = $884.23",
+        "materiality": {
+          "ok": true,
+          "floor_usd": 376.22,
+          "binding_term": "min_ticket_r",
+          "shortfall_usd": 0.0
+        },
+        "reasons": [
+          "cluster ladder ranks ASML #5 of 7 (bottom third). Case against: (the case FOR, which rank 5 must confront): lowest beta in the cluster at 0.99, mean target $2,137.63 against $1,684.24 spot (+26.9%), sole-source monopoly, and the 10-14 bookings print is the cluster's single biggest binary - if bookings beat Q2 with China under 20%, ASML re-rates first and hardest and this rank is wrong within 23 days. Against it: thesis is WATCH, the thesis text is last dated 2026-08-10, and a quality flag stands (Q1 FY26 OCF -$2.19B against net income +$2.76B)."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "LRCX",
+        "direction": "BUY",
+        "suggested_size_usd": null,
+        "price_usd": 292.11,
+        "reasons": [
+          "cluster bench: better than AMAT - same deposition/etch exposure to the GAA and advanced-packaging intensity shift that drives AMAT's rank-3 case, but with higher leading-edge memory/NAND leverage and without AMAT's single largest quantified China revenue-at-risk line, so it expresses the same axis with less summit-outcome dependence",
+          "entry condition: Buy only if the 2026-10-14 ASML bookings print exceeds Q2 (the 2-3-quarter leading indicator for LRCX/AMAT/KLAC orders) AND LRCX has not already re-rated more than 8% on that news; mean target $370.87 (n=24, as_of 09-10) against $292.11 is +27%"
+        ],
+        "blockers": [
+          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized.",
+          "universe bar: no thesis entry for LRCX and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
+        ]
+      },
+      "retires_when": "EITHER AI Semis/Fabs's ladder drops LRCX from its bench OR ASML leaves the bottom of that ladder",
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_thesis"
+        ],
+        "checks": {
+          "price": 292.11,
+          "price_source": "live_quotes.json",
+          "atr_pct": 4.54,
+          "sources": [
+            "cluster_ladder_bench:unverified",
+            "price_action:computed"
+          ],
+          "thesis": null
+        }
+      }
+    },
+    {
+      "pair_id": "cluster_bench_rotation-GLW-CRDO",
+      "trigger_type": "cluster_bench_rotation",
+      "vote": "shadow",
+      "cluster": "AI Networking/Optics",
+      "ladder_as_of": "2026-09-21",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "sell_leg": {
+        "ticker": "GLW",
+        "direction": "SELL",
+        "suggested_size_usd": 467.19,
+        "legacy_size_usd": 140.16,
+        "severity_r": 0.3,
+        "stop_pct": 9.66,
+        "risk_removed_usd": 45.13,
+        "sell_action": "full_exit",
+        "trim_fraction": 1.0,
+        "sizing_note": "30% of the position's $45.13 open risk (9.66% stop) = $140.16; a $140.16 trim would leave $327.03, under the $400 minimum position -- converted to a full exit",
+        "materiality": {
+          "ok": true,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 0.0,
+          "exempt": "full_exit"
+        },
+        "reasons": [
+          "cluster ladder ranks GLW #7 of 7 (laggard). Case against: The case FOR GLW is the one I am ranking against and it is not weak: Q2 core EPS +30%, a 19% sales CAGR guided through 2030, a 15% polysilicon tariff tailwind, and an ATM that by construction sells gradually so realized dilution will be a fraction of $2bn. Q3 core sales guidance of $4.9-5.0bn is intact. The 09-18 +3% says the market is already discounting the dilution scare. If the programme lapses unused, the laggard call is wrong on the financing leg and rests on stack position alone."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "CRDO",
+        "direction": "BUY",
+        "suggested_size_usd": null,
+        "price_usd": 175.89,
+        "reasons": [
+          "cluster bench: better than MRVL",
+          "entry condition: WITHDRAWN as a why_better_than APH line -- the APH 10-Q segment disclosure removes the torque-per-dollar gap that argument depended on. Re-pointed at MRVL on a different axis from the AVGO bench line: AVGO beats MRVL on merchant switch silicon SHARE, CRDO beats it on scale-up interconnect PURITY (AEC content is almost entirely AI datacenter against MRVL's contested merchant book). Enter on a pullback toward the low-$150s or a disclosed hyperscaler AEC design win. Reinstate the APH comparison only if APH discloses a stand-alone IT-datacom share of total sales below roughly 35%."
+        ],
+        "blockers": [
+          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized.",
+          "universe bar: no thesis entry for CRDO and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
+        ]
+      },
+      "retires_when": "EITHER AI Networking/Optics's ladder drops CRDO from its bench OR GLW leaves the bottom of that ladder",
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_thesis"
+        ],
+        "checks": {
+          "price": 186.6,
+          "price_source": "live_quotes.json",
+          "atr_pct": 6.89,
+          "sources": [
+            "cluster_ladder_bench:unverified",
+            "price_action:computed"
+          ],
+          "thesis": null
+        }
+      }
+    },
+    {
+      "pair_id": "cluster_bench_rotation-NBIS-META",
+      "trigger_type": "cluster_bench_rotation",
+      "vote": "shadow",
+      "cluster": "Compute/Hyperscaler",
+      "ladder_as_of": "2026-09-15",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "sell_leg": {
+        "ticker": "NBIS",
+        "direction": "SELL",
+        "suggested_size_usd": 406.42,
+        "legacy_size_usd": 406.42,
+        "severity_r": 0.3,
+        "stop_pct": 12.44,
+        "risk_removed_usd": 50.56,
+        "sell_action": "trim",
+        "trim_fraction": 0.3,
+        "sizing_note": "30% of the position's $168.53 open risk (12.44% stop) = $406.42",
+        "materiality": {
+          "ok": true,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 0.0
+        },
+        "reasons": [
+          "cluster ladder ranks NBIS #4 of 4 (laggard). Case against: The case FOR is real. Google explicitly renting third-party bridge capacity in Q3 is direct demand for neocloud landlords. The facility plus the customer contract covers >100% of the funded GPU capex. The stock is ~25% off its ATH with a $280 target vs $213.94. A dovish FOMC surprise gives it the highest snap-back beta in the cluster."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "META",
+        "direction": "BUY",
+        "suggested_size_usd": null,
+        "price_usd": 665.6,
+        "reasons": [
+          "cluster bench: better than NBIS: same AI-capex exposure without financing dependence, IG balance sheet, far lower volatility. Not better than any held major: no external cloud revenue to offset capex, and FCF is not positive per the 'only MSFT FCF-positive' read",
+          "entry condition: Late-Oct Q3 print with 2027 capex guide AND FCF back to positive; mean target $754.77 (as of 09-10)"
+        ],
+        "blockers": [
+          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized.",
+          "universe bar: no thesis entry for META and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
+        ]
+      },
+      "retires_when": "EITHER Compute/Hyperscaler's ladder drops META from its bench OR NBIS leaves the bottom of that ladder",
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_thesis"
+        ],
+        "checks": {
+          "price": 710.8835,
+          "price_source": "live_quotes.json",
+          "atr_pct": 3.15,
+          "sources": [
+            "cluster_ladder_bench:unverified",
+            "price_action:computed"
+          ],
+          "thesis": null
+        }
+      }
+    },
+    {
+      "pair_id": "cluster_bench_rotation-VRT-ETN",
+      "trigger_type": "cluster_bench_rotation",
+      "vote": "shadow",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "ladder_as_of": "2026-09-15",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "sell_leg": {
+        "ticker": "VRT",
+        "direction": "SELL",
+        "suggested_size_usd": 448.09,
+        "legacy_size_usd": 448.09,
+        "severity_r": 0.3,
+        "stop_pct": 10.86,
+        "risk_removed_usd": 48.66,
+        "sell_action": "trim",
+        "trim_fraction": 0.3,
+        "sizing_note": "30% of the position's $162.21 open risk (10.86% stop) = $448.09",
+        "materiality": {
+          "ok": true,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 0.0
+        },
+        "reasons": [
+          "cluster ladder ranks VRT #3 of 3 (laggard). Case against: Laggard call is contestable: backlog is short-dated so the GLJ vintage mechanism barely applies, guidance was raised across all metrics, mean target $338.15 is +42% above $237.39 (~35x FY26 EPS), and a clean Q3 conversion on 10-21 would erase the only fundamental gap vs GEV."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "ETN",
+        "direction": "BUY",
+        "suggested_size_usd": null,
+        "price_usd": 393.16,
+        "reasons": [
+          "cluster bench: better than beats VRT -- same in-hall power distribution/UPS content plus liquid-cooling via its Boyd Thermal acquisition, with a utility/commercial electrical backlog independent of AI (axis 6) and no revenue-conversion miss; fell 7% Monday on factor, not fundamentals",
+          "entry condition: holds the 09-14 low of $387 through the 09-16 FOMC, or ETN Q3 (date TBD, cache stale) shows data-center orders growth with price realization"
+        ],
+        "blockers": [
+          "SHADOW -- a never-held name on one agent's judgment, with no journal history and no thesis entry. Scored at 7/30d before it can be sized.",
+          "universe bar: no thesis entry for ETN and no no_thesis_acknowledged flag -- smith-thesis must examine it, or the user must acknowledge it has none"
+        ]
+      },
+      "retires_when": "EITHER AI Power/Cooling/DC Infra's ladder drops ETN from its bench OR VRT leaves the bottom of that ladder",
+      "universe_bar": {
+        "passes": false,
+        "failed": [
+          "no_thesis"
+        ],
+        "checks": {
+          "price": 428.205,
+          "price_source": "live_quotes.json",
+          "atr_pct": 3.31,
+          "sources": [
+            "cluster_ladder_bench:unverified",
+            "price_action:computed"
+          ],
+          "thesis": null
+        }
+      }
+    }
+  ],
+  "cluster_consolidation": [
+    {
+      "pair_id": "cluster_consolidation-COHR-LITE",
+      "trigger_type": "cluster_consolidation",
+      "vote": "shadow",
+      "cluster": "AI Networking/Optics",
+      "ladder_as_of": "2026-09-21",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "sell_leg": {
+        "ticker": "COHR",
+        "direction": "SELL",
+        "suggested_size_usd": 655.31,
+        "legacy_size_usd": 655.31,
+        "sell_action": "full_exit",
+        "risk_removed_usd": 74.05,
+        "market_value_usd": 655.31,
+        "reasons": [
+          "same bet as LITE: Same binding component (200G/lane EML into 1.6T sockets), same end customers, same NVDA supply relationship, and they moved together through both legs of the September event -- -9%/-11% on the 09-14 GLW ATM contagion and +3%/+5% on the 09-18 rebound. No return series is cached so this is a business-grounds verdict, not a measured correlation."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "LITE",
+        "direction": "BUY",
+        "suggested_size_usd": 590.51,
+        "clamped_by": "risk freed by the sell leg",
+        "legacy_size_usd": 655.31,
+        "reasons": [
+          "the better expression of the AI Networking/Optics bet LITE and COHR both make"
+        ],
+        "blockers": [
+          "SHADOW -- 'same bet' is a business judgment with no numeric proof available here; the script can only screen for resemblance, never for cause."
+        ],
+        "materiality": {
+          "ok": true,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 0.0
+        }
+      },
+      "rotation_risk": {
+        "r_freed_usd": 74.05,
+        "buy_size_usd": 590.51,
+        "buy_uncapped_usd": 590.51,
+        "bound_by": "r_freed",
+        "buy_risk_usd": 74.05,
+        "heat_delta_usd": 0.0,
+        "buy_size_final_usd": 590.51,
+        "buy_risk_final_usd": 74.05,
+        "heat_delta_final_usd": 0.0
+      },
+      "retires_when": "EITHER AI Networking/Optics's ladder stops calling LITE/COHR redundant OR that ladder goes stale"
+    },
+    {
+      "pair_id": "cluster_consolidation-SKHY-MU",
+      "trigger_type": "cluster_consolidation",
+      "vote": "shadow",
+      "cluster": "AI Memory/Storage",
+      "ladder_as_of": "2026-09-20",
+      "ladder_confidence": "medium",
+      "ladder_authority": "rank",
+      "sell_leg": {
+        "ticker": "SKHY",
+        "direction": "SELL",
+        "suggested_size_usd": 188.51,
+        "legacy_size_usd": 188.51,
+        "sell_action": "full_exit",
+        "risk_removed_usd": 17.19,
+        "market_value_usd": 188.51,
+        "reasons": [
+          "same bet as MU: Both are HBM4-qualified DRAM suppliers to the same customer (NVIDIA Vera Rubin) at the same generation; they share the single decisive axis and will move together on any HBM4 contract print or hyperscaler capex revision."
+        ]
+      },
+      "buy_leg": {
+        "ticker": "MU",
+        "direction": "BUY",
+        "suggested_size_usd": 203.22,
+        "clamped_by": "risk freed by the sell leg",
+        "legacy_size_usd": 188.51,
+        "reasons": [
+          "the better expression of the AI Memory/Storage bet MU and SKHY both make"
+        ],
+        "blockers": [
+          "SHADOW -- 'same bet' is a business judgment with no numeric proof available here; the script can only screen for resemblance, never for cause."
+        ],
+        "materiality": {
+          "ok": false,
+          "floor_usd": 323.92,
+          "binding_term": "pct_of_book",
+          "shortfall_usd": 120.7
+        }
+      },
+      "rotation_risk": {
+        "r_freed_usd": 17.19,
+        "buy_size_usd": 203.22,
+        "buy_uncapped_usd": 203.22,
+        "bound_by": "r_freed",
+        "buy_risk_usd": 17.19,
+        "heat_delta_usd": 0.0,
+        "buy_size_final_usd": 203.22,
+        "buy_risk_final_usd": 17.19,
+        "heat_delta_final_usd": 0.0
+      },
+      "retires_when": "EITHER AI Memory/Storage's ladder stops calling MU/SKHY redundant OR that ladder goes stale"
+    }
+  ],
+  "laggard_rotation": [
+    {
+      "ticker": "AMAT",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 47.2,
+      "rel_strength_1m_pp": -12.16,
+      "abs_return_1m_pct": -8.24,
+      "price_usd": 455.03,
+      "market_value_usd": 1823.84,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 1032.61,
+      "suggested_size_usd": 494.26,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-12.2pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": [],
+      "materiality": {
+        "ok": true,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 0.0
+      }
+    },
+    {
+      "ticker": "CIEN",
+      "cluster": "AI Networking/Optics",
+      "thesis_status": "strengthening",
+      "rsi14": 50.5,
+      "rel_strength_1m_pp": -10.96,
+      "abs_return_1m_pct": -7.04,
+      "price_usd": 364.785,
+      "market_value_usd": 3.11,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 1652.93,
+      "suggested_size_usd": 494.26,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-11.0pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": [],
+      "materiality": {
+        "ok": true,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 0.0
+      }
+    },
+    {
+      "ticker": "WDC",
+      "cluster": "AI Storage/HDD",
+      "thesis_status": "strengthening",
+      "rsi14": 46.0,
+      "rel_strength_1m_pp": -9.63,
+      "abs_return_1m_pct": -5.71,
+      "price_usd": 441.93,
+      "market_value_usd": 1325.79,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 640.94,
+      "suggested_size_usd": 494.26,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-9.6pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": [],
+      "materiality": {
+        "ok": true,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 0.0
+      }
+    },
+    {
+      "ticker": "TER",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "strengthening",
+      "rsi14": 52.5,
+      "rel_strength_1m_pp": -6.88,
+      "abs_return_1m_pct": -2.96,
+      "price_usd": 371.81,
+      "market_value_usd": 1860.07,
+      "trigger_type": "laggard_rotation",
+      "direction": "BUY",
+      "vote": "shadow",
+      "headroom_usd": 303.74,
+      "suggested_size_usd": 303.74,
+      "reasons": [
+        "bottom-quartile 1m relative strength (-6.9pp vs SMH) -- has not run yet",
+        "thesis strengthening",
+        "within ATR risk cap"
+      ],
+      "blockers": [
+        "below materiality: $303.74 vs a $323.92 floor (pct_of_book) -- emitted, not shrunk to the floor and not dropped"
+      ],
+      "materiality": {
+        "ok": false,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 20.18
+      },
+      "materiality_shortfall_usd": 20.18
+    }
+  ],
+  "profit_ratchet": [],
+  "scale_out_ladder": [
+    {
+      "ticker": "BE",
+      "cluster": "AI Power/Cooling/DC Infra",
+      "thesis_status": "strengthening",
+      "rsi14": 58.1,
+      "rel_strength_1m_pp": 28.3,
+      "abs_return_1m_pct": 32.22,
+      "price_usd": 267.755,
+      "market_value_usd": 535.51,
+      "trigger_type": "scale_out_ladder",
+      "direction": "TRIM",
+      "vote": "shadow",
+      "avg_cost_usd": 200.31,
+      "gain_pct": 33.67,
+      "tiers": [
+        {
+          "gain_pct": 25.0,
+          "triggered": true,
+          "slice_usd": 535.51,
+          "legacy_slice_usd": 178.5
+        },
+        {
+          "gain_pct": 50.0,
+          "triggered": false,
+          "slice_usd": 535.51,
+          "legacy_slice_usd": 178.5
+        }
+      ],
+      "suggested_size_usd": 535.51,
+      "legacy_size_usd": 178.5,
+      "severity_r": 0.3333333333333333,
+      "stop_pct": 12.74,
+      "risk_removed_usd": 68.22,
+      "sell_action": "full_exit",
+      "trim_fraction": 1.0,
+      "sizing_note": "33% of the position's $68.22 open risk (12.74% stop) = $178.50; a $178.50 trim would leave $357.01, under the $400 minimum position -- converted to a full exit",
+      "materiality": {
+        "ok": true,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 0.0,
+        "exempt": "full_exit"
+      },
+      "reasons": [
+        "up +33.7% vs basis -- 1 of 2 scale-out rung(s) reached (+25%)"
+      ],
+      "blockers": []
+    },
+    {
+      "ticker": "AMD",
+      "cluster": "AI Semis/Fabs",
+      "thesis_status": "watch",
+      "rsi14": 72.1,
+      "rel_strength_1m_pp": 25.56,
+      "abs_return_1m_pct": 29.48,
+      "price_usd": 607.89,
+      "market_value_usd": 607.89,
+      "trigger_type": "scale_out_ladder",
+      "direction": "TRIM",
+      "vote": "shadow",
+      "avg_cost_usd": 468.48,
+      "gain_pct": 29.76,
+      "tiers": [
+        {
+          "gain_pct": 25.0,
+          "triggered": true,
+          "slice_usd": 202.63,
+          "legacy_slice_usd": 202.63
+        },
+        {
+          "gain_pct": 50.0,
+          "triggered": false,
+          "slice_usd": 202.63,
+          "legacy_slice_usd": 202.63
+        }
+      ],
+      "suggested_size_usd": 202.63,
+      "legacy_size_usd": 202.63,
+      "severity_r": 0.3333333333333333,
+      "stop_pct": 7.42,
+      "risk_removed_usd": 15.04,
+      "sell_action": "trim",
+      "trim_fraction": 0.3333,
+      "sizing_note": "33% of the position's $45.11 open risk (7.42% stop) = $202.63",
+      "materiality": {
+        "ok": false,
+        "floor_usd": 323.92,
+        "binding_term": "pct_of_book",
+        "shortfall_usd": 121.29
+      },
+      "reasons": [
+        "up +29.8% vs basis -- 1 of 2 scale-out rung(s) reached (+25%)"
+      ],
+      "blockers": [
+        "below materiality: $202.63 vs a $323.92 floor (pct_of_book) -- emitted, not shrunk to the floor and not dropped"
+      ],
+      "materiality_shortfall_usd": 121.29
+    }
+  ],
+  "shadow_new": [
+    {
+      "date": "2026-09-21",
+      "ticker": "AMAT",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 455.03,
+      "rsi14": 47.2,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -12.16,
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "CIEN",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 364.785,
+      "rsi14": 50.5,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -10.96,
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "WDC",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 441.93,
+      "rsi14": 46.0,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -9.63,
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "TER",
+      "trigger_type": "laggard_rotation",
+      "price_at_flag": 371.81,
+      "rsi14": 52.5,
+      "gain_pct": null,
+      "rel_strength_1m_pp": -6.88,
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "BE",
+      "trigger_type": "scale_out_ladder",
+      "price_at_flag": 267.755,
+      "rsi14": 58.1,
+      "gain_pct": 33.67,
+      "rel_strength_1m_pp": 28.3,
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "AMD",
+      "trigger_type": "scale_out_ladder",
+      "price_at_flag": 607.89,
+      "rsi14": 72.1,
+      "gain_pct": 29.76,
+      "rel_strength_1m_pp": 25.56,
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "LRCX",
+      "trigger_type": "cluster_bench_rotation",
+      "price_at_flag": 292.11,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "pair_id": "cluster_bench_rotation-ASML-LRCX",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "CRDO",
+      "trigger_type": "cluster_bench_rotation",
+      "price_at_flag": 175.89,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "pair_id": "cluster_bench_rotation-GLW-CRDO",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "META",
+      "trigger_type": "cluster_bench_rotation",
+      "price_at_flag": 665.6,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "pair_id": "cluster_bench_rotation-NBIS-META",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "ETN",
+      "trigger_type": "cluster_bench_rotation",
+      "price_at_flag": 393.16,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "pair_id": "cluster_bench_rotation-VRT-ETN",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "LITE",
+      "trigger_type": "cluster_consolidation",
+      "price_at_flag": 979.605,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "pair_id": "cluster_consolidation-COHR-LITE",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "MU",
+      "trigger_type": "cluster_consolidation",
+      "price_at_flag": 1047.745,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "pair_id": "cluster_consolidation-SKHY-MU",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "LRCX",
+      "trigger_type": "reentry",
+      "direction_bucket": "BUY",
+      "price_at_flag": 292.11,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "shadow_reason": "no_analyst_target",
+      "refused_because": "no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "NVDA",
+      "trigger_type": "reentry",
+      "direction_bucket": "BUY",
+      "price_at_flag": 224.34,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "shadow_reason": "no_analyst_target",
+      "refused_because": "no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "APH",
+      "trigger_type": "profit_rotation",
+      "direction_bucket": "BUY",
+      "price_at_flag": 79.405,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "shadow_reason": "rotation_edge_below_bar",
+      "refused_because": "rotation edge +0.13R (buy EV 0.96R minus holding 0.82R) below the 0.25R bar",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "TSM",
+      "trigger_type": "cluster_rotation",
+      "direction_bucket": "BUY",
+      "price_at_flag": 438.24,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "shadow_reason": "rotation_edge_below_bar",
+      "refused_because": "rotation edge +0.12R (buy EV 0.92R minus holding 0.80R) below the 0.25R bar",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "LITE",
+      "trigger_type": "cluster_rotation",
+      "direction_bucket": "BUY",
+      "price_at_flag": 979.605,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "shadow_reason": "ev_below_bar",
+      "refused_because": "EV -0.04R below the 0.15R bar (p_win 0.41, payoff 1.4R, fee 0.02R)",
+      "scored": false
+    },
+    {
+      "date": "2026-09-21",
+      "ticker": "BE",
+      "trigger_type": "cluster_rotation",
+      "direction_bucket": "BUY",
+      "price_at_flag": 267.755,
+      "rsi14": null,
+      "gain_pct": null,
+      "rel_strength_1m_pp": null,
+      "shadow_reason": "ev_below_bar",
+      "refused_because": "EV -0.47R below the 0.15R bar (p_win 0.41, payoff 0.4R, fee 0.02R)",
+      "scored": false
+    }
+  ],
+  "rsi_values": {
+    "NVDA": 55.9,
+    "MU": 61.6,
+    "DRAM": 53.9,
+    "MRVL": 60.3,
+    "AMAT": 47.2,
+    "AMZN": 48.9,
+    "ARM": 43.7,
+    "ASML": 49.0,
+    "AVGO": 45.1,
+    "BABA": 48.7,
+    "BX": 59.6,
+    "CEG": 63.5,
+    "CIEN": 50.5,
+    "CLS": 57.4,
+    "FLTW": 63.9,
+    "GEV": 50.9,
+    "INTC": 36.5,
+    "LRCX": 47.3,
+    "META": 74.2,
+    "MSFT": 53.9,
+    "NBIS": 52.9,
+    "NOW": 55.2,
+    "ORCL": 49.8,
+    "QCOM": 58.2,
+    "SNDK": 61.2,
+    "TER": 52.5,
+    "TSM": 58.6,
+    "STM": 49.1,
+    "TXN": 42.4,
+    "AMD": 72.1,
+    "COHR": 58.4,
+    "IREN": 59.9,
+    "GOOG": 57.2,
+    "BE": 58.1,
+    "SKHY": 59.7,
+    "SMCI": 52.8,
+    "AMKR": 51.0,
+    "GLW": 51.2,
+    "LITE": 57.8,
+    "KLAC": 49.2,
+    "WDC": 46.0,
+    "VRT": 45.0,
+    "ALAB": 58.0,
+    "APH": 48.8,
+    "FSLR": 35.3,
+    "REMX": 39.5,
+    "SMH": 58.0,
+    "XLF": 36.3,
+    "XLK": 62.3,
+    "XLU": 28.6,
+    "AEP": 33.3,
+    "AIA": 61.7,
+    "ANET": 58.6,
+    "BLK": 42.1,
+    "CRDO": 47.8,
+    "CRWV": 47.1,
+    "DDOG": 52.8,
+    "DELL": 62.1,
+    "DUK": 34.6,
+    "ETN": 56.0,
+    "GOOGL": 57.7,
+    "IONQ": 51.2,
+    "JNJ": 58.6,
+    "LLY": 49.5,
+    "MKSI": 44.0,
+    "NEM": 50.8,
+    "PG": 50.4,
+    "PWR": 49.4,
+    "QBTS": 48.8,
+    "RGTI": 52.6,
+    "SO": 30.3,
+    "SPGI": 39.7,
+    "STX": 54.7,
+    "UNH": 35.7,
+    "VST": 44.3,
+    "XOM": 47.0,
+    "FN": 44.3
+  },
+  "abs_return_1m_pct_values": {
+    "NVDA": 3.46,
+    "MU": 7.57,
+    "DRAM": -7.27,
+    "MRVL": -0.19,
+    "AMAT": -8.24,
+    "AMZN": -2.13,
+    "ARM": -7.63,
+    "ASML": -3.78,
+    "AVGO": -2.0,
+    "BABA": -12.96,
+    "BX": 16.54,
+    "CEG": 7.71,
+    "CIEN": -7.04,
+    "CLS": 14.09,
+    "FLTW": 6.25,
+    "GEV": -1.23,
+    "INTC": -4.27,
+    "LRCX": -5.96,
+    "META": 30.28,
+    "MSFT": 2.91,
+    "NBIS": 2.62,
+    "NOW": 6.34,
+    "ORCL": 4.02,
+    "QCOM": 13.67,
+    "SNDK": 11.76,
+    "TER": -2.96,
+    "TSM": 5.36,
+    "STM": 2.28,
+    "TXN": -4.15,
+    "AMD": 29.48,
+    "COHR": 12.92,
+    "ALAB": 12.36,
+    "APH": 3.72,
+    "FSLR": -13.66,
+    "BE": 32.22,
+    "GLW": 2.74,
+    "GOOG": 3.22,
+    "KLAC": -2.66,
+    "LITE": 11.44,
+    "REMX": -7.35,
+    "SMCI": -4.06,
+    "SMH": 3.92,
+    "VRT": -5.93,
+    "WDC": -5.71,
+    "XLF": -2.05,
+    "XLK": 5.07,
+    "XLU": -7.08,
+    "SKHY": 15.69,
+    "AEP": -4.88,
+    "AIA": 4.8,
+    "AMKR": 0.71,
+    "ANET": 10.72,
+    "BLK": -6.26,
+    "CRDO": -19.38,
+    "CRWV": -6.53,
+    "DDOG": 1.74,
+    "DELL": 31.18,
+    "DUK": -4.33,
+    "ETN": 3.11,
+    "GOOGL": 3.7,
+    "IONQ": -3.43,
+    "IREN": 10.61,
+    "JNJ": 2.07,
+    "LLY": -6.77,
+    "MKSI": -10.16,
+    "NEM": -3.82,
+    "PG": 2.04,
+    "PWR": -4.71,
+    "QBTS": -6.65,
+    "RGTI": 1.11,
+    "SO": -6.36,
+    "SPGI": -6.39,
+    "STX": 2.8,
+    "UNH": -2.56,
+    "VST": 0.85,
+    "XOM": -3.75,
+    "FN": -9.18
+  },
+  "data_quality": [
+    "NETTED per ticker (shadowed, recorded, scored): trend_entry TSM: duplicate buy into TSM: the cluster_rotation ticket already carries it; trend_entry LITE: duplicate buy into LITE: the cluster_rotation ticket already carries it; conviction_average APH: duplicate buy into APH: the profit_rotation ticket already carries it",
+    "EDGE GATE refused (emitted as shadow, recorded, scored): reentry LRCX: no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated; reentry NVDA: no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated; profit_rotation APH: rotation edge +0.13R (buy EV 0.96R minus holding 0.82R) below the 0.25R bar; cluster_rotation TSM: rotation edge +0.12R (buy EV 0.92R minus holding 0.80R) below the 0.25R bar; cluster_rotation LITE: EV -0.04R below the 0.15R bar (p_win 0.41, payoff 1.4R, fee 0.02R); cluster_rotation BE: EV -0.47R below the 0.15R bar (p_win 0.41, payoff 0.4R, fee 0.02R)",
+    "edge gate: every family/direction verdict is UNPROVEN (n_eff < 12; the legacy engine's record before ENGINE_EPOCH 2026-09-21 is excluded) -- multiplier 1.00, p_win is the UNCALIBRATED 0.45 prior shrunk only by conviction.",
+    "below_materiality (emitted, not proposed -- too small to act on): overbought_distribution AMD short $172; catalyst_threat LITE short $128; catalyst_threat COHR short $193; catalyst_threat SKHY short $324; conviction_average CIEN short $53; profit_rotation profit_rotation-AMD-MRVL short $195; profit_rotation profit_rotation-SKHY-KLAC short $324. Many of these are stubs: a book that generates tickets this small needs consolidating.",
+    "risk-sized sell legs, legacy -> new (family ticker: legacy$ -> new$ [action]; risk removed): overbought_distribution AMD: 151.97 -> 151.97 [trim] risk $11.28; catalyst_threat MU: 419.17 -> 419.17 [trim] risk $35.46; catalyst_threat LITE: 195.92 -> 195.92 [trim] risk $24.57; catalyst_threat COHR: 131.06 -> 131.06 [trim] risk $14.81; catalyst_threat GLW: 93.44 -> 467.19 [full_exit] risk $45.13; catalyst_threat SKHY: 37.7 -> 0.0 [hold] risk $0.0; scale_out_ladder AMD: 202.63 -> 202.63 [trim] risk $15.04; scale_out_ladder BE: 178.5 -> 535.51 [full_exit] risk $68.22; profit_rotation MU: 628.76 -> 628.76 [trim] risk $53.19; profit_rotation AMD: 182.37 -> 182.37 [trim] risk $13.53; profit_rotation SKHY: 56.55 -> 0.0 [hold] risk $0.0; cluster_rotation ASML: 884.23 -> 884.23 [trim] risk $50.75; cluster_rotation NBIS: 406.42 -> 406.42 [trim] risk $50.56; cluster_rotation GLW: 140.16 -> 467.19 [full_exit] risk $45.13; cluster_rotation VRT: 448.09 -> 448.09 [trim] risk $48.66; cluster_bench_rotation ASML: 884.23 -> 884.23 [trim] risk $50.75; cluster_bench_rotation GLW: 140.16 -> 467.19 [full_exit] risk $45.13; cluster_bench_rotation NBIS: 406.42 -> 406.42 [trim] risk $50.56; cluster_bench_rotation VRT: 448.09 -> 448.09 [trim] risk $48.66",
+    "reentry: 12 alumni could not be JUDGED at all -- no state.thesis entry exists for them (AAPL, CORZ, CRWV, EWT, FCG, FLNG, LLY, P, PENG, PLTR...). state.thesis is seeded from CURRENT holdings, so an exited name is absent by construction and fails the conviction gate for lack of evidence, not on the evidence. These are not rejected candidates; they are unexamined ones.",
+    "reentry: 31 alumni judged and rejected on a real thesis/conviction read (AIA, AMKR, ANET, ARM, AVGO, BABA, BX, CEG, CQQQ, CRDO)."
+  ]
+}
