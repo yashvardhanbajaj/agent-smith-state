@@ -2816,7 +2816,8 @@ def _size_support_anchored(spec, base_dir):
     # adds risk to an overdrawn budget must say so on its face -- this is the difference
     # between "buy the bounce" and "buy the bounce with money you have already spent".
     if risk.get("aggregate_over_cap"):
-        over = (risk.get("aggregate_open_risk_usd", 0)
+        over = ((risk.get("aggregate_open_risk_gap_usd") if risk.get("aggregate_open_risk_gap_usd") is not None
+                 else risk.get("aggregate_open_risk_usd", 0))
                 - risk.get("aggregate_open_risk_cap_pct", 10) / 100 * (total_book or 0))
         added = (fields.get("size_usd") or size or 0) * res["stop_distance_pct"] / 100
         fields.setdefault("review_flags", []).append(

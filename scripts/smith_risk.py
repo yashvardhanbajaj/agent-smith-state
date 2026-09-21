@@ -153,6 +153,21 @@ def learned_stop_multiple_for(atr_pct, learning_store):
     return float(cur)
 
 
+def gap_multiplier(days_to_earnings, cfg):
+    """Gap allowance on a position's open risk (2026-09-21). A stop is not a guaranteed fill: measured
+    over the trailing year a stop-breach day cost ~1.12x the planned distance on average (p90 1.40x,
+    p95 1.55x), and 44% of breaches closed beyond the stop. `cfg` = stop_loss_framework.gap_allowance:
+    {base, event, event_window_sessions}. Returns (multiplier, reason). No cfg -> (1.0, None)."""
+    if not isinstance(cfg, dict) or cfg.get("base") is None:
+        return 1.0, None
+    base = float(cfg["base"])
+    ev = float(cfg.get("event", base))
+    win = cfg.get("event_window_sessions", 5)
+    if days_to_earnings is not None and 0 <= days_to_earnings <= win * 7 / 5:
+        return max(base, ev), f"earnings in {days_to_earnings}d"
+    return base, None
+
+
 def stop_and_cap(atr_pct, price_usd, qty, total_book_usd, policy, learned_multiple=None):
     """
     Implements policy.json's stop_loss_framework:

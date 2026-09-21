@@ -841,6 +841,10 @@ def validate_risk_envelope(policy):
     if sl:
         if budget is not None and sl.get("max_loss_pct_of_book", 0) > budget:
             out.append("stress_limit.max_loss_pct_of_book exceeds the risk budget")
+    ga = (policy.get("stop_loss_framework") or {}).get("gap_allowance")
+    if ga:
+        if ga.get("base", 1) < 1 or ga.get("event", ga.get("base", 1)) < ga.get("base", 1):
+            out.append("gap_allowance: base must be >= 1 and event >= base")
     tpc = policy.get("target_position_count")
     if tpc and (len(tpc) != 2 or tpc[0] > tpc[1]):
         out.append("target_position_count must be [min, max]")

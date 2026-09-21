@@ -47,3 +47,18 @@ def test_objective_check_needs_history_then_flags(monkeypatch):
     assert r["status"] == "review_flag" and "never a trade" in r["action"]
     monkeypatch.setattr(P, "chain", lambda s, b, bench=None: {"twr_pct": 5.0, "benchmark_pct": 8.0, "excess_pp": -3.0})
     assert P.objective_check(_series(120, 0.0), {}, "SMH", pol, "2026-06-01", 10000)["status"] == "within_tolerance"
+
+
+def test_gap_multiplier_tiers_and_off_switch():
+    import smith_risk as R
+    cfg = {"base": 1.15, "event": 1.5, "event_window_sessions": 5}
+    assert R.gap_multiplier(None, None) == (1.0, None)
+    assert R.gap_multiplier(30, cfg) == (1.15, None)
+    assert R.gap_multiplier(None, cfg) == (1.15, None)
+    assert R.gap_multiplier(3, cfg)[0] == 1.5 and R.gap_multiplier(7, cfg)[0] == 1.5
+    assert R.gap_multiplier(8, cfg)[0] == 1.15 and R.gap_multiplier(-1, cfg)[0] == 1.15
+
+
+def test_gap_allowance_validation():
+    bad = copy.deepcopy(BASE); bad["stop_loss_framework"]["gap_allowance"] = {"base": 1.3, "event": 1.1}
+    assert any("gap_allowance" in x for x in M.validate_risk_envelope(bad))

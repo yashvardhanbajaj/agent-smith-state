@@ -722,7 +722,8 @@ def build_payload(base, built_at=None):
         "cash_reason": clip(drift.get("cash_regime_reason"), 420),
         "dd_pct": num(book.get("drawdown_pct")),
         "dd_peak": num(book.get("peak_total_book_usd")),
-        "risk_pct": num(risk.get("aggregate_open_risk_pct")),
+        "risk_pct": num(risk.get("aggregate_open_risk_gap_pct") if risk.get("aggregate_open_risk_gap_pct") is not None
+                        else risk.get("aggregate_open_risk_pct")),
         "risk_cap": num(risk.get("aggregate_open_risk_cap_pct")),
         "ai_capex": num(drift.get("ai_capex_pct")),
         "ai_cap": num(drift.get("ai_capex_cap_pct")),

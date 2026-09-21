@@ -749,6 +749,8 @@ def cmd_risk(args):
     missing_atr, missing_beta = [], []
     rows = []
     agg_open_risk_usd = 0.0
+    agg_gap_usd = 0.0
+    _gap_cfg = (policy.get("stop_loss_framework") or {}).get("gap_allowance")
     for p in book.get("positions", []):
         ticker = p["ticker"]
         atr_pct = atr_cache.get(ticker)
@@ -764,13 +766,29 @@ def cmd_risk(args):
         r["ticker"] = ticker
         r["cluster"] = sector_map.get(ticker, "Unclassified")
         r["beta"] = beta
+        _ed = ((state.get("data_cache", {}).get("earnings_calendar", {}) or {}).get(ticker) or {}).get("date")
+        _dte = None
+        if _ed:
+            try:
+                _dte = (date.fromisoformat(_ed) - resolve_today(getattr(args, "today", None))).days
+            except ValueError:
+                _dte = None
+        _g, _why = smith_risk.gap_multiplier(_dte, _gap_cfg)
+        r["gap_multiplier"], r["gap_reason"] = _g, _why
+        r["position_open_risk_gap_usd"] = (round(r["position_open_risk_usd"] * _g, 2)
+                                           if r["position_open_risk_usd"] else r["position_open_risk_usd"])
         rows.append(r)
         if r["position_open_risk_usd"]:
             agg_open_risk_usd += r["position_open_risk_usd"]
+            agg_gap_usd += r["position_open_risk_usd"] * _g
 
     agg_cap_pct = (policy.get("stop_loss_framework", {}) or {}).get("aggregate_open_risk_cap_pct_of_book",
                    policy.get("aggregate_open_risk_cap_pct_of_book"))
     agg_open_risk_pct = round(agg_open_risk_usd / total_book_usd * 100, 3) if total_book_usd else None
+    # GAP-ADJUSTED aggregate (2026-09-21): the number the cap and the heat budget are tested against.
+    # The raw all-fire sum stays in aggregate_open_risk_usd/pct (smith_correlation reads it as such).
+    agg_gap_pct = round(agg_gap_usd / total_book_usd * 100, 3) if total_book_usd else None
+    _test_pct = agg_gap_pct if _gap_cfg else agg_open_risk_pct
 
     data_quality = []
     if missing_atr:
@@ -785,8 +803,11 @@ def cmd_risk(args):
         "aggregate_open_risk_usd": round(agg_open_risk_usd, 2),
         "aggregate_open_risk_pct": agg_open_risk_pct,
         "aggregate_open_risk_cap_pct": agg_cap_pct,
-        "aggregate_over_cap": bool(agg_cap_pct is not None and agg_open_risk_pct is not None
-                                    and agg_open_risk_pct > agg_cap_pct),
+        "aggregate_open_risk_gap_usd": round(agg_gap_usd, 2) if _gap_cfg else None,
+        "aggregate_open_risk_gap_pct": agg_gap_pct if _gap_cfg else None,
+        "gap_allowance": _gap_cfg,
+        "aggregate_over_cap": bool(agg_cap_pct is not None and _test_pct is not None
+                                    and _test_pct > agg_cap_pct),
         "missing_atr": missing_atr, "missing_beta": missing_beta,
         "data_quality": data_quality,
     })
@@ -4561,7 +4582,10 @@ def _apply_heat_budget(fams, pair_fams, sell_fams, risk, drift, policy, corr, to
     hp = smith_ticket.heat_policy(policy.get("heat_budget"))
     total_book = risk.get("total_book_usd") or sizing["total_book_usd"]
     corr_read = smith_ticket.correlation_read(corr, today)
-    budget = smith_ticket.heat_budget(risk.get("aggregate_open_risk_usd"), total_book, cap_pct,
+    _h = risk.get("aggregate_open_risk_gap_usd")
+    if _h is None:
+        _h = risk.get("aggregate_open_risk_usd")
+    budget = smith_ticket.heat_budget(_h, total_book, cap_pct,
                                       corr_read, hp["heat_floor"])
     if not hp["confirmed"]:
         dq.append("policy.heat_budget is UNCONFIRMED (confirmed:false) -- the engine uses a %.0f%% floor "
@@ -6162,7 +6186,7 @@ def main():
         sp.add_argument("--run-dir", required=True, help="this run's directory containing holdings.json")
         if name == "book":
             sp.add_argument("--lots", default=None)
-        if name in ("journal", "derisk", "triggers", "buckets", "ladder"):
+        if name in ("journal", "derisk", "triggers", "buckets", "ladder", "risk"):
             sp.add_argument("--today", default=None)
         if name == "journal":
             sp.add_argument("--prices-json", default=None,

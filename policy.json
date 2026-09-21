@@ -232,6 +232,14 @@
       "aggregate_cap_still_binds": "aggregate_open_risk_cap_pct_of_book applies unchanged. As of 2026-08-30 it is BREACHED (13.2% vs 10%), so a rebound entry must be FUNDED by reducing risk elsewhere -- typically the buy leg of a paired rotation -- not added on top. The sizing path stamps the funding shortfall on the proposal.",
       "max_single_position_pct_still_binds": true,
       "rationale": "Added 2026-08-30 on explicit user instruction, after modelling showed the standard rule structurally penalises exactly the names a rebound mandate wants. Constant-dollar-risk sizing makes max_position inversely proportional to ATR, so a 14%-ATR name gets ~1/7th the allowance of a 1.9%-ATR name and is flagged over-cap 38% of the time against 11% for low-vol names. That is correct for an entry with no view on where the name holds, and wrong for one bought AT a level. smith-rebound already computes support_usd; this makes the sizing consume it."
+    },
+    "gap_allowance": {
+      "base": 1.15,
+      "event": 1.5,
+      "event_window_sessions": 5,
+      "confirmed_by_user": "2026-09-21",
+      "rule": "Each position's open risk is multiplied by base (event when earnings fall inside event_window_sessions) before it is summed against aggregate_open_risk_cap_pct_of_book and the heat budget. Per-position sizing (0.5% of book) is unchanged.",
+      "rationale": "Stops are not guaranteed fills. Replaying 12 months of prices against the book's own stop distances: a stop-breach day cost ~1.12x the planned distance on average (p90 1.40x, p95 1.55x), 44% of breaches closed beyond the stop, and 19 days had 5+ names breach together. base 1.15 rounds up the mean; event 1.5 is ~p95. Proxy (no opening prices in perf_bars): replace with measured slippage once >= 10 real stop fills exist."
     }
   },
   "monthly_contribution_usd": 1000,
@@ -457,9 +465,9 @@
       ]
     },
     "rule": "Owner layer changes need the user's confirmation (hash recorded by confirm-policy). Desk layer is tuned by the desk with a rationale and disclosure.",
-    "owner_layer_hash": "e268e7fa806a73f4",
+    "owner_layer_hash": "a36db1ec708dcf8a",
     "confirmed_on": "2026-09-21",
     "confirmed_by": "user",
-    "note": "User decisions 2026-09-21 in chat (policy review)"
+    "note": "gap allowance approved by user 2026-09-21"
   }
 }
