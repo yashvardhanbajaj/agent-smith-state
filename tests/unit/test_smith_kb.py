@@ -220,3 +220,13 @@ def test_dashboard_payload_shape_and_one_live_verdict_per_slot(tmp_path):
     assert [x["value"] for x in p["entities"][0]["timelines"]["thesis"]] == ["watch", "intact"]
     live = [o for o in kb.values() if o["kind"] == "verdict" and o["status"] == "live"]
     assert len(live) == 1
+
+
+def test_a_close_slot_that_closes_nothing_is_not_recorded(tmp_path):
+    b = str(tmp_path)
+    o = mk(b, [K.T("APH")], "fact", "evidence claim number one", topic="thesis_evidence", as_of="2026-09-21", run="r")
+    close = K.close_slot_event("thesis_evidence", K.T("APH"), (), "2026-09-21", keep_ids=[o["id"]])
+    K.add_observations(b, [o, close])
+    n1 = len(K.read_events(b))
+    K.add_observations(b, [o, close], reinforce=False)                     # postflight re-run: nothing new, nothing closed
+    assert len(K.read_events(b)) == n1

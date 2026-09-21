@@ -231,11 +231,14 @@ def _close_slot(kb, e):
     """A complete snapshot (e.g. a full cluster ladder) that no longer lists an entity closes that entity's live
     entries in the slot: every live obs on `topic` mentioning `entity` but NONE of `keep` is superseded."""
     keep, keep_ids = set(e.get("keep") or []), set(e.get("keep_ids") or [])
+    closed = 0
     for o in kb.values():
         if (o["status"] == "live" and o.get("topic") == e.get("topic") and e.get("entity") in o["entities"]
                 and not (keep & set(o["entities"])) and o["id"] not in keep_ids
                 and str(o["as_of"]) <= str(e.get("on") or "9999")):
             o["status"], o["superseded_by"], o["superseded_on"] = "superseded", f"omitted:{e.get('topic')}", e.get("on")
+            closed += 1
+    return closed
 
 
 def close_slot_event(topic, entity, keep_entities, on, keep_ids=()):
@@ -280,8 +283,8 @@ def add_observations(base, observations, kb=None, reinforce=True):
     out, added, reinforced = [], 0, 0
     for ev in observations:
         if ev.get("op") == "close_slot":
-            out.append(ev)
-            _apply(kb, [ev])
+            if _close_slot(kb, ev):            # record a close only when it closed something: a no-op would just
+                out.append(ev)                 # grow the log by one line per thesis on every postflight re-run
             continue
         if not reinforce and ev["id"] in kb and not (ev["kind"] == "verdict" and ev.get("topic")
                                                       and kb[ev["id"]]["status"] == "superseded"):
