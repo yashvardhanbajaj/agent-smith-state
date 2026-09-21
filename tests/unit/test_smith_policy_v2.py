@@ -62,3 +62,10 @@ def test_gap_multiplier_tiers_and_off_switch():
 def test_gap_allowance_validation():
     bad = copy.deepcopy(BASE); bad["stop_loss_framework"]["gap_allowance"] = {"base": 1.3, "event": 1.1}
     assert any("gap_allowance" in x for x in M.validate_risk_envelope(bad))
+
+
+def test_accepted_card_retires_only_with_explicit_flag():
+    import smith_lifecycle as L
+    props = [{"id": "P-1", "status": "accepted_by_user"}]
+    assert L.dismiss_proposal_core(props, "P-1", "r") is None and props[0]["status"] == "accepted_by_user"
+    assert L.dismiss_proposal_core(props, "P-1", "r", actor="user", allow_accepted=True)["status"] == "dismissed_by_user"

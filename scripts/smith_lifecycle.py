@@ -2694,7 +2694,7 @@ def cmd_stops(args):
     emit({"written": out_path, "scored_count": len(scored), "overall": overall, "by_cohort": by_cohort,
           "reentry_summary": reentry_summary})
 
-def dismiss_proposal_core(props, proposal_id, reason, actor="user"):
+def dismiss_proposal_core(props, proposal_id, reason, actor="user", allow_accepted=False):
     """The actual dismiss mutation, extracted (2026-08-25, interactive dashboard feature) so
     cmd_dismiss (a chat-driven 'dismiss P-014') and sync-decisions' Reject button (a
     dashboard-driven click) share exactly one implementation of 'what dismissing means' rather
@@ -2702,7 +2702,10 @@ def dismiss_proposal_core(props, proposal_id, reason, actor="user"):
     if `proposal_id` doesn't exist or isn't open. Caller owns loading/writing proposals.json."""
     for pr in props:
         if pr.get("id") == proposal_id:
-            if canonical_status(pr) != "open":
+            _st = canonical_status(pr)
+            # An ACCEPTED card is retirable only on the user's explicit say-so (allow_accepted): an
+            # acceptance means "I agreed then", so withdrawing it is the user's call, never the desk's.
+            if _st != "open" and not (allow_accepted and _st == "accepted_by_user"):
                 return None
             # WHO dismissed this is now STRUCTURAL, not prose. `actor` has existed since this
             # function was extracted, but it only ever reached the free-text `note` -- the
@@ -2734,7 +2737,9 @@ def cmd_dismiss(args):
     proposals = load_json(p_path, default={"proposals": [], "scorecard": {}})
     props = proposals.get("proposals", [])
     pr = dismiss_proposal_core(props, args.id, args.reason,
-                               actor=getattr(args, "by", "user"))
+                               actor=getattr(args, "by", "user"),
+                               allow_accepted=bool(getattr(args, "accepted_ok", False)) and
+                               str(getattr(args, "by", "user")) == "user")
     if pr is None:
         # distinguish "no such id" from "exists but not open" for a clearer error
         match = next((p for p in props if p.get("id") == args.id), None)

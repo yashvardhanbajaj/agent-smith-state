@@ -6283,6 +6283,8 @@ def main():
     sp.add_argument("--base-dir", default=DEFAULT_BASE)
     sp.add_argument("--id", required=True, help="stable proposal id, e.g. P-014")
     sp.add_argument("--reason", default=None, help="optional free-text note on why it was dismissed")
+    sp.add_argument("--accepted-ok", action="store_true",
+                    help="also retire an ACCEPTED card (user-directed only; ignored for --by desk)")
     sp.add_argument("--by", choices=("user", "desk"), default="user",
                     help="who dismissed it. 'user' (default) is a revealed preference, excluded "
                          "from the scorecard as a user override. 'desk' means the orchestrator "
