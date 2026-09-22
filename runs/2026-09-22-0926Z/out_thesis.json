@@ -1,0 +1,102 @@
+{
+ "thesis": {
+  "changed": {
+   "STM": {
+    "status": "watch",
+    "thesis": "Analog/industrial semis; WATCH stands on Q3 guide_below_consensus. Position increased +5sh to 20sh (2.74% of equity, src: holdings_trim, as_of 2026-09-21) -- a sizing decision, not new thesis evidence; no fresh company-specific catalyst found this run beyond the known Q2 print.",
+    "evidence_for": [
+     {"claim": "Q2 2026 revenue $3.49B beat $3.47B; EPS $0.31 beat $0.27", "date": "2026-07-23", "source": "stockanalysis.com/stocks/STM"},
+     {"claim": "long-standing PEER LAGGARD (opened 08-13) resolved, rel_sigma now -0.9, no longer crosses -1.0", "date": "2026-09-14", "source": "smith-signals 2026-09-14"},
+     {"claim": "Q2 2026 print calls out an AWS-partnership-linked datacenter revenue line, not previously captured in this thesis", "date": "2026-09-22", "source": "smith-catalyst news scan (Yahoo Finance STM news)"}
+    ],
+    "evidence_against": [
+     {"claim": "Q3 guide $3.7B is guide_below_consensus vs Street $3.78B; stock -15-17% post-print", "date": "2026-07-23", "source": "stockanalysis.com/stocks/STM"},
+     {"claim": "Position increased +5sh to 20sh (2.74%) this window with no fresh company-specific catalyst found -- same add-ahead-of-thesis-resolution pattern already flagged on AMZN/AMD/NBIS", "date": "2026-09-21", "source": "holdings_trim.dc0fc258.json + smith-catalyst data_quality"}
+    ],
+    "verified": "primary",
+    "verified_against": "stockanalysis.com/stocks/STM",
+    "verified_on": "2026-08-12",
+    "note": "Status unchanged (WATCH); no precedent check run since no status moved. Size increase noted as sizing, not fundamentals.",
+    "reviewed_on": "2026-09-22"
+   },
+   "LLY": {
+    "status": "intact",
+    "thesis": "First thesis read (new position, 0.5sh, 1.54% of equity, src: holdings_trim, as_of 2026-09-21). Non-AI-capex pharma diversifier: GLP-1 obesity/diabetes franchise (Mounjaro, Zepbound) driving reported Q2 2026 revenue +48% YoY and a raised FY26 revenue guide to $85-87B (src: INDmoney news, as_of 2026-09-09/08-31); the desk's only true non-AI-capex holding.",
+    "evidence_for": [
+     {"claim": "Q2 2026 revenue +48% YoY; FY26 guidance raised to $85-87B on Mounjaro/Zepbound demand", "date": "2026-09-09", "source": "INDmoney get_us_stocks_details news"},
+     {"claim": "Analyst consensus 90.5% Buy (n=21), mean target $1,325.39 vs $1,164.89 close, +12.1% upside", "date": "2026-09-22", "source": "INDmoney get_us_stocks_details analyst_forecast"},
+     {"claim": "Multiple FDA approvals/pipeline advances in the two weeks before purchase (Mounjaro cardiovascular-risk label expansion 08-28, Alzheimer's blood test 08-26, oncology/genetic-medicine partnerships 09-18); $6.5bn Houston manufacturing expansion announced 09-21", "date": "2026-09-21", "source": "INDmoney get_us_stocks_details news"}
+    ],
+    "evidence_against": [
+     {"claim": "GLP-1 competitive intensity and pricing pressure repeatedly cited Aug-Sep; stock pulled back from record highs multiple times on rival-trial/market-wide news", "date": "2026-09-07", "source": "INDmoney get_us_stocks_details news"},
+     {"claim": "Valuation is rich (PE ~38.5x); no independent quality/valuation check run this cycle", "date": "2026-09-22", "source": "INDmoney get_us_stocks_details"},
+     {"claim": "One day of history on this book -- no track record yet that the news flow translates into thesis durability; next earnings 2026-10-29 is the first real test as a holding", "date": "2026-09-22", "source": "stockanalysis.com/stocks/LLY"}
+    ],
+    "verified": "secondary",
+    "verified_against": "INDmoney get_us_stocks_details (news+analyst) + stockanalysis.com/stocks/LLY",
+    "verified_on": "2026-09-22",
+    "note": "First read on a brand-new position (bought 2026-09-21, non-AI-capex pharma). Set INTACT rather than STRENGTHENING -- one day of news flow does not establish a strengthening trend yet; re-examine after the 2026-10-29 print. Not treated as a 'status change' so no precedent search run. peer_map corrected to XLV by smith-signals this run (was defaulting to SMH).",
+    "reviewed_on": "2026-09-22"
+   }
+  },
+  "unchanged_count": 25,
+  "reviewed_unchanged": ["AMD", "COHR", "GLW", "LITE", "MU", "SKHY"]
+ },
+ "sector_map": {
+  "changed": {"LLY": "Pharma/GLP-1"},
+  "unchanged_count": 27
+ },
+ "etf_constituents_updates": {},
+ "ai_capex_pct": 93.5,
+ "factor_flags": [
+  "AI-capex chain (AI Semis/Fabs 34.78 + Compute/Hyperscaler 16.67 + AI Networking/Optics 16.29 + AI Power/Cooling/DC Infra 11.81 + AI Memory/Storage 6.91 + Compute/Hyperscaler OEM 3.55 + AI Storage/HDD 3.49) = 93.5% of invested equity. A datacenter-capex pause hits ~19 of every 20 dollars in this book at once.",
+  "Only genuinely uncorrelated slice: LLY (1.54%, GLP-1 pharma, XLV-benchmarked). STM (2.74%, analog/industrial) and NOW (2.22%, enterprise SaaS) add diversification but remain semis-cyclical/tech-cyclical, not true hedges.",
+  "SMH co-movement is dispersed intraday, not synchronized: AMD rel_sigma +2.93 vs ASML -1.23 and AMAT -1.42 on the same day (smith-signals vol_normalization) -- shared tailwind, different day-to-day beta."
+ ],
+ "thesis_tensions": [
+  {
+   "metric": "HBM3E/HBM4 contract quote (single-point, MU)",
+   "current_value": 12.4,
+   "basis": "contract_quote",
+   "trend_within_basis_pct": null,
+   "verdict_conflict": "Thesis WATCH (CXMT structural share risk) vs. HBM3E $12.4/GB and HBM4 $16.0/GB (both 2026-09-20) each being single points in their basis with cross_basis_change_is_meaningless=true -- no ASP trend to conflict with the WATCH.",
+   "direction": "no_action",
+   "reconciliation": "(c) no trend / structural-not-price: WATCH rests on CXMT qualification-sample progress and HBM4 allocation thinness, not ASP direction. HBM3 stack-derived flat 0.0% (07-19 to 09-15) is a different generation than MU-relevant HBM3E and is not used as evidence for it (see memory lesson 244927e98899). Next hard datapoint: FQ4 print 2026-10-01.",
+   "corrections_checked": ["C1", "C2"]
+  },
+  {
+   "metric": "HBM4 premium over HBM3E, contract quote (SKHY leads allocation)",
+   "current_value": 29,
+   "basis": "contract_quote",
+   "trend_within_basis_pct": null,
+   "verdict_conflict": "Thesis WATCH (Samsung/Micron now also HBM4-certified, so SKHY's 60-70% Vera Rubin share is a starting share not a moat) vs. HBM4 printing a ~29% per-GB premium over HBM3E on the same date/basis (16.0 vs 12.4, 2026-09-20) -- a real allocation-capture positive.",
+   "direction": "no_action",
+   "reconciliation": "(c) level comparison, not a price move: both prints are single points in their basis. The WATCH is about allocation durability past this ramp, which the price level does not resolve either way. HBM4 supply_structure allocation fact is more decision-relevant here than the price print.",
+   "corrections_checked": ["C1", "C2"]
+  }
+ ],
+ "data_quality": [
+  "STM +5sh to 20sh (2.74%) this run -- no new company-specific catalyst found (per smith-catalyst); sizing-ahead-of-thesis-resolution pattern, same class already flagged on AMZN/AMD/NBIS.",
+  "LLY brand-new position (0.5sh, 1.54%) had no peer_map entry pre-run; PEER LAGGARD fired against a mismatched SMH default, corrected to XLV by smith-signals this run.",
+  "HBMTracker consumer_view.json unchanged since the 2026-09-20 run (generation prices up to 5 days stale); reconciliation above is carried forward, not re-derived.",
+  "6 live-trigger names (AMD/COHR/GLW/LITE/MU/SKHY) checked only against this run's catalyst/signals tails per the quick-mode news budget -- no independent news re-fetch; all concluded unchanged.",
+  "Gate's SMH +4.02% (this run's dispatch trigger) is Monday's close-to-close bar, not a fresh move -- premarket is flat (-0.69%) per smith-catalyst's gate sanity check; not treated as new AI-capex evidence for any held name.",
+  "LLY has no earnings_facts cache entry and no primary-source (EDGAR) verification this run; graded secondary via INDmoney news + stockanalysis.com only."
+ ],
+ "findings_reaffirmed": ["catalyst:9744ffb8fe", "catalyst:aa6e4a3cf0", "catalyst:bd376b82a7", "catalyst:afbd345ec2", "catalyst:cd7005d68a", "ladder:a67f4e871a", "ladder:efb6da6ce3"],
+ "findings_revised": [],
+ "comms": {
+  "answers": [],
+  "asks": [],
+  "tells": [
+   {"to": "strategist", "ticker": "LLY", "fact": "LLY (new 0.5sh/1.54% position, bought 09-21) is the desk's only genuinely non-AI-capex holding -- GLP-1 pharma, benchmarked to XLV not SMH. With STM (Analog/Industrial, 2.74%) and NOW (Enterprise Software, 2.22%) it forms a ~6.5% non-AI-capex-chain sleeve against a 93.5% AI-capex-chain book. Worth reflecting as the (small) uncorrelated offset in any single-factor stress scenario.", "source": "smith-thesis factor overlap calc, this run", "weight": "normal"}
+  ]
+ },
+ "memory_used": ["acce172e73b3", "bf1897ca0c0b", "d4672062d3dd", "0627ee06dadf", "6da74338181b", "0790f8d5090e", "221f86bb2854", "6ddf8e3ec2b4", "cc6ae1d6c6f5", "244927e98899", "dafddcf892a3", "efc89b535818", "da6aa851b9fd", "5a821537709e"],
+ "memory_refuted": [],
+ "learned": [
+  {"entities": ["STM"], "kind": "event", "text": "STM increased +5sh to 20sh (2.74% of equity) on 2026-09-21; no company-specific catalyst found to justify the add as of 2026-09-22 -- same add-ahead-of-thesis-resolution pattern already logged on AMZN/AMD/NBIS. Thesis stays WATCH (guide_below_consensus).", "source": "holdings_trim.dc0fc258.json + smith-catalyst 2026-09-22", "confidence": "primary"},
+  {"entities": ["LLY"], "kind": "verdict", "text": "LLY entered the book 2026-09-21 (0.5sh, 1.54%), first thesis read INTACT: GLP-1 franchise (Mounjaro/Zepbound), Q2 2026 revenue +48% YoY, FY26 guide raised to $85-87B, 90.5% Buy consensus (n=21), +12.1% upside to mean target $1,325.39. True non-AI-capex diversifier -- only such holding in the book. Re-examine after 2026-10-29 print.", "source": "INDmoney get_us_stocks_details 2026-09-22 + stockanalysis.com/stocks/LLY", "confidence": "secondary"},
+  {"entities": ["C:AI Semis/Fabs", "C:AI Memory/Storage", "C:AI Networking/Optics", "C:AI Power/Cooling/DC Infra", "C:Compute/Hyperscaler", "C:Compute/Hyperscaler OEM", "C:AI Storage/HDD"], "kind": "fact", "text": "AI-capex chain exposure is 93.5% of invested equity as of 2026-09-22 (post STM/LLY sizing), up from prior ~89% cited in older memory notes -- the recent diversifying adds (STM, LLY) have not meaningfully changed the single-factor read; still ~19 of every 20 dollars tied to the same AI-datacenter capex cycle.", "source": "smith-thesis factor cluster calc from holdings_trim.dc0fc258.json, 2026-09-22", "confidence": "primary"}
+ ]
+}

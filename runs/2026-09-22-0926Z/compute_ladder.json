@@ -1,0 +1,1148 @@
+{
+  "as_of": "2026-09-22",
+  "return_basis": {
+    "source": "data_cache.rel_strength_1m.values_abs_pct",
+    "as_of": "2026-09-21",
+    "age_days": 1,
+    "usable": true,
+    "note": "rel_intra_pp is measured against the cluster's own equal-weighted mean return, NOT against SMH -- benchmark-free by construction"
+  },
+  "ttl_days": 14,
+  "max_dispatch": 3,
+  "clusters": {
+    "AI Memory/Storage": {
+      "slug": "memory",
+      "playbook_present": true,
+      "differentiators": [
+        "HBM qualification status at each of NVDA / AMD / Broadcom, and at which HBM generation",
+        "HBM4 sampling timing and committed capacity vs announced capacity",
+        "DRAM vs NAND revenue mix, and the direction of each cycle independently",
+        "contract-price pass-through: how much of a spot move reaches this supplier's realised ASP",
+        "conventional-DRAM crowd-out -- HBM wafer conversion tightening commodity supply",
+        "enterprise SSD exposure as a separate AI-adjacent driver from DRAM"
+      ],
+      "read_throughs": [
+        "SK Hynix quarterly and guidance -> MU, and directionally -> SKHY itself",
+        "TrendForce contract guide -> the whole cluster's next-quarter ASP",
+        "a hyperscaler capex cut -> HBM before commodity DRAM"
+      ],
+      "external_feed": "hbm_tracker",
+      "member_count": 2,
+      "return_coverage": {
+        "with_return": 2,
+        "total": 2,
+        "missing": []
+      },
+      "mean_return_1m_pct": 11.48,
+      "dispersion_pp": 6.124,
+      "members": [
+        {
+          "ticker": "SKHY",
+          "held": true,
+          "market_value_usd": 558.63,
+          "weight_pct": 1.474,
+          "abs_return_1m_pct": 15.81,
+          "rel_intra_pp": 4.33,
+          "rel_smh_pp": 9.88,
+          "atr20_pct": 4.59,
+          "rsi14": 59.8,
+          "thesis_status": "watch",
+          "over_cap": false,
+          "headroom_usd": 1803.78,
+          "cap_multiple": 0.236,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-28",
+          "days_to_earnings": 36
+        },
+        {
+          "ticker": "MU",
+          "held": true,
+          "market_value_usd": 2063.43,
+          "weight_pct": 5.445,
+          "abs_return_1m_pct": 7.15,
+          "rel_intra_pp": -4.33,
+          "rel_smh_pp": 1.22,
+          "atr20_pct": 4.25,
+          "rsi14": 61.2,
+          "thesis_status": "watch",
+          "over_cap": false,
+          "headroom_usd": 487.97,
+          "cap_multiple": 0.809,
+          "rotation_bucket": null,
+          "earnings_date": "2026-09-30",
+          "days_to_earnings": 8
+        }
+      ],
+      "leader_by_price": "SKHY",
+      "laggard_by_price": "MU",
+      "redundancy_candidates": [],
+      "cluster_room_usd": 3016.65,
+      "actual_pct_of_equity": 6.919,
+      "band_pct": [
+        4,
+        13
+      ],
+      "breach": false,
+      "breach_edge": null,
+      "prior_ladder": {
+        "present": true,
+        "as_of": "2026-09-20",
+        "age_days": 2,
+        "stale": false,
+        "confidence": "medium",
+        "leader": "SKHY",
+        "laggard": "WDC"
+      },
+      "eligible": false,
+      "ineligible_reasons": [
+        "only 2 held name(s), below LADDER_MIN_MEMBERS=3"
+      ]
+    },
+    "AI Networking/Optics": {
+      "slug": "optics",
+      "playbook_present": true,
+      "differentiators": [
+        "800G -> 1.6T transition timing, and who is qualified at 1.6T today vs promising it",
+        "co-packaged optics as a THREAT to pluggable-module economics -- who is disintermediated",
+        "position in the stack: laser/EML supply vs module assembly vs switch silicon vs connector",
+        "scale-up (within-rack) vs scale-out (between-rack) exposure -- different growth rates",
+        "custom-ASIC attach: whose silicon rides which hyperscaler's in-house accelerator",
+        "merchant switch silicon share vs in-house displacement risk"
+      ],
+      "read_throughs": [
+        "CIEN print -> LITE and COHR on component demand, with a lag",
+        "a hyperscaler naming an in-house NIC/switch -> merchant silicon exposure in this cluster",
+        "laser/EML lead times -> module makers' next-quarter gross margin, not revenue"
+      ],
+      "external_feed": null,
+      "member_count": 7,
+      "return_coverage": {
+        "with_return": 7,
+        "total": 7,
+        "missing": []
+      },
+      "mean_return_1m_pct": 6.127,
+      "dispersion_pp": 7.457,
+      "members": [
+        {
+          "ticker": "ALAB",
+          "held": true,
+          "market_value_usd": 1005.21,
+          "weight_pct": 2.653,
+          "abs_return_1m_pct": 17.29,
+          "rel_intra_pp": 11.163,
+          "rel_smh_pp": 11.36,
+          "atr20_pct": 5.91,
+          "rsi14": 60.6,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 829.55,
+          "cap_multiple": 0.548,
+          "rotation_bucket": null,
+          "earnings_date": "2026-11-04",
+          "days_to_earnings": 43
+        },
+        {
+          "ticker": "COHR",
+          "held": true,
+          "market_value_usd": 630.92,
+          "weight_pct": 1.665,
+          "abs_return_1m_pct": 10.86,
+          "rel_intra_pp": 4.733,
+          "rel_smh_pp": 4.93,
+          "atr20_pct": 5.81,
+          "rsi14": 57.1,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 1235.42,
+          "cap_multiple": 0.338,
+          "rotation_bucket": null,
+          "earnings_date": "2026-11-05",
+          "days_to_earnings": 44
+        },
+        {
+          "ticker": "LITE",
+          "held": true,
+          "market_value_usd": 940.51,
+          "weight_pct": 2.482,
+          "abs_return_1m_pct": 8.55,
+          "rel_intra_pp": 2.423,
+          "rel_smh_pp": 2.62,
+          "atr20_pct": 6.44,
+          "rsi14": 55.9,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 743.26,
+          "cap_multiple": 0.559,
+          "rotation_bucket": "accumulate",
+          "earnings_date": "2026-11-06",
+          "days_to_earnings": 45
+        },
+        {
+          "ticker": "APH",
+          "held": true,
+          "market_value_usd": 1600.0,
+          "weight_pct": 4.222,
+          "abs_return_1m_pct": 5.44,
+          "rel_intra_pp": -0.687,
+          "rel_smh_pp": -0.49,
+          "atr20_pct": 3.2,
+          "rsi14": 51.6,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 1788.58,
+          "cap_multiple": 0.472,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-28",
+          "days_to_earnings": 36
+        },
+        {
+          "ticker": "GLW",
+          "held": true,
+          "market_value_usd": 474.0,
+          "weight_pct": 1.251,
+          "abs_return_1m_pct": 4.97,
+          "rel_intra_pp": -1.157,
+          "rel_smh_pp": -0.96,
+          "atr20_pct": 4.84,
+          "rsi14": 53.4,
+          "thesis_status": "watch",
+          "over_cap": false,
+          "headroom_usd": 1766.38,
+          "cap_multiple": 0.212,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-27",
+          "days_to_earnings": 35
+        },
+        {
+          "ticker": "MRVL",
+          "held": true,
+          "market_value_usd": 1524.0,
+          "weight_pct": 4.021,
+          "abs_return_1m_pct": 2.54,
+          "rel_intra_pp": -3.587,
+          "rel_smh_pp": -3.39,
+          "atr20_pct": 5.29,
+          "rsi14": 62.4,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 525.8,
+          "cap_multiple": 0.743,
+          "rotation_bucket": null,
+          "earnings_date": "2026-12-02",
+          "days_to_earnings": 71
+        },
+        {
+          "ticker": "CIEN",
+          "held": true,
+          "market_value_usd": 3.11,
+          "weight_pct": 0.008,
+          "abs_return_1m_pct": -6.76,
+          "rel_intra_pp": -12.887,
+          "rel_smh_pp": -12.69,
+          "atr20_pct": 6.5,
+          "rsi14": 50.8,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 1665.11,
+          "cap_multiple": 0.002,
+          "rotation_bucket": null,
+          "earnings_date": "2026-12-03",
+          "days_to_earnings": 72
+        }
+      ],
+      "leader_by_price": "ALAB",
+      "laggard_by_price": "CIEN",
+      "redundancy_candidates": [],
+      "cluster_room_usd": 2930.77,
+      "actual_pct_of_equity": 16.302,
+      "band_pct": [
+        11,
+        21
+      ],
+      "breach": false,
+      "breach_edge": null,
+      "prior_ladder": {
+        "present": true,
+        "as_of": "2026-09-21",
+        "age_days": 1,
+        "stale": false,
+        "confidence": "medium",
+        "leader": "LITE",
+        "laggard": "GLW"
+      },
+      "eligible": true,
+      "ineligible_reasons": []
+    },
+    "AI Power/Cooling/DC Infra": {
+      "slug": "power",
+      "playbook_present": true,
+      "differentiators": [
+        "turbine and grid-equipment BACKLOG and its delivery window -- backlog is not revenue timing",
+        "liquid-cooling attach rate per rack, and whether it is priced as content or as a service",
+        "interconnection-queue and permitting exposure -- the real constraint on datacenter builds",
+        "behind-the-meter vs grid-connected power, and which regulatory regime each faces",
+        "fuel cell / on-site generation as a distinct bet from grid equipment",
+        "utility capex cycle exposure that is INDEPENDENT of AI datacenter demand"
+      ],
+      "read_throughs": [
+        "a hyperscaler datacenter announcement -> the local utility and the grid-equipment supplier",
+        "a large PPA or nuclear/gas offtake -> power names before cooling names",
+        "GEV/VRT order books -> the cluster's demand read; solar (FSLR) is policy-driven and should NOT be read as an AI-capex signal"
+      ],
+      "external_feed": null,
+      "member_count": 3,
+      "return_coverage": {
+        "with_return": 3,
+        "total": 3,
+        "missing": []
+      },
+      "mean_return_1m_pct": 9.173,
+      "dispersion_pp": 22.223,
+      "members": [
+        {
+          "ticker": "BE",
+          "held": true,
+          "market_value_usd": 1094.0,
+          "weight_pct": 2.887,
+          "abs_return_1m_pct": 34.77,
+          "rel_intra_pp": 25.597,
+          "rel_smh_pp": 28.84,
+          "atr20_pct": 6.36,
+          "rsi14": 59.6,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 610.94,
+          "cap_multiple": 0.642,
+          "rotation_bucket": "accumulate",
+          "earnings_date": "2026-10-28",
+          "days_to_earnings": 36
+        },
+        {
+          "ticker": "GEV",
+          "held": true,
+          "market_value_usd": 1884.65,
+          "weight_pct": 4.973,
+          "abs_return_1m_pct": -2.05,
+          "rel_intra_pp": -11.223,
+          "rel_smh_pp": -7.98,
+          "atr20_pct": 3.98,
+          "rsi14": 49.7,
+          "thesis_status": "watch",
+          "over_cap": false,
+          "headroom_usd": 839.83,
+          "cap_multiple": 0.692,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-28",
+          "days_to_earnings": 36
+        },
+        {
+          "ticker": "VRT",
+          "held": true,
+          "market_value_usd": 1495.8,
+          "weight_pct": 3.947,
+          "abs_return_1m_pct": -5.2,
+          "rel_intra_pp": -14.373,
+          "rel_smh_pp": -11.13,
+          "atr20_pct": 5.39,
+          "rsi14": 45.9,
+          "thesis_status": "watch",
+          "over_cap": false,
+          "headroom_usd": 515.97,
+          "cap_multiple": 0.744,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-21",
+          "days_to_earnings": 29
+        }
+      ],
+      "leader_by_price": "BE",
+      "laggard_by_price": "VRT",
+      "redundancy_candidates": [],
+      "cluster_room_usd": 5067.79,
+      "actual_pct_of_equity": 11.807,
+      "band_pct": [
+        12,
+        22
+      ],
+      "breach": true,
+      "breach_edge": "under",
+      "prior_ladder": {
+        "present": true,
+        "as_of": "2026-09-15",
+        "age_days": 7,
+        "stale": false,
+        "confidence": "medium",
+        "leader": "BE",
+        "laggard": "VRT"
+      },
+      "eligible": true,
+      "ineligible_reasons": []
+    },
+    "AI Semis/Fabs": {
+      "slug": "semis",
+      "playbook_present": true,
+      "differentiators": [
+        "share of WFE spend captured, and whether that share is rising or defended",
+        "process-step mix -- litho vs deposition vs etch vs metrology vs test -- and which steps gain intensity as gate-all-around and advanced packaging ramp",
+        "leading-edge vs mature-node revenue split, and exposure to mature-node overcapacity",
+        "China export-control exposure: revenue at risk, licences held, and domestic substitution",
+        "foundry/IDM customer concentration and whether the customer is itself gaining share",
+        "advanced packaging (CoWoS-class) capacity as a distinct bottleneck from wafer capacity"
+      ],
+      "read_throughs": [
+        "TSMC monthly revenue -> the whole cluster's near-term utilisation",
+        "ASML bookings -> AMAT/LRCX/KLAC 2-3 quarters later",
+        "any WFE guide-down -> test (TER) usually lags the front end, do not assume synchrony"
+      ],
+      "external_feed": null,
+      "member_count": 7,
+      "return_coverage": {
+        "with_return": 7,
+        "total": 7,
+        "missing": []
+      },
+      "mean_return_1m_pct": 6.976,
+      "dispersion_pp": 13.891,
+      "members": [
+        {
+          "ticker": "AMD",
+          "held": true,
+          "market_value_usd": 608.62,
+          "weight_pct": 1.606,
+          "abs_return_1m_pct": 31.11,
+          "rel_intra_pp": 24.134,
+          "rel_smh_pp": 25.18,
+          "atr20_pct": 3.74,
+          "rsi14": 73.0,
+          "thesis_status": "watch",
+          "over_cap": false,
+          "headroom_usd": 2290.7,
+          "cap_multiple": 0.21,
+          "rotation_bucket": null,
+          "earnings_date": "2026-11-04",
+          "days_to_earnings": 43
+        },
+        {
+          "ticker": "QCOM",
+          "held": true,
+          "market_value_usd": 964.9,
+          "weight_pct": 2.546,
+          "abs_return_1m_pct": 20.83,
+          "rel_intra_pp": 13.854,
+          "rel_smh_pp": 14.9,
+          "atr20_pct": 4.21,
+          "rsi14": 65.4,
+          "thesis_status": "intact",
+          "over_cap": false,
+          "headroom_usd": 1610.74,
+          "cap_multiple": 0.375,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-30",
+          "days_to_earnings": 38
+        },
+        {
+          "ticker": "TSM",
+          "held": true,
+          "market_value_usd": 3076.5,
+          "weight_pct": 8.118,
+          "abs_return_1m_pct": 7.0,
+          "rel_intra_pp": 0.024,
+          "rel_smh_pp": 1.07,
+          "atr20_pct": 2.26,
+          "rsi14": 61.6,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 1721.48,
+          "cap_multiple": 0.641,
+          "rotation_bucket": "accumulate",
+          "earnings_date": "2026-10-15",
+          "days_to_earnings": 23
+        },
+        {
+          "ticker": "TER",
+          "held": true,
+          "market_value_usd": 1890.83,
+          "weight_pct": 4.989,
+          "abs_return_1m_pct": -0.42,
+          "rel_intra_pp": -7.396,
+          "rel_smh_pp": -6.35,
+          "atr20_pct": 4.89,
+          "rsi14": 54.9,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 326.64,
+          "cap_multiple": 0.853,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-22",
+          "days_to_earnings": 30
+        },
+        {
+          "ticker": "KLAC",
+          "held": true,
+          "market_value_usd": 1822.4,
+          "weight_pct": 4.809,
+          "abs_return_1m_pct": -1.02,
+          "rel_intra_pp": -7.996,
+          "rel_smh_pp": -6.95,
+          "atr20_pct": 4.01,
+          "rsi14": 51.4,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 881.7,
+          "cap_multiple": 0.674,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-29",
+          "days_to_earnings": 37
+        },
+        {
+          "ticker": "ASML",
+          "held": true,
+          "market_value_usd": 2973.71,
+          "weight_pct": 7.847,
+          "abs_return_1m_pct": -2.23,
+          "rel_intra_pp": -9.206,
+          "rel_smh_pp": -8.16,
+          "atr20_pct": 2.89,
+          "rsi14": 51.8,
+          "thesis_status": "watch",
+          "over_cap": false,
+          "headroom_usd": 778.35,
+          "cap_multiple": 0.793,
+          "rotation_bucket": "rotate_out",
+          "earnings_date": "2026-10-14",
+          "days_to_earnings": 22
+        },
+        {
+          "ticker": "AMAT",
+          "held": true,
+          "market_value_usd": 1836.45,
+          "weight_pct": 4.846,
+          "abs_return_1m_pct": -6.44,
+          "rel_intra_pp": -13.416,
+          "rel_smh_pp": -12.37,
+          "atr20_pct": 3.79,
+          "rsi14": 49.7,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 1024.62,
+          "cap_multiple": 0.642,
+          "rotation_bucket": null,
+          "earnings_date": "2026-11-13",
+          "days_to_earnings": 52
+        }
+      ],
+      "leader_by_price": "AMD",
+      "laggard_by_price": "AMAT",
+      "redundancy_candidates": [
+        {
+          "pair": [
+            "TER",
+            "KLAC"
+          ],
+          "return_gap_pp": 0.6,
+          "atr_gap_pct": 0.88,
+          "note": "moves and volatility are near-identical -- CANDIDATE only; the same-bet call is a business judgment (customer, product, node), not this arithmetic"
+        }
+      ],
+      "cluster_room_usd": 1139.86,
+      "actual_pct_of_equity": 34.762,
+      "band_pct": [
+        23,
+        33
+      ],
+      "breach": false,
+      "breach_edge": null,
+      "prior_ladder": {
+        "present": true,
+        "as_of": "2026-09-21",
+        "age_days": 1,
+        "stale": false,
+        "confidence": "medium",
+        "leader": "TSM",
+        "laggard": "QCOM"
+      },
+      "eligible": true,
+      "ineligible_reasons": []
+    },
+    "AI Storage/HDD": {
+      "slug": "ai_storage_hdd",
+      "playbook_present": true,
+      "differentiators": [
+        "which member captures the most of the cluster's shared demand driver, and whether that share is rising",
+        "balance-sheet and margin resilience if the shared driver slows",
+        "valuation versus growth relative to the other members",
+        "customer or supplier concentration that the other members do not share"
+      ],
+      "read_throughs": [],
+      "external_feed": null,
+      "member_count": 1,
+      "return_coverage": {
+        "with_return": 1,
+        "total": 1,
+        "missing": []
+      },
+      "mean_return_1m_pct": -4.45,
+      "dispersion_pp": null,
+      "members": [
+        {
+          "ticker": "WDC",
+          "held": true,
+          "market_value_usd": 1323.0,
+          "weight_pct": 3.491,
+          "abs_return_1m_pct": -4.45,
+          "rel_intra_pp": 0.0,
+          "rel_smh_pp": -10.38,
+          "atr20_pct": 5.44,
+          "rsi14": 47.6,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 670.28,
+          "cap_multiple": 0.664,
+          "rotation_bucket": null,
+          "earnings_date": "2026-11-06",
+          "days_to_earnings": 45
+        }
+      ],
+      "leader_by_price": null,
+      "laggard_by_price": null,
+      "redundancy_candidates": [],
+      "cluster_room_usd": 2147.0,
+      "actual_pct_of_equity": 3.491,
+      "band_pct": [
+        0,
+        8
+      ],
+      "breach": false,
+      "breach_edge": null,
+      "prior_ladder": {
+        "present": false,
+        "as_of": null,
+        "age_days": null,
+        "stale": true,
+        "confidence": null,
+        "leader": null,
+        "laggard": null
+      },
+      "eligible": false,
+      "ineligible_reasons": [
+        "only 1 held name(s), below LADDER_MIN_MEMBERS=3",
+        "fewer than 2 members are under their ATR cap -- nothing to rotate into"
+      ]
+    },
+    "Analog/Industrial Semis": {
+      "slug": "analog",
+      "playbook_present": true,
+      "differentiators": [
+        "automotive vs industrial vs personal-electronics end-market mix and each cycle's phase",
+        "inventory correction stage at distributors -- the dominant driver in this cluster",
+        "internal vs foundry manufacturing and the fixed-cost drag at low utilisation",
+        "pricing discipline as prior-cycle price increases unwind",
+        "this cluster is a NON-AI-capex diversifier -- rank it on its own cycle, and say so explicitly if the ranking is being contaminated by AI-capex read-across"
+      ],
+      "read_throughs": [
+        "any analog peer's inventory commentary -> the whole cluster's correction stage"
+      ],
+      "external_feed": null,
+      "member_count": 1,
+      "return_coverage": {
+        "with_return": 1,
+        "total": 1,
+        "missing": []
+      },
+      "mean_return_1m_pct": 3.43,
+      "dispersion_pp": null,
+      "members": [
+        {
+          "ticker": "STM",
+          "held": true,
+          "market_value_usd": 1036.6,
+          "weight_pct": 2.735,
+          "abs_return_1m_pct": 3.43,
+          "rel_intra_pp": 0.0,
+          "rel_smh_pp": -2.5,
+          "atr20_pct": 3.03,
+          "rsi14": 50.8,
+          "thesis_status": "watch",
+          "over_cap": false,
+          "headroom_usd": 2542.09,
+          "cap_multiple": 0.29,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-29",
+          "days_to_earnings": 37
+        }
+      ],
+      "leader_by_price": null,
+      "laggard_by_price": null,
+      "redundancy_candidates": [],
+      "cluster_room_usd": 2433.27,
+      "actual_pct_of_equity": 2.735,
+      "band_pct": [
+        0,
+        8
+      ],
+      "breach": false,
+      "breach_edge": null,
+      "prior_ladder": {
+        "present": false,
+        "as_of": null,
+        "age_days": null,
+        "stale": true,
+        "confidence": null,
+        "leader": null,
+        "laggard": null
+      },
+      "eligible": false,
+      "ineligible_reasons": [
+        "only 1 held name(s), below LADDER_MIN_MEMBERS=3",
+        "fewer than 2 members are under their ATR cap -- nothing to rotate into"
+      ]
+    },
+    "Compute/Hyperscaler": {
+      "slug": "hyperscaler",
+      "playbook_present": true,
+      "differentiators": [
+        "capex as a share of operating cash flow -- who is self-funding the build and who is not",
+        "in-house accelerator progress, which reduces merchant silicon spend but raises own capex",
+        "cloud revenue growth vs capex growth -- the gap is the market's real question",
+        "neocloud financing structure: debt, GPU collateral, and contracted vs speculative capacity",
+        "customer contract duration and counterparty quality for the neoclouds specifically",
+        "depreciation-schedule changes as an earnings-quality tell"
+      ],
+      "read_throughs": [
+        "any hyperscaler capex guide -> the entire AI-capex book, this is the apex read-through",
+        "a neocloud financing round or GPU-backed facility -> the whole neocloud sub-group's cost of capital, not just the issuer"
+      ],
+      "external_feed": null,
+      "member_count": 4,
+      "return_coverage": {
+        "with_return": 4,
+        "total": 4,
+        "missing": []
+      },
+      "mean_return_1m_pct": 3.282,
+      "dispersion_pp": 2.752,
+      "members": [
+        {
+          "ticker": "NBIS",
+          "held": true,
+          "market_value_usd": 1384.55,
+          "weight_pct": 3.654,
+          "abs_return_1m_pct": 5.77,
+          "rel_intra_pp": 2.488,
+          "rel_smh_pp": -0.16,
+          "atr20_pct": 6.21,
+          "rsi14": 55.4,
+          "thesis_status": "watch",
+          "over_cap": false,
+          "headroom_usd": 361.58,
+          "cap_multiple": 0.793,
+          "rotation_bucket": null,
+          "earnings_date": "2026-11-10",
+          "days_to_earnings": 49
+        },
+        {
+          "ticker": "MSFT",
+          "held": true,
+          "market_value_usd": 1510.61,
+          "weight_pct": 3.986,
+          "abs_return_1m_pct": 4.25,
+          "rel_intra_pp": 0.968,
+          "rel_smh_pp": -1.68,
+          "atr20_pct": 2.04,
+          "rsi14": 57.1,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 3804.8,
+          "cap_multiple": 0.284,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-29",
+          "days_to_earnings": 37
+        },
+        {
+          "ticker": "GOOG",
+          "held": true,
+          "market_value_usd": 2123.46,
+          "weight_pct": 5.603,
+          "abs_return_1m_pct": 3.75,
+          "rel_intra_pp": 0.468,
+          "rel_smh_pp": -2.18,
+          "atr20_pct": 2.13,
+          "rsi14": 58.5,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 2967.36,
+          "cap_multiple": 0.417,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-29",
+          "days_to_earnings": 37
+        },
+        {
+          "ticker": "AMZN",
+          "held": true,
+          "market_value_usd": 1301.68,
+          "weight_pct": 3.435,
+          "abs_return_1m_pct": -0.64,
+          "rel_intra_pp": -3.922,
+          "rel_smh_pp": -6.57,
+          "atr20_pct": 2.19,
+          "rsi14": 52.7,
+          "thesis_status": "watch",
+          "over_cap": false,
+          "headroom_usd": 3649.67,
+          "cap_multiple": 0.263,
+          "rotation_bucket": "rotate_out",
+          "earnings_date": "2026-10-30",
+          "days_to_earnings": 38
+        }
+      ],
+      "leader_by_price": "NBIS",
+      "laggard_by_price": "AMZN",
+      "redundancy_candidates": [
+        {
+          "pair": [
+            "MSFT",
+            "GOOG"
+          ],
+          "return_gap_pp": 0.5,
+          "atr_gap_pct": 0.09,
+          "note": "moves and volatility are near-identical -- CANDIDATE only; the same-bet call is a business judgment (customer, product, node), not this arithmetic"
+        }
+      ],
+      "cluster_room_usd": 2354.33,
+      "actual_pct_of_equity": 16.678,
+      "band_pct": [
+        10,
+        20
+      ],
+      "breach": false,
+      "breach_edge": null,
+      "prior_ladder": {
+        "present": true,
+        "as_of": "2026-09-15",
+        "age_days": 7,
+        "stale": false,
+        "confidence": "medium",
+        "leader": "MSFT",
+        "laggard": "NBIS"
+      },
+      "eligible": true,
+      "ineligible_reasons": []
+    },
+    "Compute/Hyperscaler OEM": {
+      "slug": "oem",
+      "playbook_present": true,
+      "differentiators": [
+        "gross margin per rack and whether it is holding as volume scales -- the core OEM question",
+        "direct-to-hyperscaler vs channel mix",
+        "liquid-cooling rack integration capability as a differentiator vs a commodity",
+        "working capital and inventory turns -- an OEM's real risk is a balance sheet, not demand",
+        "governance, audit and filing history (a live, name-specific issue in this cluster)"
+      ],
+      "read_throughs": [
+        "an NVDA allocation shift -> OEM revenue timing before OEM margin",
+        "any rack-scale reference-design change -> the integrator's requalification cost"
+      ],
+      "external_feed": null,
+      "member_count": 1,
+      "return_coverage": {
+        "with_return": 1,
+        "total": 1,
+        "missing": []
+      },
+      "mean_return_1m_pct": 14.04,
+      "dispersion_pp": null,
+      "members": [
+        {
+          "ticker": "CLS",
+          "held": true,
+          "market_value_usd": 1345.29,
+          "weight_pct": 3.55,
+          "abs_return_1m_pct": 14.04,
+          "rel_intra_pp": 0.0,
+          "rel_smh_pp": 8.11,
+          "atr20_pct": 5.16,
+          "rsi14": 57.4,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 756.15,
+          "cap_multiple": 0.64,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-27",
+          "days_to_earnings": 35
+        }
+      ],
+      "leader_by_price": null,
+      "laggard_by_price": null,
+      "redundancy_candidates": [],
+      "cluster_room_usd": 2124.45,
+      "actual_pct_of_equity": 3.55,
+      "band_pct": [
+        0,
+        8
+      ],
+      "breach": false,
+      "breach_edge": null,
+      "prior_ladder": {
+        "present": false,
+        "as_of": null,
+        "age_days": null,
+        "stale": true,
+        "confidence": null,
+        "leader": null,
+        "laggard": null
+      },
+      "eligible": false,
+      "ineligible_reasons": [
+        "only 1 held name(s), below LADDER_MIN_MEMBERS=3",
+        "fewer than 2 members are under their ATR cap -- nothing to rotate into"
+      ]
+    },
+    "Enterprise Software": {
+      "slug": "enterprise_software",
+      "playbook_present": true,
+      "differentiators": [
+        "which member captures the most of the cluster's shared demand driver, and whether that share is rising",
+        "balance-sheet and margin resilience if the shared driver slows",
+        "valuation versus growth relative to the other members",
+        "customer or supplier concentration that the other members do not share"
+      ],
+      "read_throughs": [],
+      "external_feed": null,
+      "member_count": 1,
+      "return_coverage": {
+        "with_return": 1,
+        "total": 1,
+        "missing": []
+      },
+      "mean_return_1m_pct": 6.11,
+      "dispersion_pp": null,
+      "members": [
+        {
+          "ticker": "NOW",
+          "held": true,
+          "market_value_usd": 841.8,
+          "weight_pct": 2.221,
+          "abs_return_1m_pct": 6.11,
+          "rel_intra_pp": 0.0,
+          "rel_smh_pp": 0.18,
+          "atr20_pct": 4.67,
+          "rsi14": 55.0,
+          "thesis_status": "strengthening",
+          "over_cap": false,
+          "headroom_usd": 1480.14,
+          "cap_multiple": 0.363,
+          "rotation_bucket": null,
+          "earnings_date": "2026-10-29",
+          "days_to_earnings": 37
+        }
+      ],
+      "leader_by_price": null,
+      "laggard_by_price": null,
+      "redundancy_candidates": [],
+      "cluster_room_usd": 1326.8,
+      "actual_pct_of_equity": 2.221,
+      "band_pct": [
+        0,
+        5
+      ],
+      "breach": false,
+      "breach_edge": null,
+      "prior_ladder": {
+        "present": false,
+        "as_of": null,
+        "age_days": null,
+        "stale": true,
+        "confidence": null,
+        "leader": null,
+        "laggard": null
+      },
+      "eligible": false,
+      "ineligible_reasons": [
+        "only 1 held name(s), below LADDER_MIN_MEMBERS=3",
+        "fewer than 2 members are under their ATR cap -- nothing to rotate into"
+      ]
+    },
+    "Unclassified": {
+      "slug": "unclassified",
+      "playbook_present": false,
+      "differentiators": [],
+      "read_throughs": [],
+      "external_feed": null,
+      "member_count": 1,
+      "return_coverage": {
+        "with_return": 1,
+        "total": 1,
+        "missing": []
+      },
+      "mean_return_1m_pct": -6.39,
+      "dispersion_pp": null,
+      "members": [
+        {
+          "ticker": "LLY",
+          "held": true,
+          "market_value_usd": 581.75,
+          "weight_pct": 1.535,
+          "abs_return_1m_pct": -6.39,
+          "rel_intra_pp": 0.0,
+          "rel_smh_pp": -12.32,
+          "atr20_pct": 2.36,
+          "rsi14": 50.9,
+          "thesis_status": null,
+          "over_cap": false,
+          "headroom_usd": 4012.93,
+          "cap_multiple": 0.127,
+          "rotation_bucket": null,
+          "earnings_date": null,
+          "days_to_earnings": null
+        }
+      ],
+      "leader_by_price": null,
+      "laggard_by_price": null,
+      "redundancy_candidates": [],
+      "cluster_room_usd": null,
+      "actual_pct_of_equity": 1.535,
+      "band_pct": null,
+      "breach": false,
+      "breach_edge": null,
+      "prior_ladder": {
+        "present": false,
+        "as_of": null,
+        "age_days": null,
+        "stale": true,
+        "confidence": null,
+        "leader": null,
+        "laggard": null
+      },
+      "eligible": false,
+      "ineligible_reasons": [
+        "only 1 held name(s), below LADDER_MIN_MEMBERS=3",
+        "fewer than 2 members are under their ATR cap -- nothing to rotate into"
+      ]
+    }
+  },
+  "dispatch": [
+    {
+      "cluster": "AI Semis/Fabs",
+      "slug": "semis",
+      "agent": "cluster_semis",
+      "priority_score": 7,
+      "reasons": [
+        "fresh ladder reopened: the current ladder's call (TSM over QCOM) is scoring wrong (-13.83pp)",
+        "dispersion 13.891pp -- a real contest, not a block move",
+        "a live cluster_rotation pair is already proposed here",
+        "1 redundancy candidate pair(s) to judge"
+      ],
+      "last_dispatched": "2026-09-21",
+      "selected": true
+    },
+    {
+      "cluster": "AI Power/Cooling/DC Infra",
+      "slug": "power",
+      "agent": "cluster_power",
+      "priority_score": 6,
+      "reasons": [
+        "dispersion 22.223pp -- a real contest, not a block move",
+        "a live cluster_rotation pair is already proposed here",
+        "cluster is outside its policy band (under)"
+      ],
+      "last_dispatched": "2026-09-15",
+      "selected": true
+    },
+    {
+      "cluster": "Compute/Hyperscaler",
+      "slug": "hyperscaler",
+      "agent": "cluster_hyperscaler",
+      "priority_score": 3,
+      "reasons": [
+        "a live cluster_rotation pair is already proposed here",
+        "1 redundancy candidate pair(s) to judge"
+      ],
+      "last_dispatched": "2026-09-15",
+      "selected": true
+    }
+  ],
+  "dispatch_selected": [
+    "cluster_semis",
+    "cluster_power",
+    "cluster_hyperscaler"
+  ],
+  "dispatch_selected_clusters": [
+    "AI Semis/Fabs",
+    "AI Power/Cooling/DC Infra",
+    "Compute/Hyperscaler"
+  ],
+  "skipped_fresh": [
+    {
+      "cluster": "AI Networking/Optics",
+      "agent": "cluster_optics",
+      "age_days": 1,
+      "reason": "ladder is 1d old (< 7d) with no structural catalyst, member earnings, wrong-scoring call or unranked member since -- reuse it"
+    }
+  ],
+  "fresh_skip_days": 7,
+  "track_record": {
+    "AI Memory/Storage": {
+      "scored": true,
+      "as_of": "2026-09-22",
+      "ladder_as_of": "2026-09-20",
+      "leader": "SKHY",
+      "laggard": "WDC",
+      "leader_return_1m_pct": 15.81,
+      "laggard_return_1m_pct": -4.45,
+      "spread_pp": 20.26,
+      "correct": true,
+      "ladder_confidence_at_call": "medium"
+    },
+    "AI Networking/Optics": {
+      "scored": true,
+      "as_of": "2026-09-22",
+      "ladder_as_of": "2026-09-21",
+      "leader": "LITE",
+      "laggard": "GLW",
+      "leader_return_1m_pct": 8.55,
+      "laggard_return_1m_pct": 4.97,
+      "spread_pp": 3.58,
+      "correct": true,
+      "ladder_confidence_at_call": "medium"
+    },
+    "AI Power/Cooling/DC Infra": {
+      "scored": true,
+      "as_of": "2026-09-22",
+      "ladder_as_of": "2026-09-15",
+      "leader": "BE",
+      "laggard": "VRT",
+      "leader_return_1m_pct": 34.77,
+      "laggard_return_1m_pct": -5.2,
+      "spread_pp": 39.97,
+      "correct": true,
+      "ladder_confidence_at_call": "medium"
+    },
+    "AI Semis/Fabs": {
+      "scored": true,
+      "as_of": "2026-09-22",
+      "ladder_as_of": "2026-09-21",
+      "leader": "TSM",
+      "laggard": "QCOM",
+      "leader_return_1m_pct": 7.0,
+      "laggard_return_1m_pct": 20.83,
+      "spread_pp": -13.83,
+      "correct": false,
+      "ladder_confidence_at_call": "medium"
+    },
+    "Compute/Hyperscaler": {
+      "scored": true,
+      "as_of": "2026-09-22",
+      "ladder_as_of": "2026-09-15",
+      "leader": "MSFT",
+      "laggard": "NBIS",
+      "leader_return_1m_pct": 4.25,
+      "laggard_return_1m_pct": 5.77,
+      "spread_pp": -1.52,
+      "correct": false,
+      "ladder_confidence_at_call": "medium"
+    }
+  },
+  "data_quality": [
+    "1 held name(s) are Unclassified in sector_map and cannot be ranked against a cluster: LLY"
+  ]
+}

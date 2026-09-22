@@ -1,7 +1,7 @@
 # Agent Smith — Decision & Incident Log
 Generated from state.json.known_gaps + known-gaps-archive.json. This is the canonical incident record SKILL.md's operational rules cite by ID (e.g. "per G58") -- read it when you need the WHY behind a rule; SKILL.md itself states the WHAT. Regenerate with `scripts/gen_decisions_md.py` after any gap is opened or closed -- never hand-edit this file.
 
-**92 total gaps** -- 16 open, 76 archived (closed).
+**93 total gaps** -- 17 open, 76 archived (closed).
 
 ---
 
@@ -895,5 +895,12 @@ NBIS (neocloud: sells GPU capacity to MSFT/Meta, funded by a floating SOFR+2.50%
 **Opened:** 2026-09-21  **Owner:** orchestrator  
 
 LADDER SCORED CALLS GRADE THE WRONG WINDOW. compute_ladder's scored_call marks a cluster ladder correct/incorrect using each member's 1-MONTH return as of the scoring date, not the return since the ladder was written. On 2026-09-21 the 2026-09-15 semis ladder (leader TSM, laggard AMAT) was scored correct (leader +5.36% vs laggard -8.24% over 1m) while the forward window 09-15 close to 09-21 failed BOTH slots (AMAT +8.11% beat TSM +5.93%; the specialist scored it FALSE itself). The window mostly predates the call, so nearly every ladder that names a recent laggard as laggard scores correct. It feeds cluster track_record, which gates a ladder's authority to drive cluster_rotation (full authority needs >=6 admissible post-epoch calls) and the fleet learning store. No live damage today: 3 pre-epoch calls are history only and post-epoch n=0. Fix before the first post-epoch call is scored: compute returns from the ladder's as_of close, not a fixed 1m window, and record the window used on each scored call.
+
+---
+
+## G100 -- OPEN
+**Opened:** 2026-09-22  **Owner:** orchestrator  
+
+SCORE'S --rebase-scorecard 'explained_by' CHECK IS COMPUTED AGAINST THE FULL HISTORICAL UNIVERSE, NOT THE INCREMENTAL DROP SINCE THE LAST REBASE. cmd_score's shrink guard (added 2026-08-30 after the empty-prices probe silently zeroed a scorecard) allows --rebase-scorecard only when `len(graded) >= prior - explained`, where `explained` = count of ALL superseded-with-verdict rows plus ALL unscoreable HOLD rows in the whole proposals.json, not just the ones that changed status since the last rebase. On 2026-09-22 this produced explained=67 (58 superseded + 9 HOLD) to justify a 2-row drop (22->20) -- the real number of newly-reclassified rows was never isolated. The guard still caught the ORIGINAL empty-prices-probe failure mode (0 graded vs N prior, explained stays small), but for any partial shrink it will now admit almost anything, because `explained` grows with the whole proposal history and will essentially always exceed a small drop. Fix: compute `explained` only over rows whose status/verdict changed since state.data_cache.score_rebase_baseline (a new stamp), not the full file.
 
 ---

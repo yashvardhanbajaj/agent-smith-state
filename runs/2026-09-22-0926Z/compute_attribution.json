@@ -1,0 +1,153 @@
+{
+  "value_delta_usd": 3162.35,
+  "fx_effect_usd": -235.12,
+  "flow_usd": 1094.9,
+  "residual_market_move_usd": 2302.57,
+  "qty_changes": [
+    {
+      "ticker": "GEV",
+      "qty_diff": 1.0,
+      "likely_corporate_action": true
+    },
+    {
+      "ticker": "MRVL",
+      "qty_diff": 1,
+      "likely_corporate_action": false
+    },
+    {
+      "ticker": "BE",
+      "qty_diff": 2,
+      "likely_corporate_action": true
+    },
+    {
+      "ticker": "STM",
+      "qty_diff": 5,
+      "likely_corporate_action": false
+    },
+    {
+      "ticker": "LLY",
+      "qty_diff": 0.5,
+      "likely_corporate_action": false,
+      "new_entry": true,
+      "est_cost_usd": 581.75
+    },
+    {
+      "ticker": "SKHY",
+      "qty_diff": 2,
+      "likely_corporate_action": true
+    }
+  ],
+  "data_quality": [],
+  "flow_components": {
+    "adds_trims_usd": 513.15,
+    "new_entries_usd": 581.75,
+    "exits_usd": 0.0,
+    "exits_unpriced": [],
+    "exit_price_basis": "last_known_price_prior_run"
+  },
+  "rolling": {
+    "1m": {
+      "from": "2026-08-20",
+      "to": "2026-09-21",
+      "sessions": 21,
+      "coverage_pct": 100.0,
+      "uncovered": [],
+      "smh_pct": 5.93,
+      "book_pct": 4.65,
+      "excess_pp": -1.28,
+      "realized_excess_pp": null,
+      "realized_reason": "external_flow_usd is not recorded on every ledger row in the window, so a deposit would read as return"
+    },
+    "3m": {
+      "from": "2026-06-22",
+      "to": "2026-09-21",
+      "sessions": 63,
+      "coverage_pct": 98.5,
+      "uncovered": [
+        "SKHY"
+      ],
+      "smh_pct": -10.9,
+      "book_pct": -10.76,
+      "excess_pp": 0.14,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "6m": {
+      "from": "2026-03-20",
+      "to": "2026-09-21",
+      "sessions": 126,
+      "coverage_pct": 98.5,
+      "uncovered": [
+        "SKHY"
+      ],
+      "smh_pct": 54.92,
+      "book_pct": 53.57,
+      "excess_pp": -1.35,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "12m": {
+      "from": "2025-09-22",
+      "to": "2026-09-21",
+      "sessions": 250,
+      "coverage_pct": 98.5,
+      "uncovered": [
+        "SKHY"
+      ],
+      "smh_pct": 85.0,
+      "book_pct": 126.56,
+      "excess_pp": 41.56,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "basis": "current_holdings_constant_mix",
+    "benchmark": "SMH",
+    "as_of": "2026-09-21",
+    "basis_label": "trailing windows: current holdings at current weights vs SMH. Not a realized return (trades, wallet cash and deposits excluded) and flattered by hindsight: it prices the names you kept"
+  },
+  "ledger_rows_available": 60,
+  "realized": {
+    "available": true,
+    "full_history": {
+      "from": "2025-05-08",
+      "to": "2026-09-18",
+      "n_sessions": 343,
+      "twr_pct": 64.84,
+      "vol_annualized_pct": 36.4,
+      "max_drawdown_pct": -29.4,
+      "sharpe_rf0": 1.19,
+      "sharpe_note": "risk-free rate ZERO; the 10-yr is ~5%, so this overstates risk-adjusted skill",
+      "best_session_pct": 10.06,
+      "worst_session_pct": -8.77,
+      "benchmark": "SMH",
+      "benchmark_pct": 158.17,
+      "excess_pp": -93.32
+    },
+    "material_capital": {
+      "from": "2026-05-13",
+      "to": "2026-09-18",
+      "n_sessions": 89,
+      "twr_pct": 0.25,
+      "vol_annualized_pct": 51.8,
+      "max_drawdown_pct": -28.3,
+      "sharpe_rf0": 0.27,
+      "sharpe_note": "risk-free rate ZERO; the 10-yr is ~5%, so this overstates risk-adjusted skill",
+      "best_session_pct": 10.06,
+      "worst_session_pct": -7.07,
+      "benchmark": "SMH",
+      "benchmark_pct": 0.09,
+      "excess_pp": 0.16
+    },
+    "material_floor_usd": 10000.0,
+    "money_weighted": {
+      "as_of": "2026-09-18",
+      "net_capital_deployed_usd": 29053.9,
+      "actual_value_usd": 33566.62,
+      "same_flows_into_benchmark_usd": 33068.68,
+      "selection_cost_usd": 497.94,
+      "basis": "every equity flow redirected into SMH at that session's close"
+    },
+    "basis": "trades.json rebuilt daily and priced at closes; includes exited names",
+    "note": "TWR equal-weights the sub-$5K months, so full_history overstates the damage; material_capital and money_weighted describe the capital that mattered."
+  }
+}

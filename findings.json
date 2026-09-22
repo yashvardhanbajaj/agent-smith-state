@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-21",
-  "run_id": "2026-09-21-1357Z",
-  "run_ts": "2026-09-21T15:10:16Z",
+  "updated": "2026-09-22",
+  "run_id": "2026-09-22-0926Z",
+  "run_ts": "2026-09-22T09:59:32Z",
   "findings": [
     {
       "id": "catalyst:07c3be4d13",
@@ -33,7 +33,7 @@
       "as_of": "2026-09-15",
       "ttl_days": 2,
       "expires": "2026-09-17",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "immediate",
       "direction": "tailwind",
       "source": "https://ca.finance.yahoo.com/news/servicenow-jumps-6-4-ai-205808694.html",
@@ -44,7 +44,7 @@
         "catalyst",
         "signals"
       ],
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": true
     },
     {
@@ -67,14 +67,61 @@
       "as_of": "2026-09-14",
       "ttl_days": 2,
       "expires": "2026-09-16",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "immediate",
       "direction": "threat",
       "source": "https://en.sedaily.com/finance/2026/09/14/kospi-tumbles-33-percent-on-rate-oil-and-ai-slowdown-fears",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-14",
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": true
+    },
+    {
+      "id": "catalyst:24f33a9acb",
+      "kind": "catalyst",
+      "subject": [
+        "TSM",
+        "ASML",
+        "AMAT",
+        "KLAC",
+        "TER",
+        "MU"
+      ],
+      "claim": "GATE SANITY CHECK: SMH +4.02% is Monday 09-21's full close-to-close change (573.00->596.03), a bigger continuation of the already-logged 'Semis rally 09-21' catalyst (which had captured only a +2.04% mid-session snapshot, 584.69). NOT a fresh overnight move: Tuesday premarket is roughly flat, -0.69% (591.9 vs 596.03 prior close, smh_live as_of 2026-09-22T09:28Z). -- magnitude: primary-series cros\u2026",
+      "as_of": "2026-09-22",
+      "ttl_days": 1,
+      "expires": "2026-09-23",
+      "run_id": "2026-09-22-0926Z",
+      "horizon": "noise",
+      "direction": "ambiguous",
+      "source": "local:market_inputs.json",
+      "agent": "smith-catalyst",
+      "first_seen": "2026-09-22",
+      "runs_seen": 1,
+      "expired": false
+    },
+    {
+      "id": "catalyst:284e7b2312",
+      "kind": "catalyst",
+      "subject": [
+        "TSM",
+        "MU",
+        "AMD",
+        "NVDA",
+        "AVGO"
+      ],
+      "claim": "Nvidia-OpenAI vendor financing (up to $105bn Ohio datacentre credit, $100bn progressive equity investment tied to GW deployment) stays the standing financing-structure overhang; no new headline this run -- magnitude: reaffirmed unchanged from 08-17 stamp: $1.5bn direct SB Energy investment and up-to-$100bn progressive NVDA->OpenAI equity now the clearest confirmed figures (vs the earlier unverifi\u2026",
+      "as_of": "2026-09-22",
+      "ttl_days": 14,
+      "expires": "2026-10-06",
+      "run_id": "2026-09-22-0926Z",
+      "horizon": "structural",
+      "direction": "ambiguous",
+      "source": "https://www.cnbc.com/2026/08/17/nvidia-financing-open-ai-data-center-ohio.html",
+      "agent": "smith-catalyst",
+      "first_seen": "2026-09-22",
+      "runs_seen": 1,
+      "expired": false
     },
     {
       "id": "catalyst:2b516b39a1",
@@ -84,18 +131,17 @@
         "SKHY",
         "EWY"
       ],
-      "claim": "CXMT HBM3E trial production is a direct threat to MU/SKHY (memory ASP/share) and only a second-order, unquantified one to ASML/AMAT/TER",
+      "claim": "CXMT HBM3E: small-scale/trial production confirmed again 09-20 (qualification samples to Alibaba T-Head/Cambricon); mass production guided for 2027 -- STILL LIVE, unchanged -- magnitude: trial/risk production only, no volume or yield disclosed; HBM4 already mass-produced by Samsung/SK hynix/Micron, so CXMT is one generation behind; mass production not before 2027. No HBM % figure cited (tracker H\u2026",
       "as_of": "2026-09-21",
       "ttl_days": 14,
       "expires": "2026-10-05",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "threat",
-      "source": "smith-thesis mechanism read; catalyst:2b516b39a1 own magnitude text; HBMTracker consumer_view.json",
+      "source": "https://en.sedaily.com/international/2026/09/20/chinas-cxmt-starts-mass-production-on-5th-generation-dram",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 2,
-      "last_reaffirmed": "2026-09-21",
+      "last_reaffirmed": "2026-09-22",
       "reaffirmed_by": [
         "catalyst",
         "catalyst.corrupt_by_router",
@@ -104,9 +150,49 @@
         "thesis",
         "thesis.r0"
       ],
-      "previous_claim": "CXMT HBM3E trial production: affects narrowed to MU, SKHY, EWY",
-      "revised_by": "thesis.r3",
-      "revised_reason": "The threat text itself says trial-only, no volume/yield, mass production 2027, one generation behind; the tracker has no within-basis HBM3E decline; AMAT China is 28% of revenue and DRAM +52% y/y, TER memory test ~16% of revenue",
+      "runs_seen": 1,
+      "previous_claim": "CXMT HBM3E trial production is a direct threat to MU/SKHY (memory ASP/share) and only a second-order, unquantified one to ASML/AMAT/TER",
+      "expired": false
+    },
+    {
+      "id": "catalyst:39abfa11b4",
+      "kind": "catalyst",
+      "subject": [
+        "MU",
+        "SKHY"
+      ],
+      "claim": "CXMT G5 DRAM platform (11.95nm half-pitch, quadruple-patterning): SCMP frames it as 'close to world's most advanced' -- still LPDDR5X mobile DRAM only, no HBM mention, vs Samsung/SK Hynix running ~10nm-class DRAM process -- magnitude: unchanged from 09-20 stamp: 9.5% Q2 global DRAM revenue share vs ~90% Samsung/SKHY/Micron combined; node claim is marketing framing ('close to'), not a quantified g\u2026",
+      "as_of": "2026-09-22",
+      "ttl_days": 14,
+      "expires": "2026-10-06",
+      "run_id": "2026-09-22-0926Z",
+      "horizon": "structural",
+      "direction": "threat",
+      "source": "https://www.scmp.com/tech/article/3368154/chinas-cxmt-touts-new-chip-manufacturing-platform-close-worlds-most-advanced ; https://www.theregister.com/systems/2026/09/21/chinese-memory-maker-cxmt-claims-dram-production-breakthrough/5297633",
+      "agent": "smith-catalyst",
+      "first_seen": "2026-09-22",
+      "runs_seen": 1,
+      "expired": false
+    },
+    {
+      "id": "catalyst:43c0d10965",
+      "kind": "catalyst",
+      "subject": [
+        "MU",
+        "SKHY",
+        "EWY"
+      ],
+      "claim": "CXMT HBM3E trial/risk production, qualification samples to Alibaba T-Head/Cambricon -- mass production not guided before 2027, still one generation behind Samsung/SK Hynix/Micron's already-shipping HBM4 -- magnitude: reaffirmed unchanged: no volume/yield disclosed this run; distinct mechanism from the G5 conventional-DRAM item above (HBM vs mobile DRAM).",
+      "as_of": "2026-09-22",
+      "ttl_days": 14,
+      "expires": "2026-10-06",
+      "run_id": "2026-09-22-0926Z",
+      "horizon": "structural",
+      "direction": "threat",
+      "source": "https://en.sedaily.com/international/2026/09/20/chinas-cxmt-starts-mass-production-on-5th-generation-dram",
+      "agent": "smith-catalyst",
+      "first_seen": "2026-09-22",
+      "runs_seen": 1,
       "expired": false
     },
     {
@@ -125,7 +211,7 @@
       "source": "https://www.timothysykes.com/news/bloom-energy-corporation-be-news-2026_09_08/",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-14",
-      "last_reaffirmed": "2026-09-21",
+      "last_reaffirmed": "2026-09-22",
       "reaffirmed_by": [
         "catalyst",
         "signals",
@@ -148,13 +234,17 @@
       "as_of": "2026-09-21",
       "ttl_days": 14,
       "expires": "2026-10-05",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "ambiguous",
       "source": "https://www.cnbc.com/2026/08/17/nvidia-financing-open-ai-data-center-ohio.html",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 1,
+      "runs_seen": 2,
+      "last_reaffirmed": "2026-09-22",
+      "reaffirmed_by": [
+        "catalyst"
+      ],
       "expired": false
     },
     {
@@ -167,13 +257,13 @@
       "as_of": "2026-09-21",
       "ttl_days": 14,
       "expires": "2026-10-05",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "tailwind",
       "source": "https://www.investing.com/news/analyst-ratings/ubs-raises-bloom-energy-stock-price-target-to-325-on-s-p-500-add-93CH-4891098",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 1,
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -186,13 +276,13 @@
       "as_of": "2026-09-21",
       "ttl_days": 14,
       "expires": "2026-10-05",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://kfgo.com/2026/09/18/oracles-18-billion-data-center-debt-under-pressure-ft-reports/",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 1,
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -205,7 +295,7 @@
       "as_of": "2026-09-16",
       "ttl_days": 14,
       "expires": "2026-09-30",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://247wallst.com/investing/2026/09/14/corning-tumbles-12-on-2b-at-the-market-equity-offering-coherent-sinks-11-lumentum-drops-9-fabrinet-slides-6/",
@@ -219,7 +309,37 @@
         "signals",
         "strategist"
       ],
-      "runs_seen": 6,
+      "runs_seen": 7,
+      "expired": false
+    },
+    {
+      "id": "catalyst:7153cff839",
+      "kind": "catalyst",
+      "subject": [
+        "TSM",
+        "ASML",
+        "AMAT",
+        "KLAC",
+        "MU",
+        "SKHY",
+        "QCOM",
+        "NVDA",
+        "LRCX",
+        "AMKR",
+        "MP",
+        "INTC"
+      ],
+      "claim": "Trump-Xi summit Washington Thu 09-24: chip export-control easing remains unestablished; China added two drug-precursor chemicals (not semiconductor-related) to its export-curb list 09-22 ahead of the talks, a posturing move, not a tech-control signal -- magnitude: reaffirmed unchanged: 'meaningful US concessions on advanced semiconductor export controls remain unlikely' (CSIS); only confirmed eas\u2026",
+      "as_of": "2026-09-22",
+      "ttl_days": 2,
+      "expires": "2026-09-24",
+      "run_id": "2026-09-22-0926Z",
+      "horizon": "immediate",
+      "direction": "ambiguous",
+      "source": "https://www.csis.org/analysis/what-trump-xi-summit-revealed-and-left-unsaid-about-us-china-tech-competition ; https://www.investing.com/news/stock-market-news/china-adds-two-chemicals-to-dug-precursor-export-curbs-before-xitrump-talks-93CH-4910024",
+      "agent": "smith-catalyst",
+      "first_seen": "2026-09-22",
+      "runs_seen": 1,
       "expired": false
     },
     {
@@ -246,7 +366,7 @@
       "as_of": "2026-09-16",
       "ttl_days": 14,
       "expires": "2026-09-30",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://the-agent-report.com/2026/09/ai-development-brake-amodei-altman-2026/",
@@ -259,8 +379,7 @@
         "signals",
         "strategist"
       ],
-      "runs_seen": 1,
-      "previous_claim": "Amodei 'We Must Pace the Frontier' essay mapped as a structural threat across 15 names including all 7 optics members",
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -312,13 +431,13 @@
       "as_of": "2026-09-21",
       "ttl_days": 14,
       "expires": "2026-10-05",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://robinhood.com/us/en/stocks/VST/",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 1,
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -331,20 +450,20 @@
       "as_of": "2026-09-16",
       "ttl_days": 14,
       "expires": "2026-09-30",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://247wallst.com/investing/2026/09/14/ge-vernova-sinks-9-as-glj-research-starts-at-sell-with-470-target-eaton-drops-7-quanta-services-falls-4/",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-16",
-      "last_reaffirmed": "2026-09-21",
+      "last_reaffirmed": "2026-09-22",
       "reaffirmed_by": [
         "catalyst",
         "catalyst.r4",
         "signals",
         "strategist"
       ],
-      "runs_seen": 6,
+      "runs_seen": 7,
       "expired": false
     },
     {
@@ -357,13 +476,13 @@
       "as_of": "2026-09-21",
       "ttl_days": 1,
       "expires": "2026-09-22",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "noise",
       "direction": "threat",
       "source": "https://www.benzinga.com/markets/tech/26/09/61820795/super-micro-rebounds-3-after-this-weeks-ai-infrastructure-selloff",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 1,
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -378,13 +497,13 @@
       "as_of": "2026-09-15",
       "ttl_days": 14,
       "expires": "2026-09-29",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://247wallst.com/investing/2026/09/14/corning-tumbles-12-on-2b-at-the-market-equity-offering-coherent-sinks-11-lumentum-drops-9-fabrinet-slides-6/",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-15",
-      "last_reaffirmed": "2026-09-21",
+      "last_reaffirmed": "2026-09-22",
       "reaffirmed_by": [
         "catalyst",
         "cluster_optics",
@@ -395,7 +514,7 @@
         "thesis",
         "thesis.r0"
       ],
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -410,13 +529,13 @@
       "as_of": "2026-09-19",
       "ttl_days": 1,
       "expires": "2026-09-20",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "noise",
       "direction": "tailwind",
       "source": "https://www.tipranks.com/news/why-are-ai-memory-stocks-micron-sandisk-and-sk-hynix-rising-in-pre-market-today-sept-18",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-19",
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": true
     },
     {
@@ -430,13 +549,13 @@
       "as_of": "2026-09-21",
       "ttl_days": 1,
       "expires": "2026-09-22",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "noise",
       "direction": "threat",
       "source": "https://finance.yahoo.com/markets/stocks/articles/ge-vernova-falls-8-6-172719200.html",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 2,
+      "runs_seen": 3,
       "expired": false
     },
     {
@@ -449,13 +568,13 @@
       "as_of": "2026-09-21",
       "ttl_days": 14,
       "expires": "2026-10-05",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "tailwind",
       "source": "https://finance.yahoo.com/markets/stocks/articles/stock-market-today-sept-16-212959692.html",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 1,
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -479,7 +598,7 @@
       "source": "https://www.techtimes.com/articles/326159/20260901/cxmt-ships-hbm3e-ai-memory-alibaba-cambricon-us-export-controls-failed-stop-it.htm",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-16",
-      "last_reaffirmed": "2026-09-21",
+      "last_reaffirmed": "2026-09-22",
       "reaffirmed_by": [
         "catalyst",
         "cluster_memory",
@@ -517,14 +636,13 @@
       "as_of": "2026-09-21",
       "ttl_days": 2,
       "expires": "2026-09-23",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "immediate",
       "direction": "threat",
       "source": "https://realinvestmentadvice.com/resources/blog/amodei-says-slow-down-trump-and-china-say-no/",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 2,
-      "last_reaffirmed": "2026-09-21",
+      "last_reaffirmed": "2026-09-22",
       "reaffirmed_by": [
         "catalyst",
         "catalyst.corrupt_by_router",
@@ -532,9 +650,11 @@
         "catalyst.r3",
         "cluster_semis",
         "cluster_semis.r0",
+        "signals",
         "thesis",
         "thesis.r0"
       ],
+      "runs_seen": 3,
       "expired": false
     },
     {
@@ -561,18 +681,19 @@
       "as_of": "2026-09-14",
       "ttl_days": 14,
       "expires": "2026-09-28",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://247wallst.com/investing/2026/09/14/marvell-falls-7-as-ai-pacing-debate-collides-with-fed-week-broadcom-drops-4-nvidia-pulls-back/",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-14",
-      "last_reaffirmed": "2026-09-20",
+      "last_reaffirmed": "2026-09-22",
       "reaffirmed_by": [
         "catalyst",
-        "catalyst.r4"
+        "catalyst.r4",
+        "signals"
       ],
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -590,13 +711,13 @@
       "as_of": "2026-09-21",
       "ttl_days": 1,
       "expires": "2026-09-22",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "noise",
       "direction": "tailwind",
       "source": "https://finance.yahoo.com/markets/live/stock-market-today-monday-september-21-dow-sp-500-nasdaq-080214605.html",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 1,
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -609,13 +730,13 @@
       "as_of": "2026-09-21",
       "ttl_days": 14,
       "expires": "2026-10-05",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "tailwind",
       "source": "https://247wallst.com/investing/2026/09/10/openai-picked-broadcom-for-its-first-custom-ai-chip-the-race-for-number-two-just-got-dangerous/",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 1,
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -634,13 +755,13 @@
       "as_of": "2026-09-14",
       "ttl_days": 2,
       "expires": "2026-09-16",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "immediate",
       "direction": "threat",
       "source": "https://en.sedaily.com/finance/2026/09/14/kospi-falls-326-percent-to-close-at-668437",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-14",
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": true
     },
     {
@@ -687,14 +808,13 @@
       "as_of": "2026-09-21",
       "ttl_days": 14,
       "expires": "2026-10-05",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://en.sedaily.com/international/2026/09/20/chinas-cxmt-starts-mass-production-on-5th-generation-dram",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 2,
-      "last_reaffirmed": "2026-09-21",
+      "last_reaffirmed": "2026-09-22",
       "reaffirmed_by": [
         "catalyst",
         "catalyst.corrupt_by_router",
@@ -704,6 +824,7 @@
         "thesis.r0",
         "watchlist"
       ],
+      "runs_seen": 3,
       "expired": false
     },
     {
@@ -730,7 +851,7 @@
       "as_of": "2026-09-15",
       "ttl_days": 2,
       "expires": "2026-09-17",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "immediate",
       "direction": "threat",
       "source": "https://the-agent-report.com/2026/09/ai-development-brake-amodei-altman-2026/",
@@ -744,7 +865,7 @@
         "strategist",
         "thesis"
       ],
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": true
     },
     {
@@ -768,13 +889,18 @@
       "as_of": "2026-09-21",
       "ttl_days": 2,
       "expires": "2026-09-23",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "immediate",
       "direction": "ambiguous",
       "source": "https://www.weforum.org/stories/geo-economics-and-politics/what-to-expect-from-the-trump-xi-summit-in-washington/ ; https://www.ajupress.com/view/20260918154407996",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 1,
+      "runs_seen": 2,
+      "last_reaffirmed": "2026-09-22",
+      "reaffirmed_by": [
+        "catalyst",
+        "thesis"
+      ],
       "expired": false
     },
     {
@@ -787,13 +913,13 @@
       "as_of": "2026-09-15",
       "ttl_days": 14,
       "expires": "2026-09-29",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://247wallst.com/investing/2026/09/14/ge-vernova-sinks-9-as-glj-research-starts-at-sell-with-470-target-eaton-drops-7-quanta-services-falls-4/",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-15",
-      "last_reaffirmed": "2026-09-21",
+      "last_reaffirmed": "2026-09-22",
       "reaffirmed_by": [
         "catalyst",
         "catalyst.r4",
@@ -801,7 +927,7 @@
         "strategist",
         "thesis"
       ],
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -816,13 +942,12 @@
       "as_of": "2026-09-21",
       "ttl_days": 14,
       "expires": "2026-10-05",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "threat",
       "source": "https://247wallst.com/investing/2026/09/18/lumentum-climbs-3-as-optics-buying-extends-coherent-rises-5-corning-jumps-3/",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 2,
       "last_reaffirmed": "2026-09-21",
       "reaffirmed_by": [
         "catalyst",
@@ -832,6 +957,7 @@
         "thesis",
         "thesis.r0"
       ],
+      "runs_seen": 3,
       "expired": false
     },
     {
@@ -865,7 +991,7 @@
         "thesis"
       ],
       "runs_seen": 9,
-      "expired": false
+      "expired": true
     },
     {
       "id": "catalyst:dfd8f21142",
@@ -879,7 +1005,7 @@
       "as_of": "2026-09-19",
       "ttl_days": 3,
       "expires": "2026-09-22",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "tactical",
       "direction": "ambiguous",
       "source": "https://www.thestar.com.my/tech/tech-news/2026/09/18/sk-hynix039s-solidigm-unit-is-weighing-nand-memory-chip-factory-in-us-sources-say",
@@ -890,7 +1016,7 @@
         "cluster_memory",
         "cluster_memory.r0"
       ],
-      "runs_seen": 4,
+      "runs_seen": 5,
       "expired": false
     },
     {
@@ -913,13 +1039,13 @@
       "as_of": "2026-09-16",
       "ttl_days": 2,
       "expires": "2026-09-18",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "immediate",
       "direction": "ambiguous",
       "source": "https://finance.yahoo.com/markets/live/stock-market-today-wednesday-september-16-dow-sp-500-nasdaq-fed-meeting-decision-080356525.html",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-16",
-      "runs_seen": 6,
+      "runs_seen": 7,
       "expired": true
     },
     {
@@ -932,13 +1058,13 @@
       "as_of": "2026-09-21",
       "ttl_days": 2,
       "expires": "2026-09-23",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "immediate",
       "direction": "ambiguous",
       "source": "https://247wallst.com/investing/2026/09/18/meta-is-about-to-become-mega-cloud-operator/",
       "agent": "smith-catalyst",
       "first_seen": "2026-09-21",
-      "runs_seen": 1,
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -953,7 +1079,7 @@
       "as_of": "2026-09-07",
       "ttl_days": 14,
       "expires": "2026-09-21",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "horizon": "structural",
       "direction": "ambiguous",
       "source": "https://www.techtimes.com/articles/326406/20260903/cxmt-hits-10-dram-share-samsungs-hbm-pivot-handed-china-market-vacancy.htm",
@@ -966,9 +1092,8 @@
         "cluster_memory",
         "cluster_memory.r0"
       ],
-      "runs_seen": 1,
-      "previous_claim": "CXMT G5 DRAM (LPDDR5X) now in volume production; 9.5% global DRAM revenue share Q2",
-      "expired": false
+      "runs_seen": 2,
+      "expired": true
     },
     {
       "id": "debate:3288e58acb",
@@ -1259,11 +1384,11 @@
       "as_of": "2026-09-15",
       "ttl_days": 7,
       "expires": "2026-09-22",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "medium",
       "agent": "smith-cluster",
       "first_seen": "2026-09-15",
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -1274,30 +1399,27 @@
       "as_of": "2026-09-15",
       "ttl_days": 7,
       "expires": "2026-09-22",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "medium",
       "agent": "smith-cluster",
       "first_seen": "2026-09-15",
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
       "id": "ladder:399b428241",
       "kind": "ladder",
       "subject": "AI Semis/Fabs",
-      "claim": "AI Semis/Fabs order, round 4: TSM > KLAC > TER > AMAT > ASML > AMD > QCOM. Leader TSM (held), laggard QCOM (held). Changed from this morning's tail: TER and AMAT swap ranks 3 and 4. Cluster thesis intact / mid unchanged; margin-pool call unchanged.",
+      "claim": "AI Semis/Fabs: leader TSM, laggard QCOM; order TSM > KLAC > AMAT > TER > ASML > AMD > QCOM; cluster thesis intact, innings mid",
       "as_of": "2026-09-21",
       "ttl_days": 7,
       "expires": "2026-09-28",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "medium",
       "agent": "smith-cluster",
       "first_seen": "2026-09-15",
       "runs_seen": 1,
-      "previous_claim": "AI Semis/Fabs order is now TSM > KLAC > AMAT > TER > ASML > AMD > QCOM; leader TSM (held), laggard QCOM (was AMAT). Cluster thesis intact / mid is unchanged.",
-      "revised_by": "cluster_semis.r4",
-      "revised_reason": "The AMAT rank-3 promotion rested on two legs and the owning analyst withdrew one of them. The surviving packaging/GAA intensity leg still holds AMAT above ASML but no longer above TER, which has the same intensity story and, uniquely among the toolmakers, no sourced China-equipment exposure at all into a tightening-skewed policy window.",
-      "source": "catalyst M4.26/M4.32 (summit SME skew hold-or-tighter; TER withdrawn from summit and CXMT mappings); thesis M4.30 (QCOM no filed datacenter revenue, moved to intact); desk M4.27 (09-15 -> 09-21 returns)",
+      "previous_claim": "AI Semis/Fabs order, round 4: TSM > KLAC > TER > AMAT > ASML > AMD > QCOM. Leader TSM (held), laggard QCOM (held). Changed from this morning's tail: TER and AMAT swap ranks 3 and 4. Cluster thesis intact / mid unchanged; margin-pool call unchanged.",
       "expired": false
     },
     {
@@ -1308,12 +1430,15 @@
       "as_of": "2026-09-21",
       "ttl_days": 7,
       "expires": "2026-09-28",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "medium",
       "agent": "smith-cluster",
       "first_seen": "2026-09-14",
-      "runs_seen": 1,
-      "previous_claim": "AI Networking/Optics: leader LITE, laggard APH; order LITE > COHR > MRVL > ALAB > AVGO > CIEN > APH",
+      "runs_seen": 2,
+      "last_reaffirmed": "2026-09-22",
+      "reaffirmed_by": [
+        "thesis"
+      ],
       "expired": false
     },
     {
@@ -1324,11 +1449,15 @@
       "as_of": "2026-09-20",
       "ttl_days": 7,
       "expires": "2026-09-27",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "medium",
       "agent": "smith-cluster",
       "first_seen": "2026-09-09",
-      "runs_seen": 3,
+      "runs_seen": 4,
+      "last_reaffirmed": "2026-09-22",
+      "reaffirmed_by": [
+        "thesis"
+      ],
       "expired": false
     },
     {
@@ -1339,27 +1468,7 @@
       "as_of": "2026-09-21",
       "ttl_days": 7,
       "expires": "2026-09-28",
-      "run_id": "2026-09-21-1357Z",
-      "agent": "smith-scout",
-      "first_seen": "2026-09-15",
-      "last_reaffirmed": "2026-09-21",
-      "reaffirmed_by": [
-        "scout",
-        "strategist"
-      ],
-      "runs_seen": 1,
-      "previous_claim": "earnings_season_window: False; next_cpi: 2026-10-14; next_fomc: 2026-10-28; next_nfp: 2026-10-02",
-      "expired": false
-    },
-    {
-      "id": "macro:fomc",
-      "kind": "macro",
-      "subject": "Fed",
-      "claim": "Fed funds 3.875% (stance hawkish).",
-      "as_of": "2026-09-21",
-      "ttl_days": 39,
-      "expires": "2026-10-30",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "agent": "smith-scout",
       "first_seen": "2026-09-15",
       "last_reaffirmed": "2026-09-21",
@@ -1371,14 +1480,33 @@
       "expired": false
     },
     {
+      "id": "macro:fomc",
+      "kind": "macro",
+      "subject": "Fed",
+      "claim": "Fed funds 3.875% (stance hawkish).",
+      "as_of": "2026-09-21",
+      "ttl_days": 39,
+      "expires": "2026-10-30",
+      "run_id": "2026-09-22-0926Z",
+      "agent": "smith-scout",
+      "first_seen": "2026-09-15",
+      "last_reaffirmed": "2026-09-21",
+      "reaffirmed_by": [
+        "scout",
+        "strategist"
+      ],
+      "runs_seen": 3,
+      "expired": false
+    },
+    {
       "id": "macro:regime",
       "kind": "macro",
       "subject": "regime",
-      "claim": "Regime risk_on (fragile): cash SPX +0.72%, NDX +1.22%, SMH +2.04%, VIX 14.91, 10-yr 4.967% (-3.1bp)",
+      "claim": "Regime risk_on: Tape is risk-on: SPX +0.72%, NDX +1.22%, SMH +2.04%, VIX 14.9, oil and yields lower (10-yr -3.1bp), gate STABILIZING. Fragile, not clean: the Fed just hiked and leans hawkish, the 10-yr is 4.967% (+27bp in a month) and 3bp below the 5% line, breadth is narrow (Russell 2000 -0.5%), and the gauge is at extreme greed. Tilts the 09-21 07:02Z 'neutral' pre-open read to risk_on now that\u2026",
       "as_of": "2026-09-21",
       "ttl_days": 1,
       "expires": "2026-09-22",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "agent": "smith-scout",
       "first_seen": "2026-09-15",
       "last_reaffirmed": "2026-09-21",
@@ -1388,10 +1516,7 @@
         "thesis"
       ],
       "runs_seen": 1,
-      "previous_claim": "Regime risk_on: Tape is risk-on: SPX +0.72%, NDX +1.22%, SMH +2.04%, VIX 14.9, oil and yields lower (10-yr -3.1bp), gate STABILIZING. Fragile, not clean: the Fed just hiked and leans hawkish, the 10-yr is 4.967% (+27bp in a month) and 3bp below the 5% line, breadth is narrow (Russell 2000 -0.5%), and the gauge is at extreme greed. Tilts the 09-21 07:02Z 'neutral' pre-open read to risk_on now that\u2026",
-      "revised_by": "scout",
-      "revised_reason": "07:02Z pre-open read was neutral on futures; cash session confirms the bid and rates eased, though futures pct overstated the move",
-      "source": "market_inputs.json 2026-09-21T13:58Z",
+      "previous_claim": "Regime risk_on (fragile): cash SPX +0.72%, NDX +1.22%, SMH +2.04%, VIX 14.91, 10-yr 4.967% (-3.1bp)",
       "expired": false
     },
     {
@@ -1625,16 +1750,19 @@
       "id": "orchestrator:38e39e6831",
       "kind": "orchestrator",
       "subject": "proposal-engine",
-      "claim": "First full deep run on the rebuilt proposal engine (ENGINE_EPOCH 2026-09-21): validity check retired-recommended a brand-new proposal (P-367 NBIS sell) because the user bought NBIS the same day; profit_rotation pair P-365/P-366 auto-retired as pair_not_live against the strategist's keep.",
-      "as_of": "2026-09-21",
+      "claim": "validity check retired-recommended P-367 (NBIS sell) on 2026-09-21 because the user bought NBIS the same day; the 09-21 strategist chose to keep it open",
+      "as_of": "2026-09-22",
       "ttl_days": 30,
-      "expires": "2026-10-21",
+      "expires": "2026-10-22",
       "run_id": "2026-09-21-1357Z",
-      "source": "smith_math.py validity / proposals 2026-09-21",
+      "source": "smith_math.py validity 2026-09-22 (re-run, read-only)",
       "agent": "orchestrator",
       "first_seen": "2026-09-21",
       "runs_seen": 1,
-      "expired": false
+      "expired": false,
+      "previous_claim": "First full deep run on the rebuilt proposal engine (ENGINE_EPOCH 2026-09-21): validity check retired-recommended a brand-new proposal (P-367 NBIS sell) because the user bought NBIS the same day; profit_rotation pair P-365/P-366 auto-retired as pair_not_live against the strategist's keep.",
+      "revised_by": "strategist",
+      "revised_reason": "Same own_trade_contradicts verdict persists a second run running, now alongside seven more buys with nothing sold and no new bearish NBIS catalyst -- revising the prior keep decision to recommend retirement of P-367 and its pair partner P-368."
     },
     {
       "id": "orchestrator:3921f4e1e9",
@@ -1648,6 +1776,21 @@
       "source": "INDmoney transaction email 2026-09-17T14:22:20Z + smith-thesis reconciliation",
       "agent": "orchestrator",
       "first_seen": "2026-09-17",
+      "runs_seen": 1,
+      "expired": false
+    },
+    {
+      "id": "orchestrator:3cf7fa9254",
+      "kind": "orchestrator",
+      "subject": "gate",
+      "claim": "Gate AMBIGUOUS classification on 2026-09-22 cited SMH +4.02%, which is Monday 09-21's close-to-close settle, not a fresh move; actual premarket SMH was flat -0.69%. Read smh_live.changePct, not macro.smh_change_pct, before the cash open.",
+      "as_of": "2026-09-22",
+      "ttl_days": 3,
+      "expires": "2026-09-25",
+      "run_id": "2026-09-22-0926Z",
+      "source": "catalyst + signals + scout desk round 2026-09-22",
+      "agent": "orchestrator",
+      "first_seen": "2026-09-22",
       "runs_seen": 1,
       "expired": false
     },
@@ -1721,7 +1864,11 @@
       "agent": "orchestrator",
       "first_seen": "2026-09-21",
       "runs_seen": 1,
-      "expired": false
+      "expired": false,
+      "last_reaffirmed": "2026-09-22",
+      "reaffirmed_by": [
+        "strategist"
+      ]
     },
     {
       "id": "orchestrator:53e9112435",
@@ -1788,13 +1935,31 @@
       "kind": "orchestrator",
       "subject": "policy:stress",
       "claim": "Stress limit: a -35% AI-capex shock costs 26.6% of the book vs the 20% ceiling (advisory); AI-capex is 75.9% of total book",
-      "as_of": "2026-09-21",
+      "as_of": "2026-09-22",
       "ttl_days": 7,
-      "expires": "2026-09-28",
+      "expires": "2026-09-29",
       "run_id": "2026-09-21-0632Z",
-      "source": "compute_drift 2026-09-21",
+      "source": "compute_drift.json 2026-09-22",
       "agent": "orchestrator",
       "first_seen": "2026-09-21",
+      "runs_seen": 1,
+      "expired": false,
+      "previous_claim": "Stress limit: a -35% AI-capex shock costs 26.6% of the book vs the 20% ceiling (advisory); AI-capex is 75.9% of total book",
+      "revised_by": "strategist",
+      "revised_reason": "Seven buys since 09-21 raised AI-capex exposure to 81.699% of total book; the same -35% shock now costs an estimated 28.595% of book. Direction unchanged (over the advisory ceiling), magnitude worse."
+    },
+    {
+      "id": "orchestrator:70577475d1",
+      "kind": "orchestrator",
+      "subject": "LLY",
+      "claim": "LLY (new position, 0.5sh, 1.54%) first thesis: INTACT. GLP-1 franchise, Q2 revenue +48% YoY, FY26 guide raised to $85-87B, 90.5% Buy consensus. Only genuine non-AI-capex holding; re-examine after 2026-10-29 print.",
+      "as_of": "2026-09-22",
+      "ttl_days": 30,
+      "expires": "2026-10-22",
+      "run_id": "2026-09-22-0926Z",
+      "source": "smith-thesis 2026-09-22",
+      "agent": "orchestrator",
+      "first_seen": "2026-09-22",
       "runs_seen": 1,
       "expired": false
     },
@@ -2037,6 +2202,21 @@
       "expired": false
     },
     {
+      "id": "orchestrator:b491983ab6",
+      "kind": "orchestrator",
+      "subject": "scoring",
+      "claim": "Scorecard rebased 2026-09-22: 22 to 20 graded rows (definitional reclassification, not lost data). G100 opened: the rebase guard's explained-by check is computed against the whole proposal history, not the incremental change since the last rebase, so it will admit almost any small shrink going forward.",
+      "as_of": "2026-09-22",
+      "ttl_days": 14,
+      "expires": "2026-10-06",
+      "run_id": "2026-09-22-0926Z",
+      "source": "smith_math.py score --rebase-scorecard 2026-09-22",
+      "agent": "orchestrator",
+      "first_seen": "2026-09-22",
+      "runs_seen": 1,
+      "expired": false
+    },
+    {
       "id": "orchestrator:b68adec42b",
       "kind": "orchestrator",
       "subject": "strategy:cash_deployment",
@@ -2063,6 +2243,21 @@
       "source": "compute_drift.json 2026-09-21",
       "agent": "orchestrator",
       "first_seen": "2026-09-21",
+      "runs_seen": 1,
+      "expired": false
+    },
+    {
+      "id": "orchestrator:be95b2de2e",
+      "kind": "orchestrator",
+      "subject": "flows",
+      "claim": "Seven buys landed 2026-09-21 evening / 2026-09-22: MRVL +1, GEV +1, STM +5 (to 20sh), BE +2, LLY +0.5 (new position), SKHY +2, net flow +$1,094.90. AI-capex share rose from 75.9% to 81.7% of total book; cash fell from 19.6% (above band) to 12.6% (within band); stress-shock estimate rose from 26.6/26.9% to 28.6% of book.",
+      "as_of": "2026-09-22",
+      "ttl_days": 5,
+      "expires": "2026-09-27",
+      "run_id": "2026-09-22-0926Z",
+      "source": "ledger reconciliation + compute_drift.json 2026-09-22",
+      "agent": "orchestrator",
+      "first_seen": "2026-09-22",
       "runs_seen": 1,
       "expired": false
     },
@@ -2268,6 +2463,21 @@
       "expired": false
     },
     {
+      "id": "orchestrator:f160b6c066",
+      "kind": "orchestrator",
+      "subject": "proposal-engine",
+      "claim": "P-367 (SELL NBIS) validity verdict = retire (own_trade_contradicts) persists a second run; strategist independently recommended retiring the P-367/P-368 pair but the orchestrator did not submit that (auto-retiring a proposal crosses the user's 2026-09-19 rule that a retire verdict waits for their click).",
+      "as_of": "2026-09-22",
+      "ttl_days": 7,
+      "expires": "2026-09-29",
+      "run_id": "2026-09-22-0926Z",
+      "source": "smith_math.py validity + strategist tail 2026-09-22",
+      "agent": "orchestrator",
+      "first_seen": "2026-09-22",
+      "runs_seen": 1,
+      "expired": false
+    },
+    {
       "id": "orchestrator:f89b952a2b",
       "kind": "orchestrator",
       "subject": "cash",
@@ -2383,11 +2593,11 @@
       "as_of": "2026-09-20",
       "ttl_days": 21,
       "expires": "2026-10-11",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -2398,7 +2608,7 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -2407,7 +2617,7 @@
         "signals",
         "thesis"
       ],
-      "runs_seen": 3,
+      "runs_seen": 4,
       "expired": false
     },
     {
@@ -2415,10 +2625,10 @@
       "kind": "thesis",
       "subject": "AMD",
       "claim": "watch -- GPU/CPU compute silicon, direct NVDA competitor; position now 1sh / 1.75% (src holdings_trim, as_of 2026-09-21). Re-entry contradicts the strategist's own 08-12 refusal, unresolved. Today's +8.6% breakout is price/momentum, not new thesis evidence: WATCH stands.",
-      "as_of": "2026-09-21",
+      "as_of": "2026-09-22",
       "ttl_days": 21,
-      "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "expires": "2026-10-13",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -2426,8 +2636,7 @@
       "reaffirmed_by": [
         "signals"
       ],
-      "runs_seen": 1,
-      "previous_claim": "watch -- GPU/CPU compute silicon, direct NVDA competitor; re-entered 2sh against the strategist's own 08-12 refusal, which remains unresolved",
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -2438,7 +2647,7 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -2446,8 +2655,7 @@
       "reaffirmed_by": [
         "signals"
       ],
-      "runs_seen": 1,
-      "previous_claim": "watch -- AWS hyperscaler AI-capex demand-side link (Compute/Hyperscaler cluster); +2sh bought 2026-09-18 into an existing WATCH, now 5sh / 3.77% of equity. WATCH rests on widening 1m peer underperformance, offset by confirmed partnership tailwinds.",
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -2458,12 +2666,11 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "primary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 1,
-      "previous_claim": "intact -- High-speed interconnect/cable-assembly for AI servers and datacenter networking; AI/datacenter revenue share NOT established this run (no sourced percentage), so strengthening is not evidenced.",
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -2474,7 +2681,7 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -2482,7 +2689,7 @@
       "reaffirmed_by": [
         "thesis"
       ],
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -2512,7 +2719,7 @@
       "as_of": "2026-09-20",
       "ttl_days": 21,
       "expires": "2026-10-11",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -2521,7 +2728,7 @@
         "signals",
         "thesis"
       ],
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -2532,11 +2739,11 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -2547,11 +2754,11 @@
       "as_of": "2026-09-20",
       "ttl_days": 21,
       "expires": "2026-10-11",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -2559,10 +2766,10 @@
       "kind": "thesis",
       "subject": "COHR",
       "claim": "strengthening -- RECONCILED. Optical/photonics for AI datacenter interconnect. Q4 FY26 beat rev/EPS with guide raised above the beaten quarter; today's stop-out (3sh@$295, now 2.01% wt) reflects an unresolved GLW-driven optics-peer contagion, not a COHR-specific break.",
-      "as_of": "2026-09-21",
+      "as_of": "2026-09-22",
       "ttl_days": 21,
-      "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "expires": "2026-10-13",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -2570,7 +2777,7 @@
       "reaffirmed_by": [
         "signals"
       ],
-      "runs_seen": 5,
+      "runs_seen": 6,
       "expired": false
     },
     {
@@ -2581,7 +2788,7 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -2590,7 +2797,7 @@
         "signals",
         "thesis"
       ],
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -2598,10 +2805,10 @@
       "kind": "thesis",
       "subject": "GLW",
       "claim": "watch -- Optical fiber/connectivity and specialty glass for AI datacenter interconnect; DOWNGRADED to WATCH 2026-09-14 on a new $2B dilutive equity offering -- a real financing-structure catalyst, not sector beta",
-      "as_of": "2026-09-21",
+      "as_of": "2026-09-22",
       "ttl_days": 21,
-      "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "expires": "2026-10-13",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -2610,7 +2817,7 @@
         "signals",
         "thesis"
       ],
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -2621,11 +2828,11 @@
       "as_of": "2026-09-20",
       "ttl_days": 21,
       "expires": "2026-10-11",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -2636,11 +2843,11 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 3,
+      "runs_seen": 4,
       "expired": false
     },
     {
@@ -2648,14 +2855,29 @@
       "kind": "thesis",
       "subject": "LITE",
       "claim": "strengthening -- Optical/photonics for AI-datacenter interconnect (transceivers/ROADM); re-entered 2026-09-03 after 09-01 exit",
-      "as_of": "2026-09-21",
+      "as_of": "2026-09-22",
       "ttl_days": 21,
-      "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "expires": "2026-10-13",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 10,
+      "runs_seen": 11,
+      "expired": false
+    },
+    {
+      "id": "thesis:LLY",
+      "kind": "thesis",
+      "subject": "LLY",
+      "claim": "intact -- First thesis read (new position, 0.5sh, 1.54% of equity, src: holdings_trim, as_of 2026-09-21). Non-AI-capex pharma diversifier: GLP-1 obesity/diabetes franchise (Mounjaro, Zepbound) driving reported Q2 2026 revenue +48% YoY and a raised FY26 revenue guide to $85-87B (src: INDmoney news, as_of 2026-09-09/08-31); the desk's only true non-AI-capex holding.",
+      "as_of": "2026-09-22",
+      "ttl_days": 21,
+      "expires": "2026-10-13",
+      "run_id": "2026-09-22-0926Z",
+      "verified": "secondary",
+      "agent": "smith-thesis",
+      "first_seen": "2026-09-22",
+      "runs_seen": 1,
       "expired": false
     },
     {
@@ -2666,11 +2888,11 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -2681,7 +2903,7 @@
       "as_of": "2026-09-20",
       "ttl_days": 21,
       "expires": "2026-10-11",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -2689,7 +2911,7 @@
       "reaffirmed_by": [
         "signals"
       ],
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -2697,10 +2919,10 @@
       "kind": "thesis",
       "subject": "MU",
       "claim": "watch -- Memory (DRAM/HBM); WATCH is CXMT structural capacity risk, not ASP. CXMT G5 LPDDR5X now in volume (mobile-class, not HBM/server DDR5); CXMT HBM3E still trial-only with mass production guided 2027. The MU-relevant HBM3E contract quote prints $12.4/GB (2026-09-20, single point in its basis, so no within-basis trend can be called firm or falling). FQ4 print 2026-10-01 (INDmoney feed says 09\u2026",
-      "as_of": "2026-09-21",
+      "as_of": "2026-09-22",
       "ttl_days": 21,
-      "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "expires": "2026-10-13",
+      "run_id": "2026-09-22-0926Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -2709,8 +2931,7 @@
         "signals",
         "thesis"
       ],
-      "runs_seen": 1,
-      "previous_claim": "watch -- Memory (DRAM/HBM); WATCH is CXMT structural capacity risk, not ASP. New 09-20: CXMT G5 LPDDR5X volume output (mobile-class, not HBM/server DDR5) and HBM3E still trial-only with mass production guided 2027; MU HBM3E contract quote firm at $12.4/GB. FQ4 print 2026-10-01 is the next hard datapoint.",
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -2721,12 +2942,11 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 1,
-      "previous_claim": "watch -- Neocloud selling GPU capacity to hyperscalers, funded by floating-rate secured debt plus a $5B convert; RE-ENTERED 5sh on 2026-09-18 (3.29% of equity) after the 09-16 full exit forced by round-lot sizing on the rate-rotation sell leg. Prior WATCH (dilution and data-center concerns) is carried; nothing since resolves it.",
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -2737,12 +2957,11 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 1,
-      "previous_claim": "strengthening -- ServiceNow -- enterprise workflow/ITSM platform monetizing agentic-AI workflows; non-AI-capex satellite diversifier (Enterprise Software cluster)",
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -2753,12 +2972,11 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 1,
-      "previous_claim": "strengthening -- Diversifying from handsets into AI/datacenter CPUs and auto; 5.0008sh / 2.64% of equity. Friday's drop looks like handset-group profit-taking, not a thesis event, but the strengthening call now rests on 10-day-old partnership news.",
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -2766,29 +2984,30 @@
       "kind": "thesis",
       "subject": "SKHY",
       "claim": "watch -- SK hynix ADR; HBM4 Vera Rubin leader (60-70% share), 0.56% starter. CXMT HBM3E trial production is one generation behind and does not touch HBM4 leadership near-term; G5 output is LPDDR5X.",
-      "as_of": "2026-09-21",
+      "as_of": "2026-09-22",
       "ttl_days": 21,
-      "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "expires": "2026-10-13",
+      "run_id": "2026-09-22-0926Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-19",
-      "runs_seen": 2,
+      "runs_seen": 3,
       "expired": false
     },
     {
       "id": "thesis:STM",
       "kind": "thesis",
       "subject": "STM",
-      "claim": "watch -- Analog/industrial semis; Q2 beat but Q3 guide_below_consensus drove the selloff; peer-laggard flag has now resolved but guide-driven WATCH stands",
-      "as_of": "2026-09-20",
+      "claim": "watch -- Analog/industrial semis; WATCH stands on Q3 guide_below_consensus. Position increased +5sh to 20sh (2.74% of equity, src: holdings_trim, as_of 2026-09-21) -- a sizing decision, not new thesis evidence; no fresh company-specific catalyst found this run beyond the known Q2 print.",
+      "as_of": "2026-09-22",
       "ttl_days": 21,
-      "expires": "2026-10-11",
-      "run_id": "2026-09-21-1357Z",
+      "expires": "2026-10-13",
+      "run_id": "2026-09-22-0926Z",
       "verified": "primary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 10,
+      "runs_seen": 1,
+      "previous_claim": "watch -- Analog/industrial semis; Q2 beat but Q3 guide_below_consensus drove the selloff; peer-laggard flag has now resolved but guide-driven WATCH stands",
       "expired": false
     },
     {
@@ -2799,7 +3018,7 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "secondary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -2808,8 +3027,7 @@
         "signals",
         "thesis"
       ],
-      "runs_seen": 1,
-      "previous_claim": "strengthening -- Semicap automated test equipment geared to AI chip test volume; position is 5.0027sh / 5.02% weight (2026-09-14) -- NOT the dust position described in the stale 2026-08-19 open_flag, which appears superseded",
+      "runs_seen": 2,
       "expired": false
     },
     {
@@ -2820,11 +3038,11 @@
       "as_of": "2026-09-21",
       "ttl_days": 21,
       "expires": "2026-10-12",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -2835,7 +3053,7 @@
       "as_of": "2026-09-20",
       "ttl_days": 21,
       "expires": "2026-10-11",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "unverified",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
@@ -2843,7 +3061,7 @@
       "reaffirmed_by": [
         "thesis"
       ],
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     },
     {
@@ -2854,11 +3072,11 @@
       "as_of": "2026-09-20",
       "ttl_days": 21,
       "expires": "2026-10-11",
-      "run_id": "2026-09-21-1357Z",
+      "run_id": "2026-09-22-0926Z",
       "verified": "primary",
       "agent": "smith-thesis",
       "first_seen": "2026-09-15",
-      "runs_seen": 10,
+      "runs_seen": 11,
       "expired": false
     }
   ]

@@ -1,0 +1,28 @@
+{
+  "comms": {
+    "answers": [
+      {
+        "id": "M1.1",
+        "position": "noted",
+        "answer": "Confirmed, correction accepted. This run's market_inputs.macro.smh_change_pct (+4.02%) carries bar_dates.smh=2026-09-21 -- it is Monday's close-to-close settle, not a fresh overnight/premarket move. smh_live shows Tuesday premarket roughly flat: 591.90 vs prev_close 596.03 = -0.69% (as_of 2026-09-22T09:28:05Z, session=pre). I was not dispatched for a session/regime read this run (answer-only round, scout is not on this run's roster), so no output of mine this run cited the +4.02% figure as fresh information -- there is nothing of my own to revise here. For the record: my most recent standing regime finding (macro:regime, as_of 2026-09-21, expires 2026-09-22 -- today) used a different intraday SMH snapshot (+2.04% cash, taken mid-session Monday), not this stale post-close bar, and it is set to expire today regardless of this correction. Flagging forward: the next full scout run should read smh_live.changePct (session-aware) rather than macro.smh_change_pct when characterizing 'today's move' for the regime_note/session_read, since the latter is always the prior settle until a fresh bar prints intraday.",
+        "evidence": [
+          {"claim": "market_inputs.macro.smh_change_pct=4.019, bar_dates.smh=2026-09-21", "source": "local:market_inputs.json (this run)", "date": "2026-09-22"},
+          {"claim": "smh_live premarket -0.69% (591.90 vs prev_close 596.03), session=pre, as_of 2026-09-22T09:28:05Z", "source": "local:market_inputs.json smh_live (this run)", "date": "2026-09-22"},
+          {"claim": "prior standing finding macro:regime used SMH +2.04% (cash, mid-session 09-21), not +4.02%, and expires 2026-09-22", "source": "prior_findings_scout.7138ac07.json id=macro:regime", "date": "2026-09-21"}
+        ],
+        "confidence": "high"
+      }
+    ],
+    "asks": [],
+    "tells": []
+  },
+  "learned": [
+    {
+      "entities": ["SMH", "macro:regime", "gate_classification"],
+      "kind": "lesson",
+      "text": "market_inputs.macro.*_change_pct fields are close-to-close vs the prior settle (check bar_dates before quoting one as 'today's move') -- on a pre-market run they describe the PRIOR session, not overnight/premarket action. Use the paired *_live sub-object (e.g. smh_live.changePct, session-aware) when characterizing the current session before the cash open. Caught 2026-09-22 when catalyst flagged that this run's AMBIGUOUS gate classification cited SMH +4.02% (Monday 09-21's close-to-close bar) while premarket was flat at -0.69%.",
+      "source": "catalyst M1.1 (desk round 1, run 2026-09-22-0926Z); market_inputs.json 2026-09-22",
+      "confidence": "primary"
+    }
+  ]
+}

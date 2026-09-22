@@ -1,0 +1,35 @@
+{"signal_history":{"changed":{"MU":["TARGET GAP"],"MSFT":[],"AMD":["BREAKOUT","STRONG UPTREND","PEER LEADER"],"SKHY":["STRONG UPTREND","TARGET GAP"],"LLY":["PEER LAGGARD"]},"unchanged_count":23},
+ "news_watermark":"2026-09-22","resolved_flags":[],"new_flags":[],
+ "journal_new":[],
+ "peer_map_updates":{"LLY":{"peer_etf":"XLV","label":"pharma/GLP-1 (non-AI-capex; no peer_map entry existed pre-run, corrected from SMH default)"}},
+ "analyst_targets_updates":{"LLY":{"mean_target_usd":1325.39,"n_analysts":21,"as_of":"2026-09-22"}},
+ "vol_normalization":{
+   "TSM":{"atr20_pct":2.26,"day_atr_mult":-0.56,"rel_sigma":0.21,"threshold_pct":3.39},
+   "AMD":{"atr20_pct":3.74,"day_atr_mult":-0.3,"rel_sigma":2.93,"threshold_pct":5.61},
+   "LITE":{"atr20_pct":6.44,"day_atr_mult":-0.23,"rel_sigma":0.18,"threshold_pct":9.66},
+   "SKHY":{"atr20_pct":4.59,"day_atr_mult":-0.31,"rel_sigma":0.94,"threshold_pct":6.88},
+   "ASML":{"atr20_pct":2.89,"day_atr_mult":-0.24,"rel_sigma":-1.23,"threshold_pct":4.33},
+   "AMAT":{"atr20_pct":3.79,"day_atr_mult":-0.34,"rel_sigma":-1.42,"threshold_pct":5.69},
+   "AMZN":{"atr20_pct":2.19,"day_atr_mult":0.33,"rel_sigma":-1.4,"threshold_pct":3.29},
+   "BE":{"atr20_pct":6.36,"day_atr_mult":0.04,"rel_sigma":2.86,"threshold_pct":9.54},
+   "QCOM":{"atr20_pct":4.21,"day_atr_mult":-0.16,"rel_sigma":1.54,"threshold_pct":6.31},
+   "LLY":{"atr20_pct":2.36,"day_atr_mult":-0.05,"rel_sigma":-2.27,"threshold_pct":3.54}
+ },
+ "data_quality":[
+   "SKHY live quote misreports 52wk_low=$0 (known artifact); script wk52 cache is valid, no impact this run",
+   "LLY had no peer_map entry pre-run; PEER LAGGARD fired against a mismatched SMH default -- corrected to XLV",
+   "LLY has no analyst_targets cache entry; pulled fresh this run (mean $1,325.39, n=21) via analyst_targets_updates",
+   "Pre-open live day-change/prev_close fields from get_us_stocks_details read stale for several names (e.g. AMD); all price-position/day-move reads here use compute_buckets.json's script fields instead",
+   "CIEN is a $2.98/0.01%-weight dust position; its fired TARGET GAP bucket is immaterial at this size"
+ ],
+ "findings_reaffirmed":["catalyst:9744ffb8fe","catalyst:b0c7d54add","catalyst:afbd345ec2","catalyst:ce8fa6cd04","catalyst:90ef472ced","catalyst:511c7b86ce"],
+ "findings_revised":[],
+ "comms":{"answers":[],"asks":[],"tells":[]},
+ "memory_used":["acce172e73b3","bf1897ca0c0b","5a821537709e","18691a4ebc2f","d4672062d3dd","221f86bb2854","6da74338181b","cc6ae1d6c6f5","6ddf8e3ec2b4","477940e1be08"],
+ "memory_refuted":[],
+ "learned":[
+   {"entities":["LLY"],"kind":"lesson","text":"LLY (added 2026-09-21 as a new position, 0.5sh) had no peer_map entry, so compute_buckets defaulted its PEER LEADER/LAGGARD read to SMH -- a semis ETF -- producing a -2.27 rel_sigma that measures LLY-vs-semis, not LLY-vs-its-own-sector. Mapped to XLV this run. Any brand-new non-AI-capex position needs a peer_map entry seeded the same run it's added, or its first peer-relative read is noise.","source":"compute_buckets.json 2026-09-22 + peer_map.eb396c76.json (no LLY key)","confidence":"primary"},
+   {"entities":["AMD"],"kind":"event","text":"2026-09-22 pre-open: AMD's script-measured day move fell inside its 5.61%-ATR threshold (day_atr_mult -0.3), rolling off MOMENTUM+VOLUME from the 09-21 breakout day; a new OVERBOUGHT PULLBACK? leg (pos 0.983) was judged not confirmed -- upside to target is only 1.3% and no negative news exists after the 09-21 watermark.","source":"compute_buckets.json + get_us_stocks_details news sweep","confidence":"secondary"},
+   {"entities":["MU","MSFT","SKHY"],"kind":"event","text":"2026-09-22: three names crossed bucket thresholds in the quiet direction on marginal moves -- MU's pos (0.797) slipped just under the 0.80 STRONG UPTREND floor, MSFT's upside (13.8%) slipped just under the 15% TARGET GAP floor, and SKHY's rel_sigma (0.94) slipped just under the +1.0 PEER LEADER floor. None reflect new negative information; all are threshold-proximity noise worth watching if it persists into the next run.","source":"compute_buckets.json vs signal_history (2026-09-21 baseline)","confidence":"secondary"}
+ ]
+}

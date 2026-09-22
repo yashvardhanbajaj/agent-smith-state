@@ -1,0 +1,60 @@
+{
+  "as_of": "2026-09-22",
+  "ok": true,
+  "basis": "position-level reconstruction from the trade ledger, priced at daily closes",
+  "twr": {
+    "from": "2025-05-08",
+    "to": "2026-09-18",
+    "n_sessions": 343,
+    "twr_pct": 64.84,
+    "vol_annualized_pct": 36.4,
+    "max_drawdown_pct": -29.4,
+    "sharpe_rf0": 1.19,
+    "sharpe_note": "risk-free rate ZERO; the 10-yr is ~5%, so this overstates risk-adjusted skill",
+    "best_session_pct": 10.06,
+    "worst_session_pct": -8.77,
+    "benchmark": "SMH",
+    "benchmark_pct": 158.17,
+    "excess_pp": -93.32
+  },
+  "twr_material_capital": {
+    "from": "2026-05-13",
+    "to": "2026-09-18",
+    "n_sessions": 89,
+    "twr_pct": 0.25,
+    "vol_annualized_pct": 51.8,
+    "max_drawdown_pct": -28.3,
+    "sharpe_rf0": 0.27,
+    "sharpe_note": "risk-free rate ZERO; the 10-yr is ~5%, so this overstates risk-adjusted skill",
+    "best_session_pct": 10.06,
+    "worst_session_pct": -7.07,
+    "benchmark": "SMH",
+    "benchmark_pct": 0.09,
+    "excess_pp": 0.16
+  },
+  "objective_check": {
+    "window_months": 12,
+    "tolerance_pp": 10,
+    "n_sessions": 89,
+    "min_sessions": 200,
+    "status": "insufficient_history",
+    "note": "89 material-capital sessions in the last 12m; 200 needed before a rolling result is quoted"
+  },
+  "material_book_floor_usd": 10000.0,
+  "money_weighted": {
+    "as_of": "2026-09-18",
+    "net_capital_deployed_usd": 29053.9,
+    "actual_value_usd": 33566.62,
+    "same_flows_into_benchmark_usd": 33068.68,
+    "selection_cost_usd": 497.94,
+    "basis": "every equity flow redirected into SMH at that session's close"
+  },
+  "positions_final_count": 30,
+  "adjustment_flow_usd": 5393.93,
+  "data_quality": [
+    "$5,393.93 of position arrived via `adjustment` rows (phantom-short/broker reconciliations, basis unknown). Priced at session close and booked as flow so they contribute no return, but the position history before 2026-08-15 rests on 13 such corrections.",
+    "5 early session(s) excluded: prior book below $500, where percentage returns are arithmetically unstable.",
+    "Reconstructed from trades.json, NOT from ledger.csv snapshots -- the ledger's value_usd is not consistent with fills on heavy-trading days (2026-07-28)."
+  ],
+  "written": "runs/2026-09-22-0926Z/compute_perf.json"
+}

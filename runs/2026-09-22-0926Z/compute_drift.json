@@ -1,0 +1,320 @@
+{
+  "stress_limit": {
+    "shock_pct": -35,
+    "max_loss_pct_of_book": 20,
+    "ai_capex_pct_of_total_book": 81.699,
+    "stressed_loss_pct_of_book": 28.595,
+    "max_ai_capex_pct_of_total_book": 57.14,
+    "over_limit": true,
+    "mode": "advisory",
+    "assumes": "the whole AI-capex sleeve falls by shock_pct together (beta 1 to the factor); cash and non-AI names unchanged"
+  },
+  "position_count": {
+    "n": 28,
+    "target_range": [
+      15,
+      20
+    ],
+    "status": "above",
+    "mode": "advisory"
+  },
+  "effective_aggregate_cap_pct": null,
+  "policy_present": true,
+  "policy_confirmed": true,
+  "policy_defects": [],
+  "policy_valid": true,
+  "cluster_target_denominator": "total_book",
+  "cluster_denominator_declared": "total_book",
+  "cluster_denominator_switched": true,
+  "cluster_denominator_reason": "cash 12.6% is above the normal band top 15% -- cluster CEILINGS tested on total book, floors still on invested equity",
+  "cluster_table": [
+    {
+      "cluster": "AI Power/Cooling/DC Infra",
+      "actual_pct": 10.316,
+      "target_pct": 17,
+      "band_pct": [
+        12,
+        22
+      ],
+      "drift_pt": -6.684,
+      "breach": true,
+      "actual_pct_of_equity": 11.807,
+      "actual_pct_of_total_book": 10.316,
+      "breach_edge": "under",
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 5067.79,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "AI Semis/Fabs",
+      "actual_pct": 30.372,
+      "target_pct": 28,
+      "band_pct": [
+        23,
+        33
+      ],
+      "drift_pt": 2.372,
+      "breach": false,
+      "actual_pct_of_equity": 34.762,
+      "actual_pct_of_total_book": 30.372,
+      "breach_edge": null,
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 1139.86,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "AI Memory/Storage",
+      "actual_pct": 6.045,
+      "target_pct": 7,
+      "band_pct": [
+        4,
+        13
+      ],
+      "drift_pt": -0.955,
+      "breach": false,
+      "actual_pct_of_equity": 6.919,
+      "actual_pct_of_total_book": 6.045,
+      "breach_edge": null,
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 3016.65,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "AI Networking/Optics",
+      "actual_pct": 14.243,
+      "target_pct": 16,
+      "band_pct": [
+        11,
+        21
+      ],
+      "drift_pt": -1.757,
+      "breach": false,
+      "actual_pct_of_equity": 16.302,
+      "actual_pct_of_total_book": 14.243,
+      "breach_edge": null,
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 2930.77,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "Compute/Hyperscaler OEM",
+      "actual_pct": 3.102,
+      "target_pct": 3,
+      "band_pct": [
+        0,
+        8
+      ],
+      "drift_pt": 0.102,
+      "breach": false,
+      "actual_pct_of_equity": 3.55,
+      "actual_pct_of_total_book": 3.102,
+      "breach_edge": null,
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 2124.45,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "Compute/Hyperscaler",
+      "actual_pct": 14.572,
+      "target_pct": 15,
+      "band_pct": [
+        10,
+        20
+      ],
+      "drift_pt": -0.428,
+      "breach": false,
+      "actual_pct_of_equity": 16.678,
+      "actual_pct_of_total_book": 14.572,
+      "breach_edge": null,
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 2354.33,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "Diversified/Regional ETF",
+      "actual_pct": 0.0,
+      "target_pct": 2,
+      "band_pct": [
+        0,
+        8
+      ],
+      "drift_pt": -2.0,
+      "breach": false,
+      "note": "empty cluster -- no held members; floor not tested",
+      "actual_pct_of_equity": 0.0,
+      "actual_pct_of_total_book": 0.0,
+      "breach_edge": null,
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 3469.9,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "Enterprise Software",
+      "actual_pct": 1.941,
+      "target_pct": 0,
+      "band_pct": [
+        0,
+        5
+      ],
+      "drift_pt": 1.941,
+      "breach": false,
+      "actual_pct_of_equity": 2.221,
+      "actual_pct_of_total_book": 1.941,
+      "breach_edge": null,
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 1326.8,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "Critical Minerals/Rare Earth",
+      "actual_pct": 0.0,
+      "target_pct": 0,
+      "band_pct": [
+        0,
+        5
+      ],
+      "drift_pt": 0.0,
+      "breach": false,
+      "note": "empty cluster -- no held members; floor not tested",
+      "actual_pct_of_equity": 0.0,
+      "actual_pct_of_total_book": 0.0,
+      "breach_edge": null,
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 2168.69,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "Analog/Industrial Semis",
+      "actual_pct": 2.39,
+      "target_pct": 4,
+      "band_pct": [
+        0,
+        8
+      ],
+      "drift_pt": -1.61,
+      "breach": false,
+      "actual_pct_of_equity": 2.735,
+      "actual_pct_of_total_book": 2.39,
+      "breach_edge": null,
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 2433.27,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "Financials/Alt-Asset Diversifier",
+      "actual_pct": 0.0,
+      "target_pct": 4,
+      "band_pct": [
+        0,
+        8
+      ],
+      "drift_pt": -4.0,
+      "breach": false,
+      "note": "empty cluster -- no held members; floor not tested",
+      "actual_pct_of_equity": 0.0,
+      "actual_pct_of_total_book": 0.0,
+      "breach_edge": null,
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 3469.9,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "China Internet/Diversifier",
+      "actual_pct": 0.0,
+      "target_pct": 1,
+      "band_pct": [
+        0,
+        5
+      ],
+      "drift_pt": -1.0,
+      "breach": false,
+      "note": "empty cluster -- no held members; floor not tested",
+      "actual_pct_of_equity": 0.0,
+      "actual_pct_of_total_book": 0.0,
+      "breach_edge": null,
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 2168.69,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "AI Storage/HDD",
+      "actual_pct": 3.05,
+      "target_pct": 3,
+      "band_pct": [
+        0,
+        8
+      ],
+      "drift_pt": 0.05,
+      "breach": false,
+      "actual_pct_of_equity": 3.491,
+      "actual_pct_of_total_book": 3.05,
+      "breach_edge": null,
+      "ceiling_tested_on": "total_book",
+      "floor_tested_on": "total_book",
+      "cluster_room_usd": 2147.0,
+      "cluster_room_basis": "total_book"
+    },
+    {
+      "cluster": "Unclassified",
+      "actual_pct": 1.535,
+      "target_pct": null,
+      "band_pct": null,
+      "drift_pt": null,
+      "breach": false,
+      "note": "exposure only -- no target set (fluid clusters: the desk may set one)",
+      "actual_pct_of_equity": 1.535,
+      "actual_pct_of_total_book": 1.341,
+      "breach_edge": null,
+      "ceiling_tested_on": null,
+      "floor_tested_on": null,
+      "cluster_room_usd": null,
+      "cluster_room_basis": null
+    }
+  ],
+  "unpoliced_pct_of_equity": 1.535,
+  "unpoliced_clusters": [
+    "Unclassified"
+  ],
+  "position_breaches": [],
+  "cash_pct": 12.628,
+  "cash_band_pct": [
+    5,
+    15
+  ],
+  "cash_breach": false,
+  "cash_band_mode": "advisory",
+  "cash_outside_band": false,
+  "cash_regime": "normal",
+  "cash_regime_reason": "no stop-out within 15 sessions (last: 2026-08-18)",
+  "cash_band_normal_pct": [
+    5,
+    15
+  ],
+  "cash_breach_vs_normal": false,
+  "cash_pct_denominator": "total_book",
+  "ai_capex_pct": 81.699,
+  "ai_capex_cap_pct": 100,
+  "ai_capex_breach": false,
+  "ai_capex_denominator": "total_book",
+  "ai_capex_pct_of_equity": 93.508,
+  "ai_capex_pct_of_total_book": 81.699,
+  "total_book_usd": 43373.78,
+  "invested_equity_usd": 37896.39,
+  "peak_total_book_usd": 43373.78,
+  "drawdown_pct": 0.0,
+  "drawdown_basis": "total_book",
+  "risk_off_status": "normal",
+  "drawdown_action": null
+}

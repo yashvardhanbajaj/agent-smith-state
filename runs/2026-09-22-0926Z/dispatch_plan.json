@@ -1,0 +1,56 @@
+{
+  "mode": "quick",
+  "today": "2026-09-22",
+  "waves": {
+    "1": [
+      "catalyst",
+      "signals"
+    ],
+    "2": [
+      "thesis"
+    ],
+    "3": [
+      "strategist"
+    ]
+  },
+  "agents": {
+    "signals": {
+      "agent": "smith-signals",
+      "wave": 1,
+      "reasons": [
+        "every run"
+      ]
+    },
+    "thesis": {
+      "agent": "smith-thesis",
+      "wave": 2,
+      "reasons": [
+        "live price trigger on held AMD, COHR, GLW, LITE, MU, SKHY"
+      ]
+    },
+    "catalyst": {
+      "agent": "smith-catalyst",
+      "wave": 1,
+      "reasons": [
+        "SMH +4.02%"
+      ]
+    },
+    "strategist": {
+      "agent": "smith-strategist",
+      "wave": 3,
+      "reasons": [
+        "every run"
+      ]
+    }
+  },
+  "skipped": {
+    "watchlist": "quick mode, no explicit ask"
+  },
+  "scripts": [],
+  "deep_lite": null,
+  "dispatch_prompts": {},
+  "recheck_after_wave1": false,
+  "merge_after_wave1": "catalyst,signals",
+  "reslice_wave2": "thesis",
+  "ledger": "dispatch smith-ledger only if ledger-parse reports dispatch_agent, or lots reports a mismatch or phantom short"
+}

@@ -1,0 +1,109 @@
+{
+  "policy_draft": null,
+  "stress_table": null,
+  "proposals": [
+    {
+      "direction": "HOLD",
+      "ticker": "NBIS",
+      "size_usd": 0,
+      "price_at_proposal": 230.7575,
+      "rationale": "Retire P-367 (SELL NBIS, cluster_rotation pair leg). validity check: own_trade_contradicts -- user bought 1 NBIS on 2026-09-21, the same day this was proposed. The 09-21 strategist left it open citing low cost-of-waiting; since then the user has added across seven more names with nothing sold anywhere and no new bearish NBIS catalyst. The tension is compounding, not resolving. Retire the pair as one decision (P-367 + P-368) rather than leaving an orphaned funding leg.",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": null,
+      "pair_id": "cluster_rotation-NBIS-MSFT",
+      "pair_role": "sell",
+      "size_wanted_usd": null,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "supersedes": ["P-367"],
+      "evidence_quality": {"verified": 1, "computed": 2, "unverified": 0}
+    },
+    {
+      "direction": "HOLD",
+      "ticker": "MSFT",
+      "size_usd": 0,
+      "price_at_proposal": 503.5367,
+      "rationale": "Retire P-368 (BUY MSFT, cluster_rotation pair leg) alongside P-367 -- its funding sell leg is being retired for own_trade_contradicts, and a rotation pair is one decision, never two independent legs (SKILL 2b/2d). MSFT's own thesis case (strengthening, FCF-positive, headroom $3.8k) is not disputed; if still wanted, it should come back as a fresh, unpaired proposal on a future run rather than ride this retired pair.",
+      "trigger_type": "cluster_rotation",
+      "trigger_bucket": null,
+      "pair_id": "cluster_rotation-NBIS-MSFT",
+      "pair_role": "buy",
+      "size_wanted_usd": null,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "supersedes": ["P-368"],
+      "evidence_quality": {"verified": 0, "computed": 2, "unverified": 0}
+    }
+  ],
+  "scorecard_read": "since_epoch_scorecard n=0 -- no current-engine track record exists yet to grade this run's proposals against. Stored legacy scorecard (n=20 rows/18 ideas, rebased 22->20 today) is LEGACY-ENGINE HISTORY only (overall net expectancy 2.345%, accuracy 50.0%; TRIM/SELL 62.5% n=8; BUY 41.7% n=12) and must not be quoted as current performance. This run's gate refused 7 of 9 candidate buys on EV/target grounds before they became proposals -- that discipline, not an accuracy figure, is what this run's scorecard actually shows.",
+  "deemphasize_buckets": [],
+  "data_quality": [
+    "Gate was AMBIGUOUS on a stale SMH+4.02% bar (Monday close-to-close); premarket flat -0.69% -- confirmed via desk tell M1.1, not re-derived.",
+    "Stress table skipped -- quick run, deep-only per SKILL Task 4; the advisory drift-based stress read (compute_drift.stress_limit) stands in.",
+    "GEV/BE/SKHY qty changes flagged likely_corporate_action by compute_book.json but trade_reason is UNCAPTURED (G78) -- treated as genuine buys per dispatch framing, not verified against a confirmation email (G86, no such tooling in this deployment).",
+    "P-367/P-368 retirement submitted as HOLD+supersedes specs with no live trigger row to build a ticket from; if the lifecycle step does not act on them, fallback is `smith_math.py dismiss --id P-367` (pair partner should auto-retire as pair_not_live, as P-365/P-366 did on 09-21).",
+    "bucket_hit_rates absent from out_signals.json this run -- nothing to quote for Task 5."
+  ],
+  "findings_reaffirmed": ["orchestrator:50a836d1fd"],
+  "findings_revised": [
+    {
+      "id": "orchestrator:6908eb070c",
+      "claim": "Stress limit: a -35% AI-capex shock costs 26.6% of the book vs the 20% ceiling (advisory); AI-capex is 75.9% of total book",
+      "source": "compute_drift.json 2026-09-22",
+      "reason": "Seven buys since 09-21 raised AI-capex exposure to 81.699% of total book; the same -35% shock now costs an estimated 28.595% of book. Direction unchanged (over the advisory ceiling), magnitude worse."
+    },
+    {
+      "id": "orchestrator:38e39e6831",
+      "claim": "validity check retired-recommended P-367 (NBIS sell) on 2026-09-21 because the user bought NBIS the same day; the 09-21 strategist chose to keep it open",
+      "source": "smith_math.py validity 2026-09-22 (re-run, read-only)",
+      "reason": "Same own_trade_contradicts verdict persists a second run running, now alongside seven more buys with nothing sold and no new bearish NBIS catalyst -- revising the prior keep decision to recommend retirement of P-367 and its pair partner P-368."
+    }
+  ],
+  "comms": {
+    "answers": [
+      {
+        "id": "M2.2",
+        "position": "noted",
+        "answer": "Reflected in the stress-limit advisory above: LLY+STM+NOW (~6.5% of book) is the non-AI-capex-chain offset against the 93.5% AI-capex-chain remainder. Too small to change the -35%-shock stress number materially (28.595% vs 20% ceiling either way), but noted as the only diversification the book currently carries.",
+        "evidence": [],
+        "confidence": "high"
+      }
+    ],
+    "asks": [],
+    "tells": [
+      {
+        "to": "thesis",
+        "ticker": "STM",
+        "fact": "Position sized up 33% (15->20sh, now 2.74% of book) on 2026-09-21/22 while thesis status remains WATCH. No cap/cluster breach (cap multiple 0.29), so no proposal action from this run, but STM is one of the 15 status-only names this run and hasn't been freshly re-underwritten since the add.",
+        "weight": "normal"
+      }
+    ]
+  },
+  "memory_used": [],
+  "memory_refuted": [],
+  "learned": [
+    {
+      "entities": ["T:NBIS", "T:MSFT"],
+      "kind": "verdict",
+      "text": "P-367 (SELL NBIS)/P-368 (BUY MSFT), the cluster_rotation-NBIS-MSFT pair, recommended for retirement 2026-09-22: own_trade_contradicts on NBIS persisted a second consecutive run (bought 09-21, again active through a 7-buy accumulation spree with nothing sold and no new bearish NBIS catalyst). The 09-21 strategist chose to keep it open once already; this run revised that to retire, on the reasoning that a persisting rather than resolving contradiction should not stay open indefinitely just because the stop clock is free.",
+      "source": "smith_math.py validity 2026-09-22 + proposals.json P-367/P-368",
+      "confidence": "primary"
+    },
+    {
+      "entities": ["T:STM"],
+      "kind": "fact",
+      "text": "STM added 5sh (15->20sh, 2.74% weight) 2026-09-21/22 while thesis remained WATCH; no cap breach (multiple 0.29). Flagged to thesis for a fresh look, not actioned.",
+      "source": "compute_book.json qty_changes + compute_rotation.json 2026-09-22",
+      "confidence": "primary"
+    },
+    {
+      "entities": ["M:desk"],
+      "kind": "fact",
+      "text": "Seven buys landed 2026-09-21/22 (NOW, NBIS, MRVL, GEV, STM+5, BE+2, LLY new, SKHY+2), net flow +$1,094.90. This deployed cash from ~19.6% (above the 5-15% band as of the 09-21 P-368 write) down to 12.628% (within band), while simultaneously raising the advisory stress-shock estimate from 26.6% to 28.595% of book as AI-capex exposure rose from 75.9% to 81.699% of total book. Both readings are correct and point in opposite directions -- inherent to redeploying excess cash in a single-factor book, not a data conflict.",
+      "source": "compute_drift.json + compute_book.json 2026-09-22",
+      "confidence": "primary"
+    }
+  ]
+}

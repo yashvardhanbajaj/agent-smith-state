@@ -1,0 +1,11 @@
+{
+ "brief": null,
+ "entity": "T:SMH",
+ "live_facts": [
+  "[0505b6477aab] lesson GATE_CLASSIFICATION,SMH,regime (2026-09-22): market_inputs.macro.*_change_pct fields are close-to-close vs the prior settle (check bar_dates before quoting one as 'today's move') -- on a pre-market run they describe the PRIOR session, not overnight/premarket action. Use the paired *_live sub-object (e.g. smh_live.changePct, session-aware) when characterizing the current session before the cash open. Caught 2026-09-22 when catalyst flagged that this run's AMBIGUOUS gate classification cited SMH +4.02% (Monday 09-21's close-to-close bar) while premarket was flat at -0.69%."
+ ],
+ "n_observations": 1,
+ "open_tensions": [],
+ "refuted": [],
+ "timelines": {}
+}

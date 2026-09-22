@@ -2,23 +2,28 @@
  "brief": null,
  "entity": "T:STM",
  "live_facts": [
+  "[cff3a6cf2f99] event STM (2026-09-22): STM increased +5sh to 20sh (2.74% of equity) on 2026-09-21; no company-specific catalyst found to justify the add as of 2026-09-22 -- same add-ahead-of-thesis-resolution pattern already logged on AMZN/AMD/NBIS. Thesis stays WATCH (guide_below_consensus).",
+  "[53368c7e381c] fact/thesis_evidence STM (2026-09-14 x2): [thesis evidence FOR] long-standing PEER LAGGARD (opened 08-13) resolved, rel_sigma now -0.9, no longer crosses -1.0",
+  "[2843b6bbb125] fact STM (2026-09-22): STM added 5sh (15->20sh, 2.74% weight) 2026-09-21/22 while thesis remained WATCH; no cap breach (multiple 0.29). Flagged to thesis for a fresh look, not actioned.",
+  "[ce04b3d94dd6] fact/thesis_evidence STM (2026-09-22): [thesis evidence FOR] Q2 2026 print calls out an AWS-partnership-linked datacenter revenue line, not previously captured in this thesis",
+  "[1ee3f64ad065] fact/thesis_evidence STM (2026-09-21): [thesis evidence AGAINST] Position increased +5sh to 20sh (2.74%) this window with no fresh company-specific catalyst found -- same add-ahead-of-thesis-resolution pattern already flagged on AMZN/AMD/NBIS",
   "[cff9cdfc346c] lesson STM (2026-09-15) [secondary]: [rebound excluded] too_quiet",
-  "[53368c7e381c] fact/thesis_evidence STM (2026-09-14): [thesis evidence FOR] long-standing PEER LAGGARD (opened 08-13) resolved, rel_sigma now -0.9, no longer crosses -1.0",
   "[3fe257a64b08] event/proposal STM (2026-09-15) [secondary]: [proposal] SELL $359.93 (conviction_exit): 3-signal conviction_exit, primary-verified watch thesis. Harvests a -4.84% loss as a byproduct.",
+  "[33e54c7d9d14] fact STM (2026-09-22) [secondary]: STM (new 09-21 holding) has an AWS-partnership-linked datacenter revenue line called out in its Q2 2026 print, but no fresh news as of 09-22; not yet mapped to any standing factor theme.",
   "[74025c210836] fact STM (2026-09-15) [secondary]: [watchlist setup] {\"ticker\": \"STM\", \"type\": \"target_gap\", \"upside_pct\": 36.3, \"pos\": 0.44}",
   "[fa19a0764fba] fact STM (2026-09-15) [secondary]: [thesis] watch -- Analog/industrial semis; Q2 beat but Q3 guide_below_consensus drove the selloff; peer-laggard flag has now resolved but guide-driven WATCH stands",
   "[492e514ef79c] fact STM (2026-08-30) [secondary]: [quality flag] {\"finding\": \"Cash conversion thin despite rising net income; capex-heavy funding fab capacity\", \"metric\": \"FCF/PAT, total debt YoY\", \"magnitude\": \"FCF <1% of net income this quarter; debt +44.6% YoY\", \"evidence_for\": [{\"claim\": \"FCF $18M vs net income $222M this quarter; debt +44.6% YoY to $4.03B\", \"date\": \"2026-08-30\", \"source\": \"yfinance quarterly financials\"}], \"evidence_against\": [{\"claim\": \"I",
+  "[e78445e33505] fact/thesis_evidence STM (2026-07-23 x2): [thesis evidence AGAINST] Q3 guide $3.7B is guide_below_consensus vs Street $3.78B; stock -15-17% post-print",
+  "[6c02b8246187] fact/thesis_evidence STM (2026-07-23 x2): [thesis evidence FOR] Q2 2026 revenue $3.49B beat $3.47B; EPS $0.31 beat $0.27",
   "[a5b574a37cd2] event AMAT,AMD,INTC (2026-08-28) [secondary]: THREAT/immediate: Broad chip-sector unwind: Philadelphia Semiconductor Index (SMH proxy) hit a two-month low; Intel -6%, AMD -8.1%, Applied Materials -6.5%, SK Hynix ADR -6.8%, SMCI -7.1% in the session cluster around Aug 27-28, described as profit-taking after SMH's >75% H1 2026 rally and survey data showing 82% of fund managers calling semis the most crowded trade in history",
   "[c0da79e9a41c] event AMAT,AMD,INTC (2026-08-28) [secondary]: THREAT/immediate: Broad semis unwind: Philadelphia Semi Index 2-month low; Intel -6%, AMD -8.1%, AMAT -6.5%, SKHY -6.8%, SMCI -7.1% -- crowded-trade unwind after SMH +75% H1 2026 (82% of fund managers call semis most-crowded trade)",
-  "[e78445e33505] fact/thesis_evidence STM (2026-07-23): [thesis evidence AGAINST] Q3 guide $3.7B is guide_below_consensus vs Street $3.78B; stock -15-17% post-print",
-  "[6c02b8246187] fact/thesis_evidence STM (2026-07-23): [thesis evidence FOR] Q2 2026 revenue $3.49B beat $3.47B; EPS $0.31 beat $0.27",
   "[f00dc26b97e2] event ASML,BE,CIEN (2026-08-18) [secondary]: THREAT/immediate: Semis-specific rout: SMH -4.09% vs SPX -0.69%/NDX -1.33%; high-multiple AI-hardware names repriced hardest while mega-cap compute barely moved",
   "[3a9bd506eae2] fact/signal STM (2026-09-14): [signals] MOMENTUM+VOLUME?, STRONG DOWNTREND, TARGET GAP",
   "[2bd02c1e0bf7] fact/signal STM (2026-08-30): [signals] TARGET GAP",
   "[df725ee591b3] relation/member Analog/Industrial Semis,STM =Analog/Industrial Semis (2026-08-12): STM is classified in Analog/Industrial Semis",
   "[35ca7a765413] relation/member AI Semis/Fabs,STM =AI Semis/Fabs (2026-07-18): STM is classified in AI Semis/Fabs"
  ],
- "n_observations": 24,
+ "n_observations": 30,
  "open_tensions": [],
  "refuted": [],
  "timelines": {
@@ -40,8 +45,15 @@
    {
     "as_of": "2026-09-14",
     "id": "fbec93bc1b8f",
-    "status": "live",
+    "status": "superseded",
     "text": "WATCH: Analog/industrial semis; Q2 beat but Q3 guide_below_consensus drove the selloff; peer-laggard flag has now resolved but guide-driven WATCH stands",
+    "value": "watch"
+   },
+   {
+    "as_of": "2026-09-22",
+    "id": "1452094dc360",
+    "status": "live",
+    "text": "WATCH: Analog/industrial semis; WATCH stands on Q3 guide_below_consensus. Position increased +5sh to 20sh (2.74% of equity, src: holdings_trim, as_of 2026-09-2…",
     "value": "watch"
    }
   ]
