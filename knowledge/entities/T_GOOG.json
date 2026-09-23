@@ -2,8 +2,10 @@
  "brief": null,
  "entity": "T:GOOG",
  "live_facts": [
+  "[8c988489947e] event GOOG (2026-09-23): 2026-09-23 intraday: GOOG -3.5% ($335.25 vs prevClose $347.41; script snapshot showed day_atr_mult -1.87x, an even larger earlier-session move), well beyond SPX's -0.69%/NDX's -0.68% -- idiosyncratic weakness, not index-wide. Buckets fired STRONG DOWNTREND + new PEER LAGGARD (rel_sigma -1.49 vs XLK, -8.04pp 1m) + MOMENTUM+VOLUME? (magnitude leg only, judgment unconfirmed -- no news source this run). Coincides with today's GOOG top-up, so the add landed into a same-day idiosyncratic drop with no confirmed catalyst.",
   "[4e3e4a246af8] relation/pair GOOG,MSFT =distinct (2026-09-15) [secondary]: MSFT/GOOG: distinct -- Screen candidate only (1m return gap 1.21pp, ATR gap 0.04). On business grounds they are distinct. MSFT is enterprise software/Copilot plus OpenAI-linked Azure and still self-funds; GOOG is ad-funded, has a mature TPU and the fastest cloud share gain, and is now FCF-negative. They share enterprise cloud customers, but their accelerator strategy, funding state and end-market mix differ. The near-identical price action comes from the same 'quality mega-cap in a semis selloff' factor, not the same business bet. (keep both, drop )",
   "[8b533c4e51b3] event ASML,CLS,COHR (2026-09-16) [secondary]: AMBIGUOUS/immediate: FOMC delivers 25bp hike as priced (unanimous, hawkish dot plot); no incremental AI-infra selloff follows -- SMH closes +0.64% vs Monday's -4.75%, NDX -0.01%, SPX -0.45%, Dow -1.2% (broad-market laggard, not semis-led)",
+  "[61af620c371d] fact GOOG (2026-09-23) [secondary]: GOOG downgraded STRENGTHENING to INTACT: the +1sh top-up shows conviction, but a FY26 capex guide ($180-190bn) vs Gemini-growth-vs-FCF tension explains only ~-2.8pp of today's -3.5% drop (~5x the broad tech tape); the remaining residual is unexplained after a targeted WebSearch check, not invented as a cause.",
   "[7cc9b22552e7] event/proposal GOOG (2026-09-14) [secondary]: [proposal] BUY $809.84 (oversold_reversion): oversold_reversion, RSI14 28.9, thesis strengthening, within cap",
   "[e78fa17a7000] fact GOOG (2026-09-15) [secondary]: [thesis] strengthening -- Alphabet Class C -- hyperscaler buying AI capex, demand-side link not a diversifier",
   "[880f29091fcb] event ALAB,ASML,CLS (2026-09-11) [secondary]: TAILWIND/immediate: Fed Governor Waller signals inclination to hold rates steady at Sept 15-16 FOMC, easing hike-fear from hot August CPI -- broad relief rally across the entire risk-on book, not an AI-capex-specific tailwind",
@@ -16,12 +18,16 @@
   "[51f1099bb1c3] event AMZN,AVGO,GOOG (2026-08-27) [secondary]: THREAT/structural: Credit-default swaps on Oracle, SpaceX, Alphabet, Amazon, Meta, Broadcom and Nvidia hit record highs, per LSEG data, as market prices AI-financing/vendor-credit risk into the same week as the SMH selloff",
   "[487acec3a7b0] event AMZN,AVGO,GOOG (2026-08-27) [secondary]: THREAT/structural: CDS on Oracle/SpaceX/Alphabet/Amazon/Meta/Broadcom/Nvidia hit record highs (LSEG) -- AI-financing/vendor-credit risk repricing",
   "[eda3e53d788f] event AMZN,AVGO,GOOG (2026-08-27) [secondary]: THREAT/structural: Nvidia's 5Y CDS roughly doubled over two months; S&P downgraded Oracle to BBB-, Oracle CDS at 215bp -- SocGen: 'CDS, not EPS'",
+  "[6817b9fbb0bc] fact/thesis_evidence GOOG (2026-09-23) [unverified]: [thesis evidence FOR] User added +1 share today despite the drawdown -- a conviction signal, not evidence of new fundamentals",
+  "[5e930cfaaee4] fact/thesis_evidence GOOG (2026-09-23) [unverified]: [thesis evidence AGAINST] Today's reported -3.5% is roughly 5x the broad tech tape (SPX -0.69%, NDX -0.68%) and roughly 2x the 09-22 capex/FCF reaction alone; the residual is unexplained by any source found this run",
+  "[d11db16fae1a] fact/thesis_evidence GOOG (2026-09-22) [unverified]: [thesis evidence AGAINST] FY26 capex guide $180-190bn (Q2 capex $44.9bn) weighed against negative Q2 FCF (-$5.9bn) and Gemini engagement growth; stock failed at $360 resistance, fell to ~$350 (~-2.8%)",
+  "[9bd44b5ff343] fact/signal GOOG (2026-09-23): [signals] STRONG DOWNTREND, PEER LAGGARD, TARGET GAP",
   "[c4e743ece1af] fact/signal GOOG (2026-09-14): [signals] TARGET GAP",
-  "[c8816fded687] fact/thesis_evidence GOOG (2026-07-28) [unverified]: [thesis evidence FOR] prior GOOG/GOOGL record: blowout 2Q26 print, strong cloud growth",
+  "[1a8266a1361f] fact/thesis_evidence GOOG (2026-07-28) [unverified]: [thesis evidence FOR] Prior 2Q26 print was a blowout with strong cloud growth (context only, stale, pre-dates this tension)",
   "[7a3e6e297b4b] fact/signal GOOG (2026-08-30): [signals] PEER LAGGARD, TARGET GAP",
   "[662560d0dec1] relation/member Compute/Hyperscaler,GOOG =Compute/Hyperscaler (2026-07-18): GOOG is classified in Compute/Hyperscaler"
  ],
- "n_observations": 23,
+ "n_observations": 31,
  "open_tensions": [],
  "refuted": [],
  "timelines": {
@@ -52,7 +58,7 @@
    {
     "as_of": "2026-08-20",
     "id": "78fa6b61b7db",
-    "status": "live",
+    "status": "superseded",
     "text": "STRENGTHENING: Alphabet Class C -- hyperscaler buying AI capex, demand-side link not a diversifier",
     "value": "strengthening"
    },
@@ -62,6 +68,13 @@
     "status": "superseded",
     "text": "STRENGTHENING: Hyperscaler that BUYS AI capex rather than selling it -- the chain's only internal hedge; blowout 2Q26 print, no earnings until ~late Oct",
     "value": "strengthening"
+   },
+   {
+    "as_of": "2026-09-23",
+    "id": "1a4a66498a74",
+    "status": "live",
+    "text": "INTACT: Alphabet Class C -- hyperscaler buying AI capex (demand-side link, not a diversifier); today's +1sh top-up signals conviction, but a capex-guide-vs-FCF…",
+    "value": "intact"
    }
   ]
  }

@@ -1,0 +1,214 @@
+{
+  "mode": "quick",
+  "today": "2026-09-23",
+  "market_session": "intraday",
+  "gate_classification": "AMBIGUOUS",
+  "macro": {
+    "usdinr": 95.73,
+    "us10y": 5.091,
+    "vix": 14.83,
+    "vix_change_pct": -0.269,
+    "dxy": 101.069,
+    "spx": 7711.3501,
+    "spx_change_pct": -0.687,
+    "ndx": 26936.4512,
+    "ndx_change_pct": -0.684,
+    "es_f_change_pct": -0.661,
+    "nq_f_change_pct": -0.935,
+    "smh": 597.08,
+    "smh_change_pct": 0.176,
+    "us10y_change_pts": 0.128,
+    "us10y_chg_1m_bps": 35.3,
+    "spx_125dma": 7395.85,
+    "spx_52w_high": 7816.7,
+    "vix_52w_range": [
+      13.47,
+      31.05
+    ],
+    "ndx_rsi14": 64.7,
+    "asia": {
+      "nikkei_change_pct": 1.376,
+      "kospi_change_pct": 1.646,
+      "taiex_change_pct": 1.14,
+      "stoxx50_change_pct": -0.291
+    },
+    "bar_dates": {
+      "usdinr": "2026-09-23",
+      "us10y": "2026-09-23",
+      "vix": "2026-09-23",
+      "dxy": "2026-09-23",
+      "spx": "2026-09-23",
+      "ndx": "2026-09-23",
+      "es_f": "2026-09-23",
+      "nq_f": "2026-09-23",
+      "smh": "2026-09-23"
+    },
+    "source": "smith_fetch/yfinance",
+    "fetched_at_utc": "2026-09-23T16:40:44Z",
+    "missing_symbols": [],
+    "smh_live": {
+      "price": 597.12,
+      "changePct": 0.001829,
+      "prev_close": 596.030029296875,
+      "session": "regular",
+      "as_of_utc": "2026-09-23T16:40:00Z"
+    }
+  },
+  "usdinr": 95.73,
+  "known_gaps": [
+    {
+      "id": "G78",
+      "status": "open",
+      "gap": "Trade rationale for the RECENT, still-recallable set only -- the achievable remainder of G55 after its 635-row framing was retired. 32 UNCAPTURED trades dated 2026-08-01 onward, across 24 tickers (AMD, AMZN, ARM, BABA, BE, BX, CLS, COHR, FL"
+    },
+    {
+      "id": "G86",
+      "status": "partially_closed",
+      "gap": "NO email/transaction-confirmation tooling exists in this standalone deployment (Claude Agent SDK + system cron against INDmoney's public MCP server). Step 2.9's scoped-email fallback and smith-ledger's entire confirmation pipeline are there"
+    },
+    {
+      "id": "G85",
+      "status": "partially_closed",
+      "gap": "SHADOW-SCORED TRIGGER PROPOSALS ARE STRUCTURALLY EXEMPT FROM CONDITION-BASED AUTO-RETIREMENT. Any proposal whose trigger_type is a shadow trigger (profit_ratchet, scale_out_ladder) is written with retires_when = 'n/a -- shadow-scored, track"
+    },
+    {
+      "id": "G82",
+      "status": "open",
+      "gap": "BX (Blackstone) was re-entered 2026-08-21 (date corrected 2026-09-07 via the actual INDmoney confirmation email, see G83 -- this entry originally said 08-24, which was wrong) (10sh, 3.67% weight) after a full exit on 2026-08-17. smith-thesi"
+    },
+    {
+      "id": "G90",
+      "status": "open",
+      "gap": "FMP plan tier blocks `statements` (key-metrics/financial-scores) for this book's actual holdings by a per-symbol coverage limit, not a blanket endpoint permission as previously assumed -- NVDA worked in isolated testing, but all 5 of this r"
+    },
+    {
+      "id": "G96",
+      "status": "open",
+      "gap": "narrative.json (dashboard READ section) has no owner, TTL, or freshness check, so it silently serves stale prose from a prior day as if it were this run's judgment. Found 2026-09-15: the published dashboard's READ panel was verbatim 2026-09"
+    },
+    {
+      "id": "G98",
+      "status": "open",
+      "gap": "NBIS (neocloud: sells GPU capacity to MSFT/Meta, funded by a floating SOFR+2.50% secured facility plus a $5B convert) sits in the 'Compute/Hyperscaler' cluster alongside MSFT/GOOG/AMZN, which BUY capacity and largely self-fund. smith-cluste"
+    },
+    {
+      "id": "G99",
+      "status": "open",
+      "gap": "LADDER SCORED CALLS GRADE THE WRONG WINDOW. compute_ladder's scored_call marks a cluster ladder correct/incorrect using each member's 1-MONTH return as of the scoring date, not the return since the ladder was written. On 2026-09-21 the 2026"
+    }
+  ],
+  "known_gaps_truncated": 1,
+  "agent": "smith-scout",
+  "agent_key": "scout",
+  "output_file": "runs/2026-09-23-1639Z/smith-scout-output.md",
+  "holdings_path": "runs/2026-09-23-1639Z/holdings.json",
+  "memory": {
+    "budget_tokens": 5000,
+    "used_tokens": 4999,
+    "n_items": 56,
+    "items": [
+      "[8eeaea11e401] verdict/fomc macro =hawkish (2026-09-16 x3) [secondary]: Fed funds 3.875%, stance hawkish",
+      "[ea3aa51a4f7a] correction desk (2026-09-21) [secondary]: [desk revision by thesis] thesis.changed.APH.status: \"strengthening\" -> \"intact\"; thesis.changed.APH.thesis: \"High-speed interconnect/cable-assembly supplier for AI serv -> \"High-speed interconnect/cable-assembly for AI servers and d; thesis.changed.APH.evidence_for: [{\"claim\": \"IT Datacom segment is APH's largest and fastest- -> [{\"claim\": \"IT Datacom is APH's largest and fastest-growing",
+      "[d5bf8dd2fc68] correction desk (2026-09-21) [secondary]: [desk revision by cluster_optics] ranking.[MRVL].rank: 4 -> 5; ranking.[MRVL].differentiator_reads: [{\"axis\": \"merchant switch silicon share vs in-hou -> [{\"axis\": \"merchant switch silicon share vs in-hou; ranking.[MRVL].case_against: \"The case FOR is real and I am not pricing it at z -> \"Demoted from 4 to 5 on APH's promotion, not on ne",
+      "[8250089932b0] correction desk (2026-09-21) [secondary]: [desk revision by thesis] thesis.changed.APH.status: \"intact\" -> \"strengthening\"; thesis.changed.APH.thesis: \"High-speed interconnect/cable-assembly for AI servers and d -> \"High-speed interconnect for AI servers/datacenter; Communic; thesis.changed.APH.evidence_for: [{\"claim\": \"IT Datacom is APH's largest and fastest-growing -> [{\"claim\": \"Communications Solutions ~62% of net sales, +42%",
+      "[9166d4708e54] correction desk (2026-09-21) [secondary]: [desk revision by catalyst] catalysts.list/value replaced",
+      "[49e99ae3c4c7] correction desk (2026-09-21) [secondary]: [desk revision by catalyst] catalysts.changed.list/value replaced; catalysts.retired: (new) -> [{\"headline\": \"CXMT reaches HBM3E risk production, ships qua",
+      "[5b756116cec9] correction desk (2026-09-21) [secondary]: [desk revision by catalyst] catalysts.changed.list/value replaced",
+      "[452799df5de8] correction desk (2026-09-21) [secondary]: [desk revision by thesis] thesis.changed.QCOM.status: \"strengthening\" -> \"intact\"; thesis.changed.QCOM.thesis: \"Diversifying from handsets into AI/datacenter CPUs and auto -> \"Handset/auto/IoT chip company with a nascent AI-datacenter ; thesis.changed.QCOM.evidence_for: [{\"claim\": \"RBC price-target raise citing AI chip-partnershi -> [{\"claim\": \"RBC price-target raise citing AI chip-partnershi",
+      "[ccf19159cd4c] correction desk (2026-09-21) [secondary]: [desk revision by thesis] thesis.changed.ASML.evidence_against: [{\"claim\": \"the structural China buildout is a MULTI-YEAR ri -> [{\"claim\": \"the structural China buildout is a MULTI-YEAR ri; thesis.changed.ASML.note: \"Status unchanged (WATCH). Laggard flag is relative price, n -> \"Status unchanged (WATCH) after desk round 4. The CXMT item ; thesis.changed.AMAT.evidence_for: [{\"claim\": \"Q3 revenue $9.12B beat $9.0B consensus, EPS $3.5 -> [{\"claim\": \"Q3 revenue $9.12B beat $9.0B consensus, EPS $3.5",
+      "[d639cc04ff82] correction desk (2026-09-21) [secondary]: [desk revision by cluster_semis] _see: (new) -> \"the top-level `revision` block of this tail: ranking (TER 3",
+      "[aad70c082a8b] correction desk (2026-09-20) [secondary]: [desk revision by thesis] thesis.changed.MU._see: (new) -> \"full corrected entry in this file's thesis.changed.MU\"",
+      "[36e0d4024414] correction desk (2026-09-20) [secondary]: [desk revision by thesis] thesis.changed.SKHY.note: \"Status unchanged (WATCH). Reconcile via order history befor -> \"evidence_against line added per M2.12 (cluster_memory); sta; thesis.changed.SKHY.evidence_against_add: (new) -> [{\"claim\": \"HBM4 is the first generation where SK hynix, Sam",
+      "[ee2b4d748587] correction desk (2026-09-20) [secondary]: [desk revision by cluster_memory] cluster_thesis.status: \"intact\" -> \"watch\"; cluster_thesis.scoped_to: (new) -> \"HBM3/HBM3E -> HBM4 generational handoff within AI Memory/St",
+      "[f574fd4b5741] correction desk (2026-09-20) [secondary]: [desk revision by cluster_memory] data_quality: [{\"issue\": \"HBM3E contract-price DIRECTION is unresolvable a -> \"two high-severity items restated: C1 contradicted by house-",
+      "[7805599fd097] correction desk (2026-09-20) [secondary]: [desk revision by cluster_memory] deployment_view: {\"question\": \"Should the ~$2,430 of above-band cash go into -> \"implied move 10.22% added as the lead reason not to deploy ; reorder_when[0]: (new) -> \"rewritten to require a disclosure strictly beyond the FQ3 s",
+      "[c487d53098a5] correction desk (2026-09-20) [secondary]: [desk revision by cluster_memory] reorder_when[0]: \"rewritten to require a disclosure strictly beyond the FQ3 s -> \"MU promotion now requires CY2028 commitment, named allocati",
+      "[719063e8f640] brief/brief desk =12 (2026-09-21) [secondary]: Since ENGINE_EPOCH 2026-09-21 the rebuilt engine has n=0 scored proposals: every BUY/SELL family is UNPROVEN, first 30d scores about 2026-10-21, buy p_win is an uncalibrated 0.45 prior. Legacy history is excluded from the gate. Desk corrections 09-20/21: cluster_memory thesis intact to watch; MU promotion needs stricter disclosure; MRVL demoted 4 to 5 on APH's promotion. HBM3E contract quotes ($15.00 Jan, TrendForce; $12.40 Sep) come from different houses, so -17.3% is not a within-basis decline. The `late` cycle call does not distinguish HBM generations. LITE/COHR return correlation 0.843 (21 sessions), 0.891 (63). KEY: Scorecard since epoch: n=0, all UNPROVEN, first 30d about 2026-10-21; Jan-to-Sep HBM3E -17.3% must not be published as within-basis; Cycle_position `late` is a whole-chain call, not generation-resolved; LITE/COHR correlation 0.843 over 21 sessions, 0.891 over 63; Process lessons: ledger-parse regex failed on get_thread full bodies (12/12, 09-14); ledger-apply rows invisible to lots FIFO. OPEN: Which of the two 09-21 APH thesis revisions is the final state; How the legacy scorecard figures reconcile (n=88 vs 22 rows).",
+      "[691989ba1662] lesson desk (2026-09-21): FMP insiderTrades returns ACCESS DENIED on the current plan; deep-mode Form-4 pulls are impossible until the tier changes. Skip the call, do not fan out 8 parallel attempts.",
+      "[be4de166c921] lesson desk (2026-09-21): INDmoney get_us_stocks_details upside_per is (target-price)/target, not upside to price; recompute as target/price-1.",
+      "[f0dcca19a639] lesson desk (2026-09-21): Watchlist tells that say a name is 'outside the cluster' should be checked against exited-holdings-archive.json sector_map first: ORCL was mapped Compute/Hyperscaler when last held.",
+      "[3d03b3ae1750] lesson desk (2026-09-21): INDmoney get_us_stocks_details upside_per is (target-price)/target, not target/price-1; it understates upside by ~3-20pp on large gaps (IREN 41.4 vs 70.6). Watchlist setups persisted before 2026-09-21 use the INDmoney convention. The 15% bar is not crossed differently by either convention on this slice.",
+      "[4fe39e1116b2] fact macro (2026-09-16 x3) [secondary]: [calendar] FOMC 2026-10-28, CPI 2026-10-14, NFP 2026-10-02",
+      "[175afdc304c1] fact desk (2026-09-22): Seven buys landed 2026-09-21/22 (NOW, NBIS, MRVL, GEV, STM+5, BE+2, LLY new, SKHY+2), net flow +$1,094.90. This deployed cash from ~19.6% (above the 5-15% band as of the 09-21 P-368 write) down to 12.628% (within band), while simultaneously raising the advisory stress-shock estimate from 26.6% to 28.595% of book as AI-capex exposure rose from 75.9% to 81.699% of total book. Both readings are correct and point in opposite directions -- inherent to redeploying excess cash in a single-factor book, not a data conflict.",
+      "[dc922dcf623b] lesson desk (2026-09-22) [secondary]: [G100]",
+      "[6bb4da54b8f1] lesson desk (2026-09-21) [secondary]: [desk Q&A cluster_optics->desk] Q: Can a script pull LITE and COHR one-month daily returns and report their pairwise correlation? The deterministic redundancy screen returned redundancy_candidates: [] for this cluster, but the two nam\u2026 A (held): Measured from perf_bars daily closes through 2026-09-18: LITE/COHR pairwise return correlation is 0.843 over the last 21 sessions and 0.891 over 63. For reference, LITE vs SMH is 0.789 and COHR vs SMH 0.819 (63 sessions), and LITE vs GLW 0.791, COHR vs GLW 0.821. The pair correlates more with each other than either do\u2026",
+      "[4c98a86fe7dd] lesson desk,macro (2026-09-21) [secondary]: market_inputs es_f/nq_f change_pct can be about 2x the cash index move intraday (09-21: ES +1.425 vs SPX +0.716; NQ +2.54 vs NDX +1.22; wires said +0.6/+0.8). Reference price likely differs; read the session from cash indices and smh_live, treat futures pct as suspect until the fetch's reference is checked.",
+      "[b340f58b5eca] lesson desk (2026-09-21) [secondary]: [desk Q&A cluster_semis->desk] Q: Per-member total return from the 2026-09-15 close to 2026-09-21 for TSM, ASML, AMAT, KLAC, TER, AMD and QCOM, plus SMH over the same window. A (held): Total return, 2026-09-15 close -> 2026-09-21 intraday bar (13:58Z, price return, dividends excluded), from bars.json: TSM +5.93%, ASML +5.82%, AMAT +8.11%, KLAC +7.68%, TER +11.70%, AMD +20.56%, QCOM -2.71%, SMH +7.85%. Excess vs SMH: TSM -1.92pp, ASML -2.03pp, AMAT +0.26pp, KLAC -0.17pp, TER +3.85pp, AMD +12.71pp, QC\u2026",
+      "[9acbe7cc8173] lesson desk (2026-09-21) [secondary]: [desk Q&A cluster_semis->catalyst] Q: For the 09-24 Trump-Xi summit: is there any sourced reporting on the DIRECTION of the chips-export-control item - i.e. whether the draft agenda contemplates easing existing semicap equipment restrict\u2026 A (revised): No sourced reporting says the draft agenda contemplates EASING semicap-equipment (SME) controls, and nothing says it extends them either; the only public direction signals point to hold-or-tighten for SME, with easing confined to AI accelerators. (1) Aju Press 09-18: China wants access to chipmaking equipment ('the mi\u2026",
+      "[677fcabd8531] lesson desk (2026-09-21) [secondary]: [G99]",
+      "[137b71a1ec48] lesson desk (2026-09-20) [secondary]: [desk Q&A cluster_memory->cycle] Q: Does your `late` cycle_position (2026-09-06, medium) distinguish HBM GENERATIONS? Today's tracker refresh shows HBM3 flat at $9.00/GB while HBM4 prints $16.00/GB contract, a ~29% premium over HBM3E's\u2026 A (held): No -- `late` does NOT distinguish HBM generations, and it never did. The 2026-09-06 call was a whole-chain aggregate built on two inputs, neither of which is generation-resolved: (1) the conventional-DRAM contract QoQ second derivative (TrendForce 4Q26 +3-8% QoQ, decelerating off a faster 3Q26), and (2) hyperscaler ca\u2026",
+      "[d3ead23e50a2] lesson desk (2026-09-20) [secondary]: [desk Q&A cluster_memory->desk] Q: Can a script confirm whether the 2026-09-20 HBM3E contract_quote ($12.40/GB) and the 2026-01-15 contract_quote ($15.00/GB) come from the same research house and the same contract scope? If yes, a -17\u2026 A (cannot_answer): NO -- the two HBM3E contract_quote points do NOT come from the same research house, so the -17.3% Jan->Sep delta is not house-clean and must not be published as a within-basis decline. 2026-01-15 $13-17/GB (mid $15.00) is TrendForce, from its own research report RP260115FN3 ('2026 AI Memory Trends: HBM3e Price & DDR5 \u2026",
+      "[652f8a65bad8] lesson desk (2026-09-15) [secondary]: USAGE AUDIT (auto-logged, 2026-09-15-0740Z): scout used 124,146 tokens this run vs a trailing median of 79,444 over its last 3 runs -- 1.6x, past the 1.5x flag threshold. Investigate whether this run's dispatch prompt asked scout to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
+      "[45577a49b895] lesson desk (2026-09-15) [secondary]: USAGE AUDIT (auto-logged, 2026-09-15-0740Z): strategist used 248,513 tokens this run vs a trailing median of 118,574 over its last 5 runs -- 2.1x, past the 1.5x flag threshold. Investigate whether this run's dispatch prompt asked strategist to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
+      "[fd760f970762] lesson desk (2026-09-15) [secondary]: [G96]",
+      "[bc1f763bfcc1] lesson desk (2026-09-15) [secondary]: [G97]",
+      "[d04310a2b7ab] lesson desk (2026-09-15) [secondary]: [G98]",
+      "[a8ad9620afb4] lesson desk (2026-09-14) [secondary]: LEDGER-PARSE'S REGEX NEVER HANDLED get_thread's FULL BODY FORMAT. search_threads snippets arrive as flattened single-line text ('Ticker: X Amount: $Y Price: $Z Shares: N'), but get_thread's plaintextBody renders each field as its own markdown-table row ('| Ticker: | X |\\n| Amount: | $Y |...'). '|' is not \\s, so every _LED_FIELDS regex in smith_ledger.py silently failed on ANY full-body fetch -- 12/12 bodies unparseable on the 2026-09-14 run, and this is very likely the same root cause behind the GOOG 2026-09-09 buy that G94's resolution flagged as unparseable 'template variance' and left out of trades.json for 5 days (lots undercounted GOOG by 1 share the whole time). FIX: _led_extract now \u2026",
+      "[6b2fe5b7e5ab] event/scorecard_read desk (2026-09-22) [secondary]: [scorecard read] since_epoch_scorecard n=0 -- no current-engine track record exists yet to grade this run's proposals against. Stored legacy scorecard (n=20 rows/18 ideas, rebased 22->20 today) is LEGACY-ENGINE HISTORY only (overall net expectancy 2.345%, accuracy 50.0%; TRIM/SELL 62.5% n=8; BUY 41.7% n=12) and must not be quoted as current performance. This run's gate refused 7 of 9 candidate buys on EV/target grounds before they became proposals -- that discipline, not an accuracy figure, is what this run's scorecard actually shows.",
+      "[fc1e0247411d] lesson desk (2026-09-10) [secondary]: LEDGER-APPLY WROTE ROWS INVISIBLE TO LOTS FIFO FOR 2 DAYS. The 2026-09-06 script-first ledger rewrite (b3ca4fa) introduced cmd_ledger_apply, which writes parsed confirmation rows in a side/action/unsigned-qty shape. cmd_lots FIFO consumer only ever reads the legacy signed qty_change field (.get('qty_change') or 0 -- silently defaults a missing field to 0 rather than erroring). Every row ledger-apply wrote since 2026-09-08 (16 rows: APH/BE/CLS/GOOG/INTC/IREN/META/MU/NBIS/QCOM/TSM/VST on 09-08, FSLR/KLAC/QCOM/VST on 09-09) was silently invisible to FIFO. Surfaced 2026-09-10 when lots --write reported 11 reconciliation mismatches + 2 orphaned positions (FSLR, IREN) that traced exactly to these\u2026",
+      "[d36f349d0db3] lesson desk (2026-09-10) [secondary]: HOLDINGS.JSON WAS HAND-WRITTEN EVERY RUN, WHICH IS WHERE THIS RUN'S SLOWDOWN AND TWO REAL BUGS CAME FROM. User flagged post-run that the pre-Stage-1 phase was taking too much time and compute. Investigating: holdings.json had no deterministic builder despite COMPUTE-FIRST's stated principle that deterministic transformation belongs in the script layer -- every run, the orchestrator hand-wrote it in an inline Python snippet from the raw networth_holdings API response. This run alone that produced two real defects: day_chg_pct left null on all 31 rows (silently starved compute_buckets.json's trend classification until a user-visible anomaly forced a hunt), and FSLR/VST were guessed to be a sn\u2026",
+      "[0c36f634ad8b] lesson desk (2026-09-10) [secondary]: TWO MORE INSTANCES OF THE SAME ANTI-PATTERN AS G95 (holdings.json hand-construction), FOUND WHILE AUDITING WHETHER OTHER WAVES NEED THE SAME FIX. (1) add-proposal specs over-filtered by hand: before calling add-proposal, I manually excluded the strategist's $0-sized BUY legs (KLAC, GOOG) and CORZ/VRT HOLD entries out of caution that a zero size or a ticker-less-looking HOLD would be rejected or would create noise. Re-reading cmd_add_proposal's actual code: it already cherry-picks only the fields it needs (ignoring extras like evidence_quality/size_wanted_usd/clamped_by without complaint), accepts size_usd=0 with no special case, and builds action from ticker+direction for HOLD exactly like \u2026",
+      "[97ae21f908ff] lesson desk (2026-09-10) [secondary]: [G94]",
+      "[7cfc398e579b] lesson desk (2026-09-10) [secondary]: [G95]",
+      "[cd520f9ddf69] lesson desk (2026-09-09) [secondary]: [G92]",
+      "[51da2c35ebcd] lesson desk (2026-09-09) [secondary]: [G93]",
+      "[2272db14076b] lesson desk (2026-09-07) [secondary]: [G89]",
+      "[717887395903] lesson desk (2026-09-07) [secondary]: [G90]",
+      "[787027156c60] lesson desk (2026-09-07) [secondary]: [G91]",
+      "[75bd7747a46c] lesson desk (2026-09-06) [secondary]: USAGE AUDIT (auto-logged, 2026-09-06-1301): smith-catalyst used 7 tool calls this run vs its stated budget of <=6. Investigate whether this run's dispatch prompt asked smith-catalyst to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
+      "[64b2145a8f7d] lesson desk (2026-09-06) [secondary]: SELL-SIDE STACK GUARD DID NOT FIRE ON A RECURRENCE OF THE EXACT CASE IT WAS BUILT FOR. The 2026-09-01 lesson recorded P-164 Sell MSFT 437.92 (accepted_by_user, never executed) stacking with an open MSFT sell, and the fix was supposed to FLAG sell-side stacks at 50pct of position value. On the 2026-09-06 deep run the same P-164 is STILL accepted-and-unexecuted and now stacks with new P-224 Sell MSFT 600.00 -- combined 1037.92 against a 499.70 position, 207.7pct -- and cmd_proposals emitted ZERO review_flags. Two more stacks went equally unflagged: AVGO P-212 142.60 + P-226 500.00 = 89.8pct of position, and FSLR P-214 182.69 + P-228 300.00 = 78.7pct. Probable cause: the dedup/flag pass bucket\u2026",
+      "[d2578e36aa69] lesson desk (2026-09-06) [secondary]: A SNAPSHOT-VS-LIVE DIVERGENCE IS NOT AUTOMATICALLY A STALE FEED, AND THE STALENESS GATE'S 'LIVE QUOTE WINS' RULE HAS THE WRONG DEFAULT AFTER THE CLOSE. On 2026-09-06 BE's INDmoney snapshot price was 266.17 against a yfinance regular-session close of 252.87, a 5.26pct divergence and the only name over the 3pct gate. The run flagged it as suspect data and overrode it with the yfinance close per the STALENESS GATE. The user corrected this: BE actually rose in the POST-MARKET session, so INDmoney was carrying a genuine extended-hours print and was the FRESHER of the two sources -- the override substituted a staler price for a newer one and understated the position by 8sh x 13.30 = 106.40. THE S\u2026",
+      "[4420a082c20c] lesson desk (2026-09-06) [secondary]: USAGE LOGGING SILENTLY LOST 4 OF 12 AGENTS TO A SHELL QUOTING BUG, AND THE PER-AGENT LOOP IS THE WRONG SHAPE ANYWAY. On 2026-09-06 the orchestrator logged usage with a zsh loop using 'set -- $a' to split 'agent:tokens:calls:secs' records. zsh does NOT word-split unquoted parameters (unlike bash), so every argument arrived empty; usage-audit surfaced the failure loudly because its output was read, but usage-log's output was redirected to /dev/null and it failed SILENTLY for smith-thesis, smith-catalyst, smith-book and smith-macro. The gap was only caught later when a cost question forced a read of learning.json and the table came back with 8 agents instead of 12 -- i.e. the instrumentation b\u2026",
+      "[54686f5b8139] lesson desk (2026-09-06) [secondary]: A RULE WRITTEN FROM A FEW EXAMPLES BECAME A BLANKET POLICY AND COST 7x ON EVERY RUN FOR A WEEK. smith-ledger.md asserted that INDmoney confirmation snippets truncate before Shares:/Order Type: 'on close to every one of these confirmations -- that is not occasional, it is the normal case', and therefore instructed get_thread for EVERY confirmation as a planned batch. Measured 2026-09-06 against the seven live confirmations: SIX of seven carried Shares: in the snippet, and both stop-sells carried Order Type: stop -- the only rows where Order Type changes anything. Exactly one row (AMD) needed a body, because the snippet is a FIXED-LENGTH field and survival of the later fields depends on how l\u2026",
+      "[66777d60ae4a] lesson desk (2026-09-06) [secondary]: [G88]",
+      "[6e1d83b4416c] lesson desk (2026-09-01) [secondary]: USAGE AUDIT (auto-logged, 2026-09-01-2205): smith-rebound ran 150s this run vs its stated budget of <90s. Investigate whether this run's dispatch prompt asked smith-rebound to do something outside its normal scope, or whether this is a recurring pattern worth a standing fix (check `learn-lessons --kind correction` for prior findings on this agent before assuming it's new).",
+      "[f7d73b8b5cd5] lesson desk (2026-08-29) [secondary]: [G84]"
+    ],
+    "changed_recently": [],
+    "entities": [
+      "M:macro",
+      "M:desk"
+    ],
+    "neighbours_pulled": [],
+    "rule": "Memory from earlier runs: each item has an id. USE it, do not re-derive it. Return in your tail: `memory_used` [ids you relied on], `memory_refuted` [{id, reason}] for any item you have evidence is now false (state the evidence), and `learned` [{entities:[TICKER|C:cluster], kind: fact|verdict|event|lesson, text, source, confidence: primary|secondary|unverified}] for what this run taught you that a future run should know. Confidence tiers are labelled: never treat an [unverified] memory as fact."
+  },
+  "read_these_files": {
+    "prior_findings": "/Users/yb/Claude/AgentSmith/runs/2026-09-23-1639Z/shared/prior_findings_scout.f8706d93.json",
+    "diversifier_candidates": "/Users/yb/Claude/AgentSmith/runs/2026-09-23-1639Z/shared/diversifier_candidates.1c16c558.json",
+    "sentiment": "/Users/yb/Claude/AgentSmith/runs/2026-09-23-1639Z/compute_sentiment.json",
+    "market_inputs": "/Users/yb/Claude/AgentSmith/runs/2026-09-23-1639Z/market_inputs.json",
+    "holdings": "/Users/yb/Claude/AgentSmith/runs/2026-09-23-1639Z/shared/holdings_trim.de6d5dee.json"
+  },
+  "prior_findings_since": "2026-09-22T09:59:32Z",
+  "prior_findings_rule": "PRIOR FINDINGS are what earlier runs (deep and quick, including the orchestrator's own conclusions) already established. Start from them and research only the delta since `prior_findings_since`. Do not re-search a finding unless it is expired, it directly drives a number you are about to put in a verdict or proposal, or you have new evidence against it. List ids you re-checked and still hold in `findings_reaffirmed`; put corrections in `findings_revised` as {id, claim, source, reason}. Never restate a prior finding as new.",
+  "desk_protocol": "You are one analyst on a desk. You talk to the other analysts through the `comms`\nblock of your JSON tail; the orchestrator routes every message and nothing in prose is read.\n\n1. ANSWER every message in `desk_inbox`. Each answer:\n   {\"id\": \"<message id>\", \"position\": \"held\" | \"revised\" | \"cannot_answer\" | \"noted\",\n    \"answer\": \"<engage the specific point raised>\", \"evidence\": [{\"claim\",\"source\",\"date\"}],\n    \"confidence\": \"high\" | \"medium\" | \"low\",\n    \"revision\": {<ONLY when position is revised: the changed part of YOUR OWN normal output, in\n                 your usual schema -- e.g. {\"thesis\": {\"changed\": {\"AMAT\": {...}}}}>}}\n   `held` must say why the point does not change your verdict. `cannot_answer` must say what\n   data would settle it. `noted` is only for a tell. An unanswered message is shown to the user.\n2. ASK when a verdict you are writing depends on something another analyst OWNS (see\n   `desk_directory`) and your inputs do not already contain it:\n   {\"to\": \"<agent key>\", \"ticker\": \"<TICKER or null>\", \"question\": \"<one specific, answerable\n    issue>\", \"why\": \"<which verdict of yours hinges on it, and how>\", \"blocking\": true|false}\n   `blocking` means you would write a different verdict depending on the answer. Do not ask for\n   anything already in your slice, your prior_findings, or a sibling tail you were given. Ask\n   `desk` for any number a script can compute -- never estimate it yourself.\n3. TELL when you found something inside another analyst's ownership it may not have:\n   {\"to\": \"<agent key>\", \"ticker\": \"<TICKER or null>\", \"fact\": \"...\", \"source\": \"...\",\n    \"weight\": \"high\" (could change their verdict; they must acknowledge) | \"normal\"}\n4. A blocking question does not stop you. Write your best current verdict, say in its note that\n   it is provisional pending message <id>, and expect to be resumed with the answer.\n5. A message of kind `debate` means your output and another analyst's conflict on the same name.\n   The counter-party's position and evidence are quoted in it. Either revise, or hold with the\n   specific reason their evidence does not apply to this name. \"Both can be true\" is acceptable\n   only if you say how.\n6. Reply to an answer with a follow-up by setting \"reply_to\": \"<id>\" on a new ask. Threads are\n   capped; do not re-ask a question that has been answered -- engage with the answer instead.",
+  "desk_directory": {
+    "signals": "price/volume/news signal buckets per holding, peer-relative strength, journal-scored signal history and hit rates",
+    "catalyst": "dated, sourced FACTOR events (competitors, supply chain, policy, financing, Asia session) and exactly which holdings each one touches, with magnitude",
+    "thesis": "per-holding thesis status (intact/strengthening/watch/broken) with evidence for and against; the sector map",
+    "earnings": "a specific print: beat/miss vs consensus, guidance, implied move, post-earnings drift",
+    "cycle": "AI-capex cycle position (accelerating/mid/late/rolling) from capex guides, memory contract pricing and semicap book-to-bill",
+    "quality": "financial-statement quality: accruals vs cash, dilution, leverage, SBC, customer concentration, auditor and going-concern flags",
+    "scout": "macro regime, Fed/FOMC, rates, options positioning, the event calendar, and the non-AI diversifier bench",
+    "watchlist": "entry setups on non-held names; the earnings calendar",
+    "rebound": "names that fell too far in a broad selloff, their support levels and staging",
+    "cluster": "(cluster_<slug>) which member of one cluster captures the shared tailwind: ranking, redundancy, margin-pool migration, non-held substitutes",
+    "strategist": "sized proposals, the risk-off read, the stress table, and adjudicating trade-offs between the other analysts' verdicts",
+    "desk": "the orchestrator's scripts: prices, indicators, correlations, realized returns, SEC filing verification -- ask here for any number a script can compute",
+    "_on_desk_this_run": [
+      "catalyst",
+      "signals",
+      "strategist",
+      "thesis"
+    ]
+  },
+  "desk_inbox": [],
+  "desk_replies": [],
+  "desk_round": 0,
+  "fomc_cache": {
+    "rate_pct": 3.875,
+    "stance": "hawkish",
+    "next_check_date": "2026-10-30"
+  },
+  "inputs_digest": "93560b7363e4"
+}

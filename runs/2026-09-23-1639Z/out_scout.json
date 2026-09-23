@@ -1,0 +1,66 @@
+{
+  "mode": "macro_only",
+  "fed_funds_pct": 3.875,
+  "fomc_stance": "hawkish",
+  "spy_pcr_oi": null,
+  "spy_pcr_vol": null,
+  "spy_max_pain": null,
+  "qqq_pcr_oi": null,
+  "qqq_pcr_vol": null,
+  "qqq_max_pain": null,
+  "calendar": {
+    "next_fomc": "2026-10-28",
+    "next_cpi": "2026-10-14",
+    "next_nfp": "2026-10-02",
+    "earnings_season_window": false
+  },
+  "regime": "risk_off",
+  "regime_note": "US 10-yr printed 5.091% intraday, +12.8bps on the day (the exact MACRO trigger, us10y_change_pts 0.128) and +35.3bps over the trailing month, breaching the 5.0% line that scout's 2026-09-21 regime reads flagged as the reversal trigger out of 'risk-on but fragile'. SPX -0.69%, NDX -0.68% today (broad domestic risk-off) while VIX is only 14.83 (down on the day, well inside 13.47-31.05 52w range) and Asia closed >1% higher overnight (pre-dating today's US rate move) -- reads as a rates-driven de-risk, not a fear spike. Sentiment gauge (not re-derived this run) sits at 78.1 extreme_greed with action_hint 'propose profit-booking on overweight/breach names', consistent with a market still priced for good news as the rate backdrop turns. Downgraded from risk_on-but-fragile to risk_off; not yet a confirmed close above 5.0%.",
+  "cluster_impact": {
+    "ai_capex_chain": "Pressured first and hardest -- long-duration growth multiples compress fastest as the discount rate rises; NDX -0.68% is the initial print, SMH cash close flat (+0.18%) lags the risk-off signal so far.",
+    "rate_sensitive": "Same mechanism, more acute -- every bp above the 5.0% line is territory the desk had not modeled as priced.",
+    "defensives": "Comparatively insulated but thin ballast: LLY is the book's only genuine non-AI-capex holding (thesis intact per orchestrator:70577475d1). Diversifier bench not touched this run (macro_only skips it; carried forward unchanged)."
+  },
+  "data_quality": [
+    "compute_options.json absent for this dispatch (macro_only quick sweep) -- options positioning fields are null, not a pre-market artifact issue.",
+    "10-yr 5.0% breach is intraday only, not a confirmed close; regime downgrade to risk_off should be reconfirmed at end of session."
+  ],
+  "findings_reaffirmed": ["macro:calendar", "macro:fomc"],
+  "findings_revised": [
+    {
+      "id": "orchestrator:71571408a8",
+      "claim": "Regime risk_on but fragile: 10-yr 4.967% is 3bp under the 5% line; reverts to neutral on a 10-yr close above 5.0%.",
+      "source": "market_inputs.json 2026-09-23: us10y 5.091%, us10y_change_pts +0.128",
+      "reason": "The 5.0% reversal threshold this finding itself specified has now been breached intraday (5.091% vs the flagged 5.0% line). Downgraded regime to risk_off pending close confirmation, not merely neutral, given today's broad SPX/NDX weakness compounds the rate move."
+    },
+    {
+      "id": "orchestrator:a175ef0eec",
+      "claim": "Regime neutral but fragile: 10-yr 4.998%; a 10-yr print through 5.0% is the reversal risk.",
+      "source": "market_inputs.json 2026-09-23: us10y 5.091%",
+      "reason": "The named reversal risk (10-yr through 5.0%) has occurred."
+    }
+  ],
+  "memory_used": ["8eeaea11e401", "4fe39e1116b2"],
+  "learned": [
+    {
+      "entities": ["M:macro"],
+      "kind": "event",
+      "text": "10-yr yield printed 5.091% intraday on 2026-09-23 (+12.8bps day, +35.3bps trailing month), breaching the 5.0% line the desk had twice (2026-09-21) named as the risk-on-to-neutral/risk-off reversal trigger. Occurred alongside broad US equity weakness (SPX -0.69%, NDX -0.68%) but a still-low VIX (14.83) -- a rates-driven de-risk, not a vol/fear event. Not yet confirmed at a session close.",
+      "source": "market_inputs.json 2026-09-23T16:40:44Z",
+      "confidence": "primary"
+    }
+  ],
+  "comms": {
+    "answers": [],
+    "asks": [],
+    "tells": [
+      {
+        "to": "strategist",
+        "ticker": null,
+        "fact": "10-yr yield is 5.091% intraday (+12.8bps day, +35.3bps trailing month) -- this is the exact MACRO trigger that dispatched this scout run and it breaches the 5.0% line scout's 2026-09-21 reads flagged as the risk-on-to-neutral reversal trigger. Regime downgraded here to risk_off (broad SPX -0.69%/NDX -0.68% weakness compounding the rate move, though VIX stayed low at 14.83 -- a rates story, not a fear spike). Sentiment gauge is still 78.1 extreme_greed with action_hint 'propose profit-booking on overweight/breach names'. Relevant for the stress table and any risk-off read this run produces; the AI-capex chain and rate-sensitive names are named as first-pressured in scout's cluster_impact.",
+        "source": "market_inputs.json 2026-09-23; compute_sentiment.json 2026-09-23",
+        "weight": "high"
+      }
+    ]
+  }
+}

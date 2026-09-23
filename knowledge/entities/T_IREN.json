@@ -2,6 +2,9 @@
  "brief": null,
  "entity": "T:IREN",
  "live_facts": [
+  "[1f0222365af9] lesson Compute/Hyperscaler,IREN,NBIS (2026-09-23) [secondary]: IREN (new position, 1.2% equity) is a second debt/impairment-funded neocloud alongside NBIS, both currently unclassified/mixed rather than cleanly mapped to a cluster. This compounds rather than resolves the G98 cluster-purity gap (NBIS sitting in Compute/Hyperscaler alongside self-funded MSFT/GOOG/AMZN) -- worth resolving together when cluster assignment for the recent adds (IREN, CBRS, LRCX) is next done.",
+  "[e8bd57560da4] lesson Compute/Hyperscaler,IREN,NBIS (2026-09-23) [secondary]: Created a new cluster 'Neocloud (Leveraged GPU-as-a-Service)' for NBIS+IREN, separating them from Compute/Hyperscaler's self-funded buyers (MSFT/GOOG/AMZN). This is a partial fix to G98, not a close: the two names' financing mechanisms differ (NBIS: SOFR+2.50% facility + $5B convert; IREN: Bitcoin-mining-pivot balance sheet with a hardware impairment), they share the risk CLASS (external funding funds the GPU buildout) rather than an identical structure.",
+  "[e642766b6d3c] event IREN (2026-09-18) [secondary]: TAILWIND/structural: IREN (new position): JPMorgan double-upgrade to Overweight, $65 PT (09-14, citing deepening Nvidia cloud-infrastructure partnership and neocloud pricing power); Northland initiates Outperform, $99 PT (09-18); Sweetwater Hub (2GW) conditionally included in a major infrastructure initiative (09-08)",
   "[d84fb593fc36] relation/pair IREN,NBIS =distinct (2026-09-08) [secondary]: NBIS/IREN: distinct -- Both are GPU neoclouds whose equity is a levered call on the same AI-rental demand, both dependent on external financing (converts, GPU collateral, vendor capital), and both repriced by the same move in rates and AI-credit spreads -- a single CPI or FOMC print moves them together. But the financing STRUCTURE differs materially (vendor/asset-anchored vs convert-and-dilute) and counterparty disclosure differs, so they are not interchangeable. (keep IREN, drop NBIS)",
   "[16c5741fcdcb] fact IREN (2026-09-21) [secondary]: [watchlist setup] {\"ticker\": \"IREN\", \"type\": \"target_gap\", \"upside_pct\": 70.6, \"pos\": 0.38, \"price_usd\": 47.02}",
   "[72d13b63355a] fact IREN (2026-09-20) [secondary]: [watchlist setup] {\"ticker\": \"IREN\", \"type\": \"target_gap\", \"upside_pct\": 40.9, \"pos\": 0.37}",
@@ -9,24 +12,23 @@
   "[242d6e2f5d46] fact IREN (2026-09-06) [secondary]: [quality flag] {\"finding\": \"Debt and dilution accelerating far faster than revenue; EBITDA swing >2x\", \"metric\": \"total_debt_yoy_and_ebitda_swing\", \"magnitude\": \"total debt ~8x YoY ($965M to $7.84B); EBITDA -$555M vs +$16.8M in comp quarter\", \"evidence_for\": [{\"claim\": \"Financing cash inflow $5.71B this quarter funding capex-heavy build-out; operating loss widened to -$140.6M\", \"date\": \"2026-09-06\", \"source\": \"y",
   "[b8c909960d42] fact IREN (2026-09-06) [secondary]: [quality financials] {\"latest_period_end\": \"2026-06-30\", \"fetched_at\": \"2026-09-06\", \"quarters\": [{\"period_end\": \"2026-06-30\", \"revenue\": 137230000, \"ocf\": 1810000000, \"capex\": -1980000000, \"net_income\": -684000000, \"op_income\": -140620000, \"interest_expense\": 24470000, \"total_debt\": 7840000000, \"sbc\": 42900000, \"diluted_shares\": 333730000}]}",
   "[3f2dffdcb12a] fact IREN (2026-09-06) [secondary]: [watchlist setup] {\"ticker\": \"IREN\", \"type\": \"target_gap\", \"upside_pct\": 42.6, \"pos\": 0.38}",
-  "[0d4bc141bd5d] fact/thesis_evidence IREN (2026-08-29) [secondary]: [thesis evidence AGAINST] Third entry into this name after two prior stop-outs -- repeat-volatility pattern",
-  "[a9815ca35b71] fact/thesis_evidence IREN (2026-08-28) [secondary]: [thesis evidence FOR] H.C. Wainwright and Citizens characterized the post-earnings decline as a buying opportunity",
-  "[584c4ee1825c] fact/thesis_evidence IREN (2026-08-28) [secondary]: [thesis evidence AGAINST] Stock fell 12.53% on earnings day, $40.53 to $35.45",
-  "[4309ec285e8f] fact/thesis_evidence IREN (2026-08-27) [secondary]: [thesis evidence FOR] Q4 FY26 revenue $137.2M vs $135.6M consensus",
-  "[3f60b46cd45f] fact/thesis_evidence IREN (2026-08-27) [secondary]: [thesis evidence FOR] Blue Owl-led $2.4B compute-equipment financing; contracted ARR $4B FY26 capacity, $1B operating ARR; FY27 capex guide $25-30B",
-  "[02d78d80e0c1] fact/thesis_evidence IREN (2026-08-27) [secondary]: [thesis evidence AGAINST] GAAP EPS -$2.06, net loss -$702.6M this quarter; cause not verified this run",
   "[9fe79bdbce27] fact IREN (2026-08-27) [secondary]: [earnings] Q4 FY2026 reported 2026-08-27: revenue 137200000 vs 135600000; EPS -2.06 vs None (None); next-quarter guide FY27 capex $25-30B",
   "[08fd9e79fa52] event/proposal IREN (2026-08-30) [secondary]: [proposal] None $212.7 (trend_breakdown): STRONG DOWNTREND signal polarity (computed), conviction_score -4.0 tier none (computed); thesis is watch not broken -- sized off the technical trigger given the thesis is genuinely contested (3-for/3-against) and this is IREN's third stop-out-prone entry.",
   "[0a1c7e5d9713] event IREN (2026-08-28) [secondary]: AMBIGUOUS/structural: IREN FY26: $638.8M noncash bitcoin-rig impairment flips $86.9M profit to $702.6M GAAP loss as AI-cloud pivot accelerates",
+  "[276d31f65296] fact/thesis_evidence IREN (2026-09-23) [unverified]: [thesis evidence AGAINST] Debt/impairment-funded neocloud model shares NBIS's leveraged-financing risk profile, distinct from self-funded hyperscaler buyers (MSFT/GOOG/AMZN) that sit in Compute/Hyperscaler",
+  "[5c28b4b59796] fact/thesis_evidence IREN (2026-09-18) [unverified]: [thesis evidence FOR] Northland initiated Outperform, $99 PT",
+  "[ba78ed0b3b6e] fact/thesis_evidence IREN (2026-09-14) [unverified]: [thesis evidence FOR] JPMorgan double-upgrade to Overweight, $65 PT, citing the deepening Nvidia cloud-infrastructure partnership and neocloud pricing power",
   "[f00dc26b97e2] event ASML,BE,CIEN (2026-08-18) [secondary]: THREAT/immediate: Semis-specific rout: SMH -4.09% vs SPX -0.69%/NDX -1.33%; high-multiple AI-hardware names repriced hardest while mega-cap compute barely moved",
+  "[5dc1d12e857b] fact/thesis_evidence IREN (2026-08-27) [unverified]: [thesis evidence AGAINST] Aug-27 FY26 print carried a large non-cash impairment on retired Bitcoin-mining hardware; beat/miss vs consensus is not established from what catalyst found",
+  "[d094c6ddc1ec] fact/signal IREN (2026-09-23): [signals] TARGET GAP",
+  "[52cbf50316fc] relation/member Neocloud (Leveraged GPU-as-a-Service),IREN =Neocloud (Leveraged GPU-as-a-Service) (2026-09-23): IREN is classified in Neocloud (Leveraged GPU-as-a-Service)",
   "[0e9e25687eb5] fact/signal IREN (2026-09-08): [signals] PEER_LEADER_OVERRIDDEN_FALSE_vs_XLK, TARGET GAP, NEW HEADWINDS",
   "[c3d5830f412a] fact/signal IREN (2026-09-07): [signals] PEER LEADER, TARGET GAP, NEW HEADWINDS",
   "[740c957938c9] fact/signal IREN (2026-09-06): [signals] PEER LEADER, TARGET GAP",
   "[35c62fd431f5] fact/signal IREN (2026-09-01): [signals] OVERSOLD BOUNCE, TARGET GAP",
-  "[2debd35762b0] event GEV,IREN,NBIS (2026-07-24) [secondary]: THREAT/None: Nebius asset-light infra pivot reignites AI-financing-structure skepticism",
-  "[839eae808458] relation/member Compute/Hyperscaler,IREN =Compute/Hyperscaler (2026-07-18): IREN is classified in Compute/Hyperscaler"
+  "[2debd35762b0] event GEV,IREN,NBIS (2026-07-24) [secondary]: THREAT/None: Nebius asset-light infra pivot reignites AI-financing-structure skepticism"
  ],
- "n_observations": 28,
+ "n_observations": 38,
  "open_tensions": [],
  "refuted": [],
  "timelines": {
@@ -50,8 +52,15 @@
    {
     "as_of": "2026-09-08",
     "id": "1b1cf5935dec",
-    "status": "live",
+    "status": "superseded",
     "text": "WATCH: Bitcoin-miner-turned-AI-cloud-compute provider; third entry after two prior stop-outs. Revenue beat and financing/ARR momentum offset by a large net los…",
+    "value": "watch"
+   },
+   {
+    "as_of": "2026-09-23",
+    "id": "45b890549361",
+    "status": "live",
+    "text": "WATCH: IREN -- former Bitcoin miner pivoting to AI/GPU neocloud capacity via an Nvidia cloud-infrastructure partnership (Sweetwater Hub, 2GW); new 1.2% starter…",
     "value": "watch"
    }
   ]

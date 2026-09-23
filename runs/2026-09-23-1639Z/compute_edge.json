@@ -1,0 +1,460 @@
+{
+  "as_of": "2026-09-23",
+  "engine_epoch": "2026-09-21",
+  "evidence_rule": "only proposals / shadow-journal rows dated on or after ENGINE_EPOCH count; the legacy engine's outcomes are history, not calibration",
+  "excluded_legacy": {
+    "proposal_rows": 20,
+    "shadow_journal_rows": 21
+  },
+  "by_direction": {
+    "BUY": {
+      "n_rows": 0,
+      "n_ideas": 0,
+      "n_eff": 0,
+      "source_counts": {
+        "proposal": 0,
+        "shadow_journal": 0
+      },
+      "hit_rate": null,
+      "mean_ev_net_pct": null,
+      "se": null,
+      "ci95": [
+        null,
+        null
+      ],
+      "verdict": "unproven",
+      "multiplier": 1.0,
+      "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)"
+    },
+    "SELL": {
+      "n_rows": 0,
+      "n_ideas": 0,
+      "n_eff": 0,
+      "source_counts": {
+        "proposal": 0,
+        "shadow_journal": 0
+      },
+      "hit_rate": null,
+      "mean_ev_net_pct": null,
+      "se": null,
+      "ci95": [
+        null,
+        null
+      ],
+      "verdict": "unproven",
+      "multiplier": 1.0,
+      "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)"
+    }
+  },
+  "by_family": {},
+  "verdict_counts": {
+    "unproven": 2
+  },
+  "all_unproven": true,
+  "tickets": [
+    {
+      "id": "conviction_average:APH",
+      "ticker": "APH",
+      "family": "conviction_average",
+      "direction": "BUY",
+      "vote_before": "live",
+      "vote_after": "live",
+      "refused_because": null,
+      "reason_code": null,
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "n_eff": 0,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "family": "BUY",
+        "level": "direction"
+      },
+      "p_win": 0.4052,
+      "payoff_r": 3.2428,
+      "ev_r": 0.671,
+      "fee_r": 0.0481,
+      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 25.1",
+      "size_before_usd": 632.73,
+      "f_edge": 1.0,
+      "f_family": 1.0,
+      "f_deemph": 1.0,
+      "size_after_usd": 632.73
+    },
+    {
+      "id": "reentry:NVDA",
+      "ticker": "NVDA",
+      "family": "reentry",
+      "direction": "BUY",
+      "vote_before": "live",
+      "vote_after": "shadow",
+      "refused_because": "no fresh analyst target (none cached within 7d) -- payoff is unknown, so the buy is shadow, not estimated",
+      "reason_code": "no_analyst_target",
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "n_eff": 0,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "family": "BUY",
+        "level": "direction"
+      },
+      "p_win": 0.4309,
+      "payoff_r": null,
+      "ev_r": null,
+      "fee_r": 0.0485,
+      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 39.4",
+      "size_before_usd": 943.92,
+      "size_after_usd": null
+    },
+    {
+      "id": "profit_rotation-MU-WDC",
+      "ticker": "WDC",
+      "family": "profit_rotation",
+      "direction": "BUY",
+      "vote_before": "live",
+      "vote_after": "shadow",
+      "refused_because": "rotation edge +0.19R (buy EV 1.02R minus holding 0.83R) below the 0.25R bar",
+      "reason_code": "rotation_edge_below_bar",
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "n_eff": 0,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "family": "BUY",
+        "level": "direction"
+      },
+      "p_win": 0.4097,
+      "payoff_r": 4.0,
+      "ev_r": 1.0187,
+      "fee_r": 0.0297,
+      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 27.6",
+      "size_before_usd": 423.51,
+      "rotation_edge": {
+        "assessed": true,
+        "edge_r": 0.1935,
+        "min_edge_r": 0.25,
+        "hold_ev_r": 0.8252,
+        "passes": false,
+        "reason": null
+      },
+      "size_after_usd": null
+    },
+    {
+      "id": "profit_rotation-SKHY-KLAC",
+      "ticker": "KLAC",
+      "family": "profit_rotation",
+      "direction": "BUY",
+      "vote_before": "live",
+      "vote_after": "shadow",
+      "refused_because": "rotation edge -0.01R (buy EV 0.67R minus holding 0.68R) below the 0.25R bar",
+      "reason_code": "rotation_edge_below_bar",
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "n_eff": 0,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "family": "BUY",
+        "level": "direction"
+      },
+      "p_win": 0.4018,
+      "payoff_r": 3.2444,
+      "ev_r": 0.667,
+      "fee_r": 0.0382,
+      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 23.2",
+      "size_before_usd": 470.39,
+      "rotation_edge": {
+        "assessed": true,
+        "edge_r": -0.0083,
+        "min_edge_r": 0.25,
+        "hold_ev_r": 0.6753,
+        "passes": false,
+        "reason": null
+      },
+      "size_after_usd": null
+    },
+    {
+      "id": "cluster_rotation-ASML-TSM",
+      "ticker": "TSM",
+      "family": "cluster_rotation",
+      "direction": "BUY",
+      "vote_before": "live",
+      "vote_after": "shadow",
+      "refused_because": "rotation edge +0.12R (buy EV 0.92R minus holding 0.80R) below the 0.25R bar",
+      "reason_code": "rotation_edge_below_bar",
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "n_eff": 0,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "family": "BUY",
+        "level": "direction"
+      },
+      "p_win": 0.3978,
+      "payoff_r": 4.0,
+      "ev_r": 0.9205,
+      "fee_r": 0.0685,
+      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 21.0",
+      "size_before_usd": 1185.59,
+      "rotation_edge": {
+        "assessed": true,
+        "edge_r": 0.1205,
+        "min_edge_r": 0.25,
+        "hold_ev_r": 0.8,
+        "passes": false,
+        "reason": null
+      },
+      "size_after_usd": null
+    },
+    {
+      "id": "cluster_rotation-NBIS-MSFT",
+      "ticker": "MSFT",
+      "family": "cluster_rotation",
+      "direction": "BUY",
+      "vote_before": "live",
+      "vote_after": "live",
+      "refused_because": null,
+      "reason_code": null,
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "n_eff": 0,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "family": "BUY",
+        "level": "direction"
+      },
+      "p_win": 0.3843,
+      "payoff_r": 3.5495,
+      "ev_r": 0.677,
+      "fee_r": 0.0714,
+      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 13.5",
+      "size_before_usd": 1198.29,
+      "rotation_edge": {
+        "assessed": true,
+        "edge_r": 0.5749,
+        "min_edge_r": 0.25,
+        "hold_ev_r": 0.1021,
+        "passes": true,
+        "reason": null
+      },
+      "f_edge": 1.0,
+      "f_family": 1.0,
+      "f_deemph": 1.0,
+      "size_after_usd": 1198.29
+    },
+    {
+      "id": "cluster_rotation-VRT-BE",
+      "ticker": "BE",
+      "family": "cluster_rotation",
+      "direction": "BUY",
+      "vote_before": "live",
+      "vote_after": "shadow",
+      "refused_because": "EV -0.57R below the 0.15R bar (p_win 0.40, payoff 0.1R, fee 0.02R)",
+      "reason_code": "ev_below_bar",
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "n_eff": 0,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "family": "BUY",
+        "level": "direction"
+      },
+      "p_win": 0.4036,
+      "payoff_r": 0.1359,
+      "ev_r": -0.5664,
+      "fee_r": 0.0248,
+      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 24.2",
+      "size_before_usd": 524.81,
+      "rotation_edge": {
+        "assessed": true,
+        "edge_r": -1.0976,
+        "min_edge_r": 0.25,
+        "hold_ev_r": 0.5312,
+        "passes": false,
+        "reason": null
+      },
+      "size_after_usd": null
+    },
+    {
+      "id": "cluster_rotation-GLW-LITE",
+      "ticker": "LITE",
+      "family": "cluster_rotation",
+      "direction": "BUY",
+      "vote_before": "live",
+      "vote_after": "shadow",
+      "refused_because": "EV 0.11R below the 0.15R bar (p_win 0.41, payoff 1.7R, fee 0.02R)",
+      "reason_code": "ev_below_bar",
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "n_eff": 0,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "family": "BUY",
+        "level": "direction"
+      },
+      "p_win": 0.4111,
+      "payoff_r": 1.7475,
+      "ev_r": 0.1056,
+      "fee_r": 0.0239,
+      "p_win_basis": "prior 0.45 (UNCALIBRATED) shrunk by conviction 28.4",
+      "size_before_usd": 364.79,
+      "rotation_edge": {
+        "assessed": true,
+        "edge_r": -0.1393,
+        "min_edge_r": 0.25,
+        "hold_ev_r": 0.2449,
+        "passes": false,
+        "reason": null
+      },
+      "size_after_usd": null
+    },
+    {
+      "id": "catalyst_threat:MU",
+      "ticker": "MU",
+      "family": "catalyst_threat",
+      "direction": "SELL",
+      "vote_before": "live",
+      "vote_after": "live",
+      "refused_because": null,
+      "reason_code": null,
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "n_eff": 0,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "family": "SELL",
+        "level": "direction"
+      },
+      "size_after_usd": null
+    },
+    {
+      "id": "catalyst_threat:GLW",
+      "ticker": "GLW",
+      "family": "catalyst_threat",
+      "direction": "SELL",
+      "vote_before": "live",
+      "vote_after": "live",
+      "refused_because": null,
+      "reason_code": null,
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "n_eff": 0,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "family": "SELL",
+        "level": "direction"
+      },
+      "size_after_usd": null
+    },
+    {
+      "id": "trend_breakdown:CBRS",
+      "ticker": "CBRS",
+      "family": "trend_breakdown",
+      "direction": "SELL",
+      "vote_before": "live",
+      "vote_after": "live",
+      "refused_because": null,
+      "reason_code": null,
+      "gate": {
+        "verdict": "unproven",
+        "multiplier": 1.0,
+        "basis": "n_eff 0: no post-epoch scored ideas -- the legacy engine's record is excluded (ENGINE_EPOCH), so nothing measured yet (multiplier 1.00, never gates)",
+        "n_eff": 0,
+        "mean_ev_net_pct": null,
+        "ci95": [
+          null,
+          null
+        ],
+        "family": "SELL",
+        "level": "direction"
+      },
+      "size_after_usd": null
+    }
+  ],
+  "summary": {
+    "tickets": 11,
+    "live_after_gate": 5,
+    "refused": 6,
+    "buys_refused_by_ev": 2,
+    "buys_refused_no_target": 1
+  },
+  "invariant": {
+    "required": false,
+    "override": null,
+    "attempted": [],
+    "why_not": "live buys remain after the gate",
+    "cash_above_band": false,
+    "deployable_cash_usd": 0.0
+  },
+  "constants": {
+    "MIN_EV_R": 0.15,
+    "EV_R_FULL": 0.5,
+    "F_EDGE_MIN": 0.25,
+    "ROTATION_MIN_EDGE_R": 0.25,
+    "TARGET_CAP_R": 4.0,
+    "P_WIN_PRIOR": 0.45,
+    "P_WIN_PRIOR_STATUS": "UNCALIBRATED engineering prior",
+    "P_WIN_SHRINK_K": 20,
+    "P_WIN_CEILING": 0.75,
+    "N_MIN": 12,
+    "N_SUPPRESS": 20,
+    "FAMILY_MULT_WATCH": 0.75,
+    "FAMILY_MULT_MAX": 1.25,
+    "DEEMPH_SIZE_MULT": 0.85,
+    "ROUND_TRIP_FEE_PCT": 0.3
+  },
+  "rules": [
+    "EV gate applies to BUYS only; sells are never EV-refused",
+    "protective exits ignore even a suppressed family verdict",
+    "unproven (n_eff < 12) never gates or scales",
+    "legacy proposals (before ENGINE_EPOCH) are excluded from every number here"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "mode": "quick",
+  "today": "2026-09-23",
+  "waves": {
+    "1": [
+      "catalyst",
+      "scout",
+      "signals"
+    ],
+    "2": [
+      "thesis"
+    ],
+    "3": [
+      "strategist"
+    ]
+  },
+  "agents": {
+    "signals": {
+      "agent": "smith-signals",
+      "wave": 1,
+      "reasons": [
+        "every run"
+      ]
+    },
+    "thesis": {
+      "agent": "smith-thesis",
+      "wave": 2,
+      "reasons": [
+        "live price trigger on held AMD, GLW, LITE, MU, SKHY"
+      ]
+    },
+    "scout": {
+      "agent": "smith-scout",
+      "wave": 1,
+      "reasons": [
+        "MACRO trigger: |us10y_change_pts| 0.128 >= 0.12"
+      ],
+      "mode": "macro_only"
+    },
+    "catalyst": {
+      "agent": "smith-catalyst",
+      "wave": 1,
+      "reasons": [
+        "cluster Compute/Hyperscaler OEM +6.30%",
+        "cluster AI Storage/HDD +5.18%"
+      ]
+    },
+    "strategist": {
+      "agent": "smith-strategist",
+      "wave": 3,
+      "reasons": [
+        "every run"
+      ]
+    }
+  },
+  "skipped": {
+    "watchlist": "quick mode, no explicit ask"
+  },
+  "scripts": [],
+  "deep_lite": null,
+  "dispatch_prompts": {
+    "scout": "Mode macro_only: tasks 3-5 only (Fed funds/stance, options positioning, calendar + regime read). Skip session read, sentiment narrative and the diversifier bench -- an omitted bench is carried forward, never wiped."
+  },
+  "recheck_after_wave1": false,
+  "merge_after_wave1": "catalyst,scout,signals",
+  "reslice_wave2": "thesis",
+  "ledger": "dispatch smith-ledger only if ledger-parse reports dispatch_agent, or lots reports a mismatch or phantom short"
+}

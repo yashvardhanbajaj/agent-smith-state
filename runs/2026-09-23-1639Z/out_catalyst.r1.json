@@ -1,0 +1,64 @@
+{
+  "comms": {
+    "answers": [
+      {
+        "id": "M1.5",
+        "position": "revised",
+        "answer": "Did a fresh targeted WebSearch check for both (I don't share signals' FMP/INDmoney outage -- WebSearch was available). GOOG: no acute same-day (09-23) headline found. The closest dated, sourced mechanism is from 09-22: GOOG failed at $360 resistance and fell back near $350 as investors weigh the FY26 capex guide ($180-190bn) and negative Q2 free cash flow (-$5.9bn) against Gemini engagement growth ('Gemini growth meets spending concerns') -- a continuing capex/monetization-worry narrative, not a fresh shock. That explains direction and rough scale (~-2.8% in the cited round-trip) but not the FULL -3.5% today: GOOG's move is ~5x the broad tech tape (SPX -0.69%, NDX -0.68% today), so some idiosyncratic component is still unaccounted for by anything I found. Read it as continuation of an existing capex-overhang concern amplified by today's broad softness, not a new named catalyst on top-up day -- I don't have a smoking gun and won't invent one. CIEN: this corroborates, not just repeats, the mean-reversion/technical read from the first stop-out. Multiple independent sources describe the SAME pattern -- CIEN sliding 'despite overwhelmingly positive company news' (fresh optical/AI-infra contract wins, backlog $7.7bn, FY guide raised to ~$6.3bn) -- i.e. profit-taking/multiple-compression after a strong run, not fundamental deterioration. One more factor specific to a SECOND stop-out in two sessions: CIEN's position is dust-sized (0.01% weight, ~$2.98, already flagged elsewhere for a re-establish-or-zero decision), so ordinary volatility on a near-zero-dollar position will trip a tight stop repeatedly almost by construction -- that's a sizing artifact, not new bearish evidence, and I'd weight it accordingly.",
+        "evidence": [
+          {"claim": "GOOG failed at $360 resistance, fell back to ~$350, on FY26 capex guide $180-190bn and Q2 FCF -$5.9bn weighed against Gemini growth", "source": "https://www.fxleaders.com/news/2026/09/22/google-googl-stock-fails-at-resistance-as-gemini-growth-meets-spending-concerns/", "date": "2026-09-22"},
+          {"claim": "No GOOG-specific negative headline dated 2026-09-23 found; today's SPX -0.687%/NDX -0.684% (market_inputs.json) is ~5x smaller than GOOG's reported -3.5%", "source": "local:market_inputs.json", "date": "2026-09-23"},
+          {"claim": "CIEN sliding despite positive news -- fresh networking/AI-infra contract wins, $7.7bn backlog, FY guidance raised to ~$6.3bn -- read as profit-taking/valuation-multiple compression, not fundamental break", "source": "https://www.tikr.com/blog/cienas-backlog-just-hit-7-7-billion-heres-why-the-stock-pulled-back-anyway ; https://www.tipranks.com/news/catalyst/why-ciena-stock-is-dropping-despite-bullish-news", "date": "2026-09"},
+          {"claim": "CIEN position is 0.01% weight (~$2.98), already flagged as needing a re-establish-or-zero decision", "source": "internal (memory d4672062d3dd, brief/brief CIEN)", "date": "2026-09-21"}
+        ],
+        "confidence": "medium",
+        "revision": {
+          "catalysts_added": [
+            {
+              "headline": "GOOG: FY26 capex guide ($180-190bn) and negative Q2 FCF (-$5.9bn) weighed against Gemini engagement growth -- stock failed at $360 resistance and fell back near $350 on 09-22; no acute same-day (09-23) headline found, and today's reported -3.5% is roughly 5x the broad tech tape (SPX -0.69%, NDX -0.68%), leaving an idiosyncratic residual unaccounted for by any source I found",
+              "date": "2026-09-22",
+              "horizon": "structural",
+              "direction": "threat",
+              "affects": ["GOOG"],
+              "exposure_pct_equity": 5.85,
+              "exposure_pct_book": 5.365,
+              "magnitude": "Q2 capex $44.9bn of the $180-190bn FY26 guide; Q2 FCF -$5.9bn. 09-22 cited round-trip (~$360 to ~$350) is roughly -2.8%, explaining direction but not the full magnitude of today's -3.5% print, which I could not independently verify against a primary series.",
+              "source": "https://www.fxleaders.com/news/2026/09/22/google-googl-stock-fails-at-resistance-as-gemini-growth-meets-spending-concerns/",
+              "invalidates_proposal": null
+            },
+            {
+              "headline": "CIEN's second stop-loss in two sessions: corroborated as profit-taking/multiple-compression after a strong run, not fundamental deterioration (fresh contract wins, $7.7bn backlog, FY guide raised to ~$6.3bn cited as unchanged); position is dust-sized (0.01% weight) so ordinary volatility can trip a tight stop repeatedly on its own",
+              "date": "2026-09-23",
+              "horizon": "noise",
+              "direction": "ambiguous",
+              "affects": ["CIEN"],
+              "exposure_pct_equity": 0.01,
+              "exposure_pct_book": 0.01,
+              "magnitude": "Backlog $7.7bn, FY guide ~$6.3bn -- fundamentals unchanged per every source found. No new negative company catalyst; repeat stop-out reads as a sizing artifact on a sub-materiality-floor position combined with the same valuation-compression pattern already logged for the first stop-out.",
+              "source": "https://www.tikr.com/blog/cienas-backlog-just-hit-7-7-billion-heres-why-the-stock-pulled-back-anyway",
+              "invalidates_proposal": null
+            }
+          ]
+        }
+      }
+    ],
+    "asks": [],
+    "tells": [
+      {
+        "to": "signals",
+        "ticker": "GOOG",
+        "fact": "WebSearch (not FMP/INDmoney) found a partial explanation for GOOG: 09-22 coverage frames a capex-guide ($180-190bn FY26) vs Gemini-growth tension, with the stock failing at $360 resistance and falling back near $350. That covers direction but only ~-2.8% of today's reported -3.5%, and I found nothing dated exactly 09-23 -- so about 5x the broad tech tape's move is still unexplained by any source I have.",
+        "source": "https://www.fxleaders.com/news/2026/09/22/google-googl-stock-fails-at-resistance-as-gemini-growth-meets-spending-concerns/",
+        "weight": "normal"
+      },
+      {
+        "to": "signals",
+        "ticker": "CIEN",
+        "fact": "CIEN's repeat stop-out is likely partly mechanical: the position is 0.01% weight (~$2.98), already flagged elsewhere as needing a re-establish-or-zero decision. A near-dust position will trip a tight stop on ordinary noise: worth weighting the signal accordingly rather than reading it as a second independent bearish confirmation.",
+        "source": "internal (memory d4672062d3dd)",
+        "weight": "normal"
+      }
+    ]
+  },
+  "searches_used_this_round": 4
+}

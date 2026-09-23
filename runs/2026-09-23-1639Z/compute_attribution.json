@@ -1,0 +1,162 @@
+{
+  "value_delta_usd": 2219.66,
+  "fx_effect_usd": -267.88,
+  "flow_usd": 1712.67,
+  "residual_market_move_usd": 774.87,
+  "qty_changes": [
+    {
+      "ticker": "GOOG",
+      "qty_diff": 1,
+      "likely_corporate_action": false
+    },
+    {
+      "ticker": "VRT",
+      "qty_diff": 2,
+      "likely_corporate_action": false
+    },
+    {
+      "ticker": "LRCX",
+      "qty_diff": 2,
+      "likely_corporate_action": false,
+      "new_entry": true,
+      "est_cost_usd": 610.58
+    },
+    {
+      "ticker": "IREN",
+      "qty_diff": 10,
+      "likely_corporate_action": false,
+      "new_entry": true,
+      "est_cost_usd": 481.6
+    },
+    {
+      "ticker": "CBRS",
+      "qty_diff": 2,
+      "likely_corporate_action": false,
+      "new_entry": true,
+      "est_cost_usd": 412.02
+    },
+    {
+      "ticker": "COHR",
+      "qty_diff": -2,
+      "likely_corporate_action": false,
+      "full_exit": true,
+      "est_proceeds_usd": 630.92,
+      "price_basis": "last_known_price_prior_run"
+    }
+  ],
+  "data_quality": [],
+  "flow_components": {
+    "adds_trims_usd": 839.38,
+    "new_entries_usd": 1504.2,
+    "exits_usd": -630.92,
+    "exits_unpriced": [],
+    "exit_price_basis": "last_known_price_prior_run"
+  },
+  "rolling": {
+    "1m": {
+      "from": "2026-08-21",
+      "to": "2026-09-23",
+      "sessions": 21,
+      "coverage_pct": 100.0,
+      "uncovered": [],
+      "smh_pct": 6.54,
+      "book_pct": 5.66,
+      "excess_pp": -0.88,
+      "realized_excess_pp": null,
+      "realized_reason": "external_flow_usd is not recorded on every ledger row in the window, so a deposit would read as return"
+    },
+    "3m": {
+      "from": "2026-06-23",
+      "to": "2026-09-23",
+      "sessions": 63,
+      "coverage_pct": 98.6,
+      "uncovered": [
+        "SKHY"
+      ],
+      "smh_pct": -4.01,
+      "book_pct": -4.87,
+      "excess_pp": -0.86,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "6m": {
+      "from": "2026-03-23",
+      "to": "2026-09-23",
+      "sessions": 126,
+      "coverage_pct": 97.6,
+      "uncovered": [
+        "CBRS",
+        "SKHY"
+      ],
+      "smh_pct": 52.57,
+      "book_pct": 51.99,
+      "excess_pp": -0.58,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "12m": {
+      "from": "2025-09-23",
+      "to": "2026-09-23",
+      "sessions": 250,
+      "coverage_pct": 97.6,
+      "uncovered": [
+        "CBRS",
+        "SKHY"
+      ],
+      "smh_pct": 85.6,
+      "book_pct": 127.35,
+      "excess_pp": 41.75,
+      "realized_excess_pp": null,
+      "realized_reason": "a ledger row in the window is not value_trust=ok"
+    },
+    "basis": "current_holdings_constant_mix",
+    "benchmark": "SMH",
+    "as_of": "2026-09-23",
+    "basis_label": "trailing windows: current holdings at current weights vs SMH. Not a realized return (trades, wallet cash and deposits excluded) and flattered by hindsight: it prices the names you kept"
+  },
+  "ledger_rows_available": 61,
+  "realized": {
+    "available": true,
+    "full_history": {
+      "from": "2025-05-08",
+      "to": "2026-09-18",
+      "n_sessions": 343,
+      "twr_pct": 64.84,
+      "vol_annualized_pct": 36.4,
+      "max_drawdown_pct": -29.4,
+      "sharpe_rf0": 1.19,
+      "sharpe_note": "risk-free rate ZERO; the 10-yr is ~5%, so this overstates risk-adjusted skill",
+      "best_session_pct": 10.06,
+      "worst_session_pct": -8.77,
+      "benchmark": "SMH",
+      "benchmark_pct": 158.17,
+      "excess_pp": -93.32
+    },
+    "material_capital": {
+      "from": "2026-05-13",
+      "to": "2026-09-18",
+      "n_sessions": 89,
+      "twr_pct": 0.25,
+      "vol_annualized_pct": 51.8,
+      "max_drawdown_pct": -28.3,
+      "sharpe_rf0": 0.27,
+      "sharpe_note": "risk-free rate ZERO; the 10-yr is ~5%, so this overstates risk-adjusted skill",
+      "best_session_pct": 10.06,
+      "worst_session_pct": -7.07,
+      "benchmark": "SMH",
+      "benchmark_pct": 0.09,
+      "excess_pp": 0.16
+    },
+    "material_floor_usd": 10000.0,
+    "money_weighted": {
+      "as_of": "2026-09-18",
+      "net_capital_deployed_usd": 29053.9,
+      "actual_value_usd": 33566.62,
+      "same_flows_into_benchmark_usd": 33068.68,
+      "selection_cost_usd": 497.94,
+      "basis": "every equity flow redirected into SMH at that session's close"
+    },
+    "basis": "trades.json rebuilt daily and priced at closes; includes exited names",
+    "note": "TWR equal-weights the sub-$5K months, so full_history overstates the damage; material_capital and money_weighted describe the capital that mattered."
+  }
+}

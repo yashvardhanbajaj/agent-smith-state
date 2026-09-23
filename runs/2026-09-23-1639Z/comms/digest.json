@@ -1,0 +1,87 @@
+{
+  "round": 6,
+  "counts": {
+    "answered": 7,
+    "recorded": 2,
+    "total": 9,
+    "revisions": 1
+  },
+  "debates": [],
+  "asks": [],
+  "tells": [
+    {
+      "id": "M1.1",
+      "from": "catalyst",
+      "to": "thesis",
+      "ticker": "COHR",
+      "fact": "COHR was fully exited today via stop-loss. No negative company catalyst found: Coherent launched its PhotonLink co-packaged/near-packaged optics platform for AI datacenters on 09-21, and both Stifel (Buy, $420 PT reiterated) and Needham (PT raised $380->$420) are bullish, dated to/after the launch. ",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M1.2",
+      "from": "catalyst",
+      "to": "strategist",
+      "ticker": null,
+      "fact": "Today's two dispatch-reason cluster moves (Compute/Hyperscaler OEM +6.30%, AI Storage/HDD +5.18%) are effectively single-name moves: CLS (sole cluster member) on a hyperscaler rack-scale networking design win + raised FY26 guide, and WDC on across-the-board HDD price hikes (WD+Seagate) plus a Goldma",
+      "weight": "normal",
+      "status": "answered"
+    },
+    {
+      "id": "M1.3",
+      "from": "scout",
+      "to": "strategist",
+      "ticker": null,
+      "fact": "10-yr yield is 5.091% intraday (+12.8bps day, +35.3bps trailing month) -- this is the exact MACRO trigger that dispatched this scout run and it breaches the 5.0% line scout's 2026-09-21 reads flagged as the risk-on-to-neutral reversal trigger. Regime downgraded here to risk_off (broad SPX -0.69%/NDX",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M1.4",
+      "from": "signals",
+      "to": "thesis",
+      "ticker": "CBRS",
+      "fact": "CBRS (Cerebras Systems) is now held at 1.03% weight (2sh) -- first appearance in holdings_trim and signal_history this run. No prior thesis entry found in prior_findings or memory. Already flagged STRONG DOWNTREND (pos=0.2, near 52wk low) and compute_buckets carries no analyst_target/upside_pct for ",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M1.5",
+      "from": "signals",
+      "to": "catalyst",
+      "ticker": null,
+      "fact": "FMP `news` (search-stock-news) returned ACCESS DENIED this session -- requires Starter/Premium/Ultimate/Enterprise FMP plan tier, current plan is lower. INDmoney MCP also unauthenticated this session. No news source existed for signals this run -- GOOG's -3.5% intraday STRONG DOWNTREND (fresh top-up",
+      "weight": "high",
+      "status": "answered"
+    },
+    {
+      "id": "M2.6",
+      "from": "catalyst",
+      "to": "signals",
+      "ticker": "GOOG",
+      "fact": "WebSearch (not FMP/INDmoney) found a partial explanation for GOOG: 09-22 coverage frames a capex-guide ($180-190bn FY26) vs Gemini-growth tension, with the stock failing at $360 resistance and falling back near $350. That covers direction but only ~-2.8% of today's reported -3.5%, and I found nothin",
+      "weight": "normal",
+      "status": "recorded"
+    },
+    {
+      "id": "M2.7",
+      "from": "catalyst",
+      "to": "signals",
+      "ticker": "CIEN",
+      "fact": "CIEN's repeat stop-out is likely partly mechanical: the position is 0.01% weight (~$2.98), already flagged elsewhere as needing a re-establish-or-zero decision. A near-dust position will trip a tight stop on ordinary noise: worth weighting the signal accordingly rather than reading it as a second in",
+      "weight": "normal",
+      "status": "recorded"
+    }
+  ],
+  "revisions": [
+    {
+      "agent": "catalyst",
+      "message": "M1.5",
+      "changed": [
+        "catalysts_added: (new) -> [{\"headline\": \"GOOG: FY26 capex guide ($180-190bn) and negat"
+      ]
+    }
+  ],
+  "unresolved": [],
+  "rule": "Adjudicate on the post-debate record. A `revised` outcome means the owning analyst changed its output and every consumer was told. A `held` outcome means the challenge was answered with a reason; weigh that reason, do not re-open it. `unresolved` items are live disagreements -- do not size a proposal on one without naming it."
+}

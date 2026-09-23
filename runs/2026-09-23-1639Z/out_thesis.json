@@ -1,0 +1,127 @@
+{
+  "thesis": {
+    "changed": {
+      "GOOG": {
+        "status": "intact",
+        "thesis": "Alphabet Class C -- hyperscaler buying AI capex (demand-side link, not a diversifier); today's +1sh top-up signals conviction, but a capex-guide-vs-FCF tension (09-22) and an unexplained idiosyncratic drop (09-23) pull it off a clean STRENGTHENING read -- downgraded to INTACT pending clarification.",
+        "evidence_for": [
+          {"claim": "User added +1 share today despite the drawdown -- a conviction signal, not evidence of new fundamentals", "date": "2026-09-23", "source": "holdings_trim delta, this run"},
+          {"claim": "Prior 2Q26 print was a blowout with strong cloud growth (context only, stale, pre-dates this tension)", "date": "2026-07-28", "source": "exited-holdings-archive.json (stale)"}
+        ],
+        "evidence_against": [
+          {"claim": "FY26 capex guide $180-190bn (Q2 capex $44.9bn) weighed against negative Q2 FCF (-$5.9bn) and Gemini engagement growth; stock failed at $360 resistance, fell to ~$350 (~-2.8%)", "date": "2026-09-22", "source": "fxleaders.com via smith-catalyst catalysts_added"},
+          {"claim": "Today's reported -3.5% is roughly 5x the broad tech tape (SPX -0.69%, NDX -0.68%) and roughly 2x the 09-22 capex/FCF reaction alone; the residual is unexplained by any source found this run", "date": "2026-09-23", "source": "smith-catalyst catalysts_added, this run"}
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "STATUS CHANGE strengthening->intact. Precedent check run (smith_math.py gaps, query 'capex guide vs FCF tension unexplained residual drop') -- no direct hit; closest relevant is G75 ('a price move is not a fundamental verdict' -- do not infer a break from the unexplained residual alone, which is why this is INTACT not WATCH). Evidence_against was previously an explicit empty array; both new items are catalyst-sourced and dated, so this is a genuine change, not compression. Re-examine once the idiosyncratic residual gets a named cause or fades."
+      },
+      "CBRS": {
+        "status": "watch",
+        "thesis": "Cerebras Systems -- wafer-scale AI training/inference accelerator (CS-3), a direct silicon challenger to NVDA outside the GPU paradigm; brand-new 1.03% starter (2sh), first thesis coverage on this desk.",
+        "evidence_for": [],
+        "evidence_against": [
+          {"claim": "STRONG DOWNTREND flagged, position near 52-week low (pos=0.2); no analyst coverage or price target exists yet in the compute cache", "date": "2026-09-23", "source": "smith-signals compute_buckets, this run"}
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "First thesis, no news/catalyst scan performed this run (catalyst's stated data_quality: budget spent on dispatch-reason clusters). evidence_for is genuinely empty -- none found this run. Peer proxy SMH was added by signals as a stopgap (no CBRS-specific peer exists). WATCH is the honest default for a brand-new, uncovered, downtrending, sub-1.1% starter; revisit once catalyst or earnings coverage exists."
+      },
+      "IREN": {
+        "status": "watch",
+        "thesis": "IREN -- former Bitcoin miner pivoting to AI/GPU neocloud capacity via an Nvidia cloud-infrastructure partnership (Sweetwater Hub, 2GW); new 1.2% starter (10sh), first thesis coverage.",
+        "evidence_for": [
+          {"claim": "JPMorgan double-upgrade to Overweight, $65 PT, citing the deepening Nvidia cloud-infrastructure partnership and neocloud pricing power", "date": "2026-09-14", "source": "smith-catalyst (JPMorgan)"},
+          {"claim": "Northland initiated Outperform, $99 PT", "date": "2026-09-18", "source": "smith-catalyst (Northland)"}
+        ],
+        "evidence_against": [
+          {"claim": "Aug-27 FY26 print carried a large non-cash impairment on retired Bitcoin-mining hardware; beat/miss vs consensus is not established from what catalyst found", "date": "2026-08-27", "source": "smith-catalyst, this run"},
+          {"claim": "Debt/impairment-funded neocloud model shares NBIS's leveraged-financing risk profile, distinct from self-funded hyperscaler buyers (MSFT/GOOG/AMZN) that sit in Compute/Hyperscaler", "date": "2026-09-23", "source": "smith-catalyst (G98 compounding note)"}
+        ],
+        "verified": "unverified",
+        "verified_against": "",
+        "verified_on": "",
+        "note": "First thesis. Two named-mechanism sell-side upgrades (not sentiment) support the read, but the position is new/thin (1.2%) and no financial-quality check has run on it. CLUSTER CALL: reclassified into a NEW cluster 'Neocloud (Leveraged GPU-as-a-Service)' together with NBIS, out of Compute/Hyperscaler -- see sector_map.changed and the note below. This narrows G98 (separates leveraged neoclouds from self-funded hyperscaler buyers) but does not fully resolve it: IREN's Bitcoin-mining-pivot balance sheet and NBIS's SOFR+2.50%-facility-plus-convert structure are not identical financing mechanisms, just the same risk CLASS (external funding, not self-funded capex)."
+      }
+    },
+    "unchanged_count": 23,
+    "reviewed_unchanged": ["AMD", "GLW", "LITE", "MU", "SKHY"]
+  },
+  "sector_map": {
+    "changed": {
+      "CBRS": "AI Compute Silicon/Challengers",
+      "IREN": "Neocloud (Leveraged GPU-as-a-Service)",
+      "NBIS": "Neocloud (Leveraged GPU-as-a-Service)"
+    },
+    "unchanged_count": 24
+  },
+  "ai_capex_pct": 96.46,
+  "factor_flags": [
+    "Combined AI-capex-chain exposure (everything except LLY 1.44% Pharma/GLP-1 and NOW 2.09% Enterprise Software) is ~96.46% of equity -- a datacenter-capex pause or a sharp AI-capex-cycle re-rating hits essentially the whole book at once. Largest genuinely uncorrelated slice is LLY+NOW at ~3.5%.",
+    "AI Semis/Fabs remains the largest single cluster at ~34.9% (ASML+AMAT+TER+QCOM+TSM+KLAC+AMD+LRCX) and still mixes tool/foundry SELLERS with fabless BUYERS (AMD, QCOM) per the standing lesson -- CBRS's new 'AI Compute Silicon/Challengers' cluster was deliberately kept separate from AI Semis/Fabs rather than compounding that mix further.",
+    "New 'Neocloud (Leveraged GPU-as-a-Service)' cluster (NBIS+IREN, ~4.65% of equity) carries a shared external-financing risk axis (debt/convert/impairment-funded) distinct from Compute/Hyperscaler's self-funded buyers (MSFT/GOOG/AMZN, ~12.69%) -- narrows G98, does not close it."
+  ],
+  "thesis_tensions": [],
+  "data_quality": [
+    "No INDmoney or FMP news access this run (both flagged down by signals) -- AMD/GLW/LITE/MU/SKHY live-price-trigger check relied entirely on catalyst's coverage and existing evidence; none of the five had a fresh news-sourced development to add, so all five are marked reviewed_unchanged rather than re-verified.",
+    "CBRS has zero news/catalyst coverage this run by budget choice (catalyst's own data_quality note) -- evidence_for is genuinely empty, not merely thin.",
+    "GOOG's -3.5% today carries an idiosyncratic residual (~2x the 09-22 capex/FCF reaction alone) that no source found this run explains -- flagged, not resolved; do not treat as a fundamental verdict per G75.",
+    "HBMTracker consumer_view.json staleness_days=0 (fresh) but not re-read for new content this run -- MU/SKHY reconciliation carried forward unchanged from the 2026-09-20/21 verdicts already in the thesis map (no new HBM datapoint appeared in prior_findings since the last run's watermark)."
+  ],
+  "findings_reaffirmed": [],
+  "findings_revised": [],
+  "memory_used": ["bf1897ca0c0b", "0790f8d5090e", "221f86bb2854", "244927e98899", "6ddf8e3ec2b4", "cc6ae1d6c6f5", "78fa6b61b7db", "a898f5167c85", "4f65ed434ee6"],
+  "memory_refuted": [],
+  "learned": [
+    {
+      "entities": ["COHR"],
+      "kind": "event",
+      "text": "COHR fully exited 2026-09-23 via stop-loss. No negative company catalyst found (catalyst-verified): PhotonLink launch 09-21, Stifel/Needham both bullish (PT raised to $420), -3.5% session followed a +21% five-session run. Thesis read: technical stop-out in an uptrend, not a thesis break. Last live verdict before exit should be carried forward as STRENGTHENING/exited, not overwritten to broken or closed -- there is no fundamental evidence against the thesis, only a tight-SL sizing event.",
+      "source": "smith-catalyst out_catalyst.json, 2026-09-23 (M1.1)",
+      "confidence": "secondary"
+    },
+    {
+      "entities": ["IREN", "NBIS", "C:Compute/Hyperscaler"],
+      "kind": "lesson",
+      "text": "Created a new cluster 'Neocloud (Leveraged GPU-as-a-Service)' for NBIS+IREN, separating them from Compute/Hyperscaler's self-funded buyers (MSFT/GOOG/AMZN). This is a partial fix to G98, not a close: the two names' financing mechanisms differ (NBIS: SOFR+2.50% facility + $5B convert; IREN: Bitcoin-mining-pivot balance sheet with a hardware impairment), they share the risk CLASS (external funding funds the GPU buildout) rather than an identical structure.",
+      "source": "internal, this run",
+      "confidence": "secondary"
+    },
+    {
+      "entities": ["CBRS"],
+      "kind": "fact",
+      "text": "First thesis coverage 2026-09-23: wafer-scale AI accelerator (CS-3) maker, direct silicon challenger to NVDA. Classified into a new cluster 'AI Compute Silicon/Challengers' rather than AI Semis/Fabs, to avoid compounding that cluster's existing seller/buyer mixing problem (lesson 4f65ed434ee6). No catalyst/news coverage exists yet -- evidence_for is an explicit empty array, not an oversight.",
+      "source": "internal, this run",
+      "confidence": "secondary"
+    }
+  ],
+  "comms": {
+    "answers": [
+      {
+        "id": "M1.1",
+        "position": "noted",
+        "answer": "Agreed and incorporated. COHR's exit reads as a technical stop-out (pullback after +21% in 5 sessions) with no fundamental catalyst against it -- PhotonLink launch and Stifel/Needham bullish coverage both cut the other way. Its last live thesis status should be carried forward as-is (STRENGTHENING at exit), not overwritten to broken/closed; I did not write a COHR entry this run since it is not currently held and the carried-record mechanism is automatic, but flagging explicitly here so the carry does not default to an unresolved/invented status.",
+        "evidence": [{"claim": "COHR -3.5% on 09-22 followed a +21% five-session run; PhotonLink launched 09-21; Stifel Buy $420 PT reiterated, Needham PT raised $380->$420", "source": "stocktitan.net, trefis.com via smith-catalyst", "date": "2026-09-22"}],
+        "confidence": "high"
+      },
+      {
+        "id": "M1.4",
+        "position": "noted",
+        "answer": "Acknowledged. Gave CBRS its first thesis read this run (WATCH, new 1.03% starter) using exactly the signal you flagged -- STRONG DOWNTREND, near 52wk low, no analyst coverage -- as the sole evidence_against, with evidence_for left explicitly empty since no catalyst/news coverage exists yet.",
+        "evidence": [],
+        "confidence": "high"
+      },
+      {
+        "id": "M2.9",
+        "position": "noted",
+        "answer": "Confirmed -- I read out_catalyst.json directly this run and the version I consumed already includes the revised catalysts_added block (GOOG FY26 capex guide vs Gemini growth tension, dated 09-22, plus the unexplained 09-23 residual). No stale pre-revision data was used; GOOG's status change to INTACT is built on the revised figures.",
+        "evidence": [],
+        "confidence": "high"
+      }
+    ],
+    "asks": [],
+    "tells": []
+  }
+}

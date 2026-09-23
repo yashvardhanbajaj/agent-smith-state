@@ -3,11 +3,26 @@
  "entity": "T:CBRS",
  "live_facts": [
   "[a898f5167c85] lesson CBRS,SPCX (2026-09-21): Recent IPOs return 52week_low=0 (CBRS) or thin history, so pos cannot be computed; do not label them nearing_breakout. Use target_gap only.",
+  "[52c373ee8f93] fact CBRS (2026-09-23): CBRS (Cerebras Systems) entered the book this run at 1.03% weight, 2sh -- first appearance in holdings_trim and signal_history. No peer_map entry existed; added SMH (AI inference/training chip, closest liquid semis proxy). compute_buckets carries no analyst_target/upside_pct for CBRS (no coverage yet) so TARGET GAP cannot fire. Flagged STRONG DOWNTREND on first appearance, pos=0.20, near 52wk low.",
+  "[fc3fbccf215b] fact CBRS (2026-09-23) [secondary]: First thesis coverage 2026-09-23: wafer-scale AI accelerator (CS-3) maker, direct silicon challenger to NVDA. Classified into a new cluster 'AI Compute Silicon/Challengers' rather than AI Semis/Fabs, to avoid compounding that cluster's existing seller/buyer mixing problem (lesson 4f65ed434ee6). No catalyst/news coverage exists yet -- evidence_for is an explicit empty array, not an oversight.",
   "[15fcd30347ec] fact CBRS (2026-09-21) [secondary]: [watchlist setup] {\"ticker\": \"CBRS\", \"type\": \"target_gap_ipo_no_pos_history\", \"upside_pct\": 40.6, \"pos\": null, \"price_usd\": 210.56}",
-  "[aefb73db3e18] fact CBRS (2026-09-07) [secondary]: [watchlist setup] {\"ticker\": \"CBRS\", \"type\": \"nearing_breakout+target_gap\", \"upside_pct\": 40.9, \"pos\": 1.0}"
+  "[aefb73db3e18] fact CBRS (2026-09-07) [secondary]: [watchlist setup] {\"ticker\": \"CBRS\", \"type\": \"nearing_breakout+target_gap\", \"upside_pct\": 40.9, \"pos\": 1.0}",
+  "[6879358b082a] fact/thesis_evidence CBRS (2026-09-23) [unverified]: [thesis evidence AGAINST] STRONG DOWNTREND flagged, position near 52-week low (pos=0.2); no analyst coverage or price target exists yet in the compute cache",
+  "[0aa395257f78] fact/signal CBRS (2026-09-23): [signals] STRONG DOWNTREND",
+  "[11ef19321e44] relation/member AI Compute Silicon/Challengers,CBRS =AI Compute Silicon/Challengers (2026-09-23): CBRS is classified in AI Compute Silicon/Challengers"
  ],
- "n_observations": 3,
+ "n_observations": 9,
  "open_tensions": [],
  "refuted": [],
- "timelines": {}
+ "timelines": {
+  "thesis": [
+   {
+    "as_of": "2026-09-23",
+    "id": "c820ab6d96af",
+    "status": "live",
+    "text": "WATCH: Cerebras Systems -- wafer-scale AI training/inference accelerator (CS-3), a direct silicon challenger to NVDA outside the GPU paradigm; brand-new 1.03% …",
+    "value": "watch"
+   }
+  ]
+ }
 }

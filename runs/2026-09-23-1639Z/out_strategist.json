@@ -1,0 +1,213 @@
+{
+  "policy_draft": null,
+  "stress_table": {
+    "as_of": "2026-09-23",
+    "anchored_to": {
+      "us10y_pct": 5.091,
+      "vix": 14.83,
+      "dxy": 101.069,
+      "fed_rate_pct": 3.875,
+      "fed_stance": "hawkish"
+    },
+    "scenarios": [
+      {
+        "scenario": "AI-capex pause",
+        "impact_pct_low": -28.9,
+        "impact_pct_high": -16.5,
+        "most_exposed": [
+          "TSM",
+          "ASML",
+          "AMAT",
+          "KLAC",
+          "APH",
+          "LITE",
+          "ALAB",
+          "MRVL",
+          "IREN",
+          "NBIS"
+        ],
+        "mechanism": "Whole AI-capex sleeve (82.575% of total book) shocked -20% to -35% together (beta 1 to the factor), cash and non-AI names unchanged; -35% case is computed directly by compute_drift.stress_limit and is already over the 20% advisory max-loss limit at 28.9%.",
+        "basis": "live",
+        "note": "-35% case is a script-computed figure (compute_drift.json stress_limit); -20% low end is my own interpolation, not separately computed."
+      },
+      {
+        "scenario": "Rates +100bp",
+        "impact_pct_low": -14.0,
+        "impact_pct_high": -8.0,
+        "most_exposed": [
+          "IREN",
+          "NBIS",
+          "APH",
+          "LITE",
+          "ALAB",
+          "AMD"
+        ],
+        "mechanism": "10-yr from 5.091% to ~6.09%; long-duration growth multiples compress further, and IREN/NBIS carry floating SOFR+2.50% secured financing so also see a direct debt-service cost increase. Today's session (10yr +12.8bps to 5.091%, breaching scout's 5.0% reversal line) is the live instance of this scenario already playing out at roughly 1/8th scale.",
+        "basis": "static_assumption",
+        "note": "Anchor (5.091%) is this run's live yield; the magnitude of book impact per 100bp is a duration rule-of-thumb, not a computed regression."
+      },
+      {
+        "scenario": "Tariff/export-control escalation",
+        "impact_pct_low": -8.0,
+        "impact_pct_high": -5.0,
+        "most_exposed": [
+          "TSM",
+          "ASML",
+          "AMAT",
+          "KLAC",
+          "MU",
+          "SKHY"
+        ],
+        "mechanism": "China-exposed semicap/foundry and memory-supply-chain names re-rate on a fresh export-control or tariff escalation; CXMT domestic HBM3 buildout is the named structural risk on the memory side.",
+        "basis": "static_assumption",
+        "note": "No fresh tariff catalyst found this run; standing rule-of-thumb impact, not re-derived."
+      },
+      {
+        "scenario": "USD/INR +/-3%",
+        "impact_pct_low": 0.0,
+        "impact_pct_high": 0.0,
+        "most_exposed": [],
+        "mechanism": "Book is 100% USD-reported and USD-denominated; a USD/INR move has ~0% effect on the book's own USD value. In INR terms (net worth to the user), a 3% INR depreciation raises the book's INR value by ~3% (currency translation gain, unhedged); a 3% INR appreciation does the reverse.",
+        "basis": "live",
+        "note": "FX anchor (95.73) is this run's live USDINR print."
+      }
+    ],
+    "data_quality": [
+      "Rates and tariff rows use standing duration/exposure rules of thumb, not a computed regression -- flagged basis:static_assumption on each."
+    ]
+  },
+  "proposals": [
+    {
+      "direction": "BUY",
+      "ticker": "APH",
+      "size_usd": 632.73,
+      "price_at_proposal": 82.56,
+      "benchmark_price_at_proposal": 597.12,
+      "benchmark_ticker": "SMH",
+      "rationale": "conviction_average, thesis STRENGTHENING on verified primary 10-Q evidence (Communications Solutions ~62% of Q2 sales, +42% organic); no clamp (size_wanted=size_usd); stop $77.40 (6.24%, 2xATR20), target $99.26 (3.24R), EV 0.671R; heat budget room $118.28 after this ticket. FLAG: macro regime turned risk_off today on the 10yr's 5.091% print (breaching scout's 5.0% reversal line), AI-capex chain named as pressured first -- portfolio risk_off_status stays normal so this clears the deployment bar, but noting the adverse backdrop explicitly.",
+      "trigger_type": "conviction_average",
+      "trigger_bucket": "conviction_average",
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": 632.73,
+      "clamped_by": null,
+      "stop_price_usd": 77.4,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 1,
+        "computed": 2,
+        "unverified": 1
+      }
+    },
+    {
+      "direction": "TRIM",
+      "ticker": "CBRS",
+      "size_usd": 412.02,
+      "price_at_proposal": 206.01,
+      "benchmark_price_at_proposal": 597.12,
+      "benchmark_ticker": "SMH",
+      "rationale": "trend_breakdown, full exit (sell_action=full_exit -- a partial 30%-of-risk trim would breach the $400 minimum position). Same-day starter, thesis WATCH with empty evidence_for and no analyst coverage yet, already STRONG DOWNTREND / -1.5pp vs benchmark same session. Not worth defending on zero conviction. Sells not EV-gated (protective-exit exemption). Tax: 100% short-term, opened today, no LTCG angle.",
+      "trigger_type": "trend_breakdown",
+      "trigger_bucket": "trend_breakdown",
+      "pair_id": null,
+      "pair_role": null,
+      "size_wanted_usd": 412.02,
+      "clamped_by": null,
+      "stop_price_usd": null,
+      "exited_on": null,
+      "evidence_quality": {
+        "verified": 0,
+        "computed": 2,
+        "unverified": 1
+      }
+    }
+  ],
+  "scorecard_read": "scorecard_gate confirms the current (post-2026-09-21-rebuild) engine has n_eff=0 across BUY and SELL -- all_families_unproven=true, so both proposals above carry a neutral 1.00x family multiplier by construction, not a reward or penalty. Legacy-engine history (pre-epoch, 20 proposal rows + 21 shadow-journal rows, explicitly excluded from the live gate) shows overall net expectancy 2.309% (size-weighted 1.064%, $144.56 total), 41.9% accuracy on n=31 rows/28 ideas (TRIM/SELL 40.0% on n=15, BUY 43.8% on n=16) -- quoted only because it's on file; it measures the retired mechanical-sizing engine, not this one, and should not be read as support for or against today's two proposals.",
+  "deemphasize_buckets": [],
+  "data_quality": [
+    "News data access (FMP/INDmoney) was down this run per signals' M1.5 tell -- catalyst worked from WebSearch only where possible; GOOG's -3.5% intraday drop (roughly 2x the broad tape) remains only partially explained (a 09-22 capex-guide-vs-FCF story covers ~-2.8pp, not the full move) -- no proposal is built on that residual gap.",
+    "Stress table's rates and tariff rows are standing rules of thumb (basis: static_assumption), not computed regressions -- only the AI-capex-pause row and the FX anchor are directly computed/live this run.",
+    "SKHY 1-share lots-vs-broker gap: confirmed not a missed email confirmation after exhaustive search; recommend INDmoney snapshot/statement check over further Gmail search. No script or proposal attached this run."
+  ],
+  "findings_reaffirmed": [],
+  "findings_revised": [],
+  "memory_used": [
+    "8ac8fb2976df",
+    "ea3aa51a4f7a",
+    "8250089932b0",
+    "719063e8f640",
+    "78fa6b61b7db"
+  ],
+  "memory_refuted": [
+    {
+      "id": "78fa6b61b7db",
+      "reason": "Memory item tags GOOG thesis as STRENGTHENING (2026-08-20, unverified, x37 repeats). This run's thesis output (out_thesis.json, desk-consumed) downgrades GOOG to INTACT: a capex-guide-vs-FCF tension (FY26 guide $180-190bn vs -$5.9bn Q2 FCF) plus an unexplained ~2x-of-tape residual drop today pull it off a clean strengthening read. The 08-20 memory item is stale and superseded by this run's verdict."
+    }
+  ],
+  "learned": [
+    {
+      "entities": [
+        "T:GOOG"
+      ],
+      "kind": "event",
+      "text": "2026-09-23: GOOG thesis downgraded STRENGTHENING -> INTACT. Today's -3.5% is roughly 2x the broad tech tape; only ~-2.8pp of a related move is explained by a 09-22 capex-guide ($180-190bn FY26) vs Gemini-growth/FCF tension story (fxleaders.com via catalyst). The residual is unexplained as of this run -- news data access (FMP/INDmoney) was down, so this may simply be an under-covered move, not a new negative catalyst. Re-check with full data access before the next verdict change.",
+      "source": "out_thesis.json (this run), catalyst M2.6",
+      "confidence": "secondary"
+    },
+    {
+      "entities": [
+        "T:CBRS"
+      ],
+      "kind": "fact",
+      "text": "CBRS (Cerebras Systems) opened as a first-time 1.03% starter (2sh) on 2026-09-23 and was fully exited the same session via trend_breakdown (STRONG DOWNTREND, -1.5pp vs benchmark). Thesis was WATCH with empty evidence_for from the start -- brand-new, uncovered, no analyst target. Treat any future CBRS re-entry as a fresh decision with its own catalyst/thesis work, not a resumption -- this one round-tripped same-day on trend mechanics alone, no fundamental view was ever established.",
+      "source": "out_thesis.json, compute_triggers.json (this run)",
+      "confidence": "secondary"
+    },
+    {
+      "entities": [
+        "T:IREN",
+        "C:Neocloud (Leveraged GPU-as-a-Service)"
+      ],
+      "kind": "fact",
+      "text": "IREN opened as a first-time 1.2% starter (10sh) on 2026-09-23, thesis WATCH. Shares NBIS's leveraged-financing risk profile (debt/impairment-funded neocloud model) -- both now sit in the new 'Neocloud (Leveraged GPU-as-a-Service)' cluster split off Compute/Hyperscaler (partial G98 fix). This cluster is the most rate-sensitive sleeve in the book (floating-rate facilities) and should be named first in any future rates-shock stress read, not folded into the self-funded hyperscaler buyers (MSFT/GOOG/AMZN).",
+      "source": "out_thesis.json (this run), sector_map",
+      "confidence": "secondary"
+    },
+    {
+      "entities": [
+        "M:desk"
+      ],
+      "kind": "lesson",
+      "text": "2026-09-23 quick run: compute_drift.risk_off_status (portfolio drawdown/breach metric) and scout's macro regime read are two distinct signals that can diverge -- today portfolio status stayed 'normal' while the macro regime read turned 'risk_off' intraday on a rates trigger. Report both explicitly rather than collapsing to one; Task 3's deployment-freeze bar is keyed to the computed portfolio metric specifically, not the macro regime label.",
+      "source": "compute_drift.json + out_scout.json (this run)",
+      "confidence": "primary"
+    }
+  ],
+  "comms": {
+    "answers": [
+      {
+        "id": "M1.2",
+        "position": "noted",
+        "answer": "Acknowledged -- both cluster moves (Compute/Hyperscaler OEM +6.30% on CLS's design win/guide raise, AI Storage/HDD +5.18% on WDC's HDD price hikes + Goldman PT raise) are single-name-driven structural tailwinds, not Asia-session beta, and neither cluster is in breach per compute_drift.json. No proposal action needed on either -- both are already within their bands and I'm not proposing new adds on cluster-level momentum without a name-level trigger.",
+        "evidence": [],
+        "confidence": "high"
+      },
+      {
+        "id": "M1.3",
+        "position": "noted",
+        "answer": "Acknowledged and incorporated -- see the Risk-off status section (two distinct reads: computed portfolio status stays 'normal', macro regime turned risk_off intraday) and the stress table (rates row and AI-capex-pause row both reflect this). Also flagged explicitly on the APH BUY proposal as a live tension rather than a silent deployment.",
+        "evidence": [],
+        "confidence": "high"
+      },
+      {
+        "id": "M2.8",
+        "position": "noted",
+        "answer": "Acknowledged -- I consumed the post-revision GOOG catalyst data via out_thesis.json (which already reflects the 09-22 capex-guide/FCF-tension story catalyst added after M1.5), not a stale pre-revision version. No proposal in this run is built on GOOG's residual unexplained move; flagged as unresolved in data_quality and a `learned` item instead.",
+        "evidence": [],
+        "confidence": "high"
+      }
+    ],
+    "asks": [],
+    "tells": []
+  }
+}
